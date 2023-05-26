@@ -15,11 +15,21 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @Slf4j
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
+@TestPropertySource(
+    properties = {
+      "datajobs.job.resources.requests.memory=6Mi",
+      "datajobs.job.resources.limits.memory=6Mi",
+      // This is a standard cron job template except restartPolicy is set to never so that when a
+      // job runs out of memory it is
+      // not retied but instead reports more quickly that it is a platform error
+      "datajobs.control.k8s.data.job.template.file=data_job_templates/fast_failing_cron_job.yaml"
+    })
 public class DataJobMainContainerOOMIT extends BaseIT {
 
   @RegisterExtension

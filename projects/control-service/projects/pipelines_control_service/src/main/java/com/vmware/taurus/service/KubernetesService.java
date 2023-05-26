@@ -1582,12 +1582,6 @@ public abstract class KubernetesService implements InitializingBean {
     jobExecutionStatusBuilder.succeeded(
         Optional.ofNullable(jobStatusCondition).map(JobStatusCondition::isSuccess).orElse(null));
 
-    // omits events that come after the Data Job completion
-    if (jobExecutionStatusBuilder.succeeded != null
-        && StringUtils.isBlank(jobExecutionStatusBuilder.initContainerTerminationReason)) {
-      return Optional.empty();
-    }
-
     return Optional.of(jobExecutionStatusBuilder.build());
   }
 

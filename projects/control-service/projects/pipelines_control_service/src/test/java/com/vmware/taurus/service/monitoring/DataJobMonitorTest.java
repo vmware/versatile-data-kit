@@ -55,6 +55,7 @@ public class DataJobMonitorTest {
 
   @MockBean private DataJobsKubernetesService dataJobsKubernetesService;
 
+  @Autowired private DataJobMonitorCron dataJobMonitorCron;
   @Autowired private DataJobMonitor dataJobMonitor;
 
   @Test
@@ -199,7 +200,7 @@ public class DataJobMonitorTest {
         .watchJobs(anyMap(), any(), any(), anyLong());
     jobStatuses.forEach(s -> jobsRepository.save(new DataJob(s.getJobName(), new JobConfig())));
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -234,7 +235,7 @@ public class DataJobMonitorTest {
         .when(dataJobsKubernetesService)
         .watchJobs(anyMap(), any(), any(), anyLong());
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -254,7 +255,7 @@ public class DataJobMonitorTest {
         .when(dataJobsKubernetesService)
         .watchJobs(anyMap(), any(), any(), anyLong());
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -286,7 +287,7 @@ public class DataJobMonitorTest {
                     getTerminationStatus(s),
                     s.getExecutionId())));
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -322,7 +323,7 @@ public class DataJobMonitorTest {
                     getTerminationStatus(s),
                     null)));
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -355,7 +356,7 @@ public class DataJobMonitorTest {
         .when(dataJobsKubernetesService)
         .watchJobs(anyMap(), any(), any(), anyLong());
 
-    Assertions.assertDoesNotThrow(() -> dataJobMonitor.watchJobs());
+    Assertions.assertDoesNotThrow(() -> dataJobMonitorCron.watchJobs());
   }
 
   @Test
@@ -822,6 +823,77 @@ public class DataJobMonitorTest {
     Assertions.assertEquals(
         ExecutionStatus.USER_ERROR.getAlertValue().doubleValue(),
         gauges.stream().findFirst().get().value());
+  }
+
+  @Test
+  @Order(34)
+  void testJobExecutionStatus_fromUserErrorToPlatformError_shouldNotUpdateExecution() {
+    // Clean up from previous tests
+    jobsRepository.deleteAll();
+    dataJobMonitor.clearDataJobsGaugesNotIn(Collections.emptyList());
+
+    // Create data job
+    String jobId = "job-id-test";
+    var dataJob =
+        new DataJob(
+            jobId,
+            new JobConfig(),
+            DeploymentStatus.NONE,
+            ExecutionStatus.USER_ERROR,
+            "old-execution-id");
+    jobsRepository.save(dataJob);
+
+    // Change status to USER_ERROR
+    JobExecution jobExecutionUserError =
+        buildJobExecutionStatus(
+            jobId,
+            "last-execution-id",
+            ExecutionStatus.USER_ERROR.getPodStatus(),
+            false,
+            OffsetDateTime.now().minus(Duration.ofDays(2)),
+            OffsetDateTime.now().minus(Duration.ofDays(1)));
+    dataJobMonitor.recordJobExecutionStatus(jobExecutionUserError);
+
+    // Check status is saved OK.
+    Optional<DataJob> actualJobUserError =
+        jobsRepository.findById(jobExecutionUserError.getJobName());
+    Assertions.assertFalse(actualJobUserError.isEmpty());
+    Assertions.assertEquals(
+        ExecutionStatus.USER_ERROR, actualJobUserError.get().getLastExecutionStatus());
+
+    // Check gauge status
+    var gaugesUserError =
+        meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+    Assertions.assertEquals(1, gaugesUserError.size());
+    Assertions.assertEquals(
+        ExecutionStatus.USER_ERROR.getAlertValue().doubleValue(),
+        gaugesUserError.stream().findFirst().get().value());
+
+    // Change status to PLATFORM_ERROR
+    JobExecution jobExecutionPlatformError =
+        buildJobExecutionStatus(
+            jobId,
+            "last-execution-id",
+            ExecutionStatus.PLATFORM_ERROR.getPodStatus(),
+            false,
+            OffsetDateTime.now().minus(Duration.ofDays(2)),
+            OffsetDateTime.now().minus(Duration.ofDays(1)));
+    dataJobMonitor.recordJobExecutionStatus(jobExecutionPlatformError);
+
+    // Check status is not saved OK.
+    Optional<DataJob> actualJobPlatformError =
+        jobsRepository.findById(jobExecutionUserError.getJobName());
+    Assertions.assertFalse(actualJobPlatformError.isEmpty());
+    Assertions.assertEquals(
+        ExecutionStatus.USER_ERROR, actualJobPlatformError.get().getLastExecutionStatus());
+
+    // Check gauge status
+    var gaugesPlatformError =
+        meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
+    Assertions.assertEquals(1, gaugesPlatformError.size());
+    Assertions.assertEquals(
+        ExecutionStatus.USER_ERROR.getAlertValue().doubleValue(),
+        gaugesPlatformError.stream().findFirst().get().value());
   }
 
   private static String randomId(String prefix) {

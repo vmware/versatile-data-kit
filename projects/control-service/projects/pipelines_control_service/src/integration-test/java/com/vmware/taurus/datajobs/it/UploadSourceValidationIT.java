@@ -14,8 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.UUID;
-
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,12 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class UploadSourceValidationIT extends BaseIT {
-  protected static final String TEST_JOB_NAME =
-      "integration-test-upload-test-" + UUID.randomUUID().toString().substring(0, 8);
-
   @BeforeEach
   public void setup() throws Exception {
-    String dataJobRequestBody = getDataJobRequestBody(TEST_TEAM_NAME, TEST_JOB_NAME);
+    String dataJobRequestBody = getDataJobRequestBody(TEST_TEAM_NAME, testJobName);
     // Execute create job
     mockMvc
         .perform(
@@ -54,7 +49,7 @@ public class UploadSourceValidationIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, TEST_JOB_NAME))
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
                 .content(jobZipBinary)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM))

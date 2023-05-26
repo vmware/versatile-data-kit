@@ -26,7 +26,7 @@ def convert_value_to_type_of_default_type(
     E.g. IMPALA_PORT is converted to int, because it's default value is int.
     """
     if default_value is not None:
-        if type(default_value) == type(True) and type(v) != type(True):
+        if type(default_value) == bool and type(v) != bool:
             allowed_values = ["true", "false", "1", "0", "yes", "no", "y", "n"]
             if str(v).lower() not in allowed_values:
                 msg = (

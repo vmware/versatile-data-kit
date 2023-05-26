@@ -22,10 +22,12 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -40,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class JobExecutionUtil {
 
-  public static final String JOB_NAME_PREFIX = "integration-test-";
+  public static final String JOB_NAME_PREFIX = "it";
 
   private static final ObjectMapper objectMapper =
       new ObjectMapper()
@@ -74,9 +76,9 @@ public class JobExecutionUtil {
             .endTime(endTime)
             .type(ExecutionType.MANUAL)
             .status(executionStatus)
-            .resourcesCpuRequest(1F)
-            .resourcesCpuLimit(2F)
-            .resourcesMemoryRequest(500)
+            .resourcesCpuRequest(0.1F)
+            .resourcesCpuLimit(1F)
+            .resourcesMemoryRequest(100)
             .resourcesMemoryLimit(1000)
             .message("message")
             .lastDeployedBy("test_user")
@@ -111,12 +113,12 @@ public class JobExecutionUtil {
     } catch (Error e) {
       try {
         // print logs in case execution has failed
-        MvcResult dataJobExecutionLogsResult =
+        MockHttpServletResponse dataJobExecutionLogsResult =
             getExecuteLogs(executionId, jobName, teamName, username, mockMvc);
         log.info(
             "Job Execution {} logs:\n{}",
             executionId,
-            dataJobExecutionLogsResult.getResponse().getContentAsString());
+            dataJobExecutionLogsResult.getContentAsString());
       } catch (Error ignore) {
       }
       throw e;
@@ -272,25 +274,40 @@ public class JobExecutionUtil {
         executionId, executionStatus, opId, dataJobExecutions.get(0), jobName, username);
   }
 
+  public static String generateJobName(String className) {
+    return String.format(
+        "%s-%s-%s",
+        JobExecutionUtil.JOB_NAME_PREFIX,
+        StringUtils.truncate(className, 35).toLowerCase(),
+        UUID.randomUUID().toString().substring(0, 8));
+  }
+
   private static void testDataJobExecutionLogs(
       String executionId, String jobName, String teamName, String username, MockMvc mockMvc)
       throws Exception {
-    MvcResult dataJobExecutionLogsResult =
+    MockHttpServletResponse dataJobExecutionLogsResult =
         getExecuteLogs(executionId, jobName, teamName, username, mockMvc);
-    assertFalse(dataJobExecutionLogsResult.getResponse().getContentAsString().isEmpty());
+    assertFalse(dataJobExecutionLogsResult.getContentAsString().isEmpty());
   }
 
-  private static MvcResult getExecuteLogs(
+  private static MockHttpServletResponse getExecuteLogs(
       String executionId, String jobName, String teamName, String username, MockMvc mockMvc)
       throws Exception {
     String dataJobExecutionListUrl =
         String.format(
             "/data-jobs/for-team/%s/jobs/%s/executions/%s/logs", teamName, jobName, executionId);
-    MvcResult dataJobExecutionLogsResult =
+    MockHttpServletResponse dataJobExecutionLogsResult =
         mockMvc
             .perform(get(dataJobExecutionListUrl).with(user(username)))
-            .andExpect(status().isOk())
-            .andReturn();
+            .andReturn()
+            .getResponse();
+    if (dataJobExecutionLogsResult.getStatus() != 200) {
+      throw new Exception(
+          "status is "
+              + dataJobExecutionLogsResult.getStatus()
+              + "\nbody is "
+              + dataJobExecutionLogsResult.getContentAsString());
+    }
     return dataJobExecutionLogsResult;
   }
 

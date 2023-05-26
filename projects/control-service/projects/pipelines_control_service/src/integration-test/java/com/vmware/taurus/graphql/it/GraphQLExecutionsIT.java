@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -165,14 +167,14 @@ public class GraphQLExecutionsIT extends BaseIT {
             jsonPath(
                 "$.data.content[*].deployment.resources.cpuRequest",
                 Matchers.contains(
-                    dataJobExecution1.getResourcesCpuRequest().doubleValue(),
-                    dataJobExecution2.getResourcesCpuRequest().doubleValue())))
+                    convertFloatToDouble(dataJobExecution1.getResourcesCpuRequest()),
+                    convertFloatToDouble(dataJobExecution2.getResourcesCpuRequest()))))
         .andExpect(
             jsonPath(
                 "$.data.content[*].deployment.resources.cpuLimit",
                 Matchers.contains(
-                    dataJobExecution1.getResourcesCpuLimit().doubleValue(),
-                    dataJobExecution2.getResourcesCpuLimit().doubleValue())))
+                    convertFloatToDouble(dataJobExecution1.getResourcesCpuLimit()),
+                    convertFloatToDouble(dataJobExecution2.getResourcesCpuLimit()))))
         .andExpect(
             jsonPath(
                 "$.data.content[*].deployment.resources.memoryRequest",
@@ -426,5 +428,13 @@ public class GraphQLExecutionsIT extends BaseIT {
             jsonPath(
                 "$.data.content[*].id",
                 Matchers.not(Matchers.contains(dataJobExecution2.getId()))));
+  }
+
+  /**
+   * Helper method that converts Float to Double and rounds it as scale 2. It is necessary because
+   * tests' checks resolved Float to <0.1F> but it should be <0.1>.
+   */
+  private static Double convertFloatToDouble(Float value) {
+    return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
   }
 }

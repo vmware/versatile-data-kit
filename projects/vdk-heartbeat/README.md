@@ -123,3 +123,24 @@ export VDK_HEARTBEAT_INGEST_DESTINATION_TABLE="sample_destination_table"
 export DB_DEFAULT_TYPE="trino"
 export DATABASE_TEST_DB="memory.default"
 ```
+
+### Ping the frontend
+
+No additional configuration is needed for this test.
+
+Point heartbeat to the correct module and class
+
+```
+JOB_RUN_TEST_MODULE_NAME=vdk.internal.heartbeat.ping_frontend_test
+JOB_RUN_TEST_CLASS_NAME=PingFrontendTest
+```
+
+The CONTROL_API_URL environment variable doubles as the frontend url, since both
+th control service and the frontend are deployed to the same host by the helm
+chart.
+
+```
+CONTROL_API_URL=http://cicd-control-service-svc:8092
+```
+
+The test sends a `GET` request to the URL and expects a success response
