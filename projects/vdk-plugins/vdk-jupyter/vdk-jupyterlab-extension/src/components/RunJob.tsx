@@ -123,7 +123,23 @@ export const findFailingCellId = (message: String): string => {
   return '';
 };
 
+export const getCellInputAreaPromp = (failinCell: Element): Element | undefined => {
+  const cellInputWrappers = failinCell.getElementsByClassName('jp-Cell-inputWrapper');
+  for (let i = 0; i < cellInputWrappers.length; i++) {
+    const cellAreas = cellInputWrappers[i].getElementsByClassName('jp-Cell-inputArea');
+    if (cellAreas.length > 0) {
+      const cellInputArea = cellAreas[0];
+      const promptElements = cellInputArea.getElementsByClassName('jp-InputArea-prompt');
+      if (promptElements.length > 0) {
+        return promptElements[0];
+      }
+    }
+  }
+};
+
 const switchToFailingCell = (failingCell: Element) => {
+  let prompt = getCellInputAreaPromp(failingCell);
+  prompt?.classList.add('jp-vdk-failing-cell-prompt');
   failingCell.scrollIntoView();
   failingCell.classList.add('jp-vdk-failing-cell');
   // Delete previous fail numbering
@@ -160,9 +176,13 @@ export const findFailingCellInNotebookCells = async (
     });
   } else {
     for (let i = 0; i < cells.length; i++) {
-      i === failingCellIndex
-        ? switchToFailingCell(cells[i])
-        : cells[i].classList.remove('jp-vdk-failing-cell');
+      if (i === failingCellIndex) {
+        switchToFailingCell(cells[i]);
+      } else {
+        cells[i].classList.remove('jp-vdk-failing-cell');
+        let cellPropt = getCellInputAreaPromp(cells[i]);
+        cellPropt?.classList.remove('jp-vdk-failing-cell-prompt')
+      }
     }
   }
 };
