@@ -158,7 +158,7 @@ public class JobExecutionUtil {
       String jobName,
       String teamName,
       String username,
-      MockMvc mockMvc) throws Exception {
+      MockMvc mockMvc) {
 
     Callable<com.vmware.taurus.controlplane.model.data.DataJobExecution> dataJobExecutionCallable =
         () -> {
@@ -178,7 +178,7 @@ public class JobExecutionUtil {
                   dataJobExecutionResult.getResponse().getContentAsString(),
                   com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
         };
-    await()
+    var result = await()
         .atMost(11, TimeUnit.MINUTES)
         .with()
         .pollInterval(15, TimeUnit.SECONDS)
@@ -199,7 +199,7 @@ public class JobExecutionUtil {
             statusEnum -> statusEnum != null && executionStatus.equals(statusEnum.getStatus()));
 
     assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecutionCallable.call(), jobName, username);
+        executionId, executionStatus, opId, result, jobName, username);
   }
 
   public static void testDataJobExecutionList(
