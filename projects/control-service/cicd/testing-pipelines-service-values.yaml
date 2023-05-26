@@ -1,0 +1,10 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4000Mi
+  requests:
+    cpu: 1000m
+    memory: 2000Mi
