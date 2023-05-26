@@ -138,7 +138,7 @@ export const getCellInputAreaPromp = (failinCell: Element): Element | undefined 
 };
 
 const switchToFailingCell = (failingCell: Element) => {
-  let prompt = getCellInputAreaPromp(failingCell);
+  const prompt = getCellInputAreaPromp(failingCell);
   prompt?.classList.add('jp-vdk-failing-cell-prompt');
   failingCell.scrollIntoView();
   failingCell.classList.add('jp-vdk-failing-cell');
@@ -180,7 +180,7 @@ export const findFailingCellInNotebookCells = async (
         switchToFailingCell(cells[i]);
       } else {
         cells[i].classList.remove('jp-vdk-failing-cell');
-        let cellPropt = getCellInputAreaPromp(cells[i]);
+        const cellPropt = getCellInputAreaPromp(cells[i]);
         cellPropt?.classList.remove('jp-vdk-failing-cell-prompt')
       }
     }
