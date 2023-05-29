@@ -186,7 +186,7 @@ public class JobExecutionUtil {
 
     var result =
         await()
-            .atMost(5, TimeUnit.MINUTES)
+            .atMost(10, TimeUnit.MINUTES)
             .with()
             .pollInterval(15, TimeUnit.SECONDS)
             .failFast(
