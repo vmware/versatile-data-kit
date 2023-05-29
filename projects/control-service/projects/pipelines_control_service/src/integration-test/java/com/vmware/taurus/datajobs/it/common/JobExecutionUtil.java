@@ -24,6 +24,7 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.assertj.core.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -31,6 +32,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING;
+import static com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.SUBMITTED;
 import static com.vmware.taurus.datajobs.it.common.BaseIT.HEADER_X_OP_ID;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
@@ -180,26 +183,17 @@ public class JobExecutionUtil {
               dataJobExecutionResult.getResponse().getContentAsString(),
               com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
         };
+
     var result =
         await()
-            .atMost(11, TimeUnit.MINUTES)
+            .atMost(5, TimeUnit.MINUTES)
             .with()
             .pollInterval(15, TimeUnit.SECONDS)
             .failFast(
                 () -> {
                   com.vmware.taurus.controlplane.model.data.DataJobExecution status =
                       dataJobExecutionCallable.call();
-                  return status != null
-                      && !status
-                          .getStatus()
-                          .equals(
-                              com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum
-                                  .RUNNING)
-                      && !status
-                          .getStatus()
-                          .equals(
-                              com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum
-                                  .SUBMITTED)
+                  return status != null && !Lists.newArrayList(RUNNING, SUBMITTED).contains(status.getStatus())
                       && !executionStatus.equals(status.getStatus());
                 })
             .until(
