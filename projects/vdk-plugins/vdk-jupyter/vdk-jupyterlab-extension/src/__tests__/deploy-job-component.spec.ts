@@ -69,15 +69,6 @@ describe('#onTeamChange', () => {
   });
 });
 
-describe('#onRestApiUrlChange', () => {
-  it('should change the rest api url in jobData', () => {
-    const component = render(new DeployJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText('http://my_vdk_instance');
-    fireEvent.change(input, { target: { value: 'random-url' } });
-    expect(jobData.get(VdkOption.REST_API_URL)).toEqual('random-url');
-  });
-});
-
 describe('#onPathChange', () => {
   it('should change the path in jobData', () => {
     const component = render(new DeployJobDialog(defaultProps).render());

@@ -1,6 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
+import os
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
@@ -66,7 +67,7 @@ class DeleteJobHandler(APIHandler):
             status = VdkUI.delete_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
-                input_data[VdkOption.REST_API_URL.value],
+                os.environ["REST_API_URL"],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -89,7 +90,7 @@ class DownloadJobHandler(APIHandler):
             status = VdkUI.download_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
-                input_data[VdkOption.REST_API_URL.value],
+                os.environ["REST_API_URL"],
                 input_data[VdkOption.PATH.value],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
@@ -114,7 +115,7 @@ class CreateJobHandler(APIHandler):
             status = VdkUI.create_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
-                input_data[VdkOption.REST_API_URL.value],
+                os.environ["REST_API_URL"],
                 input_data[VdkOption.PATH.value],
                 bool(input_data[VdkOption.LOCAL.value]),
                 bool(input_data[VdkOption.CLOUD.value]),
@@ -140,7 +141,7 @@ class CreateDeploymentHandler(APIHandler):
             status = VdkUI.create_deployment(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
-                input_data[VdkOption.REST_API_URL.value],
+                os.environ["REST_API_URL"],
                 input_data[VdkOption.PATH.value],
                 input_data[VdkOption.DEPLOYMENT_REASON.value],
                 input_data[VdkOption.DEPLOY_ENABLE.value],
