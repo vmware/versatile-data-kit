@@ -6,7 +6,6 @@ from enum import Enum
 class VdkOption(Enum):
     NAME = "jobName"
     TEAM = "jobTeam"
-    REST_API_URL = "restApiUrl"
     PATH = "jobPath"
     CLOUD = "cloud"
     LOCAL = "local"
