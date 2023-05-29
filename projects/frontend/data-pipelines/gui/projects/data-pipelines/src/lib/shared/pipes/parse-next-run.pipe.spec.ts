@@ -112,7 +112,7 @@ describe('ParseNextRunPipe', () => {
                 } else if (expected.getUTCHours() === 0 && expected.getUTCMinutes() === 44 && expected.getUTCSeconds() === 59) {
                     useTimeout = true;
                     expected.setUTCDate(expected.getUTCDate() + 1);
-                } else if (expected.getUTCHours() >= 12 && expected.getUTCMinutes() >= 45) {
+                } else if ((expected.getUTCHours() >= 12 && expected.getUTCMinutes() >= 45) || expected.getUTCHours() >= 13) {
                     lunchTime = true;
                     expected.setUTCDate(expected.getUTCDate() + 1);
                 } else if (expected.getUTCHours() === 0 && expected.getUTCMinutes() < 45) {

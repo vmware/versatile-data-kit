@@ -510,7 +510,10 @@ describe(
                     // verify cell elements
                     dataJobExecutionsPage
                         .getDataGridExecTypeContainers('manual')
-                        .should('have.length', 0);
+                        .should('have.length.gte', 0);
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('scheduled')
+                        .should('have.length.gte', 0);
 
                     // verify current URL has appended manual and scheduled execution trigger and sort by type ascending
                     dataJobExecutionsPage

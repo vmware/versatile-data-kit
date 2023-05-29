@@ -88,8 +88,27 @@ describe(
                 GetStartedDataJobsHealthOverviewWidgetPO.navigateTo();
         });
 
+        describe.skip('Delete Data Jobs without deployments (garbage)', () => {
+            it('execute delete jobs', () => {
+                cy.task(
+                    'deleteDataJobsWithoutDeployment',
+                    {},
+                    { timeout: 20 * 60 * 1000 }
+                ).then((response) => {
+                    const areAllJobsDeleted = response.every(
+                        (isSuccessful) => !!isSuccessful
+                    );
+                    const logMessage = areAllJobsDeleted
+                        ? 'All Data Jobs without deployments very successfully deleted!'
+                        : `Some of the Data Jobs without deployments weren't deleted successfully. Please check logs for more information!`;
+
+                    cy.log(logMessage);
+                });
+            });
+        });
+
         describe('smoke', { tags: ['@smoke'] }, () => {
-            it('Validate Data Jobs Health Overview panel when switching Teams', () => {
+            it('Validate Data Jobs Health Overview panel', () => {
                 getStartedPage
                     .getPageTitle()
                     .should('contain.text', 'Get Started with Data Pipelines');

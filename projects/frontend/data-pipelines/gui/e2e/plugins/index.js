@@ -38,7 +38,8 @@ const {
     waitForDataJobExecutionToComplete,
     deleteJobs,
     deleteJobsFixtures,
-    changeJobsStatusesFixtures
+    changeJobsStatusesFixtures,
+    deleteDataJobsWithoutDeployment
 } = require('./helpers/job-helpers.plugins');
 
 /**
@@ -48,6 +49,14 @@ const {
 // `cypressConfig` is the resolved Cypress config
 module.exports = (on, cypressConfig) => {
     const TASKS = {
+        /**
+         * ** Delete Data Jobs without deployment with parallelism.
+         *
+         * @return {Promise<boolean[]>}
+         */
+        deleteDataJobsWithoutDeployment: () => {
+            return deleteDataJobsWithoutDeployment({ ...cypressConfig });
+        },
         /**
          * ** Create test Data Jobs if they don't exist.
          *
@@ -101,7 +110,6 @@ module.exports = (on, cypressConfig) => {
                 { ...cypressConfig }
             );
         },
-
         /**
          * ** Change Data Jobs statuses for provided fixtures.
          *
