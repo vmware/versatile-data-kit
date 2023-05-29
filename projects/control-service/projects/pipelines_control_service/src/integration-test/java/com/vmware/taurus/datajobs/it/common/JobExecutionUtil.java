@@ -193,7 +193,8 @@ public class JobExecutionUtil {
                 () -> {
                   com.vmware.taurus.controlplane.model.data.DataJobExecution status =
                       dataJobExecutionCallable.call();
-                  return status != null && !Lists.newArrayList(RUNNING, SUBMITTED).contains(status.getStatus())
+                  return status != null
+                      && !Lists.newArrayList(RUNNING, SUBMITTED).contains(status.getStatus())
                       && !executionStatus.equals(status.getStatus());
                 })
             .until(
