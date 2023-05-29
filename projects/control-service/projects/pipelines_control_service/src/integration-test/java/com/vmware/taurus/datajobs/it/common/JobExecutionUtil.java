@@ -195,6 +195,11 @@ public class JobExecutionUtil {
                           .equals(
                               com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum
                                   .RUNNING)
+                      && !status
+                      .getStatus()
+                      .equals(
+                              com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum
+                                      .SUBMITTED)
                       && !executionStatus.equals(status.getStatus());
                 })
             .until(
