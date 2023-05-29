@@ -109,8 +109,8 @@ public class JobExecutionService {
       // We default to 'manual'; this also served for the purposes of backwards compatibility
       annotations.put(
           JobAnnotation.EXECUTION_TYPE.getValue(),
-              jobExecutionRequest.getStartedBy() != null &&
-          jobExecutionRequest.getStartedBy().contains("scheduled")
+          jobExecutionRequest.getStartedBy() != null
+                  && jobExecutionRequest.getStartedBy().contains("scheduled")
               ? ExecutionType.SCHEDULED.getValue()
               : ExecutionType.MANUAL.getValue());
 
