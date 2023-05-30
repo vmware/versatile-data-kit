@@ -1,7 +1,7 @@
 project.ext {
     versions = [
             // include only libraries which are NOT in the Spring Boot BOM: org.springframework:spring-boot-dependencies
-            'com.google.guava:guava'                                             : 'com.google.guava:guava:31.1-jre',
+            'com.google.guava:guava'                                             : 'com.google.guava:guava:32.0.0-jre',
             'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.31',
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.11.0',
