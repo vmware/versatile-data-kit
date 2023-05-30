@@ -21,7 +21,7 @@ export interface IVdkTextInputProps {
 /**
    * This function is used to be sure that placeholder text is not overflowing in case of long path
    * if the string that is given is not path it will return the same string
-   * if it is a path it will return the last directory 
+   * if it is a path it will return the last directory
    */
 function getLastPartOfPath(path: string): string {
   const pathParts = path.split(/(?=[/\\])/); // Lookahead assertion to keep delimiter
