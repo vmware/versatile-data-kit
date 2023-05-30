@@ -46,12 +46,3 @@ describe('#onTeamChange', () => {
     expect(jobData.get(VdkOption.TEAM)).toEqual('second-team');
   });
 });
-
-describe('#onRestApiUrlChange', () => {
-  it('should change the rest api url in jobData', () => {
-    const component = render(new DeleteJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText('http://my_vdk_instance');
-    fireEvent.change(input, { target: { value: 'random-url' } });
-    expect(jobData.get(VdkOption.REST_API_URL)).toEqual('random-url');
-  });
-});
