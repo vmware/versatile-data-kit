@@ -196,7 +196,7 @@ public class JobExecutionUtil {
                   if (status != null
                       && !Lists.newArrayList(RUNNING, SUBMITTED).contains(status.getStatus())
                       && !executionStatus.equals(status.getStatus())) {
-                    throw new Exception("execution details:" + status);
+                    throw new Exception("The final status wanted was " + executionStatus + ". The execution details:" + status);
                   }
                 })
             .until(
