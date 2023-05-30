@@ -17,8 +17,10 @@ class HandlerConfiguration:
         self._rest_api_url = os.environ["REST_API_URL"]
         if not self._rest_api_url:
             raise Exception(
-                "Missing environment variable REST_API_URL. "
-                "This is probably caused by a corrupt environment."
+                "What happened: Missing environment variable REST_API_URL.\n"
+                "Why it happened: This is probably caused by a corrupt environment.\n"
+                "Consequences: The current environment cannot work as it cannot connect to the VDK Control Service.\n"
+                "Countermeasures: Please alert your support team; alternatively, try restarting your environment."
             )
 
     def get_rest_api_url(self):
