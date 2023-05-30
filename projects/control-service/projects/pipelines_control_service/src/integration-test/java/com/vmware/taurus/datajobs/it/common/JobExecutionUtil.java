@@ -193,9 +193,15 @@ public class JobExecutionUtil {
                 () -> {
                   com.vmware.taurus.controlplane.model.data.DataJobExecution status =
                       dataJobExecutionCallable.call();
-                  return status != null
+                  if (status != null
                       && !Lists.newArrayList(RUNNING, SUBMITTED).contains(status.getStatus())
-                      && !executionStatus.equals(status.getStatus());
+                      && !executionStatus.equals(status.getStatus())) {
+                    throw new Exception(
+                        "The final status wanted was "
+                            + executionStatus
+                            + ". The execution details:"
+                            + status);
+                  }
                 })
             .until(
                 dataJobExecutionCallable,
