@@ -46,3 +46,8 @@
   color: aliceblue;
   padding: 4px;
 }
+
+.jp-vdk-failing-cell-prompt {
+  --jp-cell-prompt-not-active-font-color: #8c1e1e;
+  --jp-cell-inprompt-font-color: #8c1e1e;
+}
