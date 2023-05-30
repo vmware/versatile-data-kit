@@ -233,12 +233,13 @@ const createDeployJobs = (taskConfig, config) => {
 /**
  * ** Trigger executions for Data jobs.
  *
- * @param {{relativePathToFixtures: Array<{pathToFixture:string;}>; executions?: number}} taskConfig - configuration for task.
+ * @param {{relativePathToFixtures: Array<{pathToFixture:string; executions?: number;}>;}} taskConfig - configuration for task.
  *      relativePathToFixtures provides relative paths for fixtures files starting from directory fixtures
  *      e.g. {
  *             relativePathToFixtures: [
  *                  {
- *                      pathToFixture: '/base/data-jobs/cy-e2e-vdk/cy-e2e-vdk-failing-v0.json'
+ *                      pathToFixture: '/base/data-jobs/cy-e2e-vdk/cy-e2e-vdk-failing-v0.json',
+ *                      executions: 2
  *                  }
  *             ]
  *           }
@@ -247,12 +248,9 @@ const createDeployJobs = (taskConfig, config) => {
  */
 const provideDataJobsExecutions = (taskConfig, config) => {
     const startTime = new Date();
-    const targetExecutions = taskConfig.executions ?? 2;
     const jobExecutionTimeout = 180000; // Wait up to 3 min per Job for execution to complete
 
-    Logger.info(
-        `Trying to provide at least ${targetExecutions} executions for Data job fixtures`
-    );
+    Logger.info(`Trying to provide executions for Data job fixtures`);
     Logger.profiling(`Start time: ${startTime.toISOString()}`);
 
     return (
@@ -265,6 +263,13 @@ const provideDataJobsExecutions = (taskConfig, config) => {
 
                         const jobFixture = command.jobFixture;
                         const jobName = jobFixture.job_name;
+                        const targetExecutions =
+                            taskConfig.relativePathToFixtures[index]
+                                ?.executions ?? 2;
+
+                        Logger.info(
+                            `Trying to provide at least ${targetExecutions} executions for Data job ${jobName}`
+                        );
 
                         // Pass the command down the stream with timeouts to avoid glitch on the server
                         return (
@@ -697,6 +702,46 @@ const waitForDataJobExecutionToComplete = (
                 config
             )
         );
+    });
+};
+
+/**
+ * ** Delete Data Jobs without deployment with parallelism.
+ *
+ * @param {Cypress.ResolvedConfigOptions} config
+ * @return {Promise<boolean[]>}
+ */
+const deleteDataJobsWithoutDeployment = (config) => {
+    const url = `${config.env['data_jobs_url']}/data-jobs/for-team/cy-e2e-vdk/jobs?operationName=jobsQuery&variables=%7B%22pageNumber%22:1,%22pageSize%22:100,%22filter%22:%5B%5D,%22search%22:%22%22%7D&query=query%20jobsQuery($filter:%20%5BPredicate%5D,%20$search:%20String,%20$pageNumber:%20Int,%20$pageSize:%20Int)%20%7B%0A%20%20jobs(%0A%20%20%20%20pageNumber:%20$pageNumber%0A%20%20%20%20pageSize:%20$pageSize%0A%20%20%20%20filter:%20$filter%0A%20%20%20%20search:%20$search%0A%20%20)%20%7B%0A%20%20%20%20content%20%7B%0A%20%20%20%20%20%20jobName%0A%20%20%20%20%20%20config%20%7B%0A%20%20%20%20%20%20%20%20team%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20deployments%20%7B%0A%20%20%20%20%20%20%20%20id%0A%20%20%20%20%20%20%20%20enabled%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20totalPages%0A%20%20%20%20totalItems%0A%20%20%7D%0A%7D`;
+
+    return httpGetReq(url).then((response) => {
+        const jobs = response.data.data.content;
+        const remappedJobs = jobs
+            .filter(
+                (job) => !job.deployments && job.jobName?.includes('cy-e2e-vdk')
+            )
+            .map((job) => {
+                return {
+                    job_name: job.jobName,
+                    team: job.config?.team ?? 'cy-e2e-vdk'
+                };
+            });
+
+        // log which Data Jobs should be deleted
+        remappedJobs.forEach((job, index) => {
+            Logger.debug(
+                'Deleting',
+                index + 1,
+                'jobName:',
+                job.jobName,
+                'team:',
+                job?.config?.team,
+                'deployments:',
+                job.deployments
+            );
+        });
+
+        return _deleteDataJobsWithoutDeployment(remappedJobs, config);
     });
 };
 
@@ -1224,6 +1269,38 @@ const _loadFixturesValuesAndBinariesPaths = (pathToFixtures) => {
     });
 };
 
+/**
+ ** Delete Data Jobs without deployment in a chunks of max 10 parallel requests.
+ *
+ * @param {{team: string; job_name: string;}} jobFixtures
+ * @param {Cypress.ResolvedConfigOptions} config
+ * @param {boolean[]} responses
+ * @return {Promise<boolean[]>}
+ * @private
+ */
+const _deleteDataJobsWithoutDeployment = (
+    jobFixtures,
+    config,
+    responses = []
+) => {
+    const chunk =
+        jobFixtures.length > 10 ? jobFixtures.splice(0, 10) : jobFixtures;
+
+    return deleteJobs(chunk, config).then((statuses) => {
+        responses.push(...statuses);
+
+        if (jobFixtures.length > 0) {
+            return _deleteDataJobsWithoutDeployment(
+                jobFixtures,
+                config,
+                responses
+            );
+        }
+
+        return responses;
+    });
+};
+
 module.exports = {
     createDeployJobs,
     deleteJobsFixtures,
@@ -1231,5 +1308,6 @@ module.exports = {
     provideDataJobsExecutions,
     changeJobsStatusesFixtures,
     waitForDataJobExecutionToComplete,
+    deleteDataJobsWithoutDeployment,
     compareDatesASC
 };

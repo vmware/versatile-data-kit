@@ -490,12 +490,18 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
             const pmCells = Array.from($cells).map((cell) =>
                 /PM$/.test(`${cell.innerText?.trim()}`)
             );
-
-            if (pmCells.length > 0) {
+            if (pmCells.length >= 2) {
                 return cy.wrap('PM');
             }
 
-            return cy.wrap('AM');
+            const amCells = Array.from($cells).map((cell) =>
+                /AM$/.test(`${cell.innerText?.trim()}`)
+            );
+            if (amCells.length >= 2) {
+                return cy.wrap('AM');
+            }
+
+            throw new Error('Unhandled use case in test scenarios');
         });
     }
 
