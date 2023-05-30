@@ -41,7 +41,6 @@ export function getJobDataJsonObject() {
   const jsObj = {
     jobName: jobData.get(VdkOption.NAME),
     jobTeam: jobData.get(VdkOption.TEAM),
-    restApiUrl: jobData.get(VdkOption.REST_API_URL),
     jobPath: jobData.get(VdkOption.PATH),
     cloud: jobData.get(VdkOption.CLOUD),
     local: jobData.get(VdkOption.LOCAL),

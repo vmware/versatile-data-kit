@@ -36,11 +36,6 @@ export default class DownloadJobDialog extends Component<IJobPathProp> {
           label="Job Team:"
         ></VDKTextInput>
         <VDKTextInput
-          option={VdkOption.REST_API_URL}
-          value="http://my_vdk_instance"
-          label="Rest API URL:"
-        ></VDKTextInput>
-        <VDKTextInput
           option={VdkOption.PATH}
           value={this.props.jobPath}
           label="Path to job directory:"

@@ -35,11 +35,6 @@ export default class DeleteJobDialog extends Component<IJobNameAndTeamProps> {
           value={this.props.jobTeam}
           label="Job Team:"
         ></VDKTextInput>
-        <VDKTextInput
-          option={VdkOption.REST_API_URL}
-          value="http://my_vdk_instance"
-          label="Rest API URL:"
-        ></VDKTextInput>
       </>
     );
   }
@@ -63,8 +58,6 @@ export async function showDeleteJobDialog() {
         body:
           'Do you really want to delete the job with name ' +
           jobData.get(VdkOption.NAME) +
-          ' from ' +
-          jobData.get(VdkOption.REST_API_URL) +
           '?',
         buttons: [
           Dialog.cancelButton({ label: 'Cancel' }),

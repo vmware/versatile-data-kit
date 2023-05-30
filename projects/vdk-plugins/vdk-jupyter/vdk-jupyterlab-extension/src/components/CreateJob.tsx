@@ -62,11 +62,6 @@ export default class CreateJobDialog extends Component<(IJobFullProps)> {
           label="Job Team:"
         ></VDKTextInput>
         <VDKTextInput
-          option={VdkOption.REST_API_URL}
-          value="http://my_vdk_instance"
-          label="Rest API URL:"
-        ></VDKTextInput>
-        <VDKTextInput
           option={VdkOption.PATH}
           value={this.props.jobPath}
           label="Path to job directory:"
@@ -79,7 +74,7 @@ export default class CreateJobDialog extends Component<(IJobFullProps)> {
    */
   private _onLocalClick() {
     return (event: React.MouseEvent) => {
-      this.setJobFlags('Local', 'jobPath');
+      this.setJobFlags('Local');
     };
   }
   /**
@@ -87,18 +82,16 @@ export default class CreateJobDialog extends Component<(IJobFullProps)> {
    */
   private _onCloudClick() {
     return (event: React.MouseEvent) => {
-      this.setJobFlags('Cloud', 'jobRestApiUrl');
+      this.setJobFlags('Cloud');
     };
   }
   /**
    * Function that sets job's cloud/local flags
    */
-  private setJobFlags(flag: string, inputId: string) {
+  private setJobFlags(flag: string) {
     let checkbox = document.getElementById(flag);
-    let input = document.getElementById(inputId);
     if (checkbox?.classList.contains('checked')) {
       checkbox.classList.remove('checked');
-      input?.parentElement?.classList.add('hidden');
       if (flag === 'Cloud') {
         jobData.set(VdkOption.CLOUD, '');
       } else {
@@ -111,7 +104,6 @@ export default class CreateJobDialog extends Component<(IJobFullProps)> {
       } else {
         jobData.set(VdkOption.LOCAL, '1');
       }
-      input?.parentElement?.classList.remove('hidden');
     }
   }
 }
