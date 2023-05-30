@@ -142,4 +142,55 @@ public class JobExecutionServiceStartExecutionIT {
     Assertions.assertEquals(opId, actualDataJobExecution.getOpId());
     Assertions.assertEquals(startedBy, actualDataJobExecution.getStartedBy());
   }
+
+  @Test
+  public void testNullValueOfStartedByIsWellHandled() throws ApiException {
+    String opId = "test-op-id";
+    String cronJobName = "test-cron-job";
+
+    DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
+
+    JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
+    jobDeploymentStatus.setCronJobName(cronJobName);
+    Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
+        .thenReturn(Optional.of(jobDeploymentStatus));
+    Mockito.when(operationContext.getOpId()).thenReturn(opId);
+    Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName())))
+        .thenReturn(false);
+
+    final Map<String, String> annotations = new LinkedHashMap<>();
+    annotations.put(JobAnnotation.OP_ID.getValue(), opId);
+    annotations.put(JobAnnotation.STARTED_BY.getValue(), null);
+    annotations.put(
+        JobAnnotation.EXECUTION_TYPE.getValue(),
+        JobExecutionService.ExecutionType.MANUAL.getValue());
+
+    Map<String, String> envs = Map.of(JobEnvVar.VDK_OP_ID.getValue(), opId);
+
+    String executionId =
+        jobExecutionService.startDataJobExecution(
+            actualDataJob.getJobConfig().getTeam(),
+            actualDataJob.getName(),
+            "",
+            new DataJobExecutionRequest());
+    Mockito.verify(dataJobsKubernetesService)
+        .startNewCronJobExecution(
+            Mockito.eq(cronJobName),
+            Mockito.eq(executionId),
+            Mockito.eq(annotations),
+            Mockito.eq(envs),
+            Mockito.any(),
+            Mockito.any());
+
+    Optional<DataJobExecution> actualDataJobExecutionOptional =
+        jobExecutionRepository.findById(executionId);
+    Assertions.assertTrue(actualDataJobExecutionOptional.isPresent());
+    DataJobExecution actualDataJobExecution = actualDataJobExecutionOptional.get();
+    Assertions.assertEquals(executionId, actualDataJobExecution.getId());
+    Assertions.assertEquals(actualDataJob, actualDataJobExecution.getDataJob());
+    Assertions.assertEquals(ExecutionStatus.SUBMITTED, actualDataJobExecution.getStatus());
+    Assertions.assertEquals(ExecutionType.MANUAL, actualDataJobExecution.getType());
+    Assertions.assertEquals(opId, actualDataJobExecution.getOpId());
+    Assertions.assertNull(actualDataJobExecution.getStartedBy());
+  }
 }
