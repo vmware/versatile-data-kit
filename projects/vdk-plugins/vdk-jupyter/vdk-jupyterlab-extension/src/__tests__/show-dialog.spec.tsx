@@ -204,7 +204,6 @@ describe('showCreateJobDialog', () => {
 describe('showDeleteJobDialog', () => {
   jobData.set(VdkOption.PATH, 'my-job');
   jobData.set(VdkOption.NAME, 'my-team');
-  jobData.set(VdkOption.REST_API_URL, 'https://example.com');
 
   afterEach(() => {
     jest.clearAllMocks();
