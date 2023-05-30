@@ -106,26 +106,27 @@ public class DataJobDeploymentCrudIT extends BaseIT {
         .andExpect(status().isUnauthorized());
 
     // Execute job upload with proper user
-    var jobUploadResult = mockMvc
+    var jobUploadResult =
+        mockMvc
             .perform(
-                    post(String.format(
-                            "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
-                            .with(user("user"))
-                            .content(jobZipBinary)
-                            .contentType(MediaType.APPLICATION_OCTET_STREAM))
-            .andReturn().getResponse();
+                post(String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                    .with(user("user"))
+                    .content(jobZipBinary)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM))
+            .andReturn()
+            .getResponse();
 
-    if(jobUploadResult.getStatus() != 200){
+    if (jobUploadResult.getStatus() != 200) {
       throw new Exception(
-              "status is "
-                      + jobUploadResult.getStatus()
-                      + "\nbody is "
-                      + jobUploadResult.getContentAsString());
+          "status is "
+              + jobUploadResult.getStatus()
+              + "\nbody is "
+              + jobUploadResult.getContentAsString());
     }
 
     DataJobVersion testDataJobVersion =
-        new ObjectMapper()
-            .readValue(jobUploadResult.getContentAsString(), DataJobVersion.class);
+        new ObjectMapper().readValue(jobUploadResult.getContentAsString(), DataJobVersion.class);
     Assertions.assertNotNull(testDataJobVersion);
 
     String testJobVersionSha = testDataJobVersion.getVersionSha();
