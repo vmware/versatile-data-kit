@@ -106,7 +106,7 @@ public class DataJobDeploymentCrudIT extends BaseIT {
         .andExpect(status().isUnauthorized());
 
     // Execute job upload with proper user
-    MvcResult jobUploadResult =
+    var jobUploadResult =
         mockMvc
             .perform(
                 post(String.format(
@@ -114,12 +114,19 @@ public class DataJobDeploymentCrudIT extends BaseIT {
                     .with(user("user"))
                     .content(jobZipBinary)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM))
-            .andExpect(status().isOk())
-            .andReturn();
+            .andReturn()
+            .getResponse();
+
+    if (jobUploadResult.getStatus() != 200) {
+      throw new Exception(
+          "status is "
+              + jobUploadResult.getStatus()
+              + "\nbody is "
+              + jobUploadResult.getContentAsString());
+    }
 
     DataJobVersion testDataJobVersion =
-        new ObjectMapper()
-            .readValue(jobUploadResult.getResponse().getContentAsString(), DataJobVersion.class);
+        new ObjectMapper().readValue(jobUploadResult.getContentAsString(), DataJobVersion.class);
     Assertions.assertNotNull(testDataJobVersion);
 
     String testJobVersionSha = testDataJobVersion.getVersionSha();

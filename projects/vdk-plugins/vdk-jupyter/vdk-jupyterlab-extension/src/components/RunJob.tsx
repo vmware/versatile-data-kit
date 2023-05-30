@@ -123,7 +123,35 @@ export const findFailingCellId = (message: String): string => {
   return '';
 };
 
+/**
+ * Returns a Element that is used for numarating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
+ * @param failingCell - parent cell of that element
+ * @returns Element or undefined if the element could not be found
+ */
+export const getCellInputAreaPromp = (
+  failinCell: Element
+): Element | undefined => {
+  const cellInputWrappers = failinCell.getElementsByClassName(
+    'jp-Cell-inputWrapper'
+  );
+  for (let i = 0; i < cellInputWrappers.length; i++) {
+    const cellAreas =
+      cellInputWrappers[i].getElementsByClassName('jp-Cell-inputArea');
+    if (cellAreas.length > 0) {
+      const cellInputArea = cellAreas[0];
+      const promptElements = cellInputArea.getElementsByClassName(
+        'jp-InputArea-prompt'
+      );
+      if (promptElements.length > 0) {
+        return promptElements[0];
+      }
+    }
+  }
+};
+
 const switchToFailingCell = (failingCell: Element) => {
+  const prompt = getCellInputAreaPromp(failingCell);
+  prompt?.classList.add('jp-vdk-failing-cell-prompt');
   failingCell.scrollIntoView();
   failingCell.classList.add('jp-vdk-failing-cell');
   // Delete previous fail numbering
@@ -134,6 +162,12 @@ const switchToFailingCell = (failingCell: Element) => {
     element.classList.remove('jp-vdk-failing-cell-num');
     element.classList.add('jp-vdk-cell-num');
   });
+};
+
+const unmarkOldFailingCells = (cell: Element) => {
+  cell.classList.remove('jp-vdk-failing-cell');
+  const cellPropt = getCellInputAreaPromp(cell);
+  cellPropt?.classList.remove('jp-vdk-failing-cell-prompt');
 };
 
 export const findFailingCellInNotebookCells = async (
@@ -162,7 +196,7 @@ export const findFailingCellInNotebookCells = async (
     for (let i = 0; i < cells.length; i++) {
       i === failingCellIndex
         ? switchToFailingCell(cells[i])
-        : cells[i].classList.remove('jp-vdk-failing-cell');
+        : unmarkOldFailingCells(cells[i]);
     }
   }
 };
