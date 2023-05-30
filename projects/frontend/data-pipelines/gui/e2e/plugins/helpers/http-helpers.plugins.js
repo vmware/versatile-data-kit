@@ -5,6 +5,8 @@
 
 const { default: axios } = require('axios');
 
+const { cloneDeep } = require('lodash');
+
 const { Logger } = require('./logger-helpers.plugins');
 
 const { trimArraysToNElements } = require('./util-helpers.plugins');
@@ -246,7 +248,7 @@ const _filterResponseDataForDebug = (response) => {
             method: response.config.method,
             data: response.config.data
         },
-        data: trimArraysToNElements(response.data, 5)
+        data: trimArraysToNElements(cloneDeep(response.data), 5)
     };
 };
 

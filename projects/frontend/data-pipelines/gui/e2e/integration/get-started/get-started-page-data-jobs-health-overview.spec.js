@@ -42,7 +42,7 @@ describe(
                 )
                 .then(() =>
                     GetStartedDataJobsHealthOverviewWidgetPO.provideExecutionsForLongLivedJobs(
-                        'failing'
+                        { job: 'failing' }
                     )
                 )
                 .then(() =>
@@ -89,7 +89,7 @@ describe(
         });
 
         describe('smoke', { tags: ['@smoke'] }, () => {
-            it('Validate Data Jobs Health Overview panel when switching Teams', () => {
+            it('Validate Data Jobs Health Overview panel', () => {
                 getStartedPage
                     .getPageTitle()
                     .should('contain.text', 'Get Started with Data Pipelines');
