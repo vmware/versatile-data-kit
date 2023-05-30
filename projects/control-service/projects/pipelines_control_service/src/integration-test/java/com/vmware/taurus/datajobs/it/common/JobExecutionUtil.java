@@ -189,14 +189,15 @@ public class JobExecutionUtil {
             .atMost(10, TimeUnit.MINUTES)
             .with()
             .pollInterval(15, TimeUnit.SECONDS)
-            .failFast(
-                () -> {
-                  com.vmware.taurus.controlplane.model.data.DataJobExecution status =
+            .failFast(() -> {
+              com.vmware.taurus.controlplane.model.data.DataJobExecution status =
                       dataJobExecutionCallable.call();
-                  return status != null
+              if(status != null
                       && !Lists.newArrayList(RUNNING, SUBMITTED).contains(status.getStatus())
-                      && !executionStatus.equals(status.getStatus());
-                })
+                      && !executionStatus.equals(status.getStatus())){
+                throw new Exception("execution details:" + status);
+              }
+            })
             .until(
                 dataJobExecutionCallable,
                 statusEnum -> statusEnum != null && executionStatus.equals(statusEnum.getStatus()));
