@@ -9,6 +9,7 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ import com.vmware.taurus.service.model.ExecutionStatus;
 import com.vmware.taurus.service.model.ExecutionType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.assertj.core.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -30,6 +32,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING;
+import static com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.SUBMITTED;
 import static com.vmware.taurus.datajobs.it.common.BaseIT.HEADER_X_OP_ID;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
@@ -161,43 +165,43 @@ public class JobExecutionUtil {
       String username,
       MockMvc mockMvc) {
 
-    com.vmware.taurus.controlplane.model.data.DataJobExecution[] dataJobExecution =
-        new com.vmware.taurus.controlplane.model.data.DataJobExecution[1];
+    Callable<com.vmware.taurus.controlplane.model.data.DataJobExecution> dataJobExecutionCallable =
+        () -> {
+          String dataJobExecutionReadUrl =
+              String.format(
+                  "/data-jobs/for-team/%s/jobs/%s/executions/%s", teamName, jobName, executionId);
+          MvcResult dataJobExecutionResult =
+              mockMvc
+                  .perform(
+                      get(dataJobExecutionReadUrl)
+                          .with(user(username))
+                          .contentType(MediaType.APPLICATION_JSON))
+                  .andExpect(status().isOk())
+                  .andReturn();
 
-    await()
-        .atMost(5, TimeUnit.MINUTES)
-        .with()
-        .pollInterval(15, TimeUnit.SECONDS)
-        .until(
-            () -> {
-              String dataJobExecutionReadUrl =
-                  String.format(
-                      "/data-jobs/for-team/%s/jobs/%s/executions/%s",
-                      teamName, jobName, executionId);
-              MvcResult dataJobExecutionResult =
-                  mockMvc
-                      .perform(
-                          get(dataJobExecutionReadUrl)
-                              .with(user(username))
-                              .contentType(MediaType.APPLICATION_JSON))
-                      .andExpect(status().isOk())
-                      .andReturn();
+          return objectMapper.readValue(
+              dataJobExecutionResult.getResponse().getContentAsString(),
+              com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
+        };
 
-              dataJobExecution[0] =
-                  objectMapper.readValue(
-                      dataJobExecutionResult.getResponse().getContentAsString(),
-                      com.vmware.taurus.controlplane.model.data.DataJobExecution.class);
-              if (dataJobExecution[0] == null) {
-                log.info("No response from server");
-              } else {
-                log.info("Response from server  " + dataJobExecution[0].getStatus());
-              }
-              return dataJobExecution[0] != null
-                  && executionStatus.equals(dataJobExecution[0].getStatus());
-            });
+    var result =
+        await()
+            .atMost(10, TimeUnit.MINUTES)
+            .with()
+            .pollInterval(15, TimeUnit.SECONDS)
+            .failFast(
+                () -> {
+                  com.vmware.taurus.controlplane.model.data.DataJobExecution status =
+                      dataJobExecutionCallable.call();
+                  return status != null
+                      && !Lists.newArrayList(RUNNING, SUBMITTED).contains(status.getStatus())
+                      && !executionStatus.equals(status.getStatus());
+                })
+            .until(
+                dataJobExecutionCallable,
+                statusEnum -> statusEnum != null && executionStatus.equals(statusEnum.getStatus()));
 
-    assertDataJobExecutionValid(
-        executionId, executionStatus, opId, dataJobExecution[0], jobName, username);
+    assertDataJobExecutionValid(executionId, executionStatus, opId, result, jobName, username);
   }
 
   public static void testDataJobExecutionList(
