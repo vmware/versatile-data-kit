@@ -55,6 +55,7 @@ public class DataJobMonitorTest {
 
   @MockBean private DataJobsKubernetesService dataJobsKubernetesService;
 
+  @Autowired private DataJobMonitorCron dataJobMonitorCron;
   @Autowired private DataJobMonitor dataJobMonitor;
 
   @Test
@@ -199,7 +200,7 @@ public class DataJobMonitorTest {
         .watchJobs(anyMap(), any(), any(), anyLong());
     jobStatuses.forEach(s -> jobsRepository.save(new DataJob(s.getJobName(), new JobConfig())));
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -234,7 +235,7 @@ public class DataJobMonitorTest {
         .when(dataJobsKubernetesService)
         .watchJobs(anyMap(), any(), any(), anyLong());
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -254,7 +255,7 @@ public class DataJobMonitorTest {
         .when(dataJobsKubernetesService)
         .watchJobs(anyMap(), any(), any(), anyLong());
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -286,7 +287,7 @@ public class DataJobMonitorTest {
                     getTerminationStatus(s),
                     s.getExecutionId())));
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -322,7 +323,7 @@ public class DataJobMonitorTest {
                     getTerminationStatus(s),
                     null)));
 
-    dataJobMonitor.watchJobs();
+    dataJobMonitorCron.watchJobs();
 
     var gauges =
         meterRegistry.find(DataJobMetrics.TAURUS_DATAJOB_TERMINATION_STATUS_METRIC_NAME).gauges();
@@ -355,7 +356,7 @@ public class DataJobMonitorTest {
         .when(dataJobsKubernetesService)
         .watchJobs(anyMap(), any(), any(), anyLong());
 
-    Assertions.assertDoesNotThrow(() -> dataJobMonitor.watchJobs());
+    Assertions.assertDoesNotThrow(() -> dataJobMonitorCron.watchJobs());
   }
 
   @Test

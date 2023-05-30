@@ -33,10 +33,6 @@ public class SupportedPythonVersions {
   @Value("${datajobs.deployment.defaultPythonVersion}")
   private String defaultPythonVersion;
 
-  // TODO: Remove when property is deprecated.
-  @Value("${datajobs.deployment.dataJobBaseImage:python:3.9-slim}")
-  private String deploymentDataJobBaseImage;
-
   /**
    * Check if the pythonVersion passed by the user is supported by the Control Service.
    *
@@ -72,8 +68,6 @@ public class SupportedPythonVersions {
   public String getJobBaseImage(String pythonVersion) {
     if (supportedPythonVersions != null && isPythonVersionSupported(pythonVersion)) {
       return supportedPythonVersions.get(pythonVersion).get(BASE_IMAGE);
-    } else if (deploymentDataJobBaseImage != null && !deploymentDataJobBaseImage.isBlank()) {
-      return deploymentDataJobBaseImage;
     } else {
       log.warn(
           "An issue with the passed pythonVersion or supportedPythonVersions configuration has"

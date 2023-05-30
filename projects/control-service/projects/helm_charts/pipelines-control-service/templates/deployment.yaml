@@ -111,12 +111,8 @@ spec:
             {{- end }}
             - name: DOCKER_REPOSITORY_URL
               value: "{{ .Values.deploymentDockerRepository }}"
-            - name: DOCKER_VDK_BASE_IMAGE
-              value: {{ template "pipelines-control-service.deploymentVdkDistributionImage" . }}
             - name: DATAJOBS_BUILDER_IMAGE
               value: {{ template "pipelines-control-service.deploymentBuilderImage" . }}
-            - name: DATAJOBS_DEPLOYMENT_DATAJOBBASEIMAGE
-              value: {{ template "pipelines-control-service.deploymentDataJobBaseImage" . }}
             - name: SERVER_MAX_HTTP_HEADER_SIZE
               value: "{{ .Values.server.maxHttpHeaderSize }}"
             - name: DB_JDBC_URL

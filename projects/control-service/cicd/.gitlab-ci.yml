@@ -90,7 +90,7 @@ control_service_integration_test:
     - cp $KUBECONFIG ~/.kube/config
     - ./gradlew -v
     - ./gradlew projects --info
-    - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace
+    - ./gradlew -Djdk.tls.client.protocols=TLSv1.2 :pipelines_control_service:integrationTest --info --stacktrace --fail-fast
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
@@ -255,7 +255,7 @@ control_service_deploy_testing_data_pipelines:
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
     - pip install --upgrade pip && pip install awscli
-    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+    - export DESIRED_VERSION=v3.12.0 # helm version
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
