@@ -900,6 +900,57 @@ paths:
         in: path
         required: true
 
+  '/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/secrets':
+    summary: |
+      Data Job Secrets API.
+    get:
+      tags:
+        - Data Jobs Secrets
+      responses:
+        '200':
+          $ref: '#/components/responses/Secrets'
+      operationId: dataJobSecretsRead
+      summary: Get Data Job secrets.
+      description: <i>(Introduced in v1.0)</i>
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataJobSecrets'
+        required: true
+      tags:
+        - Data Jobs Secrets
+      responses:
+        '201':
+          description: Created successfully.
+        '204':
+          description: Updated successfully.
+        '413':
+          description: Payload too large. Combined size of secrets is larger than 1 MB.
+      operationId: dataJobSecretsUpdate
+      summary: Update Data Job secrets.
+      description: <i>(Introduced in v1.0)</i>
+    parameters:
+      - name: team_name
+        description: Team Name
+        schema:
+          type: string
+        in: path
+        required: true
+      - name: job_name
+        description: Data Job Name.
+        schema:
+          type: string
+        in: path
+        required: true
+      - name: deployment_id
+        description: Data job deployment id.
+        schema:
+          $ref: '#/components/schemas/DataJobDeploymentId'
+        in: path
+        required: true
+
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/sources':
     get:
       tags:
@@ -1249,6 +1300,15 @@ components:
         redshift-password: bar
         last-execution-time: 1585303338
 
+    DataJobSecrets:
+      description: Secrets of a Data Job
+      type: object
+      additionalProperties:
+        type: object
+      example:
+        redshift-user: foo
+        redshift-password: bar
+
     DataJobMode:
       description: The execution mode that the data job is deployed in. Data Jobs used for development or testing purposes are marked as testing.
         This is used by Operations team on platform rollout and infrastructure changes adoption. For example, rollout and validation of testing jobs first, then proceeding with release data jobs. Also, testing and release jobs may have different limits and SLA targets.
@@ -1537,6 +1597,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobProperties'
+      description: Data Job properties
+    Secrets:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DataJobSecrets'
       description: Data Job properties
     Source:
       content:
