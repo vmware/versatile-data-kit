@@ -126,7 +126,9 @@ public class DataJobTerminationStatusIT extends BaseIT {
 
     // Validate that there is a taurus_datajob_info metrics for the data job
     assertEquals(
-        findMetricCountWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", jobName), 1, scrape);
+        findMetricCountWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", jobName),
+        1,
+        scrape);
     match = findMetricsWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", jobName);
     assertTrue(
         match.isPresent(),

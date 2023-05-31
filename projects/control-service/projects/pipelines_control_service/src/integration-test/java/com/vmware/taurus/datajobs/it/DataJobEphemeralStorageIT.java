@@ -18,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
 import static com.vmware.taurus.datajobs.it.DataJobTerminationStatusIT.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @TestPropertySource(
