@@ -51,7 +51,7 @@ When defining a job to be run following attributes are supported:
 The following example dependency graph can be implemented with below code.
 
 
-![img_2.png](img_2.png)
+![example_dag.png](example_dag.png)
 
 In this example what happens is:
 * Job 1 will execute.
