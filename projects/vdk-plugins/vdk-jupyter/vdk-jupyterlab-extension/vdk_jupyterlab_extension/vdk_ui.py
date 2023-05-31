@@ -134,7 +134,10 @@ class VdkUI:
         if local:
             cmd.validate_job_path(path, name)
 
-        cmd.create_job(name, team, path, cloud, local, is_jupyter=True)
+        import vdk.internal.control.job.jupyter_sample_job as jupyter_sample_job
+
+        cmd.create_job(name, team, path, cloud, local, sample_job=jupyter_sample_job)
+
         return f"Job with name {name} was created."
 
     @staticmethod
