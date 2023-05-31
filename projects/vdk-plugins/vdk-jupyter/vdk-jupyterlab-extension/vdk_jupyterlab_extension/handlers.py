@@ -12,24 +12,6 @@ from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
 
 
-class HandlerConfiguration:
-    def __init__(self):
-        self._rest_api_url = os.environ["REST_API_URL"]
-        if not self._rest_api_url:
-            raise ValueError(
-                "What happened: Missing environment variable REST_API_URL.\n"
-                "Why it happened: This is probably caused by a corrupt environment.\n"
-                "Consequences: The current environment cannot work as it cannot connect to the VDK Control Service.\n"
-                "Countermeasures: Please alert your support team; alternatively, try restarting your environment."
-            )
-
-    def get_rest_api_url(self):
-        return self._rest_api_url
-
-
-handler_config = HandlerConfiguration()
-
-
 class LoadJobDataHandler(APIHandler):
     """
     Class responsible for handling POST request for retrieving data(full path, job's name and team)
@@ -83,9 +65,7 @@ class DeleteJobHandler(APIHandler):
         input_data = self.get_json_body()
         try:
             status = VdkUI.delete_job(
-                input_data[VdkOption.NAME.value],
-                input_data[VdkOption.TEAM.value],
-                handler_config.get_rest_api_url(),
+                input_data[VdkOption.NAME.value], input_data[VdkOption.TEAM.value]
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -108,7 +88,6 @@ class DownloadJobHandler(APIHandler):
             status = VdkUI.download_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
-                handler_config.get_rest_api_url(),
                 input_data[VdkOption.PATH.value],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
@@ -133,7 +112,6 @@ class CreateJobHandler(APIHandler):
             status = VdkUI.create_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
-                handler_config.get_rest_api_url(),
                 input_data[VdkOption.PATH.value],
                 bool(input_data[VdkOption.LOCAL.value]),
                 bool(input_data[VdkOption.CLOUD.value]),
@@ -159,7 +137,6 @@ class CreateDeploymentHandler(APIHandler):
             status = VdkUI.create_deployment(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
-                handler_config.get_rest_api_url(),
                 input_data[VdkOption.PATH.value],
                 input_data[VdkOption.DEPLOYMENT_REASON.value],
                 input_data[VdkOption.DEPLOY_ENABLE.value],
