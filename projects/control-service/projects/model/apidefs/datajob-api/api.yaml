@@ -1303,8 +1303,7 @@ components:
     DataJobSecrets:
       description: Secrets of a Data Job
       type: object
-      additionalProperties:
-        type: object
+      additionalProperties: {}
       example:
         redshift-user: foo
         redshift-password: bar
