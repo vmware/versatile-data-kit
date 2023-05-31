@@ -17,6 +17,9 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
+import static com.vmware.taurus.datajobs.it.DataJobTerminationStatusIT.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @Slf4j
 @TestPropertySource(
     properties = {
@@ -49,5 +52,7 @@ public class DataJobEphemeralStorageIT extends BaseIT {
         teamName,
         username,
         mockMvc);
+
+    assertEquals(findMetricCountWithLabel(scrapeMetrics(mockMvc), TERMINATION_STATUS_METRICS, "data_job", jobName), 1);
   }
 }

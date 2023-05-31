@@ -30,9 +30,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.service.JobsRepository;
+import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMetrics
 @SpringBootTest(
+        properties = {
+                "logging.level.org.hibernate.SQL=DEBUG" ,
+                "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE"
+        },
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class DataJobTerminationStatusIT extends BaseIT {
@@ -120,6 +125,7 @@ public class DataJobTerminationStatusIT extends BaseIT {
     assertLabelEquals(INFO_METRICS, "", "email_notified_on_user_error", line);
 
     // Validate that there is a taurus_datajob_info metrics for the data job
+    assertEquals(findMetricCountWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", jobName), 1);
     match = findMetricsWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", jobName);
     assertTrue(
         match.isPresent(),
@@ -146,12 +152,16 @@ public class DataJobTerminationStatusIT extends BaseIT {
   }
 
   private String scrapeMetrics() throws Exception {
+    return scrapeMetrics(mockMvc);
+  }
+
+  public static String scrapeMetrics(MockMvc mockMvc) throws Exception {
     return mockMvc
-        .perform(get("/data-jobs/debug/prometheus"))
-        .andExpect(status().isOk())
-        .andReturn()
-        .getResponse()
-        .getContentAsString();
+            .perform(get("/data-jobs/debug/prometheus"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
   }
 
   private Callable<Boolean> terminationMetricsAreAvailable() {
@@ -169,6 +179,20 @@ public class DataJobTerminationStatusIT extends BaseIT {
       return Optional.empty();
     }
     return Optional.of(matcher.group());
+  }
+
+  public static int findMetricCountWithLabel(
+          CharSequence input, String metrics, String label, String labelValue) {
+    Pattern pattern =
+            Pattern.compile(
+                    String.format("%s\\{.*%s=\"%s\"[^\\}]*\\} (.*)", metrics, label, labelValue),
+                    Pattern.CASE_INSENSITIVE);
+    Matcher matcher = pattern.matcher(input);
+    int counter = 0;
+    while (matcher.find()) {
+      counter++;
+    }
+    return counter;
   }
 
   private static void assertLabelEquals(
