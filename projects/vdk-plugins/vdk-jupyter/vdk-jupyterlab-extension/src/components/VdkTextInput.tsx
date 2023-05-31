@@ -23,7 +23,7 @@ export interface IVdkTextInputProps {
    * if the string that is given is not path it will return the same string
    * if it is a path it will return the last directory
    */
-function getLastPartOfPath(path: string): string {
+const  getLastPartOfPath = (path: string): string => {
   const pathParts = path.split(/(?=[/\\])/); // Lookahead assertion to keep delimiter
   return pathParts[pathParts.length - 1];
 }
