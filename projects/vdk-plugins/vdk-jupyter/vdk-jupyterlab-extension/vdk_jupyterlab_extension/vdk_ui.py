@@ -117,9 +117,7 @@ class VdkUI:
 
     # TODO: make it work with notebook jobs
     @staticmethod
-    def create_job(
-        name: str, team: str, path: str, local: bool, cloud: bool
-    ):
+    def create_job(name: str, team: str, path: str, local: bool, cloud: bool):
         """
         Execute `create job`.
         :param name: the name of the data job that will be created
@@ -140,9 +138,7 @@ class VdkUI:
         return f"Job with name {name} was created."
 
     @staticmethod
-    def create_deployment(
-        name: str, team: str, path: str, reason: str, enabled: bool
-    ):
+    def create_deployment(name: str, team: str, path: str, reason: str, enabled: bool):
         """
         Execute `Deploy job`.
         :param name: the name of the data job that will be deployed

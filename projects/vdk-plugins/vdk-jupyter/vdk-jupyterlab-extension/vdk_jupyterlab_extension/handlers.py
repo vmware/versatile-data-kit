@@ -65,8 +65,7 @@ class DeleteJobHandler(APIHandler):
         input_data = self.get_json_body()
         try:
             status = VdkUI.delete_job(
-                input_data[VdkOption.NAME.value],
-                input_data[VdkOption.TEAM.value]
+                input_data[VdkOption.NAME.value], input_data[VdkOption.TEAM.value]
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
