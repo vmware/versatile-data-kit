@@ -30,7 +30,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.service.JobsRepository;
-import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMetrics
 @SpringBootTest(
@@ -155,12 +154,12 @@ public class DataJobTerminationStatusIT extends BaseIT {
   }
 
   private String scrapeMetrics() throws Exception {
-    return  mockMvc
-            .perform(get("/data-jobs/debug/prometheus"))
-            .andExpect(status().isOk())
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
+    return mockMvc
+        .perform(get("/data-jobs/debug/prometheus"))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getResponse()
+        .getContentAsString();
   }
 
   private Callable<Boolean> terminationMetricsAreAvailable() {
