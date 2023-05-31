@@ -268,19 +268,3 @@ def populate_mock_managed_cursor(
         ),
         mock_connection_hook_spec,
     )
-
-
-def setup_testing_check(check):
-    if check == "use_positive_check":
-        check = _sample_check_true
-    elif check == "use_negative_check":
-        check = _sample_check_false
-    return check
-
-
-def _sample_check_true(tmp_table_name):
-    return True
-
-
-def _sample_check_false(tmp_table_name):
-    return False
