@@ -53,6 +53,9 @@ public class DataJobEphemeralStorageIT extends BaseIT {
         username,
         mockMvc);
 
-    assertEquals(findMetricCountWithLabel(scrapeMetrics(mockMvc), TERMINATION_STATUS_METRICS, "data_job", jobName), 1);
+    assertEquals(
+        findMetricCountWithLabel(
+            scrapeMetrics(mockMvc), TERMINATION_STATUS_METRICS, "data_job", jobName),
+        1);
   }
 }
