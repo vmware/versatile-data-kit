@@ -17,8 +17,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-import static com.vmware.taurus.datajobs.it.DataJobTerminationStatusIT.*;
-
 @Slf4j
 @TestPropertySource(
     properties = {
