@@ -36,7 +36,7 @@ class JobCreate:
         path: str,
         cloud: bool,
         local: bool,
-        sample_job=None,
+        sample_job_directory=None,
     ) -> None:
         self.__validate_job_name(name)
         if local:
@@ -46,7 +46,7 @@ class JobCreate:
             self.__create_cloud_job(team, name)
         if local:
             job_path = self.__get_job_path(path, name)
-            self.__create_local_job(team, name, job_path, sample_job)
+            self.__create_local_job(team, name, job_path, sample_job_directory)
             if cloud:
                 self.__download_key(team, name, path)
 
@@ -70,9 +70,9 @@ class JobCreate:
         )
 
     def __create_local_job(
-        self, team: str, name: str, job_path: str, sample_job_module
+        self, team: str, name: str, job_path: str, sample_job_directory
     ) -> None:
-        sample_job = self.__create_sample_job_dir(sample_job_module)
+        sample_job = self.__create_sample_job_dir(sample_job_directory)
         log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
         cli_utils.copy_directory(sample_job, job_path)
         local_config = JobConfig(job_path)
