@@ -1636,8 +1636,10 @@ tags:
   - name: "Data Jobs Execution"
     description: (Experimental) | API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
   - name: "Data Jobs Properties"
-    description: "Any saved state, configuration, and secrets of a Data Job. Those are tracked per deployment.
+    description: "Any saved state or configurationof a Data Job. Those are tracked per deployment.
       NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet."
+  - name: "Data Jobs Secrets"
+    description: "Secrets configured for a Data Job. Example: passwords/tokens/credentials/sensitive data."
   - name: "Data Jobs Service"
     description: (Stable)
   - name: "Data Jobs Sources"
