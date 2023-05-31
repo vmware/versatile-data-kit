@@ -137,6 +137,18 @@ class VDKConfig:
             sample_job_dir = os.path.abspath(template_module_path)
         return sample_job_dir
 
+    @property
+    def jupyter_sample_job_directory(self) -> str:
+        jupyter_sample_job_dir = os.getenv("VDK_CONTROL_SAMPLE_JOB_DIRECTORY", None)
+        if not jupyter_sample_job_dir:
+            import vdk.internal.control.job.jupyter_sample_job
+
+            template_module_path = (
+                vdk.internal.control.job.jupyter_sample_job.__path__._path[0]
+            )
+            jupyter_sample_job_dir = os.path.abspath(template_module_path)
+        return jupyter_sample_job_dir
+
 
 class VDKConfigFolder:
     """

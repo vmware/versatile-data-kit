@@ -30,7 +30,13 @@ class JobCreate:
 
     @ApiClientErrorDecorator()
     def create_job(
-        self, name: str, team: str, path: str, cloud: bool, local: bool
+        self,
+        name: str,
+        team: str,
+        path: str,
+        cloud: bool,
+        local: bool,
+        is_jupyter: bool = False,
     ) -> None:
         self.__validate_job_name(name)
         if local:
@@ -40,7 +46,7 @@ class JobCreate:
             self.__create_cloud_job(team, name)
         if local:
             job_path = self.__get_job_path(path, name)
-            self.__create_local_job(team, name, job_path)
+            self.__create_local_job(team, name, job_path, is_jupyter)
             if cloud:
                 self.__download_key(team, name, path)
 
@@ -63,8 +69,13 @@ class JobCreate:
             f"Data Job with name {name} created and registered in cloud runtime by Control Service."
         )
 
-    def __create_local_job(self, team: str, name: str, job_path: str) -> None:
-        sample_job = self.__vdk_config.sample_job_directory
+    def __create_local_job(
+        self, team: str, name: str, job_path: str, is_jupyter: bool
+    ) -> None:
+        if is_jupyter:
+            sample_job = self.__vdk_config.jupyter_sample_job_directory
+        else:
+            sample_job = self.__vdk_config.sample_job_directory
         log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
         cli_utils.copy_directory(sample_job, job_path)
         local_config = JobConfig(job_path)
