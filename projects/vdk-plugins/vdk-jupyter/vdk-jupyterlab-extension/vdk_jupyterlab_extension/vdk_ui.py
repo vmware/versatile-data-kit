@@ -5,6 +5,7 @@ import os
 import pathlib
 import shlex
 import subprocess
+import sys
 from pathlib import Path
 
 from vdk.internal.control.command_groups.job.create import JobCreate
@@ -102,7 +103,6 @@ class VdkUI:
         cmd.download(team, name, path)
         return f"Downloaded the job with name {name} to {path}. "
 
-    # TODO: make it work with notebook jobs
     @staticmethod
     def create_job(
         name: str, team: str, rest_api_url: str, path: str, local: bool, cloud: bool
@@ -124,7 +124,7 @@ class VdkUI:
         if local:
             cmd.validate_job_path(path, name)
 
-        cmd.create_job(name, team, path, cloud, local)
+        cmd.create_job(name, team, path, cloud, local, is_jupyter=True)
         return f"Job with name {name} was created."
 
     @staticmethod
