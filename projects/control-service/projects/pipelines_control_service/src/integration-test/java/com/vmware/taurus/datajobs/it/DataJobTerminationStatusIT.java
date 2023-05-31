@@ -155,16 +155,12 @@ public class DataJobTerminationStatusIT extends BaseIT {
   }
 
   private String scrapeMetrics() throws Exception {
-    return scrapeMetrics(mockMvc);
-  }
-
-  public static String scrapeMetrics(MockMvc mockMvc) throws Exception {
-    return mockMvc
-        .perform(get("/data-jobs/debug/prometheus"))
-        .andExpect(status().isOk())
-        .andReturn()
-        .getResponse()
-        .getContentAsString();
+    return  mockMvc
+            .perform(get("/data-jobs/debug/prometheus"))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
   }
 
   private Callable<Boolean> terminationMetricsAreAvailable() {
