@@ -33,7 +33,7 @@ project.ext {
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.5',
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:5.3.0',
             'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.3.0',
-            'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.18.2',
+            'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.18.3',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.15.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',
