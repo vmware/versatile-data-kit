@@ -127,7 +127,7 @@ def _skip_job_if_necessary(
             return 1  # All other branches return None
     except Exception as exc:
         log.warning(
-            f"Error while checking for another data job excecution: {str(exc)} "
+            f"Error while checking for another data job excecution: {str(exc)} ", exc_info=True
         )
         log.warning("Printing stack trace and proceeding with execution:")
     return None
