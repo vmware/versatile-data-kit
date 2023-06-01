@@ -911,7 +911,7 @@ paths:
           $ref: '#/components/responses/Secrets'
       operationId: dataJobSecretsRead
       summary: Get Data Job secrets.
-      description: <i>(Introduced in v1.0)</i>
+      description: Get the secrets associated with a data job.
     put:
       requestBody:
         content:
@@ -927,10 +927,10 @@ paths:
         '204':
           description: Updated successfully.
         '413':
-          description: Payload too large. Combined size of secrets is larger than 1 MB.
+          description: Payload too large. The total size of the secrets object is too large.
       operationId: dataJobSecretsUpdate
       summary: Update Data Job secrets.
-      description: <i>(Introduced in v1.0)</i>
+      description: Update the secrets associated with a data job.
     parameters:
       - name: team_name
         description: Team Name
@@ -1270,7 +1270,7 @@ components:
           description: |
             URL link to persisted logs in central location. Logs generally should be available for longer time.
             The link is available only if operators have configured it during installation of Control Service.
-            During install operators can conifgure logs to be presisted to log aggregator service whose link can be exposed here.
+            During install operators can configure logs to be persisted to log aggregator service whose link can be exposed here.
           type: string
           example: http://logs/jobs?filter=job-name
         message:
@@ -1292,7 +1292,7 @@ components:
           type: string
 
     DataJobProperties:
-      description: Properties of a Data Job
+      description: Properties of a Data Job.
       type: object
       additionalProperties: {}
       example:
@@ -1301,7 +1301,7 @@ components:
         last-execution-time: 1585303338
 
     DataJobSecrets:
-      description: Secrets of a Data Job
+      description: Secrets of a Data Job. Used to store passwords/tokens/credentials/sensitive data.
       type: object
       additionalProperties: {}
       example:
@@ -1602,7 +1602,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/DataJobSecrets'
-      description: Data Job properties
+      description: Data Job Secrets
     Source:
       content:
         application/json:
