@@ -150,6 +150,7 @@ docker {
     dependsOn bootJar
     files bootJar.archiveFile
     name "${dockerProject}/pipelines-control-service:${version}"
+    tags "latest"
     buildArgs([
             JAR_NAME                : "${project.name}-${version}.jar",
             DATAJOBS_GIT_COMMIT_HASH: gitVersion()
