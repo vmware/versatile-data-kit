@@ -34,6 +34,7 @@ module.exports = {
   testPathIgnorePatterns,
   transform,
   automock: false,
+  testEnvironment: 'jsdom', 
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
