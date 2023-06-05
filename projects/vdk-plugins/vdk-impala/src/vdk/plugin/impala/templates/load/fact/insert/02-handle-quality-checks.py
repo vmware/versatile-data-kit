@@ -65,7 +65,8 @@ def run(job_input: IJobInput):
         )
         job_input.execute_query(create_view)
 
-        if check(f"{view_schema}.{view_name}"):
+        view_full_name = f"{view_schema}.{view_name}"
+        if check(view_full_name):
             insert_into_target = insert_query.format(
                 source_schema=staging_schema,
                 source_view=staging_table_name,
