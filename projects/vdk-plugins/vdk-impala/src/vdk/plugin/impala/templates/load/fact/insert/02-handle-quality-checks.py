@@ -29,7 +29,7 @@ def run(job_input: IJobInput):
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
     insert_query = get_file_content(SQL_FILES_FOLDER, "02-insert-into-target.sql")
-  
+
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
         staging_table_name = get_staging_table_name(target_schema, target_table)
@@ -51,8 +51,10 @@ def run(job_input: IJobInput):
         job_input.execute_query(insert_into_staging)
 
         view_schema = staging_schema
-        view_name = f'vw_{staging_table_name}'
-        create_view_query = get_file_content(SQL_FILES_FOLDER, "02-create-consolidated-view.sql")
+        view_name = f"vw_{staging_table_name}"
+        create_view_query = get_file_content(
+            SQL_FILES_FOLDER, "02-create-consolidated-view.sql"
+        )
         create_view = create_view_query.format(
             view_schema=view_schema,
             view_name=view_name,
@@ -62,8 +64,8 @@ def run(job_input: IJobInput):
             staging_table_name=staging_table_name,
         )
         job_input.execute_query(create_view)
-        view_full_name = f'{view_schema}.{view_name}'
-        if check(view_full_name):
+
+        if check(f"{view_schema}.{view_name}"):
             insert_into_target = insert_query.format(
                 source_schema=staging_schema,
                 source_view=staging_table_name,
