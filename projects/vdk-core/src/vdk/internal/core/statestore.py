@@ -69,6 +69,12 @@ class CommonStoreKeys:
     """
     VDK_VERSION: StoreKey[str] = ImmutableStoreKey[str]("vdk.vdk_version")
 
+    """
+    Write data job directory, to be used if job needs to write files to local
+    storage during cloud execution (since writing to any directory might be
+    restricted on a deployment basis:
+    """
+    WRITE_DIRECTORY: StoreKey[str] = ImmutableStoreKey[str]("vdk.write_directory")
 
 class StateStore:
     """

@@ -186,3 +186,7 @@ class JobInput(IJobInput):
             ),
         )
         raise SkipRemainingStepsException(error_message)
+
+    def get_write_directory(self) -> pathlib.Path:
+        path_string = self.__statestore.get(CommonStoreKeys.WRITE_DIRECTORY)
+        return pathlib.Path(path_string)

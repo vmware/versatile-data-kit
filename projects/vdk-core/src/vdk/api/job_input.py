@@ -380,3 +380,15 @@ class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArgum
             depends on processing data from a source which has indicated no new entries since last run, then we can skip
             the execution.
         """
+
+    @abstractmethod
+    def get_write_directory(self) -> pathlib.Path:
+        """
+        :return:
+            Returns a path pointing to a writable directory for
+            data job executions in the cloud. This is needed because
+            different cloud deployments may restrict access to the file
+            system in a cloud execution. In this way data job users can make
+            sure the returned folder will allow read/write access.
+        """
+        pass

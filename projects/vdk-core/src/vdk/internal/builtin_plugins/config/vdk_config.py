@@ -23,6 +23,7 @@ WORKING_DIR = "WORKING_DIR"
 ATTEMPT_ID = "ATTEMPT_ID"
 EXECUTION_ID = "EXECUTION_ID"
 OP_ID = "OP_ID"
+WRITE_DIRECTORY = "WRITE_DIRECTORY"
 
 log = logging.getLogger(__name__)
 
@@ -112,6 +113,15 @@ class CoreConfigDefinitionPlugin:
             "An instance of a running Data Job deployment is called an execution. "
             "Data Job execution can run a Data Job one or more times."
             "Each distinct run would a single attempt.",
+        )
+        config_builder.add(
+            WRITE_DIRECTORY,
+            "/var/tmp",
+            True,
+            "Write data job directory, to be used if job needs to write files"
+            " to local storage during cloud execution (since writing to any "
+            "directory might be restricted on a deployment basis).Default value"
+            "is /var/tmp"
         )
 
 
