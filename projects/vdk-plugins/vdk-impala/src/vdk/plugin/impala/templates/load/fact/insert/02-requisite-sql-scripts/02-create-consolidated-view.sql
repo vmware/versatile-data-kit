@@ -1,6 +1,6 @@
 CREATE VIEW IF NOT EXISTS {view_schema}.{view_name}
 AS (
-    SELECT * 
+    SELECT *
     FROM {target_schema}.{target_table}
     UNION ALL
     SELECT *
