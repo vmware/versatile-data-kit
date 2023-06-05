@@ -538,6 +538,68 @@ class TestTemplateRegression(unittest.TestCase):
             template_args=template_args,
         )
 
+    def test_load_fact_snapshot_checks_positive(self) -> None:
+        test_schema = "vdkprototypes"
+        source_view = "vw_fact_sddc_daily_check_positive"
+        target_table = "fact_sddc_daily_check_positive"
+        staging_schema = "staging_vdkprototypes"
+        expect_table = "ex_fact_sddc_daily_check_positive"
+
+        res = self._run_job(
+            "load_fact_snapshot_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "last_arrival_ts": "updated_at",
+                "check": "use_positive_check",
+                "staging_schema": staging_schema,
+            },
+        )
+
+        assert not res.exception
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
+
+    def test_load_fact_snapshot_checks_negative(self) -> None:
+        test_schema = "vdkprototypes"
+        source_view = "vw_fact_sddc_daily_check_negative"
+        target_table = "fact_sddc_daily_check_negative"
+        staging_schema = "staging_vdkprototypes"
+        expect_table = "ex_fact_sddc_daily_check_negative"
+
+        res = self._run_job(
+            "load_fact_snapshot_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "last_arrival_ts": "updated_at",
+                "check": "use_negative_check",
+                "staging_schema": staging_schema,
+            },
+        )
+
+        assert res.exception
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+        assert actual_rs.output != expected_rs.output
+
     def _run_job(self, job_name: str, args: dict):
         return self.__runner.invoke(
             [
