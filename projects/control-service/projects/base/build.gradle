@@ -47,7 +47,7 @@ dependencies {
    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
    implementation 'org.springframework.security:spring-security-oauth2-jose'
    api 'org.springframework.boot:spring-boot-starter-web'
-   implementation 'org.springframework.security.kerberos:spring-security-kerberos-web:1.0.1.RELEASE'
+   implementation 'org.springframework.security.kerberos:spring-security-kerberos-web:2.0.0'
 
    implementation "org.springframework:spring-aspects"
 
