@@ -1,3 +1,6 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 class DataQualityException(Exception):
     """
     Exception raised for errors with the quality of the data.
