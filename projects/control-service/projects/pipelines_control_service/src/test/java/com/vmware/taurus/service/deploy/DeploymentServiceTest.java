@@ -140,8 +140,7 @@ public class DeploymentServiceTest {
 
     when(kubernetesService.readCronJob(TEST_CRONJOB_NAME))
         .thenReturn(Optional.of(TestUtils.getJobDeploymentStatus()));
-    when(kubernetesService.cronJobExists(TEST_CRONJOB_NAME))
-            .thenReturn(true);
+    when(kubernetesService.cronJobExists(TEST_CRONJOB_NAME)).thenReturn(true);
   }
 
   @Test

@@ -58,10 +58,9 @@ public class JobExecutionServiceStartExecutionIT {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
     Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
-            .thenThrow(new DataJobDeploymentNotFoundException(actualDataJob.getName()));
+        .thenThrow(new DataJobDeploymentNotFoundException(actualDataJob.getName()));
     Mockito.when(deploymentService.deploymentExists(Mockito.eq(actualDataJob.getName())))
-            .thenReturn(false);
-
+        .thenReturn(false);
 
     Assertions.assertThrows(
         DataJobDeploymentNotFoundException.class,
@@ -159,7 +158,7 @@ public class JobExecutionServiceStartExecutionIT {
     Mockito.when(deploymentService.readOptionalDeployment(Mockito.eq(actualDataJob.getName())))
         .thenReturn(Optional.of(jobDeploymentStatus));
     Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
-            .thenReturn(jobDeploymentStatus);
+        .thenReturn(jobDeploymentStatus);
     Mockito.when(operationContext.getOpId()).thenReturn(opId);
     Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName())))
         .thenReturn(false);

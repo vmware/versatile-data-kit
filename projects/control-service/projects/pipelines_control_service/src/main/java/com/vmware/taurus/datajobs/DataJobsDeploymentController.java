@@ -13,7 +13,6 @@ import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.diag.OperationContext;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -88,7 +86,9 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       String teamName, String jobName, String deploymentId, DataJobMode dataJobMode) {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId and mode not implemented
-      return ResponseEntity.ok(deploymentService.readOptionalDeployment(jobName.toLowerCase())
+      return ResponseEntity.ok(
+          deploymentService
+              .readOptionalDeployment(jobName.toLowerCase())
               .map(s -> List.of(ToApiModelConverter.toDataJobDeploymentStatus(s)))
               .orElse(Collections.emptyList()));
     }
@@ -101,7 +101,8 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId are not implemented.
       return ResponseEntity.ok(
-              ToApiModelConverter.toDataJobDeploymentStatus(deploymentService.readDeployment(jobName.toLowerCase())));
+          ToApiModelConverter.toDataJobDeploymentStatus(
+              deploymentService.readDeployment(jobName.toLowerCase())));
     }
     return ResponseEntity.notFound().build();
   }

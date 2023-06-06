@@ -41,10 +41,23 @@ public class DataJobEphemeralStorageIT extends BaseIT {
 
   @Test
   public void testEphemeralStorageJob(
-          String jobName, String teamName, String username, String deploymentId, CapturedOutput capturedOutput) throws Exception {
-    assertEquals(0 , Arrays.stream(capturedOutput.getAll().split("\n")) // assert there are no errors in the logs around not being able to find the cronjob in k8s
+      String jobName,
+      String teamName,
+      String username,
+      String deploymentId,
+      CapturedOutput capturedOutput)
+      throws Exception {
+    assertEquals(
+        0,
+        Arrays.stream(
+                capturedOutput
+                    .getAll()
+                    .split(
+                        "\n")) // assert there are no errors in the logs around not being able to
+                               // find the cronjob in k8s
             .filter(a -> a.contains("Could not read cron job"))
-            .filter(a -> a.contains(jobName)).count());
+            .filter(a -> a.contains(jobName))
+            .count());
     // manually start job execution
     ImmutablePair<String, String> executeDataJobResult =
         JobExecutionUtil.executeDataJob(jobName, teamName, username, deploymentId, mockMvc);
