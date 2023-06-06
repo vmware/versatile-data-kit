@@ -76,6 +76,7 @@ class CommonStoreKeys:
     """
     WRITE_DIRECTORY: StoreKey[str] = ImmutableStoreKey[str]("vdk.write_directory")
 
+
 class StateStore:
     """
     StateStore is a type-safe heterogeneous mapping that allows keys and value types to be defined to keep state of app.

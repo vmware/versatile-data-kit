@@ -121,7 +121,7 @@ class CoreConfigDefinitionPlugin:
             "Write data job directory, to be used if job needs to write files"
             " to local storage during cloud execution (since writing to any "
             "directory might be restricted on a deployment basis).Default value"
-            "is /var/tmp"
+            "is /var/tmp",
         )
 
 
