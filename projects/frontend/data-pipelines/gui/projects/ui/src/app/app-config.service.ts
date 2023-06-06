@@ -25,10 +25,12 @@ export class AppConfigService {
         return firstValueFrom(this.httpClient.get<AppConfig>('/assets/data/appConfig.json')).then((data) => {
             this.appConfig = data;
             try {
-                const localRoutes = routes.filter((route: { path: string }) => {
-                    return !data.ignoreRoutes.includes(route.path);
-                });
-                this.router.resetConfig(localRoutes);
+                if (data.ignoreRoutes) {
+                    const localRoutes = routes.filter((route: { path: string }) => {
+                        return !data.ignoreRoutes.includes(route.path);
+                    });
+                    this.router.resetConfig(localRoutes);
+                }
             } catch (e) {
                 console.error('Failed to reset Router config');
                 throw e;

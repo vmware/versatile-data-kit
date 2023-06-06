@@ -255,6 +255,7 @@ control_service_deploy_testing_data_pipelines:
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
     - pip install --upgrade pip && pip install awscli
+    - export FRONTEND_TAG=latest
     - export DESIRED_VERSION=v3.12.0 # helm version
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
@@ -291,7 +292,7 @@ control_service_post_deployment_test:
       changes: *control_service_helm_change_locations
 
 control_service_release:
-  image: docker:23.0.1
+  extends: .images:dind
   stage: release
   script:
     - apk --no-cache add bash openssl curl git
@@ -304,6 +305,8 @@ control_service_release:
     - helm plugin install https://github.com/thynquest/helm-pack --version 0.2.2
     - cd projects/control-service/projects/helm_charts
     - bash -ex ../../cicd/release-pipelines-service.sh
+    - docker login $VDK_DOCKER_REGISTRY_URL --username $VDK_DOCKER_REGISTRY_USERNAME --password $VDK_DOCKER_REGISTRY_PASSWORD
+    - bash -ex ../../cicd/tag_image_dockerhub.sh pipelines-control-service $IMAGE_TAG stable
   retry: !reference [.control_service_retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'

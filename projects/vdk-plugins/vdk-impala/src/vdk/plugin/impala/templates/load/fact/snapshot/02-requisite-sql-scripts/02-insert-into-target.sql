@@ -1,6 +1,6 @@
 -- /* +SHUFFLE */ below is a query hint to Impala.
 -- Do not remove! https://www.cloudera.com/documentation/enterprise/5-9-x/topics/impala_hints.html
-INSERT OVERWRITE TABLE {target_schema}.{target_table} {_vdk_template_insert_partition_clause} /* +SHUFFLE */
+INSERT OVERWRITE TABLE {current_target_schema}.{current_target_table} {_vdk_template_insert_partition_clause} /* +SHUFFLE */
 (
   SELECT *
   FROM   {target_schema}.{target_table}

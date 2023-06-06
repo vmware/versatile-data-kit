@@ -17,6 +17,7 @@ export class GettingStartedComponent {
     }
 
     get widgetsVisible(): boolean {
-        return !this.appConfigService.getConfig().ignoreComponents.includes('widgetsComponent');
+        const ignoreComponents = this.appConfigService.getConfig().ignoreComponents;
+        return !(ignoreComponents && ignoreComponents.includes('widgetsComponent'));
     }
 }
