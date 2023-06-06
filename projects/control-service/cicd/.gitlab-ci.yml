@@ -160,12 +160,8 @@ control_service_publish_job_base_image-secure:
         && mv dist_linux/docker-slim-sensor /usr/local/bin/
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - projects/control-service/projects/job-base-image-secure/**/*
+  refs:
+    - external_pull_requests
 
 control_service_publish_job_builder_image:
   extends: .images:dind
