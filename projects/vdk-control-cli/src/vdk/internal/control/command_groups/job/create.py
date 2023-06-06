@@ -3,6 +3,7 @@
 import logging
 import os
 import pathlib
+from types import ModuleType
 from typing import Optional
 from typing import Tuple
 
@@ -36,7 +37,7 @@ class JobCreate:
         path: str,
         cloud: bool,
         local: bool,
-        sample_job_directory=None,
+        sample_job_directory: ModuleType = None,
     ) -> None:
         self.__validate_job_name(name)
         if local:
@@ -70,7 +71,7 @@ class JobCreate:
         )
 
     def __create_local_job(
-        self, team: str, name: str, job_path: str, sample_job_directory
+        self, team: str, name: str, job_path: str, sample_job_directory: ModuleType
     ) -> None:
         sample_job = self.__create_sample_job_dir(sample_job_directory)
         log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
@@ -80,18 +81,18 @@ class JobCreate:
             log.warning(f"Failed to write Data Job team {team} in config.ini.")
         log.info(f"Data Job with name {name} created locally in {job_path}.")
 
-    def __create_sample_job_dir(self, sample_job_directory):
+    def __create_sample_job_dir(self, sample_job_directory: ModuleType):
         """
         This method generates the directory for the sample job which will be created when invoking `vdk create`.
         Its control flow is as follows:
          - if the configuration variable VDK_CONTROL_SAMPLE_JOB_DIRECTORY is set, it takes precedent over
          everything else
-         - next, if a sample_job_module is passed to the method by its invoking class, it takes precedent next; the
+         - next, if a sample_job_directory is passed to the method by its invoking class, it takes precedent next; the
          purpose of this is to allow plugins and extensions to set a new default sample job, but still not overwrite
          one which was set by the user
          - finally, the default sample job is used
 
-        :param sample_job_module: a Python module containing the files for a sample job
+        :param sample_job_directory: a Python module containing the files for a sample job
         :return: an absolute path in the current environment where the sample job is so the files located there can
         be copied over to the target directory when creating a new job
         """
