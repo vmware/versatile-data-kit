@@ -43,7 +43,7 @@ RUN : \
 RUN : \
  && set -ex \
  && cd ${_workdir}/python \
- && ax_cv_c_float_words_bigendian=no \
+ && ax_cv_c_float_words_bigendian=yes \
  && ./configure \
         --enable-loadable-sqlite-extensions \
         --enable-optimizations \
