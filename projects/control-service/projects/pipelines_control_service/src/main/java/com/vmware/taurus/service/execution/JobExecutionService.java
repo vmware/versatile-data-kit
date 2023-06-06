@@ -80,8 +80,7 @@ public class JobExecutionService {
 
     JobDeploymentStatus jobDeploymentStatus =
         deploymentService
-            .readDeployment(jobName.toLowerCase())
-            .orElseThrow(() -> new DataJobDeploymentNotFoundException(jobName));
+            .readDeployment(jobName.toLowerCase());
 
     String executionId = getExecutionId(JobImageDeployer.getCronJobName(jobName));
 

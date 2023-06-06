@@ -50,7 +50,6 @@ public class DeploymentServiceTest {
   private static final String TEST_CRONJOB_NAME = TEST_JOB_NAME;
   private static final String TEST_JOB_IMAGE_NAME = "test-job-image-name";
   private static final String TEST_JOB_SCHEDULE = "*/5 * * * *";
-  private static final String TEST_BUILDER_JOB_NAME = "builder-test-job-name";
   private static final Map<String, String> TEST_VDK_OPTS =
       Map.of("testOptKey", "testOptVal", "VDK_KEYTAB_PRINCIPAL", "pa__view_test-job-name_taurus");
   private static final String TEST_PRINCIPAL_NAME = "pa__view_test-job-name_taurus";
@@ -141,6 +140,8 @@ public class DeploymentServiceTest {
 
     when(kubernetesService.readCronJob(TEST_CRONJOB_NAME))
         .thenReturn(Optional.of(TestUtils.getJobDeploymentStatus()));
+    when(kubernetesService.cronJobExists(TEST_CRONJOB_NAME))
+            .thenReturn(true);
   }
 
   @Test
@@ -340,8 +341,7 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  public void patchDeployment_deploymentEnabled_shouldNotClearTerminationStatus()
-      throws ApiException {
+  public void patchDeployment_deploymentEnabled_shouldNotClearTerminationStatus() {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
     jobDeployment.setDataJobName(testDataJob.getName());
@@ -354,8 +354,7 @@ public class DeploymentServiceTest {
   }
 
   @Test
-  public void patchDeployment_deploymentDisabled_shouldClearTerminationStatus()
-      throws ApiException {
+  public void patchDeployment_deploymentDisabled_shouldClearTerminationStatus() {
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(testDataJob.getJobConfig().getTeam());
     jobDeployment.setDataJobName(testDataJob.getName());

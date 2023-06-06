@@ -58,7 +58,10 @@ public class JobExecutionServiceStartExecutionIT {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
     Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
-        .thenReturn(Optional.empty());
+            .thenThrow(new DataJobDeploymentNotFoundException(actualDataJob.getName()));
+    Mockito.when(deploymentService.deploymentExists(Mockito.eq(actualDataJob.getName())))
+            .thenReturn(false);
+
 
     Assertions.assertThrows(
         DataJobDeploymentNotFoundException.class,
@@ -75,8 +78,9 @@ public class JobExecutionServiceStartExecutionIT {
       throws ApiException {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-    Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
+    Mockito.when(deploymentService.readOptionalDeployment(Mockito.eq(actualDataJob.getName())))
         .thenReturn(Optional.of(new JobDeploymentStatus()));
+
     Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName())))
         .thenReturn(true);
 
@@ -102,7 +106,7 @@ public class JobExecutionServiceStartExecutionIT {
     JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
     jobDeploymentStatus.setCronJobName(cronJobName);
     Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
-        .thenReturn(Optional.of(jobDeploymentStatus));
+        .thenReturn(jobDeploymentStatus);
     Mockito.when(operationContext.getOpId()).thenReturn(opId);
     Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName())))
         .thenReturn(false);
@@ -152,8 +156,10 @@ public class JobExecutionServiceStartExecutionIT {
 
     JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
     jobDeploymentStatus.setCronJobName(cronJobName);
-    Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
+    Mockito.when(deploymentService.readOptionalDeployment(Mockito.eq(actualDataJob.getName())))
         .thenReturn(Optional.of(jobDeploymentStatus));
+    Mockito.when(deploymentService.readDeployment(Mockito.eq(actualDataJob.getName())))
+            .thenReturn(jobDeploymentStatus);
     Mockito.when(operationContext.getOpId()).thenReturn(opId);
     Mockito.when(dataJobsKubernetesService.isRunningJob(Mockito.eq(actualDataJob.getName())))
         .thenReturn(false);

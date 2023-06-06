@@ -70,6 +70,10 @@ public class JobImageDeployer {
     return jobDeployment;
   }
 
+  public boolean deploymentExists(String dataJobName) {
+    return dataJobsKubernetesService.cronJobExists(getCronJobName(dataJobName));
+  }
+
   public List<JobDeploymentStatus> readScheduledJobs() {
     return dataJobsKubernetesService.readJobDeploymentStatuses();
   }

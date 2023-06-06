@@ -88,14 +88,9 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       String teamName, String jobName, String deploymentId, DataJobMode dataJobMode) {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId and mode not implemented
-      List<DataJobDeploymentStatus> deployments = Collections.emptyList();
-      Optional<JobDeploymentStatus> jobDeploymentStatus =
-          deploymentService.readDeployment(jobName.toLowerCase());
-      if (jobDeploymentStatus.isPresent()) {
-        deployments =
-            Arrays.asList(ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
-      }
-      return ResponseEntity.ok(deployments);
+      return ResponseEntity.ok(deploymentService.readOptionalDeployment(jobName.toLowerCase())
+              .map(s -> List.of(ToApiModelConverter.toDataJobDeploymentStatus(s)))
+              .orElse(Collections.emptyList()));
     }
     return ResponseEntity.notFound().build();
   }
@@ -105,12 +100,8 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       String teamName, String jobName, String deploymentId) {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId are not implemented.
-      Optional<JobDeploymentStatus> jobDeploymentStatus =
-          deploymentService.readDeployment(jobName.toLowerCase());
-      if (jobDeploymentStatus.isPresent()) {
-        return ResponseEntity.ok(
-            ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
-      }
+      return ResponseEntity.ok(
+              ToApiModelConverter.toDataJobDeploymentStatus(deploymentService.readDeployment(jobName.toLowerCase())));
     }
     return ResponseEntity.notFound().build();
   }
