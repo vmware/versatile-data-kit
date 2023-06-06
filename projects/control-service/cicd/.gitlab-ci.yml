@@ -160,8 +160,9 @@ control_service_publish_job_base_image-secure:
         && mv dist_linux/docker-slim-sensor /usr/local/bin/
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
-  refs:
-    - external_pull_requests
+  only:
+    refs:
+      - external_pull_requests
 
 control_service_publish_job_builder_image:
   extends: .images:dind
