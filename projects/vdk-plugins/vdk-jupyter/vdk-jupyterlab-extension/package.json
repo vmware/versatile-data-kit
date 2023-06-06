@@ -72,7 +72,8 @@
     "@jupyterlab/services": "6.5.3",
     "@jupyterlab/settingregistry": "3.1.0",
     "@jupyterlab/testutils": "3.6.3",
-    "@lumino/widgets": "1.33.0"
+    "@lumino/widgets": "1.33.0",
+    "@jupyterlab/codeeditor": "3.6.3"
   },
   "devDependencies": {
     "@babel/core": "7.8.0",
