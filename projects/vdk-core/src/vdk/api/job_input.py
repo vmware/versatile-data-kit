@@ -382,7 +382,7 @@ class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArgum
         """
 
     @abstractmethod
-    def get_write_directory(self) -> pathlib.Path:
+    def get_temporary_write_directory(self) -> pathlib.Path:
         """
         :return:
             Returns a path pointing to a writable directory for
@@ -390,5 +390,15 @@ class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArgum
             different cloud deployments may restrict access to the file
             system in a cloud execution. In this way data job users can make
             sure the returned folder will allow read/write access.
+            Files written to this directory are temporary and there is no
+            guarantee that a file created during a local data job execution will
+            be present in a subsequent local execution. Therefore precautions
+            must be taken when developing locally since temporary files created
+            might not have been deleted by the OS. Files created during
+            cloud executions are deleted when the data job completes. Users can
+            assume that the temp directory is empty on subsequent cloud
+            executions. Default returned folder (non cloud executions) is
+            tempfile.gettempdir() therefore the default temporary directory is
+            managed by the underlying OS.
         """
         pass

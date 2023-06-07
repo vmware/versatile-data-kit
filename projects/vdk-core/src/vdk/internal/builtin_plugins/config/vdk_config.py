@@ -3,6 +3,7 @@
 import logging
 import os
 import pathlib
+import tempfile
 from os import getenv
 from typing import Optional
 
@@ -23,7 +24,7 @@ WORKING_DIR = "WORKING_DIR"
 ATTEMPT_ID = "ATTEMPT_ID"
 EXECUTION_ID = "EXECUTION_ID"
 OP_ID = "OP_ID"
-WRITE_DIRECTORY = "WRITE_DIRECTORY"
+TEMPORARY_WRITE_DIRECTORY = "WRITE_DIRECTORY"
 
 log = logging.getLogger(__name__)
 
@@ -115,13 +116,17 @@ class CoreConfigDefinitionPlugin:
             "Each distinct run would a single attempt.",
         )
         config_builder.add(
-            WRITE_DIRECTORY,
-            "/var/tmp",
+            TEMPORARY_WRITE_DIRECTORY,
+            tempfile.gettempdir(),
             True,
-            "Write data job directory, to be used if job needs to write files"
-            " to local storage during cloud execution (since writing to any "
-            "directory might be restricted on a deployment basis).Default value"
-            "is an empty string or current directory.",
+            "Temporary data job write directory, to be used if job needs to"
+            " write temporary files to local storage during job execution"
+            " (since writing to any directory might be restricted on a"
+            " deployment basis). Default value is tempfile.gettempdir()."
+            " Deletion of temporary files in the default directory is managed"
+            " by the underlying OS the data job executes on. There is"
+            " no guarantee that files created during a local data job execution"
+            " will  be present or absent for the next execution.",
         )
 
 

@@ -1,6 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
+import tempfile
 from unittest import mock
 
 from click.testing import Result
@@ -16,7 +17,7 @@ def test_write_directory_default():
             "run",
             util.job_path("write-directory"),
             "--arguments",
-            '{"expected_directory_string" : "/var/tmp"}',
+            f'{{"expected_directory_string" : "{tempfile.gettempdir()}"}}',
         ]
     )
     cli_assert_equal(0, result)
