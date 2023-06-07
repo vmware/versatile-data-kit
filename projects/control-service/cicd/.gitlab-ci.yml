@@ -8,12 +8,12 @@
       - always
 
 .images:dind:
-  image: docker:24.0.2
+  image: docker:23.0.1
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   services:
-    - docker:24.0.2-dind
+    - docker:23.0.1-dind
 
 # This grouping listens on changes to all code of control service
 # Changes to this group should trigger runs of runs of unit and integration tests.
