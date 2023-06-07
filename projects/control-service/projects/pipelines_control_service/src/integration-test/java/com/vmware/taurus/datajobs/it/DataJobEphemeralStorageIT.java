@@ -52,9 +52,8 @@ public class DataJobEphemeralStorageIT extends BaseIT {
         Arrays.stream(
                 capturedOutput
                     .getAll()
-                    .split(
-                        "\n")) // assert there are no errors in the logs around not being able to
-                               // find the cronjob in k8s
+                    .split("\n")) // assert there are no errors in the logs around not being able to
+            // find the cronjob in k8s
             .filter(a -> a.contains("Could not read cron job"))
             .filter(a -> a.contains(jobName))
             .count());
