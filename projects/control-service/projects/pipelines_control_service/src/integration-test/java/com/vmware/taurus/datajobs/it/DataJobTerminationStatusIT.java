@@ -33,6 +33,10 @@ import com.vmware.taurus.service.JobsRepository;
 
 @AutoConfigureMetrics
 @SpringBootTest(
+    properties = {
+      "logging.level.org.hibernate.SQL=DEBUG",
+      "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE"
+    },
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class DataJobTerminationStatusIT extends BaseIT {
@@ -120,6 +124,10 @@ public class DataJobTerminationStatusIT extends BaseIT {
     assertLabelEquals(INFO_METRICS, "", "email_notified_on_user_error", line);
 
     // Validate that there is a taurus_datajob_info metrics for the data job
+    assertEquals(
+        findMetricCountWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", jobName),
+        1,
+        scrape);
     match = findMetricsWithLabel(scrape, TERMINATION_STATUS_METRICS, "data_job", jobName);
     assertTrue(
         match.isPresent(),
@@ -169,6 +177,20 @@ public class DataJobTerminationStatusIT extends BaseIT {
       return Optional.empty();
     }
     return Optional.of(matcher.group());
+  }
+
+  public static int findMetricCountWithLabel(
+      CharSequence input, String metrics, String label, String labelValue) {
+    Pattern pattern =
+        Pattern.compile(
+            String.format("%s\\{.*%s=\"%s\"[^\\}]*\\} (.*)", metrics, label, labelValue),
+            Pattern.CASE_INSENSITIVE);
+    Matcher matcher = pattern.matcher(input);
+    int counter = 0;
+    while (matcher.find()) {
+      counter++;
+    }
+    return counter;
   }
 
   private static void assertLabelEquals(
