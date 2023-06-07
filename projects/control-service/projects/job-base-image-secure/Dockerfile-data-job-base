@@ -2,8 +2,8 @@
 FROM photon:latest as builder
 
 ARG PYTHON_MAJOR=3
-ARG PYTHON_MINOR=10
-ARG PYTHON_PATCH=11
+ARG PYTHON_MINOR=8
+ARG PYTHON_PATCH=16
 ARG PYTHON_VERSION=${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH}
 
 ARG _prefixdir=/usr/local
@@ -43,16 +43,7 @@ RUN : \
 RUN : \
  && set -ex \
  && cd ${_workdir}/python \
- && ax_cv_c_float_words_bigendian=yes \
  && ./configure \
-        --enable-loadable-sqlite-extensions \
-        --enable-optimizations \
-        --enable-option-checking=fatal \
-        --enable-shared \
-        --with-lto \
-        --without-ensurepip \
-        --prefix=${_prefixdir} \
-        LDFLAGS=-Wl,-rpath=${_libdir} \
  && make \
  && make install
 
