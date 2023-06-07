@@ -39,7 +39,7 @@
     - apk --no-cache add openjdk17-jdk git zip curl zip py-pip
     - pip install --upgrade pip && pip install awscli
 
-.control_service_build_image:
+control_service_build_image:
   extends:
     - .control_service_base_build
     - .images:dind
@@ -65,7 +65,7 @@
       - external_pull_requests
     changes: *control_service_code_change_locations
 
-.control_service_integration_test:
+control_service_integration_test:
   extends: .control_service_base_build
   stage: build
   variables:
@@ -110,7 +110,7 @@
       - projects/control-service/projects/**/README.md
       - projects/control-service/projects/model/apidefs/datajob-api/config-python.json
 
-.control_service_test_helm_chart:
+control_service_test_helm_chart:
   stage: build
   script:
     - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
@@ -160,9 +160,12 @@ control_service_publish_job_base_image-secure:
         && mv dist_linux/docker-slim-sensor /usr/local/bin/
     - bash -ex ./publish-job-base.sh
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - external_pull_requests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-base-image-secure/**/*
 
 control_service_publish_job_builder_image:
   extends: .images:dind
