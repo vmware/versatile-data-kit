@@ -22,7 +22,7 @@ To install the extension,first navigate to the project directory and then execut
 # Once in the project directory, use the npm ci command to install
 # the exact versions of the dependencies specified in the package-lock.json
 npm ci
-# Install the extension 
+# Install the extension
 pip install vdk-jupyterlab-extension
 ```
 
