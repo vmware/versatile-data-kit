@@ -7,8 +7,12 @@ package com.vmware.taurus.service;
 
 import java.util.Collections;
 
+import com.vmware.taurus.service.deploy.JobCommandProvider;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
+import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.V1Job;
 import io.kubernetes.client.openapi.models.V1JobCondition;
 import io.kubernetes.client.openapi.models.V1JobList;
@@ -73,26 +77,27 @@ public class KubernetesServiceIsRunningJobTest {
   }
 
   private void assertResponseValid(V1JobList response, boolean expectedResult) throws ApiException {
-    KubernetesService kubernetesService = Mockito.mock(KubernetesService.class);
-    Mockito.when(kubernetesService.isRunningJob(Mockito.anyString())).thenCallRealMethod();
-
     BatchV1Api batchV1Api = Mockito.mock(BatchV1Api.class);
     Mockito.when(
-            batchV1Api.listNamespacedJob(
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.anyString(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull()))
-        .thenReturn(response);
+                    batchV1Api.listNamespacedJob(
+                            Mockito.anyString(),
+                            Mockito.isNull(),
+                            Mockito.isNull(),
+                            Mockito.isNull(),
+                            Mockito.isNull(),
+                            Mockito.anyString(),
+                            Mockito.isNull(),
+                            Mockito.isNull(),
+                            Mockito.isNull(),
+                            Mockito.isNull(),
+                            Mockito.isNull()))
+            .thenReturn(response);
 
-    Mockito.when(kubernetesService.initBatchV1Api()).thenReturn(batchV1Api);
+    KubernetesService kubernetesService = new DataJobsKubernetesService(
+            "default",  true, new ApiClient(),
+            batchV1Api,  new BatchV1beta1Api(),new V1Beta1CronJobDeployer(null, new BatchV1beta1Api() , "default"), new JobCommandProvider()
+    );
+
     boolean actualResult = kubernetesService.isRunningJob("test-job");
 
     Assertions.assertEquals(expectedResult, actualResult);

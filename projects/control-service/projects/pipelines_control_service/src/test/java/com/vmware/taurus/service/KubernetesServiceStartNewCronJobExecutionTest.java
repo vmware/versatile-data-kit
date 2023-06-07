@@ -5,9 +5,13 @@
 
 package com.vmware.taurus.service;
 
+import com.vmware.taurus.service.deploy.JobCommandProvider;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobEnvVar;
+import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
 import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.*;
 import org.junit.jupiter.api.Test;
@@ -204,25 +208,15 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
 
   private KubernetesService mockKubernetesService(String jobName, V1beta1CronJob result)
       throws ApiException {
-    var kubernetesService = Mockito.mock(KubernetesService.class);
-    Mockito.doCallRealMethod()
-        .when(kubernetesService)
-        .startNewCronJobExecution(
-            Mockito.anyString(),
-            Mockito.anyString(),
-            Mockito.anyMap(),
-            Mockito.anyMap(),
-            Mockito.anyMap(),
-            Mockito.any());
 
     BatchV1beta1Api batchV1beta1Api = Mockito.mock(BatchV1beta1Api.class);
     Mockito.when(
-            batchV1beta1Api.readNamespacedCronJob(
-                Mockito.eq(jobName), Mockito.isNull(), Mockito.isNull()))
-        .thenReturn(result);
-
-    Mockito.when(kubernetesService.initBatchV1beta1Api()).thenReturn(batchV1beta1Api);
-
-    return kubernetesService;
+                    batchV1beta1Api.readNamespacedCronJob(
+                            Mockito.eq(jobName), Mockito.anyString(), Mockito.isNull()))
+            .thenReturn(result);
+    DataJobsKubernetesService spy = Mockito.spy(new DataJobsKubernetesService("default", false, new ApiClient(), new BatchV1Api(),
+            batchV1beta1Api, new V1Beta1CronJobDeployer(null, new BatchV1beta1Api(), "default"), new JobCommandProvider()));
+    Mockito.doNothing().when(spy).createNewJob(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+    return spy;
   }
 }
