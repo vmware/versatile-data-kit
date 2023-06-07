@@ -50,8 +50,7 @@ public class DeploymentService {
   }
 
   public JobDeploymentStatus readDeployment(String jobName) {
-    return jobImageDeployer
-        .readScheduledJob(jobName)
+    return readOptionalDeployment(jobName)
         .orElseThrow(() -> new DataJobDeploymentNotFoundException(jobName));
   }
 

@@ -452,17 +452,15 @@ public abstract class KubernetesService implements InitializingBean {
     return jobStatus.isPresent() ? jobStatus : readV1CronJob(cronJobName);
   }
 
-  public boolean cronJobExists(String cronJobName) {
+  public boolean  cronJobExists(String cronJobName) {
     try {
-      initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null);
+      return !initBatchV1beta1Api().listNamespacedCronJob(namespace, null, false,
+              null, "metadata.name=" + cronJobName, null, 1 , null ,null, null ,null).getItems().isEmpty() ||
+              !initBatchV1Api().listNamespacedCronJob(namespace, null, false,
+                      null, "metadata.name=" + cronJobName, null, 1 , null ,null, null ,null).getItems().isEmpty();
     } catch (ApiException e) {
-      try {
-        initBatchV1Api().readNamespacedCronJob(cronJobName, namespace, null);
-      } catch (ApiException e2) {
-        return false;
-      }
+      throw new KubernetesException("Unable to check if a job exists", e);
     }
-    return true;
   }
 
   public Optional<JobDeploymentStatus> readV1beta1CronJob(String cronJobName) {
