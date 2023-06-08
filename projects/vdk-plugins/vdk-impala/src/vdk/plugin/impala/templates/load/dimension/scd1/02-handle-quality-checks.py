@@ -1,9 +1,11 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
-import re
 
 from vdk.api.job_input import IJobInput
+from vdk.plugin.impala.templates.utility import align_stg_table_with_target
+from vdk.plugin.impala.templates.utility import get_file_content
+from vdk.plugin.impala.templates.utility import get_staging_table_name
 
 SQL_FILES_FOLDER = (
     os.path.dirname(os.path.abspath(__file__)) + "/02-requisite-sql-scripts"
@@ -25,16 +27,11 @@ def run(job_input: IJobInput):
     source_view = job_arguments.get("source_view")
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
-    insert_query = get_query("02-insert-into-target.sql")
+    insert_query = get_file_content(SQL_FILES_FOLDER, "02-insert-into-target.sql")
 
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
-        staging_table_name = f"vdk_check_{target_schema}_{target_table}"
-
-        if len(staging_table_name) > 128:
-            raise ValueError(
-                f"Staging table - {staging_table_name} exceeds the 128 character limit."
-            )
+        staging_table_name = get_staging_table_name(target_schema, target_table)
 
         staging_table = f"{staging_schema}.{staging_table_name}"
 
@@ -65,49 +62,3 @@ def run(job_input: IJobInput):
 
     else:
         job_input.execute_query(insert_query)
-
-
-def get_query(sql_file_name):
-    query_full_path = os.path.join(SQL_FILES_FOLDER, sql_file_name)
-    with open(query_full_path) as query:
-        content = query.read()
-        return content
-
-
-def align_stg_table_with_target(target_table, stg_table, job_input):
-    create_table_like(target_table, stg_table, job_input)
-
-    orig_create_table_statement = extract_create_table_statement(
-        target_table, job_input
-    )
-    clone_create_table_statement = extract_create_table_statement(stg_table, job_input)
-
-    if orig_create_table_statement != clone_create_table_statement:
-        job_input.execute_query(f"DROP TABLE {stg_table}")
-        create_table_like(target_table, stg_table, job_input)
-
-
-def extract_create_table_statement(table_name, job_input):
-    statement = job_input.execute_query(f"SHOW CREATE TABLE {table_name}")[0][0]
-    statement = remove_location(statement)
-    statement = remove_table_properties(statement)
-    statement = remove_create_table_prefix(statement)
-    return statement
-
-
-def create_table_like(orig_table_name, clone_table_name, job_input):
-    job_input.execute_query(
-        f"CREATE TABLE IF NOT EXISTS {clone_table_name} LIKE {orig_table_name}"
-    )
-
-
-def remove_location(create_table_statement):
-    return re.sub(r"\s+LOCATION '[^']'", "", create_table_statement)
-
-
-def remove_create_table_prefix(create_table_statement):
-    return re.sub("^CREATE TABLE[^\\(]*\\(", "", create_table_statement)
-
-
-def remove_table_properties(create_table_statement):
-    return re.sub("\\s+TBLPROPERTIES \\([^\\)]*\\)", "", create_table_statement)

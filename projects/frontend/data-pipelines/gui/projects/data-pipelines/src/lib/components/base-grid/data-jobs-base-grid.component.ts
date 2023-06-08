@@ -386,7 +386,7 @@ export abstract class DataJobsBaseGridComponent
     updateQuickFilter($event: QuickFilterChangeEvent) {
         let activeStatus = '';
         if ($event.activatedFilter && $event.activatedFilter['label']) {
-            activeStatus = this._getFilterPattern('deployments.enabled', $event.activatedFilter['label']);
+            activeStatus = this._createApiFilterPattern('deployments.enabled', $event.activatedFilter['label']);
         }
         this.updateDeploymentStatus(activeStatus);
     }
@@ -409,31 +409,37 @@ export abstract class DataJobsBaseGridComponent
                     this._doLoadData();
 
                     const criteriaFilters = this.model.getComponentState().filter.criteria;
-                    criteriaFilters.forEach((pair) => {
+                    for (const pair of criteriaFilters) {
+                        if (CollectionsUtil.isDefined(pair.sort)) {
+                            continue;
+                        }
+
                         switch (pair.property) {
                             case 'jobName':
-                                this.gridFilters.jobName = this._clearFilterPattern('jobName', pair.pattern);
+                                this.gridFilters.jobName = this._normalizeFilterPattern('jobName', pair.pattern);
                                 break;
                             case 'config.team':
-                                this.gridFilters.teamName = this._clearFilterPattern('config.team', pair.pattern);
+                                this.gridFilters.teamName = this._normalizeFilterPattern('config.team', pair.pattern);
                                 break;
                             case 'deployments.enabled':
-                                this.gridFilters.deploymentStatus = this._getFilterPattern('deployments.enabled', pair.pattern);
+                                this.gridFilters.deploymentStatus = this._createApiFilterPattern('deployments.enabled', pair.pattern);
                                 break;
                             case 'deployments.lastExecutionStatus':
-                                this.gridFilters.deploymentLastExecutionStatus = this._getFilterPattern(
+                                this.gridFilters.deploymentLastExecutionStatus = this._createApiFilterPattern(
                                     'deployments.lastExecutionStatus',
                                     pair.pattern
                                 );
                                 break;
                             case 'config.description':
-                                this.gridFilters.descriptionFilter = this._getFilterPattern('config.description', pair.pattern);
+                                this.gridFilters.descriptionFilter = this._createApiFilterPattern('config.description', pair.pattern);
                                 break;
+                            default:
+                            // No-op.
                         }
-                    });
+                    }
 
                     if (this.gridFilters.deploymentStatus === undefined && this.clrGridUIState.filter['deployments.enabled']) {
-                        this.gridFilters.deploymentStatus = this._getFilterPattern(
+                        this.gridFilters.deploymentStatus = this._createApiFilterPattern(
                             'deployments.enabled',
                             this.clrGridUIState.filter['deployments.enabled']
                         );
@@ -534,7 +540,7 @@ export abstract class DataJobsBaseGridComponent
     }
 
     protected updateDeploymentStatus(_status: string) {
-        const status = this._getFilterPattern('deployments.enabled', _status);
+        const status = this._createApiFilterPattern('deployments.enabled', _status);
         this.gridFilters.deploymentStatus = status;
         this.urlStateManager.setQueryParam('deploymentEnabled', status);
         this._doUrlUpdate();
@@ -686,7 +692,7 @@ export abstract class DataJobsBaseGridComponent
 
                 filters.push({
                     property,
-                    pattern: this._getFilterPattern(property, value),
+                    pattern: this._createApiFilterPattern(property, value),
                     sort: null
                 });
             }
@@ -705,7 +711,7 @@ export abstract class DataJobsBaseGridComponent
         return filters;
     }
 
-    private _clearFilterPattern(propertyName: string, value: string) {
+    private _normalizeFilterPattern(propertyName: string, value: string) {
         switch (propertyName) {
             case 'config.team':
                 return value.startsWith('%') ? `${value?.slice(1, value.length - 1)}` : value;
@@ -718,7 +724,7 @@ export abstract class DataJobsBaseGridComponent
         }
     }
 
-    private _getFilterPattern(propertyName: string, value: string) {
+    private _createApiFilterPattern(propertyName: string, value: string) {
         // TODO: Remove this, once the Backend support % filterting for all the properties
         // TODO: Once jobName get the same handling as config.team, add case proper case
         switch (propertyName) {

@@ -38,7 +38,8 @@ const {
     waitForDataJobExecutionToComplete,
     deleteJobs,
     deleteJobsFixtures,
-    changeJobsStatusesFixtures
+    changeJobsStatusesFixtures,
+    deleteDataJobsWithoutDeployment
 } = require('./helpers/job-helpers.plugins');
 
 /**
@@ -48,6 +49,14 @@ const {
 // `cypressConfig` is the resolved Cypress config
 module.exports = (on, cypressConfig) => {
     const TASKS = {
+        /**
+         * ** Delete Data Jobs without deployment with parallelism.
+         *
+         * @return {Promise<boolean[]>}
+         */
+        deleteDataJobsWithoutDeployment: () => {
+            return deleteDataJobsWithoutDeployment({ ...cypressConfig });
+        },
         /**
          * ** Create test Data Jobs if they don't exist.
          *
@@ -69,15 +78,15 @@ module.exports = (on, cypressConfig) => {
         /**
          * ** Provide Data Jobs executions.
          *
-         * @param {{relativePathToFixtures: Array<{pathToFixture:string;}>; executions?: number;}} taskConfig - configuration for task.
+         * @param {{relativePathToFixtures: Array<{pathToFixture:string; executions?: number;}>;}} taskConfig - configuration for task.
          *      relativePathToFixtures provides relative paths for fixtures files starting from directory fixtures
          *      e.g. {
          *             relativePathToFixtures: [
          *                  {
-         *                      pathToFixture: '/base/data-jobs/cy-e2e-vdk/cy-e2e-vdk-failing-v0.json'
+         *                      pathToFixture: '/base/data-jobs/cy-e2e-vdk/cy-e2e-vdk-failing-v0.json',
+         *                      executions: 2
          *                  }
-         *             ],
-         *             executions: 2
+         *             ]
          *           }
          * @returns {Promise<boolean>}
          */
@@ -101,7 +110,6 @@ module.exports = (on, cypressConfig) => {
                 { ...cypressConfig }
             );
         },
-
         /**
          * ** Change Data Jobs statuses for provided fixtures.
          *

@@ -33,7 +33,7 @@ describe(
                 )
                 .then(() =>
                     DataJobManageExecutionsPage.provideExecutionsForLongLivedJobs(
-                        'failing'
+                        { job: 'failing', executions: 3 }
                     )
                 )
                 .then(() =>
@@ -510,7 +510,10 @@ describe(
                     // verify cell elements
                     dataJobExecutionsPage
                         .getDataGridExecTypeContainers('manual')
-                        .should('have.length', 0);
+                        .should('have.length.gte', 0);
+                    dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('scheduled')
+                        .should('have.length.gte', 0);
 
                     // verify current URL has appended manual and scheduled execution trigger and sort by type ascending
                     dataJobExecutionsPage
@@ -703,7 +706,7 @@ describe(
                                     pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
                                     queryParams: {
                                         sort: '{"startTime":-1}',
-                                        filter: `{"startTimeFormatted":"${filterValue}"}`
+                                        filter: `{"startTime":"${filterValue}"}`
                                     }
                                 });
                         });
@@ -803,7 +806,7 @@ describe(
                                     pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
                                     queryParams: {
                                         sort: '{"startTime":-1}',
-                                        filter: `{"endTimeFormatted":"${filterValue}"}`
+                                        filter: `{"endTime":"${filterValue}"}`
                                     }
                                 });
                         });
@@ -1799,7 +1802,8 @@ describe(
                 });
             });
 
-            // !!! important tests order is very important, because generated url from 1st test is used in the second
+            // !!! important tests order is very important, because generated url from 1st test is used in the second test
+            // the second test cannot be run without previously running the first test
             describe('DataGrid Filters and Sort to URL', () => {
                 // value is assigned at the end of the 1st test and used in the 2nd test
                 let navigationUrlWithFiltersAndSort = '';
@@ -1828,9 +1832,10 @@ describe(
                     // open status filter and select user_error and close the filter
                     dataJobExecutionsPage.openStatusFilter();
                     dataJobExecutionsPage.filterByStatus('user_error');
+                    dataJobExecutionsPage.filterByStatus('platform_error');
                     dataJobExecutionsPage.closeFilter();
 
-                    // verify current URL has appended filters execution status: user_error and sort by startTime descending
+                    // verify current URL has appended filters execution status: user_error and platform_error, and sort by startTime descending
                     dataJobExecutionsPage
                         .getCurrentUrlNormalized({
                             includePathSegment: true,
@@ -1841,19 +1846,20 @@ describe(
                             pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
                             queryParams: {
                                 sort: '{"startTime":-1}',
-                                filter: '{"status":"user_error"}'
+                                filter: '{"status":"user_error,platform_error"}'
                             }
                         });
 
-                    // open type filter and select manual execution trigger and close
+                    // open type filter and select manual execution then verify, then select scheduled trigger and close
                     dataJobExecutionsPage.openTypeFilter();
                     dataJobExecutionsPage.filterByType('manual');
                     dataJobExecutionsPage
                         .getDataGridExecTypeContainers('scheduled')
                         .should('have.length', 0);
+                    dataJobExecutionsPage.filterByType('scheduled');
                     dataJobExecutionsPage.closeFilter();
 
-                    // verify current URL has appended filters execution status: user_error, trigger type: manual, and sort by startTime descending
+                    // verify current URL has appended filters execution status: user_error and platform_error, trigger type: manual and scheduled, and sort by startTime descending
                     dataJobExecutionsPage
                         .getCurrentUrlNormalized({
                             includePathSegment: true,
@@ -1864,7 +1870,7 @@ describe(
                             pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
                             queryParams: {
                                 sort: '{"startTime":-1}',
-                                filter: '{"status":"user_error","type":"manual"}'
+                                filter: '{"status":"user_error,platform_error","type":"manual,scheduled"}'
                             }
                         });
 
@@ -1890,7 +1896,7 @@ describe(
                             return foundCells.length;
                         })
                         .should('gt', 0);
-                    // verify current URL has appended filters execution status: user_error, trigger type: manual, id: long_lived_job_name and sort by id ascending
+                    // verify current URL has appended filters execution status: user_error and platform_error, trigger type: manual and scheduled, id: long_lived_job_name and sort by id ascending
                     dataJobExecutionsPage
                         .getCurrentUrlNormalized({
                             includePathSegment: true,
@@ -1901,7 +1907,7 @@ describe(
                             pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
                             queryParams: {
                                 sort: '{"id":1}',
-                                filter: `{"status":"user_error","type":"manual","id":"${longLivedFailingJobFixture.job_name}"}`
+                                filter: `{"status":"user_error,platform_error","type":"manual,scheduled","id":"${longLivedFailingJobFixture.job_name}"}`
                             }
                         });
 
@@ -1930,7 +1936,7 @@ describe(
                                 })
                                 .should('gt', 0);
 
-                            // verify current URL has appended filters execution status: user_error, trigger type: manual, id: long_lived_job_name, startTimeFormatted: ${filterValue} and sort by id ascending
+                            // verify current URL has appended filters execution status: user_error and platform_error, trigger type: manual and scheduled, id: long_lived_job_name, startTime: ${filterValue} and sort by id ascending
                             dataJobExecutionsPage
                                 .getCurrentUrlNormalized({
                                     includePathSegment: true,
@@ -1941,7 +1947,7 @@ describe(
                                     pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
                                     queryParams: {
                                         sort: '{"id":1}',
-                                        filter: `{"status":"user_error","type":"manual","id":"${longLivedFailingJobFixture.job_name}","startTimeFormatted":"${filterValue}"}`
+                                        filter: `{"status":"user_error,platform_error","type":"manual,scheduled","id":"${longLivedFailingJobFixture.job_name}","startTime":"${filterValue}"}`
                                     }
                                 });
                         });
@@ -1972,7 +1978,7 @@ describe(
                                 })
                                 .should('gt', 0);
 
-                            // verify current URL has appended filters execution status: user_error, trigger type: manual, id: long_lived_job_name, startTimeFormatted: ${filterValue}, endTimeFormatted: ${filterValue} and sort by id ascending
+                            // verify current URL has appended filters execution status: user_error and platform_error, trigger type: manual and scheduled, id: long_lived_job_name, startTime: ${filterValue}, endTime: ${filterValue} and sort by id ascending
                             dataJobExecutionsPage
                                 .getCurrentUrlNormalized({
                                     includePathSegment: true,
@@ -1983,7 +1989,7 @@ describe(
                                     pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
                                     queryParams: {
                                         sort: '{"id":1}',
-                                        filter: `{"status":"user_error","type":"manual","id":"${longLivedFailingJobFixture.job_name}","startTimeFormatted":"${filterValue}","endTimeFormatted":"${filterValue}"}`
+                                        filter: `{"status":"user_error,platform_error","type":"manual,scheduled","id":"${longLivedFailingJobFixture.job_name}","startTime":"${filterValue}","endTime":"${filterValue}"}`
                                     }
                                 });
                         });
@@ -2022,7 +2028,7 @@ describe(
                         .getDataGridExecStatusFilterCheckboxesStatuses()
                         .should('deep.equal', [
                             ['succeeded', false],
-                            ['platform_error', false],
+                            ['platform_error', true],
                             ['user_error', true],
                             ['running', false],
                             ['submitted', false],
@@ -2037,11 +2043,14 @@ describe(
                         .getDataGridExecTypeFilterCheckboxesStatuses()
                         .should('deep.equal', [
                             ['manual', true],
-                            ['scheduled', false]
+                            ['scheduled', true]
                         ]);
                     dataJobExecutionsPage
+                        .getDataGridExecTypeContainers('manual')
+                        .should('have.length.gte', 0);
+                    dataJobExecutionsPage
                         .getDataGridExecTypeContainers('scheduled')
-                        .should('have.length', 0);
+                        .should('have.length.gte', 0);
                     dataJobExecutionsPage.closeFilter();
 
                     // verify sort by id ascending
@@ -2142,6 +2151,21 @@ describe(
                                     return foundCells.length;
                                 })
                                 .should('gt', 0);
+
+                            // verify current URL has appended filters execution status: user_error and platform_error, trigger type: manual and scheduled, id: long_lived_job_name, startTime: ${filterValue}, endTime: ${filterValue} and sort by id ascending
+                            dataJobExecutionsPage
+                                .getCurrentUrlNormalized({
+                                    includePathSegment: true,
+                                    includeQueryString: true,
+                                    decodeQueryString: true
+                                })
+                                .should('deep.equal', {
+                                    pathSegment: `/manage/data-jobs/${longLivedFailingJobFixture.team}/${longLivedFailingJobFixture.job_name}/executions`,
+                                    queryParams: {
+                                        sort: '{"id":1}',
+                                        filter: `{"status":"user_error,platform_error","type":"manual,scheduled","startTime":"${filterValue}","endTime":"${filterValue}","id":"${longLivedFailingJobFixture.job_name}"}`
+                                    }
+                                });
                         });
                     dataJobExecutionsPage.closeFilter();
                 });

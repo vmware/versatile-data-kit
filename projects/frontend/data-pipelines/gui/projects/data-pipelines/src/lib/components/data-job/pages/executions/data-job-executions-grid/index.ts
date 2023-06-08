@@ -4,4 +4,4 @@
  */
 
 export * from './data-job-executions-grid.component';
-export * from './comparators/execution-duration-comparator';
+export * from './comparators/duration/execution-duration.comparator';

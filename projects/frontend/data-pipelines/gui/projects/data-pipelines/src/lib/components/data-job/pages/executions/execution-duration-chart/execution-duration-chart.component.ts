@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DatePipe, formatDate } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
-import { Chart, ChartData, registerables, ScatterDataPoint, TimeUnit } from 'chart.js';
+import { ActiveElement, Chart, ChartData, registerables, ScatterDataPoint, TimeUnit } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import 'chartjs-adapter-date-fns';
@@ -19,13 +19,19 @@ import { DATA_PIPELINES_DATE_TIME_FORMAT, DataJobExecutionStatus } from '../../.
 
 import { DataJobExecutionToGridDataJobExecution, GridDataJobExecution } from '../model';
 
-type CustomChartData = ScatterDataPoint & {
+type CustomChartData = Partial<ScatterDataPoint> & {
     startTime: number;
     duration: number;
-    endTime: number;
+    endTime: string;
     status: DataJobExecutionStatus;
     opId: string;
+    id: string;
 };
+
+interface ZoomPeriod {
+    from: Date;
+    to: Date;
+}
 
 @Component({
     selector: 'lib-execution-duration-chart',
@@ -36,68 +42,54 @@ type CustomChartData = ScatterDataPoint & {
 export class ExecutionDurationChartComponent implements OnInit, OnChanges {
     @Input() jobExecutions: GridDataJobExecution[] = [];
 
-    chartZoomed = false;
+    /**
+     * ** Flag that indicates if duration chart is zoomed or not.
+     */
+    @Input() chartZoomed = false;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    chart: Chart<'line', any, unknown>;
+    /**
+     * ** Emits event whenever focus on execution changes.
+     *
+     *      - Value could be either executionId or null.
+     */
+    @Output() executionIdFocused = new EventEmitter<CustomChartData['id']>();
 
-    constructor() {
+    /**
+     * ** Event Emitter that emits events on every user zoom period change in duration chart or reset zoom.
+     */
+    @Output() zoomPeriodChanged: EventEmitter<ZoomPeriod> = new EventEmitter<ZoomPeriod>();
+
+    /**
+     * ** Reference to Duration chart instance.
+     */
+    chart: Chart<'line', CustomChartData[], number>;
+
+    /**
+     * ** Currently focussed execution id, it could be either string if there is focussed execution or null if nothing is focussed.
+     * @private
+     */
+    private _focusedExecutionId: CustomChartData['id'];
+
+    /**
+     * ** Zoom selection reference with from and to values.
+     * @private
+     */
+    private _zoomPeriod: ZoomPeriod = {
+        from: null,
+        to: null
+    };
+
+    constructor(private readonly datePipe: DatePipe) {
         Chart.register(...registerables, ChartDataLabels, zoomPlugin);
     }
 
-    getChartLabels(): number[] {
-        return this.jobExecutions.map((execution) => DateUtil.normalizeToUTC(execution.startTime).getTime());
-    }
-
-    getData(min?: number, max?: number): CustomChartData[] {
-        const divider = this.getDurationUnit().divider;
-        const executions = CollectionsUtil.isDefined(min)
-            ? this.jobExecutions.filter((ex) => {
-                  const startTime = DateUtil.normalizeToUTC(ex.startTime).getTime();
-
-                  return startTime >= min && startTime <= max;
-              })
-            : this.jobExecutions;
-
-        return executions.map((execution) => {
-            return {
-                startTime: DateUtil.normalizeToUTC(execution.startTime).getTime(),
-                duration: Math.round((this.getJobDurationSeconds(execution) / divider) * 100) / 100,
-                endTime: execution.endTime ? new Date(execution.endTime) : undefined,
-                status: execution.status,
-                opId: execution.opId
-            } as unknown as CustomChartData;
-        });
-    }
-
-    getMaxDurationSeconds(): number {
-        return this.jobExecutions
-            .map((execution) => this.getJobDurationSeconds(execution))
-            .reduce((prev, current) => (prev > current ? prev : current));
-    }
-
-    getJobDurationSeconds(execution: GridDataJobExecution) {
-        return (
-            ((execution.endTime ? new Date(execution.endTime).getTime() : new Date(Date.now()).getTime()) -
-                new Date(execution.startTime).getTime()) /
-            1000
-        );
-    }
-
-    getDurationUnit(): { name: string; divider: number } {
-        const maxDurationSeconds = this.getMaxDurationSeconds();
-
-        if (maxDurationSeconds > 60) {
-            return maxDurationSeconds > 3600 ? { name: 'hours', divider: 3600 } : { name: 'minutes', divider: 60 };
-        } else {
-            return { name: 'seconds', divider: 1 };
-        }
-    }
-
     resetZoom() {
-        this._adjustTimeScaleUnit(null);
-        this.chartZoomed = false;
-        this.chart.resetZoom();
+        this._zoomPeriod = {
+            from: null,
+            to: null
+        };
+
+        this.zoomPeriodChanged.next(this._zoomPeriod);
     }
 
     /**
@@ -105,9 +97,7 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
      */
     ngOnChanges(changes: SimpleChanges): void {
         if (!changes['jobExecutions'].firstChange) {
-            this.chart.data.labels = this.getChartLabels();
-            this.chart.data.datasets[0].data = this.getData();
-            this.chart.update();
+            this._updateChart();
         }
     }
 
@@ -119,17 +109,21 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
     }
 
     private _initChart(): void {
-        const data: ChartData<'line'> = {
-            labels: this.getChartLabels(),
+        const chartData: CustomChartData[] = this._getChartData();
+        const unit: TimeUnit = this._getTimeScaleUnit(chartData);
+        const [min, max] = this._getMinMaxExecutionTupleAdjusted(chartData, unit);
+
+        const data: ChartData<'line', CustomChartData[], number> = {
+            labels: this._getChartLabels(),
             datasets: [
                 {
-                    data: this.getData(),
+                    data: chartData,
                     fill: false,
                     pointRadius: 3,
                     pointBorderColor: (context) =>
-                        DataJobExecutionToGridDataJobExecution.resolveColor((context.raw as { status: string }).status),
+                        DataJobExecutionToGridDataJobExecution.resolveColor((context.raw as { status: string })?.status),
                     pointBackgroundColor: (context) =>
-                        DataJobExecutionToGridDataJobExecution.resolveColor((context.raw as { status: string }).status),
+                        DataJobExecutionToGridDataJobExecution.resolveColor((context.raw as { status: string })?.status),
                     pointBorderWidth: 3,
                     parsing: {
                         xAxisKey: 'startTime',
@@ -139,22 +133,28 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
             ]
         };
 
-        this.chart = new Chart<'line'>('durationChart', {
+        this.chart = new Chart<'line', CustomChartData[], number>('durationChart', {
             type: 'line',
             data,
             options: {
+                // callback listen for hover events in duration chart and process events
+                onHover: (event, activeElements) => {
+                    this._emitFocussedExecutionId(activeElements);
+                },
                 showLine: false,
                 scales: {
                     x: {
                         type: 'time',
                         time: {
-                            unit: this._getTimeScaleUnit(...this._getMinMaxExecutionTuple())
-                        }
+                            unit
+                        },
+                        min,
+                        max
                     },
                     y: {
                         title: {
                             display: true,
-                            text: `Duration ${this.getDurationUnit().name}`
+                            text: `Duration ${this._getDurationUnit().name}`
                         }
                     }
                 },
@@ -167,8 +167,19 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
                             },
                             mode: 'x',
                             onZoomComplete: (context) => {
-                                this._adjustTimeScaleUnit(context.chart);
-                                this.chartZoomed = true;
+                                const from = new Date(Math.floor(context.chart.scales['x'].min));
+                                const to = new Date(Math.ceil(context.chart.scales['x'].max));
+
+                                if (this._zoomPeriod.from === from && this._zoomPeriod.to === to) {
+                                    return;
+                                }
+
+                                this._zoomPeriod = {
+                                    from,
+                                    to
+                                };
+
+                                this.zoomPeriodChanged.next(this._zoomPeriod);
                             }
                         }
                     },
@@ -181,16 +192,13 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
                     tooltip: {
                         callbacks: {
                             label: (context) => {
-                                const rawValues = context.raw as {
-                                    status: string;
-                                    endTime: Date;
-                                };
+                                const rawValues = context.raw as CustomChartData;
 
                                 // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                                 return (
-                                    `Duration: ${context.parsed.y}|${rawValues.status}` +
+                                    `Duration: ${context.parsed.y} | ${rawValues.status}` +
                                     (rawValues.endTime
-                                        ? `|End: ${formatDate(rawValues.endTime, DATA_PIPELINES_DATE_TIME_FORMAT, 'en-US', 'UTC')}`
+                                        ? ` | End: ${this.datePipe.transform(rawValues.endTime, DATA_PIPELINES_DATE_TIME_FORMAT, 'UTC')}`
                                         : '')
                                 );
                             }
@@ -201,19 +209,14 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
         });
     }
 
-    private _adjustTimeScaleUnit(chart: Chart): void {
-        let unit: TimeUnit;
-        let min: number = null;
-        let max: number = null;
+    private _updateChart(): void {
+        const chartLabels: number[] = this._getChartLabels();
+        const chartData: CustomChartData[] = this._getChartData();
+        const unit: TimeUnit = this._getTimeScaleUnit(chartData);
+        const [min, max] = this._getMinMaxExecutionTupleAdjusted(chartData, unit);
 
-        if (CollectionsUtil.isDefined(chart)) {
-            min = chart.scales['x'].min;
-            max = chart.scales['x'].max;
-
-            unit = this._getTimeScaleUnit(min, max);
-        } else {
-            unit = this._getTimeScaleUnit(...this._getMinMaxExecutionTuple());
-        }
+        this.chart.data.labels = chartLabels;
+        this.chart.data.datasets[0].data = chartData;
 
         this.chart.options.scales['x'] = {
             type: 'time',
@@ -224,22 +227,33 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
             max
         };
 
-        this.chart.data.datasets[0].data = this.getData(min, max);
-
         this.chart.update();
     }
 
-    private _getMinMaxExecutionTuple(): [number, number] {
-        const executions = this.getData();
-
-        if (executions.length < 2) {
-            return [null, null];
-        }
-
-        return [executions[0].startTime, executions[executions.length - 1].startTime];
+    private _getChartLabels(): number[] {
+        return this.jobExecutions.map((execution) => DateUtil.normalizeToUTC(execution.startTime).getTime());
     }
 
-    private _getTimeScaleUnit(min: number | string, max: number | string): TimeUnit {
+    private _getChartData(): CustomChartData[] {
+        const divider = this._getDurationUnit().divider;
+
+        return this.jobExecutions
+            .map((execution) => {
+                return {
+                    startTime: DateUtil.normalizeToUTC(execution.startTime).getTime(),
+                    duration: Math.round((this._getJobDurationSeconds(execution) / divider) * 100) / 100,
+                    endTime: execution.endTime ? execution.endTime : undefined,
+                    status: execution.status,
+                    opId: execution.opId,
+                    id: execution.id
+                } as CustomChartData;
+            })
+            .sort((ex1, ex2) => ex1.startTime - ex2.startTime);
+    }
+
+    private _getTimeScaleUnit(chartData: CustomChartData[]): TimeUnit {
+        const [min, max] = this._getMinMaxExecutionTuple(chartData);
+
         if (CollectionsUtil.isNil(min) || CollectionsUtil.isNil(max)) {
             return 'day';
         }
@@ -277,6 +291,119 @@ export class ExecutionDurationChartComponent implements OnInit, OnChanges {
         }
 
         return 'millisecond';
+    }
+
+    private _getDurationUnit(): { name: string; divider: number } {
+        const maxDurationSeconds = this._getMaxDurationSeconds();
+
+        if (maxDurationSeconds > 60) {
+            return maxDurationSeconds > 3600 ? { name: 'hours', divider: 3600 } : { name: 'minutes', divider: 60 };
+        } else {
+            return { name: 'seconds', divider: 1 };
+        }
+    }
+
+    private _getMaxDurationSeconds(): number {
+        return this.jobExecutions
+            .map((execution) => this._getJobDurationSeconds(execution))
+            .sort((v1, v2) => v1 - v2)
+            .pop();
+    }
+
+    private _getJobDurationSeconds(execution: GridDataJobExecution): number {
+        const endTime = execution.endTime ? new Date(execution.endTime).getTime() : Date.now();
+        const delta = endTime - new Date(execution.startTime).getTime();
+
+        return delta / 1000;
+    }
+
+    private _emitFocussedExecutionId(activeElements: ActiveElement[]): void {
+        if (activeElements.length > 0) {
+            const element: { $context?: { raw?: CustomChartData } } = activeElements[0].element as unknown;
+            const executionId = element?.$context?.raw?.id ?? null;
+
+            // if event emits that element is focussed and that value is same as previous skip processing
+            if (this._focusedExecutionId === executionId) {
+                return;
+            }
+
+            // when element is focused for the first time, save executionId in component context
+            this._focusedExecutionId = executionId;
+            // emit executionId to parent component
+            this.executionIdFocused.next(executionId);
+        } else {
+            // if event emits that no element is focussed and that value is same as previous skip processing
+            if (!this._focusedExecutionId) {
+                return;
+            }
+
+            // when focused element lose focus clear executionId from component context
+            this._focusedExecutionId = null;
+            // emit null value to parent component
+            this.executionIdFocused.next(null);
+        }
+    }
+
+    private _getMinMaxExecutionTuple(chartData: CustomChartData[]): [number, number] {
+        if (chartData.length === 0) {
+            if (CollectionsUtil.isDate(this._zoomPeriod.from) && CollectionsUtil.isDate(this._zoomPeriod.to)) {
+                return [this._zoomPeriod.from.getTime(), this._zoomPeriod.to.getTime()];
+            }
+
+            return [null, null];
+        }
+
+        if (chartData.length === 1) {
+            if (CollectionsUtil.isDate(this._zoomPeriod.from) && CollectionsUtil.isDate(this._zoomPeriod.to)) {
+                if (this._zoomPeriod.to.getTime() - this._zoomPeriod.from.getTime() > 5 * this._getTimeUnitMilliseconds('minute')) {
+                    return [this._zoomPeriod.from.getTime(), this._zoomPeriod.to.getTime()];
+                }
+            }
+
+            return [chartData[0].startTime, chartData[0].startTime];
+        }
+
+        return [chartData[0].startTime, chartData[chartData.length - 1].startTime];
+    }
+
+    private _getMinMaxExecutionTupleAdjusted(chartData: CustomChartData[], unit: TimeUnit): [number, number] {
+        const [min, max] = this._getMinMaxExecutionTuple(chartData);
+
+        let adjustment: number;
+
+        switch (unit) {
+            case 'millisecond':
+                adjustment = 10 * this._getTimeUnitMilliseconds('millisecond');
+                break;
+            case 'second':
+                adjustment = 5 * this._getTimeUnitMilliseconds('second');
+                break;
+            case 'minute':
+                adjustment = 5 * this._getTimeUnitMilliseconds('minute');
+                break;
+            case 'hour':
+                adjustment = 2 * this._getTimeUnitMilliseconds('hour');
+                break;
+            case 'day':
+                adjustment = 15 * this._getTimeUnitMilliseconds('hour');
+                break;
+            case 'week':
+                adjustment = 3 * this._getTimeUnitMilliseconds('day');
+                break;
+            case 'month':
+                adjustment = this._getTimeUnitMilliseconds('month');
+                break;
+            case 'year':
+                adjustment = this._getTimeUnitMilliseconds('year');
+                break;
+            default:
+                console.error(
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    `Taurus DataPipelines ExecutionDurationChartComponent unsupported time format unit ${unit}`
+                );
+        }
+
+        return [min - adjustment, max + adjustment];
     }
 
     private _getTimeUnitMilliseconds(unit: 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'): number {

@@ -152,24 +152,27 @@ export class DataPipelinesBasePO extends BasePagePO {
     }
 
     /**
-     * ** Provide two executions for long-lived Data Jobs.
+     * ** Provide executions for long-lived Data Jobs.
      *
-     * @param {'failing'} instruction
+     * @param {{job: 'failing'; executions?: number;}} instruction
      * @returns {Cypress.Chainable<undefined>}
      */
     static provideExecutionsForLongLivedJobs(...instruction) {
         const relativePathToFixtures = [];
-        if (instruction.includes('failing')) {
+        const foundFailingIndex = instruction.findIndex(
+            (i) => i.job === 'failing'
+        );
+        if (foundFailingIndex !== -1) {
             relativePathToFixtures.push({
-                pathToFixture: `/base/data-jobs/${TEAM_VDK}/${TEAM_VDK_DATA_JOB_FAILING}.json`
+                pathToFixture: `/base/data-jobs/${TEAM_VDK}/${TEAM_VDK_DATA_JOB_FAILING}.json`,
+                executions: instruction[foundFailingIndex]?.executions ?? 2
             });
         }
 
         return cy.task(
             'provideDataJobsExecutions',
             {
-                relativePathToFixtures,
-                executions: 2
+                relativePathToFixtures
             },
             { timeout: DataPipelinesBasePO.WAIT_EXTRA_LONG_TASK }
         );

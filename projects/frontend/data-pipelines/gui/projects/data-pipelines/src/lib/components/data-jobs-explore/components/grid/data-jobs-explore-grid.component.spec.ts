@@ -257,11 +257,11 @@ describe('DataJobsExploreGridComponent', () => {
             component.gridState = clrDatagridStateInterfaceStub;
 
             // @ts-ignore
-            spyOn(component, '_getFilterPattern').and.callThrough();
+            spyOn(component, '_createApiFilterPattern').and.callThrough();
             // @ts-ignore
             component._doLoadData();
             // @ts-ignore
-            expect(component._getFilterPattern).toHaveBeenCalled();
+            expect(component._createApiFilterPattern).toHaveBeenCalled();
             expect(dataJobsServiceStub.loadJobs).toHaveBeenCalled();
         });
     });

@@ -15,6 +15,21 @@ from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.cli_utils import get_or_prompt
 
 
+class RestApiUrlConfiguration:
+    @staticmethod
+    def get_rest_api_url():
+        try:
+            rest_api_url = os.environ["REST_API_URL"]
+        except Exception as e:
+            raise ValueError(
+                "What happened: Missing environment variable REST_API_URL.\n"
+                "Why it happened: This is probably caused by a corrupt environment.\n"
+                "Consequences: The current environment cannot work as it cannot connect to the VDK Control Service.\n"
+                "Countermeasures: Please alert your support team; alternatively, try restarting your environment."
+            )
+        return rest_api_url
+
+
 class VdkUI:
     """
     A single parent class containing all the individual VDK methods in it.
@@ -76,50 +91,45 @@ class VdkUI:
             return {"message": process.returncode}
 
     @staticmethod
-    def delete_job(name: str, team: str, rest_api_url: str):
+    def delete_job(name: str, team: str):
         """
         Execute `delete job`.
         :param name: the name of the data job that will be deleted
         :param team: the team of the data job that will be deleted
-        :param rest_api_url: The base REST API URL.
         :return: message that the job is deleted
         """
-        cmd = JobDelete(rest_api_url)
+        cmd = JobDelete(RestApiUrlConfiguration.get_rest_api_url())
         cmd.delete_job(name, team)
         return f"Deleted the job with name {name} from {team} team. "
 
     @staticmethod
-    def download_job(name: str, team: str, rest_api_url: str, path: str):
+    def download_job(name: str, team: str, path: str):
         """
         Execute `download job`.
         :param name: the name of the data job that will be downloaded
         :param team: the team of the data job that will be downloaded
-        :param rest_api_url: The base REST API URL
         :param path: the path to the directory where the job will be downloaded
         :return: message that the job is downloaded
         """
-        cmd = JobDownloadSource(rest_api_url)
+        cmd = JobDownloadSource(RestApiUrlConfiguration.get_rest_api_url())
         cmd.download(team, name, path)
         return f"Downloaded the job with name {name} to {path}. "
 
     # TODO: make it work with notebook jobs
     @staticmethod
-    def create_job(
-        name: str, team: str, rest_api_url: str, path: str, local: bool, cloud: bool
-    ):
+    def create_job(name: str, team: str, path: str, local: bool, cloud: bool):
         """
         Execute `create job`.
         :param name: the name of the data job that will be created
         :param team: the team of the data job that will be created
-        :param rest_api_url: The base REST API URL
         :param path: the path to the directory where the job will be created
         :param local: create sample job on local file system
         :param cloud: create job in the cloud
         :return: message that the job is created
         """
-        cmd = JobCreate(rest_api_url)
+        cmd = JobCreate(RestApiUrlConfiguration.get_rest_api_url())
         if cloud:
-            cli_utils.check_rest_api_url(rest_api_url)
+            cli_utils.check_rest_api_url(RestApiUrlConfiguration.get_rest_api_url())
 
         if local:
             cmd.validate_job_path(path, name)
@@ -128,21 +138,18 @@ class VdkUI:
         return f"Job with name {name} was created."
 
     @staticmethod
-    def create_deployment(
-        name: str, team: str, rest_api_url: str, path: str, reason: str, enabled: bool
-    ):
+    def create_deployment(name: str, team: str, path: str, reason: str, enabled: bool):
         """
         Execute `Deploy job`.
         :param name: the name of the data job that will be deployed
-        :param team: the team of the data job that will be depployed
-        :param rest_api_url: The base REST API URL
+        :param team: the team of the data job that will be deployed
         :param path: the path to the job's directory
         :param reason: the reason of deployment
         :param enabled: flag whether the job is enabled (that will basically un-pause the job)
         :return: output string of the operation
         """
         output = ""
-        cmd = JobDeploy(rest_api_url, output)
+        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), output)
         path = get_or_prompt("Job Path", path)
         default_name = os.path.basename(path)
         name = get_or_prompt("Job Name", name, default_name)

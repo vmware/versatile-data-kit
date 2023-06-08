@@ -900,6 +900,58 @@ paths:
         in: path
         required: true
 
+  '/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/secrets':
+    summary: |
+      Data Job Secrets API allows the management of secrets for specific data jobs. Secreats are any sensitive data:
+      passwords/tokens/credentials which are need by a data job.
+    get:
+      tags:
+        - Data Jobs Secrets
+      responses:
+        '200':
+          $ref: '#/components/responses/Secrets'
+      operationId: dataJobSecretsRead
+      summary: Get Data Job secrets.
+      description: Get the secrets associated with a data job.
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataJobSecrets'
+        required: true
+      tags:
+        - Data Jobs Secrets
+      responses:
+        '201':
+          description: Created successfully.
+        '204':
+          description: Updated successfully.
+        '413':
+          description: Payload too large. The total size of the secrets object is too large.
+      operationId: dataJobSecretsUpdate
+      summary: Update Data Job secrets.
+      description: Update the secrets associated with a data job.
+    parameters:
+      - name: team_name
+        description: Team Name
+        schema:
+          type: string
+        in: path
+        required: true
+      - name: job_name
+        description: Data Job Name.
+        schema:
+          type: string
+        in: path
+        required: true
+      - name: deployment_id
+        description: Data job deployment id.
+        schema:
+          $ref: '#/components/schemas/DataJobDeploymentId'
+        in: path
+        required: true
+
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/sources':
     get:
       tags:
@@ -1219,7 +1271,7 @@ components:
           description: |
             URL link to persisted logs in central location. Logs generally should be available for longer time.
             The link is available only if operators have configured it during installation of Control Service.
-            During install operators can conifgure logs to be presisted to log aggregator service whose link can be exposed here.
+            During install operators can configure logs to be persisted to log aggregator service whose link can be exposed here.
           type: string
           example: http://logs/jobs?filter=job-name
         message:
@@ -1241,13 +1293,21 @@ components:
           type: string
 
     DataJobProperties:
-      description: Properties of a Data Job
+      description: Properties of a Data Job.
       type: object
       additionalProperties: {}
       example:
         redshift-user: foo
         redshift-password: bar
         last-execution-time: 1585303338
+
+    DataJobSecrets:
+      description: Secrets of a Data Job. Used to store passwords/tokens/credentials/sensitive data.
+      type: object
+      additionalProperties: {}
+      example:
+        redshift-user: foo
+        redshift-password: bar
 
     DataJobMode:
       description: The execution mode that the data job is deployed in. Data Jobs used for development or testing purposes are marked as testing.
@@ -1538,6 +1598,12 @@ components:
           schema:
             $ref: '#/components/schemas/DataJobProperties'
       description: Data Job properties
+    Secrets:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DataJobSecrets'
+      description: Data Job Secrets
     Source:
       content:
         application/json:
@@ -1570,8 +1636,10 @@ tags:
   - name: "Data Jobs Execution"
     description: (Experimental) | API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
   - name: "Data Jobs Properties"
-    description: "Any saved state, configuration, and secrets of a Data Job. Those are tracked per deployment.
+    description: "Any saved state or configuration of a Data Job. Those are tracked per deployment.
       NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet."
+  - name: "Data Jobs Secrets"
+    description: "Secrets configured for a Data Job. Example: passwords/tokens/credentials/sensitive data."
   - name: "Data Jobs Service"
     description: (Stable)
   - name: "Data Jobs Sources"

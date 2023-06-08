@@ -53,9 +53,9 @@ describe(
                     DataJobManageDetailsPage.createLongLivedJobs('failing')
                 )
                 .then(() =>
-                    DataJobManageDetailsPage.provideExecutionsForLongLivedJobs(
-                        'failing'
-                    )
+                    DataJobManageDetailsPage.provideExecutionsForLongLivedJobs({
+                        job: 'failing'
+                    })
                 )
                 .then(() =>
                     DataJobManageDetailsPage.loadLongLivedFailingJobFixture().then(

@@ -64,7 +64,8 @@ export class AppComponent implements OnInit {
     }
 
     get explorePageVisible(): boolean {
-        return !this.appConfigService.getConfig().ignoreComponents.includes('explorePage');
+        const ignoreComponents = this.appConfigService.getConfig().ignoreComponents;
+        return !(ignoreComponents && ignoreComponents.includes('explorePage'));
     }
 
     /**
