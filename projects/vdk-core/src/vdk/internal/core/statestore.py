@@ -74,7 +74,9 @@ class CommonStoreKeys:
     storage during cloud execution (since writing to any directory might be
     restricted on a deployment basis:
     """
-    WRITE_DIRECTORY: StoreKey[str] = ImmutableStoreKey[str]("vdk.write_directory")
+    TEMPORARY_WRITE_DIRECTORY: StoreKey[str] = ImmutableStoreKey[str](
+        "vdk.temporary_write_directory"
+    )
 
 
 class StateStore:

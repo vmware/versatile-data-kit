@@ -98,7 +98,7 @@ class RuntimeStateInitializePlugin:
         context.state.set(CommonStoreKeys.VDK_VERSION, vdk_build_info.RELEASE_VERSION)
         context.state.set(CommonStoreKeys.START_TIME, datetime.utcnow())
         context.state.set(
-            CommonStoreKeys.WRITE_DIRECTORY,
+            CommonStoreKeys.TEMPORARY_WRITE_DIRECTORY,
             context.configuration.get_value(vdk_config.TEMPORARY_WRITE_DIRECTORY),
         )
 

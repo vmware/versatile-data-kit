@@ -23,7 +23,7 @@ def test_write_directory_default():
     cli_assert_equal(0, result)
 
 
-@mock.patch.dict(os.environ, {"VDK_WRITE_DIRECTORY": "TEST_VALUE_STRING"})
+@mock.patch.dict(os.environ, {"VDK_TEMPORARY_WRITE_DIRECTORY": "TEST_VALUE_STRING"})
 def test_write_directory_non_default():
     runner = CliEntryBasedTestRunner()
     result: Result = runner.invoke(
