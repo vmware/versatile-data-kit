@@ -15,12 +15,14 @@
 
 .jp-vdk-checkbox-wrappers {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 .jp-vdk-checkbox {
-  margin-left: 10px;
+  margin-right: 10px;
 }
 
 #enable {
