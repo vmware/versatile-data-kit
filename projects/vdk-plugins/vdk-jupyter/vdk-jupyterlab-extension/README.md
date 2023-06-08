@@ -12,12 +12,17 @@ for the frontend extension.
 - JupyterLab >= 3.0
 - python ~=3.7
 - Versatile Data Kit
+- npm
 
 ## Install
 
-To install the extension, execute:
+To install the extension,first navigate to the project directory and then execute:
 
 ```bash
+# Once in the project directory, use the npm ci command to install
+# the exact versions of the dependencies specified in the package-lock.json
+npm ci
+# Install the extension
 pip install vdk-jupyterlab-extension
 ```
 
@@ -58,6 +63,9 @@ The `jlpm` command is JupyterLab's pinned version of
 ```bash
 # Clone the repo to your local environment
 # Change directory to the vdk-jupyterlab-extension directory
+# Once in the project directory, use the npm ci command to install
+# the exact versions of the dependencies specified in the package-lock.json
+npm ci
 # Install package in development mode
 pip install -e .
 # Link your development version of the extension with JupyterLab
@@ -67,6 +75,9 @@ jupyter server extension enable vdk-jupyterlab-extension
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
+
+NB: If you're changing some dependencies of the project,
+meaning you're adding, removing, or updating packages, you'd use npm install.
 
 You can watch the source directory and run JupyterLab at the same time in different terminals to watch for changes in the extension's source and automatically rebuild the extension.
 
