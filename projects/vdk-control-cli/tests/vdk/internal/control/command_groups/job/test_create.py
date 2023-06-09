@@ -126,9 +126,6 @@ def test_create_job_configurable_sample_job_module(
     jobs_dir, rest_api_url = setup_create(
         httpserver, tmpdir, 200, 200, job_name, team_name
     )
-    sample_dir = tmpdir.mkdir("sample")
-    sample_dir.join("foo").write("")
-    sample_dir.join("config.ini").write("")
 
     runner = CliRunner()
     result = runner.invoke(
@@ -140,7 +137,7 @@ def test_create_job_configurable_sample_job_module(
     assert_click_status(result, 0)
     assert os.path.isdir(job_dir)
     # foo file exists only in our sample job
-    assert os.path.isfile(os.path.join(job_dir, "foo"))
+    assert os.path.isfile(os.path.join(job_dir, "1_new_module_step.py"))
 
 
 def test_create_job_bad_format(httpserver: PluginHTTPServer, tmpdir: LocalPath):
