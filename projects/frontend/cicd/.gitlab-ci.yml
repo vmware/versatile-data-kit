@@ -23,6 +23,12 @@
   - "projects/frontend/data-pipelines/gui/Dockerfile"
   - "projects/frontend/data-pipelines/gui/config/nginx.conf"
 
+.frontend_retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
 frontend-data-pipelines-build:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
   stage: build
@@ -102,13 +108,13 @@ frontend-data-pipelines-release:
     expire_in: 1 week
 
 frontend_publish_ui_image:
-  stage: release
+  stage: pre_release_image
   before_script:
-    - cd projects/frontend
+    - cd projects/frontend/data-pipelines/gui
   script:
-    - apk --no-cache add bash
+    - apk --no-cache add bash git
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
-    - ./cicd/publish_image_dockerhub.sh vdk-operations-ui ./data-pipelines/gui $CI_PIPELINE_ID
+    - ../../cicd/publish_image_dockerhub.sh vdk-operations-ui . $CI_PIPELINE_ID
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
@@ -118,8 +124,71 @@ frontend_publish_ui_image:
       changes: *frontend_data_pipelines_locations
   extends: .frontend_publish_docker_image
 
-frontend_publish_test_image:
+frontend_tag_ui_image_stable:
   stage: release
+  before_script:
+    - cd projects/frontend
+  script:
+    - apk --no-cache add bash git
+    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - bash -ex ../../projects/control-service/cicd/tag_image_dockerhub.sh vdk-operations-ui $IMAGE_TAG stable
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+  extends: .frontend_publish_docker_image
+
+frontend_deploy_testing_data_pipelines:
+  stage: pre_release_test
+  image: docker:23.0.1
+  script:
+    - apk --no-cache add bash openssl curl git gettext zip py-pip
+    - pip install --upgrade pip && pip install awscli
+    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+    - export TAG=latest
+    - export FRONTEND_TAG=$(git rev-parse --short HEAD)
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
+  retry: !reference [.frontend_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+
+frontend_heartbeat_test:
+  stage: pre_release_test
+  needs:
+    - job: frontend_deploy_testing_data_pipelines
+      optional: false
+      artifacts: false
+  image: python:3.7
+  script:
+    - set -x
+    - pip install quickstart-vdk
+    - pip install vdk-heartbeat[trino]
+    - vdk version
+    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
+    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
+    - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
+    - vdk-heartbeat -f projects/frontend/cicd/ping_frontend_heartbeat_config.ini
+  retry: !reference [.frontend_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+
+frontend_publish_test_image:
+  stage: release_image
   script:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/frontend/cicd

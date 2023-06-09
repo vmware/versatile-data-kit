@@ -9,6 +9,7 @@ metadata:
   name: {{ .Release.Name }}-ui
   labels:
     app: {{ .Release.Name }}-ui
+    date: "{{ now | unixEpoch }}"
 spec:
   replicas: {{ .Values.operationsUi.replicaCount }}
   selector:
@@ -18,6 +19,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-ui
+        date: "{{ now | unixEpoch }}"
     spec:
       {{- if and (.Values.operationsUi.image.username) (.Values.operationsUi.image.password) }}
       imagePullSecrets:
