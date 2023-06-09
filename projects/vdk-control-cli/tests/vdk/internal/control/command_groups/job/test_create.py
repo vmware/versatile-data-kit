@@ -4,11 +4,14 @@ import os
 import traceback
 from unittest import mock
 
+import click
 from click.testing import CliRunner
 from py._path.local import LocalPath
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from vdk.internal import test_utils
 from vdk.internal.control.command_groups.job.create import create
+from vdk.internal.control.command_groups.job.create import JobCreate
+from vdk.internal.control.utils import cli_utils
 from vdk.internal.test_utils import assert_click_status
 from werkzeug import Response
 
@@ -89,10 +92,7 @@ def test_create_job_configurable_sample_job(
 def test_create_job_configurable_sample_job_module(
     httpserver: PluginHTTPServer, tmpdir: LocalPath
 ):
-    import click
-    from vdk.internal.control.utils import cli_utils
-    from vdk.internal.control.command_groups.job.create import JobCreate
-
+    # importing the new sample job module which we will be instantiating
     from resources import sample_job_module
 
     @click.command()
