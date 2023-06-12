@@ -124,7 +124,6 @@ def test_create_job_configurable_sample_job_module(
         sample_job_dir = os.path.abspath(template_module_path)
 
         cmd.create_job(name, team, path, False, True, sample_job_dir)
-        pass
 
     team_name = "test-team"
     job_name = "test-job"
