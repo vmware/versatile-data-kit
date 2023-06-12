@@ -136,7 +136,10 @@ class VdkUI:
 
         import vdk.internal.control.job.jupyter_sample_job as jupyter_sample_job
 
-        cmd.create_job(name, team, path, cloud, local, sample_job=jupyter_sample_job)
+        jupyter_job_module_path = jupyter_sample_job.__path__._path[0]
+        jupyter_job_dir = os.path.abspath(jupyter_job_module_path)
+
+        cmd.create_job(name, team, path, cloud, local, jupyter_job_dir)
 
         return f"Job with name {name} was created."
 
