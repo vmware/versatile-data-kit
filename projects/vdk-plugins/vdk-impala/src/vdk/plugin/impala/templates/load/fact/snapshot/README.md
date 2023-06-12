@@ -19,6 +19,8 @@ truncating all present target table records observed after t1.
 - source_schema   - SC Data Lake schema, where source raw data is loaded from
 - source_view     - SC Data Lake view, where source raw data is loaded from
 - last_arrival_ts - Timestamp column, on which increments to target_table are done
+- check           - (Optional) Callback function responsible for checking the quality of the data
+- staging_schema  - (Optional) Schema where the checks will be executed. If not provided target_schema will be used as default
 
 ### Prerequisites:
 

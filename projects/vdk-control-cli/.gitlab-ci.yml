@@ -24,21 +24,10 @@ image: "python:3.9"
 
 
 # Run in different environments
-# VDK Control CLI currently supports Python 3.7, 3.8, 3.9 and 3.10
+# VDK Control CLI currently supports Python 3.7, 3.8, 3.9, 3.10 and 3.11
+# We only test on 3.7 and 3.11 to reduce the load on the CICD
 vdk-control-cli-build-with-py37:
   image: "python:3.7"
-  extends: .vdk-control-cli-build
-
-vdk-control-cli-build-with-py38:
-  image: "python:3.8"
-  extends: .vdk-control-cli-build
-
-vdk-control-cli-build-with-py39:
-  image: "python:3.9"
-  extends: .vdk-control-cli-build
-
-vdk-control-cli-build-with-py310:
-  image: "python:3.10"
   extends: .vdk-control-cli-build
 
 vdk-control-cli-build-with-py311:

@@ -72,7 +72,7 @@ class TestJobConfig:
 
     def test_defaults(self, tmpdir):
         empty_file_dir = tmpdir.mkdir("foo")
-        empty_file = os.path.join(empty_file_dir, "empty.ini")
+        empty_file = os.path.join(empty_file_dir, "config.ini")
         open(empty_file, "a").close()
         cfg = JobConfig(pathlib.Path(empty_file_dir))
 

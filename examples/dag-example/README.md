@@ -439,8 +439,8 @@ vdk deploy -n ingest-job2 -t my-team -p ingest-job2 -r "dag-example" -u http://l
 ```
 
 ```console
-vdk create -n read-job -t my-team --no-template -u http://localhost:8092 && \
-vdk deploy -n read-job -t my-team -p read-job -r "dag-example" -u http://localhost:8092
+vdk create -n read-data-job -t my-team --no-template -u http://localhost:8092 && \
+vdk deploy -n read-data-job -t my-team -p read-data-job -r "dag-example" -u http://localhost:8092
 ```
 
 ```console

@@ -4,11 +4,14 @@ import os
 import traceback
 from unittest import mock
 
+import click
 from click.testing import CliRunner
 from py._path.local import LocalPath
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from vdk.internal import test_utils
 from vdk.internal.control.command_groups.job.create import create
+from vdk.internal.control.command_groups.job.create import JobCreate
+from vdk.internal.control.utils import cli_utils
 from vdk.internal.test_utils import assert_click_status
 from werkzeug import Response
 
@@ -84,6 +87,61 @@ def test_create_job_configurable_sample_job(
         assert os.path.isdir(job_dir)
         # foo file exists only in our sample job
         assert os.path.isfile(os.path.join(job_dir, "foo"))
+
+
+def test_create_job_configurable_sample_job_module(
+    httpserver: PluginHTTPServer, tmpdir: LocalPath
+):
+    # importing the new sample job module which we will be instantiating
+    from resources import sample_job_module
+
+    @click.command()
+    @click.option("-n", "--name", type=click.STRING)
+    @click.option("-t", "--team", type=click.STRING)
+    @click.option("-p", "--path", type=click.Path(exists=False, resolve_path=True))
+    @cli_utils.rest_api_url_option()
+    def create_new_sample_job_module(
+        name: str,
+        team: str,
+        path: str,
+        rest_api_url: str,
+    ) -> None:
+        cmd = JobCreate(rest_api_url)
+
+        name = cli_utils.get_or_prompt("Job Name", name)
+        team = cli_utils.get_or_prompt("Job Team", team)
+
+        path = cli_utils.get_or_prompt(
+            "Path to where sample data job will be created locally",
+            path,
+            os.path.abspath("."),
+        )
+        cmd.validate_job_path(path, name)
+
+        template_module_path = sample_job_module.__path__._path[
+            0
+        ]  # get the path of the imported module
+        sample_job_dir = os.path.abspath(template_module_path)
+
+        cmd.create_job(name, team, path, False, True, sample_job_dir)
+
+    team_name = "test-team"
+    job_name = "test-job"
+    jobs_dir, rest_api_url = setup_create(
+        httpserver, tmpdir, 200, 200, job_name, team_name
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        create_new_sample_job_module,
+        ["-n", job_name, "-t", team_name, "-u", rest_api_url, "-p", jobs_dir],
+    )
+
+    job_dir = os.path.join(jobs_dir, job_name)
+    assert_click_status(result, 0)
+    assert os.path.isdir(job_dir)
+    # foo file exists only in our sample job
+    assert os.path.isfile(os.path.join(job_dir, "1_new_module_step.py"))
 
 
 def test_create_job_bad_format(httpserver: PluginHTTPServer, tmpdir: LocalPath):

@@ -17,6 +17,17 @@ export interface IVdkTextInputProps {
   label: string;
 }
 
+
+/**
+   * This function is used to be sure that placeholder text is not overflowing in case of long path
+   * if the string that is given is not path it will return the same string
+   * if it is a path it will return the last directory
+   */
+const  getLastPartOfPath = (path: string): string => {
+  const pathParts = path.split(/(?=[/\\])/); // Lookahead assertion to keep delimiter
+  return pathParts[pathParts.length - 1];
+}
+
 export default class VDKTextInput extends Component<IVdkTextInputProps> {
   /**
    * Returns a React component for rendering a div with input and value  for VDK Option.
@@ -43,7 +54,7 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
             type="text"
             id={this.props.option}
             className="jp-vdk-input"
-            placeholder={this.props.value}
+            placeholder={getLastPartOfPath(this.props.value)}
             onChange={this.onInputChange}
           />
         </div>

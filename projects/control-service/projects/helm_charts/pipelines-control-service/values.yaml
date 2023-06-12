@@ -14,7 +14,7 @@ global: {}
 image:
   registry: registry.hub.docker.com/versatiledatakit
   repository: pipelines-control-service
-  tag: "99a4957"
+  tag: "stable"
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -32,7 +32,7 @@ operationsUi:
   image:
     registry: registry.hub.docker.com/versatiledatakit
     repository: vdk-operations-ui
-    tag: "latest"
+    tag: "stable"
     username:
     password:
   replicaCount: 1

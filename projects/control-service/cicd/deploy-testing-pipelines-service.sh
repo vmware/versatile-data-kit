@@ -14,6 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 
 export TAG=${TAG:-$(git rev-parse --short HEAD)}
+export FRONTEND_TAG=${FRONTEND_TAG:-$(git rev-parse --short HEAD)}
 export RELEASE_NAME=${RELEASE_NAME:-cicd-control-service}
 export VDK_OPTIONS=${VDK_OPTIONS:-"$SCRIPT_DIR/vdk-options.ini"}
 export TPCS_CHART=${TPCS_CHART:-"$SCRIPT_DIR/../projects/helm_charts/pipelines-control-service"}
@@ -90,6 +91,7 @@ fi
 helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
       -f "$TESTING_PIPELINES_SERVICE_VALUES_FILE" \
       --set image.tag="$TAG" \
+      --set operationsUi.image.tag="$FRONTEND_TAG" \
       --set credentials.repository="EMPTY" \
       --set-file vdkOptions=$VDK_OPTIONS_SUBSTITUTED \
       --set deploymentGitUrl="$CICD_GIT_URI" \
