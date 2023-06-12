@@ -3,7 +3,6 @@
 import logging
 import os
 import pathlib
-from types import ModuleType
 from typing import Optional
 from typing import Tuple
 
@@ -37,7 +36,7 @@ class JobCreate:
         path: str,
         cloud: bool,
         local: bool,
-        sample_job_module: ModuleType = None,
+        sample_job_directory: pathlib.Path = None,
     ) -> None:
         self.__validate_job_name(name)
         if local:
@@ -47,7 +46,7 @@ class JobCreate:
             self.__create_cloud_job(team, name)
         if local:
             job_path = self.__get_job_path(path, name)
-            self.__create_local_job(team, name, job_path, sample_job_module)
+            self.__create_local_job(team, name, job_path, sample_job_directory)
             if cloud:
                 self.__download_key(team, name, path)
 
@@ -71,9 +70,9 @@ class JobCreate:
         )
 
     def __create_local_job(
-        self, team: str, name: str, job_path: str, sample_job_module: ModuleType
+        self, team: str, name: str, job_path: str, sample_job_directory: pathlib.Path
     ) -> None:
-        sample_job = self.__create_sample_job_dir(sample_job_module)
+        sample_job = self.__create_sample_job_dir(sample_job_directory)
         log.debug(f"Create sample job from directory: {sample_job} into {job_path}")
         cli_utils.copy_directory(sample_job, job_path)
         local_config = JobConfig(job_path)
@@ -81,7 +80,7 @@ class JobCreate:
             log.warning(f"Failed to write Data Job team {team} in config.ini.")
         log.info(f"Data Job with name {name} created locally in {job_path}.")
 
-    def __create_sample_job_dir(self, sample_job_module: ModuleType):
+    def __create_sample_job_dir(self, sample_job_directory: pathlib.Path):
         """
         This method generates the directory for the sample job which will be created when invoking `vdk create`.
         Its control flow is as follows:
@@ -99,15 +98,14 @@ class JobCreate:
         if self.__vdk_config.sample_job_directory:
             return self.__vdk_config.sample_job_directory
 
-        if not sample_job_module:
-            import vdk.internal.control.job.sample_job
+        if sample_job_directory:
+            return sample_job_directory
 
-            template_module_path = vdk.internal.control.job.sample_job.__path__._path[0]
-            sample_job_dir = os.path.abspath(template_module_path)
-        else:
-            template_module_path = sample_job_module.__path__._path[0]
-            sample_job_dir = os.path.abspath(template_module_path)
-        return sample_job_dir
+        import vdk.internal.control.job.sample_job
+
+        template_module_path = vdk.internal.control.job.sample_job.__path__._path[0]
+
+        return os.path.abspath(template_module_path)
 
     def __download_key(self, team, name, path):
         job_download_key = JobDownloadKey(self.__rest_api_url)

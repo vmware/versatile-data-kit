@@ -118,7 +118,12 @@ def test_create_job_configurable_sample_job_module(
         )
         cmd.validate_job_path(path, name)
 
-        cmd.create_job(name, team, path, False, True, sample_job_module)
+        template_module_path = sample_job_module.__path__._path[
+            0
+        ]  # get the path of the imported module
+        sample_job_dir = os.path.abspath(template_module_path)
+
+        cmd.create_job(name, team, path, False, True, sample_job_dir)
         pass
 
     team_name = "test-team"
