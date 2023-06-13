@@ -20,6 +20,6 @@ public class DataJobSecretsException extends DomainError implements UserFacingEr
 
   @Override
   public HttpStatus getHttpStatus() {
-    return HttpStatus.INTERNAL_SERVER_ERROR;
+    return HttpStatus.BAD_REQUEST;
   }
 }

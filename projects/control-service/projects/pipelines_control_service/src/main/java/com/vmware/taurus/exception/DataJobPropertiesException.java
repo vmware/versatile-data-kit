@@ -20,6 +20,6 @@ public class DataJobPropertiesException extends DomainError implements UserFacin
 
   @Override
   public HttpStatus getHttpStatus() {
-    return HttpStatus.INTERNAL_SERVER_ERROR;
+    return HttpStatus.BAD_REQUEST;
   }
 }
