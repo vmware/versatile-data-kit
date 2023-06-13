@@ -51,6 +51,8 @@ public class JobImageDeployer {
   private static final String KEYTAB_FILENAME_ENV = "VDK_KEYTAB_FILENAME";
   private static final String ATTEMPT_ID = "VDK_ATTEMPT_ID";
   private static final String BASE_CONFIG_FOLDER = "VDK_BASE_CONFIG_FOLDER";
+  private static final String VDK_TEMPORARY_WRITE_DIRECTORY = "VDK_TEMPORARY_WRITE_DIRECTORY";
+  private static final String TEMPORARY_WRITE_DIRECTORY_PATH = "/var/tmp";
 
   private final JobCredentialsService jobCredentialsService;
   private final DataJobsKubernetesService dataJobsKubernetesService;
@@ -225,6 +227,7 @@ public class JobImageDeployer {
     jobContainerEnvVars.put(KEYTAB_FILENAME_ENV, JobCredentialsService.K8S_KEYTAB_KEY_IN_SECRET);
     jobContainerEnvVars.put(ATTEMPT_ID, "$metadata.name");
     jobContainerEnvVars.put(BASE_CONFIG_FOLDER, EPHEMERAL_VOLUME_MOUNT_PATH);
+    jobContainerEnvVars.put(VDK_TEMPORARY_WRITE_DIRECTORY, TEMPORARY_WRITE_DIRECTORY_PATH);
     jobContainerEnvVars.putAll(getSystemDefaults());
     jobContainerEnvVars.putAll(vdkEnvs);
     jobContainerEnvVars.putAll(jobConfigBasedEnvVars(dataJob.getJobConfig()));
