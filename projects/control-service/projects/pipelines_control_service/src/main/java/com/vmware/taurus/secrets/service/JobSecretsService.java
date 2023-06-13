@@ -29,24 +29,15 @@ public class JobSecretsService {
 
     private static final String SECRET = "secret";
 
-    private final String vaultUri;
-
-    private final String vaultToken;
-
     private final ObjectMapper objectMapper = new ObjectMapper();
     private VaultTemplate vaultTemplate;
-
-    private final FeatureFlags featureFlags;
 
     public JobSecretsService(@Value("${vdk.vault.uri:}") String vaultUri,
                              @Value("${vdk.vault.token:}") String vaultToken,
                              FeatureFlags featureFlags) throws URISyntaxException {
-        this.vaultUri = vaultUri;
-        this.vaultToken = vaultToken;
-        this.featureFlags = featureFlags;
 
 
-        if (this.featureFlags.isVaultIntegrationEnabled()) {
+        if (featureFlags.isVaultIntegrationEnabled()) {
             VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
             TokenAuthentication clientAuthentication = new TokenAuthentication(vaultToken);
 
@@ -68,7 +59,7 @@ public class JobSecretsService {
             jobSecrets = new JobSecrets(jobName, null);
         }
 
-        secrets =
+        var updatedSecrets =
                 secrets.entrySet().stream()
                         .collect(
                                 Collectors.toMap(
@@ -80,7 +71,7 @@ public class JobSecretsService {
                                             return entry.getValue();
                                         }));
 
-        jobSecrets.setSecretsJson(new JSONObject(secrets).toString());
+        jobSecrets.setSecretsJson(new JSONObject(updatedSecrets).toString());
 
         vaultTemplate
                 .opsForVersionedKeyValue(SECRET)

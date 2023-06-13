@@ -27,15 +27,16 @@ import java.util.Map;
 public class DataJobsSecretsController implements DataJobsSecretsApi {
   static Logger log = LoggerFactory.getLogger(DataJobsSecretsController.class);
 
-  private final FeatureFlags featureFlags;
+//  private final FeatureFlags featureFlags;
 
-  private final JobSecretsService secretsService;
+//  private final JobSecretsService secretsService;
 
-  @Autowired
-  public DataJobsSecretsController(FeatureFlags featureFlags, JobSecretsService secretsService) {
-    this.featureFlags = featureFlags;
-    this.secretsService = secretsService;
-  }
+//  @Autowired
+//  public DataJobsSecretsController(FeatureFlags featureFlags, JobSecretsService secretsService) {
+//  public DataJobsSecretsController(FeatureFlags featureFlags, JobSecretsService secretsService) {
+//    this.featureFlags = featureFlags;
+//    this.secretsService = secretsService;
+//  }
 
   @Override
   public ResponseEntity<Void> dataJobSecretsUpdate(
