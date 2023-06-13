@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,7 +76,7 @@ class DataJobsPropertiesControllerTest {
 
     DataJobPropertiesException thrownException =
         org.junit.jupiter.api.Assertions.assertThrows(
-                DataJobPropertiesException.class,
+            DataJobPropertiesException.class,
             () -> controller.dataJobPropertiesRead(null, jobName, null));
 
     verify(propertiesService, times(1)).readJobProperties(jobName);
