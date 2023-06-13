@@ -95,8 +95,5 @@ COPY --from=builder /usr/local/ /usr/local/
 # Set the working directory
 WORKDIR /job
 
-# Uninstall native dependencies
-RUN yum erase toybox -y
-
 # Install native dependencies
 RUN yum install shadow build-essential -y
