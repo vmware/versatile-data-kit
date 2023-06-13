@@ -115,7 +115,6 @@ class VdkUI:
         cmd.download(team, name, path)
         return f"Downloaded the job with name {name} to {path}. "
 
-    # TODO: make it work with notebook jobs
     @staticmethod
     def create_job(name: str, team: str, path: str, local: bool, cloud: bool):
         """
@@ -134,7 +133,10 @@ class VdkUI:
         if local:
             cmd.validate_job_path(path, name)
 
-        cmd.create_job(name, team, path, cloud, local)
+        jupyter_job_dir = os.path.abspath(os.getcwd() + "/jupyter_sample_job")
+
+        cmd.create_job(name, team, path, cloud, local, jupyter_job_dir)
+
         return f"Job with name {name} was created."
 
     @staticmethod
