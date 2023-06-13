@@ -31,4 +31,7 @@ public class FeatureFlags {
 
   @Value("${datajobs.security.oauth2.enabled:false}")
   boolean oAuth2Enabled = true;
+
+  @Value("${featureflag.vault.integration.enabled:false}")
+  boolean vaultIntegrationEnabled = false;
 }
