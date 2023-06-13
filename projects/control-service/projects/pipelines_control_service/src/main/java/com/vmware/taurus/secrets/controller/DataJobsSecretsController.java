@@ -72,7 +72,6 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
 //                return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
 //            } catch (JsonProcessingException e) {
 //                log.error("Error while parsing secrets for job: " + jobName, e);
-//
 //                throw new DataJobSecretsException(jobName, "Error while parsing secrets for job");
 //            }
 //        }

@@ -5,12 +5,10 @@
 
 package com.vmware.taurus.exception;
 
-/**
- * Exception thrown, when a secret storage has not been configured
- */
+/** Exception thrown, when a secret storage has not been configured */
 public class SecretStorageNotConfiguredException extends ExternalSystemError {
 
-    public SecretStorageNotConfiguredException() {
-        super(MainExternalSystem.SECRETS, "Not Configured");
-    }
+  public SecretStorageNotConfiguredException() {
+    super(MainExternalSystem.SECRETS, "Not Configured");
+  }
 }
