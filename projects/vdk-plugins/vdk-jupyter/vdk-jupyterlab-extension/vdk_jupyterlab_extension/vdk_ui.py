@@ -133,7 +133,9 @@ class VdkUI:
         if local:
             cmd.validate_job_path(path, name)
 
-        jupyter_job_dir = os.path.abspath(os.getcwd() + "/jupyter_sample_job")
+        jupyter_job_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "jupyter_sample_job")
+        )
 
         cmd.create_job(name, team, path, cloud, local, jupyter_job_dir)
 
