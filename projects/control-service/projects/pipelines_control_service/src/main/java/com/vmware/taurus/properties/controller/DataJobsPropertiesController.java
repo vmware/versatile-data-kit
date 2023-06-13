@@ -7,6 +7,7 @@ package com.vmware.taurus.properties.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vmware.taurus.controlplane.model.api.DataJobsPropertiesApi;
+import com.vmware.taurus.exception.DataJobPropertiesException;
 import com.vmware.taurus.properties.service.PropertiesService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -50,8 +51,7 @@ public class DataJobsPropertiesController implements DataJobsPropertiesApi {
     } catch (JsonProcessingException e) {
       log.error("Error while parsing properties for job: " + jobName, e);
 
-      throw new ResponseStatusException(
-          HttpStatus.INTERNAL_SERVER_ERROR, "Error while parsing properties for job: " + jobName);
+      throw new DataJobPropertiesException(jobName, "Error while parsing properties.");
     }
   }
 }
