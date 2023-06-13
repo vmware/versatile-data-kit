@@ -563,7 +563,10 @@ describe('CollectionsUtil::', () => {
                     }
 
                     class B extends A {
-                        constructor(name: string, private readonly surname: string) {
+                        constructor(
+                            name: string,
+                            private readonly surname: string
+                        ) {
                             super(name);
                         }
 

@@ -14,7 +14,9 @@
         height: 100%;
         border-radius: 0.2rem;
         border: none;
-        box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.1), 0 3px 5px 0 rgba(0, 0, 0, 0.09);
+        box-shadow:
+            0 3px 10px 0 rgba(0, 0, 0, 0.1),
+            0 3px 5px 0 rgba(0, 0, 0, 0.09);
         position: relative;
         overflow: hidden;
     }
