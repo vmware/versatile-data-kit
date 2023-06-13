@@ -43,7 +43,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation 'org.springframework.retry:spring-retry'
 
     // Hashicorp Vault client libraries
-    implementation 'org.springframework.vault:spring-vault-core:2.3.3'
+    implementation 'org.springframework.vault:spring-vault-core'
 
     // Janino is used for conditional processing in the logback-spring.xml file
     implementation 'org.codehaus.janino:janino'

@@ -45,6 +45,7 @@ project.ext {
             'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.485',
             'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.483',
             'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.485',
+            'org.springframework.vault:spring-vault-core'                        : 'org.springframework.vault:spring-vault-core:2.3.3',
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly
@@ -55,5 +56,6 @@ project.ext {
             'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.3.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.23.0',
             'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.15.Final'
+
     ]
 }
