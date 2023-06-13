@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.secrets.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.controlplane.model.api.DataJobsSecretsApi;
 import com.vmware.taurus.secrets.service.JobSecretsService;
@@ -42,19 +41,18 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
       String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
     log.debug("Updating secrets for job: {}", jobName);
 
-//    TODO: Remove after adding tests
+    //    TODO: Remove after adding tests
     throw new ResponseStatusException(
-            HttpStatus.NOT_IMPLEMENTED, "Secrets service is not implemented");
+        HttpStatus.NOT_IMPLEMENTED, "Secrets service is not implemented");
 
-
-//    TODO: Working implementation. Uncomment after adding tests
-//    if (featureFlags.isVaultIntegrationEnabled()) {
-//      secretsService.updateJobSecrets(jobName, requestBody);
-//      return ResponseEntity.noContent().build();
-//    }
-//
-//    throw new ResponseStatusException(
-//            HttpStatus.INTERNAL_SERVER_ERROR, "Secrets storage is not configured");
+    //    TODO: Working implementation. Uncomment after adding tests
+    //    if (featureFlags.isVaultIntegrationEnabled()) {
+    //      secretsService.updateJobSecrets(jobName, requestBody);
+    //      return ResponseEntity.noContent().build();
+    //    }
+    //
+    //    throw new ResponseStatusException(
+    //            HttpStatus.INTERNAL_SERVER_ERROR, "Secrets storage is not configured");
   }
 
   @Override
@@ -62,23 +60,24 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
       String teamName, String jobName, String deploymentId) {
     log.debug("Reading secrets for job: {}", jobName);
 
-//    TODO: Remove after adding tests
+    //    TODO: Remove after adding tests
     throw new ResponseStatusException(
-            HttpStatus.NOT_IMPLEMENTED, "Secrets service is not implemented");
+        HttpStatus.NOT_IMPLEMENTED, "Secrets service is not implemented");
 
-//    TODO: Working implementation. Uncomment after adding tests
-//    if (featureFlags.isVaultIntegrationEnabled()) {
-//      try {
-//        return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
-//      } catch (JsonProcessingException e) {
-//        log.error("Error while parsing secrets for job: " + jobName, e);
-//
-//        throw new ResponseStatusException(
-//                HttpStatus.INTERNAL_SERVER_ERROR, "Error while parsing secrets for job: " + jobName);
-//      }
-//    }
-//
-//    throw new ResponseStatusException(
-//        HttpStatus.INTERNAL_SERVER_ERROR, "Secrets storage is not configured");
+    //    TODO: Working implementation. Uncomment after adding tests
+    //    if (featureFlags.isVaultIntegrationEnabled()) {
+    //      try {
+    //        return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
+    //      } catch (JsonProcessingException e) {
+    //        log.error("Error while parsing secrets for job: " + jobName, e);
+    //
+    //        throw new ResponseStatusException(
+    //                HttpStatus.INTERNAL_SERVER_ERROR, "Error while parsing secrets for job: " +
+    // jobName);
+    //      }
+    //    }
+    //
+    //    throw new ResponseStatusException(
+    //        HttpStatus.INTERNAL_SERVER_ERROR, "Secrets storage is not configured");
   }
 }

@@ -17,8 +17,7 @@ import org.springframework.vault.repository.mapping.Secret;
 @Secret
 public class JobSecrets {
 
-  @Id
-  private String jobName;
+  @Id private String jobName;
 
   private String secretsJson;
 }
