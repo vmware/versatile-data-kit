@@ -5,13 +5,10 @@
 
 package com.vmware.taurus.secrets.controller;
 
-import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.controlplane.model.api.DataJobsSecretsApi;
-import com.vmware.taurus.secrets.service.JobSecretsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,16 +23,18 @@ import java.util.Map;
 public class DataJobsSecretsController implements DataJobsSecretsApi {
   static Logger log = LoggerFactory.getLogger(DataJobsSecretsController.class);
 
-//  private final FeatureFlags featureFlags;
+  //  private final FeatureFlags featureFlags;
 
-//  private final JobSecretsService secretsService;
+  //  private final JobSecretsService secretsService;
 
-//  @Autowired
-//  public DataJobsSecretsController(FeatureFlags featureFlags, JobSecretsService secretsService) {
-//  public DataJobsSecretsController(FeatureFlags featureFlags, JobSecretsService secretsService) {
-//    this.featureFlags = featureFlags;
-//    this.secretsService = secretsService;
-//  }
+  //  @Autowired
+  //  public DataJobsSecretsController(FeatureFlags featureFlags, JobSecretsService secretsService)
+  // {
+  //  public DataJobsSecretsController(FeatureFlags featureFlags, JobSecretsService secretsService)
+  // {
+  //    this.featureFlags = featureFlags;
+  //    this.secretsService = secretsService;
+  //  }
 
   @Override
   public ResponseEntity<Void> dataJobSecretsUpdate(

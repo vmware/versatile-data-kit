@@ -27,69 +27,65 @@ import java.util.stream.Collectors;
 @Service
 public class JobSecretsService {
 
-    private static final String SECRET = "secret";
+  private static final String SECRET = "secret";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private VaultTemplate vaultTemplate;
+  private final ObjectMapper objectMapper = new ObjectMapper();
+  private VaultTemplate vaultTemplate;
 
-    public JobSecretsService(@Value("${vdk.vault.uri:}") String vaultUri,
-                             @Value("${vdk.vault.token:}") String vaultToken,
-                             FeatureFlags featureFlags) throws URISyntaxException {
+  public JobSecretsService(
+      @Value("${vdk.vault.uri:}") String vaultUri,
+      @Value("${vdk.vault.token:}") String vaultToken,
+      FeatureFlags featureFlags)
+      throws URISyntaxException {
 
+    if (featureFlags.isVaultIntegrationEnabled()) {
+      VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
+      TokenAuthentication clientAuthentication = new TokenAuthentication(vaultToken);
 
-        if (featureFlags.isVaultIntegrationEnabled()) {
-            VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
-            TokenAuthentication clientAuthentication = new TokenAuthentication(vaultToken);
+      this.vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
+    }
+  }
 
-            this.vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
-        }
+  public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
+    Versioned<JobSecrets> readResponse =
+        vaultTemplate.opsForVersionedKeyValue(SECRET).get(jobName, JobSecrets.class);
+
+    JobSecrets jobSecrets;
+
+    if (readResponse != null && readResponse.hasData()) {
+      jobSecrets = readResponse.getData();
+    } else {
+      jobSecrets = new JobSecrets(jobName, null);
     }
 
+    var updatedSecrets =
+        secrets.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> {
+                      if (entry.getValue() == null) {
+                        entry.setValue(JSONObject.NULL);
+                      }
+                      return entry.getValue();
+                    }));
 
-    public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
-        Versioned<JobSecrets> readResponse = vaultTemplate
-                .opsForVersionedKeyValue(SECRET)
-                .get(jobName, JobSecrets.class);
+    jobSecrets.setSecretsJson(new JSONObject(updatedSecrets).toString());
 
-        JobSecrets jobSecrets;
+    vaultTemplate.opsForVersionedKeyValue(SECRET).put(jobName, jobSecrets);
+  }
 
-        if (readResponse != null && readResponse.hasData()) {
-            jobSecrets = readResponse.getData();
-        } else {
-            jobSecrets = new JobSecrets(jobName, null);
-        }
+  public Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException {
+    Versioned<JobSecrets> readResponse =
+        vaultTemplate.opsForVersionedKeyValue(SECRET).get(jobName, JobSecrets.class);
 
-        var updatedSecrets =
-                secrets.entrySet().stream()
-                        .collect(
-                                Collectors.toMap(
-                                        Map.Entry::getKey,
-                                        entry -> {
-                                            if (entry.getValue() == null) {
-                                                entry.setValue(JSONObject.NULL);
-                                            }
-                                            return entry.getValue();
-                                        }));
+    JobSecrets jobSecrets;
 
-        jobSecrets.setSecretsJson(new JSONObject(updatedSecrets).toString());
-
-        vaultTemplate
-                .opsForVersionedKeyValue(SECRET)
-                .put(jobName, jobSecrets);
+    if (readResponse != null && readResponse.hasData()) {
+      jobSecrets = readResponse.getData();
+      return objectMapper.readValue(jobSecrets.getSecretsJson(), Map.class);
+    } else {
+      return Collections.emptyMap();
     }
-
-    public Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException {
-        Versioned<JobSecrets> readResponse = vaultTemplate
-                .opsForVersionedKeyValue(SECRET)
-                .get(jobName, JobSecrets.class);
-
-        JobSecrets jobSecrets;
-
-        if (readResponse != null && readResponse.hasData()) {
-            jobSecrets = readResponse.getData();
-            return objectMapper.readValue(jobSecrets.getSecretsJson(), Map.class);
-        } else {
-            return Collections.emptyMap();
-        }
-    }
+  }
 }
