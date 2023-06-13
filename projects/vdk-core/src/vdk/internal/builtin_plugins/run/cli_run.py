@@ -5,12 +5,16 @@ import logging
 import math
 import os
 import pathlib
+import re
+import sys
 from typing import cast
 from typing import Dict
 from typing import List
 from typing import Optional
 
 import click
+from vdk.internal.builtin_plugins.config import vdk_config
+from vdk.internal.builtin_plugins.config.job_config import JobConfig
 from vdk.internal.builtin_plugins.run import job_input_error_classifier
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
 from vdk.internal.builtin_plugins.run.execution_tracking import (
@@ -19,6 +23,7 @@ from vdk.internal.builtin_plugins.run.execution_tracking import (
 from vdk.internal.builtin_plugins.version import version
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import VdkConfigurationError
 
 log = logging.getLogger(__name__)
 
@@ -66,6 +71,55 @@ class CliRunImpl:
                 + (quotient + 1 if i < remainder else quotient)
             ]
 
+    @staticmethod
+    def __warn_on_python_version_disparity(
+        context: CoreContext, job_directory: pathlib.Path
+    ):
+        log_config_type = context.configuration.get_value(vdk_config.LOG_CONFIG)
+        if log_config_type == "LOCAL":
+            # Get the local python installation's version.
+            python_env_version = sys.version_info
+            local_py_version = f"{python_env_version.major}.{python_env_version.minor}"
+
+            # Get the python_version set in the config.ini if any.
+            job_path = job_directory.resolve()
+            try:
+                config = JobConfig(data_job_path=job_path)
+            except VdkConfigurationError as e:
+                log.info(
+                    f"An exception occurred while loading job configuration. Error was {e}"
+                )
+                return
+            configured_python_version = config.get_python_version()
+
+            if not configured_python_version:
+                return
+
+            pattern = r"^\d+\.\d+"
+            version_match = re.match(pattern, configured_python_version)
+
+            if version_match:
+                extracted_configured_version = version_match.group()
+                if extracted_configured_version != local_py_version:
+                    log.warning(
+                        f"""
+                        {os.linesep + (' ' * 20) + ('*' * 80)}
+                        Python version ({configured_python_version}), set in the job's config.ini file, is different
+                        from the python version ({local_py_version}) used to execute the data job.
+                        WHAT: python_version is different from the version of the execution
+                        environment.
+                        WHY: The python_version set in the data job's config.ini file is
+                        different from the python version of the execution environment.
+                        CONSEQUENCES: Developing a data job with one python version, and
+                        using a different version for the deployed data job could lead to
+                        unexpected and hard to troubleshoot errors.
+                        COUNTERMEASURES: Please, make sure that the python version set in
+                        the python_version property of the config.ini file is the same as
+                        the python version of your execution environment.
+                        {os.linesep + (' ' * 20) + ('*' * 80)}
+                        """
+                    )
+
     def create_and_run_data_job(
         self,
         context: CoreContext,
@@ -74,6 +128,10 @@ class CliRunImpl:
     ):
         log.info(f"Run job with directory {data_job_directory}")
         context.plugin_registry.load_plugin_with_hooks_impl(ExecutionTrackingPlugin())
+
+        self.__warn_on_python_version_disparity(
+            context=context, job_directory=data_job_directory
+        )
 
         job = self.__job_factory.new_datajob(
             data_job_directory=data_job_directory, core_context=context
