@@ -12,13 +12,18 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import io.kubernetes.client.custom.Quantity;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
+import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -224,10 +229,8 @@ public class KubernetesServiceTest {
   // check the final outcome directly in the K8s environment.
   @Test
   public void testCreateV1beta1CronJobFromInternalResource() {
-    KubernetesService service = new DataJobsKubernetesService("default", "someConfig", false);
+    KubernetesService service = newDataJobKubernetesService();
     try {
-      // Step 1 - load and check the internal cronjob template.
-      service.afterPropertiesSet();
       // At this point we know that the cronjob template is loaded successfully.
 
       // Step 2 - check whether an empty V1beta1CronJob object is properly populated
@@ -327,12 +330,21 @@ public class KubernetesServiceTest {
     }
   }
 
+  @NotNull
+  private static DataJobsKubernetesService newDataJobKubernetesService() {
+    return new DataJobsKubernetesService(
+        "default",
+        false,
+        new ApiClient(),
+        new BatchV1Api(),
+        new BatchV1beta1Api(),
+        new JobCommandProvider());
+  }
+
   @Test
   public void testCreateV1CronJobFromInternalResource() {
-    KubernetesService service = new DataJobsKubernetesService("default", "someConfig", false);
+    KubernetesService service = newDataJobKubernetesService();
     try {
-      // Step 1 - load and check the internal cronjob template.
-      service.afterPropertiesSet();
       // At this point we know that the cronjob template is loaded successfully.
 
       // Step 2 - check whether an empty V1CronJob object is properly populated
