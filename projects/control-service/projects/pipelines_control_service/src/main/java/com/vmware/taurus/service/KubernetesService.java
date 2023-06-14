@@ -30,8 +30,6 @@ import io.kubernetes.client.openapi.apis.*;
 import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.models.*;
-import io.kubernetes.client.util.ClientBuilder;
-import io.kubernetes.client.util.KubeConfig;
 import io.kubernetes.client.util.Watch;
 import io.kubernetes.client.util.Yaml;
 import lombok.*;
@@ -40,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -54,7 +51,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -80,7 +76,7 @@ import static java.util.function.Predicate.not;
  * @see com.vmware.taurus.service.kubernetes.DataJobsKubernetesService
  */
 @Service
-public abstract class KubernetesService implements InitializingBean {
+public abstract class KubernetesService {
 
   public static final String LABEL_PREFIX = "com.vmware.taurus";
   private static final int WATCH_JOBS_TIMEOUT_SECONDS = 300;
@@ -185,12 +181,14 @@ public abstract class KubernetesService implements InitializingBean {
   private String namespace;
   private String kubeconfig;
   private Logger log;
+  private final ApiClient client;
+  private final BatchV1Api batchV1Api;
+  private final BatchV1beta1Api batchV1beta1Api;
   private boolean k8sSupportsV1CronJob;
-  private ApiClient client;
 
   @Autowired private UserAgentService userAgentService;
 
-  @Autowired private JobCommandProvider jobCommandProvider;
+  @Autowired private final JobCommandProvider jobCommandProvider;
 
   /**
    * @param namespace the namespace where the kubernetes operation will act on. leave empty to infer
@@ -200,79 +198,24 @@ public abstract class KubernetesService implements InitializingBean {
    * @param log log to use - used in subclasses in order to set classname to subclass.
    */
   protected KubernetesService(
-      String namespace, String kubeconfig, boolean k8sSupportsV1CronJob, Logger log) {
+      String namespace,
+      boolean k8sSupportsV1CronJob,
+      Logger log,
+      ApiClient client,
+      BatchV1Api batchV1Api,
+      BatchV1beta1Api batchV1beta1Api,
+      JobCommandProvider jobCommandProvider) {
     this.namespace = namespace;
-    this.kubeconfig = kubeconfig;
     this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
     this.log = log;
+    this.client = client;
+    this.batchV1Api = batchV1Api;
+    this.batchV1beta1Api = batchV1beta1Api;
+    this.jobCommandProvider = jobCommandProvider;
   }
 
   protected boolean getK8sSupportsV1CronJob() {
     return this.k8sSupportsV1CronJob;
-  }
-
-  @Override
-  public void afterPropertiesSet() throws Exception {
-    log.info("Configuration used: kubeconfig: {}, namespace: {}", kubeconfig, namespace);
-    if (!StringUtils.isBlank(kubeconfig) && new File(kubeconfig).isFile()) {
-      log.info("Will use provided kubeconfig file from configuration: {}", kubeconfig);
-      KubeConfig kubeConfig = KubeConfig.loadKubeConfig(new FileReader(kubeconfig));
-      client = ClientBuilder.kubeconfig(kubeConfig).build();
-      if (StringUtils.isBlank(namespace)) {
-        this.namespace = kubeConfig.getNamespace();
-      }
-    } else {
-      log.info("Will use default client");
-      client = ClientBuilder.defaultClient();
-      if (StringUtils.isBlank(namespace)) {
-        this.namespace = getCurrentNamespace();
-      }
-    }
-    log.info("kubernetes namespace: {}", namespace);
-    if (userAgentService != null) {
-      client.setUserAgent(userAgentService.getUserAgent());
-    }
-
-    // Annoying error: Watch is incompatible with debugging mode active
-    // client.setDebugging(true);
-    client.setHttpClient(
-        client.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
-    // client.getHttpClient().setReadTimeout(0, TimeUnit.SECONDS);
-
-    // Step 1 - load the internal datajob template in order to validate it.
-    try {
-      if (getK8sSupportsV1CronJob()) {
-        loadV1CronjobTemplate(new ClassPathResource(V1_K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
-      } else {
-        loadV1beta1CronjobTemplate(new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
-      }
-      log.info("The internal datajob template is valid.");
-    } catch (Exception e) {
-      // Log the error and fail fast (cannot continue).
-      log.error("Fatal error while loading the internal datajob template. Cannot continue", e);
-      throw e;
-    }
-    // Step 2 - load the configurable datajob template in order to validate it
-    // when environment variable 'K8S_DATA_JOB_TEMPLATE_FILE' is set.
-    if (!StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      if (getK8sSupportsV1CronJob()) {
-        if (loadConfigurableV1CronjobTemplate() == null) {
-          log.warn(
-              "The configurable datajob template '{}' could not be loaded.",
-              datajobTemplateFileLocation);
-        } else {
-          log.info("The configurable datajob template '{}' is valid.", datajobTemplateFileLocation);
-        }
-      } else {
-        if (loadConfigurableV1beta1CronjobTemplate() == null) {
-          log.warn(
-              "The configurable datajob template '{}' could not be loaded.",
-              datajobTemplateFileLocation);
-        } else {
-          log.info("The configurable datajob template '{}' is valid.", datajobTemplateFileLocation);
-        }
-      }
-    }
   }
 
   private V1CronJob loadV1CronjobTemplate() {
@@ -428,9 +371,8 @@ public abstract class KubernetesService implements InitializingBean {
   public Set<String> listJobs() throws ApiException {
     log.debug("Listing k8s jobs");
     var jobs =
-        new BatchV1Api(client)
-            .listNamespacedJob(
-                namespace, null, null, null, null, null, null, null, null, null, null);
+        batchV1Api.listNamespacedJob(
+            namespace, null, null, null, null, null, null, null, null, null, null);
     var set =
         jobs.getItems().stream().map(j -> j.getMetadata().getName()).collect(Collectors.toSet());
     log.debug("K8s jobs: {}", set);
@@ -456,7 +398,7 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Reading k8s V1beta1 cron job: {}", cronJobName);
     V1beta1CronJob cronJob = null;
     try {
-      cronJob = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null);
+      cronJob = batchV1beta1Api.readNamespacedCronJob(cronJobName, namespace, null);
     } catch (ApiException e) {
       log.warn(
           "Could not read cron job: {}; reason: {}",
@@ -471,7 +413,7 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Reading k8s V1 cron job: {}", cronJobName);
     V1CronJob cronJob = null;
     try {
-      cronJob = initBatchV1Api().readNamespacedCronJob(cronJobName, namespace, null);
+      cronJob = batchV1Api.readNamespacedCronJob(cronJobName, namespace, null);
     } catch (ApiException e) {
       log.warn(
           "Could not read cron job: {}; reason: {}",
@@ -504,9 +446,8 @@ public abstract class KubernetesService implements InitializingBean {
     V1beta1CronJobList cronJobs = null;
     try {
       cronJobs =
-          initBatchV1beta1Api()
-              .listNamespacedCronJob(
-                  namespace, null, null, null, null, null, null, null, null, null, null);
+          batchV1beta1Api.listNamespacedCronJob(
+              namespace, null, null, null, null, null, null, null, null, null, null);
     } catch (ApiException e) {
       log.warn("Failed to read k8s cron jobs: ", new KubernetesException("", e));
     }
@@ -524,9 +465,8 @@ public abstract class KubernetesService implements InitializingBean {
     V1CronJobList cronJobs = null;
     try {
       cronJobs =
-          initBatchV1Api()
-              .listNamespacedCronJob(
-                  namespace, null, null, null, null, null, null, null, null, null, null);
+          batchV1Api.listNamespacedCronJob(
+              namespace, null, null, null, null, null, null, null, null, null, null);
     } catch (ApiException e) {
       log.warn("Failed to read k8s cron jobs: ", new KubernetesException("", e));
     }
@@ -564,7 +504,7 @@ public abstract class KubernetesService implements InitializingBean {
       Map<String, Object> extraJobArguments,
       String jobName)
       throws ApiException {
-    var cron = initBatchV1beta1Api().readNamespacedCronJob(cronJobName, namespace, null);
+    var cron = batchV1beta1Api.readNamespacedCronJob(cronJobName, namespace, null);
     Optional<V1beta1JobTemplateSpec> jobTemplateSpec =
         Optional.ofNullable(cron)
             .map(V1beta1CronJob::getSpec)
@@ -627,7 +567,7 @@ public abstract class KubernetesService implements InitializingBean {
       Map<String, Object> extraJobArguments,
       String jobName)
       throws ApiException {
-    var cron = initBatchV1Api().readNamespacedCronJob(cronJobName, namespace, null);
+    var cron = batchV1Api.readNamespacedCronJob(cronJobName, namespace, null);
 
     Optional<V1JobTemplateSpec> jobTemplateSpec =
         Optional.ofNullable(cron).map(V1CronJob::getSpec).map(V1CronJobSpec::getJobTemplate);
@@ -714,9 +654,8 @@ public abstract class KubernetesService implements InitializingBean {
         namespace);
     try {
       var operationResponse =
-          initBatchV1Api()
-              .deleteNamespacedJobWithHttpInfo(
-                  executionId, namespace, null, null, null, null, "Foreground", null);
+          batchV1Api.deleteNamespacedJobWithHttpInfo(
+              executionId, namespace, null, null, null, null, "Foreground", null);
       // Status of the operation. One of: "Success" or "Failure"
       if (operationResponse == null || operationResponse.getStatusCode() == 404) {
         log.info(
@@ -776,9 +715,8 @@ public abstract class KubernetesService implements InitializingBean {
 
     try {
       var v1CronJobs =
-          initBatchV1Api()
-              .listNamespacedCronJob(
-                  namespace, null, null, null, null, null, null, null, null, null, null);
+          batchV1Api.listNamespacedCronJob(
+              namespace, null, null, null, null, null, null, null, null, null, null);
       v1CronJobNames =
           v1CronJobs.getItems().stream()
               .map(j -> j.getMetadata().getName())
@@ -795,9 +733,8 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     var v1BetaCronJobs =
-        initBatchV1beta1Api()
-            .listNamespacedCronJob(
-                namespace, null, null, null, null, null, null, null, null, null, null);
+        batchV1beta1Api.listNamespacedCronJob(
+            namespace, null, null, null, null, null, null, null, null, null, null);
     var v1BetaCronJobNames =
         v1BetaCronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
@@ -873,8 +810,7 @@ public abstract class KubernetesService implements InitializingBean {
             jobLabels,
             imagePullSecrets);
     V1beta1CronJob nsJob =
-        new BatchV1beta1Api(client)
-            .createNamespacedCronJob(namespace, cronJob, null, null, null, null);
+        batchV1beta1Api.createNamespacedCronJob(namespace, cronJob, null, null, null, null);
     log.debug("Created k8s V1beta1 cron job: {}", nsJob);
     log.debug(
         "Created k8s cron job name: {}, api_version:{}, uid:{}, link:{}",
@@ -911,7 +847,7 @@ public abstract class KubernetesService implements InitializingBean {
             jobLabels,
             imagePullSecrets);
     V1CronJob nsJob =
-        new BatchV1Api(client).createNamespacedCronJob(namespace, cronJob, null, null, null, null);
+        batchV1Api.createNamespacedCronJob(namespace, cronJob, null, null, null, null);
     log.debug("Created k8s V1 cron job: {}", nsJob);
     log.debug(
         "Created k8s cron job name: {}, api_version: {}, uid:{}, link:{}",
@@ -984,8 +920,7 @@ public abstract class KubernetesService implements InitializingBean {
             jobLabels,
             imagePullSecrets);
     V1beta1CronJob nsJob =
-        new BatchV1beta1Api(client)
-            .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
+        batchV1beta1Api.replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
     log.debug(
         "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
@@ -1018,8 +953,7 @@ public abstract class KubernetesService implements InitializingBean {
             jobLabels,
             imagePullSecrets);
     V1CronJob nsJob =
-        new BatchV1Api(client)
-            .replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
+        batchV1Api.replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
     log.debug(
         "Updated k8s V1 cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
@@ -1036,8 +970,7 @@ public abstract class KubernetesService implements InitializingBean {
     // with the V1Beta1 API, so we need to try again with the beta API.
     if (getK8sSupportsV1CronJob()) {
       try {
-        new BatchV1Api(client)
-            .deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
+        batchV1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
         log.debug("Deleted k8s V1 cron job: {}", name);
         return;
       } catch (Exception e) {
@@ -1046,8 +979,7 @@ public abstract class KubernetesService implements InitializingBean {
     }
 
     try {
-      new BatchV1beta1Api(client)
-          .deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
+      batchV1beta1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
       log.debug("Deleted k8s V1beta1 cron job: {}", name);
     } catch (JsonSyntaxException e) {
       if (e.getCause() instanceof IllegalStateException) {
@@ -1124,7 +1056,7 @@ public abstract class KubernetesService implements InitializingBean {
   }
 
   // Default for testing purposes
-  void createNewJob(
+  public void createNewJob(
       String name, V1JobSpec spec, Map<String, String> labels, Map<String, String> annotations)
       throws ApiException {
     var job =
@@ -1138,8 +1070,7 @@ public abstract class KubernetesService implements InitializingBean {
             .withSpec(spec)
             .build();
 
-    V1Job nsJob =
-        new BatchV1Api(client).createNamespacedJob(namespace, job, null, null, null, null);
+    V1Job nsJob = batchV1Api.createNamespacedJob(namespace, job, null, null, null, null);
     log.debug("Created k8s job: {}", nsJob);
     log.debug(
         "Created k8s job name: {}, uid:{}, link:{}",
@@ -1177,9 +1108,8 @@ public abstract class KubernetesService implements InitializingBean {
     var labelsToSelect = Map.of(JobLabel.NAME.getValue(), dataJobName);
     String labelSelector = buildLabelSelector(labelsToSelect);
     V1JobList v1JobList =
-        initBatchV1Api()
-            .listNamespacedJob(
-                namespace, null, null, null, null, labelSelector, null, null, null, null, null);
+        batchV1Api.listNamespacedJob(
+            namespace, null, null, null, null, labelSelector, null, null, null, null, null);
 
     // In this case we use getConditions() instead of getActive()
     // because if the job is in init state the active flag is zero.
@@ -1264,16 +1194,6 @@ public abstract class KubernetesService implements InitializingBean {
     return condition;
   }
 
-  // Default for testing purposes
-  BatchV1Api initBatchV1Api() {
-    return new BatchV1Api(client);
-  }
-
-  // Default for testing purposes
-  BatchV1beta1Api initBatchV1beta1Api() {
-    return new BatchV1beta1Api(client);
-  }
-
   private JobStatusCondition watchJobInternal(
       String jobName, int timeoutSeconds, Consumer<JobStatus> watcher)
       throws IOException, ApiException {
@@ -1281,20 +1201,19 @@ public abstract class KubernetesService implements InitializingBean {
     try (Watch<V1Job> watch =
         Watch.createWatch(
             Configuration.getDefaultApiClient(),
-            new BatchV1Api(client)
-                .listNamespacedJobCall(
-                    namespace,
-                    null,
-                    null,
-                    null,
-                    fieldSelector,
-                    null,
-                    null,
-                    null,
-                    null,
-                    timeoutSeconds,
-                    true,
-                    null),
+            batchV1Api.listNamespacedJobCall(
+                namespace,
+                null,
+                null,
+                null,
+                fieldSelector,
+                null,
+                null,
+                null,
+                null,
+                timeoutSeconds,
+                true,
+                null),
             new TypeToken<Watch.Response<V1Job>>() {}.getType())) {
       for (var response : watch) {
         log.debug("watch k8s response type: {}", response.type);
@@ -1382,16 +1301,7 @@ public abstract class KubernetesService implements InitializingBean {
 
     var lastMainTerminatedPodState =
         jobPods.stream()
-            .map(
-                v1Pod ->
-                    getTerminatedState(
-                        v1Pod,
-                        new Function<V1PodStatus, List<V1ContainerStatus>>() {
-                          @Override
-                          public List<V1ContainerStatus> apply(V1PodStatus v1PodStatus) {
-                            return v1PodStatus.getContainerStatuses();
-                          }
-                        }))
+            .map(v1Pod -> getTerminatedState(v1Pod, V1PodStatus::getContainerStatuses))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .max(Comparator.comparing(V1ContainerStateTerminated::getFinishedAt));
@@ -1402,16 +1312,7 @@ public abstract class KubernetesService implements InitializingBean {
 
     var lastInitTerminatedPodState =
         jobPods.stream()
-            .map(
-                v1Pod ->
-                    getTerminatedState(
-                        v1Pod,
-                        new Function<V1PodStatus, List<V1ContainerStatus>>() {
-                          @Override
-                          public List<V1ContainerStatus> apply(V1PodStatus v1PodStatus) {
-                            return v1PodStatus.getInitContainerStatuses();
-                          }
-                        }))
+            .map(v1Pod -> getTerminatedState(v1Pod, V1PodStatus::getInitContainerStatuses))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .max(Comparator.comparing(V1ContainerStateTerminated::getFinishedAt));
@@ -1444,7 +1345,7 @@ public abstract class KubernetesService implements InitializingBean {
           .map(
               v1ContainerStateTerminated ->
                   StringUtils.trim(v1ContainerStateTerminated.getReason()))
-          .ifPresent(s -> jobExecutionStatusBuilder.initContainerTerminationReason(s));
+          .ifPresent(jobExecutionStatusBuilder::initContainerTerminationReason);
 
       Optional<V1ContainerStateTerminated> lastMainContainerStateTerminated =
           podTerminationStatus.getRight();
@@ -1454,7 +1355,7 @@ public abstract class KubernetesService implements InitializingBean {
           .map(
               v1ContainerStateTerminated ->
                   StringUtils.trim(v1ContainerStateTerminated.getMessage()))
-          .ifPresent(s -> jobExecutionStatusBuilder.mainContainerTerminationMessage(s));
+          .ifPresent(jobExecutionStatusBuilder::mainContainerTerminationMessage);
       jobExecutionStatusBuilder.jobTerminationReason(jobStatusCondition.getReason());
 
       // Termination Reason of the data job pod container
@@ -1486,7 +1387,7 @@ public abstract class KubernetesService implements InitializingBean {
         resourcesRequest
             .map(
                 stringQuantityMap -> stringQuantityMap.get(ContainerResourceType.MEMORY.getValue()))
-            .map(quantity -> convertMemoryToMBs(quantity))
+            .map(KubernetesService::convertMemoryToMBs)
             .orElse(null));
 
     Optional<Map<String, Quantity>> resourcesLimit =
@@ -1646,19 +1547,8 @@ public abstract class KubernetesService implements InitializingBean {
     String resourceVersion;
     try {
       var jobList =
-          new BatchV1Api(client)
-              .listNamespacedJob(
-                  namespace,
-                  "false",
-                  null,
-                  null,
-                  null,
-                  labelSelector,
-                  null,
-                  null,
-                  null,
-                  null,
-                  null);
+          batchV1Api.listNamespacedJob(
+              namespace, "false", null, null, null, labelSelector, null, null, null, null, null);
       List<String> runningExecutionIds = new ArrayList<>();
 
       jobList
@@ -1686,20 +1576,19 @@ public abstract class KubernetesService implements InitializingBean {
     try (Watch<V1Job> watch =
         Watch.createWatch(
             Configuration.getDefaultApiClient(),
-            new BatchV1Api(client)
-                .listNamespacedJobCall(
-                    namespace,
-                    null,
-                    null,
-                    null,
-                    null,
-                    labelSelector,
-                    null,
-                    resourceVersion,
-                    null,
-                    timeoutSeconds,
-                    true,
-                    null),
+            batchV1Api.listNamespacedJobCall(
+                namespace,
+                null,
+                null,
+                null,
+                null,
+                labelSelector,
+                null,
+                resourceVersion,
+                null,
+                timeoutSeconds,
+                true,
+                null),
             new TypeToken<Watch.Response<V1Job>>() {}.getType())) {
       for (var response : watch) {
         if (response.status != null) {
@@ -1778,8 +1667,7 @@ public abstract class KubernetesService implements InitializingBean {
     log.debug("Deleting k8s job: {}", name);
     try {
       var status =
-          new BatchV1Api(client)
-              .deleteNamespacedJob(name, namespace, null, null, null, null, null, null);
+          batchV1Api.deleteNamespacedJob(name, namespace, null, null, null, null, null, null);
       log.debug("Deleted k8s job: {}, status: {}", name, status);
     } catch (JsonSyntaxException e) {
       log.warn(
@@ -1837,9 +1725,8 @@ public abstract class KubernetesService implements InitializingBean {
     String fieldSelector = String.format("metadata.name=%s", jobName);
     try {
       var jobs =
-          new BatchV1Api(client)
-              .listNamespacedJob(
-                  namespace, null, null, null, fieldSelector, null, null, null, null, null, null);
+          batchV1Api.listNamespacedJob(
+              namespace, null, null, null, fieldSelector, null, null, null, null, null, null);
       if (!jobs.getItems().isEmpty()) {
         return Optional.of(jobs.getItems().get(0));
       }

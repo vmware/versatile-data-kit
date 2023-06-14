@@ -44,14 +44,14 @@ project.ext {
             'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.8.0',
             'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.487',
             'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.488',
-            'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.487',
-            'org.springframework.vault:spring-vault-core'                        : 'org.springframework.vault:spring-vault-core:2.3.3',
+            'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.488',
+            'org.springframework.vault:spring-vault-core'                        : 'org.springframework.vault:spring-vault-core:3.0.2',
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly
             'org.junit.platform:junit-platform-commons'                          : 'org.junit.platform:junit-platform-commons:1.9.3',
-            'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.11',
-            'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.11',
+            'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.12',
+            'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.12',
             'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.11.1',
             'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.3.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.23.0',
