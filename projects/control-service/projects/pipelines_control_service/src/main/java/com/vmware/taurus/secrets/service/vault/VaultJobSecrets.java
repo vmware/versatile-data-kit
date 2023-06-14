@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.secrets.service;
+package com.vmware.taurus.secrets.service.vault;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +15,7 @@ import org.springframework.vault.repository.mapping.Secret;
 @AllArgsConstructor
 @NoArgsConstructor
 @Secret
-public class JobSecrets {
+public class VaultJobSecrets {
 
   @Id private String jobName;
 

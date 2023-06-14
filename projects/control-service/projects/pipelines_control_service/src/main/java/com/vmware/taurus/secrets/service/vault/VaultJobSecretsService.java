@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.secrets.service;
+package com.vmware.taurus.secrets.service.vault;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.support.Versioned;
@@ -19,28 +20,29 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-// @ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
-public class JobSecretsService {
+@ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
+public class VaultJobSecretsService implements com.vmware.taurus.secrets.service.JobSecretsService {
 
   private static final String SECRET = "secret";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private VaultOperations vaultOperations;
 
-  public JobSecretsService(VaultOperations vaultOperations) {
-    this.vaultOperations = vaultOperations;
+  public VaultJobSecretsService(VaultOperations vaultOperations){
+      this.vaultOperations = vaultOperations;
   }
 
+  @Override
   public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
-    Versioned<JobSecrets> readResponse =
-        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, JobSecrets.class);
+    Versioned<VaultJobSecrets> readResponse =
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
 
-    JobSecrets jobSecrets;
+    VaultJobSecrets vaultJobSecrets;
 
     if (readResponse != null && readResponse.hasData()) {
-      jobSecrets = readResponse.getData();
+      vaultJobSecrets = readResponse.getData();
     } else {
-      jobSecrets = new JobSecrets(jobName, null);
+      vaultJobSecrets = new VaultJobSecrets(jobName, null);
     }
 
     var updatedSecrets =
@@ -55,20 +57,21 @@ public class JobSecretsService {
                       return entry.getValue();
                     }));
 
-    jobSecrets.setSecretsJson(new JSONObject(updatedSecrets).toString());
+    vaultJobSecrets.setSecretsJson(new JSONObject(updatedSecrets).toString());
 
-    vaultOperations.opsForVersionedKeyValue(SECRET).put(jobName, jobSecrets);
+    vaultOperations.opsForVersionedKeyValue(SECRET).put(jobName, vaultJobSecrets);
   }
 
+  @Override
   public Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException {
-    Versioned<JobSecrets> readResponse =
-        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, JobSecrets.class);
+    Versioned<VaultJobSecrets> readResponse =
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
 
-    JobSecrets jobSecrets;
+    VaultJobSecrets vaultJobSecrets;
 
     if (readResponse != null && readResponse.hasData()) {
-      jobSecrets = readResponse.getData();
-      return objectMapper.readValue(jobSecrets.getSecretsJson(), Map.class);
+      vaultJobSecrets = readResponse.getData();
+      return objectMapper.readValue(vaultJobSecrets.getSecretsJson(), Map.class);
     } else {
       return Collections.emptyMap();
     }

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.secrets.service;
+package com.vmware.taurus.secrets.service.vault;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,13 +19,12 @@ import java.net.URISyntaxException;
 @Configuration
 public class VaultConfiguration {
 
-  @Bean
-  public VaultOperations vaultOperations(
-      @Value("${vdk.vault.uri:}") String vaultUri, @Value("${vdk.vault.token:}") String vaultToken)
-      throws URISyntaxException {
-    VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
-    TokenAuthentication clientAuthentication = new TokenAuthentication(vaultToken);
+    @Bean
+    public VaultOperations vaultOperations(@Value("${vdk.vault.uri:}") String vaultUri,
+                                           @Value("${vdk.vault.token:}") String vaultToken) throws URISyntaxException {
+        VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
+        TokenAuthentication clientAuthentication = new TokenAuthentication(vaultToken);
 
-    return new VaultTemplate(vaultEndpoint, clientAuthentication);
-  }
+        return new VaultTemplate(vaultEndpoint, clientAuthentication);
+    }
 }

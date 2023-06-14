@@ -15,8 +15,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -24,57 +26,48 @@ import java.util.Map;
 @RestController
 @ComponentScan(basePackages = "com.vmware.taurus.secrets")
 @Tag(name = "Data Jobs Secrets")
-// @ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
+@ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
 public class DataJobsSecretsController implements DataJobsSecretsApi {
-  static Logger log = LoggerFactory.getLogger(DataJobsSecretsController.class);
+    static Logger log = LoggerFactory.getLogger(DataJobsSecretsController.class);
 
-  private final FeatureFlags featureFlags;
+    private final FeatureFlags featureFlags;
 
-  private final JobSecretsService secretsService;
+    private final JobSecretsService secretsService;
 
-  @Autowired
-  public DataJobsSecretsController(FeatureFlags featureFlags, JobSecretsService secretsService) {
-    this.featureFlags = featureFlags;
-    this.secretsService = secretsService;
-  }
-
-  @Override
-  public ResponseEntity<Void> dataJobSecretsUpdate(
-      String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
-    log.debug("Updating secrets for job: {}", jobName);
-
-    //    //    TODO: Remove after adding tests
-    //    throw new ResponseStatusException(
-    //        HttpStatus.NOT_IMPLEMENTED, "Secrets service is not implemented");
-
-    //    TODO: Working implementation. Uncomment after adding tests
-    if (featureFlags.isVaultIntegrationEnabled()) {
-      secretsService.updateJobSecrets(jobName, requestBody);
-      return ResponseEntity.noContent().build();
+    @Autowired
+    public DataJobsSecretsController(FeatureFlags featureFlags, @Nullable JobSecretsService
+            secretsService) {
+        this.featureFlags = featureFlags;
+        this.secretsService = secretsService;
     }
 
-    throw new SecretStorageNotConfiguredException();
-  }
+    @Override
+    public ResponseEntity<Void> dataJobSecretsUpdate(
+            String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
+        log.debug("Updating secrets for job: {}", jobName);
 
-  @Override
-  public ResponseEntity<Map<String, Object>> dataJobSecretsRead(
-      String teamName, String jobName, String deploymentId) {
-    log.debug("Reading secrets for job: {}", jobName);
+        if (featureFlags.isVaultIntegrationEnabled()) {
+            secretsService.updateJobSecrets(jobName, requestBody);
+            return ResponseEntity.noContent().build();
+        }
 
-    //    TODO: Remove after adding tests
-    //        throw new ResponseStatusException(
-    //                HttpStatus.NOT_IMPLEMENTED, "Secrets service is not implemented");
-
-    //    TODO: Working implementation. Uncomment after adding tests
-    if (featureFlags.isVaultIntegrationEnabled()) {
-      try {
-        return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
-      } catch (JsonProcessingException e) {
-        log.error("Error while parsing secrets for job: " + jobName, e);
-        throw new DataJobSecretsException(jobName, "Error while parsing secrets for job");
-      }
+        throw new SecretStorageNotConfiguredException();
     }
 
-    throw new SecretStorageNotConfiguredException();
-  }
+    @Override
+    public ResponseEntity<Map<String, Object>> dataJobSecretsRead(
+            String teamName, String jobName, String deploymentId) {
+        log.debug("Reading secrets for job: {}", jobName);
+
+        if (featureFlags.isVaultIntegrationEnabled()) {
+            try {
+                return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
+            } catch (JsonProcessingException e) {
+                log.error("Error while parsing secrets for job: " + jobName, e);
+                throw new DataJobSecretsException(jobName, "Error while parsing secrets for job");
+            }
+        }
+
+        throw new SecretStorageNotConfiguredException();
+    }
 }
