@@ -5,9 +5,13 @@
 
 package com.vmware.taurus.service;
 
+import com.vmware.taurus.service.deploy.JobCommandProvider;
+import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
+import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.V1Status;
 import io.kubernetes.client.openapi.models.V1StatusDetails;
 import org.junit.jupiter.api.Assertions;
@@ -77,15 +81,6 @@ public class KubernetesServiceCancelRunningCronJobTest {
   }
 
   private KubernetesService mockKubernetesService(V1Status v1Status) throws ApiException {
-    var kubernetesService = Mockito.mock(KubernetesService.class);
-    ReflectionTestUtils.setField(
-        kubernetesService, // inject into this object
-        "log", // assign to this field
-        Mockito.mock(Logger.class)); // object to be injected
-    Mockito.doCallRealMethod()
-        .when(kubernetesService)
-        .cancelRunningCronJob(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-
     ApiResponse<V1Status> response = Mockito.mock(ApiResponse.class);
     Mockito.when(response.getData()).thenReturn(v1Status);
     Mockito.when(response.getStatusCode()).thenReturn(v1Status == null ? 404 : v1Status.getCode());
@@ -94,7 +89,7 @@ public class KubernetesServiceCancelRunningCronJobTest {
     Mockito.when(
             batchV1Api.deleteNamespacedJobWithHttpInfo(
                 Mockito.anyString(),
-                Mockito.isNull(),
+                Mockito.anyString(),
                 Mockito.isNull(),
                 Mockito.isNull(),
                 Mockito.isNull(),
@@ -103,8 +98,12 @@ public class KubernetesServiceCancelRunningCronJobTest {
                 Mockito.isNull()))
         .thenReturn(response);
 
-    Mockito.when(kubernetesService.initBatchV1Api()).thenReturn(batchV1Api);
-
-    return kubernetesService;
+    return new DataJobsKubernetesService(
+            "default",
+            false,
+            new ApiClient(),
+            batchV1Api,
+            new BatchV1beta1Api(),
+            new JobCommandProvider());
   }
 }

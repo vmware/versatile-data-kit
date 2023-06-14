@@ -6,12 +6,14 @@
 package com.vmware.taurus.service.kubernetes;
 
 import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.deploy.JobCommandProvider;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
+import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
 
 /**
  * Kubernetes service used for serving data jobs deployments. All deployed data jobs are executed in
@@ -23,16 +25,19 @@ import java.io.File;
 public class DataJobsKubernetesService extends KubernetesService {
 
   public DataJobsKubernetesService(
-      @Value("${datajobs.deployment.k8s.namespace:}") String namespace,
-      @Value("${datajobs.deployment.k8s.kubeconfig:}") String kubeconfig,
-      @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob) {
-    super(namespace, kubeconfig, k8sSupportsV1CronJob, log);
-    if (StringUtils.isBlank(kubeconfig) && !new File(kubeconfig).isFile()) {
-      log.warn(
-          "Data Jobs (Deployment) Kubernetes service may not have been correctly bootstrapped. {}"
-              + " file is missing Will try to use same cluster as control Plane. But this is not"
-              + " recommended in production.",
-          kubeconfig);
-    }
+          @Value("${datajobs.deployment.k8s.namespace:}") String namespace,
+          @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
+          @Qualifier("deploymentApiClient") ApiClient client,
+          @Qualifier("controlBatchV1Api") BatchV1Api batchV1Api,
+          @Qualifier("controlBatchV1beta1Api") BatchV1beta1Api batchV1beta1Api,
+          JobCommandProvider jobCommandProvider) {
+    super(
+            namespace,
+            k8sSupportsV1CronJob,
+            log,
+            client,
+            batchV1Api,
+            batchV1beta1Api,
+            jobCommandProvider);
   }
 }

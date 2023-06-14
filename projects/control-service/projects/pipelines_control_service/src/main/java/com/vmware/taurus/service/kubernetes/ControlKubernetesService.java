@@ -6,7 +6,12 @@
 package com.vmware.taurus.service.kubernetes;
 
 import com.vmware.taurus.service.KubernetesService;
+import com.vmware.taurus.service.deploy.JobCommandProvider;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
+import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +25,19 @@ public class ControlKubernetesService extends KubernetesService {
 
   // those should be null/empty when Control service is deployed in k8s hence default is empty
   public ControlKubernetesService(
-      @Value("${datajobs.control.k8s.namespace:}") String namespace,
-      @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig,
-      @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob) {
-    super(namespace, kubeconfig, k8sSupportsV1CronJob, log);
+          @Value("${datajobs.control.k8s.namespace:}") String namespace,
+          @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
+          @Qualifier("controlApiClient") ApiClient client,
+          @Qualifier("controlBatchV1Api") BatchV1Api batchV1Api,
+          @Qualifier("controlBatchV1beta1Api") BatchV1beta1Api batchV1beta1Api,
+          JobCommandProvider jobCommandProvider) {
+    super(
+            namespace,
+            k8sSupportsV1CronJob,
+            log,
+            client,
+            batchV1Api,
+            batchV1beta1Api,
+            jobCommandProvider);
   }
 }

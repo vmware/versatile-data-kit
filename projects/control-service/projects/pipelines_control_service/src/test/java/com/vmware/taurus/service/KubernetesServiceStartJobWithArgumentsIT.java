@@ -7,6 +7,8 @@ package com.vmware.taurus.service;
 
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
 import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.V1JobSpec;
 import io.kubernetes.client.openapi.models.V1beta1CronJob;
@@ -30,25 +32,34 @@ public class KubernetesServiceStartJobWithArgumentsIT {
   @BeforeEach
   public void getMockKubernetesServiceForVdkRunExtraArgsTests() throws Exception {
 
-    kubernetesService = Mockito.mock(KubernetesService.class);
-    Mockito.when(kubernetesService.getK8sSupportsV1CronJob()).thenReturn(false);
-    V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
     BatchV1beta1Api mockBatch = Mockito.mock(BatchV1beta1Api.class);
-    Mockito.when(kubernetesService.initBatchV1beta1Api()).thenReturn(mockBatch);
+    BatchV1Api mockBatchV1 = Mockito.mock(BatchV1Api.class);
+
+    kubernetesService =
+            new DataJobsKubernetesService(
+                    "default",
+                    false,
+                    new ApiClient(),
+                    mockBatchV1,
+                    mockBatch,
+                    new JobCommandProvider());
+    V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
+
+    kubernetesService =
+            Mockito.spy(
+                    new DataJobsKubernetesService(
+                            "default",
+                            false,
+                            new ApiClient(),
+                            mockBatchV1,
+                            mockBatch,
+                            new JobCommandProvider()));
+    Mockito.doNothing()
+            .when(kubernetesService)
+            .createNewJob(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+
     Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any()))
         .thenReturn(internalCronjobTemplate);
-    Mockito.doNothing().when(kubernetesService).createNewJob(any(), any(), any(), any());
-    Mockito.doCallRealMethod()
-        .when(kubernetesService)
-        .startNewCronJobExecution(any(), any(), any(), any(), any(), any());
-    kubernetesService.afterPropertiesSet();
-    // We have to set this field manually which would normally get injected by Spring, since
-    // Kubernetes Service is an abstract class and a lot of the methods which depend on this field
-    // and are mocked here
-    // cannot be mocked or accessed by the extending classes since they are not public.
-    var f1 = kubernetesService.getClass().getSuperclass().getDeclaredField("jobCommandProvider");
-    f1.setAccessible(true);
-    f1.set(kubernetesService, new JobCommandProvider());
   }
 
   @Test
@@ -160,9 +171,14 @@ public class KubernetesServiceStartJobWithArgumentsIT {
   }
 
   private V1beta1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
-    KubernetesService service = new DataJobsKubernetesService("default", "someConfig", false);
+    KubernetesService service = new DataJobsKubernetesService(
+            "default",
+            false,
+            new ApiClient(),
+            new BatchV1Api(),
+            new BatchV1beta1Api(),
+            new JobCommandProvider());
     // V1betaCronJob initializing snippet copied from tests above, using reflection
-    service.afterPropertiesSet();
     Method loadInternalV1beta1CronjobTemplate =
         KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
     if (loadInternalV1beta1CronjobTemplate == null) {
