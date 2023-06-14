@@ -28,8 +28,8 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   private final ObjectMapper objectMapper = new ObjectMapper();
   private VaultOperations vaultOperations;
 
-  public VaultJobSecretsService(VaultOperations vaultOperations){
-      this.vaultOperations = vaultOperations;
+  public VaultJobSecretsService(VaultOperations vaultOperations) {
+    this.vaultOperations = vaultOperations;
   }
 
   @Override
