@@ -6,6 +6,7 @@
 package com.vmware.taurus.properties;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.vmware.taurus.exception.DataJobPropertiesException;
 import com.vmware.taurus.properties.controller.DataJobsPropertiesController;
 import com.vmware.taurus.properties.service.PropertiesService;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -72,15 +72,15 @@ class DataJobsPropertiesControllerTest {
     when(propertiesService.readJobProperties(jobName)).thenThrow(JsonProcessingException.class);
 
     ResponseEntity<Map<String, Object>> expectedResponse =
-        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
-    ResponseStatusException thrownException =
+    DataJobPropertiesException thrownException =
         org.junit.jupiter.api.Assertions.assertThrows(
-            ResponseStatusException.class,
+            DataJobPropertiesException.class,
             () -> controller.dataJobPropertiesRead(null, jobName, null));
 
     verify(propertiesService, times(1)).readJobProperties(jobName);
 
-    assertEquals(expectedResponse.getStatusCode(), thrownException.getStatus());
+    assertEquals(expectedResponse.getStatusCode(), thrownException.getHttpStatus());
   }
 }

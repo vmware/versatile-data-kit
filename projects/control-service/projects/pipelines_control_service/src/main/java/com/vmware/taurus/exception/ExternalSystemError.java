@@ -51,7 +51,10 @@ public class ExternalSystemError extends SystemError implements UserFacingError 
     WEBHOOK_SERVER("Webhook server"),
 
     /** The Git repository that contains the data job code */
-    GIT("Git");
+    GIT("Git"),
+
+    /** A secrets storage/repository used to store data jobs secrets. */
+    SECRETS("Secrets");
 
     private final String userFacingName;
 
