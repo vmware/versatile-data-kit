@@ -5,6 +5,7 @@ import fileinput
 import logging
 import os
 import pathlib
+import re
 import sys
 from configparser import ConfigParser
 from configparser import MissingSectionHeaderError
@@ -174,9 +175,10 @@ class JobConfig:
 
     def _get_contacts(self, key):
         contacts_str = self._get_value("contacts", key).strip()
+        contacts = []
         if contacts_str:
-            return [x.strip() for x in contacts_str.split(";")]
-        return []
+            contacts = [x.strip() for x in re.split("[;,]", contacts_str)]
+        return contacts
 
     def _get_boolean(self, section, key, fallback=None) -> bool:
         return self._config_ini.getboolean(section, key, fallback=fallback)
