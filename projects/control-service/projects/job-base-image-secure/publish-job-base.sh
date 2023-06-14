@@ -34,6 +34,7 @@ function build_and_push_image() {
     --include-bin "/usr/bin/chown" \
     --include-bin "/usr/bin/rm" \
     --include-bin "/usr/bin/bash" \
+    --include-bin "/usr/bin/krb5-config" \
     --include-bin "/usr/sbin/groupadd" \
     --include-bin "/usr/sbin/groupdel" \
     --include-bin "/usr/sbin/useradd" \
