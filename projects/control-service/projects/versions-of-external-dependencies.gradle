@@ -22,7 +22,7 @@ project.ext {
             'org.json:json'                                                      : 'org.json:json:20230227',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.13.0',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.33',
-            'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:6.5.0.202303070854-r',
+            'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r',
             'org.zeroturnaround:zt-exec'                                         : 'org.zeroturnaround:zt-exec:1.12',
             'javax.mail:mail'                                                    : 'javax.mail:mail:1.4.7',
             'org.ini4j:ini4j'                                                    : 'org.ini4j:ini4j:0.5.4',
@@ -43,7 +43,7 @@ project.ext {
             'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:2.0.1',
             'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.8.0',
             'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.487',
-            'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.483',
+            'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.486',
             'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.486',
 
             // transitive dependencies version force (freeze)
@@ -51,7 +51,7 @@ project.ext {
             'org.junit.platform:junit-platform-commons'                          : 'org.junit.platform:junit-platform-commons:1.9.3',
             'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.11',
             'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.11',
-            'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.11.0',
+            'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.11.1',
             'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.3.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.23.0',
             'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.15.Final'
