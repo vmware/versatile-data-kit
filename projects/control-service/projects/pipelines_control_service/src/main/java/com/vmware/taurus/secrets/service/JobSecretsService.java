@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Map;
 
 public interface JobSecretsService {
-    void updateJobSecrets(String jobName, Map<String, Object> secrets);
+  void updateJobSecrets(String jobName, Map<String, Object> secrets);
 
-    Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException;
+  Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException;
 }
