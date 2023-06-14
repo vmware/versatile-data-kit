@@ -11,9 +11,11 @@ import com.vmware.taurus.base.FeatureFlags;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.vault.authentication.TokenAuthentication;
 import org.springframework.vault.client.VaultEndpoint;
+import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.support.Versioned;
 
@@ -25,30 +27,21 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+//@ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
 public class JobSecretsService {
 
   private static final String SECRET = "secret";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private VaultTemplate vaultTemplate;
+  private VaultOperations vaultOperations;
 
-  public JobSecretsService(
-      @Value("${vdk.vault.uri:}") String vaultUri,
-      @Value("${vdk.vault.token:}") String vaultToken,
-      FeatureFlags featureFlags)
-      throws URISyntaxException {
-
-    if (featureFlags.isVaultIntegrationEnabled()) {
-      VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
-      TokenAuthentication clientAuthentication = new TokenAuthentication(vaultToken);
-
-      this.vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
-    }
+  public JobSecretsService(VaultOperations vaultOperations){
+      this.vaultOperations = vaultOperations;
   }
 
   public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
     Versioned<JobSecrets> readResponse =
-        vaultTemplate.opsForVersionedKeyValue(SECRET).get(jobName, JobSecrets.class);
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, JobSecrets.class);
 
     JobSecrets jobSecrets;
 
@@ -72,12 +65,12 @@ public class JobSecretsService {
 
     jobSecrets.setSecretsJson(new JSONObject(updatedSecrets).toString());
 
-    vaultTemplate.opsForVersionedKeyValue(SECRET).put(jobName, jobSecrets);
+    vaultOperations.opsForVersionedKeyValue(SECRET).put(jobName, jobSecrets);
   }
 
   public Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException {
     Versioned<JobSecrets> readResponse =
-        vaultTemplate.opsForVersionedKeyValue(SECRET).get(jobName, JobSecrets.class);
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, JobSecrets.class);
 
     JobSecrets jobSecrets;
 
