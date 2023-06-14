@@ -95,4 +95,4 @@ COPY --from=builder /usr/local/ /usr/local/
 WORKDIR /job
 
 # Install native dependencies
-RUN yum install shadow build-essential libffi gcc krb5-devel e2fsprogs-devel -y
+RUN yum install shadow build-essential libffi gcc krb5-devel e2fsprogs-devel glibc-devel -y

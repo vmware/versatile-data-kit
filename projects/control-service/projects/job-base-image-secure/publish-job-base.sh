@@ -42,7 +42,8 @@ function build_and_push_image() {
     --include-bin "/usr/sbin/useradd" \
     --include-bin "/usr/sbin/userdel" \
     --include-path "/usr/lib" \
-    --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/"
+    --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/" \
+    --include-path "/usr/"
 
 
     docker push "$image_tag_version"
