@@ -36,27 +36,22 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     BatchV1Api mockBatchV1 = Mockito.mock(BatchV1Api.class);
 
     kubernetesService =
-            new DataJobsKubernetesService(
-                    "default",
-                    false,
-                    new ApiClient(),
-                    mockBatchV1,
-                    mockBatch,
-                    new JobCommandProvider());
+        new DataJobsKubernetesService(
+            "default", false, new ApiClient(), mockBatchV1, mockBatch, new JobCommandProvider());
     V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
 
     kubernetesService =
-            Mockito.spy(
-                    new DataJobsKubernetesService(
-                            "default",
-                            false,
-                            new ApiClient(),
-                            mockBatchV1,
-                            mockBatch,
-                            new JobCommandProvider()));
+        Mockito.spy(
+            new DataJobsKubernetesService(
+                "default",
+                false,
+                new ApiClient(),
+                mockBatchV1,
+                mockBatch,
+                new JobCommandProvider()));
     Mockito.doNothing()
-            .when(kubernetesService)
-            .createNewJob(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .when(kubernetesService)
+        .createNewJob(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any()))
         .thenReturn(internalCronjobTemplate);
@@ -171,7 +166,8 @@ public class KubernetesServiceStartJobWithArgumentsIT {
   }
 
   private V1beta1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
-    KubernetesService service = new DataJobsKubernetesService(
+    KubernetesService service =
+        new DataJobsKubernetesService(
             "default",
             false,
             new ApiClient(),

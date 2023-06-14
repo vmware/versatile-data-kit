@@ -95,13 +95,13 @@ public class KubernetesServiceIsRunningJobTest {
         .thenReturn(response);
 
     KubernetesService kubernetesService =
-            new DataJobsKubernetesService(
-                    "default",
-                    true,
-                    new ApiClient(),
-                    batchV1Api,
-                    new BatchV1beta1Api(),
-                    new JobCommandProvider());
+        new DataJobsKubernetesService(
+            "default",
+            true,
+            new ApiClient(),
+            batchV1Api,
+            new BatchV1beta1Api(),
+            new JobCommandProvider());
     boolean actualResult = kubernetesService.isRunningJob("test-job");
 
     Assertions.assertEquals(expectedResult, actualResult);

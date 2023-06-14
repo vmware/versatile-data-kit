@@ -17,8 +17,6 @@ import io.kubernetes.client.openapi.models.V1StatusDetails;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
 import com.vmware.taurus.exception.KubernetesException;
@@ -99,11 +97,11 @@ public class KubernetesServiceCancelRunningCronJobTest {
         .thenReturn(response);
 
     return new DataJobsKubernetesService(
-            "default",
-            false,
-            new ApiClient(),
-            batchV1Api,
-            new BatchV1beta1Api(),
-            new JobCommandProvider());
+        "default",
+        false,
+        new ApiClient(),
+        batchV1Api,
+        new BatchV1beta1Api(),
+        new JobCommandProvider());
   }
 }

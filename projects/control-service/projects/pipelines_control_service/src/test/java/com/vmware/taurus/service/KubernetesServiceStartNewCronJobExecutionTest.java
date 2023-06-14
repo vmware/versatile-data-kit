@@ -215,21 +215,21 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
         .thenReturn(result);
 
     Mockito.when(
-                    batchV1beta1Api.readNamespacedCronJob(
-                            Mockito.eq(jobName), Mockito.anyString(), Mockito.isNull()))
-            .thenReturn(result);
+            batchV1beta1Api.readNamespacedCronJob(
+                Mockito.eq(jobName), Mockito.anyString(), Mockito.isNull()))
+        .thenReturn(result);
     DataJobsKubernetesService spy =
-            Mockito.spy(
-                    new DataJobsKubernetesService(
-                            "default",
-                            false,
-                            new ApiClient(),
-                            new BatchV1Api(),
-                            batchV1beta1Api,
-                            new JobCommandProvider()));
+        Mockito.spy(
+            new DataJobsKubernetesService(
+                "default",
+                false,
+                new ApiClient(),
+                new BatchV1Api(),
+                batchV1beta1Api,
+                new JobCommandProvider()));
     Mockito.doNothing()
-            .when(spy)
-            .createNewJob(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+        .when(spy)
+        .createNewJob(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
     return spy;
   }
 }

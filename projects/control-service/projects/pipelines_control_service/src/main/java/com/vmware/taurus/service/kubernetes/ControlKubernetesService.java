@@ -25,19 +25,19 @@ public class ControlKubernetesService extends KubernetesService {
 
   // those should be null/empty when Control service is deployed in k8s hence default is empty
   public ControlKubernetesService(
-          @Value("${datajobs.control.k8s.namespace:}") String namespace,
-          @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
-          @Qualifier("controlApiClient") ApiClient client,
-          @Qualifier("controlBatchV1Api") BatchV1Api batchV1Api,
-          @Qualifier("controlBatchV1beta1Api") BatchV1beta1Api batchV1beta1Api,
-          JobCommandProvider jobCommandProvider) {
+      @Value("${datajobs.control.k8s.namespace:}") String namespace,
+      @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
+      @Qualifier("controlApiClient") ApiClient client,
+      @Qualifier("controlBatchV1Api") BatchV1Api batchV1Api,
+      @Qualifier("controlBatchV1beta1Api") BatchV1beta1Api batchV1beta1Api,
+      JobCommandProvider jobCommandProvider) {
     super(
-            namespace,
-            k8sSupportsV1CronJob,
-            log,
-            client,
-            batchV1Api,
-            batchV1beta1Api,
-            jobCommandProvider);
+        namespace,
+        k8sSupportsV1CronJob,
+        log,
+        client,
+        batchV1Api,
+        batchV1beta1Api,
+        jobCommandProvider);
   }
 }
