@@ -26,7 +26,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   private static final String SECRET = "secret";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private VaultOperations vaultOperations;
+  private final VaultOperations vaultOperations;
 
   public VaultJobSecretsService(VaultOperations vaultOperations) {
     this.vaultOperations = vaultOperations;

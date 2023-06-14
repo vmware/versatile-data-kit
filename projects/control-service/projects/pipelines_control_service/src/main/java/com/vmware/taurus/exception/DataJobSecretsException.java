@@ -11,7 +11,7 @@ public class DataJobSecretsException extends DomainError implements UserFacingEr
 
   public DataJobSecretsException(String jobName, String why) {
     super(
-        String.format("Error processing secrets for '%s' data job.", jobName),
+        String.format("Exception processing secrets for '%s' data job.", jobName),
         why,
         "Unable to process data job secrets.",
         "Try re-creating the data job secrets or contract the service operator",
