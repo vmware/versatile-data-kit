@@ -25,7 +25,6 @@ RUN yum install -y \
     build-essential \
     wget \
     make \
-    gcc \
     openssl-devel \
     bzip2-devel \
     libffi-devel \
@@ -96,4 +95,4 @@ COPY --from=builder /usr/local/ /usr/local/
 WORKDIR /job
 
 # Install native dependencies
-RUN yum install shadow build-essential -y
+RUN yum install shadow build-essential libffi gcc krb5-devel e2fsprogs-devel -y
