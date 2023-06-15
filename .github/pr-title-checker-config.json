@@ -1,0 +1,11 @@
+{
+  "LABEL": {
+    "name": "title needs formatting",
+    "color": "EEEEEE"
+  },
+  "CHECKS": {
+    "prefixes": ["[pre-commit.ci]", "build(deps)"],
+    "regexp": "(vdk-.*|versatile-data-kit|specs|support|documentation|control-service|examples|frontend): .*",
+    "regexpFlags": "i"
+  }
+}
