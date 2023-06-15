@@ -13,7 +13,7 @@ build-vdk-jupyterlab-extension:
   extends: .build-plugin-dind
   image: "python:3.7"
   before_script:
-    - cd projects/vdk-plugins/
+    - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
     - pip install -U pip setuptools pre-commit
     - if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../vdk-core; fi
@@ -22,7 +22,6 @@ build-vdk-jupyterlab-extension:
     - pip install pytest-cov
     - pip install npm
   script:
-    - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - echo "Install Dependencies..."
     - npm ci
     - echo "Install Vdk JupyterLab Extension..."
