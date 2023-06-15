@@ -12,7 +12,7 @@ build-vdk-jupyterlab-extension:
   stage: build
   extends: .build-plugin-dind
   image: "python:3.7"
-  script:
+  before_script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
     - pip install -U pip setuptools pre-commit
@@ -20,6 +20,7 @@ build-vdk-jupyterlab-extension:
     - if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../vdk-core; fi
     - pre-commit install --hook-type commit-msg --hook-type pre-commit
     - pip install pytest-cov
+  script:
     - echo "Install Dependencies..."
     - npm ci
     - echo "Install Vdk JupyterLab Extension..."
