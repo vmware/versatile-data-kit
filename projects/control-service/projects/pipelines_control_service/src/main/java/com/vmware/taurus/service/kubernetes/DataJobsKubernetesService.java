@@ -57,7 +57,7 @@ public class DataJobsKubernetesService extends KubernetesService {
   private String datajobTemplateFileLocation;
 
   @Autowired private final JobCommandProvider jobCommandProvider;
-
+  private final boolean k8sSupportsV1CronJob;
   protected final BatchV1beta1Api batchV1beta1Api;
 
   public DataJobsKubernetesService(
@@ -67,7 +67,8 @@ public class DataJobsKubernetesService extends KubernetesService {
       @Qualifier("controlBatchV1Api") BatchV1Api batchV1Api,
       @Qualifier("controlBatchV1beta1Api") BatchV1beta1Api batchV1beta1Api,
       JobCommandProvider jobCommandProvider) {
-    super(namespace, k8sSupportsV1CronJob, log, client, batchV1Api);
+    super(namespace, log, client, batchV1Api);
+    this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
     this.batchV1beta1Api = batchV1beta1Api;
     this.jobCommandProvider = jobCommandProvider;
   }
@@ -84,7 +85,7 @@ public class DataJobsKubernetesService extends KubernetesService {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
+    if (k8sSupportsV1CronJob) {
       createV1CronJob(
           name,
           image,
@@ -197,7 +198,7 @@ public class DataJobsKubernetesService extends KubernetesService {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
+    if (k8sSupportsV1CronJob) {
       updateV1CronJob(
           name,
           image,
@@ -296,7 +297,7 @@ public class DataJobsKubernetesService extends KubernetesService {
     // If the V1 Cronjob API is enabled, we try to delete the cronjob with it and exit the method.
     // If, however, the cronjob cannot be deleted, this means that it might have been created
     // with the V1Beta1 API, so we need to try again with the beta API.
-    if (getK8sSupportsV1CronJob()) {
+    if (k8sSupportsV1CronJob) {
       try {
         batchV1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
         log.debug("Deleted k8s V1 cron job: {}", name);
@@ -876,7 +877,7 @@ public class DataJobsKubernetesService extends KubernetesService {
    *     data
    */
   public List<JobDeploymentStatus> readJobDeploymentStatuses() {
-    if (getK8sSupportsV1CronJob()) {
+    if (k8sSupportsV1CronJob) {
       return Stream.concat(
               readV1CronJobDeploymentStatuses().stream(),
               readV1beta1CronJobDeploymentStatuses().stream())
@@ -894,7 +895,7 @@ public class DataJobsKubernetesService extends KubernetesService {
       Map<String, Object> extraJobArguments,
       String jobName)
       throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
+    if (k8sSupportsV1CronJob) {
       startNewV1CronJobExecution(
           cronJobName, executionId, annotations, envs, extraJobArguments, jobName);
     } else {

@@ -57,7 +57,7 @@ public class MockKubernetes {
       throws IOException, InterruptedException, ApiException {
     ControlKubernetesService mock =
         Mockito.spy(
-            new ControlKubernetesService("default", false, new ApiClient(), new BatchV1Api()));
+            new ControlKubernetesService("default", new ApiClient(), new BatchV1Api()));
     final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
     doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
         .when(mock)
