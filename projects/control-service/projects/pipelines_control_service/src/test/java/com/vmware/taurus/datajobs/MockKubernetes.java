@@ -9,7 +9,10 @@ import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
+import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.BatchV1Api;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,10 +53,46 @@ public class MockKubernetes {
 
   @Bean
   @Primary
-  public ControlKubernetesService mockControlKubernetesService()
-      throws ApiException, IOException, InterruptedException {
-    ControlKubernetesService mock = mock(ControlKubernetesService.class);
-    mockKubernetesService(mock);
+  public ControlKubernetesService mockControlKubernetesService() throws IOException, InterruptedException, ApiException {
+    ControlKubernetesService mock = Mockito.spy(new ControlKubernetesService("default", false, new ApiClient(),
+            new BatchV1Api()));
+    final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
+    doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
+            .when(mock)
+            .createJob(
+                    anyString(),
+                    anyString(),
+                    anyBoolean(),
+                    anyBoolean(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    anyString(),
+                    any(),
+                    any(),
+                    anyLong(),
+                    anyLong(),
+                    anyLong(),
+                    anyString(),
+                    anyString());
+    doAnswer(inv -> jobs.keySet()).when(mock).listJobs();
+    doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
+    doAnswer(
+            inv -> {
+              String jobName = inv.getArgument(0);
+              if (jobs.containsKey(jobName)) {
+                if (jobName.startsWith("failure-")) {
+                  return new KubernetesService.JobStatusCondition(
+                          false, "Status", "Job name starts with 'failure-'", "", 0);
+                } else {
+                  return new KubernetesService.JobStatusCondition(true, "Status", "", "", 0);
+                }
+              }
+              return new KubernetesService.JobStatusCondition(false, null, "No such job", "", 0);
+            })
+            .when(mock)
+            .watchJob(anyString(), anyInt(), any());
     return mock;
   }
 
@@ -71,7 +110,7 @@ public class MockKubernetes {
    * <p>NOTES: If job name starts with 'failure-' (e.g failure-my-job) - then Job status will be
    * fail otherwise it's success.
    */
-  private void mockKubernetesService(KubernetesService mock)
+  private void mockKubernetesService(DataJobsKubernetesService mock)
       throws ApiException, IOException, InterruptedException {
     // By defautl beans are singleton scoped so we are sure this will be called once
     // hence it's safe to keep the variables here isntead of static.
