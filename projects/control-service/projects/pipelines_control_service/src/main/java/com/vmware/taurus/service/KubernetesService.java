@@ -167,10 +167,7 @@ public abstract class KubernetesService {
    * @param log log to use - used in subclasses in order to set classname to subclass.
    */
   protected KubernetesService(
-      String namespace,
-      Logger log,
-      ApiClient client,
-      BatchV1Api batchV1Api) {
+      String namespace, Logger log, ApiClient client, BatchV1Api batchV1Api) {
     this.namespace = namespace;
     this.log = log;
     this.client = client;
