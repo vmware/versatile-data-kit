@@ -19,7 +19,8 @@ pip install --upgrade --upgrade-strategy eager -e . --extra-index-url $PIP_EXTRA
 if [ "$PLUGIN_NAME" != 'quickstart-vdk' ] && \
    [ "$PLUGIN_NAME" != 'vdk-test-utils' ] && \
    [ "$PLUGIN_NAME" != 'vdk-control-api-auth' ] && \
-   [ "$PLUGIN_NAME" != 'vdk-lineage-model' ]
+   [ "$PLUGIN_NAME" != 'vdk-lineage-model' ] && \
+   [ "$PLUGIN_NAME" != 'vdk-jupyterlab-extension' ]
 then
 
   echo "Check plugin entry point is configured correctly ..."
