@@ -29,6 +29,9 @@
     "type": "git",
     "url": "https://github.com/vmware/versatile-data-kit"
   },
+  "engines": {
+    "node": "19.8.1"
+  },
   "scripts": {
     "build": "jlpm build:lib && jlpm build:labextension:dev",
     "build:prod": "jlpm clean && jlpm build:lib && jlpm build:labextension",
