@@ -231,7 +231,7 @@ public class KubernetesServiceTest {
       //          with corresponding entries from the internal cronjob template.
       // First we load the internal cronjob template.
       Method loadInternalV1beta1CronjobTemplate =
-          KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
+          DataJobsKubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
       if (loadInternalV1beta1CronjobTemplate == null) {
         Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
       }
@@ -240,7 +240,7 @@ public class KubernetesServiceTest {
           (V1beta1CronJob) loadInternalV1beta1CronjobTemplate.invoke(service);
       // Prepare the 'v1beta1checkForMissingEntries' method.
       Method checkForMissingEntries =
-          KubernetesService.class.getDeclaredMethod(
+              DataJobsKubernetesService.class.getDeclaredMethod(
               "v1beta1checkForMissingEntries", V1beta1CronJob.class);
       if (checkForMissingEntries == null) {
         Assertions.fail("The method 'v1beta1checkForMissingEntries' does not exist.");
@@ -285,7 +285,7 @@ public class KubernetesServiceTest {
 
       Assertions.assertNotNull(internalCronjobTemplate.getSpec().getJobTemplate().getMetadata());
       // Step 3 - create and check the actual cronjob.
-      Method[] methods = KubernetesService.class.getDeclaredMethods();
+      Method[] methods = DataJobsKubernetesService.class.getDeclaredMethods();
       // This is much easier than describing the whole method signature.
       Optional<Method> method =
           Arrays.stream(methods)
@@ -324,17 +324,6 @@ public class KubernetesServiceTest {
     }
   }
 
-  @NotNull
-  private static DataJobsKubernetesService newDataJobKubernetesService() {
-    return Mockito.spy(
-        new DataJobsKubernetesService(
-            "default",
-            false,
-            new ApiClient(),
-            new BatchV1Api(),
-            new BatchV1beta1Api(),
-            new JobCommandProvider()));
-  }
 
   @Test
   public void testCreateV1CronJobFromInternalResource() {
@@ -346,7 +335,7 @@ public class KubernetesServiceTest {
       //          with corresponding entries from the internal cronjob template.
       // First we load the internal cronjob template.
       Method loadInternalV1CronjobTemplate =
-          KubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
+              DataJobsKubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
       if (loadInternalV1CronjobTemplate == null) {
         Assertions.fail("The method 'loadInternalV1CronjobTemplate' does not exist.");
       }
@@ -354,7 +343,7 @@ public class KubernetesServiceTest {
       V1CronJob internalCronjobTemplate = (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
       // Prepare the 'v1checkForMissingEntries' method.
       Method checkForMissingEntries =
-          KubernetesService.class.getDeclaredMethod("v1checkForMissingEntries", V1CronJob.class);
+              DataJobsKubernetesService.class.getDeclaredMethod("v1checkForMissingEntries", V1CronJob.class);
       if (checkForMissingEntries == null) {
         Assertions.fail("The method 'v1checkForMissingEntries' does not exist.");
       }
@@ -398,7 +387,7 @@ public class KubernetesServiceTest {
 
       Assertions.assertNotNull(internalCronjobTemplate.getSpec().getJobTemplate().getMetadata());
       // Step 3 - create and check the actual cronjob.
-      Method[] methods = KubernetesService.class.getDeclaredMethods();
+      Method[] methods = DataJobsKubernetesService.class.getDeclaredMethods();
       // This is much easier than describing the whole method signature.
       Optional<Method> method =
           Arrays.stream(methods)
@@ -465,6 +454,16 @@ public class KubernetesServiceTest {
     List<JobDeploymentStatus> resultStatuses = mock.readJobDeploymentStatuses();
 
     Assertions.assertEquals(mergedTestLists, resultStatuses);
+  }
+
+  @NotNull
+  private static DataJobsKubernetesService newDataJobKubernetesService() {
+    return Mockito.spy(new DataJobsKubernetesService("default",
+            false,
+            new ApiClient(),
+            new BatchV1Api(),
+            new BatchV1beta1Api(),
+            new JobCommandProvider()));
   }
 
   @Test
@@ -707,4 +706,5 @@ public class KubernetesServiceTest {
     var actual = KubernetesService.convertMemoryToMBs(q);
     Assertions.assertEquals(expectedMb, actual);
   }
+
 }

@@ -206,7 +206,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
     Assertions.assertEquals(expectedAnnotations, annotationsArgumentCaptor.getValue());
   }
 
-  private KubernetesService mockKubernetesService(String jobName, V1beta1CronJob result)
+  private DataJobsKubernetesService mockKubernetesService(String jobName, V1beta1CronJob result)
       throws ApiException {
     BatchV1beta1Api batchV1beta1Api = Mockito.mock(BatchV1beta1Api.class);
     Mockito.when(
