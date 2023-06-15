@@ -176,21 +176,17 @@ public abstract class KubernetesService {
   private int jobTTLAfterFinishedSeconds;
 
   private String namespace;
-  private String kubeconfig;
   private Logger log;
   private final ApiClient client;
   private final BatchV1Api batchV1Api;
   private final BatchV1beta1Api batchV1beta1Api;
   private boolean k8sSupportsV1CronJob;
 
-  @Autowired private UserAgentService userAgentService;
-
   @Autowired private final JobCommandProvider jobCommandProvider;
 
   /**
    * @param namespace the namespace where the kubernetes operation will act on. leave empty to infer
    *     from kubeconfig
-   * @param kubeconfig The kubeconfig configuration of the Kubernetes cluster to connect to
    * @param k8sSupportsV1CronJob Whether the target K8s cluster supports the V1CronJob API
    * @param log log to use - used in subclasses in order to set classname to subclass.
    */
