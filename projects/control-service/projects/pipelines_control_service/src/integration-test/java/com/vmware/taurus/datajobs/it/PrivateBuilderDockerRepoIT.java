@@ -43,7 +43,6 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   @Value("${datajobs.builder.image}")
   private String builderImage;
 
-
   @Autowired
   @Qualifier("controlApiClient")
   private ApiClient client;
