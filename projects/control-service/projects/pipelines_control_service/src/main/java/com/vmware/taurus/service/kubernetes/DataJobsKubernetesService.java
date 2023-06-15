@@ -28,8 +28,8 @@ public class DataJobsKubernetesService extends KubernetesService {
       @Value("${datajobs.deployment.k8s.namespace:}") String namespace,
       @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
       @Qualifier("deploymentApiClient") ApiClient client,
-      @Qualifier("controlBatchV1Api") BatchV1Api batchV1Api,
-      @Qualifier("controlBatchV1beta1Api") BatchV1beta1Api batchV1beta1Api,
+      @Qualifier("deploymentBatchV1Api") BatchV1Api batchV1Api,
+      @Qualifier("deploymentBatchV1beta1Api") BatchV1beta1Api batchV1beta1Api,
       JobCommandProvider jobCommandProvider) {
     super(
         namespace,
