@@ -29,7 +29,9 @@ RUN yum install -y \
     bzip2-devel \
     libffi-devel \
     zlib-devel \
-    sqlite-devel
+    sqlite-devel \
+    krb5-devel \
+    e2fsprogs-devel
 
 # Extract python source
 RUN : \
