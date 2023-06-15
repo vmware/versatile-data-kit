@@ -53,8 +53,8 @@ function build_and_push_image() {
     --include-bin "/usr/sbin/userdel" \
     --include-path "/usr/lib"
 
-    docker push "$image_tag_version"
-    docker push "$image_tag_latest"
+    docker push "$data_job_base_image_tag_version"
+    docker push "$data_job_base_image_tag_latest"
 }
 
 build_and_push_image 3 8 16
