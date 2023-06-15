@@ -53,29 +53,31 @@ public class MockKubernetes {
 
   @Bean
   @Primary
-  public ControlKubernetesService mockControlKubernetesService() throws IOException, InterruptedException, ApiException {
-    ControlKubernetesService mock = Mockito.spy(new ControlKubernetesService("default", false, new ApiClient(),
-            new BatchV1Api()));
+  public ControlKubernetesService mockControlKubernetesService()
+      throws IOException, InterruptedException, ApiException {
+    ControlKubernetesService mock =
+        Mockito.spy(
+            new ControlKubernetesService("default", false, new ApiClient(), new BatchV1Api()));
     final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
     doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
-            .when(mock)
-            .createJob(
-                    anyString(),
-                    anyString(),
-                    anyBoolean(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyString(),
-                    any(),
-                    any(),
-                    anyLong(),
-                    anyLong(),
-                    anyLong(),
-                    anyString(),
-                    anyString());
+        .when(mock)
+        .createJob(
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyString(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            anyString(),
+            anyString());
     doAnswer(inv -> jobs.keySet()).when(mock).listJobs();
     doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
     doAnswer(
@@ -84,15 +86,15 @@ public class MockKubernetes {
               if (jobs.containsKey(jobName)) {
                 if (jobName.startsWith("failure-")) {
                   return new KubernetesService.JobStatusCondition(
-                          false, "Status", "Job name starts with 'failure-'", "", 0);
+                      false, "Status", "Job name starts with 'failure-'", "", 0);
                 } else {
                   return new KubernetesService.JobStatusCondition(true, "Status", "", "", 0);
                 }
               }
               return new KubernetesService.JobStatusCondition(false, null, "No such job", "", 0);
             })
-            .when(mock)
-            .watchJob(anyString(), anyInt(), any());
+        .when(mock)
+        .watchJob(anyString(), anyInt(), any());
     return mock;
   }
 

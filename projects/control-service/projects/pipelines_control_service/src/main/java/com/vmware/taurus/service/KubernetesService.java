@@ -5,21 +5,13 @@
 
 package com.vmware.taurus.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
-import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.vmware.taurus.exception.JsonDissectException;
 import com.vmware.taurus.exception.KubernetesException;
-import com.vmware.taurus.exception.KubernetesJobDefinitionException;
 import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
 import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
-import com.vmware.taurus.service.deploy.DockerImageName;
-import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.openapi.ApiClient;
@@ -31,15 +23,12 @@ import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.Watch;
-import io.kubernetes.client.util.Yaml;
 import lombok.*;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -54,7 +43,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A facade over Kubernetes (https://en.wikipedia.org/wiki/Facade_pattern) (not complete see
@@ -78,7 +66,6 @@ public abstract class KubernetesService {
 
   public static final String LABEL_PREFIX = "com.vmware.taurus";
   private static final int WATCH_JOBS_TIMEOUT_SECONDS = 300;
-
 
   private static int fromInteger(Integer value) {
     return Optional.ofNullable(value).orElse(0);
@@ -166,7 +153,6 @@ public abstract class KubernetesService {
     @Getter private final String value;
   }
 
-
   @org.springframework.beans.factory.annotation.Value(
       "${datajobs.control.k8s.jobTTLAfterFinishedSeconds}")
   protected int jobTTLAfterFinishedSeconds;
@@ -199,7 +185,6 @@ public abstract class KubernetesService {
   protected boolean getK8sSupportsV1CronJob() {
     return this.k8sSupportsV1CronJob;
   }
-
 
   private List<String> getNamespaceFileContents() {
     try {
@@ -1047,7 +1032,6 @@ public abstract class KubernetesService {
     return Optional.empty();
   }
 
-
   public static V1Container container(
       String name,
       String image,
@@ -1254,7 +1238,6 @@ public abstract class KubernetesService {
         .build();
   }
 
-
   /**
    * Default for testing purposes. This method returns the megabytes amount contained in a quantity.
    *
@@ -1268,5 +1251,4 @@ public abstract class KubernetesService {
     }
     return quantity.getNumber().toBigInteger().divide(divider.multiply(divider)).intValue();
   }
-
 }
