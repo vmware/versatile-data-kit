@@ -11,23 +11,36 @@ function build_and_push_image() {
     PYTHON_MAJOR=$1
     PYTHON_MINOR=$2
     PYTHON_PATCH=$3
-    name="data-job-base-python-$PYTHON_MAJOR.$PYTHON_MINOR-secure"
-    docker_file="Dockerfile-data-job-base"
+    python_name="python-$PYTHON_MAJOR.$PYTHON_MINOR-secure"
+    data_job_base_name="data-job-base-python-$PYTHON_MAJOR.$PYTHON_MINOR-secure"
+    python_docker_file="Dockerfile-python"
+    data_job_base_docker_file="Dockerfile-data-job-base"
 
-    image_repo="$VDK_DOCKER_REGISTRY_URL/$name"
-    image_tag_local="$image_repo:local"
-    image_tag_version="$image_repo:$VERSION_TAG"
-    image_tag_latest="$image_repo:latest"
+    python_image_repo="$VDK_DOCKER_REGISTRY_URL/$python_name"
+    python_image_tag_local="$python_image_repo:local"
+    python_image_tag_version="$python_image_repo:$VERSION_TAG"
+    python_image_tag_latest="$python_image_repo:latest"
 
-    docker build -t "$image_tag_local" -f "$SCRIPT_DIR/$docker_file" "$SCRIPT_DIR" \
+    data_job_base_image_repo="$VDK_DOCKER_REGISTRY_URL/$data_job_base_name"
+    data_job_base_image_tag_local="$data_job_base_image_repo:local"
+    data_job_base_image_tag_version="$data_job_base_image_repo:$VERSION_TAG"
+    data_job_base_image_tag_latest="$data_job_base_image_repo:latest"
+
+    docker build -t "$python_image_tag_local" -t "$python_image_tag_version" -t "$python_image_tag_latest" -f "$SCRIPT_DIR/$python_docker_file" "$SCRIPT_DIR" \
     --build-arg PYTHON_MAJOR=$PYTHON_MAJOR \
     --build-arg PYTHON_MINOR=$PYTHON_MINOR \
     --build-arg PYTHON_PATCH=$PYTHON_PATCH
 
+    docker push "$python_image_tag_version"
+    docker push "$python_image_tag_latest"
+
+    docker build -t "$data_job_base_image_tag_local" -f "$SCRIPT_DIR/$data_job_base_docker_file" "$SCRIPT_DIR" \
+    --build-arg base_image=$python_image_tag_version
+
     docker-slim build \
-    --target "$image_tag_local" \
-    --tag "$image_tag_version" \
-    --tag "$image_tag_latest" \
+    --target "$data_job_base_image_tag_local" \
+    --tag "$data_job_base_image_tag_version" \
+    --tag "$data_job_base_image_tag_latest" \
     --http-probe=false \
     --exec "/bin/sh -c \"krb5-config && pip list && pip3 list && python --help && python3 -m pip install --upgrade pip\"" \
     --include-bin "/usr/bin/gcc" \
@@ -42,8 +55,7 @@ function build_and_push_image() {
     --include-bin "/usr/sbin/useradd" \
     --include-bin "/usr/sbin/userdel" \
     --include-path "/usr/lib" \
-    --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/" \
-    --include-path "/usr/"
+    --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/"
 
 
     docker push "$image_tag_version"
