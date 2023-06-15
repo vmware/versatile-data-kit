@@ -55,8 +55,8 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
                          --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
 
     kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"},{"name":"'$dockerhub_secretname'"}]}'
-    kubectl create namespac cicd-control
-    kubectl create namespac cicd-deployment
+    kubectl create namespace cicd-control
+    kubectl create namespace cicd-deployment
 
   fi
 
@@ -112,4 +112,6 @@ helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
       --set security.oauth2.jwtIssuerUrl=https://gaz-preview.csp-vidm-prod.com \
       --set security.authorizationEnabled=false \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
+      --set deploymentK8sNamespace="cicd-deployment" \
+      --set controlK8sNamespace="cicd-control" \
       --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service"
