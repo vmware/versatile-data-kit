@@ -55,6 +55,9 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
                          --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
 
     kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"},{"name":"'$dockerhub_secretname'"}]}'
+    kubectl create namespac cicd-control
+    kubectl create namespac cicd-deployment
+
   fi
 
 fi
