@@ -1,5 +1,7 @@
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
 FROM photon:latest
+
+ARG base_image
 COPY --from=$base_image /usr/local/ /usr/local/
 
 # Set the working directory

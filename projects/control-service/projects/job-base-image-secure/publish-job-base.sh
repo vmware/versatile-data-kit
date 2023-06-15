@@ -42,21 +42,16 @@ function build_and_push_image() {
     --tag "$data_job_base_image_tag_version" \
     --tag "$data_job_base_image_tag_latest" \
     --http-probe=false \
-    --exec "/bin/sh -c \"krb5-config && pip list && pip3 list && python --help && python3 -m pip install --upgrade pip\"" \
-    --include-bin "/usr/bin/gcc" \
-    --include-bin "/usr/bin/krb5-config" \
+    --exec "/bin/sh -c \"pip3 list && python3 -m pip install --upgrade pip\"" \
     --include-bin "/usr/bin/chmod" \
     --include-bin "/usr/bin/chown" \
     --include-bin "/usr/bin/rm" \
     --include-bin "/usr/bin/bash" \
-    --include-bin "/usr/bin/krb5-config" \
     --include-bin "/usr/sbin/groupadd" \
     --include-bin "/usr/sbin/groupdel" \
     --include-bin "/usr/sbin/useradd" \
     --include-bin "/usr/sbin/userdel" \
-    --include-path "/usr/lib" \
-    --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/"
-
+    --include-path "/usr/lib"
 
     docker push "$image_tag_version"
     docker push "$image_tag_latest"
