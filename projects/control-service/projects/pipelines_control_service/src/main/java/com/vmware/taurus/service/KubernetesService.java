@@ -325,23 +325,6 @@ public abstract class KubernetesService {
     return cronjobTemplate;
   }
 
-  private String getCurrentNamespace() {
-    return getNamespaceFileContents().stream()
-        .filter(not(String::isBlank))
-        .findFirst()
-        .map(String::strip)
-        .orElse(null);
-  }
-
-  private List<String> getNamespaceFileContents() {
-    try {
-      String namespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace";
-      return Files.readAllLines(Paths.get(namespaceFile));
-    } catch (IOException e) {
-      return Collections.emptyList();
-    }
-  }
-
   public Pair<Boolean, String> health() {
     try {
       var info = new VersionApi(client).getCode();
@@ -2309,10 +2292,5 @@ public abstract class KubernetesService {
       divider = BigInteger.valueOf(1000);
     }
     return quantity.getNumber().toBigInteger().divide(divider.multiply(divider)).intValue();
-  }
-
-  @VisibleForTesting
-  public ApiClient getClient() {
-    return client;
   }
 }

@@ -11,6 +11,7 @@ import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
 import com.vmware.taurus.datajobs.it.common.DockerConfigJsonUtils;
 import com.vmware.taurus.datajobs.it.common.JobExecutionUtil;
+import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1SecretBuilder;
@@ -18,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -40,12 +43,17 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
   @Value("${datajobs.builder.image}")
   private String builderImage;
 
+
+  @Autowired
+  @Qualifier("controlApiClient")
+  private ApiClient client;
+
   @RegisterExtension
   static DataJobDeploymentExtension dataJobDeploymentExtension = new DataJobDeploymentExtension();
 
   private void createBuilderImagePullSecret(String namespaceName) throws Exception {
     try {
-      new CoreV1Api(controlKubernetesService.getClient())
+      new CoreV1Api(client)
           .createNamespacedSecret(
               namespaceName,
               new V1SecretBuilder()
