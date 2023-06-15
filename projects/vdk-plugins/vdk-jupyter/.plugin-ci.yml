@@ -15,7 +15,7 @@ build-vdk-jupyterlab-extension:
   before_script:
     - cd projects/vdk-plugins/
     - export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
-    - pip install -U pip
+     - pip install -U pip setuptools pre-commit
     - if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../vdk-core; fi
     - pre-commit install --hook-type commit-msg --hook-type pre-commit
     - pip install -e . --extra-index-url $PIP_EXTRA_INDEX_URL
@@ -39,3 +39,5 @@ build-vdk-jupyterlab-extension:
     when: always
     reports:
       junit: tests.xml
+    paths:
+      - vdk-jupyter/vdk-jupyterlab-extension/src/__tests__
