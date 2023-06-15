@@ -437,14 +437,15 @@ public class KubernetesServiceTest {
 
   @Test
   public void testReadJobDeploymentStatuses() {
-    var mock = Mockito.spy(
+    var mock =
+        Mockito.spy(
             new DataJobsKubernetesService(
-                    "default",
-                    true,
-                    new ApiClient(),
-                    new BatchV1Api(),
-                    new BatchV1beta1Api(),
-                    new JobCommandProvider()));
+                "default",
+                true,
+                new ApiClient(),
+                new BatchV1Api(),
+                new BatchV1beta1Api(),
+                new JobCommandProvider()));
     List<JobDeploymentStatus> v1TestList = new ArrayList<>();
     List<JobDeploymentStatus> v1BetaTestList = new ArrayList<>();
 
