@@ -91,8 +91,7 @@ public class KubernetesServiceTest {
   @Test
   public void testGetJobExecutionStatus_emptyJob_shouldReturnEmptyJobExecutionStatus() {
     V1Job v1Job = new V1Job();
-    var mock = Mockito.mock(KubernetesService.class);
-    Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
+    KubernetesService mock = newDataJobKubernetesService();
     Mockito.when(mock.getTerminationStatus(v1Job))
         .thenReturn(ImmutablePair.of(Optional.empty(), Optional.empty()));
     Mockito.when(mock.getJobExecutionStatus(v1Job, null)).thenCallRealMethod();
@@ -181,8 +180,7 @@ public class KubernetesServiceTest {
         new KubernetesService.JobStatusCondition(
             true, "type", "reason", "message", endTime.toInstant().toEpochMilli());
 
-    KubernetesService mock = Mockito.mock(KubernetesService.class);
-    Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(false);
+    KubernetesService mock = newDataJobKubernetesService();
     Mockito.when(mock.getTerminationStatus(expectedJob))
         .thenReturn(
             ImmutablePair.of(
@@ -439,7 +437,14 @@ public class KubernetesServiceTest {
 
   @Test
   public void testReadJobDeploymentStatuses() {
-    var mock = newDataJobKubernetesService();
+    var mock = Mockito.spy(
+            new DataJobsKubernetesService(
+                    "default",
+                    true,
+                    new ApiClient(),
+                    new BatchV1Api(),
+                    new BatchV1beta1Api(),
+                    new JobCommandProvider()));
     List<JobDeploymentStatus> v1TestList = new ArrayList<>();
     List<JobDeploymentStatus> v1BetaTestList = new ArrayList<>();
 
@@ -458,7 +463,6 @@ public class KubernetesServiceTest {
     var mergedTestLists =
         Stream.concat(v1TestList.stream(), v1BetaTestList.stream()).collect(Collectors.toList());
 
-    Mockito.when(mock.getK8sSupportsV1CronJob()).thenReturn(true);
     Mockito.when(mock.readV1CronJobDeploymentStatuses()).thenReturn(v1TestList);
     Mockito.when(mock.readV1beta1CronJobDeploymentStatuses()).thenReturn(v1BetaTestList);
     Mockito.when(mock.readJobDeploymentStatuses()).thenCallRealMethod();
