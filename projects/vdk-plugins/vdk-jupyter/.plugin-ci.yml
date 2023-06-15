@@ -16,7 +16,8 @@ build-vdk-jupyterlab-extension:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
     - pip install -U pip setuptools pre-commit
-    - pip install npm
+    - apt install npm
+    - npm -v
     - pre-commit install --hook-type commit-msg --hook-type pre-commit
     - pip install pytest-cov
   script:
