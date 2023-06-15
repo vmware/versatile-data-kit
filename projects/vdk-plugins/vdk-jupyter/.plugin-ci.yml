@@ -1,0 +1,40 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+.retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
+
+build-vdk-jupyterlab-extension:
+  stage: build
+  image: "python:3.7"
+  before_script:
+    - cd projects/vdk-plugins/
+    - export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
+    - pip install -U pip
+    - if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../vdk-core; fi
+    - pre-commit install --hook-type commit-msg --hook-type pre-commit
+    - pip install -e . --extra-index-url $PIP_EXTRA_INDEX_URL
+    - pip install pytest-cov
+    - pip install npm
+  script:
+    - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
+    - echo "Install Dependencies..."
+    - npm ci
+    - echo "Install Vdk JupyterLab Extension..."
+    - pip install .
+    - echo "Building VDK JupyterLab Extension..."
+    - jlpm build
+  retry: !reference [.retry, retry_options]
+  rules: # we want to trigger build jobs if there are changes to this package,
+    # but not if there are changes to VDK plugins or the main directory
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/vdk-plugins//vdk-jupyter/vdk-jupyterlab-extension/**/*"
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
