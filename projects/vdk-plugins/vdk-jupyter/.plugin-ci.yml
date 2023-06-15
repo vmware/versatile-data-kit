@@ -10,6 +10,7 @@
 
 build-vdk-jupyterlab-extension:
   stage: build
+  extends: .build-plugin-dind
   image: "python:3.7"
   before_script:
     - cd projects/vdk-plugins/
@@ -33,7 +34,7 @@ build-vdk-jupyterlab-extension:
     # but not if there are changes to VDK plugins or the main directory
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
-        - "projects/vdk-plugins//vdk-jupyter/vdk-jupyterlab-extension/**/*"
+        - "projects/vdk-plugins//vdk-jupyter/**/*"
   artifacts:
     when: always
     reports:
