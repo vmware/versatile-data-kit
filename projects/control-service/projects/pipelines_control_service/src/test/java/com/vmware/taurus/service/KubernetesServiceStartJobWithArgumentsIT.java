@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 public class KubernetesServiceStartJobWithArgumentsIT {
 
-  private KubernetesService kubernetesService;
+  private DataJobsKubernetesService kubernetesService;
 
   @BeforeEach
   public void getMockKubernetesServiceForVdkRunExtraArgsTests() throws Exception {
@@ -176,7 +176,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
             new JobCommandProvider());
     // V1betaCronJob initializing snippet copied from tests above, using reflection
     Method loadInternalV1beta1CronjobTemplate =
-        KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
+            DataJobsKubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
     if (loadInternalV1beta1CronjobTemplate == null) {
       Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
     }
