@@ -73,7 +73,7 @@ public class MockKubernetes {
    */
   private void mockDataJobKubernetesService(DataJobsKubernetesService mock)
       throws ApiException, IOException, InterruptedException {
-      mockKubernetesService(mock);
+    mockKubernetesService(mock);
     // By defautl beans are singleton scoped so we are sure this will be called once
     // hence it's safe to keep the variables here isntead of static.
     final Map<String, Map<String, byte[]>> secrets = new ConcurrentHashMap<>();
@@ -140,49 +140,47 @@ public class MockKubernetes {
         .when(mock)
         .readCronJob(anyString());
 
-
     doAnswer(inv -> "logs").when(mock).getJobLogs(anyString(), anyInt());
   }
 
-
-    public void mockKubernetesService(KubernetesService mock) throws ApiException, IOException, InterruptedException {
-        final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
-        doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
-                .when(mock)
-                .createJob(
-                        anyString(),
-                        anyString(),
-                        anyBoolean(),
-                        anyBoolean(),
-                        any(),
-                        any(),
-                        any(),
-                        any(),
-                        anyString(),
-                        any(),
-                        any(),
-                        anyLong(),
-                        anyLong(),
-                        anyLong(),
-                        anyString(),
-                        anyString());
-        doAnswer(inv -> jobs.keySet()).when(mock).listJobs();
-        doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
-        doAnswer(
-                inv -> {
-                    String jobName = inv.getArgument(0);
-                    if (jobs.containsKey(jobName)) {
-                        if (jobName.startsWith("failure-")) {
-                            return new KubernetesService.JobStatusCondition(
-                                    false, "Status", "Job name starts with 'failure-'", "", 0);
-                        } else {
-                            return new KubernetesService.JobStatusCondition(true, "Status", "", "", 0);
-                        }
-                    }
-                    return new KubernetesService.JobStatusCondition(false, null, "No such job", "", 0);
-                })
-                .when(mock)
-                .watchJob(anyString(), anyInt(), any());
-    }
-
+  public void mockKubernetesService(KubernetesService mock)
+      throws ApiException, IOException, InterruptedException {
+    final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
+    doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
+        .when(mock)
+        .createJob(
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyString(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            anyString(),
+            anyString());
+    doAnswer(inv -> jobs.keySet()).when(mock).listJobs();
+    doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
+    doAnswer(
+            inv -> {
+              String jobName = inv.getArgument(0);
+              if (jobs.containsKey(jobName)) {
+                if (jobName.startsWith("failure-")) {
+                  return new KubernetesService.JobStatusCondition(
+                      false, "Status", "Job name starts with 'failure-'", "", 0);
+                } else {
+                  return new KubernetesService.JobStatusCondition(true, "Status", "", "", 0);
+                }
+              }
+              return new KubernetesService.JobStatusCondition(false, null, "No such job", "", 0);
+            })
+        .when(mock)
+        .watchJob(anyString(), anyInt(), any());
+  }
 }
