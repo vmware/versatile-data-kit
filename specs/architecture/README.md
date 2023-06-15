@@ -2,61 +2,115 @@
 
 # Goals
 
-The main goal of the Versatile Data Kit is to enable efficient data engineering.
+The main goal of the Versatile Data Kit (VDK) is to enable efficient data engineering.
 
-* **Simplifying data development & data engineering:** VDK aims to provide a simpler, more flexible approach to the development of data that reduces the amount of boilerplate code that data engineers have to write.
-* **Adopt and adapt good software development practices:** VDK aims to establish and implement good software development and engineering practices, such as, testing, separation of concerns, loose coupling, versioning, code/config separation which make code and datasets more maintainable and testable
-* **Promoting good data engineering practices:** VDK aims to encourage best practices in data engineering, such as providing automated error handling, support for quality, and validation, and making it easy to reuse data modeling techniques.
-* **Use only what you need - modular and extensible:** VDK aims to enable users to choose to use only the specific functionalities or modules they need and nothing more. And developers can extend the framework with new functionalities as the data ecosystem evolves.
+* Simplify and speed up data development & data engineering.
+* Adopt and adapt good software development and DevOps practices in data engineering.
+* Encourage existing best practices in data engineering by making them easy to follow.
+* Use only what you need - modular. And build quickly what you miss - extensible.
+
+![](devops-data-vdk-cycle.png)
+<!-- source of this picture is from https://github.com/vmware/versatile-data-kit/files/12063655/data-eng-and-devops-and-vdk.pptx -->
 
 # Architecture
 
-## System Context Diagrams
+## [System Context Diagrams](https://c4model.com/#SystemContextDiagram)
 
 Versatile Data Kit is conceptually composed of two independently usable components:
 - Control Service
 - Python-based SDK.
 
 
-The Control Service provides all the horizontal components required to configure and run [data jobs](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job) on any cloud: the UI, and REST APIs for deployment, execution, properties and secrets. Also job scheduling, logging, alerting, monitoring etc. It is tightly coupled with Kubernetes and relies on Kubernetes ecosystem for many of its functionalities.
+The Control Service provides all the horizontal components required to configure and run [data jobs](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job) on any cloud:
+the UI, and REST APIs for deployment, execution, properties and secrets.
+Also job scheduling, logging, alerting, monitoring etc.
+It is tightly coupled with Kubernetes and relies on Kubernetes ecosystem for many of its functionalities.
 
-![VDK Control Service System Context Diagram](https://github.com/vmware/versatile-data-kit/assets/2536458/84da99c8-2d2d-44d9-90a8-f0ea6ae5150f)
+> Note: all diagrams in the document are based on https://c4model.com
 
+![VDK Control Service System Context Diagram](https://github.com/vmware/versatile-data-kit/assets/2536458/0cf63ecc-3cd0-4658-8732-bf3a53268a89)
 
-<br><br>
+<br>
 
-The VDK SDK consists of all user tools that assist in developing data jobs focusing on data ingestion and transformation.
-It can be installed locally on the user's machine to enable a local development experience.
-It follows plugin-oriented architecture where all functionality is built through plugins which enables reconstructing VDK SDK in any flavor depending on the organization's and users' needs.
+The VDK SDK includes essential user tools for creating data jobs focusing on ingestion and transformation.
+It can be installed locally on the user's machine for local development.
+It follows a plugin-oriented architecture in which all functionality is built through plugins.
+This way VDK SDK can be rebuilt in any flavor based on the requirements of the organization and users.
+
+The SDK is built with Python, a language renowned for its powerful libraries for data manipulation.
+With the plugin-based architecture, developers can easily add functionality to the VDK SDK.
+For example, they could add a plugin that allows the SDK to interact with a new type of database
+or a plugin that adds a new data transformation functionality.
 
 ![VDK SDK System Context Diagram](https://github.com/vmware/versatile-data-kit/assets/2536458/8fab24c9-5d22-4f83-a41f-1a025f2edb4a)
 
 ## VDK Control Service Container Diagram
 
-![VDK Control Service Container Diagram](https://github.com/vmware/versatile-data-kit/assets/2536458/89312655-7171-432a-8147-551dd2d711ea)
+
+![VDK Control Service Container Diagram](https://github.com/vmware/versatile-data-kit/assets/2536458/d25b08da-64a7-45cf-aa2a-3b529791e8dc)
 
 Diving deeper into the VDK Control Service, the entry point from data practitioner's perspective is
-* VDK Frontend UI which is used for operating and monitoring of data jobs.
+* VDK Operations UI which is used for operating and monitoring of data jobs.
 * [VDK Rest API](https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com/data-jobs/swagger-ui/index.html#/) (through VDK Control CLI or Notebook UI) which is used to deploy and configure data jobs.
 
 From operator's perspective:
 * Operators use provided [helm chart](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-versatile-data-kit-control-service) to install, and configure the Control Service deployment and the needed data infrastructure.
 
-#### Rest API
+#### Control Service Rest APIs
 
-[Control Service Rest API](https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com/data-jobs/swagger-ui/index.html) reflects the usual Development lifecycle:
-- Create a new data job when starting on a new use case.
-- Develop, run, and test the data job locally.
-- Deploy the data job in a cloud runtime environment to run on a scheduled basis with monitoring and alerting in case of issues.
+[Control Service Rest API](https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com/data-jobs/swagger-ui/index.html) streamlines and manages key stages of the development lifecycle:
+- Deploy the data job (with "single click") to the Control Service and it would take care of build, release, deploy of DevOps Cycle.
+- Manage (operate and monitor) the jobs through Control Service monitoring and alerting and VDK Operations UI.
 
-The Rest API is implemented in Java with Spring Boot framework to take advantage of Java's huge ecosystem of libraries. With a few lines of configuration, Spring Boot bootstraps a service with a complete toolchain included but not limited to advanced logging and metrics reporting, declarative persistence and full [REST API with Swagger UI](https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com/data-jobs/swagger-ui/index.html). Operators can also configure VDK Control Service to use existing Logging and Monitoring system in organization ecosystem.
-The REST API provides Oauth2 based authentication and authorization and authorization can be extended with authorization webhook.
+###### APIs
 
-#### VDK Frontend UI
-VDK Frontend UI is an Angular-based web application. It relies on VDK Rest API and especially for almost all read operations on the [Rest GraphQL Query API](https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com/data-jobs/swagger-ui/index.html#/Data%20Jobs/jobsQuery) .
+- Jobs API to register new jobs and stores job configuration.
+- Source API to upload job source and provide version of the data job's source ("release")
+- Deployment API make sure code is built and deployed with correct configuration
+- Execution API tracks all executions exposing needed metrics and data and can start new executions
+- Properties And Secrets API are additional services to help data jobs users keep state and credentials
+
+###### Implementation
+The Rest API is implemented in Java with Spring Boot framework.
+
+Operators can also configure VDK Control Service to use existing Logging and Monitoring system in organization ecosystem
+using environment variables or system properties.
+
+In production, the REST API is running as a Kubernetes Deployment in a kubernetes cluster.
+
+###### Security
+The REST API implements authentication and authorization through OAuth2.
+Complex authorization logic can be achieved using an authorization webhook.
+All communication between the Control Service, the VDK SDK, and the managed components (like databases) can be encrypted.
+
+###### Integration with the Kubernetes Ecosystem
+
+The Control Service relies a lot on Kubernetes ecosystem for scheduling, orchestration,
+logging services (for example fluentd can be configured to export logs to a log aggregator),
+monitoring (metrics can easily be exported to prometheus)
+
+###### Reliability
+The Control Service leverages the resilience and fault-tolerance capabilities of Kubernetes
+for scheduling and orchestration (automatic restarts, load balancing).
+
+Errors encountered during data job execution, such as connectivity issues with external systems or
+unanticipated exceptions in the data job code, are tracked by the Execution API.
+
+Upon deployment there's provided tool [vdk-heartbeat](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat)
+that can be used to verify deployment is working correctly.
+
+#### VDK Operations UI
+VDK Operations UI is an Angular-based web application. It relies on VDK Rest API and especially for almost all read operations on the [Rest GraphQL Query API](https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com/data-jobs/swagger-ui/index.html#/Data%20Jobs/jobsQuery) .
 
 #### Builder Job
-Builder Jobs are used to build and release users' data jobs. Those are system jobs used during deployment to install all dependencies and package the data job. Builder Jobs interacts with Git to read the source code and with Container Registry (e.g. Docker) in order to store the data job image. Operators can provide custom a builder image with further capabilities (for example running system tests to verify data jobs , security hardening like checking for malicious code, etc.)
+Builder Jobs are used to build and release users' data jobs.
+Those are system jobs used during deployment to install all dependencies and package the data job.
+Builder Jobs interacts with Git to read the source code and with Container Registry (e.g. Docker) in order to store the data job image.
+
+When a user deploys a data job, a data job container image is created for it and deployed as a cron job in kubernetes.
+
+Operators can provide custom a builder image with further capabilities
+(for example running system tests to verify data jobs , security hardening like checking for malicious code, etc.)
 
 #### Data Job
 
@@ -68,7 +122,7 @@ CockroachDB is used to store the data job metadata. This includes information ab
 
 ## VDK SDK Component Diagram
 
-![VDK SDK Component Diagram](https://github.com/vmware/versatile-data-kit/assets/2536458/be8d805d-0026-4e0b-afeb-32d72b98f70d)
+![VDK SDK Component Diagram](https://github.com/vmware/versatile-data-kit/assets/2536458/46329809-27da-4afa-83bf-9ae6714b5a11)
 
 Diving deeper into the VDK SDK, the entry point from the data practitioner's perspective is
 * VDK Data Job Framework which provides tools and interfaces to perform ETL operations on data through SQL or Python.
@@ -77,17 +131,79 @@ Operators and data practitioners can use VDK Plugin Framework to customize and e
 
 #### vdk-core
 
-The core component of VDK contains the Data Job Framework and the Plugin Framework.
+The core component of VDK encompasses the Data Job Framework and the Plugin Framework.
+
+vdk-core is built using a plugin-oriented design.
+It provides the core interfaces for building data jobs, including ingestion, processing, templates, properties interfaces.
+It implements the core lifecycle of ingestion, Data Job execution, CLI commands.
+
+The actual implementation of these interfaces is performed in different plugins.
+Most of these interfaces have a default implementation using built-in plugins within vdk-core, which provide basic functionality.
+For instance, the properties interface has in-memory or file-based properties backends builtin.
+
+The vdk-core component is intentionally designed to have minimal external dependencies (libraries).
+This is done because vdk-core is intended to be used in various types of installations.
 
 ##### Data Job Framework
+Data Job Framework gives the users the ability to access different data development interfaces described below.
 
-Data Job Framework which gives the users the ability to access different data development interfaces.
+###### VDK Data Job
 
-Users create [data jobs](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job). Each data job can contain multiple [steps](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-step) executed in alphanumeric order by default (this can be customized). vdk run is used to run a full data job both locally and when deployed in the cloud. Users can install plugins like vdk-notebook that provide IDE for building jobs as well.
-[Job Input](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py) provides different capabilities for ingesting data, transforming data with templates, accessing properties and secrets, etc.
+Users create [data jobs](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job).
+Each data job can contain multiple [steps](https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-step)
+executed in some order (alphanumeric order by default).
+`vdk run` is used to run a full data job both locally and when deployed in the cloud as well.<br>
+Users can install plugins like vdk-notebook to add new types of steps.<br>
+Users can install plugins like vdk-jupyter that provide IDE for creating and developing data jobs as well.
+
+###### VDK Job Input
+
+[Job Input](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py)
+encapsulates a variety of functionalities and interfaces that provide a comprehensive toolkit for complex data operations.
+
+- Ingester interface (IIngester) provide ways to ingest (or load) data into different destinations and remote stores (based on plugins).
+  - Data Engineers can use `send_tabular_data_for_ingestion` and `send_object_for_ingestion` to send data to remote stores
+- Database Query and Connection interface (IManagedConnection) provides access to managed database connections and query execution.
+It's managed by VDK - so it can be configured and provides error recovery mechanisms, parameters substitution.
+Through plugins, it is possible to collect lineage, provide query quality analysis, etc.
+  - There is dedicated method `job_input.execute_query`
+  - or one can use `job_input.get_managed_connection()` to get the managed connection and use it like `pd.read_sql("*", con=job_input.get_managed_connection())`
+  - SQL steps are automatically executed using the configured managed connection
+- Template interface (ITemplate) enables to package a whole data job and execute it as single operation for reusability.
+  - Templates are added by plugins.
+  - For example there are templates implemented for (Kimball) dimensional modeling (creating fact and dimension tables).
+- Properties and Secrets can connect to different properties and secrets backends for data job users.
+  - Properties API is used to store state data (e.g last updated timestamp) or configuration data
+  - Secrets API is optional and can be enabled to store more securely data in a HashiCorp Vault instance.
+- Job Arguments can be passed when starting a new job execution or run.
 
 ##### Plugin Framework
 
-The plugin Framework exposes many different types of hooks that can be attached for database-managed connection (e.g. ingest and query impala data in vdk-impala), vdk commands customization (e.g. vdk-control-cli), any phase of data job execution (e.g. add new steps in vdk-notebook plugin) or Data Job Framework improvements (e.g. vdk-lineage).
+The Versatile Data Kit (VDK) provides a highly extensible plugin framework,
+which offers a seamless way to enhance the data processing capabilities.
+Users can easily install third-party plugins using pip, with the command:
+`pip install vdk-PLUGIN-NAME`.
+Once installed, the plugin is automatically located and activated by vdk, streamlining the user's experience.
 
-See more details in [here](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins#plugins).
+A plugin in the VDK framework is a Python module that can modify or enhance the behavior of the SDK.
+The creation process involves implementing one or more plugin hooks, marking them with the `hookimpl` decorator, and then registering the plugin.
+
+By utilizing hooks, these plugins can extend command functionalities such as monitoring, lineage, logging customization, or the addition of new features.
+
+There are 4 groups of hooks that can be created:
+- **Generic Command-Line Lifecycle**: these allow the extension of any CLI command's functionality or adding new CLI commands
+- **Data Job Run (Execution) Lifecycle**: these are specifically invoked when executing a data job.
+- **Managed Database Connection Lifecycle**: these plugins hook on cursor events, providing a sequence of validation, decoration, execution, and recovery operations.
+- **Ingestion Lifecycle**: these handle the entire data ingestion workflow, ranging from preprocessing the payload, sending it for ingestion, to post-processing.
+
+**Backend Registry Interfaces**: these classes are responsible for registering different backends for managed databases connections, ingestion methods and targets, properties/ secrets implementations, adding new templates.
+
+See more details [about how to use, install, and develop plugins here](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins#plugins).
+
+Check out some more interesting and useful plugins:
+[vdk-dag](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-dag),
+[vdk-lineage](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-lineage),
+[vdk-server](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-server)
+
+[quickstart-vdk](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/quickstart-vdk) is a distribution packaged with most useful plugins to get started with VDK.
+Users and organization are encourage to create their own distribution for their own specific purposes.
