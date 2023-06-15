@@ -12,7 +12,7 @@ This template can be used to load raw data from Data Lake to target Table in Dat
 - target_table    - Data Warehouse table of DW type table, where target data is loaded
 - source_schema   - Data Lake schema, where source raw data is loaded from
 - source_view     - Data Lake view, where source raw data is loaded from
-- check           - (Optional) Callback function responsible for checking the quality of the data
+- check           - (Optional) Callback function responsible for checking the quality of the data. Takes in a table name as a parameter which will be used for data validation
 - staging_schema  - (Optional) Schema where the checks will be executed. If not provided target_schema will be used as default
 
 ### Prerequisites:
