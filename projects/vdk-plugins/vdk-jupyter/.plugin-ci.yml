@@ -14,7 +14,6 @@ build-vdk-jupyterlab-extension:
   image: "python:3.8-alpine"
   before_script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
-    - export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-'https://pypi.org/simple'}
     - pip install -U pip setuptools pre-commit
     - apk --no-cache add npm
     - pip install pytest-cov
@@ -22,7 +21,7 @@ build-vdk-jupyterlab-extension:
     - echo "Install Dependencies..."
     - npm ci
     - echo "Install Vdk JupyterLab Extension..."
-    - pip install -e . --extra-index-url $PIP_EXTRA_INDEX_URL
+    - pip install -e .
     - echo "Building VDK JupyterLab Extension..."
     - jlpm build
   retry: !reference [.retry, retry_options]
