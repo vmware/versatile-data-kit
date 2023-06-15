@@ -1,9 +1,9 @@
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
-FROM photon:latest as builder
+FROM photon:latest
 
-ARG PYTHON_MAJOR=3
-ARG PYTHON_MINOR=9
-ARG PYTHON_PATCH=16
+ARG PYTHON_MAJOR
+ARG PYTHON_MINOR
+ARG PYTHON_PATCH
 ARG PYTHON_VERSION=${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH}
 
 ARG _prefixdir=/usr/local
