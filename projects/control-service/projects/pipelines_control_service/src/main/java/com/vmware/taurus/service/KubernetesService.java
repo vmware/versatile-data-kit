@@ -159,7 +159,6 @@ public abstract class KubernetesService {
   private final Logger log;
   private final ApiClient client;
   protected final BatchV1Api batchV1Api;
-  private final boolean k8sSupportsV1CronJob;
 
   /**
    * @param namespace the namespace where the kubernetes operation will act on. leave empty to infer
@@ -169,19 +168,13 @@ public abstract class KubernetesService {
    */
   protected KubernetesService(
       String namespace,
-      boolean k8sSupportsV1CronJob,
       Logger log,
       ApiClient client,
       BatchV1Api batchV1Api) {
     this.namespace = namespace;
-    this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
     this.log = log;
     this.client = client;
     this.batchV1Api = batchV1Api;
-  }
-
-  protected boolean getK8sSupportsV1CronJob() {
-    return this.k8sSupportsV1CronJob;
   }
 
   public Pair<Boolean, String> health() {
