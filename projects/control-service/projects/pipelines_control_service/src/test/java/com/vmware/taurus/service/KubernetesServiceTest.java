@@ -398,7 +398,7 @@ public class KubernetesServiceTest {
 
       Assertions.assertNotNull(internalCronjobTemplate.getSpec().getJobTemplate().getMetadata());
       // Step 3 - create and check the actual cronjob.
-      Method[] methods = DataJobsKubernetesService.class.getDeclaredMethods();
+      Method[] methods = KubernetesService.class.getDeclaredMethods();
       // This is much easier than describing the whole method signature.
       Optional<Method> method =
           Arrays.stream(methods)
