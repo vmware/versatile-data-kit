@@ -240,7 +240,7 @@ public class KubernetesServiceTest {
           (V1beta1CronJob) loadInternalV1beta1CronjobTemplate.invoke(service);
       // Prepare the 'v1beta1checkForMissingEntries' method.
       Method checkForMissingEntries =
-              DataJobsKubernetesService.class.getDeclaredMethod(
+          DataJobsKubernetesService.class.getDeclaredMethod(
               "v1beta1checkForMissingEntries", V1beta1CronJob.class);
       if (checkForMissingEntries == null) {
         Assertions.fail("The method 'v1beta1checkForMissingEntries' does not exist.");
@@ -354,7 +354,8 @@ public class KubernetesServiceTest {
       V1CronJob internalCronjobTemplate = (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
       // Prepare the 'v1checkForMissingEntries' method.
       Method checkForMissingEntries =
-              DataJobsKubernetesService.class.getDeclaredMethod("v1checkForMissingEntries", V1CronJob.class);
+          DataJobsKubernetesService.class.getDeclaredMethod(
+              "v1checkForMissingEntries", V1CronJob.class);
       if (checkForMissingEntries == null) {
         Assertions.fail("The method 'v1checkForMissingEntries' does not exist.");
       }

@@ -176,7 +176,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
             new JobCommandProvider());
     // V1betaCronJob initializing snippet copied from tests above, using reflection
     Method loadInternalV1beta1CronjobTemplate =
-            DataJobsKubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
+        DataJobsKubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
     if (loadInternalV1beta1CronjobTemplate == null) {
       Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
     }

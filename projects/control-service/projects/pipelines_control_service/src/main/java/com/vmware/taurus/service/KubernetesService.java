@@ -5,21 +5,12 @@
 
 package com.vmware.taurus.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
-import com.google.common.collect.Iterables;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.vmware.taurus.exception.JsonDissectException;
 import com.vmware.taurus.exception.KubernetesException;
-import com.vmware.taurus.exception.KubernetesJobDefinitionException;
-import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
-import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
-import com.vmware.taurus.service.deploy.DockerImageName;
-import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
 import com.vmware.taurus.service.model.JobLabel;
 import com.vmware.taurus.service.threads.ThreadPoolConf;
 import io.kubernetes.client.openapi.ApiClient;
@@ -31,21 +22,17 @@ import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.Watch;
-import io.kubernetes.client.util.Yaml;
 import lombok.*;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.nio.file.Files;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -53,7 +40,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A facade over Kubernetes (https://en.wikipedia.org/wiki/Facade_pattern) (not complete see
@@ -164,7 +150,6 @@ public abstract class KubernetesService {
     @Getter private final String value;
   }
 
-
   @org.springframework.beans.factory.annotation.Value(
       "${datajobs.control.k8s.jobTTLAfterFinishedSeconds}")
   protected int jobTTLAfterFinishedSeconds;
@@ -180,10 +165,7 @@ public abstract class KubernetesService {
    * @param log log to use - used in subclasses in order to set classname to subclass.
    */
   protected KubernetesService(
-      String namespace,
-      Logger log,
-      ApiClient client,
-      BatchV1Api batchV1Api) {
+      String namespace, Logger log, ApiClient client, BatchV1Api batchV1Api) {
     this.namespace = namespace;
     this.log = log;
     this.client = client;
@@ -563,7 +545,8 @@ public abstract class KubernetesService {
    * @return A {@link JobExecution} object representing the Data Job execution status.
    */
   @VisibleForTesting
-  public Optional<JobExecution> getJobExecutionStatus(V1Job job, JobStatusCondition jobStatusCondition) {
+  public Optional<JobExecution> getJobExecutionStatus(
+      V1Job job, JobStatusCondition jobStatusCondition) {
     JobExecution.JobExecutionBuilder jobExecutionStatusBuilder = JobExecution.builder();
     // jobCondition = null means that the K8S Job is still running
     if (jobStatusCondition != null) {
@@ -970,7 +953,6 @@ public abstract class KubernetesService {
     }
     return Optional.empty();
   }
-
 
   public static V1Container container(
       String name,

@@ -26,10 +26,6 @@ public class ControlKubernetesService extends KubernetesService {
       @Value("${datajobs.control.k8s.namespace:}") String namespace,
       @Qualifier("controlApiClient") ApiClient client,
       @Qualifier("controlBatchV1Api") BatchV1Api batchV1Api) {
-    super(
-        namespace,
-        log,
-        client,
-        batchV1Api);
+    super(namespace, log, client, batchV1Api);
   }
 }
