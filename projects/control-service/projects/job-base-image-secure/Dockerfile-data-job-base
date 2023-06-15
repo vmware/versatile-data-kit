@@ -8,5 +8,8 @@ COPY --from=base /usr/local/ /usr/local/
 # Set the working directory
 WORKDIR /job
 
+# Uninstall native dependencies
+RUN yum erase toybox -y
+
 # Install native dependencies
-RUN yum install shadow build-essential libffi gcc krb5-devel e2fsprogs-devel glibc-devel -y
+RUN yum install shadow build-essential -y
