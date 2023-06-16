@@ -41,6 +41,5 @@ RUN rm /usr/sbin/useradd
 RUN rm /usr/sbin/userdel
 RUN rm /usr/bin/uname
 RUN python -m pip uninstall pip -y
-RUN yum erase toybox -y
 
 USER $UID

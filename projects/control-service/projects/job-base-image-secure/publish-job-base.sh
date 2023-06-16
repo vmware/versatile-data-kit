@@ -51,7 +51,8 @@ function build_and_push_image() {
     --include-bin "/usr/sbin/groupdel" \
     --include-bin "/usr/sbin/useradd" \
     --include-bin "/usr/sbin/userdel" \
-    --include-path "/usr/lib"
+    --include-path "/usr/lib" \
+    --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/"
 
     docker push "$data_job_base_image_tag_version"
     docker push "$data_job_base_image_tag_latest"
