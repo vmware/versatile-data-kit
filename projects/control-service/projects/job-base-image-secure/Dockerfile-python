@@ -1,0 +1,92 @@
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices
+FROM photon:latest
+
+ARG PYTHON_MAJOR
+ARG PYTHON_MINOR
+ARG PYTHON_PATCH
+ARG PYTHON_VERSION=${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH}
+
+ARG _prefixdir=/usr/local
+ARG _bindir=${_prefixdir}/bin
+ARG _libdir=${_prefixdir}/lib
+ARG _workdir=/usr/src
+ARG _pylibdir=${_libdir}/python${PYTHON_MAJOR}.${PYTHON_MINOR}
+ARG _bytecode_suffixes=.cpython-*.pyc
+
+ENV PATH=${_bindir}:${PATH}
+WORKDIR ${_workdir}
+
+# Install build dependencies
+RUN yum install -y \
+    coreutils \
+    gcc \
+    glibc-devel \
+    binutils \
+    build-essential \
+    wget \
+    make \
+    openssl-devel \
+    bzip2-devel \
+    libffi-devel \
+    zlib-devel \
+    sqlite-devel \
+    krb5-devel \
+    e2fsprogs-devel
+
+# Extract python source
+RUN : \
+ && set -ex \
+ && curl -O https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz \
+ && tar -xvzf Python-${PYTHON_VERSION}.tgz \
+ && mv Python-${PYTHON_VERSION} python \
+ && rm Python-${PYTHON_VERSION}.tgz
+
+# Build and install python
+RUN : \
+ && set -ex \
+ && cd ${_workdir}/python \
+ && ./configure ax_cv_c_float_words_bigendian=no \
+        --enable-loadable-sqlite-extensions \
+        --enable-optimizations \
+        --enable-option-checking=fatal \
+        --enable-shared \
+        --with-lto \
+        --without-ensurepip \
+        --prefix=${_prefixdir} \
+        LDFLAGS=-Wl,-rpath=${_libdir} \
+ && make \
+ && make install
+
+# Make some useful symlinks
+RUN : \
+ && set -ex \
+ && cd ${_bindir} \
+ && ln -s python${PYTHON_MAJOR} python
+
+# Get and install pip
+RUN : \
+ && set -ex \
+ && curl -O https://bootstrap.pypa.io/get-pip.py \
+ && python get-pip.py \
+ && pip --version \
+ && rm -f get-pip.py
+
+# Cleanup files
+RUN : \
+ && set -ex \
+ && rm -rf \
+      ${_workdir}/python \
+      ${_pylibdir}/turtle.py \
+      ${_pylibdir}/__pycache__/turtle*${_bytecode_suffixes} \
+      ${_bindir}/idle* \
+      ${_pylibdir}/idlelib \
+      ${_pylibdir}/tkinter \
+      ${_pylibdir}/turtledemo \
+      ${_pylibdir}/ctypes/test \
+      ${_pylibdir}/distutils/tests \
+      ${_pylibdir}/lib2to3/tests \
+      ${_pylibdir}/sqlite3/test \
+      ${_pylibdir}/test \
+      ${_pylibdir}/tkinter/test \
+      ${_pylibdir}/unittest/test \
+ && find ${_pylibdir} -type d -name __pycache__ -exec rm -rf '{}' +

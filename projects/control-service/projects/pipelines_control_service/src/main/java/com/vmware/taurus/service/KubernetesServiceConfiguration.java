@@ -64,12 +64,6 @@ public class KubernetesServiceConfiguration {
     return new BatchV1Api(apiClient);
   }
 
-  @Bean
-  public BatchV1beta1Api controlBatchV1beta1Api(
-      @Qualifier("controlApiClient") ApiClient apiClient) {
-    return new BatchV1beta1Api(apiClient);
-  }
-
   @NotNull
   private ApiClient getClient(String kubeconfig) throws IOException {
     final ApiClient client;

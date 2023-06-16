@@ -1,0 +1,16 @@
+{
+  "LABEL": {
+    "name": "title needs formatting",
+    "color": "EEEEEE"
+  },
+  "CHECKS": {
+    "prefixes": ["[pre-commit.ci]", "build(deps)"],
+    "regexp": "(vdk-.*|versatile-data-kit|specs|support|documentation|control-service|examples|frontend): .*",
+    "regexpFlags": "i"
+  },
+  "MESSAGES": {
+    "success": "All OK",
+    "failure": "PR title is not formatted correctly. Prefix must be one of: [pre-commit.ci], build(deps), vdk-<plugin-suffix>, <plugin-prefix>-vdk versatile-data-kit, specs, support, documentation, control-service, examples, frontend",
+    "notice": ""
+  }
+}
