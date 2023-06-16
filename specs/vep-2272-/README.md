@@ -1,26 +1,7 @@
+# VEP-2272: Your short, descriptive title
 
-# VEP-NNNN: Your short, descriptive title
-
-* **Author(s):** Name (mail), ...
-* **Status:** draft | implementable | implemented | rejected | withdrawn | replaced
-
-
-To get started with this template:
-
-- [ ] **Create an issue in Github (if one does not exists already)**
-- [ ] **Make a copy of this template directory.**
-  Copy this template into the specs directory and name it
-  `NNNN-short-descriptive-title`, where `NNNN` is the issue number (with no
-  leading-zero padding) created above.
-- [ ] **Fill out this file as best you can.**
-  There are instructions as HTML comments.
-  At minimum, you should fill in the "Summary" and "Motivation" sections.
-- [ ] **Create a PR for this VEP.**
-- [ ] **Merge early and iterate.**
-  Avoid getting hung up on specific details and instead aim to get the goals of
-  the VEP clarified and merged quickly. The best way to do this is to just
-  start with the high-level sections and fill out details incrementally in
-  subsequent PRs.
+* **Author(s):** Miroslav Ivanov (miroslavi@vmware.com), ...
+* **Status:** draft
 
 <!-- Provide table of content as it's helpful. -->
 
@@ -36,35 +17,62 @@ To get started with this template:
 
 ## Summary
 
-<!--
-Short summary of the proposal. It will be used as user-focused
-documentation such as release notes or a (customer facing) development roadmap.
-The tone and content of the `Summary` section should be
-useful for a wide audience.
--->
+Currently, the deployment configuration of data jobs is partially dependent on the K8S cluster, leading to unnecessary
+overhead when loading data jobs. Additionally, the loss of Kubernetes namespace results in the potential loss of data
+jobs, requiring a manual and complex restoration process. By switching the source of truth from Kubernetes to a
+database, we can ensure a more reliable and easy restoration process while optimizing performance for Control Service
+APIs.
 
 ## Glossary
-<!--
-Optional section which defines terms and abbreviations used in the rest of the document.
--->
+
+* VDK: https://github.com/vmware/versatile-data-kit/wiki/dictionary#vdk
+* Control Service: https://github.com/vmware/versatile-data-kit/wiki/dictionary#control-service
+* Data Job: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job
+* Data Job Deployment: https://github.com/vmware/versatile-data-kit/wiki/dictionary#data-job-deployment
+* Kubernetes: https://kubernetes.io/
 
 ## Motivation
-<!--
-It tells **why** do we need X?
-Describe why the change is important and the benefits to users.
-Explain the user problem that need to be solved.
--->
+
+Ensuring efficient and reliable management of data job deployments is crucial for the smooth functioning of our system.
+Currently, when a data job is deployed, its deployment configuration is stored in both Kubernetes and the database.
+However, there
+exists a disparity where certain essential properties are exclusively stored in Kubernetes, such as the job's enabled
+status, Python version, and deployment information.
+
+This discrepancy creates a significant challenge for the Control Service APIs that rely on retrieving data job
+deployments. For instance, the GraphQL API's jobs query initially retrieves the data jobs from the database and
+subsequently retrieves the deployment data from Kubernetes. This two-step process introduces performance degradation to
+the Control Service, as it requires additional time and resources to fetch information from multiple sources.
+
+Moreover, in the event of a Kubernetes namespace loss, there is a potential risk of losing critical data job deployment
+configurations. In such scenarios, recovering the lost data jobs becomes a manual and complex restoration process.
+This adds further complexity and potential downtime for users relying on the Control Service for their data job
+management needs.
+
+To address these issues, it is essential to optimize the storage and retrieval of data job deployments. By ensuring that
+all relevant properties are stored consistently, in the database, so we can streamline the process and enhance the
+overall
+the efficiency of the Control Service APIs.
+
+By improving the efficiency and reliability of data job deployments, we aim to optimize the overall system performance
+and provide a seamless experience for our users.
 
 ## Requirements and goals
-<!--
-It tells **what** is it trying to achieve?
-List the specific goals (functional and nonfunctional requirements)? How will we
-know that this has succeeded?
 
-Specify non-goals. Clearly, the list of non-goals can't be exhaustive.
-Non-goals are only features, which a contributor can reasonably assume were a goal.
-One example is features that were cut during scoping.
--->
+### Goals
+
+1. Identify the specific data job configuration that is stored only within the Kubernetes cluster.
+2. Transition the primary source of truth for all data jobs configurations from both Kubernetes and database to just the
+   database, in order to centralize data storage, improve data integrity, and enable easier access and manipulation.
+3. Enhance the performance of Control Service APIs by loading the data job configuration from only one data source (
+   Control Service database).
+4. Prepare Control Service for future enhancement of the migration process and ease of restoration by centralizing and
+   storing all data job configurations within the database.
+
+### Non-Goals
+
+1. Implement automatic data jobs restore capability in case of the loss of Kubernetes namespace whereby the Control
+   Service automatically retrieves the configuration from a database and seamlessly restores the data jobs.
 
 ## High-level design
 
@@ -85,7 +93,6 @@ In this context, a component is any separate software process.
 
 -->
 
-
 ## API design
 
 <!--
@@ -99,8 +106,8 @@ PyDoc/Javadoc (or similar) for Python/Java changes.
 Explain how does the system handle API violations.
 -->
 
-
 ## Detailed design
+
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
 Consider at least the below topics but you do not need to cover those that are not applicable.
@@ -148,13 +155,14 @@ Consider at least the below topics but you do not need to cover those that are n
   * What secrets are needed by the components? How are these secrets secured and attained?
 -->
 
-
 ## Implementation stories
+
 <!--
 Optionally, describe what are the implementation stories (eventually we'd create github issues out of them).
 -->
 
 ## Alternatives
+
 <!--
 Optionally, describe what alternatives has been considered.
 Keep it short - if needed link to more detailed research document.
