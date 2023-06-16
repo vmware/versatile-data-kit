@@ -17,7 +17,6 @@ function build_and_push_image() {
     data_job_base_docker_file="Dockerfile-data-job-base"
 
     python_image_repo="$VDK_DOCKER_REGISTRY_URL/$python_name"
-    python_image_tag_local="$python_image_repo:local"
     python_image_tag_version="$python_image_repo:$VERSION_TAG"
     python_image_tag_latest="$python_image_repo:latest"
 
@@ -26,7 +25,7 @@ function build_and_push_image() {
     data_job_base_image_tag_version="$data_job_base_image_repo:$VERSION_TAG"
     data_job_base_image_tag_latest="$data_job_base_image_repo:latest"
 
-    docker build -t "$python_image_tag_local" -t "$python_image_tag_version" -t "$python_image_tag_latest" -f "$SCRIPT_DIR/$python_docker_file" "$SCRIPT_DIR" \
+    docker build -t "$python_image_tag_version" -t "$python_image_tag_latest" -f "$SCRIPT_DIR/$python_docker_file" "$SCRIPT_DIR" \
     --build-arg PYTHON_MAJOR=$PYTHON_MAJOR \
     --build-arg PYTHON_MINOR=$PYTHON_MINOR \
     --build-arg PYTHON_PATCH=$PYTHON_PATCH

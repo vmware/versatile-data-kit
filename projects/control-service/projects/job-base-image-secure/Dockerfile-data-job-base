@@ -3,6 +3,9 @@ ARG base_image
 FROM $base_image as base
 
 FROM photon:latest
+
+# Copies essential binaries, libraries, headers, and Python files from the base Python image,
+# excluding build dependencies.
 COPY --from=base /usr/local/ /usr/local/
 
 # Set the working directory
