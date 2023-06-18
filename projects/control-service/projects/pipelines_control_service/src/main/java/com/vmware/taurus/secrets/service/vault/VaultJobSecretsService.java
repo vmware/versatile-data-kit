@@ -27,70 +27,70 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
 public class VaultJobSecretsService implements com.vmware.taurus.secrets.service.JobSecretsService {
 
-    @Value("${vdk.vault.size.limit}")
-    private int sizeLimit = 1048576;
+  @Value("${vdk.vault.size.limit}")
+  private int sizeLimit = 1048576;
 
-    private static final String SECRET = "secret";
+  private static final String SECRET = "secret";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final VaultOperations vaultOperations;
+  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final VaultOperations vaultOperations;
 
-    public VaultJobSecretsService(VaultOperations vaultOperations) {
-        this.vaultOperations = vaultOperations;
+  public VaultJobSecretsService(VaultOperations vaultOperations) {
+    this.vaultOperations = vaultOperations;
+  }
+
+  @Override
+  public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
+    Versioned<VaultJobSecrets> readResponse =
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
+
+    VaultJobSecrets vaultJobSecrets;
+
+    if (readResponse != null && readResponse.hasData()) {
+      vaultJobSecrets = readResponse.getData();
+    } else {
+      vaultJobSecrets = new VaultJobSecrets(jobName, null);
     }
 
-    @Override
-    public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
-        Versioned<VaultJobSecrets> readResponse =
-                vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
+    var updatedSecrets =
+        secrets.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> {
+                      if (entry.getValue() == null) {
+                        entry.setValue(JSONObject.NULL);
+                      }
+                      return entry.getValue();
+                    }));
 
-        VaultJobSecrets vaultJobSecrets;
-
-        if (readResponse != null && readResponse.hasData()) {
-            vaultJobSecrets = readResponse.getData();
-        } else {
-            vaultJobSecrets = new VaultJobSecrets(jobName, null);
-        }
-
-        var updatedSecrets =
-                secrets.entrySet().stream()
-                        .collect(
-                                Collectors.toMap(
-                                        Map.Entry::getKey,
-                                        entry -> {
-                                            if (entry.getValue() == null) {
-                                                entry.setValue(JSONObject.NULL);
-                                            }
-                                            return entry.getValue();
-                                        }));
-
-        String updatedSecretsString = new JSONObject(updatedSecrets).toString();
-        try {
-            if (updatedSecretsString.getBytes("UTF-8").length > sizeLimit) {
-                throw new DataJobSecretsSizeLimitException(jobName, "Secret size exceeds configured limit of:" + sizeLimit);
-            }
-        } catch (UnsupportedEncodingException e) {
-            throw new DataJobSecretsException(jobName, e.getMessage());
-        }
-
-
-        vaultJobSecrets.setSecretsJson(updatedSecretsString);
-
-        vaultOperations.opsForVersionedKeyValue(SECRET).put(jobName, vaultJobSecrets);
+    String updatedSecretsString = new JSONObject(updatedSecrets).toString();
+    try {
+      if (updatedSecretsString.getBytes("UTF-8").length > sizeLimit) {
+        throw new DataJobSecretsSizeLimitException(
+            jobName, "Secret size exceeds configured limit of:" + sizeLimit);
+      }
+    } catch (UnsupportedEncodingException e) {
+      throw new DataJobSecretsException(jobName, e.getMessage());
     }
 
-    @Override
-    public Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException {
-        Versioned<VaultJobSecrets> readResponse =
-                vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
+    vaultJobSecrets.setSecretsJson(updatedSecretsString);
 
-        VaultJobSecrets vaultJobSecrets;
+    vaultOperations.opsForVersionedKeyValue(SECRET).put(jobName, vaultJobSecrets);
+  }
 
-        if (readResponse != null && readResponse.hasData()) {
-            vaultJobSecrets = readResponse.getData();
-            return objectMapper.readValue(vaultJobSecrets.getSecretsJson(), Map.class);
-        } else {
-            return Collections.emptyMap();
-        }
+  @Override
+  public Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException {
+    Versioned<VaultJobSecrets> readResponse =
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
+
+    VaultJobSecrets vaultJobSecrets;
+
+    if (readResponse != null && readResponse.hasData()) {
+      vaultJobSecrets = readResponse.getData();
+      return objectMapper.readValue(vaultJobSecrets.getSecretsJson(), Map.class);
+    } else {
+      return Collections.emptyMap();
     }
+  }
 }

@@ -27,35 +27,35 @@ import java.util.Map;
 @Tag(name = "Data Jobs Secrets")
 @ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
 public class DataJobsSecretsController implements DataJobsSecretsApi {
-    static Logger log = LoggerFactory.getLogger(DataJobsSecretsController.class);
+  static Logger log = LoggerFactory.getLogger(DataJobsSecretsController.class);
 
-    private final JobSecretsService secretsService;
+  private final JobSecretsService secretsService;
 
-    @Autowired
-    public DataJobsSecretsController(
-            FeatureFlags featureFlags, @Nullable JobSecretsService secretsService) {
-        this.secretsService = secretsService;
+  @Autowired
+  public DataJobsSecretsController(
+      FeatureFlags featureFlags, @Nullable JobSecretsService secretsService) {
+    this.secretsService = secretsService;
+  }
+
+  @Override
+  public ResponseEntity<Void> dataJobSecretsUpdate(
+      String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
+    log.debug("Updating secrets for job: {}", jobName);
+
+    secretsService.updateJobSecrets(jobName, requestBody);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public ResponseEntity<Map<String, Object>> dataJobSecretsRead(
+      String teamName, String jobName, String deploymentId) {
+    log.debug("Reading secrets for job: {}", jobName);
+
+    try {
+      return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
+    } catch (JsonProcessingException e) {
+      log.error("Error while parsing secrets for job: " + jobName, e);
+      throw new DataJobSecretsException(jobName, "Error while parsing secrets for job");
     }
-
-    @Override
-    public ResponseEntity<Void> dataJobSecretsUpdate(
-            String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
-        log.debug("Updating secrets for job: {}", jobName);
-
-        secretsService.updateJobSecrets(jobName, requestBody);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    public ResponseEntity<Map<String, Object>> dataJobSecretsRead(
-            String teamName, String jobName, String deploymentId) {
-        log.debug("Reading secrets for job: {}", jobName);
-
-        try {
-            return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
-        } catch (JsonProcessingException e) {
-            log.error("Error while parsing secrets for job: " + jobName, e);
-            throw new DataJobSecretsException(jobName, "Error while parsing secrets for job");
-        }
-    }
+  }
 }

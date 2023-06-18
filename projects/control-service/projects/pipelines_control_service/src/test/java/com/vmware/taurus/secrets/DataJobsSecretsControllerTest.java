@@ -97,19 +97,19 @@ class DataJobsSecretsControllerTest {
     String jobName = "testJob";
 
     ResponseEntity<Map<String, Object>> expectedResponse =
-            ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
+        ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
 
     SecretStorageNotConfiguredException thrownException =
-            Assertions.assertThrows(
-                    SecretStorageNotConfiguredException.class,
-                    () -> noOpsController.dataJobSecretsRead(null, jobName, null));
+        Assertions.assertThrows(
+            SecretStorageNotConfiguredException.class,
+            () -> noOpsController.dataJobSecretsRead(null, jobName, null));
 
     assertEquals(expectedResponse.getStatusCode(), thrownException.getHttpStatus());
 
     thrownException =
-            Assertions.assertThrows(
-                    SecretStorageNotConfiguredException.class,
-                    () -> noOpsController.dataJobSecretsUpdate(null, jobName, null, null));
+        Assertions.assertThrows(
+            SecretStorageNotConfiguredException.class,
+            () -> noOpsController.dataJobSecretsUpdate(null, jobName, null, null));
 
     assertEquals(expectedResponse.getStatusCode(), thrownException.getHttpStatus());
   }

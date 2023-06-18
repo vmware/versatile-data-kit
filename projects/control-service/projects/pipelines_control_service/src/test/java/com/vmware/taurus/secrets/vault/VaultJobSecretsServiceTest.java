@@ -33,68 +33,68 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ControlplaneApplication.class)
 @TestPropertySource(
-        properties = {
-                "vdk.vault.size.limit=1048576",
-        })
+    properties = {
+      "vdk.vault.size.limit=1048576",
+    })
 class VaultJobSecretsServiceTest {
 
-    private static final String SECRET = "secret";
+  private static final String SECRET = "secret";
 
-    @Mock
-    private VaultTemplate vaultTemplate;
-    @Mock
-    private VaultVersionedKeyValueOperations vaultOperations;
+  @Mock private VaultTemplate vaultTemplate;
+  @Mock private VaultVersionedKeyValueOperations vaultOperations;
 
-    @InjectMocks
-    private VaultJobSecretsService secretsService;
+  @InjectMocks private VaultJobSecretsService secretsService;
 
-    @Test
-    void testUpdateJobSecrets() throws JsonProcessingException {
-        String jobName = "testJob";
-        Map<String, Object> secrets = new HashMap<>();
-        secrets.put("key1", "value1");
-        secrets.put("key2", 123);
-        secrets.put("key3", true);
-        secrets.put("key4", null);
+  @Test
+  void testUpdateJobSecrets() throws JsonProcessingException {
+    String jobName = "testJob";
+    Map<String, Object> secrets = new HashMap<>();
+    secrets.put("key1", "value1");
+    secrets.put("key2", 123);
+    secrets.put("key3", true);
+    secrets.put("key4", null);
 
+    when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
+    when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(null);
 
-        when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
-        when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(null);
+    Map<String, Object> initial = secretsService.readJobSecrets(jobName);
+    assertNotEquals(secrets, initial);
 
-        Map<String, Object> initial = secretsService.readJobSecrets(jobName);
-        assertNotEquals(secrets, initial);
+    VaultJobSecrets vaultJobSecrets =
+        new VaultJobSecrets(jobName, "{\"key1\":\"ala-bala\",\"key3\":null}");
+    Versioned<VaultJobSecrets> readResponse = Versioned.create(vaultJobSecrets);
 
-        VaultJobSecrets vaultJobSecrets = new VaultJobSecrets(jobName, "{\"key1\":\"ala-bala\",\"key3\":null}");
-        Versioned<VaultJobSecrets> readResponse = Versioned.create(vaultJobSecrets);
+    when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(readResponse);
+    secretsService.updateJobSecrets(jobName, secrets);
 
-        when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(readResponse);
-        secretsService.updateJobSecrets(jobName, secrets);
+    vaultJobSecrets =
+        new VaultJobSecrets(
+            jobName, "{\"key1\":\"value1\",\"key2\":123,\"key3\":true,\"key4\":null}");
+    readResponse = Versioned.create(vaultJobSecrets);
 
-        vaultJobSecrets = new VaultJobSecrets(jobName, "{\"key1\":\"value1\",\"key2\":123,\"key3\":true,\"key4\":null}");
-        readResponse = Versioned.create(vaultJobSecrets);
+    when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(readResponse);
 
-        when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(readResponse);
+    Map<String, Object> result = secretsService.readJobSecrets(jobName);
+    assertEquals(secrets, result);
+  }
 
-        Map<String, Object> result = secretsService.readJobSecrets(jobName);
-        assertEquals(secrets, result);
-    }
+  @Test
+  void testUpdateJobSecretsLimit() throws JsonProcessingException {
+    String jobName = "testJob";
+    Map<String, Object> secrets = new HashMap<>();
+    secrets.put("key1", "value1");
+    secrets.put("key2", RandomStringUtils.randomAlphabetic(1025 * 1025));
 
-    @Test
-    void testUpdateJobSecretsLimit() throws JsonProcessingException {
-        String jobName = "testJob";
-        Map<String, Object> secrets = new HashMap<>();
-        secrets.put("key1", "value1");
-        secrets.put("key2", RandomStringUtils.randomAlphabetic(1025 * 1025));
+    when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
 
-        when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
+    VaultJobSecrets vaultJobSecrets =
+        new VaultJobSecrets(jobName, "{\"key1\":\"ala-bala\",\"key3\":null}");
+    Versioned<VaultJobSecrets> readResponse = Versioned.create(vaultJobSecrets);
 
-        VaultJobSecrets vaultJobSecrets = new VaultJobSecrets(jobName, "{\"key1\":\"ala-bala\",\"key3\":null}");
-        Versioned<VaultJobSecrets> readResponse = Versioned.create(vaultJobSecrets);
+    when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(readResponse);
 
-        when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(readResponse);
-
-        Assertions.assertThrows(
-                DataJobSecretsSizeLimitException.class, () -> secretsService.updateJobSecrets(jobName, secrets));
-    }
-
+    Assertions.assertThrows(
+        DataJobSecretsSizeLimitException.class,
+        () -> secretsService.updateJobSecrets(jobName, secrets));
+  }
 }
