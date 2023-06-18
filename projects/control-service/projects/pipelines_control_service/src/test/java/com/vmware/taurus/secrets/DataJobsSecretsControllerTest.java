@@ -83,7 +83,7 @@ class DataJobsSecretsControllerTest {
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
     DataJobSecretsException thrownException =
-        org.junit.jupiter.api.Assertions.assertThrows(
+        Assertions.assertThrows(
             DataJobSecretsException.class,
             () -> controller.dataJobSecretsRead(null, jobName, null));
 
