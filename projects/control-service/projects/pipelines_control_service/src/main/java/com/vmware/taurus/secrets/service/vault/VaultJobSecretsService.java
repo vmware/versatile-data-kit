@@ -27,85 +27,84 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
 public class VaultJobSecretsService implements com.vmware.taurus.secrets.service.JobSecretsService {
 
+  private static final int VAULT_SIZE_LIMIT_DEFAULT = 1048576; // 1 MB
+  private static final String SECRET = "secret";
 
-    private static final int VAULT_SIZE_LIMIT_DEFAULT = 1048576; // 1 MB
-    private static final String SECRET = "secret";
+  @Value("${datajobs.vault.size.limit.bytes}")
+  private int sizeLimitBytes = VAULT_SIZE_LIMIT_DEFAULT;
 
-    @Value("${datajobs.vault.size.limit.bytes}")
-    private int sizeLimitBytes = VAULT_SIZE_LIMIT_DEFAULT;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final VaultOperations vaultOperations;
+  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final VaultOperations vaultOperations;
 
-    public VaultJobSecretsService(VaultOperations vaultOperations) {
-        this.vaultOperations = vaultOperations;
+  public VaultJobSecretsService(VaultOperations vaultOperations) {
+    this.vaultOperations = vaultOperations;
+  }
+
+  @Override
+  public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
+
+    checkJobName(jobName);
+    checkJobSecretsMap(jobName, secrets);
+
+    Versioned<VaultJobSecrets> readResponse =
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
+
+    VaultJobSecrets vaultJobSecrets;
+
+    if (readResponse != null && readResponse.hasData()) {
+      vaultJobSecrets = readResponse.getData();
+    } else {
+      vaultJobSecrets = new VaultJobSecrets(jobName, null);
     }
 
-    @Override
-    public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
+    var updatedSecrets =
+        secrets.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> {
+                      if (entry.getValue() == null) {
+                        entry.setValue(JSONObject.NULL);
+                      }
+                      return entry.getValue();
+                    }));
 
-        checkJobName(jobName);
-        checkJobSecretsMap(jobName, secrets);
-
-
-        Versioned<VaultJobSecrets> readResponse =
-                vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
-
-        VaultJobSecrets vaultJobSecrets;
-
-        if (readResponse != null && readResponse.hasData()) {
-            vaultJobSecrets = readResponse.getData();
-        } else {
-            vaultJobSecrets = new VaultJobSecrets(jobName, null);
-        }
-
-        var updatedSecrets =
-                secrets.entrySet().stream()
-                        .collect(
-                                Collectors.toMap(
-                                        Map.Entry::getKey,
-                                        entry -> {
-                                            if (entry.getValue() == null) {
-                                                entry.setValue(JSONObject.NULL);
-                                            }
-                                            return entry.getValue();
-                                        }));
-
-        String updatedSecretsString = new JSONObject(updatedSecrets).toString();
-        if (updatedSecretsString.getBytes(StandardCharsets.UTF_8).length > sizeLimitBytes) {
-            throw new DataJobSecretsSizeLimitException(
-                    jobName, "Secret size exceeds configured limit of:" + sizeLimitBytes);
-        }
-
-        vaultJobSecrets.setSecretsJson(updatedSecretsString);
-
-        vaultOperations.opsForVersionedKeyValue(SECRET).put(jobName, vaultJobSecrets);
+    String updatedSecretsString = new JSONObject(updatedSecrets).toString();
+    if (updatedSecretsString.getBytes(StandardCharsets.UTF_8).length > sizeLimitBytes) {
+      throw new DataJobSecretsSizeLimitException(
+          jobName, "Secret size exceeds configured limit of:" + sizeLimitBytes);
     }
 
-    @Override
-    public Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException {
-        checkJobName(jobName);
-        Versioned<VaultJobSecrets> readResponse =
-                vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
+    vaultJobSecrets.setSecretsJson(updatedSecretsString);
 
-        VaultJobSecrets vaultJobSecrets;
+    vaultOperations.opsForVersionedKeyValue(SECRET).put(jobName, vaultJobSecrets);
+  }
 
-        if (readResponse != null && readResponse.hasData()) {
-            vaultJobSecrets = readResponse.getData();
-            return objectMapper.readValue(vaultJobSecrets.getSecretsJson(), Map.class);
-        } else {
-            return Collections.emptyMap();
-        }
+  @Override
+  public Map<String, Object> readJobSecrets(String jobName) throws JsonProcessingException {
+    checkJobName(jobName);
+    Versioned<VaultJobSecrets> readResponse =
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
+
+    VaultJobSecrets vaultJobSecrets;
+
+    if (readResponse != null && readResponse.hasData()) {
+      vaultJobSecrets = readResponse.getData();
+      return objectMapper.readValue(vaultJobSecrets.getSecretsJson(), Map.class);
+    } else {
+      return Collections.emptyMap();
     }
+  }
 
-    private void checkJobName(String jobName){
-        if (jobName == null || jobName.isBlank()){
-            throw new DataJobSecretsException(jobName, "Data Job Name cannot be blank");
-        }
+  private void checkJobName(String jobName) {
+    if (jobName == null || jobName.isBlank()) {
+      throw new DataJobSecretsException(jobName, "Data Job Name cannot be blank");
     }
+  }
 
-    private void checkJobSecretsMap(String jobName, Map<String, Object> secrets){
-        if (secrets == null || secrets.isEmpty()){
-            throw new DataJobSecretsException(jobName, "Secrets parameter cannot be null or empty");
-        }
+  private void checkJobSecretsMap(String jobName, Map<String, Object> secrets) {
+    if (secrets == null || secrets.isEmpty()) {
+      throw new DataJobSecretsException(jobName, "Secrets parameter cannot be null or empty");
     }
+  }
 }
