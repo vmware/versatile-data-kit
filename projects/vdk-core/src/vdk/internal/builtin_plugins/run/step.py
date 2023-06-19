@@ -49,3 +49,6 @@ class StepBuilder:
 
     def get_steps(self) -> list[Step]:
         return self.__steps
+
+    def sort_steps(self) -> None:
+        self.__steps.sort(key=lambda step: step.name)
