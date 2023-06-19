@@ -6,7 +6,6 @@
 package com.vmware.taurus.secrets.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.controlplane.model.api.DataJobsSecretsApi;
 import com.vmware.taurus.exception.DataJobSecretsException;
 import com.vmware.taurus.secrets.service.JobSecretsService;
