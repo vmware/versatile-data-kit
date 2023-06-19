@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.monitoring;
 
+import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobLabel;
@@ -49,6 +50,7 @@ public class DataJobMonitorCron {
     this.jobExecutionService = jobExecutionService;
     this.dataJobMetrics = dataJobMetrics;
     this.dataJobMonitor = dataJobMonitor;
+    log.info("Data Job Monitor initialized to watch for jobs with labels: {}", labelsToWatch);
   }
 
   /**
@@ -97,8 +99,10 @@ public class DataJobMonitorCron {
       // Move the lastWatchTime one minute into the past to account for events that
       // could have happened after the watch has completed until now
       lastWatchTime = Instant.now().minusMillis(ONE_MINUTE_MILLIS).toEpochMilli();
-    } catch (IOException | ApiException e) {
-      log.info("Failed to watch jobs. Error was: {}", e.getMessage());
+    } catch (IOException ioe) {
+      log.info("Failed to watch jobs. Error was: {}", ioe.toString());
+    } catch(ApiException ae) {
+      log.info("Failed to watch jobs. Error was: {}", new KubernetesException("", ae).toString());
     }
   }
 }
