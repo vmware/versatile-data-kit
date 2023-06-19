@@ -14,7 +14,6 @@ import com.vmware.taurus.secrets.service.vault.VaultJobSecretsService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
