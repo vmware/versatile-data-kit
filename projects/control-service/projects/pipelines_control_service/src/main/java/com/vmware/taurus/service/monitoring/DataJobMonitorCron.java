@@ -101,7 +101,7 @@ public class DataJobMonitorCron {
       lastWatchTime = Instant.now().minusMillis(ONE_MINUTE_MILLIS).toEpochMilli();
     } catch (IOException ioe) {
       log.info("Failed to watch jobs. Error was: {}", ioe.toString());
-    } catch(ApiException ae) {
+    } catch (ApiException ae) {
       log.info("Failed to watch jobs. Error was: {}", new KubernetesException("", ae).toString());
     }
   }

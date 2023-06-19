@@ -1543,7 +1543,9 @@ public abstract class KubernetesService {
       runningJobExecutionsConsumer.accept(runningExecutionIds);
       resourceVersion = jobList.getMetadata().getResourceVersion();
     } catch (ApiException ex) {
-      log.info("Failed to list jobs for watching. Error was: {}", new KubernetesException("", ex).toString());
+      log.info(
+          "Failed to list jobs for watching. Error was: {}",
+          new KubernetesException("", ex).toString());
       return;
     }
 
