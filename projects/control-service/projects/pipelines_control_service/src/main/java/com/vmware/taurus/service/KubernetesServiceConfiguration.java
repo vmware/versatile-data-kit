@@ -72,20 +72,25 @@ public class KubernetesServiceConfiguration {
   }
 
   @Bean
-  public String controlNamespace(@Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig,
-          @Value("${datajobs.control.k8s.namespace:}") String namespace) throws FileNotFoundException {
+  public String controlNamespace(
+      @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig,
+      @Value("${datajobs.control.k8s.namespace:}") String namespace)
+      throws FileNotFoundException {
     return getNamespace(kubeconfig, namespace);
   }
 
   @Bean
-  public String dataJobsNamespace(@Value("${datajobs.deployment.k8s.kubeconfig:}") String kubeconfig,
-          @Value("${datajobs.deployment.k8s.namespace:}") String namespace) throws FileNotFoundException {
+  public String dataJobsNamespace(
+      @Value("${datajobs.deployment.k8s.kubeconfig:}") String kubeconfig,
+      @Value("${datajobs.deployment.k8s.namespace:}") String namespace)
+      throws FileNotFoundException {
     return getNamespace(kubeconfig, namespace);
   }
 
   @NotNull
-  private static String getNamespace(String kubeconfig, String namespace) throws FileNotFoundException {
-    if (!StringUtils.isBlank(namespace))  {
+  private static String getNamespace(String kubeconfig, String namespace)
+      throws FileNotFoundException {
+    if (!StringUtils.isBlank(namespace)) {
       return namespace;
     } else if (!StringUtils.isBlank(kubeconfig) && new File(kubeconfig).isFile()) {
       KubeConfig kubeConfig = KubeConfig.loadKubeConfig(new FileReader(kubeconfig));
@@ -97,10 +102,10 @@ public class KubernetesServiceConfiguration {
 
   private static String getCurrentNamespace() {
     return getNamespaceFileContents().stream()
-            .filter(not(String::isBlank))
-            .findFirst()
-            .map(String::strip)
-            .orElse(null);
+        .filter(not(String::isBlank))
+        .findFirst()
+        .map(String::strip)
+        .orElse(null);
   }
 
   private static List<String> getNamespaceFileContents() {
