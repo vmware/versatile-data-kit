@@ -32,7 +32,7 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
 
   @Autowired
   public DataJobsSecretsController(
-      FeatureFlags featureFlags, @Nullable JobSecretsService secretsService) {
+      @Nullable JobSecretsService secretsService) {
     this.secretsService = secretsService;
   }
 
