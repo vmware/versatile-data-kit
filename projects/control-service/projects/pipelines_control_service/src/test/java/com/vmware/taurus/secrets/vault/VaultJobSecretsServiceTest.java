@@ -95,7 +95,7 @@ class VaultJobSecretsServiceTest {
 
     when(vaultOperations.get(jobName, VaultJobSecrets.class)).thenReturn(readResponse);
 
-    Assertions.assertThrows(
+    assertThrows(
         DataJobSecretsSizeLimitException.class,
         () -> secretsService.updateJobSecrets(jobName, secrets));
   }
@@ -109,28 +109,28 @@ class VaultJobSecretsServiceTest {
     Map<String, Object> nullSecrets = new HashMap<>();
 
     Throwable t =
-        Assertions.assertThrows(
+        assertThrows(
             DataJobSecretsException.class,
             () -> secretsService.updateJobSecrets(blankJobName, secrets));
 
     Assert.assertThat(t.getMessage(), CoreMatchers.containsString("Data Job Name cannot be blank"));
 
     t =
-        Assertions.assertThrowsExactly(
+        assertThrowsExactly(
             DataJobSecretsException.class,
             () -> secretsService.updateJobSecrets(nullJobName, secrets));
 
     Assert.assertThat(t.getMessage(), CoreMatchers.containsString("Data Job Name cannot be blank"));
 
     t =
-        Assertions.assertThrowsExactly(
+        assertThrowsExactly(
             DataJobSecretsException.class, () -> secretsService.updateJobSecrets(jobName, secrets));
 
     Assert.assertThat(
         t.getMessage(), CoreMatchers.containsString("Secrets parameter cannot be null or empty"));
 
     t =
-        Assertions.assertThrowsExactly(
+        assertThrowsExactly(
             DataJobSecretsException.class,
             () -> secretsService.updateJobSecrets(jobName, nullSecrets));
 
