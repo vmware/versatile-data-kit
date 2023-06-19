@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 public class DataJobsKubernetesService extends KubernetesService {
 
   public DataJobsKubernetesService(
-      @Value("${datajobs.deployment.k8s.namespace:}") String namespace,
+      @Qualifier("dataJobsNamespace") String namespace,
       @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
       @Qualifier("deploymentApiClient") ApiClient client,
       @Qualifier("deploymentBatchV1Api") BatchV1Api batchV1Api,
