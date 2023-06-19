@@ -31,8 +31,7 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
   private final JobSecretsService secretsService;
 
   @Autowired
-  public DataJobsSecretsController(
-      @Nullable JobSecretsService secretsService) {
+  public DataJobsSecretsController(@Nullable JobSecretsService secretsService) {
     this.secretsService = secretsService;
   }
 
