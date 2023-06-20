@@ -84,6 +84,7 @@ control_service_integration_test:
     DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID: $DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID
     DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY: $DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY
   script:
+    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
@@ -258,7 +259,6 @@ control_service_deploy_testing_data_pipelines:
     - export FRONTEND_TAG=latest
     - export DESIRED_VERSION=v3.12.0 # helm version
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'

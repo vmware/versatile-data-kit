@@ -40,6 +40,7 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
   # So we need to set credentials of the service account used to pull images when starting jobs
   secret_name=docker-registry
   kubectl create secret docker-registry $secret_name \
+                     --namespace="cicd-deployment" \
                      --docker-server="$CICD_CONTAINER_REGISTRY_URI" \
                      --docker-username="$CICD_CONTAINER_REGISTRY_USER_NAME" \
                      --docker-password="$CICD_CONTAINER_REGISTRY_USER_PASSWORD" \
@@ -49,6 +50,7 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
   if [ -n "$DOCKERHUB_READONLY_USERNAME" ]; then
     dockerhub_secretname='secret-dockerhub-docker'
     kubectl create secret docker-registry "$dockerhub_secretname" \
+                         --namespace="cicd-deployment" \
                          --docker-server="https://index.docker.io/v1/" \
                          --docker-username="$DOCKERHUB_READONLY_USERNAME" \
                          --docker-password="$DOCKERHUB_READONLY_PASSWORD" \
