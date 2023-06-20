@@ -61,33 +61,23 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     getDataGridJobNameFilter() {
-        return this.getHeaderColumnJobName()
-            .should('exist')
-            .find('clr-dg-filter button');
+        return this.getHeaderColumnJobName().should('exist').find('clr-dg-filter button');
     }
 
     getHeaderColumnJobNameSortBtn() {
-        return this.getHeaderColumnJobName()
-            .should('exist')
-            .find('.datagrid-column-title');
+        return this.getHeaderColumnJobName().should('exist').find('.datagrid-column-title');
     }
 
     getDataGridJobTeamFilter() {
-        return this.getHeaderColumnTeamName()
-            .should('exist')
-            .find('clr-dg-filter button');
+        return this.getHeaderColumnTeamName().should('exist').find('clr-dg-filter button');
     }
 
     getHeaderColumnJobTeamSortBtn() {
-        return this.getHeaderColumnTeamName()
-            .should('exist')
-            .find('.datagrid-column-title');
+        return this.getHeaderColumnTeamName().should('exist').find('.datagrid-column-title');
     }
 
     getDataGridJobDescriptionFilter() {
-        return this.getHeaderColumnDescriptionName()
-            .should('exist')
-            .find('clr-dg-filter button');
+        return this.getHeaderColumnDescriptionName().should('exist').find('clr-dg-filter button');
     }
 
     getDataGridFilterInput() {
@@ -104,9 +94,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     // Rows and Cells
 
     getDataGridRows() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('clr-dg-row.datagrid-row');
+        return this.getDataGrid().should('exist').find('clr-dg-row.datagrid-row');
     }
 
     getDataGridRowByIndex(rowIndex) {
@@ -120,9 +108,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     getDataGridCells(rowIndex) {
-        return this.getDataGridRowByIndex(rowIndex)
-            .should('exist')
-            .find('clr-dg-cell.datagrid-cell');
+        return this.getDataGridRowByIndex(rowIndex).should('exist').find('clr-dg-cell.datagrid-cell');
     }
 
     getDataGridCellByIndex(rowIndex, cellIndex) {
@@ -132,39 +118,25 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     getDataGridCellByIdentifier(rowIndex, identifier) {
-        return this.getDataGridRowByIndex(rowIndex)
-            .should('exist')
-            .find(identifier);
+        return this.getDataGridRowByIndex(rowIndex).should('exist').find(identifier);
     }
 
     getDataGridCell(content, timeout) {
-        return cy
-            .get(
-                '[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted'
-            )
-            .contains(new RegExp(`^\\s*${content}\\s*$`), {
-                timeout: this.resolveTimeout(timeout)
-            });
+        return cy.get('[id^="clr-dg-row"] > .datagrid-row-scrollable > .datagrid-scrolling-cells > .ng-star-inserted').contains(new RegExp(`^\\s*${content}\\s*$`), {
+            timeout: this.resolveTimeout(timeout)
+        });
     }
 
     getDataGridStatusCells() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('[data-cy=data-pipelines-manage-grid-status-cell]');
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-manage-grid-status-cell]');
     }
 
     getDataGridStatusIcons() {
-        return this.getDataGrid()
-            .should('exist')
-            .find(
-                '[data-cy=data-pipelines-manage-grid-status-cell] clr-icon[data-cy*=data-pipelines-job]'
-            );
+        return this.getDataGrid().should('exist').find('[data-cy=data-pipelines-manage-grid-status-cell] clr-icon[data-cy*=data-pipelines-job]');
     }
 
     getDataGridColumnToggle() {
-        return this.getDataGrid()
-            .should('exist')
-            .find('clr-dg-column-toggle button');
+        return this.getDataGrid().should('exist').find('clr-dg-column-toggle button');
     }
 
     getDataGridNavigateBtn(team, job) {
@@ -176,9 +148,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     getDataGridColumnShowHideOptions() {
-        return this.getDataGridColumnShowHidePanel()
-            .should('exist')
-            .find('clr-checkbox-wrapper');
+        return this.getDataGridColumnShowHidePanel().should('exist').find('clr-checkbox-wrapper');
     }
 
     getDataGridColumnShowHideOptionsValues() {
@@ -191,9 +161,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     getDataGridColumnShowHideOption(option) {
         return this.getDataGridColumnShowHideOptions()
             .should('have.length.gt', 0)
-            .then((elements) =>
-                Array.from(elements).find((el) => el.innerText === option)
-            )
+            .then((elements) => Array.from(elements).find((el) => el.innerText === option))
             .find('input');
     }
 
@@ -203,9 +171,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getDataGridPageSizeSelect() {
-        return this.getDataGrid().find(
-            'clr-dg-page-size .clr-page-size-select'
-        );
+        return this.getDataGrid().find('clr-dg-page-size .clr-page-size-select');
     }
 
     getDataJobPage() {
@@ -249,9 +215,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     clearSearchFieldWithButton() {
-        this.getDataGridClearSearchButton()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridClearSearchButton().should('exist').click({ force: true });
 
         this.waitForGridDataLoad();
     }
@@ -281,9 +245,7 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     sortByJobName() {
-        this.getHeaderColumnJobNameSortBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getHeaderColumnJobNameSortBtn().should('exist').click({ force: true });
 
         this.waitForGridDataLoad();
     }
@@ -299,26 +261,19 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     sortByJobTeamName() {
-        this.getHeaderColumnJobTeamSortBtn()
-            .should('exist')
-            .click({ force: true });
+        this.getHeaderColumnJobTeamSortBtn().should('exist').click({ force: true });
 
         this.waitForGridDataLoad();
     }
 
     selectRow(jobName) {
-        this.getDataGridRowByName(jobName)
-            .find('.datagrid-select input')
-            .check({ force: true });
+        this.getDataGridRowByName(jobName).find('.datagrid-select input').check({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     openJobDetails(teamName, jobName) {
-        this.getDataGridNavigateBtn(teamName, jobName)
-            .scrollIntoView()
-            .should('exist')
-            .click({ force: true });
+        this.getDataGridNavigateBtn(teamName, jobName).scrollIntoView().should('exist').click({ force: true });
 
         this.waitForDataJobsApiGetReqInterceptor(4);
 
@@ -334,17 +289,13 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
     }
 
     checkColumnShowHideOption(option) {
-        this.getDataGridColumnShowHideOption(option)
-            .should('exist')
-            .check({ force: true });
+        this.getDataGridColumnShowHideOption(option).should('exist').check({ force: true });
 
         this.waitForViewToRenderShort();
     }
 
     uncheckColumnShowHideOption(option) {
-        this.getDataGridColumnShowHideOption(option)
-            .should('exist')
-            .uncheck({ force: true });
+        this.getDataGridColumnShowHideOption(option).should('exist').uncheck({ force: true });
 
         this.waitForViewToRenderShort();
     }
