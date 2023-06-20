@@ -181,6 +181,8 @@ control_service_deploy_testing_data_pipelines:
     - export FRONTEND_TAG=latest
     - export DESIRED_VERSION=v3.12.0 # helm version
     - curl -LO https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/bin/kubectl
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
