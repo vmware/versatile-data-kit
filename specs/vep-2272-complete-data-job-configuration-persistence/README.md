@@ -3,8 +3,6 @@
 * **Author(s):** Miroslav Ivanov (miroslavi@vmware.com)
 * **Status:** draft
 
-<!-- Provide table of content as it's helpful. -->
-
 - [Summary](#summary)
 - [Glossary](#glossary)
 - [Motivation](#motivation)
@@ -18,12 +16,10 @@
 ## Summary
 
 Currently, the deployment configuration of data jobs is partially dependent on the Kubernetes cluster, leading to
-unnecessary
-overhead when loading data job deployments. Additionally, the loss of Kubernetes namespace results in the potential loss
-of data
-jobs, requiring a manual and complex restoration process. By switching the source of truth from Kubernetes to a
-database, we can ensure a more reliable and easy restoration process while optimizing performance for Control Service
-APIs.
+unnecessary overhead when loading data job deployments. Additionally, the loss of Kubernetes namespace results in the
+potential loss of data jobs, requiring a manual and complex restoration process. By switching the source of truth from
+Kubernetes to a database, we can ensure a more reliable and easy restoration process while optimizing performance for
+Control Service APIs.
 
 ## Glossary
 
@@ -37,9 +33,8 @@ APIs.
 
 Ensuring efficient and reliable management of data job deployments is crucial for the smooth functioning of our system.
 Currently, when a data job is deployed, its deployment configuration is stored in both Kubernetes and the database.
-However, there
-exists a disparity where certain essential properties are exclusively stored in Kubernetes, such as the job's enabled
-status, Python version, and deployment information.
+However, there exists a disparity where certain essential properties are exclusively stored in Kubernetes, such as the
+job's enabled status, Python version, and deployment information.
 
 This discrepancy creates a significant challenge for the Control Service APIs that rely on retrieving data job
 deployments. For instance, the GraphQL API's jobs query initially retrieves the data jobs from the database and
@@ -53,8 +48,7 @@ management needs.
 
 To address these issues, it is essential to optimize the storage and retrieval of data job deployments. By ensuring that
 all relevant properties are stored consistently, in the database, so we can streamline the process and enhance the
-overall
-the efficiency of the Control Service APIs.
+overall the efficiency of the Control Service APIs.
 
 By improving the efficiency and reliability of data job deployments, we aim to optimize the overall system performance
 and provide a seamless experience for our users.
@@ -66,8 +60,8 @@ and provide a seamless experience for our users.
 1. Identify the specific data job configuration that is stored only within the Kubernetes cluster.
 2. Transition the primary source of truth for all data jobs configurations from both Kubernetes and database to just the
    database, in order to centralize data storage, improve data integrity, and enable easier access and manipulation.
-3. Enhance the performance of Control Service APIs by loading the data job configuration from only one data source (
-   Control Service database).
+3. Enhance the performance of Control Service APIs by loading the data job configuration from only one data source
+   (Control Service database).
 4. Prepare Control Service for future enhancement of the migration process and ease of restoration by centralizing and
    storing all data job configurations within the database.
 
