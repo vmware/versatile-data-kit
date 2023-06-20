@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "\U0001F914 All other questions, including if you're not sure what to do."
+    url: https://github.com/jupyterlab/jupyterlab/discussions/new?category=q-a
+    about: Search Github Discussions for similar questions or ask for help there.
+  - name: "\U0001F4AC Chat with the devs on Versatile Data Kit slack channel in CNCF slack "
+    url: https://communityinviter.com/apps/cloud-native/cncf 
+    about: Ask short questions about using Versatile Data Kit
