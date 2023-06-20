@@ -84,7 +84,7 @@ control_service_integration_test:
     DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID: $DATAJOBS_AWS_SERVICE_ACCOUNT_ACCESS_KEY_ID
     DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY: $DATAJOBS_AWS_SERVICE_ACCOUNT_SECRET_ACCESS_KEY
   script:
-    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
+    - ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal
     - mkdir -p ~/.kube
