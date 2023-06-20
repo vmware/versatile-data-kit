@@ -22,7 +22,7 @@ export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.c
 export TESTING_PIPELINES_SERVICE_VALUES_FILE=${TESTING_PIPELINES_SERVICE_VALUES_FILE:-"$SCRIPT_DIR/testing-pipelines-service-values.yaml"}
 
 
-RUN_ENVIRONMENT_SETUP=${RUN_ENVIRONMENT_SETUP:-'n'}
+RUN_ENVIRONMENT_SETUP=${RUN_ENVIRONMENT_SETUP:-'y'}
 
 if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
   helm repo add valeriano-manassero https://valeriano-manassero.github.io/helm-charts
