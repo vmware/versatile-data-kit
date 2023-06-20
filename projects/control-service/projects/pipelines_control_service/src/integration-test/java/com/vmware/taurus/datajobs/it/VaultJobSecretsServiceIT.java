@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(
 <<<<<<< HEAD
+<<<<<<< HEAD
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 @Testcontainers
@@ -98,68 +99,75 @@ public class VaultJobSecretsServiceIT extends BaseIT {
 =======
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = ControlplaneApplication.class)
+=======
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
+>>>>>>> 74e375dd (Google Java Format)
 @Testcontainers
 public class VaultJobSecretsServiceIT extends BaseIT {
 
-    @Container
-    private static final VaultContainer vaultContainer = new VaultContainer<>("vault:1.0.2")
-            .withVaultToken("root");
-    private static VaultJobSecretsService vaultJobSecretService;
+  @Container
+  private static final VaultContainer vaultContainer =
+      new VaultContainer<>("vault:1.0.2").withVaultToken("root");
 
-    @BeforeAll
-    public static void init() throws URISyntaxException {
-        String vaultUri = vaultContainer.getHttpHostAddress();
+  private static VaultJobSecretsService vaultJobSecretService;
 
-        VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
-        TokenAuthentication clientAuthentication = new TokenAuthentication("root");
+  @BeforeAll
+  public static void init() throws URISyntaxException {
+    String vaultUri = vaultContainer.getHttpHostAddress();
 
-        VaultTemplate vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
+    VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
+    TokenAuthentication clientAuthentication = new TokenAuthentication("root");
 
-        vaultJobSecretService = new VaultJobSecretsService(vaultTemplate);
-    }
+    VaultTemplate vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
 
+    vaultJobSecretService = new VaultJobSecretsService(vaultTemplate);
+  }
 
-    @Test
-    public void testGetEmptyDataJobSecrets() throws Exception {
-        Map<String, Object> result = vaultJobSecretService.readJobSecrets("testJob");
-        Assertions.assertEquals(Collections.emptyMap(), result);
-    }
+  @Test
+  public void testGetEmptyDataJobSecrets() throws Exception {
+    Map<String, Object> result = vaultJobSecretService.readJobSecrets("testJob");
+    Assertions.assertEquals(Collections.emptyMap(), result);
+  }
 
+  @Test
+  public void testSetDataJobSecrets() throws Exception {
+    Map<String, Object> secrets = new HashMap<>();
+    secrets.put("key1", "value1");
 
-    @Test
-    public void testSetDataJobSecrets() throws Exception {
-        Map<String, Object> secrets = new HashMap<>();
-        secrets.put("key1", "value1");
+    vaultJobSecretService.updateJobSecrets("testJob2", secrets);
 
-        vaultJobSecretService.updateJobSecrets("testJob2", secrets);
+    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
+    Assertions.assertEquals(secrets, readResult);
+  }
 
-        Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
-        Assertions.assertEquals(secrets, readResult);
-    }
+  @Test
+  void testUpdateJobSecretsLimit() throws JsonProcessingException {
+    Map<String, Object> secrets = new HashMap<>();
+    secrets.put("key1", "value1");
 
-    @Test
-    void testUpdateJobSecretsLimit() throws JsonProcessingException {
-        Map<String, Object> secrets = new HashMap<>();
-        secrets.put("key1", "value1");
+    vaultJobSecretService.updateJobSecrets("testJob2", secrets);
 
-        vaultJobSecretService.updateJobSecrets("testJob2", secrets);
+    Map<String, Object> largeSecrets = new HashMap<>();
+    largeSecrets.put("key1", null);
+    largeSecrets.put("key2", RandomStringUtils.randomAlphabetic(1025 * 1025));
 
+    assertThrows(
+        DataJobSecretsSizeLimitException.class,
+        () -> vaultJobSecretService.updateJobSecrets("testJob2", largeSecrets));
 
-        Map<String, Object> largeSecrets = new HashMap<>();
-        largeSecrets.put("key1", null);
-        largeSecrets.put("key2", RandomStringUtils.randomAlphabetic(1025 * 1025));
-
-
-        assertThrows(
-                DataJobSecretsSizeLimitException.class,
-                () -> vaultJobSecretService.updateJobSecrets("testJob2", largeSecrets));
-
-        // check secrets were not updated
-        Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
-        Assertions.assertEquals(secrets, readResult);
-    }
+    // check secrets were not updated
+    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
+    Assertions.assertEquals(secrets, readResult);
+  }
 }
+<<<<<<< HEAD
 //vaultContainer.execInContainer("vault","kv","list", "secret")
 //vaultContainer.execInContainer("vault","kv","list", "secret")
 //vaultContainer.execInContainer("vault", "kv", "put", "secret/test", "db_name=postgres")
 >>>>>>> aa20f0b2 (control-service: secrets service integration test)
+=======
+// vaultContainer.execInContainer("vault","kv","list", "secret")
+// vaultContainer.execInContainer("vault","kv","list", "secret")
+// vaultContainer.execInContainer("vault", "kv", "put", "secret/test", "db_name=postgres")
+>>>>>>> 74e375dd (Google Java Format)
