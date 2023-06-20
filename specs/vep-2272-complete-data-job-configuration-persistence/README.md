@@ -34,7 +34,7 @@ Control Service APIs.
 Ensuring efficient and reliable management of data job deployments is crucial for the smooth functioning of our system.
 Currently, when a data job is deployed, its deployment configuration is stored in both Kubernetes and the database.
 However, there exists a disparity where certain essential properties are exclusively stored in Kubernetes, such as the
-job's enabled status, Python version, and deployment information.
+job's Python version and deployment information.
 
 This discrepancy creates a significant challenge for the Control Service APIs that rely on retrieving data job
 deployments. For instance, the GraphQL API's jobs query initially retrieves the data jobs from the database and
@@ -48,7 +48,7 @@ management needs.
 
 To address these issues, it is essential to optimize the storage and retrieval of data job deployments. By ensuring that
 all relevant properties are stored consistently, in the database, so we can streamline the process and enhance the
-overall the efficiency of the Control Service APIs.
+overall efficiency of the Control Service APIs.
 
 By improving the efficiency and reliability of data job deployments, we aim to optimize the overall system performance
 and provide a seamless experience for our users.
@@ -72,18 +72,22 @@ and provide a seamless experience for our users.
 
 ## High-level design
 
-These diagrams below show a high-level design view of the changes that would be proposed in this VEP.
+The diagrams below show a high-level design view of the changes that would be proposed in this VEP.
 
-|                       Deploy Data Job                       |                           Read Data Job Deployment Configurations                           |
+|                  Deploy or Update Data Job                  |                           Read Data Job Deployment Configurations                           |
 |:-----------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
 | ![deploy_data_job_diagram.png](deploy_data_job_diagram.png) | ![read_data_job_deployment_config_diagram.png](read_data_job_deployment_config_diagram.png) |
 
 The proposed design will introduce changes to the Control Service (deployment logic, GraphQL API, etc.), as well as to
 the database model.
 
-When the Control Service receives an API call to deploy data job, it will store the complete deployment configuration in
-both Kubernetes and the database. However, when it receives an API call to retrieve the data job deployment
-configuration, it will only query the database.
+When the Control Service receives an API call to deploy a data job, it will store the complete deployment configuration
+in the database while the Kubernetes Cron Jobs will be updated by a new asynchronous process which will be covered in
+the [Detailed design](#detailed-design). In this way, data integrity and synchronization between these two sources will
+be maintained.
+
+When it receives an API call to retrieve the data job deployment configuration, it will only query the database. In this
+way, we will reduce API calls to Kubernetes and the response time of the GraphQL API.
 
 ## API design
 
