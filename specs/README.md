@@ -15,7 +15,7 @@ communicate and coordinate on new efforts for the Versatile Data Kit project.
 ## Quick start for the VEP process:
 
 1. It is good idea to socialize an idea with some other contributors of VDK first. You can send your idea to VDK mailing list, slack, mail, etc.
-2. Follow the process outlined in the [VEP template](vep-2272-/README.md)
+2. Follow the process outlined in the [VEP template](NNNN-template/README.md)
 
 
 ## Credits

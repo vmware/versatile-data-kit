@@ -1,6 +1,6 @@
-# VEP-2272: Your short, descriptive title
+# VEP-2272: Complete Data Job Configuration Persistence
 
-* **Author(s):** Miroslav Ivanov (miroslavi@vmware.com), ...
+* **Author(s):** Miroslav Ivanov (miroslavi@vmware.com)
 * **Status:** draft
 
 <!-- Provide table of content as it's helpful. -->
@@ -17,8 +17,10 @@
 
 ## Summary
 
-Currently, the deployment configuration of data jobs is partially dependent on the K8S cluster, leading to unnecessary
-overhead when loading data jobs. Additionally, the loss of Kubernetes namespace results in the potential loss of data
+Currently, the deployment configuration of data jobs is partially dependent on the Kubernetes cluster, leading to
+unnecessary
+overhead when loading data job deployments. Additionally, the loss of Kubernetes namespace results in the potential loss
+of data
 jobs, requiring a manual and complex restoration process. By switching the source of truth from Kubernetes to a
 database, we can ensure a more reliable and easy restoration process while optimizing performance for Control Service
 APIs.
@@ -76,22 +78,18 @@ and provide a seamless experience for our users.
 
 ## High-level design
 
-<!--
-All the rest sections tell **how** are we solving it?
+These diagrams below show a high-level design view of the changes that would be proposed in this VEP.
 
-This is where we get down to the specifics of what the proposal actually is.
-This should have enough detail that reviewers can understand exactly what
-you're proposing, but should not include things like API designs or
-implementation. What is the desired outcome and how do we measure success?
+|                       Deploy Data Job                       |                           Read Data Job Deployment Configurations                           |
+|:-----------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
+| ![deploy_data_job_diagram.png](deploy_data_job_diagram.png) | ![read_data_job_deployment_config_diagram.png](read_data_job_deployment_config_diagram.png) |
 
-Provide a valid UML Component diagram that focuses on the architecture changes
-implementing the feature. For more details on how to write UML Component Spec -
-see https://en.wikipedia.org/wiki/Component_diagram#External_links.
+The proposed design will introduce changes to the Control Service (deployment logic, GraphQL API, etc.), as well as to
+the database model.
 
-For every new component on the diagram, explain which goals does it solve.
-In this context, a component is any separate software process.
-
--->
+When the Control Service receives an API call to deploy data job, it will store the complete deployment configuration in
+both Kubernetes and the database. However, when it receives an API call to retrieve the data job deployment
+configuration, it will only query the database.
 
 ## API design
 
