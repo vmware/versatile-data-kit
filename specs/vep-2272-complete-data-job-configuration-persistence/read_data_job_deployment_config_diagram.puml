@@ -11,8 +11,8 @@ rectangle "K8s Cluster" {
      }
    }
    rectangle "Control Service Namespace" {
-         component "Control Service" as cs #teal {
-          rectangle "GraphQL API" as data_jobs_deployment_api
+         component "Control Service" as cs #silver {
+          rectangle "GraphQL API" as data_jobs_deployment_api #LightSkyBlue
          }
      }
 }
@@ -23,8 +23,8 @@ engineer --> data_jobs_deployment_api : " reads data job \n deployment configura
 data_jobs_deployment_api --> DB : " reads data job \n deployment configuration"
 
 legend bottom left
-  | <#teal> changed component |
+  | <#LightSkyBlue> changed component |
   | <#silver> existing component |
- endlegend
+endlegend
 
 @enduml

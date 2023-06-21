@@ -11,21 +11,24 @@ rectangle "K8s Cluster" {
      }
    }
    rectangle "Control Service Namespace" {
-      component "Control Service" as cs #teal {
-       rectangle "Data Jobs Deployment API" as data_jobs_deployment_api
+      component "Control Service" as cs #silver {
+       rectangle "Cron Jobs Synchronizer" as  cron_jobs_synchronizer #LightGreen
+       rectangle "Data Jobs Deployment API" as data_jobs_deployment_api #LightSkyBlue
       }
   }
+  database "\nCockroachDB\n" as DB #silver
 }
-
-database "\nCockroachDB\n" as DB #silver
 
 engineer --> data_jobs_deployment_api : " deploys or updates data job\n(API call)"
 data_jobs_deployment_api --> DB : " stores complete data job\ndeployment configuration"
-data_jobs_deployment_api --> dj : " creates or updates\n Kubernetes CronJob "
+cron_jobs_synchronizer --> cron_jobs_synchronizer : "(Async Process)"
+cron_jobs_synchronizer --> dj : " creates or updates\n Kubernetes Cron Jobs"
+
 
 legend bottom left
-  | <#teal> changed component |
+  | <#LightSkyBlue> changed component |
   | <#silver> existing component |
+  | <#LightGreen> new component |
 endlegend
 
 @enduml
