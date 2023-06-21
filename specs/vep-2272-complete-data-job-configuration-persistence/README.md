@@ -91,18 +91,22 @@ way, we will reduce API calls to Kubernetes and the response time of the GraphQL
 
 ## API design
 
-<!--
-
-Describe the changes and additions to the public API (if there are any).
-
-For all API changes:
-
-Include Swagger URL for HTTP APIs, no matter if the API is RESTful or RPC-like.
-PyDoc/Javadoc (or similar) for Python/Java changes.
-Explain how does the system handle API violations.
--->
+There would be no changes to the public APIs.
 
 ## Detailed design
+
+### Database data model changes
+
+### Kubernetes Cron Jobs Synchronizer Process
+
+In order to maintain data integrity and synchronization between database and Kubernetes we will introduce new
+asynchronous process. The process will be based on Spring Scheduler and Scheduler Lock similar
+to [DataJobMonitorCron.watchJobs()](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/service/monitoring/DataJobMonitorCron.java#L84).
+
+Basically, it will iterate over the data job deployment configurations from the database and check whether
+the Cron Job is already synchronized or it needs to be synchronized. If it is not in sync with the database the process
+will initiate new data job deployment which may include building image or just changing the template. It will be
+based on the sha of the cronjob template, which will be generated right after the job deployment.
 
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.

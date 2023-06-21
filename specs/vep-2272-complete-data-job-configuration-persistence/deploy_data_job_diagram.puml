@@ -19,9 +19,9 @@ rectangle "K8s Cluster" {
 
 database "\nCockroachDB\n" as DB #silver
 
-engineer --> data_jobs_deployment_api : " deploys data job\n(API call)"
+engineer --> data_jobs_deployment_api : " deploys or updates data job\n(API call)"
 data_jobs_deployment_api --> DB : " stores complete data job\ndeployment configuration"
-data_jobs_deployment_api --> dj : " creates\n Kubernetes CronJob "
+data_jobs_deployment_api --> dj : " creates or updates\n Kubernetes CronJob "
 
 legend bottom left
   | <#teal> changed component |
