@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 @Testcontainers
-public class VaultJobSecretsServiceIT extends BaseIT {
+public class TestVaultJobSecretsServiceIT extends BaseIT {
 
   @Container
   private static final VaultContainer vaultContainer =
