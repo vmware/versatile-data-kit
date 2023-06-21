@@ -51,10 +51,10 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
 
   if [ -n "$DOCKERHUB_READONLY_USERNAME" ]; then
     dockerhub_secretname='secret-dockerhub-docker'
-    kubectl create secret docker-registry "$dockerhub_secretname" \
+    kubectl create secret docker-registry secret-dockerhub-docker \
                          --namespace="cicd-deployment" \
                          --docker-server="https://index.docker.io/v1/" \
-                         --docker-username="$DOCKERHUB_READONLY_USERNAME" \
+                         --docker-username="vmwaivanov" \
                          --docker-password="$DOCKERHUB_READONLY_PASSWORD" \
                          --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
 
