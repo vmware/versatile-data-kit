@@ -47,85 +47,81 @@ public class DataJobsKubernetesService extends KubernetesService {
         jobCommandProvider);
   }
 
-
   public void createCronJob(
-          String name,
-          String image,
-          String schedule,
-          boolean enable,
-          V1Container jobContainer,
-          V1Container initContainer,
-          List<V1Volume> volumes,
-          Map<String, String> jobAnnotations,
-          Map<String, String> jobLabels,
-          List<String> imagePullSecrets)
-          throws ApiException {
+      String name,
+      String image,
+      String schedule,
+      boolean enable,
+      V1Container jobContainer,
+      V1Container initContainer,
+      List<V1Volume> volumes,
+      Map<String, String> jobAnnotations,
+      Map<String, String> jobLabels,
+      List<String> imagePullSecrets)
+      throws ApiException {
     if (getK8sSupportsV1CronJob()) {
       createV1CronJob(
-              name,
-              image,
-              schedule,
-              enable,
-              jobContainer,
-              initContainer,
-              volumes,
-              jobAnnotations,
-              jobLabels,
-              imagePullSecrets);
+          name,
+          image,
+          schedule,
+          enable,
+          jobContainer,
+          initContainer,
+          volumes,
+          jobAnnotations,
+          jobLabels,
+          imagePullSecrets);
     } else {
       createV1beta1CronJob(
-              name,
-              image,
-              schedule,
-              enable,
-              jobContainer,
-              initContainer,
-              volumes,
-              jobAnnotations,
-              jobLabels,
-              imagePullSecrets);
+          name,
+          image,
+          schedule,
+          enable,
+          jobContainer,
+          initContainer,
+          volumes,
+          jobAnnotations,
+          jobLabels,
+          imagePullSecrets);
     }
   }
-
 
   public void updateCronJob(
-          String name,
-          String image,
-          String schedule,
-          boolean enable,
-          V1Container jobContainer,
-          V1Container initContainer,
-          List<V1Volume> volumes,
-          Map<String, String> jobAnnotations,
-          Map<String, String> jobLabels,
-          List<String> imagePullSecrets)
-          throws ApiException {
+      String name,
+      String image,
+      String schedule,
+      boolean enable,
+      V1Container jobContainer,
+      V1Container initContainer,
+      List<V1Volume> volumes,
+      Map<String, String> jobAnnotations,
+      Map<String, String> jobLabels,
+      List<String> imagePullSecrets)
+      throws ApiException {
     if (getK8sSupportsV1CronJob()) {
       updateV1CronJob(
-              name,
-              image,
-              schedule,
-              enable,
-              jobContainer,
-              initContainer,
-              volumes,
-              jobAnnotations,
-              jobLabels,
-              imagePullSecrets);
+          name,
+          image,
+          schedule,
+          enable,
+          jobContainer,
+          initContainer,
+          volumes,
+          jobAnnotations,
+          jobLabels,
+          imagePullSecrets);
     } else {
       updateV1beta1CronJob(
-              name,
-              image,
-              schedule,
-              enable,
-              jobContainer,
-              initContainer,
-              volumes,
-              jobAnnotations,
-              jobLabels,
-              imagePullSecrets);
+          name,
+          image,
+          schedule,
+          enable,
+          jobContainer,
+          initContainer,
+          volumes,
+          jobAnnotations,
+          jobLabels,
+          imagePullSecrets);
     }
   }
-
-
 }

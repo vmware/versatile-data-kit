@@ -141,29 +141,29 @@ public class MockKubernetes {
     mockKubernetesService(mock);
   }
 
-
-  private void mockKubernetesService(KubernetesService mock) throws ApiException, IOException, InterruptedException {
+  private void mockKubernetesService(KubernetesService mock)
+      throws ApiException, IOException, InterruptedException {
 
     final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
     doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
-            .when(mock)
-            .createJob(
-                    anyString(),
-                    anyString(),
-                    anyBoolean(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyString(),
-                    any(),
-                    any(),
-                    anyLong(),
-                    anyLong(),
-                    anyLong(),
-                    anyString(),
-                    anyString());
+        .when(mock)
+        .createJob(
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyString(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            anyString(),
+            anyString());
     doAnswer(inv -> jobs.keySet()).when(mock).listCronJobs();
     doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
 
@@ -173,16 +173,15 @@ public class MockKubernetes {
               if (jobs.containsKey(jobName)) {
                 if (jobName.startsWith("failure-")) {
                   return new KubernetesService.JobStatusCondition(
-                          false, "Status", "Job name starts with 'failure-'", "", 0);
+                      false, "Status", "Job name starts with 'failure-'", "", 0);
                 } else {
                   return new KubernetesService.JobStatusCondition(true, "Status", "", "", 0);
                 }
               }
               return new KubernetesService.JobStatusCondition(false, null, "No such job", "", 0);
             })
-            .when(mock)
-            .watchJob(anyString(), anyInt(), any());
-
+        .when(mock)
+        .watchJob(anyString(), anyInt(), any());
 
     doAnswer(inv -> "logs").when(mock).getJobLogs(anyString(), anyInt());
   }
