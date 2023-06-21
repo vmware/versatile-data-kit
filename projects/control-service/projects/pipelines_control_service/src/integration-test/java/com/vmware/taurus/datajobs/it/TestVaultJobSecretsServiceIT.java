@@ -84,7 +84,9 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
     Map<String, Object> largeSecrets = new HashMap<>();
     largeSecrets.put("key1", null);
-    largeSecrets.put("key2", RandomStringUtils.randomAlphabetic(VaultJobSecretsService.VAULT_SIZE_LIMIT_DEFAULT));
+    largeSecrets.put(
+        "key2",
+        RandomStringUtils.randomAlphabetic(VaultJobSecretsService.VAULT_SIZE_LIMIT_DEFAULT));
 
     assertThrows(
         DataJobSecretsSizeLimitException.class,
