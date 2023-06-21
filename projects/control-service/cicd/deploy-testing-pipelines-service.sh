@@ -25,6 +25,8 @@ export TESTING_PIPELINES_SERVICE_VALUES_FILE=${TESTING_PIPELINES_SERVICE_VALUES_
 RUN_ENVIRONMENT_SETUP=${RUN_ENVIRONMENT_SETUP:-'n'}
 
 if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
+  kubectl create namespace cicd-control
+  kubectl create namespace cicd-deployment
   helm repo add valeriano-manassero https://valeriano-manassero.github.io/helm-charts
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm repo update
@@ -57,8 +59,6 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
                          --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
 
     kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"},{"name":"'$dockerhub_secretname'"}]}'
-    kubectl create namespace cicd-control
-    kubectl create namespace cicd-deployment
 
   fi
 
