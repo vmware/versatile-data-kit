@@ -22,25 +22,25 @@ public class AuthenticatedEmailNotification {
   private final Session session;
   private static final String CONTENT_TYPE = "text/html; charset=utf-8";
 
-
   public AuthenticatedEmailNotification(EmailPropertiesConfiguration emailPropertiesConfiguration) {
     this.emailPropertiesConfiguration = emailPropertiesConfiguration;
     Properties properties = new Properties();
     properties.setProperty("mail.transport.protocol", "smtp");
     properties.putAll(this.emailPropertiesConfiguration.smtpWithPrefix());
-    session = Session.getInstance(properties,
-        getAuthenticator(emailPropertiesConfiguration.getUsername(),
-            emailPropertiesConfiguration.getPassword()));
+    session =
+        Session.getInstance(
+            properties,
+            getAuthenticator(
+                emailPropertiesConfiguration.getUsername(),
+                emailPropertiesConfiguration.getPassword()));
   }
-
 
   public void send(NotificationContent notificationContent) throws MessagingException {
     try {
       sendAuthenticatedEmail(notificationContent, notificationContent.getRecipients());
     } catch (SendFailedException firstException) {
       log.error("First attempt to send notification failed", firstException);
-      log.error("Failed to send notification due to: {}",
-          firstException.getMessage());
+      log.error("Failed to send notification due to: {}", firstException.getMessage());
       var addressesToRetry = firstException.getValidUnsentAddresses();
       try {
         sendAuthenticatedEmail(notificationContent, addressesToRetry);

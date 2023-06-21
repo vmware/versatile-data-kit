@@ -1,6 +1,5 @@
 package com.vmware.taurus.service.notification;
 
-
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.model.JobConfig;
 import java.util.Collections;
@@ -16,55 +15,52 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest(classes = ControlplaneApplication.class)
 @TestPropertySource(
     properties = {
-        "mail.smtp.host=smtp.vmware.com",
-        "mail.smtp.auth=true",
-        "mail.smtp.starttls.enable=true",
-        "mail.transport.protocol=smtp",
-        "mail.smtp.user=",
-        "mail.smtp.password="
+      "mail.smtp.host=smtp.vmware.com",
+      "mail.smtp.auth=true",
+      "mail.smtp.starttls.enable=true",
+      "mail.transport.protocol=smtp",
+      "mail.smtp.user=",
+      "mail.smtp.password="
     })
 @Disabled("Placeholder for manual testing.")
 public class AuthenticatedEmailNotificationTest {
 
-    @Autowired
-    private AuthenticatedEmailNotification authenticatedEmailNotification;
+  @Autowired private AuthenticatedEmailNotification authenticatedEmailNotification;
 
-    @Test
-    public void manualTestMultiple() throws MessagingException {
-        authenticatedEmailNotification.send(createNotification(Collections.singletonList("")));
-        authenticatedEmailNotification.send(createNotification(Collections.singletonList("")));
-    }
+  @Test
+  public void manualTestMultiple() throws MessagingException {
+    authenticatedEmailNotification.send(createNotification(Collections.singletonList("")));
+    authenticatedEmailNotification.send(createNotification(Collections.singletonList("")));
+  }
 
-    @Test
-    public void manualSingle() throws MessagingException {
-        authenticatedEmailNotification.send(createNotification(Collections.singletonList("")));
-    }
+  @Test
+  public void manualSingle() throws MessagingException {
+    authenticatedEmailNotification.send(createNotification(Collections.singletonList("")));
+  }
 
-    @Test
-    public void sendMultiple() throws MessagingException {
-        authenticatedEmailNotification.send(createNotification(List.of("", "")));
+  @Test
+  public void sendMultiple() throws MessagingException {
+    authenticatedEmailNotification.send(createNotification(List.of("", "")));
+  }
 
-    }
+  private NotificationContent createNotification(List<String> receivers) throws AddressException {
+    NotificationContent notificationContent =
+        new NotificationContent(
+            createValidJobConfigStub(receivers),
+            "run",
+            "failure",
+            "RuntimeError",
+            "Some body",
+            "Super Collider",
+            "super-collider-data-pipelines@vmware.com",
+            Collections.emptyList());
+    return notificationContent;
+  }
 
-    private NotificationContent createNotification(List<String> receivers) throws AddressException {
-        NotificationContent notificationContent =
-            new NotificationContent(
-                createValidJobConfigStub(receivers),
-                "run",
-                "failure",
-                "RuntimeError",
-                "Some body",
-                "Super Collider",
-                "super-collider-data-pipelines@vmware.com",
-                Collections.emptyList());
-        return notificationContent;
-    }
-
-    private JobConfig createValidJobConfigStub(List<String> receivers) {
-        JobConfig jobConfig = new JobConfig();
-        jobConfig.setNotifiedOnJobDeploy(receivers);
-        jobConfig.setJobName("test_job");
-        return jobConfig;
-    }
-
+  private JobConfig createValidJobConfigStub(List<String> receivers) {
+    JobConfig jobConfig = new JobConfig();
+    jobConfig.setNotifiedOnJobDeploy(receivers);
+    jobConfig.setJobName("test_job");
+    return jobConfig;
+  }
 }

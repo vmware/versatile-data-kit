@@ -102,5 +102,4 @@ public class DataJobNotification {
       notification.send(notificationContent);
     }
   }
-
 }

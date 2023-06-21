@@ -1,6 +1,5 @@
 package com.vmware.taurus.service.notification;
 
-
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -38,5 +37,4 @@ public class EmailPropertiesConfiguration {
   public boolean isAuthEnabled() {
     return Boolean.parseBoolean(smtpWithPrefix().get(AUTH_ENABLE_PROPERTY_KEY));
   }
-
 }
