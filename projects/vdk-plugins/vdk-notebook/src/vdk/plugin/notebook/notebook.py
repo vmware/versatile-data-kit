@@ -82,7 +82,7 @@ class Notebook:
                         )
                         notebook_steps.append(step)
                         context.step_builder.add_step(step)
-
+            context.step_builder._StepBuilder__steps.sort(key=lambda step: step.name)
             log.debug(f"{len(notebook_steps)} " f"cells with vdk tag were detected!")
         except json.JSONDecodeError as e:
             errors.log_and_rethrow(
