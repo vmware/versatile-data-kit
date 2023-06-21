@@ -25,6 +25,9 @@
             "command": "jp-vdk:menu-download"
           },
           {
+            "command": "jp-vdk:menu-transform"
+          },
+          {
             "command": "jp-vdk:menu-create-deployment"
           }
         ]

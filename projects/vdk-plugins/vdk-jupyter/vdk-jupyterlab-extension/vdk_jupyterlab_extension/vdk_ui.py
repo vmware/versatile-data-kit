@@ -116,6 +116,19 @@ class VdkUI:
         return f"Downloaded the job with name {name} to {path}. "
 
     @staticmethod
+    def transform_job(name: str, team: str, path: str):
+        """
+        Execute `transform job`.
+        :param name: the name of the data job that will be transformed
+        :param team: the team of the data job that will be transformed
+        :param path: the path to the data job's directory
+        :return: message that the job is transformed
+        """
+        cmd = JobDownloadSource(RestApiUrlConfiguration.get_rest_api_url())
+        cmd.transform(team, name, path)
+        return f"Transformed the job with name {name} from {team} team. "
+
+    @staticmethod
     def create_job(name: str, team: str, path: str, local: bool, cloud: bool):
         """
         Execute `create job`.
