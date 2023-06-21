@@ -13,8 +13,6 @@ import com.google.gson.reflect.TypeToken;
 import com.vmware.taurus.exception.JsonDissectException;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.exception.KubernetesJobDefinitionException;
-import com.vmware.taurus.exception.DataJobExecutionCannotBeCancelledException;
-import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
 import com.vmware.taurus.service.deploy.DockerImageName;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.model.JobAnnotation;

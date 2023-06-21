@@ -146,16 +146,16 @@ public class DataJobsKubernetesService extends KubernetesService {
 
     try {
       var v1CronJobs =
-              batchV1Api.listNamespacedCronJob(
-                      namespace, null, null, null, null, null, null, null, null, null, null);
+          batchV1Api.listNamespacedCronJob(
+              namespace, null, null, null, null, null, null, null, null, null, null);
       v1CronJobNames =
-              v1CronJobs.getItems().stream()
-                      .map(j -> j.getMetadata().getName())
-                      .collect(Collectors.toSet());
+          v1CronJobs.getItems().stream()
+              .map(j -> j.getMetadata().getName())
+              .collect(Collectors.toSet());
       log.debug("K8s V1 cron jobs: {}", v1CronJobNames);
     } catch (ApiException e) {
       if (e.getCode()
-              == 404) { // as soon as the minimum supported k8s version is >=1.21 then we should remove
+          == 404) { // as soon as the minimum supported k8s version is >=1.21 then we should remove
         // this.
         log.debug("Unable to query for v1 batch jobs", e);
       } else {
@@ -164,17 +164,16 @@ public class DataJobsKubernetesService extends KubernetesService {
     }
 
     var v1BetaCronJobs =
-            batchV1beta1Api.listNamespacedCronJob(
-                    namespace, null, null, null, null, null, null, null, null, null, null);
+        batchV1beta1Api.listNamespacedCronJob(
+            namespace, null, null, null, null, null, null, null, null, null, null);
     var v1BetaCronJobNames =
-            v1BetaCronJobs.getItems().stream()
-                    .map(j -> j.getMetadata().getName())
-                    .collect(Collectors.toSet());
+        v1BetaCronJobs.getItems().stream()
+            .map(j -> j.getMetadata().getName())
+            .collect(Collectors.toSet());
     log.debug("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
     return Stream.concat(v1CronJobNames.stream(), v1BetaCronJobNames.stream())
-            .collect(Collectors.toSet());
+        .collect(Collectors.toSet());
   }
-
 
   public void deleteCronJob(String name) throws ApiException {
     log.debug("Deleting k8s cron job: {}", name);
@@ -199,60 +198,58 @@ public class DataJobsKubernetesService extends KubernetesService {
       if (e.getCause() instanceof IllegalStateException) {
         IllegalStateException ise = (IllegalStateException) e.getCause();
         if (ise.getMessage() != null
-                && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
+            && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
           log.debug(
-                  "Catching exception because of issue"
-                          + " https://github.com/kubernetes-client/java/issues/86",
-                  e);
+              "Catching exception because of issue"
+                  + " https://github.com/kubernetes-client/java/issues/86",
+              e);
         else throw e;
       } else throw e;
     }
     log.debug("Deleted k8s cron job: {}", name);
   }
 
-
-
   public void cancelRunningCronJob(String teamName, String jobName, String executionId)
-          throws ApiException {
+      throws ApiException {
     log.info(
-            "K8S deleting job for team: {} data job name: {} execution: {} namespace: {}",
-            teamName,
-            jobName,
-            executionId,
-            namespace);
+        "K8S deleting job for team: {} data job name: {} execution: {} namespace: {}",
+        teamName,
+        jobName,
+        executionId,
+        namespace);
     try {
       var operationResponse =
-              batchV1Api.deleteNamespacedJobWithHttpInfo(
-                      executionId, namespace, null, null, null, null, "Foreground", null);
+          batchV1Api.deleteNamespacedJobWithHttpInfo(
+              executionId, namespace, null, null, null, null, "Foreground", null);
       // Status of the operation. One of: "Success" or "Failure"
       if (operationResponse == null || operationResponse.getStatusCode() == 404) {
         log.info(
-                "Execution: {} for data job: {} with team: {} not found! The data job has likely"
-                        + " completed before it could be cancelled.",
-                executionId,
-                jobName,
-                teamName);
+            "Execution: {} for data job: {} with team: {} not found! The data job has likely"
+                + " completed before it could be cancelled.",
+            executionId,
+            jobName,
+            teamName);
         throw new DataJobExecutionCannotBeCancelledException(
-                executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
+            executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
       } else if (operationResponse.getStatusCode() != 200) {
         log.warn(
-                "Failed to delete K8S job. Reason: {} Details: {}",
-                operationResponse.getData().getReason(),
-                operationResponse.getData().getDetails());
+            "Failed to delete K8S job. Reason: {} Details: {}",
+            operationResponse.getData().getReason(),
+            operationResponse.getData().getDetails());
         throw new KubernetesException(
-                operationResponse.getData().getMessage(),
-                new ApiException(
-                        operationResponse.getStatusCode(), operationResponse.getData().getMessage()));
+            operationResponse.getData().getMessage(),
+            new ApiException(
+                operationResponse.getStatusCode(), operationResponse.getData().getMessage()));
       }
     } catch (JsonSyntaxException e) {
       if (e.getCause() instanceof IllegalStateException) {
         IllegalStateException ise = (IllegalStateException) e.getCause();
         if (ise.getMessage() != null
-                && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
+            && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
           log.debug(
-                  "Catching exception because of issue"
-                          + " https://github.com/kubernetes-client/java/issues/86",
-                  e);
+              "Catching exception because of issue"
+                  + " https://github.com/kubernetes-client/java/issues/86",
+              e);
         else throw e;
       } else throw e;
 
@@ -260,16 +257,13 @@ public class DataJobsKubernetesService extends KubernetesService {
       // If no response body is present this might be a transport layer failure.
       if (e.getCode() == 404) {
         log.debug(
-                "Job execution: {} team: {}, job: {} cannot be found. K8S response body {}. Will set"
-                        + " its status to Cancelled in the DB.",
-                executionId,
-                teamName,
-                jobName,
-                e.getResponseBody());
+            "Job execution: {} team: {}, job: {} cannot be found. K8S response body {}. Will set"
+                + " its status to Cancelled in the DB.",
+            executionId,
+            teamName,
+            jobName,
+            e.getResponseBody());
       } else throw e;
     }
   }
-
-
-
 }
