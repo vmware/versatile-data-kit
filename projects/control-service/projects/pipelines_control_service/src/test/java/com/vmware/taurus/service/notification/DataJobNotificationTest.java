@@ -21,7 +21,7 @@ import java.util.*;
 public class DataJobNotificationTest {
 
   private SimpleSmtpServer smptServer;
-  private EmailNotification.SmtpProperties smtpProperties;
+  private EmailPropertiesConfiguration emailPropertiesConfiguration;
   private JobConfig jobConfig;
   private DataJobNotification dataJobNotification;
   private String receiverMail;
@@ -29,13 +29,15 @@ public class DataJobNotificationTest {
   @BeforeEach
   public void setup() throws IOException {
     this.smptServer = SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
-    this.smtpProperties = Mockito.mock(EmailNotification.SmtpProperties.class);
-    Mockito.when(smtpProperties.smtpWithPrefix())
+    this.emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
+    Mockito.when(emailPropertiesConfiguration.smtpWithPrefix())
         .thenReturn(getMailProperties(this.smptServer.getPort()));
 
     this.dataJobNotification =
         new DataJobNotification(
-            new EmailNotification(this.smtpProperties),
+            new EmailNotification(this.emailPropertiesConfiguration),
+            new AuthenticatedEmailNotification(this.emailPropertiesConfiguration),
+            this.emailPropertiesConfiguration,
             "Example Name",
             "your_username@vmware.com",
             Collections.singletonList("cc@dummy.com"));

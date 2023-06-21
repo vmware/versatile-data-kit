@@ -5,23 +5,17 @@
 
 package com.vmware.taurus.service.notification;
 
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,32 +28,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailNotification {
 
-  @Configuration
-  public static class SmtpProperties {
-
-    @Bean
-    @ConfigurationProperties(prefix = "mail.smtp")
-    public Map<String, String> smtp() {
-      return new HashMap<>();
-    }
-
-    public Map<String, String> smtpWithPrefix() {
-      Map<String, String> result = new HashMap<>();
-      var props = this.smtp();
-      props.forEach(((key, value) -> result.put("mail.smtp." + key, value)));
-      return result;
-    }
-  }
-
   static Logger log = LoggerFactory.getLogger(EmailNotification.class);
 
   private static final String CONTENT_TYPE = "text/html; charset=utf-8";
 
   private final Session session;
 
-  public EmailNotification(SmtpProperties smtpProperties) {
+  public EmailNotification(EmailPropertiesConfiguration emailPropertiesConfiguration) {
     Properties properties = System.getProperties();
-    properties.putAll(smtpProperties.smtpWithPrefix());
+    properties.putAll(emailPropertiesConfiguration.smtpWithPrefix());
     session = Session.getDefaultInstance(properties);
   }
 
@@ -96,10 +73,7 @@ public class EmailNotification {
   }
 
   private boolean recipientsExist(Address[] recipients) {
-    if (recipients.length == 0) {
-      return false;
-    }
-    return true;
+    return recipients.length > 0;
   }
 
   String concatAddresses(Address[] addresses) {
