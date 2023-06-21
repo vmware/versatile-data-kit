@@ -17,6 +17,7 @@ build-vdk-jupyterlab-extension:
     - pip install -U pip setuptools pre-commit
     - apk --no-cache add npm
     - apk add rust
+    - rustc --version
     - pip install pytest-cov
   script:
     - echo "Install Dependencies..."
