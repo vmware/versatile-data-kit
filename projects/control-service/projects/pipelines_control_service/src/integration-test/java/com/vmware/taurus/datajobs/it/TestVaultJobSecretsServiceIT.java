@@ -64,8 +64,10 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
   @Test
   public void testSetDataJobSecrets() throws Exception {
-    Map<String, Object> secrets = new HashMap<>();
-    secrets.put("key1", "value1");
+    Map<String, Object> temp = new HashMap<>();
+    temp.put("key1", "value1");
+
+    Map<String, Object> secrets = Collections.unmodifiableMap(temp);
 
     vaultJobSecretService.updateJobSecrets("testJob2", secrets);
 
@@ -75,14 +77,16 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
   @Test
   void testUpdateJobSecretsLimit() throws JsonProcessingException {
-    Map<String, Object> secrets = new HashMap<>();
-    secrets.put("key1", "value1");
+    Map<String, Object> temp = new HashMap<>();
+    temp.put("key1", "value1");
+
+    Map<String, Object> secrets = Collections.unmodifiableMap(temp);
 
     vaultJobSecretService.updateJobSecrets("testJob2", secrets);
 
     Map<String, Object> largeSecrets = new HashMap<>();
     largeSecrets.put("key1", null);
-    largeSecrets.put("key2", RandomStringUtils.randomAlphabetic(1025 * 1025));
+    largeSecrets.put("key2", RandomStringUtils.randomAlphabetic(VaultJobSecretsService.VAULT_SIZE_LIMIT_DEFAULT));
 
     assertThrows(
         DataJobSecretsSizeLimitException.class,
@@ -93,6 +97,7 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
     Assertions.assertEquals(secrets, readResult);
   }
 }
+<<<<<<< HEAD
 // vaultContainer.execInContainer("vault","kv","list", "secret")
 // vaultContainer.execInContainer("vault","kv","list", "secret")
 // vaultContainer.execInContainer("vault", "kv", "put", "secret/test", "db_name=postgres")
@@ -171,3 +176,5 @@ public class VaultJobSecretsServiceIT extends BaseIT {
 // vaultContainer.execInContainer("vault","kv","list", "secret")
 // vaultContainer.execInContainer("vault", "kv", "put", "secret/test", "db_name=postgres")
 >>>>>>> 74e375dd (Google Java Format)
+=======
+>>>>>>> fbae1338 (control-service: secrets service integration test)
