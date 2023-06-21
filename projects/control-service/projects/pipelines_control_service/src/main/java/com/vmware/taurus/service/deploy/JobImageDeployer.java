@@ -52,7 +52,7 @@ public class JobImageDeployer {
   private static final String ATTEMPT_ID = "VDK_ATTEMPT_ID";
   private static final String BASE_CONFIG_FOLDER = "VDK_BASE_CONFIG_FOLDER";
   private static final String VDK_TEMPORARY_WRITE_DIRECTORY = "VDK_TEMPORARY_WRITE_DIRECTORY";
-  private static final String TEMPORARY_WRITE_DIRECTORY_PATH = "/var/tmp";
+  private static final String TEMPORARY_WRITE_DIRECTORY_PATH = EPHEMERAL_VOLUME_MOUNT_PATH;
 
   private final JobCredentialsService jobCredentialsService;
   private final DataJobsKubernetesService dataJobsKubernetesService;
