@@ -39,31 +39,6 @@
     - apk --no-cache add openjdk17-jdk git zip curl zip py-pip
     - pip install --upgrade pip && pip install awscli
 
-control_service_build_image:
-  extends:
-    - .control_service_base_build
-    - .images:dind
-  stage: build
-  script:
-    - apk --no-cache add git openjdk17-jdk
-    - export TAG=$(git rev-parse --short HEAD)
-    - cd projects/control-service/projects
-    - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
-    - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
-#    - ./gradlew :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
-  retry: !reference [.control_service_retry, retry_options]
-  coverage: "/    - Line Coverage: ([0-9.]+)%/"
-  artifacts:
-    when: always
-    paths:
-      - ./projects/control-service/projects/*/build/reports/**
-    expire_in: 1 week
-    reports:
-      junit: ./projects/control-service/projects/**/build/test-results/test/TEST-*.xml
-  only:
-    refs:
-      - external_pull_requests
-    changes: *control_service_code_change_locations
 
 control_service_integration_test:
   extends:
@@ -346,14 +321,10 @@ control_service_deploy_testing_data_pipelines:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_code_change_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_helm_change_locations
+  only:
+    refs:
+      - external_pull_requests
+    changes: *control_service_code_change_locations
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
 control_service_post_deployment_test:
