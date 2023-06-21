@@ -5,12 +5,14 @@ import fileinput
 import logging
 import os
 import pathlib
+import re
 import sys
 from configparser import ConfigParser
 from configparser import MissingSectionHeaderError
 from enum import Enum
 from typing import Dict
 from typing import List
+from typing import Union
 
 from vdk.internal.core.config import convert_value_to_type_of_default_type
 from vdk.internal.core.errors import ErrorMessage
@@ -40,7 +42,7 @@ class JobConfig:
     For more see the user wiki
     """
 
-    def __init__(self, data_job_path: pathlib.Path):
+    def __init__(self, data_job_path: Union[pathlib.Path, str]):
         self._config_ini = configparser.ConfigParser()
         self._config_file = os.path.join(data_job_path, "config.ini")
 
@@ -173,9 +175,10 @@ class JobConfig:
 
     def _get_contacts(self, key):
         contacts_str = self._get_value("contacts", key).strip()
+        contacts = []
         if contacts_str:
-            return [x.strip() for x in contacts_str.split(";")]
-        return []
+            contacts = [x.strip() for x in re.split("[;,]", contacts_str)]
+        return contacts
 
     def _get_boolean(self, section, key, fallback=None) -> bool:
         return self._config_ini.getboolean(section, key, fallback=fallback)

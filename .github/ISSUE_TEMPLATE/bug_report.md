@@ -2,10 +2,18 @@
 name: Bug report
 about: Report an issue and help us improve the project
 title: ''
-labels: bug
+labels: bug, needs-triage
 assignees: ''
 
 ---
+
+<!-- Welcome! Thank you for contributing. These HTML comments will not render in the issue, but you can delete them once you've read them if you prefer! -->
+
+<!--
+
+Before creating a new issue please search for relevant issues .
+Feel free to ask questions by joining Versatile Data Kit slack channel in CNCF slack or opening Github Discussion
+-->
 
 **Describe the bug**
 A clear and concise description of what the bug is.

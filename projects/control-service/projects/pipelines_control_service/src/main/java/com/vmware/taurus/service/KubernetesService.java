@@ -1514,7 +1514,6 @@ public abstract class KubernetesService {
       throws ApiException, IOException {
 
     Objects.requireNonNull(watcher, "The watcher cannot be null");
-    log.info("Start watching jobs with labels: {}", labelsToWatch);
 
     // Job change detection implementation:
     // https://kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes
@@ -1544,7 +1543,9 @@ public abstract class KubernetesService {
       runningJobExecutionsConsumer.accept(runningExecutionIds);
       resourceVersion = jobList.getMetadata().getResourceVersion();
     } catch (ApiException ex) {
-      log.info("Failed to list jobs for watching. Error was: {}", ex.getMessage());
+      log.info(
+          "Failed to list jobs for watching. Error was: {}",
+          new KubernetesException("", ex).toString());
       return;
     }
 

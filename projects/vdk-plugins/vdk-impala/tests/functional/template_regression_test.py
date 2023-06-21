@@ -766,3 +766,63 @@ class TestTemplateRegression(unittest.TestCase):
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
         )
+
+    def test_insert_checks_positive(self) -> None:
+        test_schema = "vdkprototypes"
+        staging_schema = "staging_vdkprototypes"
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+
+        res = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "check": "use_positive_check",
+                "staging_schema": staging_schema,
+            },
+        )
+
+        assert not res.exception
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
+
+    def test_insert_checks_negative(self) -> None:
+        test_schema = "vdkprototypes"
+        staging_schema = "staging_vdkprototypes"
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+
+        res = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "check": "use_negative_check",
+                "staging_schema": staging_schema,
+            },
+        )
+
+        assert res.exception
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+        assert actual_rs.output != expected_rs.output

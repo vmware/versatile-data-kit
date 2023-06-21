@@ -6,13 +6,12 @@
 package com.vmware.taurus.secrets.controller;
 
 import com.vmware.taurus.controlplane.model.api.DataJobsSecretsApi;
+import com.vmware.taurus.exception.SecretStorageNotConfiguredException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -28,14 +27,12 @@ public class NoOpDataJobsSecretsController implements DataJobsSecretsApi {
   @Override
   public ResponseEntity<Void> dataJobSecretsUpdate(
       String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
-    throw new ResponseStatusException(
-        HttpStatus.NOT_IMPLEMENTED, "Secrets service is not implemented");
+    throw new SecretStorageNotConfiguredException();
   }
 
   @Override
   public ResponseEntity<Map<String, Object>> dataJobSecretsRead(
       String teamName, String jobName, String deploymentId) {
-    throw new ResponseStatusException(
-        HttpStatus.NOT_IMPLEMENTED, "Secrets service is not implemented");
+    throw new SecretStorageNotConfiguredException();
   }
 }

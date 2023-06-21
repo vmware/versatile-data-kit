@@ -104,18 +104,18 @@ class CliRunImpl:
                     log.warning(
                         f"""
                         {os.linesep + (' ' * 20) + ('*' * 80)}
-                        Python version ({configured_python_version}), set in the job's config.ini file, is different
-                        from the python version ({local_py_version}) used to execute the data job.
-                        WHAT: python_version is different from the version of the execution
-                        environment.
-                        WHY: The python_version set in the data job's config.ini file is
-                        different from the python version of the execution environment.
-                        CONSEQUENCES: Developing a data job with one python version, and
-                        using a different version for the deployed data job could lead to
-                        unexpected and hard to troubleshoot errors.
-                        COUNTERMEASURES: Please, make sure that the python version set in
-                        the python_version property of the config.ini file is the same as
-                        the python version of your execution environment.
+                        What: Python version mismatch between local python and configure python.
+                        Why: The Python version specified in the job's config.ini file  is ({configured_python_version})
+                        while the local python version used to execute the data job is ({local_py_version}).
+                        Consequences: Developing a data job using one Python version and deploying
+                        it with a different version can result in unexpected and
+                        difficult-to-troubleshoot errors like module incompatibilities, or
+                        unexpected behavior during execution.
+                        Countermeasures: To resolve this issue, ensure that the Python version
+                        specified in the python_version property of the config.ini file matches
+                        the Python version of your execution environment by either editing the
+                        python_version property in config.ini, or switching local environment
+                        to a matching version of python.
                         {os.linesep + (' ' * 20) + ('*' * 80)}
                         """
                     )

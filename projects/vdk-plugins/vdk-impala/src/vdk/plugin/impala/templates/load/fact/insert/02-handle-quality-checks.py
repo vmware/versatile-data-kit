@@ -48,7 +48,23 @@ def run(job_input: IJobInput):
         )
         job_input.execute_query(insert_into_staging)
 
-        if check(staging_table):
+        view_schema = staging_schema
+        view_name = f"vw_{staging_table_name}"
+        create_view_query = get_file_content(
+            SQL_FILES_FOLDER, "02-create-consolidated-view.sql"
+        )
+        create_view = create_view_query.format(
+            view_schema=view_schema,
+            view_name=view_name,
+            target_schema=target_schema,
+            target_table=target_table,
+            staging_schema=staging_schema,
+            staging_table_name=staging_table_name,
+        )
+        job_input.execute_query(create_view)
+
+        view_full_name = f"{view_schema}.{view_name}"
+        if check(view_full_name):
             insert_into_target = insert_query.format(
                 source_schema=staging_schema,
                 source_view=staging_table_name,
@@ -59,7 +75,7 @@ def run(job_input: IJobInput):
             job_input.execute_query(insert_into_target)
         else:
             raise DataQualityException(
-                checked_object=staging_table,
+                checked_object=view_full_name,
                 source_view=f"{source_schema}.{source_view}",
                 target_table=target_table_full_name,
             )

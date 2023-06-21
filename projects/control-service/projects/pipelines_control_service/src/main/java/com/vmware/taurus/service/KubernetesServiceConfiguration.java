@@ -20,9 +20,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.function.Predicate.not;
 
 @Configuration
 @Slf4j
@@ -65,9 +72,49 @@ public class KubernetesServiceConfiguration {
   }
 
   @Bean
-  public BatchV1beta1Api controlBatchV1beta1Api(
-      @Qualifier("controlApiClient") ApiClient apiClient) {
-    return new BatchV1beta1Api(apiClient);
+  public String controlNamespace(
+      @Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig,
+      @Value("${datajobs.control.k8s.namespace:}") String namespace)
+      throws FileNotFoundException {
+    return getNamespace(kubeconfig, namespace);
+  }
+
+  @Bean
+  public String dataJobsNamespace(
+      @Value("${datajobs.deployment.k8s.kubeconfig:}") String kubeconfig,
+      @Value("${datajobs.deployment.k8s.namespace:}") String namespace)
+      throws FileNotFoundException {
+    return getNamespace(kubeconfig, namespace);
+  }
+
+  @NotNull
+  private static String getNamespace(String kubeconfig, String namespace)
+      throws FileNotFoundException {
+    if (!StringUtils.isBlank(namespace)) {
+      return namespace;
+    } else if (!StringUtils.isBlank(kubeconfig) && new File(kubeconfig).isFile()) {
+      KubeConfig kubeConfig = KubeConfig.loadKubeConfig(new FileReader(kubeconfig));
+      return kubeConfig.getNamespace();
+    } else {
+      return getCurrentNamespace();
+    }
+  }
+
+  private static String getCurrentNamespace() {
+    return getNamespaceFileContents().stream()
+        .filter(not(String::isBlank))
+        .findFirst()
+        .map(String::strip)
+        .orElse(null);
+  }
+
+  private static List<String> getNamespaceFileContents() {
+    try {
+      String namespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace";
+      return Files.readAllLines(Paths.get(namespaceFile));
+    } catch (IOException e) {
+      return Collections.emptyList();
+    }
   }
 
   @NotNull
