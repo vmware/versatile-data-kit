@@ -174,11 +174,11 @@ public abstract class KubernetesService {
       "${datajobs.control.k8s.jobTTLAfterFinishedSeconds}")
   private int jobTTLAfterFinishedSeconds;
 
-  private String namespace;
+  protected String namespace;
   private Logger log;
   private final ApiClient client;
-  private final BatchV1Api batchV1Api;
-  private final BatchV1beta1Api batchV1beta1Api;
+  protected final BatchV1Api batchV1Api;
+  protected final BatchV1beta1Api batchV1beta1Api;
   private boolean k8sSupportsV1CronJob;
 
   @Autowired private final JobCommandProvider jobCommandProvider;
@@ -619,106 +619,6 @@ public abstract class KubernetesService {
     }
   }
 
-  public void cancelRunningCronJob(String teamName, String jobName, String executionId)
-      throws ApiException {
-    log.info(
-        "K8S deleting job for team: {} data job name: {} execution: {} namespace: {}",
-        teamName,
-        jobName,
-        executionId,
-        namespace);
-    try {
-      var operationResponse =
-          batchV1Api.deleteNamespacedJobWithHttpInfo(
-              executionId, namespace, null, null, null, null, "Foreground", null);
-      // Status of the operation. One of: "Success" or "Failure"
-      if (operationResponse == null || operationResponse.getStatusCode() == 404) {
-        log.info(
-            "Execution: {} for data job: {} with team: {} not found! The data job has likely"
-                + " completed before it could be cancelled.",
-            executionId,
-            jobName,
-            teamName);
-        throw new DataJobExecutionCannotBeCancelledException(
-            executionId, ExecutionCancellationFailureReason.DataJobExecutionNotFound);
-      } else if (operationResponse.getStatusCode() != 200) {
-        log.warn(
-            "Failed to delete K8S job. Reason: {} Details: {}",
-            operationResponse.getData().getReason(),
-            operationResponse.getData().getDetails());
-        throw new KubernetesException(
-            operationResponse.getData().getMessage(),
-            new ApiException(
-                operationResponse.getStatusCode(), operationResponse.getData().getMessage()));
-      }
-    } catch (JsonSyntaxException e) {
-      if (e.getCause() instanceof IllegalStateException) {
-        IllegalStateException ise = (IllegalStateException) e.getCause();
-        if (ise.getMessage() != null
-            && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
-          log.debug(
-              "Catching exception because of issue"
-                  + " https://github.com/kubernetes-client/java/issues/86",
-              e);
-        else throw e;
-      } else throw e;
-
-    } catch (ApiException e) {
-      // If no response body is present this might be a transport layer failure.
-      if (e.getCode() == 404) {
-        log.debug(
-            "Job execution: {} team: {}, job: {} cannot be found. K8S response body {}. Will set"
-                + " its status to Cancelled in the DB.",
-            executionId,
-            teamName,
-            jobName,
-            e.getResponseBody());
-      } else throw e;
-    }
-  }
-
-  /**
-   * Returns a set of cron job names for a given namespace in a Kubernetes cluster. The cron jobs
-   * can be of version V1 or V1Beta.
-   *
-   * @return a set of cron job names
-   * @throws ApiException if there is a problem accessing the Kubernetes API
-   */
-  public Set<String> listCronJobs() throws ApiException {
-    log.debug("Listing k8s cron jobs");
-    Set<String> v1CronJobNames = Collections.emptySet();
-
-    try {
-      var v1CronJobs =
-          batchV1Api.listNamespacedCronJob(
-              namespace, null, null, null, null, null, null, null, null, null, null);
-      v1CronJobNames =
-          v1CronJobs.getItems().stream()
-              .map(j -> j.getMetadata().getName())
-              .collect(Collectors.toSet());
-      log.debug("K8s V1 cron jobs: {}", v1CronJobNames);
-    } catch (ApiException e) {
-      if (e.getCode()
-          == 404) { // as soon as the minimum supported k8s version is >=1.21 then we should remove
-        // this.
-        log.debug("Unable to query for v1 batch jobs", e);
-      } else {
-        throw e;
-      }
-    }
-
-    var v1BetaCronJobs =
-        batchV1beta1Api.listNamespacedCronJob(
-            namespace, null, null, null, null, null, null, null, null, null, null);
-    var v1BetaCronJobNames =
-        v1BetaCronJobs.getItems().stream()
-            .map(j -> j.getMetadata().getName())
-            .collect(Collectors.toSet());
-    log.debug("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
-    return Stream.concat(v1CronJobNames.stream(), v1BetaCronJobNames.stream())
-        .collect(Collectors.toSet());
-  }
-
   // TODO:  container/volume args are breaking a bit abstraction of KubernetesService by leaking
   // impl. details
   public void createV1beta1CronJob(
@@ -857,40 +757,6 @@ public abstract class KubernetesService {
         image,
         nsJob.getMetadata().getUid(),
         nsJob.getMetadata().getSelfLink());
-  }
-
-  public void deleteCronJob(String name) throws ApiException {
-    log.debug("Deleting k8s cron job: {}", name);
-
-    // If the V1 Cronjob API is enabled, we try to delete the cronjob with it and exit the method.
-    // If, however, the cronjob cannot be deleted, this means that it might have been created
-    // with the V1Beta1 API, so we need to try again with the beta API.
-    if (getK8sSupportsV1CronJob()) {
-      try {
-        batchV1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
-        log.debug("Deleted k8s V1 cron job: {}", name);
-        return;
-      } catch (Exception e) {
-        log.debug("An exception occurred while trying to delete cron job. Message was: ", e);
-      }
-    }
-
-    try {
-      batchV1beta1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
-      log.debug("Deleted k8s V1beta1 cron job: {}", name);
-    } catch (JsonSyntaxException e) {
-      if (e.getCause() instanceof IllegalStateException) {
-        IllegalStateException ise = (IllegalStateException) e.getCause();
-        if (ise.getMessage() != null
-            && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
-          log.debug(
-              "Catching exception because of issue"
-                  + " https://github.com/kubernetes-client/java/issues/86",
-              e);
-        else throw e;
-      } else throw e;
-    }
-    log.debug("Deleted k8s cron job: {}", name);
   }
 
   public void createJob(

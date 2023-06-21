@@ -164,7 +164,7 @@ public class MockKubernetes {
             anyLong(),
             anyString(),
             anyString());
-    doAnswer(inv -> jobs.keySet()).when(mock).listCronJobs();
+    doAnswer(inv -> jobs.keySet()).when(mock).listJobs();
     doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
 
     doAnswer(
