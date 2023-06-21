@@ -227,16 +227,10 @@ control_service_publish_image:
     when: always
     reports:
       junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_code_change_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *control_service_helm_change_locations
+  only:
+    refs:
+      - external_pull_requests
+    changes: *control_service_code_change_locations
 
 control_service_publish_api_client:
   image: docker:23.0.1
