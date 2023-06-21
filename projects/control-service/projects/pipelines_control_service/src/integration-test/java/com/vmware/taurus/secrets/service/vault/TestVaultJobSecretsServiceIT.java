@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.datajobs.it;
+package com.vmware.taurus.secrets.service.vault;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vmware.taurus.ControlplaneApplication;

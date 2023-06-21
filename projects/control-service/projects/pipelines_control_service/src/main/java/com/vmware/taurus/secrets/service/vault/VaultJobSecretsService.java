@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
 public class VaultJobSecretsService implements com.vmware.taurus.secrets.service.JobSecretsService {
 
-  public static final int VAULT_SIZE_LIMIT_DEFAULT = 1048576; // 1 MB
+  //  package private so it can be used in tests
+  static final int VAULT_SIZE_LIMIT_DEFAULT = 1048576; // 1 MB
   private static final String SECRET = "secret";
 
   @Value("${datajobs.vault.size.limit.bytes}")
