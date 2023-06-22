@@ -21,6 +21,7 @@ build-vdk-jupyterlab-extension:
     - cargo --version
     - pip install pytest-cov
   script:
+    - pip install jupyter
     - echo "Install Dependencies..."
     - npm ci
     - echo "Install Vdk JupyterLab Extension..."
