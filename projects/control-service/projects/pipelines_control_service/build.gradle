@@ -92,6 +92,8 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation versions.'net.bytebuddy:byte-buddy'
     testImplementation versions.'org.testcontainers:testcontainers'
     testImplementation versions.'org.awaitility:awaitility'
+    testImplementation versions.'org.testcontainers:vault'
+    testImplementation versions.'org.testcontainers:junit-jupiter'
     testImplementation 'com.github.kirviq:dumbster:1.7.1'
     testImplementation versions.'org.junit.jupiter:junit-jupiter-api'
     testImplementation versions.'org.junit.platform:junit-platform-suite-api'
