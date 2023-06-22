@@ -66,7 +66,9 @@ control_service_build_image:
     changes: *control_service_code_change_locations
 
 control_service_integration_test:
-  extends: .images:dind
+  extends:
+    - .control_service_base_build
+    - .images:dind
   stage: build
   variables:
     DEPLOYMENT_K8S_KUBECONFIG: "~/.kube/config"
