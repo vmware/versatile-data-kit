@@ -43,8 +43,7 @@ public class AuthenticatedEmailNotificationTest {
     greenMail.start();
 
     this.emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
-    Mockito.when(emailPropertiesConfiguration.smtpWithPrefix())
-        .thenReturn(getMailProperties());
+    Mockito.when(emailPropertiesConfiguration.smtpWithPrefix()).thenReturn(getMailProperties());
     Mockito.when(emailPropertiesConfiguration.isAuthEnabled()).thenReturn(true);
     Mockito.when(emailPropertiesConfiguration.getUsername()).thenReturn(TEST_USER);
     Mockito.when(emailPropertiesConfiguration.getPassword()).thenReturn(TEST_PASSWORD);
@@ -67,16 +66,24 @@ public class AuthenticatedEmailNotificationTest {
   public void testAuthenticate_wrongCredentials(CapturedOutput output) {
     greenMail.setUser(TEST_USER, "wrong_password");
     dataJobNotification.notifyJobDeployError(getJobConfig(), "bad", "very bad");
-    Assertions.assertTrue(output.getOut().contains(
-        "javax.mail.AuthenticationFailedException: 535 5.7.8  Authentication credentials invalid"));
+    Assertions.assertTrue(
+        output
+            .getOut()
+            .contains(
+                "javax.mail.AuthenticationFailedException: 535 5.7.8  Authentication credentials"
+                    + " invalid"));
   }
 
   @Test
   public void testAuthenticate_correctCredentials(CapturedOutput output) {
     greenMail.setUser(TEST_USER, TEST_PASSWORD);
     dataJobNotification.notifyJobDeployError(getJobConfig(), "bad", "very bad");
-    Assertions.assertFalse(output.getOut().contains(
-        "javax.mail.AuthenticationFailedException: 535 5.7.8  Authentication credentials invalid"));
+    Assertions.assertFalse(
+        output
+            .getOut()
+            .contains(
+                "javax.mail.AuthenticationFailedException: 535 5.7.8  Authentication credentials"
+                    + " invalid"));
   }
 
   @Test

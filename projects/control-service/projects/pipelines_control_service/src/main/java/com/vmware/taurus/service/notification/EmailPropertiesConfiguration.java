@@ -28,11 +28,12 @@ public class EmailPropertiesConfiguration {
   public Map<String, String> smtpWithPrefix() {
     Map<String, String> result = new HashMap<>();
     var props = this.mail();
-    props.forEach(((key, value) -> {
-      if (key.startsWith("smtp")) {
-        result.put("mail." + key, value);
-      }
-    }));
+    props.forEach(
+        ((key, value) -> {
+          if (key.startsWith("smtp")) {
+            result.put("mail." + key, value);
+          }
+        }));
     return result;
   }
 
@@ -51,5 +52,4 @@ public class EmailPropertiesConfiguration {
   public String getTransportProtocol() {
     return mail().get(TRANSPORT_PROTOCOL);
   }
-
 }

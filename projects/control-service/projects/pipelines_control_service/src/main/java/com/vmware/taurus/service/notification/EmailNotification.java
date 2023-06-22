@@ -39,8 +39,8 @@ public class EmailNotification {
     this.emailPropertiesConfiguration = emailPropertiesConfiguration;
     Properties properties = System.getProperties();
     properties.putAll(emailPropertiesConfiguration.smtpWithPrefix());
-    properties.setProperty("mail.transport.protocol",
-        emailPropertiesConfiguration.getTransportProtocol());
+    properties.setProperty(
+        "mail.transport.protocol", emailPropertiesConfiguration.getTransportProtocol());
     session = Session.getInstance(properties);
   }
 
@@ -79,8 +79,8 @@ public class EmailNotification {
     }
   }
 
-  private void sendUnauthenticatedEmail(NotificationContent notificationContent,
-      Address[] recipients) throws MessagingException {
+  private void sendUnauthenticatedEmail(
+      NotificationContent notificationContent, Address[] recipients) throws MessagingException {
     Transport transport = session.getTransport();
     var mimeMessage = prepareMessage(notificationContent);
     transport.send(mimeMessage, recipients);
@@ -91,8 +91,8 @@ public class EmailNotification {
     Transport transport = session.getTransport();
     var mimeMessage = prepareMessage(notificationContent);
     try {
-      transport.connect(emailPropertiesConfiguration.getUsername(),
-          emailPropertiesConfiguration.getPassword());
+      transport.connect(
+          emailPropertiesConfiguration.getUsername(), emailPropertiesConfiguration.getPassword());
       transport.sendMessage(mimeMessage, recipients);
     } finally {
       transport.close();

@@ -88,5 +88,4 @@ public class DataJobNotification {
       log.warn("Could not send notification due to message error", e);
     }
   }
-
 }
