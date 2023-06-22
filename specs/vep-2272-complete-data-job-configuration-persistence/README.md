@@ -95,6 +95,24 @@ There would be no changes to the public APIs.
 
 ## Detailed design
 
+### Kubernetes Cron Jobs Synchronizer
+
+To enhance data integrity and synchronization between a database and Kubernetes, an asynchronous process will be
+implemented. This process will leverage Spring Scheduler and Scheduler Lock, similar to the
+[DataJobMonitorCron.watchJobs()](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/service/monitoring/DataJobMonitorCron.java#L84).
+
+The overall purpose of this process is to iterate through the data job deployment configurations stored in the database
+and determine whether the corresponding Cron Job in Kubernetes is synchronized and up to date. If the Cron Job is not
+synchronized with the database, the process will initiate a new data job deployment. This deployment may involve tasks
+such as building an image or updating the Cron Job template.
+
+In order to enhance the process further, the proposed asynchronous process will incorporate a mechanism to determine
+whether a Cron Job needs to be updated or not. This will be achieved by utilizing the hash code (`deployment_version_sha`) of the
+Cron Job YAML configuration, which will be stored in the database after each deployment.
+
+By introducing this asynchronous process, you can ensure that the database and Kubernetes remain in sync, maintaining
+data integrity and enabling smooth operation of the system.
+
 ### Database data model changes
 
 To ensure comprehensive synchronization between Kubernetes and the database, it is important to replicate all relevant
@@ -110,7 +128,8 @@ replicated:
 * `memory_request`
 * `memory_limit`
 * `deployed_by`
-* `deployed-date`
+* `deployed_date`
+* `deployment_version_sha`
 
 In order to accommodate the replication of the additional data job configuration properties from Kubernetes to the
 database, it would be necessary to make appropriate modifications to the existing database model. These modifications
@@ -119,24 +138,6 @@ additional properties. By making these database model changes, the system can ef
 required data job configuration details between Kubernetes and the database.
 
 ![database_data_model.png](database_data_model.png)
-
-### Kubernetes Cron Jobs Synchronizer
-
-To enhance data integrity and synchronization between a database and Kubernetes, an asynchronous process will be
-implemented. This process will leverage Spring Scheduler and Scheduler Lock, similar to the
-[DataJobMonitorCron.watchJobs()](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/service/monitoring/DataJobMonitorCron.java#L84).
-
-The overall purpose of this process is to iterate through the data job deployment configurations stored in the database
-and determine whether the corresponding Cron Job in Kubernetes is synchronized and up to date. If the Cron Job is not
-synchronized with the database, the process will initiate a new data job deployment. This deployment may involve tasks
-such as building an image or updating the Cron Job template.
-
-In order to enhance the process further, the proposed asynchronous process will incorporate a mechanism to determine
-whether a Cron Job needs to be updated or not. This will be achieved by utilizing the hash code of the Cron Job YAML
-configuration, which will be stored in the database after each deployment.
-
-By introducing this asynchronous process, you can ensure that the database and Kubernetes remain in sync, maintaining
-data integrity and enabling smooth operation of the system.
 
 ### DataJobsDeployment API and GraphQL API
 
