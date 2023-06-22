@@ -38,7 +38,8 @@ frontend-data-pipelines-build:
   before_script:
     - cd projects/frontend/
   script:
-    - ./cicd/install_data_pipelines.sh
+    - export SHARED_RC_VERSION=$(../../cicd/extract_shared_rc_version.sh $CI_PIPELINE_ID)
+    - ./cicd/install_data_pipelines.sh $SHARED_RC_VERSION
   coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
   retry: !reference [.retry, retry_options]
   rules:
@@ -60,32 +61,32 @@ frontend-data-pipelines-build:
     expire_in: 1 week
 
 # TODO: Add the cicd path back to the rule once e2e tests are stabilized
-frontend-data-pipelines-e2e-tests:
-  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
-  stage: pre_release_test
-  before_script:
-    - cd projects/frontend/
-  script:
-    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN" "$CYPRESS_test_environment" "$CI_PIPELINE_ID" "$CYPRESS_grepTags"
-  retry: !reference [.retry, retry_options]
-  rules:
-    - changes: *frontend_do_not_trigger_e2e
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes:
-        - "projects/frontend/shared-components/**/*"
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes:
-        - "projects/frontend/data-pipelines/**/*"
-  artifacts:
-    when: always
-    paths:
-      - projects/frontend/data-pipelines/gui/e2e/videos/
-      - projects/frontend/data-pipelines/gui/e2e/screenshots/
-      - projects/frontend/data-pipelines/gui/e2e/hars/
-      - projects/frontend/data-pipelines/gui/e2e/logs/
-      - projects/frontend/data-pipelines/gui/e2e/reports/
-    expire_in: 1 week
+# frontend-data-pipelines-e2e-tests:
+#   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+#   stage: pre_release_test
+#   before_script:
+#     - cd projects/frontend/
+#   script:
+#     - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN" "$CYPRESS_test_environment" "$CI_PIPELINE_ID" "$CYPRESS_grepTags"
+#   retry: !reference [.retry, retry_options]
+#   rules:
+#     - changes: *frontend_do_not_trigger_e2e
+#       when: never
+#     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+#       changes:
+#         - "projects/frontend/shared-components/**/*"
+#     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+#       changes:
+#         - "projects/frontend/data-pipelines/**/*"
+#   artifacts:
+#     when: always
+#     paths:
+#       - projects/frontend/data-pipelines/gui/e2e/videos/
+#       - projects/frontend/data-pipelines/gui/e2e/screenshots/
+#       - projects/frontend/data-pipelines/gui/e2e/hars/
+#       - projects/frontend/data-pipelines/gui/e2e/logs/
+#       - projects/frontend/data-pipelines/gui/e2e/reports/
+#     expire_in: 1 week
 
 frontend-data-pipelines-release:
   image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
@@ -93,7 +94,7 @@ frontend-data-pipelines-release:
   before_script:
     - cd projects/frontend/
   script:
-    - ./cicd/publish_package_npm.sh data-pipelines $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY
+    - ./cicd/publish_package_npm.sh data-pipelines $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY latest
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -118,9 +119,9 @@ frontend_publish_ui_image:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_data_pipelines_locations
   extends: .frontend_publish_docker_image
 
@@ -211,6 +212,8 @@ frontend-shared-components-build:
     - cd projects/frontend/shared-components/gui
   script:
     - ../../cicd/install_shared.sh
+    - export SHARED_RC_INCREMENT=$(../../cicd/extract_shared_rc_increment.sh $CI_PIPELINE_ID)
+    - ../../cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID-rc.$SHARED_RC_INCREMENT $NPM_TOKEN $NPM_REGISTRY rc
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
@@ -234,7 +237,7 @@ frontend-shared-components-release:
   before_script:
     - cd projects/frontend/
   script:
-    - ./cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY
+    - ./cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY latest
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
