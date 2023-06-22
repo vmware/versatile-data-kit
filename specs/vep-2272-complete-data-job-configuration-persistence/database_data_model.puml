@@ -22,7 +22,7 @@ entity data_job {
 }
 
 entity data_job_deployment {
-   **data_job_id** primary key
+   **data_job_name** primary key
    deployment_version_sha
    vdk_version
    python_version
