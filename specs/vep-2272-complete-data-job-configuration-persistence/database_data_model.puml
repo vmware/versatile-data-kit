@@ -1,0 +1,39 @@
+@startuml
+entity data_job {
+   **name** primary key
+   team
+   description
+   schedule
+   enabled
+   name_deprecated
+   generate_keytab
+   enable_execution_notifications
+   notified_on_job_failure_user_error
+   notified_on_job_failure_platform_error
+   notified_on_job_success
+   notified_on_job_deploy
+   notification_delay_period_minutes
+   last_execution_status
+   last_execution_end_time
+   last_execution_duration
+   latest_job_deployment_status
+   latest_job_termination_status
+   latest_job_execution_id
+}
+
+entity data_job_deployment {
+   **data_job_id** primary key
+   vdk_version
+   python_version
+   image_name
+   git_commit_sha
+   deployed_by
+   deployed_date
+   cpu_request
+   cpu_limit
+   memory_request
+   memory_limit
+}
+
+data_job ||..|| data_job_deployment
+@enduml
