@@ -38,7 +38,8 @@ frontend-data-pipelines-build:
   before_script:
     - cd projects/frontend/
   script:
-    - ./cicd/install_data_pipelines.sh
+    - export SHARED_RC_VERSION=$(../../cicd/extract_shared_rc_version.sh $CI_PIPELINE_ID)
+    - ./cicd/install_data_pipelines.sh $SHARED_RC_VERSION
   coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
   retry: !reference [.retry, retry_options]
   rules:
@@ -93,7 +94,7 @@ frontend-data-pipelines-release:
   before_script:
     - cd projects/frontend/
   script:
-    - ./cicd/publish_package_npm.sh data-pipelines $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY
+    - ./cicd/publish_package_npm.sh data-pipelines $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY latest
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -124,6 +125,7 @@ frontend_publish_ui_image:
       changes: *frontend_data_pipelines_locations
   extends: .frontend_publish_docker_image
 
+# TODO: Enable this when https://jira.eng.vmware.com/browse/TAUR-6077 is resolved
 # frontend_tag_ui_image_stable:
 #   stage: release
 #   before_script:
@@ -211,6 +213,8 @@ frontend-shared-components-build:
     - cd projects/frontend/shared-components/gui
   script:
     - ../../cicd/install_shared.sh
+    - export SHARED_RC_INCREMENT=$(../../cicd/extract_shared_rc_increment.sh $CI_PIPELINE_ID)
+    - ../../cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID-rc.$SHARED_RC_INCREMENT $NPM_TOKEN $NPM_REGISTRY rc
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
@@ -234,7 +238,7 @@ frontend-shared-components-release:
   before_script:
     - cd projects/frontend/
   script:
-    - ./cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY
+    - ./cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY latest
   retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'

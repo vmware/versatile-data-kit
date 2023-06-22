@@ -14,7 +14,7 @@
 # Example:
 # ./publish_package_npm.sh data-pipelines 123456 npm_token registry.npmjs.org
 ###
-
+echo $@
 if ! which npm >/dev/null 2>&1 ; then
   echo "ERROR:"
   echo "Please install npm 8.5.5+. Publish cannot continue without it."
@@ -57,11 +57,25 @@ npm_token=$3
 # optional; defaults to registry.npmjs.org public repo
 if [ $# -eq 3 ]
   then
+    echo "ERROR: No argument for npm registry url provided."
+    exit 3
+fi
+npm_registry=$4
+
+if [ $# -eq 4 ]
+  then
+    echo "ERROR: No argument for npm tag provided."
+    exit 3
+fi
+npm_tag=$5
+
+# optional; defaults to registry.npmjs.org public repo
+if [ $# -eq 3 ]
+  then
     npm_registry="registry.npmjs.org"
   else
     npm_registry=$4
 fi
-
 
 # Locate the project dist directory
 if [ -d "./dist/$project_type/" ]
@@ -87,4 +101,4 @@ npm set //$npm_registry/:_authToken $npm_token
 
 # Publish
 echo "Publishing @vdk/$(basename "$PWD"):${package_version}..."
-npm publish --ignore-scripts --access public
+npm publish --ignore-scripts --access public --tag $npm_tag
