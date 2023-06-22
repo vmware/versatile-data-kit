@@ -33,22 +33,21 @@ public class EmailNotification {
   private static final String CONTENT_TYPE = "text/html; charset=utf-8";
 
   private final Session session;
+  private EmailPropertiesConfiguration emailPropertiesConfiguration;
 
   public EmailNotification(EmailPropertiesConfiguration emailPropertiesConfiguration) {
+    this.emailPropertiesConfiguration = emailPropertiesConfiguration;
     Properties properties = System.getProperties();
     properties.putAll(emailPropertiesConfiguration.smtpWithPrefix());
-    session = Session.getDefaultInstance(properties);
+    properties.setProperty("mail.transport.protocol",
+        emailPropertiesConfiguration.getTransportProtocol());
+    session = Session.getInstance(properties);
   }
 
   public void send(NotificationContent notificationContent) throws MessagingException {
     if (recipientsExist(notificationContent.getRecipients())) {
-      MimeMessage mimeMessage = new MimeMessage(session);
-      mimeMessage.setFrom(notificationContent.getSender());
-      mimeMessage.setRecipients(MimeMessage.RecipientType.TO, notificationContent.getRecipients());
-      mimeMessage.setSubject(notificationContent.getSubject());
-      mimeMessage.setContent(notificationContent.getContent(), CONTENT_TYPE);
       try {
-        Transport.send(mimeMessage);
+        sendEmail(notificationContent, notificationContent.getRecipients());
       } catch (SendFailedException firstException) {
         log.info(
             "Following addresses are invalid: {}",
@@ -56,9 +55,8 @@ public class EmailNotification {
         var validUnsentAddresses = firstException.getValidUnsentAddresses();
         if (recipientsExist(validUnsentAddresses)) {
           log.info("Retrying unsent valid addresses: {}", concatAddresses(validUnsentAddresses));
-          mimeMessage.setRecipients(MimeMessage.RecipientType.TO, validUnsentAddresses);
           try {
-            Transport.send(mimeMessage);
+            sendEmail(notificationContent, validUnsentAddresses);
           } catch (SendFailedException retriedException) {
             log.warn(
                 "\nwhat: {}\nwhy: {}\nconsequence: {}\ncountermeasure: {}",
@@ -70,6 +68,45 @@ public class EmailNotification {
         }
       }
     }
+  }
+
+  private void sendEmail(NotificationContent notificationContent, Address[] recipients)
+      throws MessagingException {
+    if (emailPropertiesConfiguration.isAuthEnabled()) {
+      sendAuthenticatedEmail(notificationContent, recipients);
+    } else {
+      sendUnauthenticatedEmail(notificationContent, recipients);
+    }
+  }
+
+  private void sendUnauthenticatedEmail(NotificationContent notificationContent,
+      Address[] recipients) throws MessagingException {
+    Transport transport = session.getTransport();
+    var mimeMessage = prepareMessage(notificationContent);
+    transport.send(mimeMessage, recipients);
+  }
+
+  private void sendAuthenticatedEmail(NotificationContent notificationContent, Address[] recipients)
+      throws MessagingException {
+    Transport transport = session.getTransport();
+    var mimeMessage = prepareMessage(notificationContent);
+    try {
+      transport.connect(emailPropertiesConfiguration.getUsername(),
+          emailPropertiesConfiguration.getPassword());
+      transport.sendMessage(mimeMessage, recipients);
+    } finally {
+      transport.close();
+    }
+  }
+
+  private MimeMessage prepareMessage(NotificationContent notificationContent)
+      throws MessagingException {
+    MimeMessage mimeMessage = new MimeMessage(session);
+    mimeMessage.setFrom(notificationContent.getSender());
+    mimeMessage.setRecipients(MimeMessage.RecipientType.TO, notificationContent.getRecipients());
+    mimeMessage.setSubject(notificationContent.getSubject());
+    mimeMessage.setContent(notificationContent.getContent(), CONTENT_TYPE);
+    return mimeMessage;
   }
 
   private boolean recipientsExist(Address[] recipients) {

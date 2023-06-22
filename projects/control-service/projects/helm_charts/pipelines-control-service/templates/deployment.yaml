@@ -292,6 +292,8 @@ spec:
               value: "{{ .Values.mail.smtp.ssl.protocols }}"
             - name: MAIL_SMTP_PORT
               value: "{{ .Values.mail.smtp.port }}"
+            - name: MAIL_TRANSPORT_PROTOCOL
+              value: "{{ .Values.mail.transport.protocol }}"
             {{- end }}
 
 

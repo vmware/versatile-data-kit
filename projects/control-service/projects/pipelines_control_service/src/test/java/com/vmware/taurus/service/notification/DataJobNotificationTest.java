@@ -20,7 +20,9 @@ import java.util.*;
 
 public class DataJobNotificationTest {
 
-  private SimpleSmtpServer smptServer;
+  private final String TEST_PROTOCOL = "mail";
+
+  private SimpleSmtpServer smtpServer;
   private EmailPropertiesConfiguration emailPropertiesConfiguration;
   private JobConfig jobConfig;
   private DataJobNotification dataJobNotification;
@@ -28,16 +30,15 @@ public class DataJobNotificationTest {
 
   @BeforeEach
   public void setup() throws IOException {
-    this.smptServer = SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
+    this.smtpServer = SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
     this.emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
     Mockito.when(emailPropertiesConfiguration.smtpWithPrefix())
-        .thenReturn(getMailProperties(this.smptServer.getPort()));
+        .thenReturn(getMailProperties(this.smtpServer.getPort()));
+    Mockito.when(emailPropertiesConfiguration.getTransportProtocol()).thenReturn(TEST_PROTOCOL);
 
     this.dataJobNotification =
         new DataJobNotification(
             new EmailNotification(this.emailPropertiesConfiguration),
-            new AuthenticatedEmailNotification(this.emailPropertiesConfiguration),
-            this.emailPropertiesConfiguration,
             "Example Name",
             "your_username@vmware.com",
             Collections.singletonList("cc@dummy.com"));
@@ -47,7 +48,7 @@ public class DataJobNotificationTest {
 
   @AfterEach
   public void clean() {
-    this.smptServer.close();
+    this.smtpServer.close();
   }
 
   @Test
@@ -56,7 +57,7 @@ public class DataJobNotificationTest {
     dataJobNotification.notifyJobDeploySuccess(jobConfig);
     dataJobNotification.notifyJobDeployError(jobConfig, "Some error", "Some error body");
 
-    List<SmtpMessage> emails = this.smptServer.getReceivedEmails();
+    List<SmtpMessage> emails = this.smtpServer.getReceivedEmails();
     Assertions.assertEquals(3, emails.size());
     Assertions.assertEquals(
         "[deploy][data job failure] example_unittest_job", emails.get(0).getHeaderValue("Subject"));
@@ -68,7 +69,7 @@ public class DataJobNotificationTest {
   public void jobNotificationsJobDeployError() throws IOException {
     dataJobNotification.notifyJobDeployError(jobConfig, "Some error", "Some error body");
 
-    List<SmtpMessage> emails = this.smptServer.getReceivedEmails();
+    List<SmtpMessage> emails = this.smtpServer.getReceivedEmails();
     Assertions.assertEquals(1, emails.size());
     var email = emails.get(0);
     Assertions.assertEquals(
@@ -80,7 +81,7 @@ public class DataJobNotificationTest {
   public void jobNotificationsJobDeploySuccess() throws IOException {
     dataJobNotification.notifyJobDeploySuccess(jobConfig);
 
-    List<SmtpMessage> emails = this.smptServer.getReceivedEmails();
+    List<SmtpMessage> emails = this.smtpServer.getReceivedEmails();
     Assertions.assertEquals(1, emails.size());
     var email = emails.get(0);
     Assertions.assertEquals(

@@ -43,19 +43,13 @@ public class DataJobNotification {
   private List<String> ccEmails;
 
   private EmailNotification notification;
-  private AuthenticatedEmailNotification authenticatedEmailNotification;
-  private EmailPropertiesConfiguration configuration;
 
   public DataJobNotification(
       EmailNotification notification,
-      AuthenticatedEmailNotification authenticatedEmailNotification,
-      EmailPropertiesConfiguration configuration,
       @Value("${datajobs.notification.owner.name}") String ownerName,
       @Value("${datajobs.notification.owner.email}") String ownerEmail,
       @Value("${datajobs.notification.cc.emails:}") List<String> ccEmails) {
-    this.authenticatedEmailNotification = authenticatedEmailNotification;
     this.notification = notification;
-    this.configuration = configuration;
     this.ownerName = ownerName;
     this.ownerEmail = ownerEmail;
     this.ccEmails = ccEmails;
@@ -66,7 +60,7 @@ public class DataJobNotification {
       NotificationContent notificationContent =
           new NotificationContent(
               jobConfig, DEPLOY_STAGE, SUCCESS_STATUS, ownerName, ownerEmail, ccEmails);
-      sendNotification(notificationContent);
+      notification.send(notificationContent);
     } catch (AddressException e) {
       log.warn("Could not send notification due to bad email format", e);
     } catch (MessagingException e) {
@@ -87,7 +81,7 @@ public class DataJobNotification {
               ownerName,
               ownerEmail,
               ccEmails);
-      sendNotification(notificationContent);
+      notification.send(notificationContent);
     } catch (AddressException e) {
       log.warn("Could not send notification due to bad email format", e);
     } catch (MessagingException e) {
@@ -95,11 +89,4 @@ public class DataJobNotification {
     }
   }
 
-  private void sendNotification(NotificationContent notificationContent) throws MessagingException {
-    if (configuration.isAuthEnabled()) {
-      authenticatedEmailNotification.send(notificationContent);
-    } else {
-      notification.send(notificationContent);
-    }
-  }
 }

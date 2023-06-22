@@ -14,32 +14,42 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class EmailPropertiesConfiguration {
 
-  private final String PASSWORD_PROPERTY_KEY = "mail.smtp.password";
-  private final String USER_PROPERTY_KEY = "mail.smtp.user";
-  private final String AUTH_ENABLE_PROPERTY_KEY = "mail.smtp.auth";
+  private final String MAIL_SMTP_PASSWORD = "mail.smtp.password";
+  private final String MAIL_SMTP_USER = "mail.smtp.user";
+  private final String MAIL_SMTP_AUTH = "mail.smtp.auth";
+  private final String TRANSPORT_PROTOCOL = "transport.protocol";
 
   @Bean
-  @ConfigurationProperties(prefix = "mail.smtp")
-  public Map<String, String> smtp() {
+  @ConfigurationProperties(prefix = "mail")
+  Map<String, String> mail() {
     return new HashMap<>();
   }
 
   public Map<String, String> smtpWithPrefix() {
     Map<String, String> result = new HashMap<>();
-    var props = this.smtp();
-    props.forEach(((key, value) -> result.put("mail.smtp." + key, value)));
+    var props = this.mail();
+    props.forEach(((key, value) -> {
+      if (key.startsWith("smtp")) {
+        result.put("mail." + key, value);
+      }
+    }));
     return result;
   }
 
   public String getUsername() {
-    return smtpWithPrefix().get(USER_PROPERTY_KEY);
+    return smtpWithPrefix().get(MAIL_SMTP_USER);
   }
 
   public String getPassword() {
-    return smtpWithPrefix().get(PASSWORD_PROPERTY_KEY);
+    return smtpWithPrefix().get(MAIL_SMTP_PASSWORD);
   }
 
   public boolean isAuthEnabled() {
-    return Boolean.parseBoolean(smtpWithPrefix().get(AUTH_ENABLE_PROPERTY_KEY));
+    return Boolean.parseBoolean(smtpWithPrefix().get(MAIL_SMTP_AUTH));
   }
+
+  public String getTransportProtocol() {
+    return mail().get(TRANSPORT_PROTOCOL);
+  }
+
 }

@@ -110,6 +110,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'com.squareup.okio:okio'
     implementation versions.'io.micrometer:micrometer-core'
     implementation versions.'io.micrometer:micrometer-registry-prometheus'
+    testImplementation versions.'com.icegreen.greenmail'
 }
 
 task wrapper(type: Wrapper) {

@@ -1025,8 +1025,11 @@ dataJob:
 # loggingFormat: TEXT
 
 # Configures properties used for sending notifications if emails should go through an
-# authenticated email server.
+# authenticated email server. More information:
+# https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
 mail:
+  transport:
+    protocol: "smtp"
   smtp:
     auth: false
     starttls:
