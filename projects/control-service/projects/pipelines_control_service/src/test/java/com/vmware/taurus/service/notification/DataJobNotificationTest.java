@@ -20,10 +20,9 @@ import java.util.*;
 
 public class DataJobNotificationTest {
 
-  private final String TEST_PROTOCOL = "mail";
+  private final String TEST_PROTOCOL = "smtp";
 
   private SimpleSmtpServer smtpServer;
-  private EmailPropertiesConfiguration emailPropertiesConfiguration;
   private JobConfig jobConfig;
   private DataJobNotification dataJobNotification;
   private String receiverMail;
@@ -31,14 +30,14 @@ public class DataJobNotificationTest {
   @BeforeEach
   public void setup() throws IOException {
     this.smtpServer = SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
-    this.emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
+    var emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
     Mockito.when(emailPropertiesConfiguration.smtpWithPrefix())
         .thenReturn(getMailProperties(this.smtpServer.getPort()));
     Mockito.when(emailPropertiesConfiguration.getTransportProtocol()).thenReturn(TEST_PROTOCOL);
 
     this.dataJobNotification =
         new DataJobNotification(
-            new EmailNotification(this.emailPropertiesConfiguration),
+            new EmailNotification(emailPropertiesConfiguration),
             "Example Name",
             "your_username@vmware.com",
             Collections.singletonList("cc@dummy.com"));

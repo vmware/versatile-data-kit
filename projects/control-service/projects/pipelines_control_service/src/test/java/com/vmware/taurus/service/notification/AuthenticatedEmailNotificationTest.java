@@ -33,7 +33,6 @@ public class AuthenticatedEmailNotificationTest {
   private final String TEST_PROTOCOL = "smtp";
 
   private GreenMail greenMail;
-  private EmailPropertiesConfiguration emailPropertiesConfiguration;
   private DataJobNotification dataJobNotification;
   private String receiverMail = TEST_USER;
 
@@ -42,7 +41,7 @@ public class AuthenticatedEmailNotificationTest {
     greenMail = new GreenMail(ServerSetup.SMTP.dynamicPort());
     greenMail.start();
 
-    this.emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
+    var emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
     Mockito.when(emailPropertiesConfiguration.smtpWithPrefix()).thenReturn(getMailProperties());
     Mockito.when(emailPropertiesConfiguration.isAuthEnabled()).thenReturn(true);
     Mockito.when(emailPropertiesConfiguration.getUsername()).thenReturn(TEST_USER);
@@ -51,7 +50,7 @@ public class AuthenticatedEmailNotificationTest {
 
     this.dataJobNotification =
         new DataJobNotification(
-            new EmailNotification(this.emailPropertiesConfiguration),
+            new EmailNotification(emailPropertiesConfiguration),
             "Example Name",
             TEST_USER,
             Collections.singletonList("cc@dummy.com"));
