@@ -30,14 +30,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 @Testcontainers
 public class TestVaultJobSecretsServiceIT extends BaseIT {
 
   @Container
   private static final VaultContainer vaultContainer =
-          new VaultContainer<>("vault:1.0.2").withVaultToken("root");
+      new VaultContainer<>("vault:1.0.2").withVaultToken("root");
 
   private static VaultJobSecretsService vaultJobSecretService;
 
@@ -84,12 +84,12 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
     Map<String, Object> largeSecrets = new HashMap<>();
     largeSecrets.put("key1", null);
     largeSecrets.put(
-            "key2",
-            RandomStringUtils.randomAlphabetic(VaultJobSecretsService.VAULT_SIZE_LIMIT_DEFAULT));
+        "key2",
+        RandomStringUtils.randomAlphabetic(VaultJobSecretsService.VAULT_SIZE_LIMIT_DEFAULT));
 
     assertThrows(
-            DataJobSecretsSizeLimitException.class,
-            () -> vaultJobSecretService.updateJobSecrets("testJob2", largeSecrets));
+        DataJobSecretsSizeLimitException.class,
+        () -> vaultJobSecretService.updateJobSecrets("testJob2", largeSecrets));
 
     // check secrets were not updated
     Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
