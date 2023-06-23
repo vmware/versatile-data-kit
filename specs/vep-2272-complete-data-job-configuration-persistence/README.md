@@ -98,8 +98,12 @@ There would be no changes to the public APIs.
 ### Kubernetes Cron Jobs Synchronizer
 
 To enhance data integrity and synchronization between a database and Kubernetes, an asynchronous process will be
-implemented. This process will leverage Spring Scheduler and Scheduler Lock, similar to the
+implemented. This process will leverage Spring Scheduler and [Scheduler Lock](https://github.com/lukas-krecan/ShedLock),
+similar to the
 [DataJobMonitorCron.watchJobs()](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/service/monitoring/DataJobMonitorCron.java#L84).
+By using [Scheduler Lock](https://github.com/lukas-krecan/ShedLock), we can achieve an active-passive pattern across the
+Control Service instances. In simpler terms, only one instance of the Control Service will be able to synchronize Cron
+Jobs at any given time.
 
 The overall purpose of this process is to iterate through the data job deployment configurations stored in the database
 and determine whether the corresponding Cron Job in Kubernetes is synchronized and up to date. If the Cron Job is not
@@ -187,6 +191,18 @@ deployments are not involved, allowing for more efficient and faster retrieval o
 It's important to note that these measurements provide a preliminary understanding of the potential performance gains.
 Further testing and profiling with a larger and more diverse dataset will be required to obtain more accurate and
 comprehensive performance insights.
+
+### Troubleshooting
+
+* Possible failure modes:
+    * If the Control Service Pod restarts while the Cron Jobs are being synchronized, another Pod of the
+      Control Service will take over and become active to continue the synchronization process.
+    * If the database stops working, the deployment configurations for data jobs won't be accessible through the public
+      APIs. Additionally, the synchronization of Cron Jobs will be put on hold until the database is functioning again,
+      and then it will be resumed.
+    * If the Kubernetes API server stops working while the Cron Jobs are being synchronized, the active Control Service
+      Pod will delay the synchronization process until the API server is back online, and then it will resume the
+      synchronization.
 
 ## Alternatives
 
