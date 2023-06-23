@@ -131,6 +131,8 @@ replicated:
 * `deployed_date`
 * `deployment_version_sha`
 
+The columns shown above were found by comparing the properties of the current Cron Job with the columns in the database.
+
 In order to accommodate the replication of the additional data job configuration properties from Kubernetes to the
 database, it would be necessary to add a table called `data_job_deployment` to the existing database model.
 This table will have the mentioned columns, and the relationship between `data_job` and `data_job_deployment` tables
@@ -149,17 +151,17 @@ reworking the DataJobsDeployment and GraphQL APIs to interact solely with the da
 the communication process and leverage the database as the primary source of data job configuration information. Here's
 how this enhancement can be described in more detail:
 
-The existing APIs, which might have previously interacted directly with Kubernetes for data job-related operations, will
-be refactored to retrieve and update data job configurations exclusively from the database. This architectural change
-allows for improved performance as the APIs will no longer need to make frequent and potentially resource-intensive
-calls to the Kubernetes API server.
+The existing APIs, which might have previously interacted directly with Kubernetes for data job deployment-related
+operations, will be refactored to retrieve and update data job deployment configurations exclusively from the database.
+This architectural change allows for improved performance as the APIs will no longer need to make frequent and
+potentially resource-intensive calls to the Kubernetes API server.
 
 By relying on the database as the central source of truth for data job configurations, the system can achieve faster
 response times and reduce the overall load on the Kubernetes API.
 
 With this rework, the APIs will become more lightweight, leveraging the optimized data access and querying capabilities
 of the database. Consequently, the overall system performance will be enhanced, providing a smoother and more efficient
-experience for users interacting with the data job management functionalities.
+experience for users interacting with the data job deployment management functionalities.
 
 ### Performance
 
@@ -198,11 +200,8 @@ functionality to manage the Cron Jobs lifecycle. This approach allows for a more
 data jobs, handling tasks such as provisioning.
 
 While the Operator-based solution offers advantages such as built-in reconciliation loops and event-driven actions, it
-typically requires more effort and time to develop and deploy. Implementing a Kubernetes Operator involves writing
-custom code, defining custom resources, and handling various operational aspects, such as error handling and retries.
-
-Considering the complexity and learning curve associated with implementing a Kubernetes Operator, it's important to
-weigh the trade-offs between the time investment required and the potential benefits gained. If time constraints are a
-significant factor or if the current implementation already meets the performance requirements, the approach of
-reworking the APIs to interact solely with the database and introducing of Cron Jobs Synchronizer may be a more
-pragmatic choice.
+typically requires more effort and time to develop and deploy. Implementing a Kubernetes Operator requires knowledge
+about operators, a lot of architectural changes, and an additional component that needs to be deployed and operated.
+Compared to the operator-based approach the one described in the VEP will be easier and faster to implement since it is
+based on the existing component `Control Service`. Also, it does not require the implementation and management of
+additional components.
