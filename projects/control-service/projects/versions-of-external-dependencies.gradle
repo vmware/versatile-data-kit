@@ -45,7 +45,7 @@ project.ext {
             'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:2.0.1',
             'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.8.0',
             'com.amazonaws:aws-java-sdk-core'                                    : 'com.amazonaws:aws-java-sdk-core:1.12.494',
-            'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.493',
+            'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.494',
             'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.493',
             'org.springframework.vault:spring-vault-core'                        : 'org.springframework.vault:spring-vault-core:2.3.3',
 
