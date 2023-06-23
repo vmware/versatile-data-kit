@@ -46,5 +46,6 @@ public class TestEmailPropertiesConfiguration {
     Assertions.assertEquals(emailPropertiesConfiguration.getPassword(), "");
     Assertions.assertEquals(emailPropertiesConfiguration.getUsername(), "");
     Assertions.assertEquals(emailPropertiesConfiguration.getTransportProtocol(), "smtp");
+    Assertions.assertFalse(emailPropertiesConfiguration.isAuthEnabled());
   }
 }
