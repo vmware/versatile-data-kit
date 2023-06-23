@@ -719,45 +719,6 @@ public abstract class KubernetesService {
         .collect(Collectors.toSet());
   }
 
-  public void createCronJob(
-      String name,
-      String image,
-      String schedule,
-      boolean enable,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobAnnotations,
-      Map<String, String> jobLabels,
-      List<String> imagePullSecrets)
-      throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
-      createV1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobAnnotations,
-          jobLabels,
-          imagePullSecrets);
-    } else {
-      createV1beta1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobAnnotations,
-          jobLabels,
-          imagePullSecrets);
-    }
-  }
-
   // TODO:  container/volume args are breaking a bit abstraction of KubernetesService by leaking
   // impl. details
   public void createV1beta1CronJob(
@@ -830,45 +791,6 @@ public abstract class KubernetesService {
         nsJob.getApiVersion(),
         nsJob.getMetadata().getUid(),
         nsJob.getMetadata().getSelfLink());
-  }
-
-  public void updateCronJob(
-      String name,
-      String image,
-      String schedule,
-      boolean enable,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobAnnotations,
-      Map<String, String> jobLabels,
-      List<String> imagePullSecrets)
-      throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
-      updateV1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobAnnotations,
-          jobLabels,
-          imagePullSecrets);
-    } else {
-      updateV1beta1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobAnnotations,
-          jobLabels,
-          imagePullSecrets);
-    }
   }
 
   public void updateV1beta1CronJob(
@@ -1514,7 +1436,6 @@ public abstract class KubernetesService {
       throws ApiException, IOException {
 
     Objects.requireNonNull(watcher, "The watcher cannot be null");
-    log.info("Start watching jobs with labels: {}", labelsToWatch);
 
     // Job change detection implementation:
     // https://kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes
@@ -1544,7 +1465,9 @@ public abstract class KubernetesService {
       runningJobExecutionsConsumer.accept(runningExecutionIds);
       resourceVersion = jobList.getMetadata().getResourceVersion();
     } catch (ApiException ex) {
-      log.info("Failed to list jobs for watching. Error was: {}", ex.getMessage());
+      log.info(
+          "Failed to list jobs for watching. Error was: {}",
+          new KubernetesException("", ex).toString());
       return;
     }
 

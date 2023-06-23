@@ -6,10 +6,8 @@
 package com.vmware.taurus.secrets.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.controlplane.model.api.DataJobsSecretsApi;
 import com.vmware.taurus.exception.DataJobSecretsException;
-import com.vmware.taurus.exception.SecretStorageNotConfiguredException;
 import com.vmware.taurus.secrets.service.JobSecretsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -30,14 +28,10 @@ import java.util.Map;
 public class DataJobsSecretsController implements DataJobsSecretsApi {
   static Logger log = LoggerFactory.getLogger(DataJobsSecretsController.class);
 
-  private final FeatureFlags featureFlags;
-
   private final JobSecretsService secretsService;
 
   @Autowired
-  public DataJobsSecretsController(
-      FeatureFlags featureFlags, @Nullable JobSecretsService secretsService) {
-    this.featureFlags = featureFlags;
+  public DataJobsSecretsController(@Nullable JobSecretsService secretsService) {
     this.secretsService = secretsService;
   }
 
@@ -46,12 +40,8 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
       String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
     log.debug("Updating secrets for job: {}", jobName);
 
-    if (featureFlags.isVaultIntegrationEnabled()) {
-      secretsService.updateJobSecrets(jobName, requestBody);
-      return ResponseEntity.noContent().build();
-    }
-
-    throw new SecretStorageNotConfiguredException();
+    secretsService.updateJobSecrets(jobName, requestBody);
+    return ResponseEntity.noContent().build();
   }
 
   @Override
@@ -59,15 +49,11 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
       String teamName, String jobName, String deploymentId) {
     log.debug("Reading secrets for job: {}", jobName);
 
-    if (featureFlags.isVaultIntegrationEnabled()) {
-      try {
-        return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
-      } catch (JsonProcessingException e) {
-        log.error("Error while parsing secrets for job: " + jobName, e);
-        throw new DataJobSecretsException(jobName, "Error while parsing secrets for job");
-      }
+    try {
+      return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
+    } catch (JsonProcessingException e) {
+      log.error("Error while parsing secrets for job: " + jobName, e);
+      throw new DataJobSecretsException(jobName, "Error while parsing secrets for job");
     }
-
-    throw new SecretStorageNotConfiguredException();
   }
 }

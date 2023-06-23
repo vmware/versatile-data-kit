@@ -1,0 +1,30 @@
+@startuml
+!include <awslib/AWSSimplified>
+!include <awslib/General/User>
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/gilbarbara-plantuml-sprites/v1.0/sprites/vault.puml
+
+User(engineer, "User", " ")
+
+rectangle "K8s Cluster" {
+   rectangle "Data Jobs Namespace" {
+     component "Data Job" as dj #silver {
+     }
+   }
+   rectangle "Control Service Namespace" {
+         component "Control Service" as cs #silver {
+          rectangle "GraphQL API" as data_jobs_deployment_api #LightSkyBlue
+         }
+     }
+}
+
+database "\nCockroachDB\n" as DB #silver
+
+engineer --> data_jobs_deployment_api : " reads data job \n deployment configuration \n(API call)"
+data_jobs_deployment_api --> DB : " reads data job \n deployment configuration"
+
+legend bottom left
+  | <#LightSkyBlue> changed component |
+  | <#silver> existing component |
+endlegend
+
+@enduml

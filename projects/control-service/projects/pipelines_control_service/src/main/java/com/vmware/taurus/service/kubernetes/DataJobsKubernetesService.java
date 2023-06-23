@@ -8,12 +8,18 @@ package com.vmware.taurus.service.kubernetes;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
 import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
+import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1Volume;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Kubernetes service used for serving data jobs deployments. All deployed data jobs are executed in
@@ -25,7 +31,7 @@ import org.springframework.stereotype.Service;
 public class DataJobsKubernetesService extends KubernetesService {
 
   public DataJobsKubernetesService(
-      @Value("${datajobs.deployment.k8s.namespace:}") String namespace,
+      @Qualifier("dataJobsNamespace") String namespace,
       @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
       @Qualifier("deploymentApiClient") ApiClient client,
       @Qualifier("deploymentBatchV1Api") BatchV1Api batchV1Api,
@@ -39,5 +45,83 @@ public class DataJobsKubernetesService extends KubernetesService {
         batchV1Api,
         batchV1beta1Api,
         jobCommandProvider);
+  }
+
+  public void createCronJob(
+      String name,
+      String image,
+      String schedule,
+      boolean enable,
+      V1Container jobContainer,
+      V1Container initContainer,
+      List<V1Volume> volumes,
+      Map<String, String> jobAnnotations,
+      Map<String, String> jobLabels,
+      List<String> imagePullSecrets)
+      throws ApiException {
+    if (getK8sSupportsV1CronJob()) {
+      createV1CronJob(
+          name,
+          image,
+          schedule,
+          enable,
+          jobContainer,
+          initContainer,
+          volumes,
+          jobAnnotations,
+          jobLabels,
+          imagePullSecrets);
+    } else {
+      createV1beta1CronJob(
+          name,
+          image,
+          schedule,
+          enable,
+          jobContainer,
+          initContainer,
+          volumes,
+          jobAnnotations,
+          jobLabels,
+          imagePullSecrets);
+    }
+  }
+
+  public void updateCronJob(
+      String name,
+      String image,
+      String schedule,
+      boolean enable,
+      V1Container jobContainer,
+      V1Container initContainer,
+      List<V1Volume> volumes,
+      Map<String, String> jobAnnotations,
+      Map<String, String> jobLabels,
+      List<String> imagePullSecrets)
+      throws ApiException {
+    if (getK8sSupportsV1CronJob()) {
+      updateV1CronJob(
+          name,
+          image,
+          schedule,
+          enable,
+          jobContainer,
+          initContainer,
+          volumes,
+          jobAnnotations,
+          jobLabels,
+          imagePullSecrets);
+    } else {
+      updateV1beta1CronJob(
+          name,
+          image,
+          schedule,
+          enable,
+          jobContainer,
+          initContainer,
+          volumes,
+          jobAnnotations,
+          jobLabels,
+          imagePullSecrets);
+    }
   }
 }
