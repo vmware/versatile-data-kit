@@ -8,15 +8,18 @@ package com.vmware.taurus.service.notification;
 import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
 import com.vmware.taurus.service.model.JobConfig;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.io.IOException;
-import java.util.*;
 
 public class DataJobNotificationTest {
 
@@ -103,6 +106,11 @@ public class DataJobNotificationTest {
     mailProps.put("mail.smtp.host", "localhost");
     mailProps.put("mail.smtp.port", "" + port);
     mailProps.put("mail.smtp.sendpartial", "true");
+    mailProps.put("mail.smtp.auth", "false");
+    mailProps.put("mail.smtp.starttls.enable", "false");
+    mailProps.put("mail.transport.protocol", TEST_PROTOCOL);
+    mailProps.put("mail.smtp.user", "");
+    mailProps.put("mail.smtp.password", "");
     return mailProps;
   }
 }
