@@ -1,5 +1,5 @@
 @startuml
-entity data_job {
+entity data_job #silver {
    **name** primary key
    team
    description
@@ -21,12 +21,11 @@ entity data_job {
    latest_job_execution_id
 }
 
-entity data_job_deployment {
+entity data_job_deployment #LightSkyBlue {
    **data_job_name** primary key
    deployment_version_sha
    vdk_version
    python_version
-   image_name
    git_commit_sha
    deployed_by
    deployed_date
@@ -37,4 +36,9 @@ entity data_job_deployment {
 }
 
 data_job ||..|| data_job_deployment
+
+legend bottom left
+  | <#LightSkyBlue> new table |
+  | <#silver> existing table |
+endlegend
 @enduml

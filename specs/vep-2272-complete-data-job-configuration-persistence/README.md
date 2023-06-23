@@ -107,7 +107,8 @@ synchronized with the database, the process will initiate a new data job deploym
 such as building an image or updating the Cron Job template.
 
 In order to enhance the process further, the proposed asynchronous process will incorporate a mechanism to determine
-whether a Cron Job needs to be updated or not. This will be achieved by utilizing the hash code (`deployment_version_sha`) of the
+whether a Cron Job needs to be updated or not. This will be achieved by utilizing the hash
+code (`deployment_version_sha`) of the
 Cron Job YAML configuration, which will be stored in the database after each deployment.
 
 By introducing this asynchronous process, you can ensure that the database and Kubernetes remain in sync, maintaining
@@ -122,7 +123,6 @@ replicated:
 * `git_commit_sha`
 * `vdk_version`
 * `python_version`
-* `image_name`
 * `cpu_request`
 * `cpu_limit`
 * `memory_request`
@@ -132,10 +132,13 @@ replicated:
 * `deployment_version_sha`
 
 In order to accommodate the replication of the additional data job configuration properties from Kubernetes to the
-database, it would be necessary to make appropriate modifications to the existing database model. These modifications
-involve updating the schema of the relevant database tables to incorporate the new columns corresponding to the
-additional properties. By making these database model changes, the system can effectively store and synchronize all the
-required data job configuration details between Kubernetes and the database.
+database, it would be necessary to add a table called `data_job_deployment` to the existing database model.
+This table will have the mentioned columns, and the relationship between `data_job` and `data_job_deployment` tables
+will be one-to-one. This approach will normalize the database model and make it suitable for accommodating
+multiple deployments for each data job in the future.
+
+By making these database model changes, the system can effectively store and synchronize all the required data job
+configuration details between Kubernetes and the database.
 
 ![database_data_model.png](database_data_model.png)
 
