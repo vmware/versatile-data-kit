@@ -27,12 +27,6 @@ def _get_properties_in_memory():
     return router
 
 
-def _get_secrets_in_memory():
-    router = SecretsRouter("foo", Configuration({}, {}))
-    router.set_secrets_factory_method("default", lambda: InMemSecretsServiceClient())
-    return router
-
-
 def test_substitute_int_arg():
     job_input = JobInput(
         MagicMock(),

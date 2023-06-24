@@ -91,12 +91,12 @@ class SecretsRouter(ISecretsRegistry, ISecrets):
                 log,
                 "",
                 f"secrets default type was configured to be {secrets_type} "
-                f"no such secrets api implementation has been registered",
-                f"",
-                f"Check if the job has not been mis-configured - for example misspelling error. "
+                "no such secrets api implementation has been registered",
+                "",
+                "Check if the job has not been mis-configured - for example misspelling error. "
                 f"See config-help for help on configuration. Existing secrets types are: {list(self.__secrets_builders.keys())} "
-                f"Alternatively make sure the correct plugin has been installed "
-                f"providing the secrets api implementation ",
+                "Alternatively make sure the correct plugin has been installed "
+                "providing the secrets api implementation ",
             )
 
     def __setup_secrets_from_factory_method(self):
@@ -116,15 +116,15 @@ class SecretsRouter(ISecretsRegistry, ISecrets):
                     errors.ResolvableBy.CONFIG_ERROR,
                     log,
                     "Secrets API client cannot be chosen.",  # set by handler
-                    f"Too many choices for secrets client implementation.",
-                    f"Secrets API functionality does not work.",  # set by handler
-                    f"Configure which secrets client implementation "
-                    f"to use with secrets_default_type config option. "
+                    "Too many choices for secrets client implementation.",
+                    "Secrets API functionality does not work.",  # set by handler
+                    "Configure which secrets client implementation "
+                    "to use with secrets_default_type config option. "
                     f"See config-help for help on configuration. Existing secret types are: {list(self.__secrets_builders.keys())}",
                 )
 
             for p in self.__config.get_secrets_write_preprocess_sequence():
-                if p not in self.__secrets_builders.keys():
+                if p not in self.__secrets_builders:
                     errors.log_and_throw(
                         to_be_fixed_by=ResolvableBy.CONFIG_ERROR,
                         log=log,

@@ -12,7 +12,6 @@ class SecretsNotAvailable(ISecrets):
 
     def __init__(self, error_handler: Callable[[str], None]):
         self._error_handler = error_handler
-        pass
 
     def get_secret(self, name, default_value=None):  # @UnusedVariable
         self.tell_user("get_secret")

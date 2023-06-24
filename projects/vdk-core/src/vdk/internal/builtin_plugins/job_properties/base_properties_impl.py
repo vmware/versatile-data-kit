@@ -4,10 +4,13 @@ from typing import List
 from typing import Type
 
 
-def check_valid_property(k: str, v: str, supported_types: List[Type] = []) -> None:
+def check_valid_property(k: str, v: str, supported_types=None) -> None:
     """
     Check if property key and value are valid
     """
+    if supported_types is None:
+        supported_types = []
+
     if str != type(k) or k.strip() != k or "".join(k.split()) != k:
         msg = (
             f"Property {k} is of unsupported type or has unsupported name. "

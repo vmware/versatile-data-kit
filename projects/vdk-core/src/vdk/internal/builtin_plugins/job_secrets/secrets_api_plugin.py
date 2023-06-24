@@ -20,6 +20,4 @@ class SecretsApiPlugin:
 
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
-        context.secrets.set_secrets_factory_method(
-            "memory", lambda: InMemSecretsServiceClient()
-        )
+        context.secrets.set_secrets_factory_method("memory", InMemSecretsServiceClient)
