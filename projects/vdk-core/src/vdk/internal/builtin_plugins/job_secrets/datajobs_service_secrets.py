@@ -87,7 +87,7 @@ class DataJobsServiceSecrets(ISecrets):
                         why_it_happened=f"User Error occurred. Exception was: {e}",
                         consequences="SECRETS_WRITE_PREPROCESS_SEQUENCE was interrupted, and "
                         "secrets won't be written by the SECRETS_DEFAULT_TYPE client.",
-                        countermeasures=f"Handle the exception raised.",
+                        countermeasures="Handle the exception raised.",
                     )
 
         for k, v in list(secrets.items()):

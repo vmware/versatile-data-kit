@@ -1,7 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from typing import List
-from typing import Type
 
 
 def check_valid_secret(k: str, v: str, supported_types=None) -> None:

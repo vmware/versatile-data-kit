@@ -8,12 +8,6 @@ from vdk.internal.builtin_plugins.job_properties.inmemproperties import (
 from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
 )
-from vdk.internal.builtin_plugins.job_secrets.inmemsecrets import (
-    InMemSecretsServiceClient,
-)
-from vdk.internal.builtin_plugins.job_secrets.secrets_router import (
-    SecretsRouter,
-)
 from vdk.internal.builtin_plugins.run.data_job import JobArguments
 from vdk.internal.builtin_plugins.run.job_input import JobInput
 from vdk.internal.core.config import Configuration
