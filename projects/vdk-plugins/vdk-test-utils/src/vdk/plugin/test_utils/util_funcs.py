@@ -41,6 +41,7 @@ from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import StateStore
 from vdk.internal.plugin.plugin import PluginRegistry
 from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
+from vdk.plugin.test_utils.util_plugins import TestSecretsPlugin
 
 
 def cli_assert(
@@ -121,7 +122,7 @@ class CliEntryBasedTestRunner:
         :param plugins: the list of plugins that should be loaded during this test run.
         """
         self._plugins = plugins
-        self._default_plugins = [TestPropertiesPlugin()]
+        self._default_plugins = [TestPropertiesPlugin(), TestSecretsPlugin()]
 
     def clear_default_plugins(self):
         self._default_plugins.clear()
