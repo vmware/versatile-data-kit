@@ -32,18 +32,14 @@ public class TestEmailConfiguration {
     Assertions.assertEquals(emailConfiguration.getTransportProtocol(), "smtp");
     Assertions.assertEquals(
         emailConfiguration.smtpWithPrefix().get("mail.smtp.host"), "smtp.vmware.com");
-    Assertions.assertEquals(
-        emailConfiguration.smtpWithPrefix().get("mail.smtp.auth"), "false");
+    Assertions.assertEquals(emailConfiguration.smtpWithPrefix().get("mail.smtp.auth"), "false");
     Assertions.assertEquals(
         emailConfiguration.smtpWithPrefix().get("mail.smtp.starttls.enable"), "false");
-    Assertions.assertEquals(
-        emailConfiguration.smtpWithPrefix().get("mail.smtp.user"), "");
-    Assertions.assertEquals(
-        emailConfiguration.smtpWithPrefix().get("mail.smtp.password"), "");
+    Assertions.assertEquals(emailConfiguration.smtpWithPrefix().get("mail.smtp.user"), "");
+    Assertions.assertEquals(emailConfiguration.smtpWithPrefix().get("mail.smtp.password"), "");
     Assertions.assertEquals(
         emailConfiguration.smtpWithPrefix().get("mail.smtp.ssl.protocols"), "TLSv1.2");
-    Assertions.assertEquals(
-        emailConfiguration.smtpWithPrefix().get("mail.smtp.port"), "25");
+    Assertions.assertEquals(emailConfiguration.smtpWithPrefix().get("mail.smtp.port"), "25");
   }
 
   @Test

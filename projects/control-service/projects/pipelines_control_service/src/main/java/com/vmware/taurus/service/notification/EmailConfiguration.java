@@ -50,8 +50,9 @@ public class EmailConfiguration {
   }
 
   /**
-   * Transport protocol to be used to send email messages e.g smtp, pop, imap.
-   * Defined in application.properties
+   * Transport protocol to be used to send email messages e.g smtp, pop, imap. Defined in
+   * application.properties
+   *
    * @return
    */
   public String getTransportProtocol() {

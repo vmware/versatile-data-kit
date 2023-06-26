@@ -39,8 +39,7 @@ public class EmailNotification {
     this.emailConfiguration = emailConfiguration;
     Properties properties = System.getProperties();
     properties.putAll(emailConfiguration.smtpWithPrefix());
-    properties.setProperty(
-        "mail.transport.protocol", emailConfiguration.getTransportProtocol());
+    properties.setProperty("mail.transport.protocol", emailConfiguration.getTransportProtocol());
     session = Session.getInstance(properties);
   }
 
@@ -90,8 +89,7 @@ public class EmailNotification {
     Transport transport = session.getTransport();
     var mimeMessage = prepareMessage(notificationContent);
     try {
-      transport.connect(
-          emailConfiguration.getUsername(), emailConfiguration.getPassword());
+      transport.connect(emailConfiguration.getUsername(), emailConfiguration.getPassword());
       transport.sendMessage(mimeMessage, recipients);
     } finally {
       transport.close();
@@ -115,8 +113,6 @@ public class EmailNotification {
   String concatAddresses(Address[] addresses) {
     return addresses == null
         ? null
-        : Arrays.stream(addresses)
-            .map(Address::toString)
-            .collect(Collectors.joining(" "));
+        : Arrays.stream(addresses).map(Address::toString).collect(Collectors.joining(" "));
   }
 }
