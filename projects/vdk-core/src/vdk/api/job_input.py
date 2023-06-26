@@ -33,6 +33,26 @@ class IProperties:
         pass
 
 
+class ISecrets:
+    """
+    Allows for Data Job to store and retrieve sensitive data.
+    Secrets are solution for the following use cases
+    * Keeping API keys and passwords necessary to connect to different systems
+    """
+
+    @abstractmethod
+    def get_secret(self, name: str, default_value: Any = None) -> str:
+        pass
+
+    @abstractmethod
+    def get_all_secrets(self) -> dict:
+        pass
+
+    @abstractmethod
+    def set_all_secrets(self, secrets: dict):
+        pass
+
+
 class IJobArguments:
     """
     Allows for users to pass arguments to data job run.
@@ -332,7 +352,9 @@ class ITemplate:
         pass
 
 
-class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArguments):
+class IJobInput(
+    IProperties, IManagedConnection, IIngester, ITemplate, IJobArguments, ISecrets
+):
     @abstractmethod
     def get_name(self) -> str:
         """
