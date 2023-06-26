@@ -1,0 +1,34 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+.retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
+
+build-vdk-jupyterlab-extension:
+  stage: build
+  image: "python:3.8-alpine"
+  before_script:
+    - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
+    - pip install -U pip setuptools pre-commit
+    - apk --no-cache add npm
+    - apk add rust cargo
+    - apk add libffi-dev
+    - pip install pytest-cov
+  script:
+    - pip install jupyter
+    - echo "Install Dependencies..."
+    - npm ci
+    - echo "Install Vdk JupyterLab Extension..."
+    - pip install .
+    - echo "Building VDK JupyterLab Extension..."
+    - npm rebuild
+  retry: !reference [.retry, retry_options]
+  rules: # we want to trigger build jobs if there are changes to this package,
+    # but not if there are changes to VDK plugins or the main directory
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/vdk-plugins/vdk-jupyter/**/*"
