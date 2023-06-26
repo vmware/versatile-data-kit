@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
+import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { jobRequest } from '../serverRequests';
+import { jobTransformRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
-import { jobData } from '../jobData';
-
+import { VdkErrorMessage } from './VdkErrorMessage';
 
 export default class TransformJobDialog extends Component<IJobPathProp> {
   /**
@@ -56,6 +56,35 @@ export async function showTransformJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    await jobRequest('transform');
+    let { message, status } = await jobTransformRequest();
+    if (status) {
+      showDialog({
+        title: 'Transform Job',
+        body: (
+          <div className="vdk-transform-dialog-message-container">
+            <p className="vdk-transform-dialog-message">
+              The job was transformed successfully!
+            </p>
+          </div>
+        ),
+        buttons: [Dialog.okButton()]
+      });
+    } else {
+      message = 'ERROR : ' + message;
+      const errorMessage = new VdkErrorMessage(message);
+      showDialog({
+        title: 'Transform Job',
+        body: (
+          <div className="vdk-transform-error-message ">
+            <p>{errorMessage.exception_message}</p>
+            <p>{errorMessage.what_happened}</p>
+            <p>{errorMessage.why_it_happened}</p>
+            <p>{errorMessage.consequences}</p>
+            <p>{errorMessage.countermeasures}</p>
+          </div>
+        ),
+        buttons: [Dialog.okButton()]
+      });
+    }
   }
 }
