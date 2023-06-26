@@ -1,0 +1,90 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+serviceType: ClusterIP
+
+
+# Resources set on all data jobs by default if not overridden per job
+deploymentDefaultDataJobsResources:
+  limits:
+    cpu: 0
+    memory: 0
+  requests:
+    cpu: 0
+    memory: 0
+
+deploymentBuilderResourcesDefault:
+  limits:
+    cpu: 0
+    memory: 0
+  requests:
+    cpu: 0
+    memory: 0
+
+
+## Number of replicas of the Control Plane Deployment
+replicas: 1
+## Resources set on Control Plane Deployment
+resources:
+  limits:
+    cpu: 0
+    memory: 0
+  requests:
+    cpu: 0
+    memory: 0
+
+
+cockroachdb:
+  statefulset:
+    replicas: 1
+
+
+### Ingress resource parameters
+ingress:
+  enabled: true
+
+
+deploymentGitBranch: "master"
+deploymentGitUrl: "172.18.0.4/vdkuser/vdk-git-repo.git"
+deploymentGitUsername: "vdkuser"
+deploymentGitPassword: "vdkpass"
+uploadGitReadWriteUsername: "vdkuser"
+uploadGitReadWritePassword: "vdkpass"
+
+
+deploymentDockerRegistryType: "generic"
+deploymentDockerRepository: "vdk-docker-registry:5000"
+proxyRepositoryURL: "localhost:5000"
+
+
+extraVars:
+  - name: GIT_SSL_ENABLED
+    value: "false"
+  - name: DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS
+    value: "--insecure"
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+    value: "http://localhost"
+
+
+dataJob:
+  executions:
+    logsUrl:
+      urlTemplate: "http://localhost:8092/data-jobs/for-team/{{team_name}}/jobs/{{job_name}}/executions/{{execution_id}}/logs?tail_lines=400"
+
+
+datajobTemplate:
+  template:
+    spec:
+      failedJobsHistoryLimit: 5
+      successfulJobsHistoryLimit: 5
+
+
+deploymentSupportedPythonVersions:
+  3.9-release:
+    baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
+    vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
+  3.9-pre-release:
+    baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
+    vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:pre-release"
+
+deploymentDefaultPythonVersion: "3.9-pre-release"
