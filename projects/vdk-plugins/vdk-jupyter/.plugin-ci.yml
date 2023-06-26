@@ -24,7 +24,7 @@ build-vdk-jupyterlab-extension:
     - echo "Install Dependencies..."
     - npm ci
     - echo "Install Vdk JupyterLab Extension..."
-    - pip install -e .
+    - pip install .
     - echo "Building VDK JupyterLab Extension..."
     - jlpm build
   retry: !reference [.retry, retry_options]
