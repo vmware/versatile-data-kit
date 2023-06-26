@@ -25,7 +25,7 @@ class IPropertiesServiceClient:
     """
     Client interface for reading and writing job properties.
     Different backend services can implement it so properties can be stored in different places
-    (e.g databae, inmemory, vault)
+    (e.g. database, in-memory, vault)
     """
 
     __metaclass__ = ABCMeta
@@ -67,7 +67,7 @@ class IPropertiesRegistry(ABC):
     ) -> None:
         """
         Register properties implementation backend.
-        Properties API enable keeping state and secrets of a data job.
+        Properties API enable keeping state of a data job.
         Default implementation is in-memory so it's strongly recommended to install vdk-properties plugin
         which provides API based properties implementation
 
@@ -77,9 +77,68 @@ class IPropertiesRegistry(ABC):
 
         :param properties_type: str
                 string identifying the type of properties being set.
-                This enable users to configure what type of properties implemenation to use.
+                This enables users to configure what type of properties implementation to use.
         :param properties_factory: Callable[[], IPropertiesServiceClient]
                method or interface that returns correctly initialized implementation of IPropertiesServiceClient interface
+        """
+        pass
+
+
+class ISecretsServiceClient:
+    """
+    Client interface for reading and writing job secrets.
+    Different backend services can implement it so secrets can be stored in different secret storage providers
+    """
+
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def read_secrets(self, job_name: str, team_name: str) -> Dict:
+        """
+        Read secrets from the backend - returns a dictionary of all secrets for the given data job.
+        :param team_name: The name of the team the job belongs to
+        :param job_name: the name of the job
+        """
+        pass
+
+    @abstractmethod
+    def write_secrets(self, job_name: str, team_name: str, secrets: Dict) -> Dict:
+        """
+        Write secrets to the backend service. It overwrites all secrets completely.
+        :param team_name: The name of the team the job belongs to
+        :param job_name: the name of the job
+        :param secrets: dictionary with the new job's secrets
+        :return secrets: dictionary with the secrets handled
+        """
+        pass
+
+
+ISecretsFactory = Callable[[], ISecretsServiceClient]
+
+
+class ISecretsRegistry(ABC):
+    """
+    Registry to enable the registration of Secrets service implementations.
+    """
+
+    @abstractmethod
+    def set_secrets_factory_method(
+        self,
+        secrets_type: str,
+        secrets_factory: ISecretsFactory,
+    ) -> None:
+        """
+        Register secrets implementation backend.
+        Secrets API allows storing and retrieving secrets for a data job.
+
+        ISecretsServiceClient is used as provides logic of how secrets are persisted
+        and is part of implementation of ISecrets interface.
+
+        :param secrets_type: str
+                string identifying the type of secrets being set.
+                This enables users to configure what type of secrets implementation to use.
+        :param secrets_factory: Callable[[], ISecretsServiceClient]
+               method or interface that returns correctly initialized implementation of ISecretsServiceClient interface
         """
         pass
 
