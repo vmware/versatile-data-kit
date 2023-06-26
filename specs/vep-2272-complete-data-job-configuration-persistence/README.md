@@ -1,7 +1,7 @@
 # VEP-2272: Complete Data Job Configuration Persistence
 
 * **Author(s):** Miroslav Ivanov (miroslavi@vmware.com)
-* **Status:** draft
+* **Status:** implementable
 
 - [Summary](#summary)
 - [Glossary](#glossary)
@@ -69,6 +69,7 @@ and provide a seamless experience for our users.
 
 1. Implement automatic data jobs restore capability in case of the loss of Kubernetes namespace whereby the Control
    Service automatically retrieves the configuration from a database and seamlessly restores the data jobs.
+2. Capability to maintain a record of past deployments for each data job.
 
 ## High-level design
 
@@ -103,7 +104,8 @@ similar to the
 [DataJobMonitorCron.watchJobs()](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/service/monitoring/DataJobMonitorCron.java#L84).
 By using [Scheduler Lock](https://github.com/lukas-krecan/ShedLock), we can achieve an active-passive pattern across the
 Control Service instances. In simpler terms, only one instance of the Control Service will be able to synchronize Cron
-Jobs at any given time.
+Jobs at any given time. The process will be executed with a fixed period between invocations, where the period will be
+configurable and the appropriate one will be determined during the implementation.
 
 The overall purpose of this process is to iterate through the data job deployment configurations stored in the database
 and determine whether the corresponding Cron Job in Kubernetes is synchronized and up to date. If the Cron Job is not
