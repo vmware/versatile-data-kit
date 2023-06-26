@@ -17,8 +17,7 @@ build-vdk-jupyterlab-extension:
     - pip install -U pip setuptools pre-commit
     - apk --no-cache add npm
     - apk add rust cargo
-    - rustc --version
-    - cargo --version
+    - apt install libffi-dev
     - pip install pytest-cov
   script:
     - pip install jupyter
