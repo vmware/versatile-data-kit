@@ -66,7 +66,9 @@ control_service_build_image:
     changes: *control_service_code_change_locations
 
 control_service_integration_test:
-  extends: .control_service_base_build
+  extends:
+    - .control_service_base_build
+    - .images:dind
   stage: build
   variables:
     DEPLOYMENT_K8S_KUBECONFIG: "~/.kube/config"
@@ -257,6 +259,9 @@ control_service_deploy_testing_data_pipelines:
     - pip install --upgrade pip && pip install awscli
     - export FRONTEND_TAG=latest
     - export DESIRED_VERSION=v3.12.0 # helm version
+    - curl -LO https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/bin/kubectl
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]

@@ -54,3 +54,17 @@ class JupyterTests(unittest.TestCase):
             ["run", jobs_path_from_caller_directory("rest-api-job-sql-error")]
         )
         cli_assert_equal(1, result)
+
+    def test_mixed_job_with_py_and_sql(self) -> None:
+        result: Result = self.__runner.invoke(
+            ["run", jobs_path_from_caller_directory("mixed-rest-api")]
+        )
+        cli_assert_equal(0, result)
+        actual_rs: Result = self.__runner.invoke(
+            ["sqlite-query", "--query", "SELECT * FROM rest_target_table"]
+        )
+        assert actual_rs.stdout == (
+            "  userId    id  title                 completed\n"
+            "--------  ----  ------------------  -----------\n"
+            "       1     1  delectus aut autem            0\n"
+        )

@@ -25,6 +25,8 @@ export TESTING_PIPELINES_SERVICE_VALUES_FILE=${TESTING_PIPELINES_SERVICE_VALUES_
 RUN_ENVIRONMENT_SETUP=${RUN_ENVIRONMENT_SETUP:-'n'}
 
 if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
+  kubectl create namespace cicd-control
+  kubectl create namespace cicd-deployment
   helm repo add valeriano-manassero https://valeriano-manassero.github.io/helm-charts
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm repo update
@@ -40,6 +42,7 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
   # So we need to set credentials of the service account used to pull images when starting jobs
   secret_name=docker-registry
   kubectl create secret docker-registry $secret_name \
+                     --namespace="cicd-deployment" \
                      --docker-server="$CICD_CONTAINER_REGISTRY_URI" \
                      --docker-username="$CICD_CONTAINER_REGISTRY_USER_NAME" \
                      --docker-password="$CICD_CONTAINER_REGISTRY_USER_PASSWORD" \
@@ -49,12 +52,14 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
   if [ -n "$DOCKERHUB_READONLY_USERNAME" ]; then
     dockerhub_secretname='secret-dockerhub-docker'
     kubectl create secret docker-registry "$dockerhub_secretname" \
+                         --namespace="cicd-deployment" \
                          --docker-server="https://index.docker.io/v1/" \
                          --docker-username="$DOCKERHUB_READONLY_USERNAME" \
                          --docker-password="$DOCKERHUB_READONLY_PASSWORD" \
                          --docker-email="versatiledatakit@groups.vmware.com" --dry-run=client -o yaml | kubectl apply -f -
 
     kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"},{"name":"'$dockerhub_secretname'"}]}'
+
   fi
 
 fi
