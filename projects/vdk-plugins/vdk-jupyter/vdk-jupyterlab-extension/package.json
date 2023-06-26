@@ -56,6 +56,9 @@
     "watch:src": "tsc -w",
     "watch:labextension": "jupyter labextension watch ."
   },
+   "resolutions": {
+    "@types/react": "17.0.53"
+   },
   "dependencies": {
     "@jupyterlab/application": "3.6.3",
     "@jupyterlab/attachments": "3.6.3",
