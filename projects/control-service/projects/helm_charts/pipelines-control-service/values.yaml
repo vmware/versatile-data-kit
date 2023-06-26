@@ -1039,3 +1039,28 @@ mail:
     ssl:
       protocols: "TLSv1.2"
     port: 587
+
+# Alert manager email notification configuration.
+# More information on individual fileds can be found here:
+# https://prometheus.io/docs/alerting/latest/configuration/#email_config
+alertmanager:
+  enabled: false
+  items:
+    namespace: data-jobs
+    spec:
+      receivers:
+        - emailConfigs:
+            - from: '{{ .CommonAnnotations.email_from }}'
+              headers:
+                  value: '{{ .CommonAnnotations.subject | safeHtml }}'
+              hello: ""
+              html: '{{ .CommonAnnotations.content | safeHtml }}'
+              requireTLS: false
+              sendResolved: false
+              smarthost: ""
+              to: '{{ .CommonAnnotations.email_to }}'
+              authUsername: ""
+              authPassword: ""
+              authSecret: ""
+              authSecretKey: ""
+              authIdentity: ""

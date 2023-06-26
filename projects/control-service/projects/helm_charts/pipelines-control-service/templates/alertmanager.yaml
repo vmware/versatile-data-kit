@@ -1,0 +1,53 @@
+{{- /*
+  Copyright 2021-2023 VMware, Inc.
+  SPDX-License-Identifier: Apache-2.0
+ */}}
+
+{{- if .Values.alertmanager.enabled }}
+apiVersion: v1
+kind: List
+metadata:
+  resourceVersion: ""
+items:
+  - apiVersion: monitoring.coreos.com/v1alpha1
+    kind: AlertmanagerConfig
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/last-applied-: ""
+      generation: 6
+      labels:
+        role: infra
+      name: dp-notifications
+      namespace: {{ .Values.alertmanager.items.namespace }}
+
+    spec:
+      receivers:
+        - emailConfigs:
+            - from: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.from }}
+              headers:
+                - key: subject
+                  value: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.headers.value }}
+              hello: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.hello }}
+              html: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.html }}
+              requireTLS: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.requireTLS }}
+              sendResolved: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.sendResolved }}
+              smarthost: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.smarthost }}
+              to: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.to }}
+              authUsername: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.authUsername }}
+              authPassword: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.authPassword }}
+              authSecret: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.authSecret }}
+              authSecretKey: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.authSecretKey }}
+              authIdentity: {{ .Values.alertmanager.items.spec.receivers.emailConfigs.authIdentity }}
+          name: dp-receiver
+      route:
+        groupBy:
+          - alertname
+          - execution_id
+        groupInterval: 1m
+        groupWait: 0s
+        matchers:
+          - name: source
+            value: data-pipelines
+        receiver: dp-receiver
+        repeatInterval: 30d
+{{- end }}
