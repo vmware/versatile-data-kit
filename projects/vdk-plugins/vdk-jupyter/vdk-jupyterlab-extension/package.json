@@ -59,10 +59,12 @@
    "resolutions": {
      "@types/react": "17.0.53",
      "@jupyterlab/rendermime": "3.6.3",
+     "@jupyterlab/rendermime-interfaces": "3.6.3",
      "@jupyterlab/services": "6.6.3"
    },
   "dependencies": {
     "@jupyterlab/rendermime": "3.6.3",
+    "@jupyterlab/rendermime-interfaces": "3.6.3",
     "@jupyterlab/attachments": "3.6.3",
     "@jupyterlab/nbformat": "3.6.3",
     "@jupyterlab/statedb": "3.6.3",
@@ -81,7 +83,6 @@
     "@jupyterlab/statusbar": "3.6.3",
     "@jupyterlab/docprovider": "3.6.3",
     "@jupyterlab/codemirror": "3.6.3",
-    "@jupyterlab/rendermime-interfaces": "3.6.3",
     "@jupyterlab/testutils": "3.6.3",
     "@jupyterlab/ui-components": "3.6.3",
     "@jupyterlab/services": "6.6.3",
