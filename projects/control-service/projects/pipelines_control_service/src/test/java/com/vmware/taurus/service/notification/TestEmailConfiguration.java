@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
-public class TestEmailPropertiesConfiguration {
+public class TestEmailConfiguration {
 
-  @Autowired private EmailPropertiesConfiguration emailPropertiesConfiguration;
+  @Autowired private EmailConfiguration emailConfiguration;
 
   @Test
   public void testAllDefaultPropertiesPresent() {
@@ -29,28 +29,28 @@ public class TestEmailPropertiesConfiguration {
       mail.smtp.ssl.protocols= ${MAIL_SMTP_SSL_PROTOCOLS:TLSv1.2}
       mail.smtp.port=${MAIL_SMTP_PORT:25}
      */
-    Assertions.assertEquals(emailPropertiesConfiguration.getTransportProtocol(), "smtp");
+    Assertions.assertEquals(emailConfiguration.getTransportProtocol(), "smtp");
     Assertions.assertEquals(
-        emailPropertiesConfiguration.smtpWithPrefix().get("mail.smtp.host"), "smtp.vmware.com");
+        emailConfiguration.smtpWithPrefix().get("mail.smtp.host"), "smtp.vmware.com");
     Assertions.assertEquals(
-        emailPropertiesConfiguration.smtpWithPrefix().get("mail.smtp.auth"), "false");
+        emailConfiguration.smtpWithPrefix().get("mail.smtp.auth"), "false");
     Assertions.assertEquals(
-        emailPropertiesConfiguration.smtpWithPrefix().get("mail.smtp.starttls.enable"), "false");
+        emailConfiguration.smtpWithPrefix().get("mail.smtp.starttls.enable"), "false");
     Assertions.assertEquals(
-        emailPropertiesConfiguration.smtpWithPrefix().get("mail.smtp.user"), "");
+        emailConfiguration.smtpWithPrefix().get("mail.smtp.user"), "");
     Assertions.assertEquals(
-        emailPropertiesConfiguration.smtpWithPrefix().get("mail.smtp.password"), "");
+        emailConfiguration.smtpWithPrefix().get("mail.smtp.password"), "");
     Assertions.assertEquals(
-        emailPropertiesConfiguration.smtpWithPrefix().get("mail.smtp.ssl.protocols"), "TLSv1.2");
+        emailConfiguration.smtpWithPrefix().get("mail.smtp.ssl.protocols"), "TLSv1.2");
     Assertions.assertEquals(
-        emailPropertiesConfiguration.smtpWithPrefix().get("mail.smtp.port"), "25");
+        emailConfiguration.smtpWithPrefix().get("mail.smtp.port"), "25");
   }
 
   @Test
   public void testPropertyGetters() {
-    Assertions.assertEquals(emailPropertiesConfiguration.getPassword(), "");
-    Assertions.assertEquals(emailPropertiesConfiguration.getUsername(), "");
-    Assertions.assertEquals(emailPropertiesConfiguration.getTransportProtocol(), "smtp");
-    Assertions.assertFalse(emailPropertiesConfiguration.isAuthEnabled());
+    Assertions.assertEquals(emailConfiguration.getPassword(), "");
+    Assertions.assertEquals(emailConfiguration.getUsername(), "");
+    Assertions.assertEquals(emailConfiguration.getTransportProtocol(), "smtp");
+    Assertions.assertFalse(emailConfiguration.isAuthEnabled());
   }
 }

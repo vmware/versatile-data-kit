@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class EmailPropertiesConfiguration {
+public class EmailConfiguration {
 
   private final String MAIL_SMTP_PASSWORD = "mail.smtp.password";
   private final String MAIL_SMTP_USER = "mail.smtp.user";
@@ -49,6 +49,11 @@ public class EmailPropertiesConfiguration {
     return Boolean.parseBoolean(smtpWithPrefix().get(MAIL_SMTP_AUTH));
   }
 
+  /**
+   * Transport protocol to be used to send email messages e.g smtp, pop, imap.
+   * Defined in application.properties
+   * @return
+   */
   public String getTransportProtocol() {
     return mail().get(TRANSPORT_PROTOCOL);
   }

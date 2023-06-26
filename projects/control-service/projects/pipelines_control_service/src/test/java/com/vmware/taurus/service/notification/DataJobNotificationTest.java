@@ -33,7 +33,7 @@ public class DataJobNotificationTest {
   @BeforeEach
   public void setup() throws IOException {
     this.smtpServer = SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
-    var emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
+    var emailPropertiesConfiguration = Mockito.mock(EmailConfiguration.class);
     Mockito.when(emailPropertiesConfiguration.smtpWithPrefix())
         .thenReturn(getMailProperties(this.smtpServer.getPort()));
     Mockito.when(emailPropertiesConfiguration.getTransportProtocol()).thenReturn(TEST_PROTOCOL);

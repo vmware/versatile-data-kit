@@ -33,14 +33,14 @@ public class EmailNotification {
   private static final String CONTENT_TYPE = "text/html; charset=utf-8";
 
   private final Session session;
-  private EmailPropertiesConfiguration emailPropertiesConfiguration;
+  private final EmailConfiguration emailConfiguration;
 
-  public EmailNotification(EmailPropertiesConfiguration emailPropertiesConfiguration) {
-    this.emailPropertiesConfiguration = emailPropertiesConfiguration;
+  public EmailNotification(EmailConfiguration emailConfiguration) {
+    this.emailConfiguration = emailConfiguration;
     Properties properties = System.getProperties();
-    properties.putAll(emailPropertiesConfiguration.smtpWithPrefix());
+    properties.putAll(emailConfiguration.smtpWithPrefix());
     properties.setProperty(
-        "mail.transport.protocol", emailPropertiesConfiguration.getTransportProtocol());
+        "mail.transport.protocol", emailConfiguration.getTransportProtocol());
     session = Session.getInstance(properties);
   }
 
@@ -72,7 +72,7 @@ public class EmailNotification {
 
   private void sendEmail(NotificationContent notificationContent, Address[] recipients)
       throws MessagingException {
-    if (emailPropertiesConfiguration.isAuthEnabled()) {
+    if (emailConfiguration.isAuthEnabled()) {
       sendAuthenticatedEmail(notificationContent, recipients);
     } else {
       sendUnauthenticatedEmail(notificationContent, recipients);
@@ -81,9 +81,8 @@ public class EmailNotification {
 
   private void sendUnauthenticatedEmail(
       NotificationContent notificationContent, Address[] recipients) throws MessagingException {
-    Transport transport = session.getTransport();
     var mimeMessage = prepareMessage(notificationContent);
-    transport.send(mimeMessage, recipients);
+    Transport.send(mimeMessage, recipients);
   }
 
   private void sendAuthenticatedEmail(NotificationContent notificationContent, Address[] recipients)
@@ -92,7 +91,7 @@ public class EmailNotification {
     var mimeMessage = prepareMessage(notificationContent);
     try {
       transport.connect(
-          emailPropertiesConfiguration.getUsername(), emailPropertiesConfiguration.getPassword());
+          emailConfiguration.getUsername(), emailConfiguration.getPassword());
       transport.sendMessage(mimeMessage, recipients);
     } finally {
       transport.close();
@@ -116,8 +115,8 @@ public class EmailNotification {
   String concatAddresses(Address[] addresses) {
     return addresses == null
         ? null
-        : Arrays.asList(addresses).stream()
-            .map(addr -> addr.toString())
+        : Arrays.stream(addresses)
+            .map(Address::toString)
             .collect(Collectors.joining(" "));
   }
 }

@@ -41,7 +41,7 @@ public class AuthenticatedEmailNotificationTest {
     greenMail = new GreenMail(ServerSetup.SMTP.dynamicPort());
     greenMail.start();
 
-    var emailPropertiesConfiguration = Mockito.mock(EmailPropertiesConfiguration.class);
+    var emailPropertiesConfiguration = Mockito.mock(EmailConfiguration.class);
     Mockito.when(emailPropertiesConfiguration.smtpWithPrefix()).thenReturn(getMailProperties());
     Mockito.when(emailPropertiesConfiguration.isAuthEnabled()).thenReturn(true);
     Mockito.when(emailPropertiesConfiguration.getUsername()).thenReturn(TEST_USER);
