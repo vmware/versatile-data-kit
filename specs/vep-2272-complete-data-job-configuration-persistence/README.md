@@ -1,7 +1,7 @@
 # VEP-2272: Complete Data Job Configuration Persistence
 
 * **Author(s):** Miroslav Ivanov (miroslavi@vmware.com)
-* **Status:** draft
+* **Status:** implementable
 
 - [Summary](#summary)
 - [Glossary](#glossary)
@@ -69,6 +69,7 @@ and provide a seamless experience for our users.
 
 1. Implement automatic data jobs restore capability in case of the loss of Kubernetes namespace whereby the Control
    Service automatically retrieves the configuration from a database and seamlessly restores the data jobs.
+2. Capability to maintain a record of past deployments for each data job.
 
 ## High-level design
 
@@ -95,75 +96,130 @@ There would be no changes to the public APIs.
 
 ## Detailed design
 
+### Kubernetes Cron Jobs Synchronizer
+
+To enhance data integrity and synchronization between a database and Kubernetes, an asynchronous process will be
+implemented. This process will leverage Spring Scheduler and [Scheduler Lock](https://github.com/lukas-krecan/ShedLock),
+similar to the
+[DataJobMonitorCron.watchJobs()](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/service/monitoring/DataJobMonitorCron.java#L84).
+By using [Scheduler Lock](https://github.com/lukas-krecan/ShedLock), we can achieve an active-passive pattern across the
+Control Service instances. In simpler terms, only one instance of the Control Service will be able to synchronize Cron
+Jobs at any given time. The process will be executed with a fixed period between invocations, where the period will be
+configurable and the appropriate one will be determined during the implementation.
+
+The overall purpose of this process is to iterate through the data job deployment configurations stored in the database
+and determine whether the corresponding Cron Job in Kubernetes is synchronized and up to date. If the Cron Job is not
+synchronized with the database, the process will initiate a new data job deployment. This deployment may involve tasks
+such as building an image or updating the Cron Job template.
+
+In order to enhance the process further, the proposed asynchronous process will incorporate a mechanism to determine
+whether a Cron Job needs to be updated or not. This will be achieved by utilizing the hash
+code (`deployment_version_sha`) of the
+Cron Job YAML configuration, which will be stored in the database after each deployment.
+
+By introducing this asynchronous process, you can ensure that the database and Kubernetes remain in sync, maintaining
+data integrity and enabling smooth operation of the system.
+
 ### Database data model changes
 
-### Kubernetes Cron Jobs Synchronizer Process
+To ensure comprehensive synchronization between Kubernetes and the database, it is important to replicate all relevant
+data job configuration properties from Kubernetes to the database. Here is a list of properties that should be
+replicated:
 
-In order to maintain data integrity and synchronization between database and Kubernetes we will introduce new
-asynchronous process. The process will be based on Spring Scheduler and Scheduler Lock similar
-to [DataJobMonitorCron.watchJobs()](https://github.com/vmware/versatile-data-kit/blob/main/projects/control-service/projects/pipelines_control_service/src/main/java/com/vmware/taurus/service/monitoring/DataJobMonitorCron.java#L84).
+* `git_commit_sha`
+* `vdk_version`
+* `python_version`
+* `cpu_request`
+* `cpu_limit`
+* `memory_request`
+* `memory_limit`
+* `deployed_by`
+* `deployed_date`
+* `deployment_version_sha`
 
-Basically, it will iterate over the data job deployment configurations from the database and check whether
-the Cron Job is already synchronized or it needs to be synchronized. If it is not in sync with the database the process
-will initiate new data job deployment which may include building image or just changing the template. It will be
-based on the sha of the cronjob template, which will be generated right after the job deployment.
+The columns shown above were found by comparing the properties of the current Cron Job with the columns in the database.
 
-<!--
-Dig deeper into each component. The section can be as long or as short as necessary.
-Consider at least the below topics but you do not need to cover those that are not applicable.
+In order to accommodate the replication of the additional data job configuration properties from Kubernetes to the
+database, it would be necessary to add a table called `data_job_deployment` to the existing database model.
+This table will have the mentioned columns, and the relationship between `data_job` and `data_job_deployment` tables
+will be one-to-one. This approach will normalize the database model and make it suitable for accommodating
+multiple deployments for each data job in the future.
 
-### Capacity Estimation and Constraints
-    * Cost of data path: CPU cost per-IO, memory footprint, network footprint.
-    * Cost of control plane including cost of APIs, expected timeliness from layers above.
-### Availability.
-    * For example - is it tolerant to failures, What happens when the service stops working
-### Performance.
-    * Consider performance of data operations for different types of workloads.
-       Consider performance of control operations
-    * Consider performance under steady state as well under various pathological scenarios,
-       e.g., different failure cases, partitioning, recovery.
-    * Performance scalability along different dimensions,
-       e.g. #objects, network properties (latency, bandwidth), number of data jobs, processed/ingested data, etc.
-### Database data model changes
-### Telemetry and monitoring changes (new metrics).
-### Configuration changes.
-### Upgrade / Downgrade Strategy (especially if it might be breaking change).
-  * Data migration plan (it needs to be automated or avoided - we should not require user manual actions.)
+By making these database model changes, the system can effectively store and synchronize all the required data job
+configuration details between Kubernetes and the database.
+
+![database_data_model.png](database_data_model.png)
+
+### DataJobsDeployment API and GraphQL API
+
+To further enhance performance and reduce the load on the Kubernetes API, a part of the system's redesign will involve
+reworking the DataJobsDeployment and GraphQL APIs to interact solely with the database. This approach aims to streamline
+the communication process and leverage the database as the primary source of data job configuration information. Here's
+how this enhancement can be described in more detail:
+
+The existing APIs, which might have previously interacted directly with Kubernetes for data job deployment-related
+operations, will be refactored to retrieve and update data job deployment configurations exclusively from the database.
+This architectural change allows for improved performance as the APIs will no longer need to make frequent and
+potentially resource-intensive calls to the Kubernetes API server.
+
+By relying on the database as the central source of truth for data job configurations, the system can achieve faster
+response times and reduce the overall load on the Kubernetes API.
+
+With this rework, the APIs will become more lightweight, leveraging the optimized data access and querying capabilities
+of the database. Consequently, the overall system performance will be enhanced, providing a smoother and more efficient
+experience for users interacting with the data job deployment management functionalities.
+
+### Performance
+
+Based on initial performance measurements conducted, the anticipated benefits of reworking the APIs to interact solely
+with the database are evident. The tests involved two GraphQL queries (pageSize=50)—one with deployments and the other
+without
+deployments. Here's how the results can be enriched:
+
+The average response time for the GraphQL query that includes deployments is approximately 600 ms. This query involves
+retrieving data job configurations from the database and making additional call to the Kubernetes API for
+deployment-related information. Prior to the API rework, this query likely relied on Kubernetes for retrieving
+deployment details, resulting in longer response times.
+
+On the other hand, the GraphQL query that doesn't involve deployments, relying solely on the database for data job
+information, demonstrates an average response time of approximately 400 ms. This query benefits from the direct
+interaction with the database, eliminating the need for additional calls to the Kubernetes API and resulting in improved
+performance.
+
+Based on these preliminary measurements, it is evident that the proposed API rework brings notable performance
+enhancements. On average, the response times of the queries are expected to improve by approximately 30-35% when
+deployments are not involved, allowing for more efficient and faster retrieval of data job configurations.
+
+It's important to note that these measurements provide a preliminary understanding of the potential performance gains.
+Further testing and profiling with a larger and more diverse dataset will be required to obtain more accurate and
+comprehensive performance insights.
+
 ### Troubleshooting
-  * What are possible failure modes.
-    * Detection: How can it be detected via metrics?
-    * Mitigations: What can be done to stop the bleeding, especially for already
-      running user workloads?
-    * Diagnostics: What are the useful log messages and their required logging
-      levels that could help debug the issue?
-    * Testing: Are there any tests for failure mode? If not, describe why._
-### Operability
-  * What are the SLIs (Service Level Indicators) an operator can use to determine the health of the system.
-  * What are the expected SLOs (Service Level Objectives).
-### Test Plan
-  * Unit tests are expected. But are end to end test necessary. Do we need to extend vdk-heartbeat ?
-  * Are there changes in CICD necessary
-### Dependencies
-  * On what services the feature depends on ? Are there new (external) dependencies added?
-### Security and Permissions
-  How is access control handled?
-  * Is encryption in transport supported and how is it implemented?
-  * What data is sensitive within these components? How is this data secured?
-      * In-transit?
-      * At rest?
-      * Is it logged?
-  * What secrets are needed by the components? How are these secrets secured and attained?
--->
 
-## Implementation stories
-
-<!--
-Optionally, describe what are the implementation stories (eventually we'd create github issues out of them).
--->
+* Possible failure modes:
+    * If the Control Service Pod restarts while the Cron Jobs are being synchronized, another Pod of the
+      Control Service will take over and become active to continue the synchronization process.
+    * If the database stops working, the deployment configurations for data jobs won't be accessible through the public
+      APIs. Additionally, the synchronization of Cron Jobs will be put on hold until the database is functioning again,
+      and then it will be resumed.
+    * If the Kubernetes API server stops working while the Cron Jobs are being synchronized, the active Control Service
+      Pod will delay the synchronization process until the API server is back online, and then it will resume the
+      synchronization.
 
 ## Alternatives
 
-<!--
-Optionally, describe what alternatives has been considered.
-Keep it short - if needed link to more detailed research document.
--->
+An alternative solution to consider for this scenario is leveraging Kubernetes Operator for the Cron Jobs management.
+Although the Operator-based approach can provide a more suitable and robust implementation, it's important to note that
+it may require a significant amount of additional time for its implementation. Here's how this alternative solution can
+be further enriched:
+
+Utilizing a Kubernetes Operator entails designing and implementing a custom controller that extends the Kubernetes API
+functionality to manage the Cron Jobs lifecycle. This approach allows for a more declarative and automated management of
+data jobs, handling tasks such as provisioning.
+
+While the Operator-based solution offers advantages such as built-in reconciliation loops and event-driven actions, it
+typically requires more effort and time to develop and deploy. Implementing a Kubernetes Operator requires knowledge
+about operators, a lot of architectural changes, and an additional component that needs to be deployed and operated.
+Compared to the operator-based approach the one described in the VEP will be easier and faster to implement since it is
+based on the existing component `Control Service`. Also, it does not require the implementation and management of
+additional components.
