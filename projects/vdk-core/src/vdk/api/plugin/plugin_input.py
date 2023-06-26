@@ -118,7 +118,7 @@ ISecretsFactory = Callable[[], ISecretsServiceClient]
 
 class ISecretsRegistry(ABC):
     """
-        Registry to enable the registration of Secrets service implementations.
+    Registry to enable the registration of Secrets service implementations.
     """
 
     @abstractmethod
