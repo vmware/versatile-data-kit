@@ -39,6 +39,20 @@ class ParsedCall:
         return f"<ParsedCall {self._name!r}(**{d!r})>"
 
 
+def pluggy_result_to_string(outcome: Any) -> str:
+    try:
+        result = outcome.get_result()
+    except BaseException as e:
+        outcome.force_exception(e)
+        return ""
+
+    result_string = ""
+    for item in result:
+        result_string = f"\nJSON config override is {item}"
+
+    return result_string
+
+
 class HookRecorder:
     """Record all hooks invocations.
 
@@ -66,7 +80,7 @@ class HookRecorder:
                 f"         with args:\n"
                 f"         {kwargs}.\n"
                 f"         Hook Impl: {hook_impls}\n",
-                f"         Outcome: {vars(outcome)}",
+                f"         Outcome: {pluggy_result_to_string(outcome)}",
                 file=sys.stderr,
             )
 
