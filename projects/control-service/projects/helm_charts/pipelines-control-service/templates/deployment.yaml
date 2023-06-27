@@ -279,6 +279,22 @@ spec:
             - name: DATAJOBS_DEPLOYMENT_SUPPORTED_PYTHON_VERSIONS
               value: {{ .Values.deploymentSupportedPythonVersions | toJson | quote }}
             {{- end }}
+            {{- if .Values.mail.smtp.auth }}
+            - name: MAIL_SMTP_AUTH
+              value: "{{ .Values.mail.smtp.auth }}"
+            - name: MAIL_SMTP_STARTTLS_ENABLE
+              value: "{{ .Values.mail.smtp.starttls.enable }}"
+            - name: MAIL_SMTP_USER
+              value: "{{ .Values.mail.smtp.user }}"
+            - name: MAIL_SMTP_PASSWORD
+              value: "{{ .Values.mail.smtp.password }}"
+            - name: MAIL_SMTP_SSL_PROTOCOLS
+              value: "{{ .Values.mail.smtp.ssl.protocols }}"
+            - name: MAIL_SMTP_PORT
+              value: "{{ .Values.mail.smtp.port }}"
+            - name: MAIL_TRANSPORT_PROTOCOL
+              value: "{{ .Values.mail.transport.protocol }}"
+            {{- end }}
 
 
 {{- if .Values.extraVars }}
