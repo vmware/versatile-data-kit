@@ -46,35 +46,47 @@ export async function showTransformJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    let { message, status } = await jobTransformRequest();
-    if (status) {
-      showDialog({
-        title: 'Transform Job',
-        body: (
-          <div className="vdk-transform-dialog-message-container">
-            <p className="vdk-transform-dialog-message">
-              The job was transformed successfully!
-            </p>
-          </div>
-        ),
-        buttons: [Dialog.okButton()]
-      });
-    } else {
-      message = 'ERROR : ' + message;
-      const errorMessage = new VdkErrorMessage(message);
-      showDialog({
-        title: 'Transform Job',
-        body: (
-          <div className="vdk-transform-error-message ">
-            <p>{errorMessage.exception_message}</p>
-            <p>{errorMessage.what_happened}</p>
-            <p>{errorMessage.why_it_happened}</p>
-            <p>{errorMessage.consequences}</p>
-            <p>{errorMessage.countermeasures}</p>
-          </div>
-        ),
-        buttons: [Dialog.okButton()]
-      });
+    const confirmation = await showDialog({
+      title: 'Transform Job',
+      body: (
+        <p>
+          Are you sure you want to transform the Data Job with path:{' '}
+          <i>{jobData.get(VdkOption.PATH)}</i>?
+        </p>
+      ),
+      buttons: [Dialog.okButton(), Dialog.cancelButton()]
+    });
+    if (confirmation.button.accept) {
+      let { message, status } = await jobTransformRequest();
+      if (status) {
+        showDialog({
+          title: 'Transform Job',
+          body: (
+            <div className="vdk-transform-dialog-message-container">
+              <p className="vdk-transform-dialog-message">
+                The job was transformed successfully!
+              </p>
+            </div>
+          ),
+          buttons: [Dialog.okButton()]
+        });
+      } else {
+        message = 'ERROR : ' + message;
+        const errorMessage = new VdkErrorMessage(message);
+        showDialog({
+          title: 'Transform Job',
+          body: (
+            <div className="vdk-transform-error-message ">
+              <p>{errorMessage.exception_message}</p>
+              <p>{errorMessage.what_happened}</p>
+              <p>{errorMessage.why_it_happened}</p>
+              <p>{errorMessage.consequences}</p>
+              <p>{errorMessage.countermeasures}</p>
+            </div>
+          ),
+          buttons: [Dialog.okButton()]
+        });
+      }
     }
   }
 }
