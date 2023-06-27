@@ -1023,3 +1023,19 @@ dataJob:
 # Configures the format of logs output by the control service; if set to `JSON`, logs are formatted to JSON;
 # else logs are formatted to their default user-readable format
 # loggingFormat: TEXT
+
+# Configures properties used for sending notifications if emails should go through an
+# authenticated email server. More information:
+# https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
+mail:
+  transport:
+    protocol: "smtp"
+  smtp:
+    auth: false
+    starttls:
+      enable: false
+    user: ""
+    password: ""
+    ssl:
+      protocols: "TLSv1.2"
+    port: 587
