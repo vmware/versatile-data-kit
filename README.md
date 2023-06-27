@@ -64,7 +64,7 @@ VDK creates data processing workflows to:
 - `vdk run`
 - `vdk deploy`<br>
   <br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto/>
-  
+
 ![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-light.svg#gh-light-mode-only)
 ![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-dark.svg#gh-dark-mode-only)
 
