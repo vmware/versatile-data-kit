@@ -97,25 +97,14 @@ class DownloadJobHandler(APIHandler):
 
 class TransformJobHandler(APIHandler):
     """
-    Class responsible for handling POST request for transforming a Data Job given its name, team,
-    Rest API URL, and the path to the data job's directory
-    Response: return a json formatted str including:
-        ::error field with error message if an error exists
-        ::message field with status of the Vdk operation
+    Class responsible for handling POST request for transforming a Data Job given the Rest API URL
+    and the path to its directory
     """
 
     @tornado.web.authenticated
     def post(self):
-        input_data = self.get_json_body()
-        try:
-            status = VdkUI.transform_job(
-                input_data[VdkOption.NAME.value],
-                input_data[VdkOption.TEAM.value],
-                input_data[VdkOption.PATH.value],
-            )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+        # TODO fix this as part of the implementation
+        print("Successfully connected to the Transform job handler!")
 
 
 class CreateJobHandler(APIHandler):
