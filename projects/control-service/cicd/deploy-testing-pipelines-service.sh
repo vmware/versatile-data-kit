@@ -73,6 +73,8 @@ export TRINO_HOST=${TRINO_HOST:-"test-trino"}
 
 
 echo $CONTROL_SERVICE_URL
+echo $VDK_OPTIONS
+cat $VDK_OPTIONS
 # Update vdk-options with substituted variables like sensitive configuration (passwords)
 export VDK_OPTIONS_SUBSTITUTED="${VDK_OPTIONS}.temp"
 envsubst < $VDK_OPTIONS > $VDK_OPTIONS_SUBSTITUTED
