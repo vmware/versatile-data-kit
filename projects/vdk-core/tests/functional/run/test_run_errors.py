@@ -11,6 +11,7 @@ from click.testing import Result
 from functional.run import util
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_input import IPropertiesServiceClient
+from vdk.api.plugin.plugin_input import ISecretsServiceClient
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
@@ -20,6 +21,7 @@ from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
+from vdk.plugin.test_utils.util_plugins import TestSecretsPlugin
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 
@@ -151,6 +153,27 @@ def test_run_platform_error_properties(tmp_termination_msg_file):
     runner.clear_default_plugins()
 
     result: Result = runner.invoke(["run", util.job_path("fail-job-properties")])
+    cli_assert_equal(1, result)
+    assert _get_job_status(tmp_termination_msg_file) == "Platform error"
+
+
+def test_run_platform_error_secrets(tmp_termination_msg_file):
+    errors.resolvable_context().clear()
+
+    class FailingSecretsServiceClient(ISecretsServiceClient):
+        def read_secrets(self, job_name: str, team_name: str) -> Dict:
+            raise OSError("fake read error")
+
+        def write_secrets(self, job_name: str, team_name: str, secrets: Dict) -> None:
+            raise OSError("fake write error")
+
+    secrets_plugin = TestSecretsPlugin()
+    secrets_plugin.secrets_client = FailingSecretsServiceClient()
+
+    runner = CliEntryBasedTestRunner(secrets_plugin)
+    runner.clear_default_plugins()
+
+    result: Result = runner.invoke(["run", util.job_path("fail-job-secrets")])
     cli_assert_equal(1, result)
     assert _get_job_status(tmp_termination_msg_file) == "Platform error"
 

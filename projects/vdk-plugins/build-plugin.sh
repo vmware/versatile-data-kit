@@ -34,4 +34,6 @@ fi
 
 pip install pytest-cov
 
+if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../../vdk-core; fi
+
 pytest --junitxml=tests.xml --cov vdk --cov-report term-missing --cov-report xml:coverage.xml
