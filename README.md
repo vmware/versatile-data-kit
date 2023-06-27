@@ -71,10 +71,8 @@ VDK creates data processing workflows to:
 
 # VDK components
 
-<p>
-<img src="./support/images/versatile-data-kit-components-dark-1.svg"/>
-</p>
-
+![VDK Components](./support/images/versatile-data-kit-components-dark-1.svg#gh-dark-mode-only)
+![VDK Components](./support/images/versatile-data-kit-components-light-1.svg#gh-light-mode-only)
 
 # Getting Started
 
