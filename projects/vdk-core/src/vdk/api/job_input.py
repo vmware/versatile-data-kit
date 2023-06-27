@@ -41,7 +41,7 @@ class ISecrets:
     """
 
     @abstractmethod
-    def get_secret(self, name: str, default_value: Any = None) -> str:
+    def get_secret(self, key: str, default_value: Any = None) -> str:
         pass
 
     @abstractmethod
