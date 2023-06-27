@@ -73,6 +73,8 @@ export TRINO_HOST=${TRINO_HOST:-"test-trino.cicd.svc.cluster.local"}
 export VDK_OPTIONS_SUBSTITUTED="${VDK_OPTIONS}.temp"
 envsubst < $VDK_OPTIONS > $VDK_OPTIONS_SUBSTITUTED
 
+cat $VDK_OPTIONS_SUBSTITUTED
+
 cd $TPCS_CHART || exit
 helm dependency update --kubeconfig=$KUBECONFIG
 
