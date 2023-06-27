@@ -26,16 +26,6 @@ export default class TransformJobDialog extends Component<IJobPathProp> {
     return (
       <>
         <VDKTextInput
-          option={VdkOption.NAME}
-          value="default-name"
-          label="Job Name:"
-        ></VDKTextInput>
-        <VDKTextInput
-          option={VdkOption.TEAM}
-          value="default-team"
-          label="Job Team:"
-        ></VDKTextInput>
-        <VDKTextInput
           option={VdkOption.PATH}
           value={this.props.jobPath}
           label="Path to job directory:"

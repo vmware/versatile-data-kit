@@ -95,11 +95,7 @@ export async function jobTransformRequest(): Promise<{
   message: String;
   status: boolean;
 }> {
-  if (
-    (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
-    (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM)) &&
-    (await checkIfVdkOptionDataIsDefined(VdkOption.PATH))
-  ) {
+  if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
       const data = await requestAPI<serverVdkOperationResult>('transform', {
         body: JSON.stringify(getJobDataJsonObject()),
