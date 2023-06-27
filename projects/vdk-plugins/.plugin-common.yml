@@ -13,7 +13,7 @@
     - cd projects/vdk-plugins/
     - pip install -U pip
     - pip install ./vdk-test-utils # TODO: REMOVE THIS AT SOME POINT
-    - if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../vdk-core; fi
+    # - if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../vdk-core; fi
   script:
     - echo "Build plugin $PLUGIN_NAME"
     - cd ./$PLUGIN_NAME || exit 1
@@ -31,6 +31,8 @@
 
 .build-plugin-on-vdk-core-release:
   stage: pre_release_test
+  #variables:
+  # USE_VDKCORE_DEV_VERSION: "yes"
   before_script:
     - pip install -e projects/vdk-core
   extends: .build-plugin-dind
