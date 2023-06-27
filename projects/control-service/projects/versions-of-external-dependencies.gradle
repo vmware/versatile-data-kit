@@ -48,7 +48,7 @@ project.ext {
             'com.amazonaws:aws-java-sdk-sts'                                     : 'com.amazonaws:aws-java-sdk-sts:1.12.495',
             'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.495',
             'org.springframework.vault:spring-vault-core'                        : 'org.springframework.vault:spring-vault-core:2.3.3',
-            'com.icegreen.greenmail'                                             : 'com.icegreen:greenmail:1.6.5',
+            'com.icegreen.greenmail'                                             : 'com.icegreen:greenmail:2.0.0',
 
 
             // transitive dependencies version force (freeze)
