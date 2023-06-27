@@ -12,7 +12,13 @@ updates:
     directory: "/projects/control-service/projects" # Location of package manifests
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
   - package-ecosystem: "gradle"
     directory: "/projects/control-service/projects/pipelines_control_service" # Location of package manifests
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
