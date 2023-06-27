@@ -15,6 +15,7 @@ from vdk.api.plugin.connection_hook_spec import (
 from vdk.api.plugin.plugin_input import IIngesterRegistry
 from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
 from vdk.api.plugin.plugin_input import IPropertiesRegistry
+from vdk.api.plugin.plugin_input import ISecretsRegistry
 from vdk.api.plugin.plugin_input import ITemplateRegistry
 from vdk.internal.builtin_plugins.connection.connection_hooks import (
     ConnectionHookSpecFactory,
@@ -23,6 +24,9 @@ from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectio
 from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRouter
 from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
+)
+from vdk.internal.builtin_plugins.job_secrets.secrets_router import (
+    SecretsRouter,
 )
 from vdk.internal.builtin_plugins.run.step import StepBuilder
 from vdk.internal.core.context import CoreContext
@@ -63,8 +67,10 @@ class JobContext:
     job_input: IJobInput
     # initialize ingestion
     ingester: IIngesterRegistry
-    # initialize ingestion
+    # initialize properties
     properties: IPropertiesRegistry
+    # initialize secrets
+    secrets: ISecretsRegistry
 
     def __init__(
         self,
@@ -91,6 +97,8 @@ class JobContext:
             job_name=self.name, cfg=core_context.configuration
         )
 
+        self.secrets = SecretsRouter(job_name=self.name, cfg=core_context.configuration)
+
         from vdk.internal.builtin_plugins.run.job_input import JobInput
 
         self.job_input = JobInput(
@@ -102,4 +110,5 @@ class JobContext:
             cast(ManagedConnectionRouter, self.connections),
             cast(IngesterRouter, self.ingester),
             cast(PropertiesRouter, self.properties),
+            cast(SecretsRouter, self.secrets),
         )
