@@ -31,8 +31,8 @@
 
 .build-plugin-on-vdk-core-release:
   stage: pre_release_test
-  variables:
-    USE_VDKCORE_DEV_VERSION: "yes"
+  before_script:
+    - pip install -e projects/vdk-core
   extends: .build-plugin-dind
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
