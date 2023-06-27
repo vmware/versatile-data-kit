@@ -255,6 +255,28 @@ control_service_publish_job_builder_secure_image:
       changes:
         - projects/control-service/projects/job-builder-secure/version.txt
 
+# (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
+# The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
+# Go to the namespace -> StorageClass
+control_service_deploy_testing_data_pipelines:
+  stage: pre_release
+  image: docker:23.0.1
+  script:
+    - apk --no-cache add bash openssl curl git gettext zip py-pip
+    - pip install --upgrade pip && pip install awscli
+    - export FRONTEND_TAG=latest
+    - export DESIRED_VERSION=v3.12.0 # helm version
+    - curl -LO https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/bin/kubectl
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
+  retry: !reference [.control_service_retry, retry_options]
+  only:
+    refs:
+      - external_pull_requests
+    changes: *control_service_code_change_locations
+
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
 control_service_post_deployment_test:
   stage: pre_release_test

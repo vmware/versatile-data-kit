@@ -94,8 +94,6 @@ fi
 # We are using here embedded database, and we need to set the storageclass since in our test k8s no default storage class is not set.
 helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
       -f "$TESTING_PIPELINES_SERVICE_VALUES_FILE" \
-      --set image.tag="$TAG" \
-      --set operationsUi.image.tag="$FRONTEND_TAG" \
       --set credentials.repository="EMPTY" \
       --set-file vdkOptions=$VDK_OPTIONS_SUBSTITUTED \
       --set deploymentGitUrl="$CICD_GIT_URI" \
