@@ -5,8 +5,7 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { jobData } from '../jobData';
-import {DOWNLOAD_JOB} from "../utils";
-
+import { DOWNLOAD_JOB } from '../utils';
 
 export default class DownloadJobDialog extends Component<IJobPathProp> {
   /**

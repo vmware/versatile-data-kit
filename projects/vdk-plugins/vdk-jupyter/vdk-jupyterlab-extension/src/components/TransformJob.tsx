@@ -6,7 +6,7 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobTransformRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
-import {TRANSFORM_JOB} from "../utils";
+import { TRANSFORM_JOB } from '../utils';
 
 export default class TransformJobDialog extends Component<IJobPathProp> {
   /**

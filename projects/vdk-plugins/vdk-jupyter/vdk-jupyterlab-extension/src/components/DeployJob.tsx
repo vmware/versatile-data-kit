@@ -5,10 +5,9 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
-import {CREATE_DEP} from "../utils";
+import { CREATE_DEP } from '../utils';
 
-
-export default class DeployJobDialog extends Component<(IJobFullProps)> {
+export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
    * Returns a React component for rendering a Deploy menu.
    *
@@ -66,7 +65,7 @@ export default class DeployJobDialog extends Component<(IJobFullProps)> {
    */
   private onEnableClick() {
     return (event: React.MouseEvent) => {
-      let checkbox = document.getElementById('enable');
+      const checkbox = document.getElementById('enable');
       if (checkbox?.classList.contains('checked')) {
         checkbox.classList.remove('checked');
         jobData.set(VdkOption.DEPLOY_ENABLE, '');
@@ -102,10 +101,12 @@ export async function showCreateDeploymentDialog() {
         ]
       });
       if (runConfirmationResult.button.accept) {
-        let { message, status } = await jobRunRequest();
+        const { message, status } = await jobRunRequest();
         if (status) {
-          if (await checkIfVdkOptionDataIsDefined(VdkOption.DEPLOYMENT_REASON)){
-            await jobRequest("deploy");
+          if (
+            await checkIfVdkOptionDataIsDefined(VdkOption.DEPLOYMENT_REASON)
+          ) {
+            await jobRequest('deploy');
           }
         } else {
           showErrorMessage(

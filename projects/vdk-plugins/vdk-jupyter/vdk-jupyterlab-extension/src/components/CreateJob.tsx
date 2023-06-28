@@ -7,7 +7,6 @@ import { jobRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_JOB } from '../utils';
 
-
 export default class CreateJobDialog extends Component<(IJobFullProps)> {
   /**
    * Returns a React component for rendering a create menu.

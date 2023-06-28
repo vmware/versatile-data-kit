@@ -7,7 +7,6 @@ import { jobRequest } from '../serverRequests';
 import { IJobNameAndTeamProps } from './props';
 import { DELETE_JOB } from '../utils';
 
-
 export default class DeleteJobDialog extends Component<IJobNameAndTeamProps> {
   /**
    * Returns a React component for rendering a delete menu.

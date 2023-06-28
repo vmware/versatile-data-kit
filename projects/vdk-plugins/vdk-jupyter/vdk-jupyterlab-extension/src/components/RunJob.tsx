@@ -7,7 +7,7 @@ import { getNotebookInfo, jobRunRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
-import {RUN_FAILED, RUN_JOB} from "../utils";
+import { RUN_FAILED, RUN_JOB } from '../utils';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
