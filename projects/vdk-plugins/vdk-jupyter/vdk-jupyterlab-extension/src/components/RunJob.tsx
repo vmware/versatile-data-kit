@@ -7,7 +7,7 @@ import { getNotebookInfo, jobRunRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
-import { RUN_FAILED, RUN_JOB } from '../utils';
+import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
@@ -74,7 +74,7 @@ export default class RunJobDialog extends Component<IJobPathProp> {
 
 export async function showRunJobDialog(docManager?: IDocumentManager) {
   const result = await showDialog({
-    title: RUN_JOB,
+    title: RUN_JOB_BUTTON_LABEL,
     body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!}></RunJobDialog>,
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
@@ -82,7 +82,7 @@ export async function showRunJobDialog(docManager?: IDocumentManager) {
     let { message, status } = await jobRunRequest();
     if (status) {
       showDialog({
-        title: RUN_JOB,
+        title: RUN_JOB_BUTTON_LABEL,
         body: (
           <div className="vdk-run-dialog-message-container">
             <p className="vdk-run-dialog-message">
@@ -100,7 +100,7 @@ export async function showRunJobDialog(docManager?: IDocumentManager) {
         !(await handleErrorsProducedByNotebookCell(errorMessage, docManager))
       ) {
         showDialog({
-          title: RUN_JOB,
+          title: RUN_JOB_BUTTON_LABEL,
           body: (
             <div className="vdk-run-error-message ">
               <p>{errorMessage.exception_message}</p>
@@ -179,7 +179,7 @@ export const findFailingCellInNotebookCells = async (
   const cells = element.children;
   if (failingCellIndex > cells.length) {
     showDialog({
-      title: RUN_FAILED,
+      title: RUN_FAILED_BUTTON_LABEL,
       body: (
         <div>
           <p>
@@ -235,7 +235,7 @@ export const handleErrorsProducedByNotebookCell = async (
       };
 
       const result = await showDialog({
-        title: RUN_JOB,
+        title: RUN_JOB_BUTTON_LABEL,
         body: (
           <div className="vdk-run-error-message ">
             <p>{message.exception_message}</p>

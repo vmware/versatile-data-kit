@@ -5,7 +5,7 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
-import { CREATE_DEP } from '../utils';
+import { CREATE_DEP_BUTTON_LABEL } from '../utils';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
@@ -79,7 +79,7 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
 
 export async function showCreateDeploymentDialog() {
   const result = await showDialog({
-    title: CREATE_DEP,
+    title: CREATE_DEP_BUTTON_LABEL,
     body: (
       <DeployJobDialog
         jobName={jobData.get(VdkOption.NAME)!}
@@ -93,7 +93,7 @@ export async function showCreateDeploymentDialog() {
   if (resultButtonClicked) {
     try {
       const runConfirmationResult = await showDialog({
-        title: CREATE_DEP,
+        title: CREATE_DEP_BUTTON_LABEL,
         body: 'The job will be executed once before deployment.',
         buttons: [
           Dialog.cancelButton({ label: 'Cancel' }),

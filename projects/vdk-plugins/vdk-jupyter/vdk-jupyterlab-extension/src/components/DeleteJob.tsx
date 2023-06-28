@@ -5,7 +5,7 @@ import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobData } from '../jobData';
 import { jobRequest } from '../serverRequests';
 import { IJobNameAndTeamProps } from './props';
-import { DELETE_JOB } from '../utils';
+import { DELETE_JOB_BUTTON_LABEL } from '../utils';
 
 export default class DeleteJobDialog extends Component<IJobNameAndTeamProps> {
   /**
@@ -42,7 +42,7 @@ export default class DeleteJobDialog extends Component<IJobNameAndTeamProps> {
 
 export async function showDeleteJobDialog() {
   const result = await showDialog({
-    title: DELETE_JOB,
+    title: DELETE_JOB_BUTTON_LABEL,
     body: (
       <DeleteJobDialog
         jobName={jobData.get(VdkOption.NAME)!}
@@ -54,7 +54,7 @@ export async function showDeleteJobDialog() {
   if (result.button.accept) {
     try {
       const finalResult = await showDialog({
-        title: DELETE_JOB,
+        title: DELETE_JOB_BUTTON_LABEL,
         body:
           'Do you really want to delete the job with name ' +
           jobData.get(VdkOption.NAME) +

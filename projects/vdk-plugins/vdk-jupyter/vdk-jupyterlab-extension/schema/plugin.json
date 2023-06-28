@@ -25,7 +25,7 @@
             "command": "jp-vdk:menu-download"
           },
           {
-            "command": "jp-vdk:menu-transform"
+            "command": "jp-vdk:menu-transform-job-to-notebook"
           },
           {
             "command": "jp-vdk:menu-create-deployment"

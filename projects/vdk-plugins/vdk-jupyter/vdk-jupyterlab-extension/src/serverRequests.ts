@@ -91,16 +91,19 @@ export async function jobRequest(endPoint: string): Promise<void> {
   }
 }
 
-export async function jobTransformRequest(): Promise<{
+export async function jobTransformToNotebookRequest(): Promise<{
   message: String;
   status: boolean;
 }> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<serverVdkOperationResult>('transform', {
-        body: JSON.stringify(getJobDataJsonObject()),
-        method: 'POST'
-      });
+      const data = await requestAPI<serverVdkOperationResult>(
+        'transformJobToNotebook',
+        {
+          body: JSON.stringify(getJobDataJsonObject()),
+          method: 'POST'
+        }
+      );
       return { message: data['message'], status: data['message'] == '0' };
     } catch (error) {
       showError(error);

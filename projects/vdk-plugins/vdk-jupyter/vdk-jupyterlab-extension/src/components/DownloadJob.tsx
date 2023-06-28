@@ -5,7 +5,7 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { jobData } from '../jobData';
-import { DOWNLOAD_JOB } from '../utils';
+import { DOWNLOAD_JOB_BUTTON_LABEL } from '../utils';
 
 export default class DownloadJobDialog extends Component<IJobPathProp> {
   /**
@@ -47,7 +47,7 @@ export default class DownloadJobDialog extends Component<IJobPathProp> {
 
 export async function showDownloadJobDialog() {
   const result = await showDialog({
-    title: DOWNLOAD_JOB,
+    title: DOWNLOAD_JOB_BUTTON_LABEL,
     body: (
       <DownloadJobDialog
         jobPath={jobData.get(VdkOption.PATH)!}

@@ -2,7 +2,7 @@
  * Copyright 2023-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-import TransformJobDialog from '../components/TransformJob';
+import TransformJobToNotebookDialog from '../components/TransformJobToNotebook';
 import { render, fireEvent } from '@testing-library/react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
@@ -16,7 +16,9 @@ const defaultProps: IJobPathProp = {
 // yet to be implemented
 describe('#render()', () => {
   it('should return contain job path input with placeholder equal to jobPath from props', () => {
-    const component = render(new TransformJobDialog(defaultProps).render());
+    const component = render(
+      new TransformJobToNotebookDialog(defaultProps).render()
+    );
     const input = component.getByPlaceholderText(defaultProps.jobPath);
     expect(input).toBe(
       component.getAllByLabelText('Path to job directory:')[0]
@@ -26,7 +28,9 @@ describe('#render()', () => {
 
 describe('#onPathChange', () => {
   it('should change the path in jobData', () => {
-    const component = render(new TransformJobDialog(defaultProps).render());
+    const component = render(
+      new TransformJobToNotebookDialog(defaultProps).render()
+    );
     const input = component.getByPlaceholderText(defaultProps.jobPath);
     fireEvent.change(input, { target: { value: 'other/path' } });
     expect(jobData.get(VdkOption.PATH)).toEqual('other/path');

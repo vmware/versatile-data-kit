@@ -3,12 +3,12 @@ import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { jobTransformRequest } from '../serverRequests';
+import { jobTransformToNotebookRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
-import { TRANSFORM_JOB } from '../utils';
+import { TRANSFORM_JOB_TO_NOTEBOOK_BUTTON_LABEL } from '../utils';
 
-export default class TransformJobDialog extends Component<IJobPathProp> {
+export default class TransformJobToNotebookDialog extends Component<IJobPathProp> {
   /**
    * Returns a React component for rendering a transform menu.
    *
@@ -36,37 +36,37 @@ export default class TransformJobDialog extends Component<IJobPathProp> {
   }
 }
 
-export async function showTransformJobDialog() {
+export async function showTransformJobToNotebookDialog() {
   const result = await showDialog({
-    title: TRANSFORM_JOB,
+    title: TRANSFORM_JOB_TO_NOTEBOOK_BUTTON_LABEL,
     body: (
-      <TransformJobDialog
+      <TransformJobToNotebookDialog
         jobPath={jobData.get(VdkOption.PATH)!}
-      ></TransformJobDialog>
+      ></TransformJobToNotebookDialog>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
     const confirmation = await showDialog({
-      title: TRANSFORM_JOB,
+      title: TRANSFORM_JOB_TO_NOTEBOOK_BUTTON_LABEL,
       body: (
         <p>
           Are you sure you want to transform the Data Job with path:{' '}
-          <i>{jobData.get(VdkOption.PATH)}</i>?
+          <i>{jobData.get(VdkOption.PATH)}</i> to notebook?
         </p>
       ),
       buttons: [Dialog.okButton(), Dialog.cancelButton()]
     });
     if (confirmation.button.accept) {
-      let { message, status } = await jobTransformRequest();
+      let { message, status } = await jobTransformToNotebookRequest();
       if (status) {
-        showDialog({
-          title: TRANSFORM_JOB,
+        await showDialog({
+          title: TRANSFORM_JOB_TO_NOTEBOOK_BUTTON_LABEL,
           body: (
-            <div className="vdk-transform-dialog-message-container">
-              <p className="vdk-transform-dialog-message">
+            <div className="vdk-transform-to-notebook-dialog-message-container">
+              <p className="vdk-transform-to-notebook-dialog-message">
                 The Data Job with path <i>{jobData.get(VdkOption.PATH)}</i> was
-                transformed successfully!
+                transformed to notebook successfully!
               </p>
             </div>
           ),
@@ -75,10 +75,10 @@ export async function showTransformJobDialog() {
       } else {
         message = 'ERROR : ' + message;
         const errorMessage = new VdkErrorMessage(message);
-        showDialog({
-          title: TRANSFORM_JOB,
+        await showDialog({
+          title: TRANSFORM_JOB_TO_NOTEBOOK_BUTTON_LABEL,
           body: (
-            <div className="vdk-transform-error-message ">
+            <div className="vdk-transform-to-notebook-error-message ">
               <p>{errorMessage.exception_message}</p>
               <p>{errorMessage.what_happened}</p>
               <p>{errorMessage.why_it_happened}</p>
