@@ -6,6 +6,7 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobTransformRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
+import {TRANSFORM_JOB} from "../utils";
 
 export default class TransformJobDialog extends Component<IJobPathProp> {
   /**
@@ -37,7 +38,7 @@ export default class TransformJobDialog extends Component<IJobPathProp> {
 
 export async function showTransformJobDialog() {
   const result = await showDialog({
-    title: 'Transform Job',
+    title: TRANSFORM_JOB,
     body: (
       <TransformJobDialog
         jobPath={jobData.get(VdkOption.PATH)!}
@@ -47,7 +48,7 @@ export async function showTransformJobDialog() {
   });
   if (result.button.accept) {
     const confirmation = await showDialog({
-      title: 'Transform Job',
+      title: TRANSFORM_JOB,
       body: (
         <p>
           Are you sure you want to transform the Data Job with path:{' '}
@@ -60,11 +61,12 @@ export async function showTransformJobDialog() {
       let { message, status } = await jobTransformRequest();
       if (status) {
         showDialog({
-          title: 'Transform Job',
+          title: TRANSFORM_JOB,
           body: (
             <div className="vdk-transform-dialog-message-container">
               <p className="vdk-transform-dialog-message">
-                The job was transformed successfully!
+                The Data Job with path <i>{jobData.get(VdkOption.PATH)}</i> was
+                transformed successfully!
               </p>
             </div>
           ),
@@ -74,7 +76,7 @@ export async function showTransformJobDialog() {
         message = 'ERROR : ' + message;
         const errorMessage = new VdkErrorMessage(message);
         showDialog({
-          title: 'Transform Job',
+          title: TRANSFORM_JOB,
           body: (
             <div className="vdk-transform-error-message ">
               <p>{errorMessage.exception_message}</p>
