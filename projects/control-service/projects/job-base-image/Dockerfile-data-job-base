@@ -28,7 +28,7 @@ RUN set -ex \
       && apt-get purge -y --auto-remove curl unzip
 
 
-pip install torch scikit-learn transformers[torch] torch torchvision torchaudio datasets accelerate
+pip3 install torch scikit-learn transformers[torch] torch torchvision torchaudio datasets accelerate
 
 # libaio1 - LGPL-2.1+ https://developer.puri.sm/licenses/Librem5/Birch/libaio1/copyright
 # curl - MIT/X* modified https://curl.se/docs/copyright.html
