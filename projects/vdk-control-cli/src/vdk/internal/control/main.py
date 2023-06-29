@@ -17,6 +17,7 @@ from vdk.internal.control.command_groups.job.download_key import download_key
 from vdk.internal.control.command_groups.job.execute import execute
 from vdk.internal.control.command_groups.job.list import list_command
 from vdk.internal.control.command_groups.job.properties import properties_command
+from vdk.internal.control.command_groups.job.secrets import secrets_command
 from vdk.internal.control.command_groups.job.show import show_command
 from vdk.internal.control.command_groups.login_group.login import login
 from vdk.internal.control.command_groups.logout_group.logout import logout
@@ -92,6 +93,7 @@ def run():
     cli.add_command(download_job)
     cli.add_command(show_command)
     cli.add_command(properties_command)
+    cli.add_command(secrets_command)
     cli.add_command(info)
 
     cli()
