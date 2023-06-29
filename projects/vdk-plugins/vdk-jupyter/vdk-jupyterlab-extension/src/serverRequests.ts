@@ -91,6 +91,29 @@ export async function jobRequest(endPoint: string): Promise<void> {
   }
 }
 
+export async function jobConvertToNotebookRequest(): Promise<{
+  message: String;
+  status: boolean;
+}> {
+  if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
+    try {
+      const data = await requestAPI<serverVdkOperationResult>(
+        'convertJobToNotebook',
+        {
+          body: JSON.stringify(getJobDataJsonObject()),
+          method: 'POST'
+        }
+      );
+      return { message: data['message'], status: data['message'] == '0' };
+    } catch (error) {
+      showError(error);
+      return { message: '', status: false };
+    }
+  } else {
+    return { message: '', status: false };
+  }
+}
+
 /**
  * Sent a POST request to the server to get information about the data job of current directory
  */

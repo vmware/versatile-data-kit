@@ -95,6 +95,18 @@ class DownloadJobHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
+class ConvertJobToNotebookHandler(APIHandler):
+    """
+    Class responsible for handling POST request for converting a Data Job to Notebook given the Rest API URL
+    and the path to its directory
+    """
+
+    @tornado.web.authenticated
+    def post(self):
+        # TODO fix this as part of the implementation
+        print("Successfully connected to the Convert Job To Notebook handler!")
+
+
 class CreateJobHandler(APIHandler):
     """
     Class responsible for handling POST request for creating a Data Job given its name, team,
@@ -178,6 +190,7 @@ def setup_handlers(web_app):
     add_handler(RunJobHandler, "run")
     add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")
+    add_handler(ConvertJobToNotebookHandler, "convertJobToNotebook")
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")

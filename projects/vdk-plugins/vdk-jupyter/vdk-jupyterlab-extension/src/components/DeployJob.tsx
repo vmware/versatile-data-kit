@@ -5,9 +5,9 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
+import { CREATE_DEP_BUTTON_LABEL } from '../utils';
 
-
-export default class DeployJobDialog extends Component<(IJobFullProps)> {
+export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
    * Returns a React component for rendering a Deploy menu.
    *
@@ -65,7 +65,7 @@ export default class DeployJobDialog extends Component<(IJobFullProps)> {
    */
   private onEnableClick() {
     return (event: React.MouseEvent) => {
-      let checkbox = document.getElementById('enable');
+      const checkbox = document.getElementById('enable');
       if (checkbox?.classList.contains('checked')) {
         checkbox.classList.remove('checked');
         jobData.set(VdkOption.DEPLOY_ENABLE, '');
@@ -79,7 +79,7 @@ export default class DeployJobDialog extends Component<(IJobFullProps)> {
 
 export async function showCreateDeploymentDialog() {
   const result = await showDialog({
-    title: 'Create Deployment',
+    title: CREATE_DEP_BUTTON_LABEL,
     body: (
       <DeployJobDialog
         jobName={jobData.get(VdkOption.NAME)!}
@@ -93,7 +93,7 @@ export async function showCreateDeploymentDialog() {
   if (resultButtonClicked) {
     try {
       const runConfirmationResult = await showDialog({
-        title: 'Create deployment',
+        title: CREATE_DEP_BUTTON_LABEL,
         body: 'The job will be executed once before deployment.',
         buttons: [
           Dialog.cancelButton({ label: 'Cancel' }),
@@ -101,10 +101,12 @@ export async function showCreateDeploymentDialog() {
         ]
       });
       if (runConfirmationResult.button.accept) {
-        let { message, status } = await jobRunRequest();
+        const { message, status } = await jobRunRequest();
         if (status) {
-          if (await checkIfVdkOptionDataIsDefined(VdkOption.DEPLOYMENT_REASON)){
-            await jobRequest("deploy");
+          if (
+            await checkIfVdkOptionDataIsDefined(VdkOption.DEPLOYMENT_REASON)
+          ) {
+            await jobRequest('deploy');
           }
         } else {
           showErrorMessage(
