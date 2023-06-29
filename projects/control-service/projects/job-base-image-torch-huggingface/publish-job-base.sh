@@ -21,26 +21,26 @@ function build_and_push_image() {
 }
 
 build_and_push_image \
-    "data-job-base-python-3.7" \
+    "data-job-base-torch-huggingface-python-3.7" \
     Dockerfile-data-job-base \
     "--build-arg base_image=python:3.7-slim"
 
 build_and_push_image \
-    "data-job-base-python-3.8" \
+    "data-job-base-torch-huggingface-python-3.8" \
     Dockerfile-data-job-base \
     "--build-arg base_image=python:3.8-slim"
 
 build_and_push_image \
-    "data-job-base-python-3.9" \
+    "data-job-base-torch-huggingface-python-3.9" \
     Dockerfile-data-job-base \
     "--build-arg base_image=python:3.9-slim"
 
 build_and_push_image \
-    "data-job-base-python-3.10" \
+    "data-job-base-torch-huggingface-python-3.10" \
     Dockerfile-data-job-base \
     "--build-arg base_image=python:3.10-slim"
 
 build_and_push_image \
-    "data-job-base-python-3.11" \
+    "data-job-base-torch-huggingface-python-3.11" \
     Dockerfile-data-job-base \
     "--build-arg base_image=python:3.11-slim"
