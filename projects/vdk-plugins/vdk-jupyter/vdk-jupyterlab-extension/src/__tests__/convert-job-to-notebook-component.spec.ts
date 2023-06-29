@@ -2,7 +2,7 @@
  * Copyright 2023-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-import TransformJobToNotebookDialog from '../components/TransformJobToNotebook';
+import ConvertJobToNotebookDialog from '../components/ConvertJobToNotebook';
 import { render, fireEvent } from '@testing-library/react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
@@ -17,7 +17,7 @@ const defaultProps: IJobPathProp = {
 describe('#render()', () => {
   it('should return contain job path input with placeholder equal to jobPath from props', () => {
     const component = render(
-      new TransformJobToNotebookDialog(defaultProps).render()
+      new ConvertJobToNotebookDialog(defaultProps).render()
     );
     const input = component.getByPlaceholderText(defaultProps.jobPath);
     expect(input).toBe(
@@ -29,7 +29,7 @@ describe('#render()', () => {
 describe('#onPathChange', () => {
   it('should change the path in jobData', () => {
     const component = render(
-      new TransformJobToNotebookDialog(defaultProps).render()
+      new ConvertJobToNotebookDialog(defaultProps).render()
     );
     const input = component.getByPlaceholderText(defaultProps.jobPath);
     fireEvent.change(input, { target: { value: 'other/path' } });

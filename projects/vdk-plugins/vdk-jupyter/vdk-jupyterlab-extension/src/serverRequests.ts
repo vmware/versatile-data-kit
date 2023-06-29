@@ -91,14 +91,14 @@ export async function jobRequest(endPoint: string): Promise<void> {
   }
 }
 
-export async function jobTransformToNotebookRequest(): Promise<{
+export async function jobConvertToNotebookRequest(): Promise<{
   message: String;
   status: boolean;
 }> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
       const data = await requestAPI<serverVdkOperationResult>(
-        'transformJobToNotebook',
+        'convertJobToNotebook',
         {
           body: JSON.stringify(getJobDataJsonObject()),
           method: 'POST'
