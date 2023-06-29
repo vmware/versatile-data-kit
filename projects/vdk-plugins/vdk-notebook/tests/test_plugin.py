@@ -25,7 +25,7 @@ class JupyterTests(unittest.TestCase):
 
     def test_successful_job(self) -> None:
         result: Result = self.__runner.invoke(
-            ["run", jobs_path_from_caller_directory("rest-api-job")]
+            ["run", jobs_path_from_caller_directory("ingest-job")]
         )
         cli_assert_equal(0, result)
         actual_rs: Result = self.__runner.invoke(
@@ -39,25 +39,25 @@ class JupyterTests(unittest.TestCase):
 
     def test_failing_job_with_syntax_error(self) -> None:
         result: Result = self.__runner.invoke(
-            ["run", jobs_path_from_caller_directory("rest-api-job-fail-syntax-error")]
+            ["run", jobs_path_from_caller_directory("ingest-job-fail-syntax-error")]
         )
         cli_assert_equal(1, result)
 
     def test_failing_job_with_code_error(self) -> None:
         result: Result = self.__runner.invoke(
-            ["run", jobs_path_from_caller_directory("rest-api-job-fail-code-error")]
+            ["run", jobs_path_from_caller_directory("ingest-job-fail-code-error")]
         )
         cli_assert_equal(2, result)
 
     def test_failing_job_with_sql_error(self) -> None:
         result: Result = self.__runner.invoke(
-            ["run", jobs_path_from_caller_directory("rest-api-job-sql-error")]
+            ["run", jobs_path_from_caller_directory("ingest-job-sql-error")]
         )
         cli_assert_equal(1, result)
 
     def test_mixed_job_with_py_and_sql(self) -> None:
         result: Result = self.__runner.invoke(
-            ["run", jobs_path_from_caller_directory("mixed-rest-api")]
+            ["run", jobs_path_from_caller_directory("mixed-job")]
         )
         cli_assert_equal(0, result)
         actual_rs: Result = self.__runner.invoke(
