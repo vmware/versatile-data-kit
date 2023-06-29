@@ -82,11 +82,11 @@ class JobSecrets:
                 f"The value of the passed secret with key {key} is not an expected type",
                 f"We detect existing value for secret with key '{key}' has type {value_type}. "
                 f"But we could not convert the value '{new_value}' to that type. Error is {e}",
-                f"In order to ensure that we do not overwrite with bad value the secrets, "
-                f"the operation aborts and no secret will be updated.",
-                f"If the key value is correct, you can first delete the key (with --delete)"
-                f" and then use the cli to set it again. "
-                f"Or you can use VDK job_input.set_all_secrets to overwrite them.",
+                "In order to ensure that we do not overwrite with bad value the secrets, "
+                "the operation aborts and no secret will be updated.",
+                "If the key value is correct, you can first delete the key (with --delete)"
+                " and then use the cli to set it again. "
+                "Or you can use VDK job_input.set_all_secrets to overwrite them.",
             )
 
     def __merge_secrets(
@@ -258,12 +258,12 @@ class JobSecrets:
 def secrets_command(
     name: str,
     team: str,
-    set: Tuple[str, str],
+    set: Tuple[str, str],  # pylint: disable=redefined-builtin
     delete: Tuple[str],
     delete_all_job_secrets: bool,
     overwrite_all_job_secrets: _io.BufferedReader,
     get: str,
-    list: bool,
+    list: bool,  # pylint: disable=redefined-builtin
     rest_api_url: str,
     output: OutputFormat,
 ):
@@ -312,7 +312,7 @@ def secrets_command(
             )
 
 
-def _get_key_value_pairs(set):
+def _get_key_value_pairs(set):  # pylint: disable=redefined-builtin
     key_value_pairs = {}
     if set:
         for key, value in set:

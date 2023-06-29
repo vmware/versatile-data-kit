@@ -19,7 +19,9 @@ job_name = "test-job"
 deployment_id = "TODO"
 
 
-def _run_secrets_command(rest_api_url: str, args: List[str], input=None):
+def _run_secrets_command(
+    rest_api_url: str, args: List[str], input=None
+):  # pylint: disable=redefined-builtin
     runner = CliRunner()
     result = runner.invoke(
         secrets_command,
