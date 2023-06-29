@@ -84,7 +84,7 @@ class NotebookStepFuncFactory:
                     f" from {step.file_path.name}",
                     why_it_happened=f"{e.__class__.__name__} at line {e.lineno} of {step.name}"
                     f": {e.args[0]}",
-                    consequences=f"Current Step {step.name} from {step.file_path}"
+                    consequences=f"Current Step {step.name} from {step.file_path} "
                     f"will fail, and as a result the whole Data Job will fail. ",
                     countermeasures=f"Please, check the {step.file_path.name} file again for syntax errors",
                     exception=e,
@@ -100,7 +100,7 @@ class NotebookStepFuncFactory:
                     f" from {step.file_path.name}",
                     why_it_happened=f"{e.__class__.__name__} at line {line_number} of {step.name}"
                     f": {e.args[0]}",
-                    consequences=f"Current Step {step.name} from {step.file_path}"
+                    consequences=f"Current Step {step.name} from {step.file_path} "
                     f"will fail, and as a result the whole Data Job will fail. ",
                     countermeasures=f"Please, check the {step.file_path.name} file again for errors",
                     exception=e,
