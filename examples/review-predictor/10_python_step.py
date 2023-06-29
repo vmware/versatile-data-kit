@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-from vdk.api.job_input import IJobInput
-
 from datasets import load_dataset
 from torch import torch
+from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
 
@@ -14,6 +13,7 @@ def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
     dataset = load_dataset("yelp_review_full")
     from transformers import AutoTokenizer
+
     tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
 
     def tokenize_function(examples):
@@ -22,8 +22,11 @@ def run(job_input: IJobInput):
     tokenized_datasets = dataset.map(tokenize_function, batched=True)
     from transformers import AutoModelForSequenceClassification
 
-    model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased", num_labels=5)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        "bert-base-cased", num_labels=5
+    )
     from transformers import TrainingArguments
+
     training_args = TrainingArguments(output_dir="test_trainer", use_mps_device=False)
 
     import numpy as np
@@ -38,7 +41,9 @@ def run(job_input: IJobInput):
 
     from transformers import Trainer
 
-    small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
+    small_train_dataset = (
+        tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
+    )
     small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
     trainer = Trainer(
         model=model,
@@ -50,5 +55,5 @@ def run(job_input: IJobInput):
     trainer.train()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run(None)
