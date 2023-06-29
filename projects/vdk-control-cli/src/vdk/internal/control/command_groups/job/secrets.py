@@ -96,7 +96,7 @@ class JobSecrets:
         Merge secrets between those already persisted (remote_secrets) and new key value pairs passed by user.
         Merge algorithm attempts to preserve original type if possible and if not detects type from the passed value.
 
-        :param new_secrets: the passed key values pairs
+        :param new_secrets: the passed key value pairs
         :param remote_secrets: the secrets that are persisted on the remote server
         :return: the new merged secrets
         """
