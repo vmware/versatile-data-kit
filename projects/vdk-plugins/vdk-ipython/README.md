@@ -16,7 +16,7 @@ Then to load the extension in Jupyter the user should use:
 ```
 And to load the VDK (Job Control object):
 ```
-%reload_data_job
+%reload_VDK
 ```
 The %reload_VDK magic can be used with arguments such as passing the job's path with --path
 or giving the job a new with --name, etc.
