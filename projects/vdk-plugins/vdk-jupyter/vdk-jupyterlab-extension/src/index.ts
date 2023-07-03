@@ -17,12 +17,17 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { trackVdkTags } from './vdkTags';
 import { IThemeManager } from '@jupyterlab/apputils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import { initVDKCell } from './initVDKCell';
 
 /**
  * Current working directory in Jupyter
  * The variable can be accessed anywhere in the JupyterFrontEndPlugin
  */
 export let workingDirectory: string = '';
+
+/**
+ * This func adds a cell with the necessary commands to enable VDK for a Jupyter notebook
+ */
 
 /**
  * Initialization data for the vdk-jupyterlab-extension extension.
@@ -48,6 +53,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const { commands } = app;
 
     updateVDKMenu(commands, docManager);
+    initVDKCell(notebookTracker);
 
     const fileBrowser = factory.defaultBrowser;
     fileBrowser.model.pathChanged.connect(onPathChanged);
