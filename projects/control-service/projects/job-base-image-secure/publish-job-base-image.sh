@@ -10,14 +10,11 @@ VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/vers
 function build_and_push_image() {
     PYTHON_MAJOR=$1
     PYTHON_MINOR=$2
-    PYTHON_PATCH=$3
     python_name="python-$PYTHON_MAJOR.$PYTHON_MINOR-secure"
     data_job_base_name="data-job-base-python-$PYTHON_MAJOR.$PYTHON_MINOR-secure"
-    python_docker_file="Dockerfile-python"
     data_job_base_docker_file="Dockerfile-data-job-base"
 
     python_image_repo="$VDK_DOCKER_REGISTRY_URL/$python_name"
-    python_image_tag_version="$python_image_repo:$VERSION_TAG"
     python_image_tag_latest="$python_image_repo:latest"
 
     data_job_base_image_repo="$VDK_DOCKER_REGISTRY_URL/$data_job_base_name"
@@ -25,16 +22,8 @@ function build_and_push_image() {
     data_job_base_image_tag_version="$data_job_base_image_repo:$VERSION_TAG"
     data_job_base_image_tag_latest="$data_job_base_image_repo:latest"
 
-    docker build -t "$python_image_tag_version" -t "$python_image_tag_latest" -f "$SCRIPT_DIR/$python_docker_file" "$SCRIPT_DIR" \
-    --build-arg PYTHON_MAJOR=$PYTHON_MAJOR \
-    --build-arg PYTHON_MINOR=$PYTHON_MINOR \
-    --build-arg PYTHON_PATCH=$PYTHON_PATCH
-
-    docker push "$python_image_tag_version"
-    docker push "$python_image_tag_latest"
-
     docker build -t "$data_job_base_image_tag_local" -f "$SCRIPT_DIR/$data_job_base_docker_file" "$SCRIPT_DIR" \
-    --build-arg base_image=$python_image_tag_version
+    --build-arg base_image="$python_image_tag_latest"
 
     docker-slim build \
     --target "$data_job_base_image_tag_local" \
@@ -46,21 +35,18 @@ function build_and_push_image() {
     --include-bin "/usr/bin/chown" \
     --include-bin "/usr/bin/rm" \
     --include-bin "/usr/bin/bash" \
+    --include-bin "/usr/bin/yum" \
+    --include-bin "/usr/bin/mkdir" \
+    --include-bin "/usr/bin/grep" \
     --include-bin "/usr/sbin/groupadd" \
     --include-bin "/usr/sbin/groupdel" \
     --include-bin "/usr/sbin/useradd" \
     --include-bin "/usr/sbin/userdel" \
+    --include-bin "/usr/sbin/ldconfig" \
     --include-path "/usr/lib" \
-    --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/"
+    --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/" \
+    --include-path "/opt/lib/native/oracle"
 
     docker push "$data_job_base_image_tag_version"
     docker push "$data_job_base_image_tag_latest"
 }
-
-build_and_push_image 3 8 16
-
-build_and_push_image 3 9 16
-
-build_and_push_image 3 10 11
-
-build_and_push_image 3 11 3

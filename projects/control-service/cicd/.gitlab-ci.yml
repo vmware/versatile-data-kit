@@ -145,7 +145,7 @@ control_service_publish_job_base_image:
       changes:
         - projects/control-service/projects/job-base-image/**/*
 
-control_service_publish_job_base_image-secure:
+.control_service_publish_job_base_image_secure:
   extends: .images:dind
   stage: publish_artifacts
   script:
@@ -160,7 +160,7 @@ control_service_publish_job_base_image-secure:
         && tar -xvf ds.tar.gz
         && mv dist_linux/docker-slim /usr/local/bin/
         && mv dist_linux/docker-slim-sensor /usr/local/bin/
-    - bash -ex ./publish-job-base.sh
+    - bash -ex ./publish-job-base-image.sh build_and_push_image $PYTHON_MAJOR $PYTHON_MINOR
   retry: !reference [.control_service_retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -168,6 +168,76 @@ control_service_publish_job_base_image-secure:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/job-base-image-secure/**/*
+        - projects/control-service/projects/python-image-secure/**/*
+
+control_service_publish_job_base_image_secure_3_8:
+  extends: .control_service_publish_job_base_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 8
+
+control_service_publish_job_base_image_secure_3_9:
+  extends: .control_service_publish_job_base_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 9
+
+control_service_publish_job_base_image_secure_3_10:
+  extends: .control_service_publish_job_base_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 10
+
+control_service_publish_job_base_image_secure_3_11:
+  extends: .control_service_publish_job_base_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 11
+
+.control_service_publish_python_image_secure:
+  extends: .images:dind
+  stage: build
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/control-service/projects/python-image-secure
+    - export VERSION_TAG="1.$CI_PIPELINE_ID"
+    - bash -ex ./publish-python-image.sh build_and_push_image $PYTHON_MAJOR $PYTHON_MINOR $PYTHON_PATCH
+  retry: !reference [.control_service_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/python-image-secure/**/*
+
+control_service_publish_python_image_secure_3_8:
+  extends: .control_service_publish_python_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 8
+    PYTHON_PATCH: 16
+
+control_service_publish_python_image_secure_3_9:
+  extends: .control_service_publish_python_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 9
+    PYTHON_PATCH: 16
+
+control_service_publish_python_image_secure_3_10:
+  extends: .control_service_publish_python_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 10
+    PYTHON_PATCH: 11
+
+control_service_publish_python_image_secure_3_11:
+  extends: .control_service_publish_python_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 11
+    PYTHON_PATCH: 3
 
 control_service_publish_job_builder_image:
   extends: .images:dind
