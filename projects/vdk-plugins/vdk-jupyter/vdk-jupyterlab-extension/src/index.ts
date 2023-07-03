@@ -26,10 +26,6 @@ import { initVDKCell } from './initVDKCell';
 export let workingDirectory: string = '';
 
 /**
- * This func adds a cell with the necessary commands to enable VDK for a Jupyter notebook
- */
-
-/**
  * Initialization data for the vdk-jupyterlab-extension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
