@@ -22,6 +22,6 @@ RUN set -ex \
       && yum -y install libaio curl unzip \
       && curl --insecure --output oracle-instantclient.zip https://download.oracle.com/otn_software/linux/instantclient/2110000/instantclient-basic-linux.x64-21.10.0.0.0dbru.zip \
       && unzip oracle-instantclient.zip -d /opt/lib/native/oracle && rm -f oracle-instantclient.zip \
-      && sh -c "echo /opt/lib/native/oracle/instantclient_20_10 > /etc/ld.so.conf.d/oracle-instantclient.conf" \
+      && sh -c "echo /opt/lib/native/oracle/instantclient_21_10 > /etc/ld.so.conf.d/oracle-instantclient.conf" \
       && ldconfig \
       && yum remove -y curl unzip
