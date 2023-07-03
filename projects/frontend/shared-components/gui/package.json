@@ -39,6 +39,7 @@
     "@ngrx/effects": "13.2.0",
     "@ngrx/router-store": "13.2.0",
     "@ngrx/store": "13.2.0",
+    "@yarnpkg/parsers": "2.5.1",
     "@swimlane/ngx-graph": "8.0.0",
     "@webcomponents/custom-elements": "1.5.0",
     "angular-ng-autocomplete": "2.0.8",
