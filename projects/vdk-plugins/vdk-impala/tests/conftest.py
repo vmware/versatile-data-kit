@@ -23,6 +23,11 @@ def _is_responsive(runner):
         return False
 
 
+# TODO:
+# We are using pretty old version of Impala for those tests.
+# We should consider switching to a newer one
+# Impala seem to maintain docker images :
+# https://github.com/apache/impala/blob/master/docker/README.md#docker-quickstart-with-docker-compose
 @pytest.fixture(scope="session")
 def docker_compose_file(pytestconfig):
     return os.path.join(
@@ -51,6 +56,6 @@ def impala_service(docker_ip, docker_services):
     time.sleep(3)
 
     docker_services.wait_until_responsive(
-        timeout=120.0, pause=1, check=lambda: _is_responsive(runner)
+        timeout=240.0, pause=1, check=lambda: _is_responsive(runner)
     )
     time.sleep(10)
