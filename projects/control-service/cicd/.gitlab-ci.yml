@@ -162,12 +162,13 @@ control_service_publish_job_base_image:
         && mv dist_linux/docker-slim-sensor /usr/local/bin/
     - bash -ex ./publish-job-base-image.sh $PYTHON_MAJOR $PYTHON_MINOR
   retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - external_pull_requests
-    changes:
-      - projects/control-service/projects/job-base-image-secure/**/*
-      - projects/control-service/projects/python-image-secure/**/*
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-base-image-secure/**/*
+        - projects/control-service/projects/python-image-secure/**/*
 
 control_service_publish_job_base_image_secure_3_8:
   extends: .control_service_publish_job_base_image_secure
