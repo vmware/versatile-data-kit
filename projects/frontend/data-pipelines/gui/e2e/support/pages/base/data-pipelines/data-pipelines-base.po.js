@@ -63,6 +63,16 @@ export class DataPipelinesBasePO extends BasePagePO {
     }
 
     /**
+     * ** Navigate to some url without bootstrap.
+     *
+     * @param {string} url
+     */
+    static navigateToDataJobUrlNoBootstrap(url) {
+        this.navigateToUrl(url);
+        return this.getPage();
+    }
+
+    /**
      * ** Wait for Data Job post execution req.
      *
      * @return {Cypress.Chainable<undefined>}

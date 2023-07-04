@@ -5,11 +5,11 @@
 
 /// <reference types="cypress" />
 
-import { TEAM_VDK_DATA_JOB_FAILING } from '../../support/helpers/constants.support';
+import { TEAM_VDK_DATA_JOB_FAILING } from '../../../support/helpers/constants.support';
 
-import { GetStartedDataJobsHealthOverviewWidgetPO } from '../../support/pages/get-started/get-started-page-data-jobs-health-overview.po';
-import { DataJobManageDetailsPage } from '../../support/pages/manage/data-jobs/details/data-job-details.po';
-import { DataJobManageExecutionsPage } from '../../support/pages/manage/data-jobs/executions/data-job-executions.po';
+import { GetStartedDataJobsHealthOverviewWidgetPO } from '../../../support/pages/get-started/get-started-page-data-jobs-health-overview.po';
+import { DataJobManageDetailsPage } from '../../../support/pages/manage/data-jobs/details/data-job-details.po';
+import { DataJobManageExecutionsPage } from '../../../support/pages/manage/data-jobs/executions/data-job-executions.po';
 
 describe(
     'Get Started Page: Data Jobs Health Overview Widget',

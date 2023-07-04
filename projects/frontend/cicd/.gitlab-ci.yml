@@ -148,6 +148,10 @@ frontend_publish_ui_image:
 
 frontend_deploy_testing_data_pipelines:
   stage: pre_release_test
+  needs:
+    - job: frontend-data-pipelines-e2e-tests
+      optional: false
+      artifacts: false
   image: docker:23.0.1
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
@@ -182,6 +186,30 @@ frontend_heartbeat_test:
     - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
     - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
     - vdk-heartbeat -f projects/frontend/cicd/ping_frontend_heartbeat_config.ini
+  retry: !reference [.frontend_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+
+frontend_quickstart_operability_test:
+  stage: pre_release_test
+  needs:
+    - job: frontend_heartbeat_test
+      optional: false
+      artifacts: false
+    - job: frontend-data-pipelines-build
+      optional: false
+      artifacts: true
+  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  before_script:
+    - cd projects/frontend/data-pipelines/gui
+  script:
+    - export CYPRESS_BASE_URL=http://cicd-control-service-ui:80
+    - npm run quickstart-smoke
   retry: !reference [.frontend_retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'

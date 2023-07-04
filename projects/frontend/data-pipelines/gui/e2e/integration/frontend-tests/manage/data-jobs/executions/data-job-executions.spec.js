@@ -5,8 +5,8 @@
 
 /// <reference types="cypress" />
 
-import { DataJobsManagePage } from '../../../../support/pages/manage/data-jobs/data-jobs.po';
-import { DataJobManageExecutionsPage } from '../../../../support/pages/manage/data-jobs/executions/data-job-executions.po';
+import { DataJobsManagePage } from '../../../../../support/pages/manage/data-jobs/data-jobs.po';
+import { DataJobManageExecutionsPage } from '../../../../../support/pages/manage/data-jobs/executions/data-job-executions.po';
 
 describe(
     'Data Job Manage Executions Page',
