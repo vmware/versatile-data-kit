@@ -202,7 +202,7 @@ describe(
                             `\\/explore\\/data-jobs\\?jobName=${testJobsFixture[1].job_name.substring(
                                 0,
                                 20
-                            )}$`
+                            )}&deploymentStatus=all$`
                         )
                     );
 
@@ -260,10 +260,12 @@ describe(
                     .should(
                         'match',
                         new RegExp(
-                            `\\/explore\\/data-jobs\\?jobName=${testJobsFixture[0].job_name.substring(
+                            `\\/explore\\/data-jobs\\?search=${
+                                testJobsFixture[0].job_name
+                            }&jobName=${testJobsFixture[0].job_name.substring(
                                 0,
                                 20
-                            )}&search=${testJobsFixture[0].job_name}$`
+                            )}&deploymentStatus=all$`
                         )
                     );
 
@@ -289,7 +291,7 @@ describe(
                             `\\/explore\\/data-jobs\\?jobName=${testJobsFixture[0].job_name.substring(
                                 0,
                                 20
-                            )}$`
+                            )}&deploymentStatus=all$`
                         )
                     );
             });
@@ -313,7 +315,8 @@ describe(
                     .should('deep.equal', {
                         pathSegment: '/explore/data-jobs',
                         queryParams: {
-                            search: testJobsFixture[1].job_name
+                            search: testJobsFixture[1].job_name,
+                            deploymentStatus: 'all'
                         }
                     });
 
@@ -356,7 +359,8 @@ describe(
                             jobName: testJobsFixture[0].job_name.substring(
                                 0,
                                 20
-                            )
+                            ),
+                            deploymentStatus: 'all'
                         }
                     });
             });
@@ -397,7 +401,7 @@ describe(
                     .should(
                         'match',
                         new RegExp(
-                            `\\/explore\\/data-jobs\\?description=Test%20description%201$`
+                            `\\/explore\\/data-jobs\\?description=Test%20description%201&deploymentStatus=all$`
                         )
                     );
 
@@ -429,12 +433,14 @@ describe(
                 dataJobsExplorePage
                     .getCurrentUrlNormalized({
                         includePathSegment: true,
-                        includeQueryString: true
+                        includeQueryString: true,
+                        decodeQueryString: true
                     })
                     .should('deep.equal', {
                         pathSegment: '/explore/data-jobs',
                         queryParams: {
-                            description: 'Test%20description%201'
+                            description: 'Test description 1',
+                            deploymentStatus: 'all'
                         }
                     });
 

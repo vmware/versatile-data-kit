@@ -178,12 +178,12 @@ describe('DataJobsExploreGridComponent', () => {
 
     describe('urlUpdateStrategy', () => {
         it('should verify the behaviour of _doUrlUpdate when urlUpdateStrategy is default (updateRouter)', () => {
-            const navigateToUrlSpy = spyOn(component.urlStateManager, 'navigateToUrl').and.returnValue(Promise.resolve(true));
+            const locationToUrlSpy = spyOn(component.urlStateManager, 'locationToURL').and.callFake(CallFake);
 
             // @ts-ignore
             component._doUrlUpdate();
 
-            expect(navigateToUrlSpy).toHaveBeenCalled();
+            expect(locationToUrlSpy).toHaveBeenCalled();
         });
 
         it('should verify the behaviour of _doUrlUpdate when urlUpdateStrategy is changed (updateLocation)', () => {
@@ -198,6 +198,10 @@ describe('DataJobsExploreGridComponent', () => {
     });
 
     describe('urlStateManager', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
         it('should verify will invoke default urlStateManager (locally created)', () => {
             // Given
             const setQueryParamSpy = spyOn(component.urlStateManager, 'setQueryParam').and.callFake(CallFake);
@@ -206,7 +210,12 @@ describe('DataJobsExploreGridComponent', () => {
             component.search('search');
 
             // Then
-            expect(setQueryParamSpy).toHaveBeenCalledWith(QUERY_PARAM_SEARCH, 'search');
+            expect(setQueryParamSpy.calls.argsFor(0)).toEqual(['jobName', undefined, 1]);
+            expect(setQueryParamSpy.calls.argsFor(1)).toEqual(['teamName', undefined, 2]);
+            expect(setQueryParamSpy.calls.argsFor(2)).toEqual(['description', undefined, 3]);
+            expect(setQueryParamSpy.calls.argsFor(3)).toEqual(['deploymentStatus', 'all', 4]);
+            expect(setQueryParamSpy.calls.argsFor(4)).toEqual(['deploymentLastExecutionStatus', undefined, 5]);
+            expect(setQueryParamSpy.calls.argsFor(5)).toEqual([QUERY_PARAM_SEARCH, 'search', 0]);
         });
 
         it('should verify will invoke external urlStateManager (dependency injected)', () => {
@@ -219,12 +228,16 @@ describe('DataJobsExploreGridComponent', () => {
             component.search('search');
 
             // Then
-            expect(setQueryParamSpy).toHaveBeenCalledWith(QUERY_PARAM_SEARCH, 'search');
+            expect(setQueryParamSpy.calls.argsFor(0)).toEqual(['jobName', undefined, 1]);
+            expect(setQueryParamSpy.calls.argsFor(1)).toEqual(['teamName', undefined, 2]);
+            expect(setQueryParamSpy.calls.argsFor(2)).toEqual(['description', undefined, 3]);
+            expect(setQueryParamSpy.calls.argsFor(3)).toEqual(['deploymentStatus', 'all', 4]);
+            expect(setQueryParamSpy.calls.argsFor(4)).toEqual(['deploymentLastExecutionStatus', undefined, 5]);
+            expect(setQueryParamSpy.calls.argsFor(5)).toEqual([QUERY_PARAM_SEARCH, 'search', 0]);
         });
 
         it('should verify will invoke default urlStateManager (dependency injection is null or undefined)', () => {
             // Given
-            const KEY_INDEX = 0;
             const setQueryParamSpy = spyOn(component.urlStateManager, 'setQueryParam').and.callFake(CallFake);
             // When
             component.urlStateManager = null;
@@ -233,18 +246,16 @@ describe('DataJobsExploreGridComponent', () => {
             component.search('search test value 2');
 
             // Then
-            expect(setQueryParamSpy.calls.allArgs().filter((pair) => pair[KEY_INDEX] === 'search')[0]).toEqual([
-                QUERY_PARAM_SEARCH,
-                'search test value 1'
-            ]);
-            expect(setQueryParamSpy.calls.allArgs().filter((pair) => pair[KEY_INDEX] === 'search')[1]).toEqual([
-                QUERY_PARAM_SEARCH,
-                'search test value 2'
-            ]);
+            expect(setQueryParamSpy.calls.argsFor(5)).toEqual([QUERY_PARAM_SEARCH, 'search test value 1', 0]);
+            expect(setQueryParamSpy.calls.argsFor(11)).toEqual([QUERY_PARAM_SEARCH, 'search test value 2', 0]);
         });
     });
 
     describe('handleStateChange', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
         it('makes expected calls', () => {
             const clrDatagridStateInterfaceStub = {
                 filters: []
@@ -333,10 +344,14 @@ describe('DataJobsExploreGridComponent', () => {
     });
 
     describe('search', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
         it('makes expected calls', () => {
             spyOn(component, 'loadDataWithState').and.callThrough();
             component.search('searchValue');
-            expect(component.searchQueryValue).toBe('searchValue');
+            expect(component.clrGridUIState.search).toBe('searchValue');
             expect(component.loadDataWithState).toHaveBeenCalled();
         });
     });

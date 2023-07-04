@@ -188,27 +188,29 @@ export class DataPipelinesBasePO extends BasePagePO {
         const relativePathToFixtures = [];
         if (jobVersion.includes('v0')) {
             relativePathToFixtures.push({
-                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V0}.json`
+                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V0}.json`,
+                executions: 1
             });
         }
 
         if (jobVersion.includes('v1')) {
             relativePathToFixtures.push({
-                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V1}.json`
+                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V1}.json`,
+                executions: 1
             });
         }
 
         if (jobVersion.includes('v2')) {
             relativePathToFixtures.push({
-                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V2}.json`
+                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V2}.json`,
+                executions: 1
             });
         }
 
         return cy.task(
             'provideDataJobsExecutions',
             {
-                relativePathToFixtures,
-                executions: 1
+                relativePathToFixtures
             },
             { timeout: DataPipelinesBasePO.WAIT_EXTRA_LONG_TASK }
         );

@@ -226,7 +226,7 @@ describe(
                                 0,
                                 20
                             ),
-                            deploymentEnabled: 'all'
+                            deploymentStatus: 'all'
                         }
                     });
 
@@ -256,7 +256,7 @@ describe(
                                 0,
                                 20
                             ),
-                            deploymentEnabled: 'all'
+                            deploymentStatus: 'all'
                         }
                     });
             });
@@ -290,7 +290,7 @@ describe(
                                 0,
                                 20
                             ),
-                            deploymentEnabled: 'all'
+                            deploymentStatus: 'all'
                         }
                     });
 
@@ -329,7 +329,7 @@ describe(
                                 0,
                                 20
                             ),
-                            deploymentEnabled: 'all'
+                            deploymentStatus: 'all'
                         }
                     });
             });
@@ -530,7 +530,7 @@ describe(
                     .should(
                         'match',
                         new RegExp(
-                            `\\/manage\\/data-jobs\\?deploymentEnabled=all&description=Test%20description%201$`
+                            `\\/manage\\/data-jobs\\?description=Test%20description%201&deploymentStatus=all$`
                         )
                     );
 
@@ -568,7 +568,7 @@ describe(
                     .should('deep.equal', {
                         pathSegment: '/manage/data-jobs',
                         queryParams: {
-                            deploymentEnabled: 'all',
+                            deploymentStatus: 'all',
                             description: 'Test%20description%201'
                         }
                     });
