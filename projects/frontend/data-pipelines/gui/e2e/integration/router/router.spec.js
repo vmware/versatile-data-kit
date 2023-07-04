@@ -11,9 +11,7 @@ import { GetStartedPagePO } from '../../support/pages/get-started/get-started-pa
 describe('Routing for pages', () => {
     describe('smoke', { tags: ['@smoke'] }, () => {
         it('navigates to get-started page when explore page route is ignored', () => {
-            BasePagePO.executeCypressCommand(
-                'appConfigInterceptorDisableExploreRoute'
-            );
+            BasePagePO.executeCypressCommand('appConfigInterceptorDisableExploreRoute');
             // wait for login
             BasePagePO.wireUserSession();
             BasePagePO.initInterceptors();
@@ -21,9 +19,7 @@ describe('Routing for pages', () => {
             // go to explore page url
             cy.visit('/explore/data-jobs');
             // should navigate to get-started instead
-            cy.location().should((l) =>
-                expect(l.pathname).to.equal('/get-started')
-            );
+            cy.location().should((l) => expect(l.pathname).to.equal('/get-started'));
         });
     });
 });
