@@ -50,13 +50,13 @@ repos:
   #        -   id: mypy
   #            files: ^(src/|tests/|plugins/)
   - repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.9.0
+    rev: v3.10.0
     hooks:
       - id: reorder-python-imports
         args: [ --py37-plus, '--application-directories=.:src' ]
   # use latest python syntax
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
+    rev: v3.8.0
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
@@ -148,7 +148,7 @@ repos:
           - --license-filepath
           - NOTICE.txt
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.6
+    rev: v3.0.0-alpha.9-for-vscode
     hooks:
       - id: prettier
         types_or: [scss, css, javascript, ts, html]
