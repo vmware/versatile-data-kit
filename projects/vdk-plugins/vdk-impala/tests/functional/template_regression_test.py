@@ -13,6 +13,7 @@ from unittest.mock import patch
 import pytest
 from vdk.internal.core import errors
 from vdk.plugin.impala import impala_plugin
+from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import get_test_job_path
 
@@ -51,7 +52,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_table": target_table,
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
         assert actual_rs.output and expected_rs.output
@@ -71,7 +72,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_table": target_table,
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
@@ -127,7 +128,7 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
 
-        assert not res.exception
+        cli_assert(not res.exception, res)
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
         assert actual_rs.output and expected_rs.output
@@ -180,7 +181,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "id_column": "id",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -259,7 +260,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "updated_at_column": "updated_at",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -308,7 +309,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "updated_at_column": "updated_at",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -434,7 +435,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "last_arrival_ts": "updated_at",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -466,7 +467,7 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
         # Expecting data job not to finish due to empty source.
-        assert not res.exception
+        cli_assert(not res.exception, res)
         assert res.exit_code == 0
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
@@ -498,7 +499,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "last_arrival_ts": "updated_at",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -560,7 +561,7 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
 
-        assert not res.exception
+        cli_assert(not res.exception, res)
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
@@ -724,7 +725,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "expect_table": expect_table,
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -754,7 +755,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "expect_table": expect_table,
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -788,7 +789,7 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
 
-        assert not res.exception
+        cli_assert(not res.exception, res)
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output

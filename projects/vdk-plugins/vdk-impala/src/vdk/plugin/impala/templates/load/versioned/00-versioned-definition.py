@@ -3,7 +3,8 @@
 from typing import List
 
 from pydantic import BaseModel
-from pydantic import validator
+from pydantic import field_validator
+from pydantic import FieldValidationInfo
 from vdk.api.job_input import IJobInput
 from vdk.plugin.impala.templates.template_arguments_validator import (
     TemplateArgumentsValidator,
@@ -24,9 +25,11 @@ class LoadVersionedParams(BaseModel):
     active_to_column: str = "active_to"
     active_to_max_value: str = "9999-12-31"
 
-    @validator("tracked_columns", allow_reuse=True)
-    def passwords_match(cls, tracked_columns, values, **kwargs):
-        value_columns = values.get("value_columns")
+    @field_validator("tracked_columns")
+    def tracked_columns_subset_of_value_columns(
+        cls, tracked_columns: List[str], values: FieldValidationInfo, **kwargs
+    ):
+        value_columns = values.data["value_columns"]
         if type(value_columns) == list and not tracked_columns:
             raise ValueError("The list must contain at least one column")
         if type(value_columns) == list == type(value_columns) and not set(

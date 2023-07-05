@@ -16,8 +16,8 @@ class FactDailySnapshotParams(BaseModel):
     source_schema: str
     source_view: str
     last_arrival_ts: str
-    check: Optional[Callable[[str], bool]]
-    staging_schema: Optional[str]
+    check: Optional[Callable[[str], bool]] = None
+    staging_schema: Optional[str] = None
 
 
 class FactDailySnapshot(TemplateArgumentsValidator):
