@@ -242,10 +242,15 @@ control_service_publish_python_image_secure_3_11:
 
 control_service_publish_job_base_image_secure_3_9:
   extends: .control_service_publish_job_base_image_secure
-  needs: [ "control_service_publish_python_image_secure_3_8",
-           "control_service_publish_python_image_secure_3_9",
-           "control_service_publish_python_image_secure_3_10",
-           "control_service_publish_python_image_secure_3_11" ]
+  needs:
+    - job: control_service_publish_python_image_secure_3_8
+      optional: true
+    - job: control_service_publish_python_image_secure_3_9
+      optional: true
+    - job: control_service_publish_python_image_secure_3_10
+      optional: true
+    - job: control_service_publish_python_image_secure_3_11
+      optional: true
   variables:
     PYTHON_MAJOR: 3
     PYTHON_MINOR: 9
