@@ -59,9 +59,9 @@ class JobSecrets:
 
     @staticmethod
     def _to_bool(value: str) -> bool:
-        if value == "true" or value == "True":
+        if value.lower() == "true":
             return True
-        if value == "false" or value == "False":
+        if value.lower() == "false":
             return False
         raise ValueError("bool cast accept only True/true/False/false values.")
 
