@@ -4,5 +4,7 @@
 openai
 
 pytest
+pytest-httpserver
 vdk-core
+vdk-sqlite
 vdk-test-utils

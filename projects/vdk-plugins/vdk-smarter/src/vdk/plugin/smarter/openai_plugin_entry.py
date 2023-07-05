@@ -55,8 +55,9 @@ class OpenAiPlugin:
 
     def _review_sql_query(self, sql_query: str):
         # Refine the prompt and make configurable
+        # TODO provide SQL dialect to the prompt
         prompt = (
-            """Using your extensive knowledge of Impala SQL, analyze the following SQL query and provide a specific feedback.
+            """Using your extensive knowledge of SQL, analyze the following SQL query and provide a specific feedback.
         The feedback should include its efficiency, readability, possible optimization, potential errors,
         adherence to best practices, and security vulnerabilities, if any. Provide a score (1 a lot of work needed, 5 - no further changes needed)
          Return the answer in format {"score": ?, "review": "?" } Here is the SQL query:
