@@ -71,7 +71,7 @@ Then, from inside the run function in a Python step, you can use the `send_objec
 
 #### Data Quality Checks
 
-Most of the processing templates support quality checks that are used for preventing bad data going into production tables. 
+Most of the processing templates support quality checks that are used for preventing bad data going into production tables.
 The checks represent a callback function that is passed as an optional parameter to the job_input.execute_template() method.
 
 Example:
