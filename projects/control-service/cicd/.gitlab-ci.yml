@@ -176,15 +176,13 @@ control_service_publish_job_base_image:
 
 control_service_publish_job_base_image_secure_3_8:
   extends: .control_service_publish_job_base_image_secure
+  needs: [ "control_service_publish_python_image_secure_3_8",
+           "control_service_publish_python_image_secure_3_9",
+           "control_service_publish_python_image_secure_3_10",
+           "control_service_publish_python_image_secure_3_11" ]
   variables:
     PYTHON_MAJOR: 3
     PYTHON_MINOR: 8
-
-control_service_publish_job_base_image_secure_3_9:
-  extends: .control_service_publish_job_base_image_secure
-  variables:
-    PYTHON_MAJOR: 3
-    PYTHON_MINOR: 9
 
 control_service_publish_job_base_image_secure_3_10:
   extends: .control_service_publish_job_base_image_secure
@@ -241,6 +239,16 @@ control_service_publish_python_image_secure_3_11:
     PYTHON_MAJOR: 3
     PYTHON_MINOR: 11
     PYTHON_PATCH: 3
+
+control_service_publish_job_base_image_secure_3_9:
+  extends: .control_service_publish_job_base_image_secure
+  needs: [ "control_service_publish_python_image_secure_3_8",
+           "control_service_publish_python_image_secure_3_9",
+           "control_service_publish_python_image_secure_3_10",
+           "control_service_publish_python_image_secure_3_11" ]
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 9
 
 control_service_publish_job_builder_image:
   extends: .images:dind
