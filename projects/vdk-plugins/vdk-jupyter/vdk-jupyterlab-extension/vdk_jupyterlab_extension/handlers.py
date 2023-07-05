@@ -22,16 +22,27 @@ class LoadJobDataHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         working_directory = json.loads(self.get_json_body())[VdkOption.PATH.value]
-        data = JobDataLoader(working_directory)
-        self.finish(
-            json.dumps(
-                {
-                    VdkOption.PATH.value: data.get_job_path(),
-                    VdkOption.NAME.value: data.get_job_name(),
-                    VdkOption.TEAM.value: data.get_team_name(),
-                }
+        try:
+            data = JobDataLoader(working_directory)
+            self.finish(
+                json.dumps(
+                    {
+                        VdkOption.PATH.value: data.get_job_path(),
+                        VdkOption.NAME.value: data.get_job_name(),
+                        VdkOption.TEAM.value: data.get_team_name(),
+                    }
+                )
             )
-        )
+        except Exception as e:
+            self.finish(
+                json.dumps(
+                    {
+                        VdkOption.PATH.value: "",
+                        VdkOption.NAME.value: "",
+                        VdkOption.TEAM.value: "",
+                    }
+                )
+            )
 
 
 class RunJobHandler(APIHandler):

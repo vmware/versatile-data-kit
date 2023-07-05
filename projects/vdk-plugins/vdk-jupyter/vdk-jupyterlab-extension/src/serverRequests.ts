@@ -161,7 +161,6 @@ export async function getNotebookInfo(cellId: string): Promise<{
         cellIndex: data['cellIndex']
       };
     } catch (error) {
-      showError(error);
       return {
         path: '',
         cellIndex: ''

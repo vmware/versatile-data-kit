@@ -152,7 +152,7 @@ class VdkUI:
         :param enabled: flag whether the job is enabled (that will basically un-pause the job)
         :return: output string of the operation
         """
-        output = ""
+        output = "text"
         cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), output)
         path = get_or_prompt("Job Path", path)
         default_name = os.path.basename(path)
@@ -163,7 +163,6 @@ class VdkUI:
             team=team,
             job_path=path,
             reason=reason,
-            output=output,
             vdk_version=None,
             enabled=enabled,
         )
