@@ -1046,11 +1046,18 @@ mail:
 # https://prometheus.io/docs/alerting/latest/configuration/#email_config
 alertmanager:
   enabled: false
+  # Authentication credentials are mounted into a k8s secret, that's why they are separate.
+  authentication:
+    secretName: "alertmanager-authentication-secret"
+    authPassword: ""
+    authSecret: ""
+    authSecretKey: ""
+    authIdentity: ""
   items:
     labels:
       role: infra
     namespace: data-jobs
-    name: dp-notifications
+    name: dp-notifications # Data Pipelines notifications
     spec:
       receivers:
         route:
@@ -1075,8 +1082,4 @@ alertmanager:
             smarthost: ""
             to: '{{ .CommonAnnotations.email_to }}'
             authUsername: ''
-            authPassword: ''
-            authSecret: ''
-            authSecretKey: ''
-            authIdentity: ''
           name: dp-receiver

@@ -15,8 +15,20 @@ items:
       namespace: {{ .Values.alertmanager.items.namespace }}
     spec:
       receivers:
-        route:
-          {{ toYaml .Values.items.spec.receivers.route | indent 4 }}
-      emailConfigs:
-        {{ toYaml .Values.items.spec.emailConfigs | indent 4 }}
+        route: |
+          {{ toYaml .Values.alertmanager.items.spec.receivers.route | indent 4 }}
+      emailConfigs: |
+        {{ toYaml .Values.alertmanager.items.spec.emailConfigs | indent 4 }}
+        authPassword: {{- with secret .Values.alertmanager.authentication.secretName -}}
+              {{ .Data.authPassword | b64dec }}
+            {{- end }}
+        authSecret: {{- with secret .Values.alertmanager.authentication.secretName -}}
+              {{ .Data.authSecret | b64dec }}
+            {{- end }}
+        authSecretKey: {{- with secret .Values.alertmanager.authentication.secretName -}}
+              {{ .Data.authSecretKey | b64dec }}
+            {{- end }}
+        authIdentity: {{- with secret .Values.alertmanager.authentication.secretName -}}
+              {{ .Data.authIdentity | b64dec }}
+            {{- end }}
 {{- end }}
