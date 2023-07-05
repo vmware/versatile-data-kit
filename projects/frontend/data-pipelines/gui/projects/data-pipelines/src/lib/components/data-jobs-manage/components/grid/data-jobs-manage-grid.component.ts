@@ -50,8 +50,7 @@ export class DataJobsManageGridComponent extends DataJobsBaseGridComponent imple
     confirmExecuteNowOptions: ModalOptions;
 
     override clrGridDefaultFilter: ClrGridUIState['filter'] = {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        'deployments.enabled': DataJobStatus.ENABLED
+        deploymentStatus: DataJobStatus.ENABLED
     };
     override clrGridDefaultSort: ClrGridUIState['sort'] = {
         // eslint-disable-next-line @typescript-eslint/naming-convention
