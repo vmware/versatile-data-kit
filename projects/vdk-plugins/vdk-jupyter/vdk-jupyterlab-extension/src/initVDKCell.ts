@@ -25,6 +25,7 @@ export function initVDKCell(notebookTracker: INotebookTracker) {
               `    * ingesting data into a database;\n`,
               `    * processing data into a database.\n`,
               `See the IJobInput documentation for more details.\n`,
+              `https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py\n`,
               `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n`,
               `and is only used for development purposes.\n`,
               `"""\n`,
@@ -36,8 +37,8 @@ export function initVDKCell(notebookTracker: INotebookTracker) {
           }
         });
       const cells = notebookTracker.currentWidget?.content.model?.cells;
-      console.log('Cell count: ', cells?.length);
       const cellContent = cells?.get(0).value.text;
+      // check if the notebook has only 1 empty cell, which is how we judge if it is a new notebook or not
       if (cells && initCell && cells.length == 1 && cellContent == '') {
         cells.insert(0, initCell);
         cells.remove(1);
