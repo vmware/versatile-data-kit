@@ -15,8 +15,6 @@ include:
 
 stages:
   - build
-  - publish_python_image
-  - publish_job_base_image
   - publish_artifacts
   - pre_release
   - pre_release_image
