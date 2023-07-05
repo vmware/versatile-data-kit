@@ -1,9 +1,0 @@
-[general]
-contrib=contrib-body-requires-signed-off-by
-
-[title-match-regex]
-# python like regex (https://docs.python.org/3/library/re.html) that the
-# commit-msg title must be matched to.
-# Note that the regex can contradict with other rules if not used correctly
-# (e.g. title-must-not-contain-word).
-regex=(vdk-.*|.*-vdk|specs|support|versatile-data-kit|documentation|control-service|examples|frontend): .*
