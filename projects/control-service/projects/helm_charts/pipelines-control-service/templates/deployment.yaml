@@ -12,6 +12,7 @@ metadata:
   {{- if .Values.deploymentAdditionalLabels }}
   {{- include "common.tplvalues.render" (dict "value" .Values.deploymentAdditionalLabels "context" $) | nindent 4 }}
   {{- end }}
+    date: "{{ now | unixEpoch }}"
 spec:
   replicas: {{ .Values.replicas }}
   strategy:
@@ -28,6 +29,7 @@ spec:
       {{- if .Values.deploymentAdditionalLabels }}
       {{- include "common.tplvalues.render" (dict "value" .Values.deploymentAdditionalLabels "context" $) | nindent 8 }}
       {{- end }}
+        date: "{{ now | unixEpoch }}"
       annotations:
         # https://helm.sh/docs/howto/charts_tips_and_tricks Automatically Roll Deployments
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
