@@ -1,7 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import os
+import logging
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
@@ -10,6 +10,8 @@ from jupyter_server.utils import url_path_join
 from .job_data import JobDataLoader
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
+
+log = logging.getLogger(__name__)
 
 
 class LoadJobDataHandler(APIHandler):
@@ -34,6 +36,9 @@ class LoadJobDataHandler(APIHandler):
                 )
             )
         except Exception as e:
+            log.debug(
+                f"Failed to load job information from config.ini with error: {e}."
+            )
             self.finish(
                 json.dumps(
                     {
