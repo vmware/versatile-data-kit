@@ -1053,28 +1053,17 @@ alertmanager:
     authSecret: ""
     authSecretKey: ""
     authIdentity: ""
-  items:
-    labels:
-      role: infra
-    namespace: data-jobs
-    name: dp-notifications # Data Pipelines notifications
-    spec:
-      receivers:
-        route:
-          groupBy:
-            alertname
-            execution_id
-            groupInterval: 1m
-            groupWait: 0s
-            matchers:
-              - name: source
-                value: data-pipelines
-            receiver: dp-receiver
-            repeatInterval: 30d
-        emailConfigs:
+  labels:
+    role: infra
+  namespace: data-jobs
+  name: dp-notifications # Data Pipelines notifications
+  spec:
+    receivers:
+      - emailConfigs:
           - from: '{{ .CommonAnnotations.email_from }}'
             headers:
-              value: '{{ .CommonAnnotations.subject | safeHtml }}'
+              - key : subject
+                value: '{{ .CommonAnnotations.subject | safeHtml }}'
             hello: ""
             html: '{{ .CommonAnnotations.content | safeHtml }}'
             requireTLS: false
@@ -1082,4 +1071,15 @@ alertmanager:
             smarthost: ""
             to: '{{ .CommonAnnotations.email_to }}'
             authUsername: ''
-          name: dp-receiver
+        name: dp-receiver
+    route:
+      groupBy:
+        - alertname
+        - execution_id
+      groupInterval: 1m
+      groupWait: 0s
+      matchers:
+        - name: source
+          value: data-pipelines
+      receiver: dp-receiver
+      repeatInterval: 30d

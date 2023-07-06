@@ -3,32 +3,34 @@
   SPDX-License-Identifier: Apache-2.0
  */}}
 
-{{- if .Values.alertmanager.enabled }}
-apiVersion: v1
-kind: List
-items:
-  - apiVersion: monitoring.coreos.com/v1alpha1
-    kind: AlertmanagerConfig
-      labels:
-        role: {{ .Values.alertmanager.items.labels.role }}
-      name: {{ .Values.alertmanager.items.name }}
-      namespace: {{ .Values.alertmanager.items.namespace }}
-    spec:
-      receivers:
-        route: |
-          {{ toYaml .Values.alertmanager.items.spec.receivers.route | indent 4 }}
-      emailConfigs: |
-        {{ toYaml .Values.alertmanager.items.spec.emailConfigs | indent 4 }}
-        authPassword: {{- with secret .Values.alertmanager.authentication.secretName -}}
-              {{ .Data.authPassword | b64dec }}
-            {{- end }}
-        authSecret: {{- with secret .Values.alertmanager.authentication.secretName -}}
-              {{ .Data.authSecret | b64dec }}
-            {{- end }}
-        authSecretKey: {{- with secret .Values.alertmanager.authentication.secretName -}}
-              {{ .Data.authSecretKey | b64dec }}
-            {{- end }}
-        authIdentity: {{- with secret .Values.alertmanager.authentication.secretName -}}
-              {{ .Data.authIdentity | b64dec }}
-            {{- end }}
-{{- end }}
+{{ - /*
+      Copyright 2021-2023 VMware, Inc.
+    SPDX-License-Identifier: Apache-2.0
+      */ }}
+
+{{ - if .Values.alertmanager.enabled }}
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+  labels: {{ - include "pipelines-control-service.labels" . | nindent 4 }}
+    {{ - range $key, $value := .Values.alertmanager.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{ - end }}
+  name: {{ .Values.alertmanager.name }}
+  namespace: {{ .Values.alertmanager.namespace }}
+  spec:
+    receivers:
+      route: {{ toYaml .Values.alertmanager.spec.receivers.route | nindent 8 }}
+    emailConfigs: {{ toYaml .Values.alertmanager.spec.emailConfigs | nindent 6 }}
+      authPassword: {{ - with secret .Values.alertmanager.authentication.secretName - }}
+        {{ .Data.authPassword | b64dec }}
+        {{ - end }}
+      authSecret: {{ - with secret .Values.alertmanager.authentication.secretName - }}
+        {{ .Data.authSecret | b64dec }}
+        {{ - end }}
+      authSecretKey: {{ - with secret .Values.alertmanager.authentication.secretName - }}
+        {{ .Data.authSecretKey | b64dec }}
+        {{ - end }}
+      authIdentity: {{ - with secret .Values.alertmanager.authentication.secretName - }}
+        {{ .Data.authIdentity | b64dec }}
+        {{ - end }}
+  {{ - end }}
