@@ -1,0 +1,22 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-smarter:
+  variables:
+    PLUGIN_NAME: vdk-smarter
+  extends: .build-plugin
+
+build-py37-vdk-smarter:
+  extends: .build-vdk-smarter
+  image: "python:3.7"
+
+build-py311-vdk-smarter:
+  extends: .build-vdk-smarter
+  image: "python:3.11"
+
+release-vdk-smarter:
+  variables:
+    PLUGIN_NAME: vdk-smarter
+  extends: .release-plugin
