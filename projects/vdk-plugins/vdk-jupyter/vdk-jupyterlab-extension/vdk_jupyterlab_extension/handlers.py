@@ -95,16 +95,22 @@ class DownloadJobHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
-class ConvertJobToNotebookHandler(APIHandler):
+class TransformJobHandler(APIHandler):
     """
-    Class responsible for handling POST request for converting a Data Job to Notebook given the Rest API URL
-    and the path to its directory
+    Class responsible for handling POST request for transforming a directory type Data job(with .py and .sql files)
+    to a notebook type data job
     """
 
     @tornado.web.authenticated
     def post(self):
-        # TODO fix this as part of the implementation
-        print("Successfully connected to the Convert Job To Notebook handler!")
+        input_data = self.get_json_body()
+        try:
+            code_structure = VdkUI.transform_job(
+                input_data[VdkOption.PATH.value]
+            )
+            self.finish(json.dumps({"message": f"{code_structure}", "error": ""}))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class CreateJobHandler(APIHandler):
@@ -190,7 +196,7 @@ def setup_handlers(web_app):
     add_handler(RunJobHandler, "run")
     add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")
-    add_handler(ConvertJobToNotebookHandler, "convertJobToNotebook")
+    add_handler(TransformJobHandler, "convertJobToNotebook")
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")

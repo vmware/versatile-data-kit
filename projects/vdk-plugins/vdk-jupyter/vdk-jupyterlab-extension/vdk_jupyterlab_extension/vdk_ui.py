@@ -14,6 +14,8 @@ from vdk.internal.control.command_groups.job.download_job import JobDownloadSour
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.cli_utils import get_or_prompt
 
+from vdk_jupyterlab_extension.transform_job import TransformJobDirectoryProcessor
+
 
 class RestApiUrlConfiguration:
     @staticmethod
@@ -51,9 +53,9 @@ class VdkUI:
             x
             for x in Path(path).iterdir()
             if (
-                x.name.lower().endswith(".ipynb")
-                or x.name.lower().endswith(".py")
-                or x.name.lower().endswith(".sql")
+                    x.name.lower().endswith(".ipynb")
+                    or x.name.lower().endswith(".py")
+                    or x.name.lower().endswith(".sql")
             )
         ]
         if len(script_files) == 0:
@@ -218,3 +220,14 @@ class VdkUI:
                 if "vdk" in jupyter_cell["metadata"].get("tags", {}):
                     vdk_cells.append(index)
             return vdk_cells
+
+    @staticmethod
+    def transform_job(job_dir: str):
+        """
+        Transforms the job in the specified directory by archiving it, processing the Python and SQL files,
+        and returning a processed code structure.
+        :param job_dir: Path to the directory of the job to be transformed.
+        :return: The processed code structure.
+        """
+        processor = TransformJobDirectoryProcessor(job_dir)
+        return processor.get_code_structure()
