@@ -220,5 +220,6 @@ class VdkUI:
         :param job_dir: Path to the directory of the job to be transformed.
         :return: The processed code structure.
         """
-        processor = TransformJobDirectoryProcessor(job_dir)
+        processor = TransformJobDirectoryProcessor(Path(job_dir))
+        processor.process_files()
         return processor.get_code_structure()
