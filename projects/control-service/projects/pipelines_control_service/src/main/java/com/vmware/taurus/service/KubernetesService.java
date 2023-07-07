@@ -31,7 +31,6 @@ import io.kubernetes.client.util.Watch;
 import io.kubernetes.client.util.Yaml;
 import lombok.*;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
-import okhttp3.Call;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -935,24 +934,14 @@ public abstract class KubernetesService {
   }
 
   private InputStream streamNamespacedPodLog(
-          String namespace,
-          String name,
-          String container,
-          Integer tailLines)
-          throws ApiException, IOException {
-    Response response = new CoreV1Api(client).readNamespacedPodLogCall(
-                    name,
-                    namespace,
-                    container,
-                    false,
-                    null,
-                    null,
-                    "false",
-                    false,
-                    null,
-                    tailLines,
-                    true,
-                    null).execute();
+      String namespace, String name, String container, Integer tailLines)
+      throws ApiException, IOException {
+    Response response =
+        new CoreV1Api(client)
+            .readNamespacedPodLogCall(
+                name, namespace, container, false, null, null, "false", false, null, tailLines,
+                true, null)
+            .execute();
     if (!response.isSuccessful()) {
       if (response.body() != null) {
         response.close();
