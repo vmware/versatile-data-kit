@@ -3,12 +3,17 @@
 from typing import List
 
 from pydantic import BaseModel
-from pydantic import field_validator
-from pydantic import FieldValidationInfo
 from vdk.api.job_input import IJobInput
 from vdk.plugin.impala.templates.template_arguments_validator import (
     TemplateArgumentsValidator,
 )
+
+try:
+    from pydantic import field_validator, FieldValidationInfo
+except ImportError:
+    from pydantic import validator
+
+    FieldValidationInfo = None
 
 
 class LoadVersionedParams(BaseModel):
@@ -25,11 +30,10 @@ class LoadVersionedParams(BaseModel):
     active_to_column: str = "active_to"
     active_to_max_value: str = "9999-12-31"
 
-    @field_validator("tracked_columns")
-    def tracked_columns_subset_of_value_columns(
-        cls, tracked_columns: List[str], values: FieldValidationInfo, **kwargs
+    @staticmethod
+    def _validate_tracked_columns_subset_of_value_columns(
+        tracked_columns: List[str], value_columns: List[str]
     ):
-        value_columns = values.data["value_columns"]
         if type(value_columns) == list and not tracked_columns:
             raise ValueError("The list must contain at least one column")
         if type(value_columns) == list == type(value_columns) and not set(
@@ -38,7 +42,30 @@ class LoadVersionedParams(BaseModel):
             raise ValueError(
                 "All elements in the list must be also present in `value_columns`"
             )
-        return tracked_columns
+
+    if FieldValidationInfo is not None:
+
+        @field_validator("tracked_columns")
+        def tracked_columns_subset_of_value_columns(
+            cls, tracked_columns: List[str], values: FieldValidationInfo, **kwargs
+        ):
+            value_columns = values.data["value_columns"]
+            LoadVersionedParams._validate_tracked_columns_subset_of_value_columns(
+                tracked_columns, value_columns
+            )
+            return tracked_columns
+
+    else:
+
+        @validator("tracked_columns", allow_reuse=True)
+        def tracked_columns_subset_of_value_columns(
+            cls, tracked_columns, values, **kwargs
+        ):
+            value_columns = values.get("value_columns")
+            LoadVersionedParams._validate_tracked_columns_subset_of_value_columns(
+                tracked_columns, value_columns
+            )
+            return tracked_columns
 
 
 class LoadVersioned(TemplateArgumentsValidator):
