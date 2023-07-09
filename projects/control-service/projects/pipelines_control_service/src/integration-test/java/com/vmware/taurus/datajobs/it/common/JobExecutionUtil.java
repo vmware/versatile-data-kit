@@ -146,14 +146,16 @@ public class JobExecutionUtil {
                     .content(
                         objectMapper.writeValueAsString(
                             new DataJobExecutionRequest().startedBy(username)))
-                    .contentType(MediaType.APPLICATION_JSON)).andReturn().getResponse();
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn()
+            .getResponse();
 
-    if(dataJobExecutionResponse.getStatus() != 202){
+    if (dataJobExecutionResponse.getStatus() != 202) {
       throw new Exception(
-              "status is "
-                      + dataJobExecutionResponse.getStatus()
-                      + "\nbody is "
-                      + dataJobExecutionResponse.getContentAsString());
+          "status is "
+              + dataJobExecutionResponse.getStatus()
+              + "\nbody is "
+              + dataJobExecutionResponse.getContentAsString());
     }
 
     // Check the data job execution status
