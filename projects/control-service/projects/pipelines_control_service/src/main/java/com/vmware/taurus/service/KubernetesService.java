@@ -919,7 +919,7 @@ public abstract class KubernetesService {
         try (BufferedReader br =
             new BufferedReader(
                 new InputStreamReader(
-                    streamNamespacedPodLog(
+                    readNamespacedPodLog(
                         pod.getMetadata().getNamespace(),
                         pod.getMetadata().getName(),
                         pod.getSpec().getContainers().get(0).getName(),
@@ -933,7 +933,10 @@ public abstract class KubernetesService {
     return Optional.empty();
   }
 
-  private InputStream streamNamespacedPodLog(
+  /** This function is copy and pasted from the kuberenetes class PodLogs.
+   * the only difference is that we set follow=false
+   */
+  private InputStream readNamespacedPodLog(
       String namespace, String name, String container, Integer tailLines)
       throws ApiException, IOException {
     Response response =
