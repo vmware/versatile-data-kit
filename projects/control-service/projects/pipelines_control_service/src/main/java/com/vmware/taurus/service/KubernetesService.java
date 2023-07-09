@@ -933,8 +933,9 @@ public abstract class KubernetesService {
     return Optional.empty();
   }
 
-  /** This function is copy and pasted from the kuberenetes class PodLogs.
-   * the only difference is that we set follow=false
+  /**
+   * This function is copy and pasted from the kuberenetes class PodLogs. the only difference is
+   * that we set follow=false
    */
   private InputStream readNamespacedPodLog(
       String namespace, String name, String container, Integer tailLines)
