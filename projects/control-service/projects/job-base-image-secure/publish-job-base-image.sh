@@ -42,5 +42,6 @@ docker-slim build \
 --include-path "/usr/local/lib/python$PYTHON_MAJOR.$PYTHON_MINOR/" \
 --include-path "/opt/lib/native/oracle"
 
-docker push "$data_job_base_image_tag_version"
-docker push "$data_job_base_image_tag_latest"
+
+docker_push_vdk.sh "$data_job_base_image_tag_version"
+docker_push_vdk.sh "$data_job_base_image_tag_latest"
