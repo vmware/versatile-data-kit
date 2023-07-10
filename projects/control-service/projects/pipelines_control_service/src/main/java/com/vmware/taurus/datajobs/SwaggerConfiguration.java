@@ -12,31 +12,29 @@ import java.util.List;
 /**
  * This class exists so that when running quickstart vdk the swagger ui has the correct base url.
  *
- * Without this in qucikstart vdk the swagger will think the url should be localhost:80/.
+ * <p>Without this in qucikstart vdk the swagger will think the url should be localhost:80/.
  *
- * This is not actually correct! We are mapping port 80 from the cluster port 8092 on the local machine.
- * There is no way for the service to know this mapping is happening so we need to provide it with the correct url.
- *
+ * <p>This is not actually correct! We are mapping port 80 from the cluster port 8092 on the local
+ * machine. There is no way for the service to know this mapping is happening so we need to provide
+ * it with the correct url.
  */
 @Configuration
 public class SwaggerConfiguration {
 
-    private final OpenAPI openAPI;
+  private final OpenAPI openAPI;
 
+  @Value("${swagger-ui.hostname:}")
+  private String serverUrl;
 
-    @Value("${swagger-ui.hostname:}")
-    private String serverUrl;
+  @Autowired
+  public SwaggerConfiguration(OpenAPI openAPI) {
+    this.openAPI = openAPI;
+  }
 
-    @Autowired
-    public SwaggerConfiguration(OpenAPI openAPI) {
-        this.openAPI = openAPI;
+  @PostConstruct
+  public void dd() {
+    if (!serverUrl.isEmpty()) {
+      openAPI.servers(List.of(new Server().url(serverUrl)));
     }
-
-
-    @PostConstruct
-    public void dd() {
-        if (!serverUrl.isEmpty()) {
-            openAPI.servers(List.of(new Server().url(serverUrl)));
-        }
-    }
+  }
 }
