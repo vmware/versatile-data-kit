@@ -105,10 +105,8 @@ class TransformJobHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         try:
-            code_structure = json.dumps(
-                VdkUI.transform_job(input_data[VdkOption.PATH.value])
-            )
-            self.finish(json.dumps({"message": f"{code_structure}", "error": ""}))
+            message = json.dumps(VdkUI.transform_job(input_data[VdkOption.PATH.value]))
+            self.finish(json.dumps({"message": f"{message}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 

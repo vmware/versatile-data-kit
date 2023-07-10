@@ -10,6 +10,7 @@ import { CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL } from '../utils';
 import { CommandRegistry } from '@lumino/commands';
 import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { JupyterCellProps } from './props';
 
 export default class ConvertJobToNotebookDialog extends Component<IJobPathProp> {
   /**
@@ -63,7 +64,9 @@ export async function showConvertJobToNotebookDialog(commands: CommandRegistry, 
     if (confirmation.button.accept) {
       let { message, status } = await jobConvertToNotebookRequest();
       if (status) {
-        createTranformedNotebook(JSON.parse(message), commands, fileBrowser, notebookTracker);
+        const transformjobResult = JSON.parse(message);
+        const notebookContent = initializeNotebookContent(transformjobResult["code_structure"], transformjobResult["removed_files"])
+        createTranformedNotebook(notebookContent, commands, fileBrowser, notebookTracker);
         await showDialog({
           title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
           body: (
@@ -98,7 +101,7 @@ export async function showConvertJobToNotebookDialog(commands: CommandRegistry, 
 }
 
 
-const createTranformedNotebook = async (notebookContent: string[], commands: CommandRegistry, fileBrowser: FileBrowser, notebookTracker: INotebookTracker) => {
+const createTranformedNotebook = async (notebookContent: JupyterCellProps[], commands: CommandRegistry, fileBrowser: FileBrowser, notebookTracker: INotebookTracker) => {
   try {
     const baseDir = await getServerDirRequest();
     await fileBrowser.model.cd(jobData.get(VdkOption.PATH)!.substring(baseDir.length));  // relative path for Jupyter
@@ -114,7 +117,29 @@ const createTranformedNotebook = async (notebookContent: string[], commands: Com
   }
 }
 
-const populateNotebook = async (notebookContent: string[], notebookTracker: INotebookTracker) => {
+const initializeNotebookContent = (codeStructure: string[], fileNames: string[]): JupyterCellProps[] => {
+  let notebookContent: JupyterCellProps[] = [];
+
+  for(let i = 0; i < codeStructure.length; i++) {
+      notebookContent.push({
+          source: "#### " + fileNames[i], // make names bolder
+          type: 'markdown'
+      });
+      notebookContent.push({
+          source: codeStructure[i],
+          type: 'code'
+      });
+      if(codeStructure[i].includes('def run(job_input: IJobInput)')){
+        notebookContent.push({
+          source: 'run(job_input)',
+          type: 'code'
+      });
+      }
+  }
+  return notebookContent;
+}
+
+const populateNotebook = async (notebookContent: JupyterCellProps[], notebookTracker: INotebookTracker) => {
   notebookTracker.activeCellChanged.connect((sender, args) => {
     const notebookPanel = notebookTracker.currentWidget;
     if (notebookPanel) {
@@ -125,15 +150,57 @@ const populateNotebook = async (notebookContent: string[], notebookTracker: INot
       if (cells && cells.length === 1 && cellContent === '') {
         cells.clear(); // clear the initial empty cell
 
-        for (let content of notebookContent) {
-          const newCell =
-            notebookPanel.content.model?.contentFactory?.createCodeCell({
+        const ipythonConfigCell =
+        notebookPanel.content.model?.contentFactory?.createCodeCell({
+          cell: {
+            cell_type: 'code',
+            source: [
+              `"""\n`,
+              `vdk_ipython extension introduces a magic command for Jupyter.\n`,
+              `The command enables the user to load VDK for the current notebook.\n`,
+              `VDK provides the job_input API, which has methods for:\n`,
+              `    * executing queries to an OLAP database;\n`,
+              `    * ingesting data into a database;\n`,
+              `    * processing data into a database.\n`,
+              `See the IJobInput documentation for more details.\n`,
+              `https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py\n`,
+              `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n`,
+              `and is only used for development purposes.\n`,
+              `"""\n`,
+              `%reload_ext vdk_ipython\n`,
+              `%reload_VDK\n`,
+              `job_input = VDK.get_initialized_job_input()`
+            ],
+            metadata: {}
+          }
+        });
+
+        if(ipythonConfigCell) cells.push(ipythonConfigCell);
+
+        for (let cellProps of notebookContent) {
+          let newCell;
+
+          if (cellProps.type === 'markdown') {
+            newCell = notebookPanel.content.model?.contentFactory?.createMarkdownCell({
               cell: {
-                cell_type: 'code',
-                source: content,
+                cell_type: 'markdown',
+                source: cellProps.source,
                 metadata: {}
               }
             });
+          } else if (cellProps.type === 'code') {
+            newCell = notebookPanel.content.model?.contentFactory?.createCodeCell({
+              cell: {
+                cell_type: 'code',
+                source: cellProps.source,
+                metadata: {
+                  "tags": [
+                    "vdk"
+                   ]
+                }
+              }
+            });
+          }
 
           if (newCell) {
             cells.push(newCell);

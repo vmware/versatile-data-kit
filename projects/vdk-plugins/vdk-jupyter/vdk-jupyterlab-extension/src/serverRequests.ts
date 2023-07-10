@@ -104,7 +104,6 @@ export async function jobConvertToNotebookRequest(): Promise<{
           method: 'POST'
         }
       );
-      console.log(data);
       return { message: data['message'], status: data['error'] == '' };
     } catch (error) {
       showError(error);

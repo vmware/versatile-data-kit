@@ -1,7 +1,10 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 import os
-import unittest
-import tempfile
 import shutil
+import tempfile
+import unittest
+
 from vdk_jupyterlab_extension.transform_job import TransformJobDirectoryProcessor
 
 
@@ -18,13 +21,13 @@ class TestTransformJobDirectoryProcessor(unittest.TestCase):
             print("Hello, World!")
         """
 
-        with open(os.path.join(self.temp_dir, 'test.sql'), 'w') as f:
+        with open(os.path.join(self.temp_dir, "test.sql"), "w") as f:
             f.write(self.sql_content)
-        with open(os.path.join(self.temp_dir, 'test_run.py'), 'w') as f:
+        with open(os.path.join(self.temp_dir, "test_run.py"), "w") as f:
             f.write(self.py_content_run)
-        with open(os.path.join(self.temp_dir, 'test_without_run.py'), 'w') as f:
+        with open(os.path.join(self.temp_dir, "test_without_run.py"), "w") as f:
             f.write(self.py_content_without_run)
-        with open(os.path.join(self.temp_dir, 'config.ini'), 'w') as f:
+        with open(os.path.join(self.temp_dir, "config.ini"), "w") as f:
             pass
 
         self.processor = TransformJobDirectoryProcessor(self.temp_dir)
@@ -39,10 +42,15 @@ class TestTransformJobDirectoryProcessor(unittest.TestCase):
             self.py_content_run,
         ]
         self.assertEqual(self.processor.get_code_structure(), expected_code_structure)
-        self.assertFalse(os.path.exists(os.path.join(self.temp_dir, 'test.sql')))
-        self.assertFalse(os.path.exists(os.path.join(self.temp_dir, 'test_run.py')))
-        self.assertTrue(os.path.exists(os.path.join(self.temp_dir, 'test_without_run.py')))
-        self.assertTrue(os.path.exists(os.path.join(self.temp_dir, 'config.ini')))
+        self.assertFalse(os.path.exists(os.path.join(self.temp_dir, "test.sql")))
+        self.assertFalse(os.path.exists(os.path.join(self.temp_dir, "test_run.py")))
+        self.assertTrue(
+            os.path.exists(os.path.join(self.temp_dir, "test_without_run.py"))
+        )
+        self.assertTrue(os.path.exists(os.path.join(self.temp_dir, "config.ini")))
+
+        expected_removed_files = ["test.sql", "test_run.py"]
+        self.assertEqual(self.processor.get_removed_files(), expected_removed_files)
 
     def test_get_code_structure(self):
         self.processor.process_files()
@@ -51,3 +59,8 @@ class TestTransformJobDirectoryProcessor(unittest.TestCase):
             self.py_content_run,
         ]
         self.assertEqual(self.processor.get_code_structure(), expected_code_structure)
+
+    def test_get_removed_files(self):
+        self.processor.process_files()
+        expected_removed_files = ["test.sql", "test_run.py"]
+        self.assertEqual(self.processor.get_removed_files(), expected_removed_files)
