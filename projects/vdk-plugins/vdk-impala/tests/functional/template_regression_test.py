@@ -827,3 +827,48 @@ class TestTemplateRegression(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
         assert actual_rs.output != expected_rs.output
+
+    def test_insert_clean_staging(self) -> None:
+        test_schema = "vdkprototypes"
+        staging_schema = "staging_vdkprototypes"
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+
+        res_first_exec = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "check": "use_positive_check",
+                "staging_schema": staging_schema,
+            },
+        )
+        staging_table_name = f"vdk_check_{test_schema}_{target_table}"
+        first_exec_rs = self._run_query(f"SELECT * FROM {staging_schema}.{staging_table_name}")
+
+        res_second_exec = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "check": "use_positive_check",
+                "staging_schema": staging_schema,
+            },
+        )
+
+        second_exec_rs = self._run_query(f"SELECT * FROM {staging_schema}.{staging_table_name}")
+        first_exec = {x for x in first_exec_rs.output.split("\n")}
+        second_exec = {x for x in second_exec_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            first_exec, second_exec, f"Clean up of staging table is not made properly."
+        )
