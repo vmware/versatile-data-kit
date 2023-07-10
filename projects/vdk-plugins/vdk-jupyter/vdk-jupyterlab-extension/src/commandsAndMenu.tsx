@@ -11,27 +11,29 @@ import { jobdDataRequest } from './serverRequests';
 import { VdkOption } from './vdkOptions/vdk_options';
 import { workingDirectory } from '.';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import { FileBrowser } from '@jupyterlab/filebrowser';
 
 var runningVdkOperation = false;
 
-export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentManager) {
+export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentManager, fileBrowser: FileBrowser) {
   // Add Run job command
-  add_command(commands, 'jp-vdk:menu-run','Run','Execute VDK Run Command', showRunJobDialog, docManager);
+  add_command(commands, 'jp-vdk:menu-run', 'Run', 'Execute VDK Run Command', showRunJobDialog, docManager);
 
   // Add Create job command
-  add_command(commands, 'jp-vdk:menu-create','Create','Execute VDK Create Command', showCreateJobDialog);
+  add_command(commands, 'jp-vdk:menu-create', 'Create', 'Execute VDK Create Command', showCreateJobDialog);
 
   // Add Delete job command
-  add_command(commands, 'jp-vdk:menu-delete','Delete','Execute VDK Delete Command', showDeleteJobDialog);
+  add_command(commands, 'jp-vdk:menu-delete', 'Delete', 'Execute VDK Delete Command', showDeleteJobDialog);
 
   // Add Download job command
-  add_command(commands, 'jp-vdk:menu-download','Download','Execute VDK Download Command', showDownloadJobDialog);
+  add_command(commands, 'jp-vdk:menu-download', 'Download', 'Execute VDK Download Command', showDownloadJobDialog);
 
   // Add Convert Job To Notebook command
-  add_command(commands, 'jp-vdk:menu-convert-job-to-notebook', 'Convert Job To Notebook', 'Convert Data Job To Jupyter Notebook', showConvertJobToNotebookDialog);
+  add_command(commands, 'jp-vdk:menu-convert-job-to-notebook', 'Convert Job To Notebook', 'Convert Data Job To Jupyter Notebook', showConvertJobToNotebookDialog, undefined,
+    fileBrowser);
 
   // Add Create Deployment command
-  add_command(commands, 'jp-vdk:menu-create-deployment','Deploy','Create deployment of a VDK job', showCreateDeploymentDialog);
+  add_command(commands, 'jp-vdk:menu-create-deployment', 'Deploy', 'Create deployment of a VDK job', showCreateDeploymentDialog);
 }
 
 
@@ -42,7 +44,7 @@ export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentMa
  *@param getOperationDialog - function that will load the dialog for the command
  */
 function add_command(commands: CommandRegistry, schemaNaming: string, label: string, caption: string, getOperationDialog: Function,
-  docManager?: IDocumentManager){
+  docManager?: IDocumentManager, fileBrowser?: FileBrowser) {
   commands.addCommand(schemaNaming, {
     label: label,
     caption: caption,
@@ -52,8 +54,11 @@ function add_command(commands: CommandRegistry, schemaNaming: string, label: str
           runningVdkOperation = true;
           jobData.set(VdkOption.PATH, workingDirectory);
           await jobdDataRequest();
-          if(docManager) await getOperationDialog(docManager);
-          else  await getOperationDialog();
+          if (label == 'Convert Job To Notebook') await getOperationDialog(commands, fileBrowser);
+          else if (docManager) {
+            await getOperationDialog(docManager);
+          }
+          else await getOperationDialog();
           setJobDataToDefault();
           runningVdkOperation = false;
         } else {

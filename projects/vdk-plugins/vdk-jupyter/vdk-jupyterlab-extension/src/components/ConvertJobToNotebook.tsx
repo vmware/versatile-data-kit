@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
-import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { jobConvertToNotebookRequest } from '../serverRequests';
+import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
+import { getServerDirRequest, jobConvertToNotebookRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL } from '../utils';
+import { CommandRegistry } from '@lumino/commands';
+import { FileBrowser } from '@jupyterlab/filebrowser';
 
 export default class ConvertJobToNotebookDialog extends Component<IJobPathProp> {
   /**
@@ -36,7 +38,7 @@ export default class ConvertJobToNotebookDialog extends Component<IJobPathProp> 
   }
 }
 
-export async function showConvertJobToNotebookDialog() {
+export async function showConvertJobToNotebookDialog(commands: CommandRegistry, fileBrowser: FileBrowser) {
   const result = await showDialog({
     title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
     body: (
@@ -60,6 +62,7 @@ export async function showConvertJobToNotebookDialog() {
     if (confirmation.button.accept) {
       let { message, status } = await jobConvertToNotebookRequest();
       if (status) {
+        createNotebook(JSON.parse(message), commands, fileBrowser);
         await showDialog({
           title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
           body: (
@@ -90,5 +93,21 @@ export async function showConvertJobToNotebookDialog() {
         });
       }
     }
+  }
+}
+
+
+const createNotebook = async (notebook_content: string[], commands: CommandRegistry, fileBrowser: FileBrowser) => {
+  try {
+    const baseDir = await getServerDirRequest();
+    await fileBrowser.model.cd(jobData.get(VdkOption.PATH)!.substring(baseDir.length));  // relative path for Jupyter
+    commands.execute('notebook:create-new');
+  }
+  catch (error) {
+    await showErrorMessage(
+      'Something went wrong while trying to create the new transformed notebook. Error:',
+      error,
+      [Dialog.okButton()]
+    );
   }
 }

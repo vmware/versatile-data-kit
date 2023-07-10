@@ -47,9 +47,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
   ) => {
     const { commands } = app;
 
-    updateVDKMenu(commands, docManager);
-
     const fileBrowser = factory.defaultBrowser;
+
+    updateVDKMenu(commands, docManager, fileBrowser);
+
     fileBrowser.model.pathChanged.connect(onPathChanged);
     trackVdkTags(notebookTracker, themeManager);
   }

@@ -105,9 +105,9 @@ class TransformJobHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         try:
-            code_structure = json.dumps(VdkUI.transform_job(
-                input_data[VdkOption.PATH.value]
-            ))
+            code_structure = json.dumps(
+                VdkUI.transform_job(input_data[VdkOption.PATH.value])
+            )
             self.finish(json.dumps({"message": f"{code_structure}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
@@ -182,6 +182,12 @@ class GetVdkCellIndicesHandler(APIHandler):
         self.finish(json.dumps(vdk_indices))
 
 
+class GetServerPathHandler(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        self.finish(json.dumps(os.getcwd()))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
@@ -202,3 +208,4 @@ def setup_handlers(web_app):
     add_handler(CreateDeploymentHandler, "deploy")
     add_handler(GetNotebookInfoHandler, "notebook")
     add_handler(GetVdkCellIndicesHandler, "vdkCellIndices")
+    add_handler(GetServerPathHandler, "serverPath")

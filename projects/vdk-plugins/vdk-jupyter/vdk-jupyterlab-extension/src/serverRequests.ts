@@ -92,7 +92,7 @@ export async function jobRequest(endPoint: string): Promise<void> {
 }
 
 export async function jobConvertToNotebookRequest(): Promise<{
-  message: String;
+  message: string;
   status: boolean;
 }> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
@@ -105,7 +105,7 @@ export async function jobConvertToNotebookRequest(): Promise<{
         }
       );
       console.log(data);
-      return { message: data['message'], status: data['error'] == "" };
+      return { message: data['message'], status: data['error'] == '' };
     } catch (error) {
       showError(error);
       return { message: '', status: false };
@@ -196,4 +196,11 @@ export async function getVdkCellIndices(
     showError(error);
   }
   return [];
+}
+
+export async function getServerDirRequest(): Promise<string> {
+  const data = await requestAPI<any>('serverPath', {
+    method: 'GET'
+  });
+  return data;
 }
