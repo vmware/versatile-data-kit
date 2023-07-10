@@ -31,6 +31,7 @@ import io.kubernetes.client.util.Watch;
 import io.kubernetes.client.util.Yaml;
 import lombok.*;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -914,18 +915,15 @@ public abstract class KubernetesService {
       var pods = listJobPods(job.get());
       if (pods.size() > 0) {
         var pod = pods.get(pods.size() - 1);
-        PodLogs podLogs = new PodLogs(client);
 
         try (BufferedReader br =
             new BufferedReader(
                 new InputStreamReader(
-                    podLogs.streamNamespacedPodLog(
+                    readNamespacedPodLog(
                         pod.getMetadata().getNamespace(),
                         pod.getMetadata().getName(),
                         pod.getSpec().getContainers().get(0).getName(),
-                        null,
-                        tailLines,
-                        true),
+                        tailLines),
                     Charsets.UTF_8))) {
           String logs = br.lines().collect(Collectors.joining(System.lineSeparator()));
           return Optional.of(logs);
@@ -933,6 +931,28 @@ public abstract class KubernetesService {
       }
     }
     return Optional.empty();
+  }
+
+  /**
+   * This function is copy and pasted from the kuberenetes class PodLogs. the only difference is
+   * that we set follow=false
+   */
+  private InputStream readNamespacedPodLog(
+      String namespace, String name, String container, Integer tailLines)
+      throws ApiException, IOException {
+    Response response =
+        new CoreV1Api(client)
+            .readNamespacedPodLogCall(
+                name, namespace, container, false, null, null, "false", false, null, tailLines,
+                true, null)
+            .execute();
+    if (!response.isSuccessful()) {
+      if (response.body() != null) {
+        response.close();
+      }
+      throw new ApiException(response.code(), "Logs request failed: " + response.code());
+    }
+    return response.body().byteStream();
   }
 
   public JobStatusCondition watchJob(
