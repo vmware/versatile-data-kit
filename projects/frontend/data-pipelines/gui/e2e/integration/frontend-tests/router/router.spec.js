@@ -5,8 +5,7 @@
 
 /// <reference types="cypress" />
 
-import { BasePagePO } from '../../support/pages/base/base-page.po';
-import { GetStartedPagePO } from '../../support/pages/get-started/get-started-page.po';
+import { BasePagePO } from '../../../support/pages/base/base-page.po';
 
 describe('Routing for pages', () => {
     describe('smoke', { tags: ['@smoke'] }, () => {

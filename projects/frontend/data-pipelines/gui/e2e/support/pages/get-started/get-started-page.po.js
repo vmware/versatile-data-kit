@@ -32,4 +32,15 @@ export class GetStartedPagePO extends BasePagePO {
 
         return this.getPage();
     }
+
+    /**
+     * ** Navigate to home page through URL and return instance of page object.
+     * ** Do not wait for bootstrap and interceptors
+     * @type {GetStartedPagePO}
+     */
+    static navigateToNoBootstrap() {
+        cy.visit('/get-started');
+        this.waitForViewToRenderShort();
+        return this.getPage();
+    }
 }

@@ -5,10 +5,10 @@
 
 /// <reference types="cypress" />
 
-import { DataJobDetailsBasePO } from '../../../../support/pages/base/data-pipelines/data-job-details-base.po';
+import { DataJobDetailsBasePO } from '../../../../../support/pages/base/data-pipelines/data-job-details-base.po';
 
-import { DataJobsExplorePage } from '../../../../support/pages/explore/data-jobs/data-jobs.po';
-import { DataJobExploreExecutionsPage } from '../../../../support/pages/explore/data-jobs/executions/data-job-executions.po';
+import { DataJobsExplorePage } from '../../../../../support/pages/explore/data-jobs/data-jobs.po';
+import { DataJobExploreExecutionsPage } from '../../../../../support/pages/explore/data-jobs/executions/data-job-executions.po';
 
 describe(
     'Data Job Explore Executions Page',

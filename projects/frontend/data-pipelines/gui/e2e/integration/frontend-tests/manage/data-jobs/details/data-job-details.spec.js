@@ -5,10 +5,10 @@
 
 /// <reference types="cypress" />
 
-import { compareDatesASC } from '../../../../plugins/helpers/job-helpers.plugins';
+import { compareDatesASC } from '../../../../../plugins/helpers/job-helpers.plugins';
 
-import { DataJobsManagePage } from '../../../../support/pages/manage/data-jobs/data-jobs.po';
-import { DataJobManageDetailsPage } from '../../../../support/pages/manage/data-jobs/details/data-job-details.po';
+import { DataJobsManagePage } from '../../../../../support/pages/manage/data-jobs/data-jobs.po';
+import { DataJobManageDetailsPage } from '../../../../../support/pages/manage/data-jobs/details/data-job-details.po';
 
 describe(
     'Data Job Manage Details Page',
