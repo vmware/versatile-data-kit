@@ -5,4 +5,6 @@
 
 export { SystemEventHandler, SystemEventHandlerClass } from './decorator';
 export { SystemEventDispatcher } from './dispatcher';
-export { SE_NAVIGATE, SE_ALL_EVENTS, SystemEvent, SystemEventFilterExpression, SystemEventComparable } from './event';
+export { SystemEvent, SystemEventFilterExpression, SystemEventComparable } from './event';
+// export all core system events
+export * from './event/models/event.codes';
