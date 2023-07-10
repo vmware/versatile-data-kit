@@ -1,7 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import os
+import logging
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
@@ -10,6 +10,8 @@ from jupyter_server.utils import url_path_join
 from .job_data import JobDataLoader
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
+
+log = logging.getLogger(__name__)
 
 
 class LoadJobDataHandler(APIHandler):
@@ -22,16 +24,30 @@ class LoadJobDataHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         working_directory = json.loads(self.get_json_body())[VdkOption.PATH.value]
-        data = JobDataLoader(working_directory)
-        self.finish(
-            json.dumps(
-                {
-                    VdkOption.PATH.value: data.get_job_path(),
-                    VdkOption.NAME.value: data.get_job_name(),
-                    VdkOption.TEAM.value: data.get_team_name(),
-                }
+        try:
+            data = JobDataLoader(working_directory)
+            self.finish(
+                json.dumps(
+                    {
+                        VdkOption.PATH.value: data.get_job_path(),
+                        VdkOption.NAME.value: data.get_job_name(),
+                        VdkOption.TEAM.value: data.get_team_name(),
+                    }
+                )
             )
-        )
+        except Exception as e:
+            log.debug(
+                f"Failed to load job information from config.ini with error: {e}."
+            )
+            self.finish(
+                json.dumps(
+                    {
+                        VdkOption.PATH.value: "",
+                        VdkOption.NAME.value: "",
+                        VdkOption.TEAM.value: "",
+                    }
+                )
+            )
 
 
 class RunJobHandler(APIHandler):
