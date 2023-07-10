@@ -849,7 +849,9 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
         staging_table_name = f"vdk_check_{test_schema}_{target_table}"
-        first_exec_rs = self._run_query(f"SELECT * FROM {staging_schema}.{staging_table_name}")
+        first_exec_rs = self._run_query(
+            f"SELECT * FROM {staging_schema}.{staging_table_name}"
+        )
 
         res_second_exec = self._run_job(
             "insert_template_job",
@@ -865,7 +867,9 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
 
-        second_exec_rs = self._run_query(f"SELECT * FROM {staging_schema}.{staging_table_name}")
+        second_exec_rs = self._run_query(
+            f"SELECT * FROM {staging_schema}.{staging_table_name}"
+        )
         first_exec = {x for x in first_exec_rs.output.split("\n")}
         second_exec = {x for x in second_exec_rs.output.split("\n")}
 
