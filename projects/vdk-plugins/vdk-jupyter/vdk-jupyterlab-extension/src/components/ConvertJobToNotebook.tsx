@@ -12,6 +12,13 @@ import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { JupyterCellProps } from './props';
 
+
+
+/**
+ * A class responsible for the Transform Job operation
+ * for more information check:
+ * https://github.com/vmware/versatile-data-kit/wiki/VDK-Jupyter-Integration-Transform-Job-Operation
+ */
 export default class ConvertJobToNotebookDialog extends Component<IJobPathProp> {
   /**
    * Returns a React component for rendering a convert menu.
@@ -80,27 +87,39 @@ export async function showConvertJobToNotebookDialog(commands: CommandRegistry, 
           buttons: [Dialog.okButton()]
         });
       } else {
-        message = 'ERROR : ' + message;
-        const errorMessage = new VdkErrorMessage(message);
-        await showDialog({
-          title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
-          body: (
-            <div className="vdk-convert-to-notebook-error-message ">
-              <p>{errorMessage.exception_message}</p>
-              <p>{errorMessage.what_happened}</p>
-              <p>{errorMessage.why_it_happened}</p>
-              <p>{errorMessage.consequences}</p>
-              <p>{errorMessage.countermeasures}</p>
-            </div>
-          ),
-          buttons: [Dialog.okButton()]
-        });
+        if (message) {
+          message = 'ERROR : ' + message;
+          const errorMessage = new VdkErrorMessage(message);
+          await showDialog({
+            title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
+            body: (
+              <div className="vdk-convert-to-notebook-error-message ">
+                <p>{errorMessage.exception_message}</p>
+                <p>{errorMessage.what_happened}</p>
+                <p>{errorMessage.why_it_happened}</p>
+                <p>{errorMessage.consequences}</p>
+                <p>{errorMessage.countermeasures}</p>
+              </div>
+            ),
+            buttons: [Dialog.okButton()]
+          });
+        }
       }
     }
   }
 }
 
-
+/**
+ * Create a notebook for a transformed job.
+ *
+ * The function navigates to the job directory and creates a new notebook
+ * file. The notebook is then populated with the content provided as parameter.
+ *
+ * @param {JupyterCellProps[]} notebookContent - The content to populate the notebook with.
+ * @param {CommandRegistry} commands - The command registry to execute Jupyter commands.
+ * @param {FileBrowser} fileBrowser - The file browser to navigate the file system.
+ * @param {INotebookTracker} notebookTracker - The notebook tracker to track changes to the notebook.
+ */
 const createTranformedNotebook = async (notebookContent: JupyterCellProps[], commands: CommandRegistry, fileBrowser: FileBrowser, notebookTracker: INotebookTracker) => {
   try {
     const baseDir = await getServerDirRequest();
@@ -118,6 +137,17 @@ const createTranformedNotebook = async (notebookContent: JupyterCellProps[], com
   }
 }
 
+
+/**
+ * Initializes notebook content.
+ *
+ * The function takes code and filenames as parameters and generates a structured notebook content.
+ * The code blocks are turned into notebook cells.
+ *
+ * @param {string[]} codeStructure - The code blocks to turn into notebook cells.
+ * @param {string[]} fileNames - The names of the files to turn into titles.
+ * @return {JupyterCellProps[]} - The structured content ready to be used to populate a notebook.
+ */
 const initializeNotebookContent = (codeStructure: string[], fileNames: string[]): JupyterCellProps[] => {
   let notebookContent: JupyterCellProps[] = [];
 
@@ -140,6 +170,15 @@ const initializeNotebookContent = (codeStructure: string[], fileNames: string[])
   return notebookContent;
 }
 
+/**
+ * Populates notebook with provided content.
+ *
+ * The function takes notebook content and a notebook tracker as parameters.
+ * When a new notebook becomes active, it is populated with the provided content.
+ *
+ * @param {JupyterCellProps[]} notebookContent - The content to populate the notebook with.
+ * @param {INotebookTracker} notebookTracker - The notebook tracker to track changes to the notebook.
+ */
 const populateNotebook = async (notebookContent: JupyterCellProps[], notebookTracker: INotebookTracker) => {
   notebookTracker.activeCellChanged.connect((sender, args) => {
     const notebookPanel = notebookTracker.currentWidget;
@@ -242,7 +281,7 @@ const populateNotebook = async (notebookContent: JupyterCellProps[], notebookTra
               "tags": [
                 "vdk"
               ]
-            } )
+            })
           }
 
         }
