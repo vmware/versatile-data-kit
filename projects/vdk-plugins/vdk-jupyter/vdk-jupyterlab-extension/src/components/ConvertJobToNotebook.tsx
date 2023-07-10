@@ -40,7 +40,7 @@ export default class ConvertJobToNotebookDialog extends Component<IJobPathProp> 
   }
 }
 
-export async function showConvertJobToNotebookDialog(commands: CommandRegistry, fileBrowser: FileBrowser , notebookTracker: INotebookTracker) {
+export async function showConvertJobToNotebookDialog(commands: CommandRegistry, fileBrowser: FileBrowser, notebookTracker: INotebookTracker) {
   const result = await showDialog({
     title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
     body: (
@@ -104,9 +104,10 @@ export async function showConvertJobToNotebookDialog(commands: CommandRegistry, 
 const createTranformedNotebook = async (notebookContent: JupyterCellProps[], commands: CommandRegistry, fileBrowser: FileBrowser, notebookTracker: INotebookTracker) => {
   try {
     const baseDir = await getServerDirRequest();
+    jobData.set(VdkOption.NAME, jobData.get(VdkOption.PATH)!.split(/[\\/]/).pop() || ""); //get the name of the job using the directory
     await fileBrowser.model.cd(jobData.get(VdkOption.PATH)!.substring(baseDir.length));  // relative path for Jupyter
     commands.execute('notebook:create-new');
-    populateNotebook(notebookContent, notebookTracker)
+    populateNotebook(notebookContent, notebookTracker);
   }
   catch (error) {
     await showErrorMessage(
@@ -120,21 +121,21 @@ const createTranformedNotebook = async (notebookContent: JupyterCellProps[], com
 const initializeNotebookContent = (codeStructure: string[], fileNames: string[]): JupyterCellProps[] => {
   let notebookContent: JupyterCellProps[] = [];
 
-  for(let i = 0; i < codeStructure.length; i++) {
+  for (let i = 0; i < codeStructure.length; i++) {
+    notebookContent.push({
+      source: "#### " + fileNames[i], // make names bolder
+      type: 'markdown'
+    });
+    notebookContent.push({
+      source: codeStructure[i],
+      type: 'code'
+    });
+    if (codeStructure[i].includes('def run(job_input: IJobInput)')) {
       notebookContent.push({
-          source: "#### " + fileNames[i], // make names bolder
-          type: 'markdown'
+        source: 'run(job_input)',
+        type: 'code'
       });
-      notebookContent.push({
-          source: codeStructure[i],
-          type: 'code'
-      });
-      if(codeStructure[i].includes('def run(job_input: IJobInput)')){
-        notebookContent.push({
-          source: 'run(job_input)',
-          type: 'code'
-      });
-      }
+    }
   }
   return notebookContent;
 }
@@ -150,61 +151,100 @@ const populateNotebook = async (notebookContent: JupyterCellProps[], notebookTra
       if (cells && cells.length === 1 && cellContent === '') {
         cells.clear(); // clear the initial empty cell
 
-        const ipythonConfigCell =
-        notebookPanel.content.model?.contentFactory?.createCodeCell({
-          cell: {
-            cell_type: 'code',
-            source: [
-              `"""\n`,
-              `vdk_ipython extension introduces a magic command for Jupyter.\n`,
-              `The command enables the user to load VDK for the current notebook.\n`,
-              `VDK provides the job_input API, which has methods for:\n`,
-              `    * executing queries to an OLAP database;\n`,
-              `    * ingesting data into a database;\n`,
-              `    * processing data into a database.\n`,
-              `See the IJobInput documentation for more details.\n`,
-              `https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py\n`,
-              `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n`,
-              `and is only used for development purposes.\n`,
-              `"""\n`,
-              `%reload_ext vdk_ipython\n`,
-              `%reload_VDK\n`,
-              `job_input = VDK.get_initialized_job_input()`
-            ],
-            metadata: {}
-          }
-        });
+        const addMarkdownCell = (source: string[]) => {
+          let markdownCell = notebookPanel.content.model?.contentFactory?.createMarkdownCell({
+            cell: {
+              cell_type: 'markdown',
+              source: source,
+              metadata: {}
+            }
+          });
+          if (markdownCell) cells.push(markdownCell);
+        }
 
-        if(ipythonConfigCell) cells.push(ipythonConfigCell);
+        const addCodeCell = (source: string[], metadata: {}) => {
+          let codeCell = notebookPanel.content.model?.contentFactory?.createCodeCell({
+            cell: {
+              cell_type: 'code',
+              source: source,
+              metadata: metadata
+            }
+          });
+          if (codeCell) cells.push(codeCell);
+        }
+        addMarkdownCell([
+          "# " + jobData.get(VdkOption.NAME)
+        ]);
 
+        addMarkdownCell([
+          "### Please go through this guide before continuing with the data job run and development."
+        ]);
+
+        addMarkdownCell([
+          "#### Introduction and Preparations\n",
+          "*  *This is a notebook transformed from a directory style data job located in path/to/the/job.* \n",
+          "*  *If you are not familiar with notebook data jobs make sure to check the **Getting Started**(TODO: add link) page.*\n",
+          "*  *You can find the **original job** at path/to/csp-microservices/archive.*"
+        ]);
+
+        addMarkdownCell([
+          "#### Execution Order and Identifying Cells\n",
+          "*  *The below cells are automatically generated corresponding to a step(.sql or .py file with VDK run function) \n",
+          "    in your original job.* \n",
+          "*  *You will notice that some cells are coloured and include the VDK logo and a numbering. \n",
+          "    These are the \"vdk\" tagged cells.\n",
+          "    Only these cells are executed during VDK run and all the others are ignored(for example the current cell).*\n",
+          "*  *Code cells in the notebook will be executed according to the numbering when running the notebook data job with VDK.\n",
+          "    This means that the steps in the job are organized from the top to the bottom, starting with the first step.*\n",
+          "*  *When you see a title saying **\"Step generated from: sample.py\"** before some blocks of code, \n",
+          "    it means that the code below that title was created from the \"sample.py\" file.*\n",
+          "*  *Similarly, if you come across code cells that have the format **\"job_input.execute_query(query_string)\"** ,\n",
+          "    it means that those cells contain code generated from \".sql\" files.*\n",
+          "*  *On the other hand, code cells originating from \".py\" files remain unchanged.\n",
+          "    However, an additional cell is included that calls the \"run\" function using the command **\"run(job_input)\"** . \n",
+          "    This cell executes the \"run\" function from the code generated from the \".py\" file.*\n",
+          "*  *You can delete the cells that are not tagged with \"vdk\" \n",
+          "    as they are not essential to the data job's execution.\n",
+          "    However, removing tagged cells will result in a different data job run.* "
+        ]);
+
+        addMarkdownCell([
+          "#### Tips: \n",
+          "* *Before running the job, it is recommended to review the cells\n",
+          "    to ensure a clear understanding of the data job run.  \n",
+          "    This will help to ensure the desired outcome.* "
+        ]);
+
+        addCodeCell([
+          `"""\n`,
+          `vdk_ipython extension introduces a magic command for Jupyter.\n`,
+          `The command enables the user to load VDK for the current notebook.\n`,
+          `VDK provides the job_input API, which has methods for:\n`,
+          `    * executing queries to an OLAP database;\n`,
+          `    * ingesting data into a database;\n`,
+          `    * processing data into a database.\n`,
+          `See the IJobInput documentation for more details.\n`,
+          `https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py\n`,
+          `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n`,
+          `and is only used for development purposes.\n`,
+          `"""\n`,
+          `%reload_ext vdk_ipython\n`,
+          `%reload_VDK\n`,
+          `job_input = VDK.get_initialized_job_input()`
+        ], {})
+
+        // add code that came from the previous version of the job and the names of the files where they came from
         for (let cellProps of notebookContent) {
-          let newCell;
-
           if (cellProps.type === 'markdown') {
-            newCell = notebookPanel.content.model?.contentFactory?.createMarkdownCell({
-              cell: {
-                cell_type: 'markdown',
-                source: cellProps.source,
-                metadata: {}
-              }
-            });
+            addMarkdownCell([cellProps.source])
           } else if (cellProps.type === 'code') {
-            newCell = notebookPanel.content.model?.contentFactory?.createCodeCell({
-              cell: {
-                cell_type: 'code',
-                source: cellProps.source,
-                metadata: {
-                  "tags": [
-                    "vdk"
-                   ]
-                }
-              }
-            });
+            addCodeCell([cellProps.source], {
+              "tags": [
+                "vdk"
+              ]
+            } )
           }
 
-          if (newCell) {
-            cells.push(newCell);
-          }
         }
       }
     }
