@@ -86,4 +86,3 @@ control_service_publish_image:
     refs:
       - external_pull_requests
     changes: *control_service_code_change_locations
-
