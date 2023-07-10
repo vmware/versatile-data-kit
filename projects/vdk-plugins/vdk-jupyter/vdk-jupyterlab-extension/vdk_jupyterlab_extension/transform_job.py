@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import glob
 import os
+import re
 import shutil
 
 
@@ -75,7 +76,7 @@ class TransformJobDirectoryProcessor:
                 with open(file) as f:
                     content = f.read()
 
-                if "def run(job_input: IJobInput)" in content:
+                if re.search(r"def run\(job_input: IJobInput\)", content):
                     self._code_structure.append(content)
                     self._removed_files.append(os.path.basename(file))
                     os.remove(file)
