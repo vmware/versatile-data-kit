@@ -127,24 +127,23 @@ frontend_publish_ui_image:
       changes: *frontend_data_pipelines_locations
   extends: .frontend_publish_docker_image
 
-# TODO: Enable this when https://github.com/vmware/versatile-data-kit/issues/2332 is resolved
-# frontend_tag_ui_image_stable:
-#   stage: release
-#   before_script:
-#     - cd projects/frontend
-#   script:
-#     - apk --no-cache add bash git
-#     - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-#     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
-#     - bash -ex ../../projects/control-service/cicd/tag_image_dockerhub.sh vdk-operations-ui $IMAGE_TAG stable
-#   rules:
-#     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#       when: never
-#     - if: '$CI_COMMIT_BRANCH == "main"'
-#       changes: *frontend_shared_components_locations
-#     - if: '$CI_COMMIT_BRANCH == "main"'
-#       changes: *frontend_data_pipelines_locations
-#   extends: .frontend_publish_docker_image
+frontend_tag_ui_image_stable:
+  stage: release_image
+  before_script:
+    - cd projects/frontend
+  script:
+    - apk --no-cache add bash git
+    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - bash -ex ../../projects/control-service/cicd/tag_image_dockerhub.sh vdk-operations-ui $IMAGE_TAG stable
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+  extends: .frontend_publish_docker_image
 
 frontend_deploy_testing_data_pipelines:
   stage: pre_release_test
