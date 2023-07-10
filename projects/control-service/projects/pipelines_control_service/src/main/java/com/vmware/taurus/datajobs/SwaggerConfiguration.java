@@ -37,7 +37,7 @@ public class SwaggerConfiguration {
   }
 
   @PostConstruct
-  public void dd() {
+  public void setupServerUrl() {
     if (!serverUrl.isEmpty()) {
       openAPI.servers(List.of(new Server().url(serverUrl)));
     }
