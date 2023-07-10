@@ -11,10 +11,11 @@ import { VdkOption } from './vdkOptions/vdk_options';
 import { workingDirectory } from '.';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { FileBrowser } from '@jupyterlab/filebrowser';
+import { INotebookTracker } from '@jupyterlab/notebook';
 
 var runningVdkOperation = false;
 
-export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentManager, fileBrowser: FileBrowser) {
+export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentManager, fileBrowser: FileBrowser, notebookTracker: INotebookTracker) {
   // Add Run job command
   add_command(commands, 'jp-vdk:menu-run', 'Run', 'Execute VDK Run Command', showRunJobDialog, docManager);
 
@@ -26,7 +27,7 @@ export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentMa
 
   // Add Convert Job To Notebook command
   add_command(commands, 'jp-vdk:menu-convert-job-to-notebook', 'Convert Job To Notebook', 'Convert Data Job To Jupyter Notebook', showConvertJobToNotebookDialog, undefined,
-    fileBrowser);
+    fileBrowser, notebookTracker);
 
   // Add Create Deployment command
   add_command(commands, 'jp-vdk:menu-create-deployment', 'Deploy', 'Create deployment of a VDK job', showCreateDeploymentDialog);
@@ -40,7 +41,7 @@ export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentMa
  *@param getOperationDialog - function that will load the dialog for the command
  */
 function add_command(commands: CommandRegistry, schemaNaming: string, label: string, caption: string, getOperationDialog: Function,
-  docManager?: IDocumentManager, fileBrowser?: FileBrowser) {
+  docManager?: IDocumentManager, fileBrowser?: FileBrowser, notebookTracker?: INotebookTracker) {
   commands.addCommand(schemaNaming, {
     label: label,
     caption: caption,
@@ -50,7 +51,7 @@ function add_command(commands: CommandRegistry, schemaNaming: string, label: str
           runningVdkOperation = true;
           jobData.set(VdkOption.PATH, workingDirectory);
           await jobdDataRequest();
-          if (label == 'Convert Job To Notebook') await getOperationDialog(commands, fileBrowser);
+          if (label == 'Convert Job To Notebook') await getOperationDialog(commands, fileBrowser, notebookTracker);
           else if (docManager) {
             await getOperationDialog(docManager);
           }
