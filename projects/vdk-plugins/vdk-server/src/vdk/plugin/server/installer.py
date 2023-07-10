@@ -707,7 +707,6 @@ class Installer:
             "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
             "--set",
             "image.tag=swaggertest",
-
         ]
 
     def __uninstall_helm_chart(self):
