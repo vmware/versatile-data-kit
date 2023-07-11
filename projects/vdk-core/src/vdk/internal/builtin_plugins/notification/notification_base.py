@@ -123,7 +123,7 @@ class EmailNotification(INotification):
         s = self.__smtp_server()
         try:
             s.helo()
-            s.mail("whatever")
+            s.mail(self._sender)
             resp = s.rcpt(email_address)
             return resp[0] == 250
         except smtplib.SMTPServerDisconnected as e:
