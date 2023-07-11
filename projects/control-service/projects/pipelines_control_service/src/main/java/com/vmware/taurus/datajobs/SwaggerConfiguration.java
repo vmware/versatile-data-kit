@@ -15,11 +15,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
- * This class exists so that when running quickstart vdk the swagger ui has the correct base url.
- *
- * <p>Without this in qucikstart vdk the swagger will think the url should be localhost:80/. We are
- * mapping port 80 from the cluster port 8092 on the local machine. There is no way for the service
- * to know this mapping is happening so we need to provide it with the correct url.
+ * This class exists so that we can set the swagger URL explicitly if swagger is not able to infer it correctly.
  */
 @Configuration
 public class SwaggerConfiguration {
