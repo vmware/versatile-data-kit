@@ -22,6 +22,7 @@ image_tag="$image_repo:$version_tag"
 commit_sha=$(git rev-parse --short HEAD)
 
 docker build -t "$image_tag" -t "$image_repo:latest" -t "$image_repo:$commit_sha" $ui_path
-docker push "$image_tag"
-docker push "$image_repo:latest"
-docker push "$image_repo:$commit_sha"
+
+docker_push_vdk.sh "$image_tag"
+docker_push_vdk.sh "$image_repo:latest"
+docker_push_vdk.sh "$image_repo:$commit_sha"
