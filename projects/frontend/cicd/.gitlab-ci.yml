@@ -35,7 +35,7 @@ frontend-data-pipelines-build:
   script:
     # Note: if frontend-shared-components-build is not part of the pipeline and no rc-version exists, $SHARED_RC_VERSION will be empty.
     # If $SHARED_RC_VERSION is empty, calling install_data_pipelines.sh will install the latest @versatiledatakit/shared package from registry.
-    - export SHARED_RC_VERSION=$(../../cicd/get_latest_shared_rc_version.sh $CI_PIPELINE_ID)
+    - export SHARED_RC_VERSION=$(./cicd/get_latest_shared_rc_version.sh $CI_PIPELINE_ID)
     - ./cicd/install_data_pipelines.sh $SHARED_RC_VERSION
   coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
   retry: !reference [.retry, retry_options]
