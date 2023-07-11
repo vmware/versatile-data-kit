@@ -850,7 +850,9 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
         staging_table_name = f"vdk_check_{test_schema}_{target_table}"
-        first_exec_rs = self._run_query(f"SELECT * FROM {staging_schema}.{staging_table_name}")
+        first_exec_rs = self._run_query(
+            f"SELECT * FROM {staging_schema}.{staging_table_name}"
+        )
         cli_assert_equal(0, res_first_exec)
 
         res_second_exec = self._run_job(
@@ -875,5 +877,7 @@ class TestTemplateRegression(unittest.TestCase):
         second_exec = {x for x in second_exec_rs.output.split("\n")}
 
         self.assertSetEqual(
-            first_exec, second_exec, f"Clean up of staging table - {staging_table_name} is not made properly. Different data was found in the table after consecutive executions."
+            first_exec,
+            second_exec,
+            f"Clean up of staging table - {staging_table_name} is not made properly. Different data was found in the table after consecutive executions.",
         )
