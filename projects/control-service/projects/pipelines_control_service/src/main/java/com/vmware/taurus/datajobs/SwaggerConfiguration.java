@@ -17,10 +17,9 @@ import java.util.List;
 /**
  * This class exists so that when running quickstart vdk the swagger ui has the correct base url.
  *
- * <p>Without this in qucikstart vdk the swagger will think the url should be localhost:80/. 
- * We are mapping port 80 from the cluster port 8092 on the local
- * machine. There is no way for the service to know this mapping is happening so we need to provide
- * it with the correct url.
+ * <p>Without this in qucikstart vdk the swagger will think the url should be localhost:80/. We are
+ * mapping port 80 from the cluster port 8092 on the local machine. There is no way for the service
+ * to know this mapping is happening so we need to provide it with the correct url.
  */
 @Configuration
 public class SwaggerConfiguration {
