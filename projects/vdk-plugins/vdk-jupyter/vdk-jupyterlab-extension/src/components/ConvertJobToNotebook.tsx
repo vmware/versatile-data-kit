@@ -221,9 +221,9 @@ const populateNotebook = async (notebookContent: JupyterCellProps[], notebookTra
 
         addMarkdownCell([
           "#### Introduction and Preparations\n",
-          "*  *This is a notebook transformed from a directory style data job located in path/to/the/job.* \n",
+          "*  *This is a notebook transformed from a directory style data job located in " + jobData.get(VdkOption.PATH) + ".*\n",
           "*  *If you are not familiar with notebook data jobs make sure to check the **Getting Started**(TODO: add link) page.*\n",
-          "*  *You can find the **original job** at path/to/csp-microservices/archive.*"
+          "*  *You can find the **original job** at " + jobData.get(VdkOption.PATH)!.split(/[/\\]/).slice(0, -1).join('/') + "*"
         ]);
 
         addMarkdownCell([
