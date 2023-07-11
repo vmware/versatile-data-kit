@@ -223,7 +223,7 @@ const populateNotebook = async (notebookContent: JupyterCellProps[], notebookTra
           "#### Introduction and Preparations\n",
           "*  *This is a notebook transformed from a directory style data job located in " + jobData.get(VdkOption.PATH) + ".*\n",
           "*  *If you are not familiar with notebook data jobs make sure to check the **Getting Started**(TODO: add link) page.*\n",
-          "*  *You can find the **original job** at " + jobData.get(VdkOption.PATH)!.split(/[/\\]/).slice(0, -1).join('/') + "*"
+          "*  *You can find the **original job** at " + jobData.get(VdkOption.PATH)!.split(/[/\\]/).slice(0, -1).join('/') + ".*"
         ]);
 
         addMarkdownCell([
