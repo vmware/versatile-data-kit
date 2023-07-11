@@ -868,7 +868,9 @@ class TestTemplateRegression(unittest.TestCase):
         )
         cli_assert_equal(0, res_second_exec)
 
-        second_exec_rs = self._run_query(f"SELECT * FROM {staging_schema}.{staging_table_name}")
+        second_exec_rs = self._run_query(
+            f"SELECT * FROM {staging_schema}.{staging_table_name}"
+        )
         first_exec = {x for x in first_exec_rs.output.split("\n")}
         second_exec = {x for x in second_exec_rs.output.split("\n")}
 
