@@ -18,11 +18,6 @@
   - "projects/frontend/cicd/**/*"
   - "projects/frontend/data-pipelines/**/*"
 
-.frontend_paths_do_not_trigger_e2e: &frontend_do_not_trigger_e2e
-  - "projects/frontend/data-pipelines/README.md"
-  - "projects/frontend/data-pipelines/gui/Dockerfile"
-  - "projects/frontend/data-pipelines/gui/config/nginx.conf"
-
 .frontend_retry:
   retry_options:
     max: 1
@@ -72,14 +67,10 @@ frontend-data-pipelines-e2e-tests:
     - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN" "$CYPRESS_test_environment" "$CI_PIPELINE_ID" "$CYPRESS_grepTags"
   retry: !reference [.retry, retry_options]
   rules:
-    - changes: *frontend_do_not_trigger_e2e
-      when: never
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes:
-        - "projects/frontend/shared-components/**/*"
+      changes: *frontend_shared_components_locations
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes:
-        - "projects/frontend/data-pipelines/**/*"
+      changes: *frontend_data_pipelines_locations
   artifacts:
     when: always
     paths:
