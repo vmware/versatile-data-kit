@@ -11,9 +11,7 @@ const { Logger } = require('./logger-helpers.plugins');
 
 const { trimArraysToNElements } = require('./util-helpers.plugins');
 
-const {
-    getAccessTokenSynchronous
-} = require('./authentication-helpers.plugins');
+const { getAccessTokenSynchronous } = require('./authentication-helpers.plugins');
 
 /**
  * ** Create Http Get request.
@@ -43,15 +41,8 @@ const httpGetReq = (url, headers = {}, auth = undefined) => {
         .then((response) => {
             const endTime = new Date();
 
-            Logger.debug(
-                `HTTP Get response from Url with Body`,
-                url,
-                _filterResponseDataForDebug(response)
-            );
-            Logger.profiling(
-                `End time: ${endTime.toISOString()};`,
-                `Duration: ${(endTime - startTime) / 1000}s`
-            );
+            Logger.debug(`HTTP Get response from Url with Body`, url, _filterResponseDataForDebug(response));
+            Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
 
             return _throttle(response);
         });
@@ -85,15 +76,8 @@ const httpPostReq = (url, body, headers = {}) => {
         .then((response) => {
             const endTime = new Date();
 
-            Logger.debug(
-                `HTTP Post response from Url with Body`,
-                url,
-                _filterResponseDataForDebug(response)
-            );
-            Logger.profiling(
-                `End time: ${endTime.toISOString()};`,
-                `Duration: ${(endTime - startTime) / 1000}s`
-            );
+            Logger.debug(`HTTP Post response from Url with Body`, url, _filterResponseDataForDebug(response));
+            Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
 
             return _throttle(response);
         });
@@ -127,15 +111,8 @@ const httpPatchReq = (url, body, headers = {}) => {
         .then((response) => {
             const endTime = new Date();
 
-            Logger.debug(
-                `HTTP Patch response from Url with Body`,
-                url,
-                _filterResponseDataForDebug(response)
-            );
-            Logger.profiling(
-                `End time: ${endTime.toISOString()};`,
-                `Duration: ${(endTime - startTime) / 1000}s`
-            );
+            Logger.debug(`HTTP Patch response from Url with Body`, url, _filterResponseDataForDebug(response));
+            Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
 
             return _throttle(response);
         });
@@ -169,15 +146,8 @@ const httpPutReq = (url, body, headers = {}) => {
         .then((response) => {
             const endTime = new Date();
 
-            Logger.debug(
-                `HTTP Put response from Url with Body`,
-                url,
-                _filterResponseDataForDebug(response)
-            );
-            Logger.profiling(
-                `End time: ${endTime.toISOString()};`,
-                `Duration: ${(endTime - startTime) / 1000}s`
-            );
+            Logger.debug(`HTTP Put response from Url with Body`, url, _filterResponseDataForDebug(response));
+            Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
 
             return _throttle(response);
         });
@@ -209,15 +179,8 @@ const httpDeleteReq = (url, headers = {}) => {
         .then((response) => {
             const endTime = new Date();
 
-            Logger.debug(
-                `HTTP Delete response from Url with Body`,
-                url,
-                _filterResponseDataForDebug(response)
-            );
-            Logger.profiling(
-                `End time: ${endTime.toISOString()};`,
-                `Duration: ${(endTime - startTime) / 1000}s`
-            );
+            Logger.debug(`HTTP Delete response from Url with Body`, url, _filterResponseDataForDebug(response));
+            Logger.profiling(`End time: ${endTime.toISOString()};`, `Duration: ${(endTime - startTime) / 1000}s`);
 
             return _throttle(response);
         });
