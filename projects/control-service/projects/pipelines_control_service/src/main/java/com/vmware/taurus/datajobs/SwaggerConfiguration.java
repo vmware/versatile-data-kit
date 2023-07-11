@@ -15,7 +15,8 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
- * This class exists so that we can set the swagger URL explicitly if swagger is not able to infer it correctly.
+ * This class exists so that we can set the swagger URL explicitly if swagger is not able to infer
+ * it correctly.
  */
 @Configuration
 public class SwaggerConfiguration {
