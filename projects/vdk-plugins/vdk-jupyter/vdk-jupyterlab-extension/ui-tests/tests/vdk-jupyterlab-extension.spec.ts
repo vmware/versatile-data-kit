@@ -42,8 +42,8 @@ test('should try to run a job with incorrect data and get a dialog error message
   await page.goto('');
   await page.menu.open('VDK');
   await page.locator('#jp-vdk-menu').getByText('Run').click();
-  await page.getByLabel('Path to parent directory:').click();
-  await page.getByLabel('Path to parent directory:').fill('/my-folder');
+  await page.getByLabel('Path to job directory:').click();
+  await page.getByLabel('Path to job directory:').fill('/my-folder');
   await page.getByRole('button', { name: 'OK' }).click();
   page.once('dialog', async dialog => {
     console.log(`Dialog message: ${dialog.message()}`);
@@ -86,8 +86,8 @@ test('should try to create a job with incorrect input and get error', async ({
   await page.getByLabel('Job name:').fill('first-job');
   await page.getByLabel('Job team:').click();
   await page.getByLabel('Job team:').fill('example-team');
-  await page.getByLabel('Path to parent directory:').click();
-  await page.getByLabel('Path to parent directory:').fill('sdfgsdfsdfsd');
+  await page.getByLabel('Path to job directory:').click();
+  await page.getByLabel('Path to job directory:').fill('sdfgsdfsdfsd');
   await page.getByRole('button', { name: 'OK' }).click();
   await page
     .locator('div')
@@ -118,7 +118,7 @@ test('should open delete job confirmation pop up', async ({ page }) => {
   await page.getByRole('button', { name: 'Cancel' }).click();
 });
 
-test('should try to delete a job with empty input and get error', async ({
+test('should try to delete a job with default input and get error', async ({
   page
 }) => {
   await page.goto('');
@@ -126,11 +126,11 @@ test('should try to delete a job with empty input and get error', async ({
   await page.locator('#jp-vdk-menu').getByText('Delete').click();
   await page.locator('div').filter({ hasText: 'Delete Job' });
   await page.getByRole('button', { name: 'OK' }).click();
-  // this is tested with empty input that's why the message is with null
+  // this is tested with the default name for job which is the current directory name
   await page
     .locator('div')
     .filter({
-      hasText: 'Do you really want to delete the job with name null from null?'
+      hasText: 'Do you really want to delete the job with name ui-tests?'
     })
     .first()
     .click();
