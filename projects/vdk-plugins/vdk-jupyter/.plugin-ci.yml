@@ -48,6 +48,9 @@ release-vdk-jupyter:
     - cd vdk-jupyter/vdk-jupyterlab-extension/ || exit 1
     - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
     - apk --no-cache add npm
+    - apk add rust cargo
+    - apk add libffi-dev
+    - pip install jupyter
     - pip install -U pip setuptools wheel twine pre-commit build
     - python -m build
     # provide the credentials as Gitlab variables
