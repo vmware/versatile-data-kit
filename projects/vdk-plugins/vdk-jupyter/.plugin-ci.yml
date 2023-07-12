@@ -38,7 +38,7 @@
 release-vdk-jupyter:
   variables:
     PLUGIN_NAME:
-  image: "python:3.10-alpine"
+  image: "python:3.10"
   stage: release
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
@@ -47,10 +47,10 @@ release-vdk-jupyter:
     - echo "Release plugin $PLUGIN_NAME"
     - cd vdk-jupyter/vdk-jupyterlab-extension/ || exit 1
     - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
-    - pip install -U pip setuptools wheel twine pre-commit
-    - python setup.py sdist --formats=gztar
+    - pip install -U pip setuptools wheel twine pre-commit build
+    - python -m build
     # provide the credentials as Gitlab variables
-    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/* --verbose
   rules: # we want to trigger build jobs if there are changes to this package,
     # but not if there are changes to VDK plugins or the main directory
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
