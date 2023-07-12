@@ -38,7 +38,7 @@
 release-vdk-jupyter:
   variables:
     PLUGIN_NAME:
-  image: "python:3.10"
+  image: "python:3.10-alpine"
   stage: release
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
@@ -47,6 +47,7 @@ release-vdk-jupyter:
     - echo "Release plugin $PLUGIN_NAME"
     - cd vdk-jupyter/vdk-jupyterlab-extension/ || exit 1
     - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
+    - apk --no-cache add npm
     - pip install -U pip setuptools wheel twine pre-commit build
     - python -m build
     # provide the credentials as Gitlab variables
