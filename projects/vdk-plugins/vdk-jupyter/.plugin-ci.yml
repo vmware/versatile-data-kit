@@ -31,3 +31,30 @@ build-vdk-jupyterlab-extension:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
         - "projects/vdk-plugins/vdk-jupyter/**/*"
+
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+.build-vdk-jupyter:
+  variables:
+    PLUGIN_NAME: vdk-jupyter/vdk-jupyterlab-extension
+  extends: .build-plugin
+  rules: # we want to trigger build jobs if there are changes to this package,
+    # but not if there are changes to VDK plugins or the main directory
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/vdk-plugins/vdk-jupyter/**/*"
+
+build-py38-vdk-audit:
+  extends: .build-vdk-jupyter
+  image: "python:3.8"
+
+
+build-py311-vdk-audit:
+  extends: .build-vdk-jupyter
+  image: "python:3.11"
+
+release-vdk-audit:
+  variables:
+    PLUGIN_NAME: vdk-jupyter
+  extends: .release-plugin
