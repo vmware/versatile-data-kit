@@ -1,7 +1,10 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import os
-import unittest
-import tempfile
 import shutil
+import tempfile
+import unittest
 
 from vdk_jupyterlab_extension.transform_job import DirectoryArchiver
 
@@ -26,5 +29,4 @@ class TestDirectoryArchiver(unittest.TestCase):
     def test_archive_folder(self):
         self.archiver.archive_folder()
         archive_name = self.archiver.get_archive_name()
-        self.assertTrue(os.path.exists(f'{archive_name}.zip'))
-
+        self.assertTrue(os.path.exists(f"{archive_name}.zip"))
