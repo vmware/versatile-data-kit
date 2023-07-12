@@ -4,6 +4,7 @@
 image: "python:3.7"
 
 include:
+  - "cicd/.gitlab-ci-lib.yml"
   - "projects/vdk-control-cli/.gitlab-ci.yml"
   - "projects/vdk-core/.gitlab-ci.yml"
   - "projects/frontend/cicd/.gitlab-ci.yml"

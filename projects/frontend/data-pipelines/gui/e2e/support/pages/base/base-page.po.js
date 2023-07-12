@@ -95,6 +95,12 @@ export class BasePagePO {
         return this.getPage();
     }
 
+    static navigateToNoBootstrap() {
+        this.navigateToUrl('/');
+        this.waitForViewToRenderShort();
+        return this.getPage();
+    }
+
     /**
      * ** Navigate to page with provided nav link id through side menu navigation and return instance of page object.
      *

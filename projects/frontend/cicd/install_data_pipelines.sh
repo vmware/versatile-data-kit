@@ -28,7 +28,7 @@ rm -f "package-lock.json"
 shared_dist_dir="../../shared-components/gui/dist/shared"
 if [ -d "$shared_dist_dir" ]
 then
-  if [ -n "$shared_version"]
+  if [ -n "$shared_version" ]
   then
     echo "Installing the latest shared-components rc-version"
     npm install --no-save "@versatiledatakit/shared@$shared_version"

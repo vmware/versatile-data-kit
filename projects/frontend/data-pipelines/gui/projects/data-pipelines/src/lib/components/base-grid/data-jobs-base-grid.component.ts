@@ -318,6 +318,7 @@ export abstract class DataJobsBaseGridComponent
      */
     onModelInit(): void {
         let initializationFinished = false;
+        let previousState: RouteState;
 
         this.subscriptions.push(
             this.routerService
@@ -332,21 +333,28 @@ export abstract class DataJobsBaseGridComponent
                 )
                 .subscribe((routerState) => {
                     if (initializationFinished) {
-                        if (!this._areQueryParamsPristine(routerState.state)) {
+                        // check if route state comes from Browser popped state (Browser stack)
+                        if (
+                            (!previousState || previousState.absoluteRoutePath === routerState.state.absoluteRoutePath) &&
+                            !this._areQueryParamsPristine(routerState.state)
+                        ) {
                             this._extractQueryParams(routerState.state);
                             this._updateUrlStateManager();
 
-                            // set query params mutation to false, because it's popped state from Browser stack
+                            // set query params mutation to false, because it's Browser popped state
                             // no need to update the Browser URL, just URLStateManager need to be updated
                             this.urlStateManager.isQueryParamsStateMutated = false;
                         } else {
                             this._updateUrlStateManager(routerState.state);
                         }
 
+                        previousState = routerState.state;
+
                         return;
                     }
 
                     initializationFinished = true;
+                    previousState = routerState.state;
 
                     this._initUrlStateManager(routerState.state);
                     this._extractQueryParams(routerState.state);

@@ -5,8 +5,8 @@
 
 /// <reference types="cypress" />
 
-import { DataJobsExplorePage } from '../../../support/pages/explore/data-jobs/data-jobs.po';
-import { DataJobExploreDetailsPage } from '../../../support/pages/explore/data-jobs/details/data-job-details.po';
+import { DataJobsExplorePage } from '../../../../support/pages/explore/data-jobs/data-jobs.po';
+import { DataJobExploreDetailsPage } from '../../../../support/pages/explore/data-jobs/details/data-job-details.po';
 
 describe(
     'Data Jobs Explore Page',

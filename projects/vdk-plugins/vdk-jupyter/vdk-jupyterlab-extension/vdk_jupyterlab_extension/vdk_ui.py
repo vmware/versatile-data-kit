@@ -12,7 +12,6 @@ from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
-from vdk.internal.control.utils.cli_utils import get_or_prompt
 from vdk_jupyterlab_extension.transform_job import TransformJobDirectoryProcessor
 
 
@@ -153,22 +152,27 @@ class VdkUI:
         :param enabled: flag whether the job is enabled (that will basically un-pause the job)
         :return: output string of the operation
         """
-        output = ""
+        output = "text"
         cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), output)
-        path = get_or_prompt("Job Path", path)
-        default_name = os.path.basename(path)
-        name = get_or_prompt("Job Name", name, default_name)
-        reason = get_or_prompt("Reason", reason)
-        cmd.create(
-            name=name,
-            team=team,
-            job_path=path,
-            reason=reason,
-            output=output,
-            vdk_version=None,
-            enabled=enabled,
-        )
-        return output
+        if enabled:
+            cmd.create(
+                name=name,
+                team=team,
+                job_path=path,
+                reason=reason,
+                vdk_version=None,
+                enabled=True,
+            )
+        else:
+            cmd.create(
+                name=name,
+                team=team,
+                job_path=path,
+                reason=reason,
+                vdk_version=None,
+                enabled=False,
+            )
+        return f"Job with name {name} and team {team} is deployed successfully!"
 
     @staticmethod
     def get_notebook_info(cell_id: str, pr_path: str):
