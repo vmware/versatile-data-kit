@@ -16,8 +16,8 @@ function build_and_push_image() {
     image_tag="$image_repo:$VERSION_TAG"
 
     docker build -t "$image_tag" -t "$image_repo:latest" -f "$SCRIPT_DIR/$docker_file" $arguments "$SCRIPT_DIR"
-    docker push "$image_tag"
-    docker push "$image_repo:latest"
+    docker_push_vdk.sh "$image_tag"
+    docker_push_vdk.sh "$image_repo:latest"
 }
 
 build_and_push_image \
