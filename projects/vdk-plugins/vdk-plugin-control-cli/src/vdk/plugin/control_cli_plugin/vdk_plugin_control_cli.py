@@ -17,6 +17,7 @@ from vdk.internal.control.command_groups.job.download_key import download_key
 from vdk.internal.control.command_groups.job.execute import execute
 from vdk.internal.control.command_groups.job.list import list_command
 from vdk.internal.control.command_groups.job.properties import properties_command
+from vdk.internal.control.command_groups.job.secrets import secrets_command
 from vdk.internal.control.command_groups.job.show import show_command
 from vdk.internal.control.command_groups.login_group.login import login
 from vdk.internal.control.command_groups.logout_group.logout import logout
@@ -45,6 +46,7 @@ def vdk_command_line(root_command: click.Group):
     root_command.add_command(show_command)
     root_command.add_command(properties_command)
     root_command.add_command(info)
+    root_command.add_command(secrets_command)
 
     plugins = control_plugin_manager.Plugins()
     default_options = DefaultOptions(plugins)
