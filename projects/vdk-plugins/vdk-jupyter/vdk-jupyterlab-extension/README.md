@@ -17,7 +17,9 @@ for the frontend extension.
 ## Install and run
 
 ```bash
+# install the extension
 pip install vdk-jupyterlab-extension
+# run jupyterlab
 jupyter lab
 ```
 
