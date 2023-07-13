@@ -47,9 +47,8 @@ release-vdk-jupyter:
     - apk --no-cache add npm
     - apk add rust cargo
     - apk add libffi-dev
-    - pip install jupyter
+    - pip install -U pip setuptools wheel twine pre-commit build hatch jupyter
     - hatch version 0.1.$VDK_PATCH_VERSION
-    - pip install -U pip setuptools wheel twine pre-commit build hatch
     - python -m build
     # provide the credentials as Gitlab variables
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/* --verbose
