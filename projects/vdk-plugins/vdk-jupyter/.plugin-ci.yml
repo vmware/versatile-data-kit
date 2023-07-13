@@ -42,16 +42,12 @@ release-vdk-jupyter:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
   script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ || exit 1
-    - apk --no-cache add npm
-    - apk add rust cargo
-    - apk add libffi-dev
+    - apk --no-cache add npm rust cargo libffi-dev
     - pip install -U pip setuptools wheel twine pre-commit build hatch jupyter
     - hatch version 0.1.$VDK_PATCH_VERSION
     - python -m build
-    # provide the credentials as Gitlab variables
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/* --verbose
-  rules: # we want to trigger build jobs if there are changes to this package,
-    # but not if there are changes to VDK plugins or the main directory
+  rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
     - if: '$CI_COMMIT_BRANCH == "main"
