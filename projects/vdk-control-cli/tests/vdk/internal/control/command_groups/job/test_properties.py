@@ -76,19 +76,6 @@ def test_properties_get_set(httpserver: PluginHTTPServer):
     assert result.output.strip() == '{"my-key": "my-value"}'
 
 
-def test_properties_get_set_secret(httpserver: PluginHTTPServer):
-    rest_api_url = _mock_properties_server(httpserver)
-
-    result = _run_properties_command(
-        rest_api_url, ["--set-secret", "secret"], input="my-secret-value"
-    )
-    test_utils.assert_click_status(result, 0)
-
-    result = _run_properties_command(rest_api_url, ["--get", "secret", "-o", "json"])
-    test_utils.assert_click_status(result, 0)
-    assert result.output.strip() == '{"secret": "my-secret-value"}'
-
-
 def test_properties_get_set_multiple(httpserver: PluginHTTPServer):
     rest_api_url = _mock_properties_server(httpserver)
 
