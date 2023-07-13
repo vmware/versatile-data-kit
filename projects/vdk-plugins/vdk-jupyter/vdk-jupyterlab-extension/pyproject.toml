@@ -23,7 +23,10 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "jupyter_server>=1.6,<3"
+    "jupyter_server>=1.6,<3",
+    "jupyterlab==3.6.3",
+    "vdk-control-cli",
+    "vdk-core"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
