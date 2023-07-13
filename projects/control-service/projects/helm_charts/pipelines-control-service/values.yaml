@@ -1043,7 +1043,7 @@ mail:
 # Alert manager email notification configuration for the Data-Pipelines/Data Jobs
 # (dp) k8s deployment.
 # More information on individual fileds can be found here:
-# https://prometheus.io/docs/alerting/latest/configuration/#email_config
+# https://docs.openshift.com/container-platform/4.10/rest_api/monitoring_apis/alertmanagerconfig-monitoring-coreos-com-v1alpha1.html#specification
 alertmanager:
   enabled: false
   # Authentication credentials are mounted into a k8s secret, that's why they are separate.
@@ -1053,23 +1053,24 @@ alertmanager:
     authSecret: ""
     authSecretKey: ""
     authIdentity: ""
-  labels:
-    role: infra
-  namespace: data-jobs
-  name: dp-notifications # Data Pipelines notifications
+  metadata:
+    labels:
+      role: infra
+    name: dp-notifications
+    namespace: default
   spec:
     receivers:
       - emailConfigs:
-          - from: '{{ .CommonAnnotations.email_from }}'
+          - from: ''
             headers:
-              - key : subject
-                value: '{{ .CommonAnnotations.subject | safeHtml }}'
-            hello: ""
-            html: '{{ .CommonAnnotations.content | safeHtml }}'
+              - key: subject
+                value: ''
+            hello: localhost
+            html: ''
             requireTLS: false
             sendResolved: false
-            smarthost: ""
-            to: '{{ .CommonAnnotations.email_to }}'
+            smarthost: smtp.vmware.com:25
+            to: ''
             authUsername: ''
         name: dp-receiver
     route:
