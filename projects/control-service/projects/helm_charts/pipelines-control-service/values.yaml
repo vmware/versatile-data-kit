@@ -1061,18 +1061,18 @@ alertmanager:
   spec:
     receivers:
       - emailConfigs:
-          - from: ''
+          - from: ""
             headers:
               - key: subject
-                value: ''
+                value: ""
             hello: localhost
-            html: ''
+            html: ""
             requireTLS: false
             sendResolved: false
-            smarthost: smtp.vmware.com:25
-            to: ''
-            authUsername: ''
-        name: dp-receiver
+            smarthost: ""
+            to: ""
+            authUsername: ""
+        name: "data-pipelines-receiver"
     route:
       groupBy:
         - alertname
@@ -1081,6 +1081,6 @@ alertmanager:
       groupWait: 0s
       matchers:
         - name: source
-          value: data-pipelines
-      receiver: dp-receiver
+          value: ""
+      receiver: "data-pipelines-receiver"
       repeatInterval: 30d
