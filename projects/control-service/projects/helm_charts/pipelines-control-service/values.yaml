@@ -1044,6 +1044,8 @@ mail:
 # (dp) k8s deployment.
 # More information on individual fileds can be found here:
 # https://docs.openshift.com/container-platform/4.10/rest_api/monitoring_apis/alertmanagerconfig-monitoring-coreos-com-v1alpha1.html#specification
+# Pre-requisites for the alertmanager is that prometheus-operator is installed:
+# helm install prometheus-operator prometheus-community/kube-prometheus-stack
 alertmanager:
   enabled: false
   # Authentication credentials are mounted into a k8s secret, that's why they are separate.
