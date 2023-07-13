@@ -43,14 +43,12 @@ release-vdk-jupyter:
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
   script:
-    - cd projects/vdk-plugins/
-    - echo "Release plugin $PLUGIN_NAME"
-    - cd vdk-jupyter/vdk-jupyterlab-extension/ || exit 1
-    - sed -ri "s/__version__ = \"([[:digit:]]\.[[:digit:]]\.).*\"$/__version__ = \"\1${VDK_PATCH_VERSION}\"/g" setup.py
+    - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ || exit 1
     - apk --no-cache add npm
     - apk add rust cargo
     - apk add libffi-dev
     - pip install jupyter
+    - hatch version 0.1.$VDK_PATCH_VERSION
     - pip install -U pip setuptools wheel twine pre-commit build
     - python -m build
     # provide the credentials as Gitlab variables
