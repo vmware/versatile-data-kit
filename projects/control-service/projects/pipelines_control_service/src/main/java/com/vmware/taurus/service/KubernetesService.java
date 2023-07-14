@@ -1704,7 +1704,7 @@ public abstract class KubernetesService {
     return cronjob;
   }
 
-  public V1CronJob v1CronJobFromTemplate(
+  V1CronJob v1CronJobFromTemplate(
       String name,
       String schedule,
       boolean suspend,
