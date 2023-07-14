@@ -49,6 +49,10 @@ public class DeploymentService {
     return jobImageDeployer.readScheduledJob(jobName);
   }
 
+  public Optional<JobDeploymentStatus> readOptionalDeployment(String jobName) {
+    return jobImageDeployer.readScheduledJob(jobName);
+  }
+
   public List<JobDeploymentStatus> readDeployments() {
     return jobImageDeployer.readScheduledJobs();
   }
