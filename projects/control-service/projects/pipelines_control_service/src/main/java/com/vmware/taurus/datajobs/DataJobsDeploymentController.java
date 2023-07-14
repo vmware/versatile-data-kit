@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -89,10 +88,10 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId and mode not implemented
       return ResponseEntity.ok(
-              deploymentService
-                      .readOptionalDeployment(jobName.toLowerCase())
-                      .map(s -> List.of(ToApiModelConverter.toDataJobDeploymentStatus(s)))
-                      .orElse(Collections.emptyList()));
+          deploymentService
+              .readOptionalDeployment(jobName.toLowerCase())
+              .map(s -> List.of(ToApiModelConverter.toDataJobDeploymentStatus(s)))
+              .orElse(Collections.emptyList()));
     }
     return ResponseEntity.notFound().build();
   }
