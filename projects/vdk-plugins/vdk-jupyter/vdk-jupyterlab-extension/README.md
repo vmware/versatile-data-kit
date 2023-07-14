@@ -50,6 +50,12 @@ the frontend extension, check the frontend extension is installed:
 jupyter labextension list
 ```
 
+If you are struggling with a particular aspect of the JupyterLab API,
+you can contact the Jupyter team in the following way: go to their repo
+(https://github.com/jupyterlab/jupyterlab), go to Issues, go to New issue,
+then click on Open in the "Chat with the devs" section, which will send you
+to a Gitter channel where you can ask your question.
+
 ## Contributing
 
 ### Development install
