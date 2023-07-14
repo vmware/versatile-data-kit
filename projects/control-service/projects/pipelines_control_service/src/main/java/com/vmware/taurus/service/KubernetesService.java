@@ -389,7 +389,7 @@ public abstract class KubernetesService {
   }
 
   public Optional<JobDeploymentStatus> readV1CronJob(String cronJobName) {
-    if(!k8sSupportsV1CronJob){
+    if (!k8sSupportsV1CronJob) {
       return Optional.empty();
     }
     log.debug("Reading k8s V1 cron job: {}", cronJobName);
