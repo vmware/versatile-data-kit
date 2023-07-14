@@ -49,7 +49,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const { commands } = app;
 
     updateVDKMenu(commands, docManager);
-    initVDKCell(notebookTracker);
+
+    notebookTracker.activeCellChanged.connect((sender, args) => {
+      initVDKCell(notebookTracker);
+    });
 
     const fileBrowser = factory.defaultBrowser;
     fileBrowser.model.pathChanged.connect(onPathChanged);

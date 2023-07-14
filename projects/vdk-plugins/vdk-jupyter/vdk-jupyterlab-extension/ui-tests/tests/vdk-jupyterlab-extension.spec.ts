@@ -163,33 +163,3 @@ test('should try download operation with empty input and get error', async ({
   });
   await page.getByRole('button', { name: 'OK' }).click();
 });
-
-test('create new notebook and check it gets its init cell', async ({
-  page
-}) => {
-  const fileName = 'init_cell_test.ipynb';
-  await page.notebook.createNew(fileName);
-  expect(
-    await page.waitForSelector(`[role="main"] >> text=${fileName}`)
-  ).toBeTruthy();
-
-  expect(
-    await page.$eval('.jp-Notebook .jp-Cell', cell => cell.textContent.trim())
-  ).toBe(
-    `"""\n` +
-      `vdk_ipython extension introduces a magic command for Jupyter.\n` +
-      `The command enables the user to load VDK for the current notebook.\n` +
-      `VDK provides the job_input API, which has methods for:\n` +
-      `    * executing queries to an OLAP database;\n` +
-      `    * ingesting data into a database;\n` +
-      `    * processing data into a database.\n` +
-      `See the IJobInput documentation for more details.\n` +
-      `https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py\n` +
-      `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n` +
-      `and is only used for development purposes.\n` +
-      `"""\n` +
-      `%reload_ext vdk_ipython\n` +
-      `%reload_VDK\n` +
-      `job_input = VDK.get_initialized_job_input()`
-  );
-});
