@@ -374,13 +374,13 @@ public abstract class KubernetesService {
     try {
       cronJob = batchV1beta1Api.readNamespacedCronJob(cronJobName, namespace, null);
     } catch (ApiException e) {
-      if(e.getCode()==404) {
+      if (e.getCode() == 404) {
         log.warn(
-                "Could not read cron job: {}; reason: {}",
-                cronJobName,
-                new KubernetesException("", e).toString());
+            "Could not read cron job: {}; reason: {}",
+            cronJobName,
+            new KubernetesException("", e).toString());
         return Optional.empty();
-      }else{
+      } else {
         throw new KubernetesException("", e);
       }
     }
@@ -394,13 +394,13 @@ public abstract class KubernetesService {
     try {
       cronJob = batchV1Api.readNamespacedCronJob(cronJobName, namespace, null);
     } catch (ApiException e) {
-      if(e.getCode()==404) {
+      if (e.getCode() == 404) {
         log.warn(
-                "Could not read cron job: {}; reason: {}",
-                cronJobName,
-                new KubernetesException("", e).toString());
+            "Could not read cron job: {}; reason: {}",
+            cronJobName,
+            new KubernetesException("", e).toString());
         return Optional.empty();
-      }else{
+      } else {
         throw new KubernetesException("", e);
       }
     }
