@@ -53,7 +53,7 @@ public class DataJobsDeploymentControllerTest {
   public void whenKubernetesIsUnavailableTheControlPlaneShouldReturnAnErrorInsteadOfSayingNoJobs()
       throws Exception {
     Mockito.doNothing().when(dataJobsKubernetesService).saveSecretData(any(), any());
-//   This exception encompasses random expcetions from k8s but also version incompatibility issues.
+//   This exception encompasses random exceptions from k8s but also version incompatibility issues.
     Mockito.when(batchV1Api.readNamespacedCronJob(Mockito.any(), Mockito.any(), Mockito.any()))
         .thenThrow(new ApiException("", null, 500, null, ""));
 
