@@ -331,8 +331,8 @@ public class KubernetesServiceTest {
             "default",
             false,
             new ApiClient(),
-            new BatchV1Api(),
-            new BatchV1beta1Api(),
+                Mockito.mock(BatchV1Api.class),
+                Mockito.mock(BatchV1beta1Api.class),
             new JobCommandProvider()));
   }
 
