@@ -31,3 +31,25 @@ build-vdk-jupyterlab-extension:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
         - "projects/vdk-plugins/vdk-jupyter/**/*"
+
+
+release-vdk-jupyter:
+  variables:
+    PLUGIN_NAME:
+  image: "python:3.10-alpine"
+  stage: release
+  before_script:
+    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
+  script:
+    - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ || exit 1
+    - apk --no-cache add npm rust cargo libffi-dev
+    - pip install -U pip setuptools wheel twine pre-commit build hatch jupyter
+    - hatch version 0.1.$VDK_PATCH_VERSION
+    - python -m build
+    - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/* --verbose
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - "projects/vdk-plugins/vdk-jupyter/**/*"

@@ -14,16 +14,13 @@ for the frontend extension.
 - Versatile Data Kit
 - npm
 
-## Install
-
-To install the extension,first navigate to the project directory and then execute:
+## Install and run
 
 ```bash
-# Once in the project directory, use the npm ci command to install
-# the exact versions of the dependencies specified in the package-lock.json
-npm ci
-# Install the extension
+# install the extension
 pip install vdk-jupyterlab-extension
+# run jupyterlab
+jupyter lab
 ```
 
 ## Uninstall
