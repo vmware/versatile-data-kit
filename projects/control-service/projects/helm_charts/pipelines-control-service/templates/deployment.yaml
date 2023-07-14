@@ -281,6 +281,8 @@ spec:
             - name: DATAJOBS_DEPLOYMENT_SUPPORTED_PYTHON_VERSIONS
               value: {{ .Values.deploymentSupportedPythonVersions | toJson | quote }}
             {{- end }}
+            - name: MAIL_SMTP_HOST
+              value: "{{ .Values.mail.smtp.host }}"
             {{- if .Values.mail.smtp.auth }}
             - name: MAIL_SMTP_AUTH
               value: "{{ .Values.mail.smtp.auth }}"

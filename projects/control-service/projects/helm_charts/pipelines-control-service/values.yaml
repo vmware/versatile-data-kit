@@ -1034,6 +1034,7 @@ mail:
     auth: false
     starttls:
       enable: false
+    host: ""
     user: ""
     password: ""
     ssl:
