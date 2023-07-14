@@ -6,7 +6,6 @@ project.ext {
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.11.1',
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.6',
-            'org.influxdb:influxdb-java'                                         : 'org.influxdb:influxdb-java:2.21',
             'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.6.0',
             'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.28',
             'com.h2database:h2'                                                  : 'com.h2database:h2:2.2.220',
