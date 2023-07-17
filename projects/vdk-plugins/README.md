@@ -129,7 +129,7 @@ Check out the [connection hook spec](../vdk-core/src/vdk/api/plugin/connection_h
 
 ### Data Ingestion Cycle
 
-Data engineers use one of the [IIngester](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py#L112) methods to send data for ingestion. The way data is ingested is controlled by different ingestion plugins which implement one of three possible methods (hooks) 
+Data engineers use one of the [IIngester](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py#L112) methods to send data for ingestion. The way data is ingested is controlled by different ingestion plugins which implement one of three possible methods (hooks)
 
 * **pre_ingest_process** - called before data is about to be ingested
 * **ingest_payload** - does the actual ingestion (sending the data to remote store)
@@ -141,7 +141,7 @@ Details about ingestion hooks that can be implemented [can be seen here](https:/
 
 You can see an example of [ingest plugin here](https://github.com/vmware/versatile-data-kit/blob/main/examples/ingest-and-anonymize-plugin/plugins/vdk-poc-anonymize/src/vdk/plugin/anonymize/anonymization_plugin.py)
 
-Ingestion hooks can be used for the following example use-cases (but not limited to them only): 
+Ingestion hooks can be used for the following example use-cases (but not limited to them only):
 
 * **Data Validation (pre_ingest_process):** Plugin validates incoming data against a predefined schema or rules. For example, it verifies if all necessary fields in sales data are present and correctly formatted.
 * **Data Transformation (pre_ingest_process):** Plugin transforms the data into the required format. For instance, it might convert product names to uppercase or generate new fields in sales data, or anonymize PII data.
