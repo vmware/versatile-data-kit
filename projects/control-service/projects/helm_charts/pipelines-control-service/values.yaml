@@ -573,7 +573,7 @@ database:
    ## Name of the secret which holds JDBC credentials. The chart will not attempt to create this, but will use it as is.
    ## The secret should contain keys: JDBC, USERNAME, PASSWORD
    externalSecretName: ""
-   ## Alternatively provide JDBC url, username and password. externalSecretName takes precendence if both are set.
+   ## Alternatively provide JDBC url, username and password. externalSecretName takes precedence if both are set.
    jdbcUrl: ""
    username: ""
    password: ""
@@ -1087,3 +1087,16 @@ alertmanager:
           value: ""
       receiver: "data-pipelines-receiver"
       repeatInterval: 30d
+
+# Vault integration configuration for storing Data Job Secrets
+# More information here: https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1493-vault-integration
+secrets:
+    vault:
+        enabled: false
+        ## Name of the secret which holds Vault URI and Token. The chart will not attempt to create this, but will use it as is.
+        ## The secret should contain keys: URI, TOKEN
+        externalSecretName: ""
+        ## Alternatively provide the uri and token here. externalSecretName takes precedence if both are set.
+        uri: "http://localhost:8200"
+        token: "root"
+        sizeLimitBytes: 1048576
