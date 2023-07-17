@@ -72,7 +72,7 @@ paths:
   '/data-jobs/for-team/{team_name}/jobs':
     get:
       operationId: jobsQuery
-      summary: List Data Jobs  | (Experimental)
+      summary: Query Data Jobs details using GraphQL
       tags:
         - Data Jobs
       description: |
@@ -666,7 +666,7 @@ paths:
         '404':
           $ref: '#/components/responses/Error'
       operationId: dataJobExecutionList
-      summary: Get Data Jobs (recent) executions. (Execution API is still experimental and must not be used in production) | (Experimental)
+      summary: Get Data Jobs (recent) executions.
       description: <i>(Introduced in v1.0)</i>
     parameters:
       -  name: team_name
@@ -701,7 +701,7 @@ paths:
         '404':
           $ref: '#/components/responses/Error'
       operationId: dataJobDeploymentExecutionList
-      summary: Get Data Jobs (recent) executions. | (Experimental)
+      summary: Get Data Jobs (recent) executions.
       description: <i>(Introduced in v1.0)</i>
       parameters:
         - name: execution_status
@@ -733,7 +733,7 @@ paths:
         '409':
           $ref: '#/components/responses/Error'
       operationId: dataJobExecutionStart
-      summary: Trigger Data Job Execution. | (Experimental)
+      summary: Trigger Data Job Execution.
       description: |
         <i>(Introduced in v1.0)</i> | Trigger new execution of a Data Job.
         If Data Job deployment is currently being executed it will return an error (409 Conflict).
@@ -770,7 +770,7 @@ paths:
         '404':
           $ref: '#/components/responses/Error'
       operationId: dataJobExecutionRead
-      summary: Get Data Job Execution details. | (Experimental)
+      summary: Get Data Job Execution details.
       description: <i>(Introduced in v1.0)</i>
     delete:
       tags:
@@ -781,7 +781,7 @@ paths:
         '404':
           $ref: '#/components/responses/Error'
       operationId: dataJobExecutionCancel
-      summary: Cancel (if running) Data Job Execution | (Experimental)
+      summary: Cancel (if running) Data Job Execution
       description: <i>(Introduced in v1.0)</i> | Cancel the execution of a Data Job with a given execution ID.
     parameters:
       -  name: team_name
@@ -819,7 +819,7 @@ paths:
       summary: |
           Download data job logs.
           This API is guranteed to provide logs only if the jobs is currently running.
-          For logs from older job executions - use logsUrl field passed by GET execution API or jobsQuery API. | (Experimental)
+          For logs from older job executions - use logsUrl field passed by GET execution API or jobsQuery API.
       description: <i>(Introduced in v1.2.9)</i>
       parameters:
         -  name: team_name
@@ -1634,7 +1634,7 @@ tags:
       Data job code/build - all python, SQL files, and requirements.txt of the data job.
       NOTE: deploymentID and mode are not implemented, so they are ignored."
   - name: "Data Jobs Execution"
-    description: (Experimental) | API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
+    description:  API for managing Data Job Execution. An instance of a running data job deployment is called an execution.
   - name: "Data Jobs Properties"
     description: "Any saved state or configuration of a Data Job. Those are tracked per deployment.
       NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet."
