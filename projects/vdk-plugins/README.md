@@ -141,7 +141,7 @@ Details about ingestion hooks [can be seen here](https://github.com/vmware/versa
 
 You can see an example of [an ingest plugin here](https://github.com/vmware/versatile-data-kit/blob/main/examples/ingest-and-anonymize-plugin/plugins/vdk-poc-anonymize/src/vdk/plugin/anonymize/anonymization_plugin.py)
 
-Ingestion hooks can be used for the following example use-cases (but not limited to them only):
+Ingestion hooks can be used for the following example use-cases (this is not an exhaustive list):
 
 * **Data Validation (pre_ingest_process):** Plugin validates incoming data against a predefined schema or rules. For example, it verifies if all necessary fields in sales data are present and correctly formatted.
 * **Data Transformation (pre_ingest_process):** Plugin transforms the data into the required format. For instance, it might convert product names to uppercase or generate new fields in sales data, or anonymize PII data.
