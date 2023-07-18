@@ -139,7 +139,7 @@ Data engineers use one of the [IIngester](https://github.com/vmware/versatile-da
 
 Details about ingestion hooks [can be seen here](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/plugin/plugin_input.py#L232).
 
-You can see an example of [ingest plugin here](https://github.com/vmware/versatile-data-kit/blob/main/examples/ingest-and-anonymize-plugin/plugins/vdk-poc-anonymize/src/vdk/plugin/anonymize/anonymization_plugin.py)
+You can see an example of [an ingest plugin here](https://github.com/vmware/versatile-data-kit/blob/main/examples/ingest-and-anonymize-plugin/plugins/vdk-poc-anonymize/src/vdk/plugin/anonymize/anonymization_plugin.py)
 
 Ingestion hooks can be used for the following example use-cases (but not limited to them only):
 
