@@ -137,7 +137,7 @@ Data engineers use one of the [IIngester](https://github.com/vmware/versatile-da
 
 [![vdk-ingest](https://github.com/vmware/versatile-data-kit/assets/2536458/a74582ef-eaaa-4693-91c4-41745212ad79)](https://www.plantuml.com/plantuml/uml/hPDFRzfC4CRl_XIZS843Yi8HnIWGb4DU3aYW5rMAP2tU0MzjppZxfnHL_UuTsm4KYvP3w-FCRsQUvrbuSbvP7yeYShcXIbbLWiFtW9GY_8X0lgcrV7ZcWYtC2fNcRJ7rR6TiDTfkQs5sk324DxfIs5iEf5lY2nO57nfaAOfCQYf5_igE3j1PiygFio9W5tjXybSjTEUdxq5Tkjsndr6awZhSpPLNyChREr0Evg_GQmQhoqMu-t_-7xn8ddXWcpTSNUcT57vYbqNO6uBl3mstVBY1ZLfiz6TiZiuRKjumjVpwmclHlrKEFvmiL8xt6sKnu-3m_etMcR5wM6yz0fAks91llIusqDjankEgv1oZICmF9usrCJX14zv-nTGdExQ9eJsw-dw_H9-nZlL5qY2AOvYw8wMPPPApq1VDs_DxWCyiAkq64CTHHEmH-1lQZqlF6QQv0pa2LUFMGSgqC_jWKOEXDtfyRAydbJeMh7HIMQmif-XSSlg5JoQHhAlrI-HZ428v3RLaVt06Hhy3_a9QcqgYSQT2uISJa9cs1hj0QHqJDFz9z6ZFIjPovBCtKI7LeJJbUSQmmYO-XFgL0KwzLjuqpOaF1UezbaZ-doJBpj-ALf0RsLubOlcY9_4Jok8N)
 
-Details about ingestion hooks that can be implemented [can be seen here](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/plugin/plugin_input.py#L232).
+Details about ingestion hooks [can be seen here](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/plugin/plugin_input.py#L232).
 
 You can see an example of [ingest plugin here](https://github.com/vmware/versatile-data-kit/blob/main/examples/ingest-and-anonymize-plugin/plugins/vdk-poc-anonymize/src/vdk/plugin/anonymize/anonymization_plugin.py)
 
