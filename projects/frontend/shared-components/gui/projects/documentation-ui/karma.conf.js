@@ -10,14 +10,7 @@ module.exports = function (config) {
     config.set({
         basePath: '',
         frameworks: ['jasmine', '@angular-devkit/build-angular'],
-        plugins: [
-            require('karma-jasmine'),
-            require('karma-chrome-launcher'),
-            require('karma-jasmine-html-reporter'),
-            require('karma-junit-reporter'),
-            require('karma-coverage'),
-            require('@angular-devkit/build-angular/plugins/karma')
-        ],
+        plugins: [require('karma-jasmine'), require('karma-chrome-launcher'), require('karma-jasmine-html-reporter'), require('karma-junit-reporter'), require('karma-coverage'), require('@angular-devkit/build-angular/plugins/karma')],
         client: {
             jasmine: {
                 // you can add configuration options for Jasmine here
@@ -28,10 +21,7 @@ module.exports = function (config) {
             clearContext: false // leave Jasmine Spec Runner output visible in browser
         },
         coverageReporter: {
-            dir: require('path').join(
-                __dirname,
-                '../../reports/coverage/documentation-ui'
-            ),
+            dir: require('path').join(__dirname, '../../reports/coverage/documentation-ui'),
             subdir: '.',
             reporters: [
                 //Code coverage - output only in HTML file
@@ -49,10 +39,7 @@ module.exports = function (config) {
             suppressAll: true // removes the duplicated traces
         },
         junitReporter: {
-            outputDir: require('path').join(
-                __dirname,
-                '../../reports/test-results/documentation-ui'
-            ),
+            outputDir: require('path').join(__dirname, '../../reports/test-results/documentation-ui'),
             outputFile: 'unit-tests.xml',
             useBrowserName: false
         },
