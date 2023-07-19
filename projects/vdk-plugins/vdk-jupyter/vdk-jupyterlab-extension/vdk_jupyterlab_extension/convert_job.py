@@ -36,7 +36,7 @@ class DirectoryArchiver:
         shutil.make_archive(self.get_archive_name(), 'zip', self._dir_path)
 
 
-class TransformJobDirectoryProcessor:
+class ConvertJobDirectoryProcessor:
     """
     The TransformJobDirectoryProcessor class provides functionality to process a directory,
     archiving it, and storing specific file contents into a structured list.

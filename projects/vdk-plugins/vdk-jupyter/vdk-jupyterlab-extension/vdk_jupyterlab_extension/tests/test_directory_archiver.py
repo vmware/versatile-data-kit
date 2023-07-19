@@ -1,12 +1,11 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 import os
 import shutil
 import tempfile
 import unittest
 
-from vdk_jupyterlab_extension.transform_job import DirectoryArchiver
+from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
 
 
 class TestDirectoryArchiver(unittest.TestCase):
