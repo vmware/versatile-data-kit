@@ -68,7 +68,8 @@ public class JobImageBuilderTest {
   @BeforeEach
   public void setUp() {
     ReflectionTestUtils.setField(jobImageBuilder, "dockerRepositoryUrl", "test-docker-repository");
-    ReflectionTestUtils.setField(jobImageBuilder, "registryType", "ecr");
+    ReflectionTestUtils.setField(jobImageBuilder, "gitDataJobsBranch", "branch");
+    ReflectionTestUtils.setField(jobImageBuilder, "registryType", "generic");
     ReflectionTestUtils.setField(jobImageBuilder, "builderJobExtraArgs", "");
 
     when(awsCredentialsService.createTemporaryCredentials())
