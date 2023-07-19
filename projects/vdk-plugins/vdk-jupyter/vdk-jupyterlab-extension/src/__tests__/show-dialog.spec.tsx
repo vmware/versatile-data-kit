@@ -11,7 +11,6 @@ import DeployJobDialog, {
   showCreateDeploymentDialog
 } from '../components/DeployJob';
 import CreateJobDialog, { showCreateJobDialog } from '../components/CreateJob';
-import DeleteJobDialog, { showDeleteJobDialog } from '../components/DeleteJob';
 import { VdkErrorMessage } from '../components/VdkErrorMessage';
 
 // Mock the showDialog function
@@ -198,68 +197,5 @@ describe('showCreateJobDialog', () => {
     await showCreateJobDialog();
 
     expect(jobRequest).toHaveBeenCalledWith('create');
-  });
-});
-
-describe('showDeleteJobDialog', () => {
-  jobData.set(VdkOption.PATH, 'my-job');
-  jobData.set(VdkOption.NAME, 'my-team');
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should delete the job when the user confirms', async () => {
-    const showDialogMock = showDialog as jest.MockedFunction<typeof showDialog>;
-    const jobRequestMock = jobRequest as jest.MockedFunction<typeof jobRequest>;
-    const acceptResult = { button: { accept: true } };
-    const confirmResult = { button: { accept: true } };
-
-    // Mock the first dialog
-    (showDialogMock as jest.Mock).mockResolvedValueOnce(acceptResult);
-
-    // Mock the second dialog
-    (showDialogMock as jest.Mock).mockResolvedValueOnce(confirmResult);
-
-    // Call the function
-    await showDeleteJobDialog();
-
-    // Check the results
-    expect(showDialogMock).toHaveBeenCalledWith({
-      title: 'Delete Job',
-      body: (
-        <DeleteJobDialog
-          jobName={jobData.get(VdkOption.NAME)!}
-          jobTeam={jobData.get(VdkOption.TEAM)!}
-        ></DeleteJobDialog>
-      ),
-      buttons: [Dialog.okButton(), Dialog.cancelButton()]
-    });
-    expect(jobRequestMock).toHaveBeenCalledWith('delete');
-  });
-
-  it('should not delete the job when the user does not confirm', async () => {
-    const showDialogMock = showDialog as jest.MockedFunction<typeof showDialog>;
-    const jobRequestMock = jobRequest as jest.MockedFunction<typeof jobRequest>;
-    const refuseResult = { button: { accept: false } };
-
-    // Mock the first dialog
-    (showDialogMock as jest.Mock).mockResolvedValueOnce(refuseResult);
-
-    // Call the function
-    await showDeleteJobDialog();
-
-    // Check the results
-    expect(showDialogMock).toHaveBeenCalledWith({
-      title: 'Delete Job',
-      body: (
-        <DeleteJobDialog
-          jobName={jobData.get(VdkOption.NAME)!}
-          jobTeam={jobData.get(VdkOption.TEAM)!}
-        ></DeleteJobDialog>
-      ),
-      buttons: [Dialog.okButton(), Dialog.cancelButton()]
-    });
-    expect(jobRequestMock).toHaveBeenCalledTimes(0);
   });
 });

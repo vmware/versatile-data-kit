@@ -19,9 +19,6 @@
             "command": "jp-vdk:menu-create"
           },
           {
-            "command": "jp-vdk:menu-delete"
-          },
-          {
             "command": "jp-vdk:menu-download"
           },
           {
