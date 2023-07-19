@@ -6,7 +6,6 @@ import { showCreateDeploymentDialog } from './components/DeployJob';
 import { showCreateJobDialog } from './components/CreateJob';
 import { showDownloadJobDialog } from './components/DownloadJob';
 import { showConvertJobToNotebookDialog } from './components/ConvertJobToNotebook';
-import { showDeleteJobDialog } from './components/DeleteJob';
 import { jobdDataRequest } from './serverRequests';
 import { VdkOption } from './vdkOptions/vdk_options';
 import { workingDirectory } from '.';
@@ -20,9 +19,6 @@ export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentMa
 
   // Add Create job command
   add_command(commands, 'jp-vdk:menu-create','Create','Execute VDK Create Command', showCreateJobDialog);
-
-  // Add Delete job command
-  add_command(commands, 'jp-vdk:menu-delete','Delete','Execute VDK Delete Command', showDeleteJobDialog);
 
   // Add Download job command
   add_command(commands, 'jp-vdk:menu-download','Download','Execute VDK Download Command', showDownloadJobDialog);

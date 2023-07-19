@@ -68,26 +68,6 @@ class RunJobHandler(APIHandler):
         self.finish(json.dumps(run_result))
 
 
-class DeleteJobHandler(APIHandler):
-    """
-    Class responsible for handling POST request for deleting a Data Job given its name, team and Rest API URL
-    Response: return a json formatted str including:
-        ::error field with error message if an error exists
-        ::message field with status of the Vdk operation
-    """
-
-    @tornado.web.authenticated
-    def post(self):
-        input_data = self.get_json_body()
-        try:
-            status = VdkUI.delete_job(
-                input_data[VdkOption.NAME.value], input_data[VdkOption.TEAM.value]
-            )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
-
-
 class DownloadJobHandler(APIHandler):
     """
     Class responsible for handling POST request for downloading a Data Job given its name, team,
@@ -204,7 +184,6 @@ def setup_handlers(web_app):
         web_app.add_handlers(host_pattern, job_handlers)
 
     add_handler(RunJobHandler, "run")
-    add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")
     add_handler(ConvertJobToNotebookHandler, "convertJobToNotebook")
     add_handler(CreateJobHandler, "create")
