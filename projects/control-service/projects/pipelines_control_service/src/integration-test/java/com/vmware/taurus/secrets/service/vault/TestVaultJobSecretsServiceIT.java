@@ -39,104 +39,123 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = ControlplaneApplication.class)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ControlplaneApplication.class)
 @Testcontainers
 public class TestVaultJobSecretsServiceIT extends BaseIT {
 
+  @Container
+  private static final VaultContainer vaultContainer =
+      new VaultContainer<>("vault:1.13.3").withVaultToken("root");
 
-    @Container
-    private static final VaultContainer vaultContainer =
-            new VaultContainer<>("vault:1.13.3").withVaultToken("root");
+  private static VaultJobSecretsService vaultJobSecretService;
 
-    private static VaultJobSecretsService vaultJobSecretService;
+  @BeforeAll
+  public static void init() throws URISyntaxException, IOException, InterruptedException {
+    String vaultUri = vaultContainer.getHttpHostAddress();
 
-    @BeforeAll
-    public static void init() throws URISyntaxException, IOException, InterruptedException {
-        String vaultUri = vaultContainer.getHttpHostAddress();
+    // Setup vault app roles authentication
+    // https://developer.hashicorp.com/vault/tutorials/auth-methods/approle
+    // enable AppRoles
+    vaultContainer.execInContainer("vault", "auth", "enable", "approle");
 
-        // Setup vault app roles authentication https://developer.hashicorp.com/vault/tutorials/auth-methods/approle
-        // enable AppRoles
-        vaultContainer.execInContainer("vault", "auth", "enable", "approle");
+    // Create a new test policy via rest as there's no good way to do it via the command mechanism
+    HttpClient httpClient = HttpClients.createDefault();
+    HttpPost httpPost = new HttpPost(vaultUri + "/v1/sys/policies/acl/testpolicy");
+    httpPost.setHeader("X-Vault-Token", "root");
+    StringEntity requestBody =
+        new StringEntity(
+            "{\n"
+                + "  \"policy\": \"path \\\"secret/*\\\" {\\n"
+                + "  capabilities = [ \\\"create\\\", \\\"read\\\",\\\"update\\\", \\\"patch\\\","
+                + " \\\"delete\\\",\\\"list\\\" ]\\n"
+                + "}\"\n"
+                + "}");
+    httpPost.setEntity(requestBody);
+    HttpResponse response = httpClient.execute(httpPost);
 
-        // Create a new test policy via rest as there's no good way to do it via the command mechanism
-        HttpClient httpClient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(vaultUri + "/v1/sys/policies/acl/testpolicy");
-        httpPost.setHeader("X-Vault-Token", "root");
-        StringEntity requestBody = new StringEntity("{\n" +
-                "  \"policy\": \"path \\\"secret/*\\\" {\\n  capabilities = [ \\\"create\\\", \\\"read\\\",\\\"update\\\", \\\"patch\\\", \\\"delete\\\",\\\"list\\\" ]\\n}\"\n" +
-                "}");
-        httpPost.setEntity(requestBody);
-        HttpResponse response = httpClient.execute(httpPost);
+    // create "test" role with the policy
+    vaultContainer.execInContainer(
+        "vault",
+        "write",
+        "auth/approle/role/test",
+        "token_policies=testpolicy",
+        "token_ttl=1h",
+        "token_max_ttl=4h");
+    // get the role id
+    org.testcontainers.containers.Container.ExecResult execResult =
+        vaultContainer.execInContainer(
+            "vault", "read", "auth/approle/role/test/role-id"); // read the role-id
+    String output = execResult.getStdout();
+    String roleId = output.substring(output.lastIndexOf(" ")).trim();
 
-        // create "test" role with the policy
-        vaultContainer.execInContainer("vault", "write", "auth/approle/role/test", "token_policies=testpolicy", "token_ttl=1h","token_max_ttl=4h");
-        // get the role id
-        org.testcontainers.containers.Container.ExecResult execResult = vaultContainer.execInContainer("vault", "read", "auth/approle/role/test/role-id"); // read the role-id
-        String output = execResult.getStdout();
-        String roleId = output.substring(output.lastIndexOf(" ")).trim();
+    // get the role secret id
+    execResult =
+        vaultContainer.execInContainer(
+            "vault", "write", "-force", "auth/approle/role/test/secret-id"); // read the secret-id
+    output = execResult.getStdout();
+    String secretId =
+        output
+            .substring(output.indexOf("secret_id") + 9, output.indexOf("secret_id_accessor"))
+            .trim();
+    VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri + "/v1/"));
 
-        // get the role secret id
-        execResult = vaultContainer.execInContainer("vault", "write", "-force", "auth/approle/role/test/secret-id"); // read the secret-id
-        output = execResult.getStdout();
-        String secretId = output.substring(output.indexOf("secret_id") + 9, output.indexOf("secret_id_accessor")).trim();
-        VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri + "/v1/"));
+    // create the authentication
+    AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
+        AppRoleAuthenticationOptions.builder()
+            .roleId(AppRoleAuthenticationOptions.RoleId.provided(roleId))
+            .secretId(AppRoleAuthenticationOptions.SecretId.provided(secretId));
 
-        // create the authentication
-        AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder = AppRoleAuthenticationOptions
-                .builder()
-                .roleId(AppRoleAuthenticationOptions.RoleId.provided(roleId))
-                .secretId(AppRoleAuthenticationOptions.SecretId.provided(secretId));
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri + "/v1/"));
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri + "/v1/"));
+    AppRoleAuthentication clientAuthentication =
+        new AppRoleAuthentication(builder.build(), restTemplate);
 
-        AppRoleAuthentication clientAuthentication = new AppRoleAuthentication(builder.build(), restTemplate);
+    VaultTemplate vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
+    vaultJobSecretService = new VaultJobSecretsService(vaultTemplate);
+  }
 
-        VaultTemplate vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
-        vaultJobSecretService = new VaultJobSecretsService(vaultTemplate);
-    }
+  @Test
+  public void testGetEmptyDataJobSecrets() throws Exception {
+    Map<String, Object> result = vaultJobSecretService.readJobSecrets("testJob");
+    Assertions.assertEquals(Collections.emptyMap(), result);
+  }
 
-    @Test
-    public void testGetEmptyDataJobSecrets() throws Exception {
-        Map<String, Object> result = vaultJobSecretService.readJobSecrets("testJob");
-        Assertions.assertEquals(Collections.emptyMap(), result);
-    }
+  @Test
+  public void testSetDataJobSecrets() throws Exception {
+    Map<String, Object> temp = new HashMap<>();
+    temp.put("key1", "value1");
 
-    @Test
-    public void testSetDataJobSecrets() throws Exception {
-        Map<String, Object> temp = new HashMap<>();
-        temp.put("key1", "value1");
+    Map<String, Object> secrets = Collections.unmodifiableMap(temp);
 
-        Map<String, Object> secrets = Collections.unmodifiableMap(temp);
+    vaultJobSecretService.updateJobSecrets("testJob2", secrets);
 
-        vaultJobSecretService.updateJobSecrets("testJob2", secrets);
+    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
+    Assertions.assertEquals(secrets, readResult);
+  }
 
-        Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
-        Assertions.assertEquals(secrets, readResult);
-    }
+  @Test
+  void testUpdateJobSecretsLimit() throws JsonProcessingException {
+    Map<String, Object> temp = new HashMap<>();
+    temp.put("key1", "value1");
 
-    @Test
-    void testUpdateJobSecretsLimit() throws JsonProcessingException {
-        Map<String, Object> temp = new HashMap<>();
-        temp.put("key1", "value1");
+    Map<String, Object> secrets = Collections.unmodifiableMap(temp);
 
-        Map<String, Object> secrets = Collections.unmodifiableMap(temp);
+    vaultJobSecretService.updateJobSecrets("testJob2", secrets);
 
-        vaultJobSecretService.updateJobSecrets("testJob2", secrets);
+    Map<String, Object> largeSecrets = new HashMap<>();
+    largeSecrets.put("key1", null);
+    largeSecrets.put(
+        "key2",
+        RandomStringUtils.randomAlphabetic(VaultJobSecretsService.VAULT_SIZE_LIMIT_DEFAULT));
 
-        Map<String, Object> largeSecrets = new HashMap<>();
-        largeSecrets.put("key1", null);
-        largeSecrets.put(
-                "key2",
-                RandomStringUtils.randomAlphabetic(VaultJobSecretsService.VAULT_SIZE_LIMIT_DEFAULT));
+    assertThrows(
+        DataJobSecretsSizeLimitException.class,
+        () -> vaultJobSecretService.updateJobSecrets("testJob2", largeSecrets));
 
-        assertThrows(
-                DataJobSecretsSizeLimitException.class,
-                () -> vaultJobSecretService.updateJobSecrets("testJob2", largeSecrets));
-
-        // check secrets were not updated
-        Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
-        Assertions.assertEquals(secrets, readResult);
-    }
+    // check secrets were not updated
+    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
+    Assertions.assertEquals(secrets, readResult);
+  }
 }

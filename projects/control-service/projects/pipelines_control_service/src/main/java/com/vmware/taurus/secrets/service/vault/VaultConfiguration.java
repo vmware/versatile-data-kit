@@ -28,44 +28,46 @@ import java.net.URISyntaxException;
 @Configuration
 public class VaultConfiguration extends AbstractVaultConfiguration {
 
-    @Value("${vdk.vault.uri:}")
-    String vaultUri;
-    @Value("${vdk.vault.approle.roleid:}")
-    String roleId;
-    @Value("${vdk.vault.approle.secretid:}")
-    String secretId;
+  @Value("${vdk.vault.uri:}")
+  String vaultUri;
 
-    @Bean
-    public VaultOperations vaultOperations(VaultEndpoint vaultEndpoint, SessionManager sessionManager) {
+  @Value("${vdk.vault.approle.roleid:}")
+  String roleId;
 
-        SimpleClientHttpRequestFactory clientHttpRequestFactory = new SimpleClientHttpRequestFactory();
-        return new VaultTemplate(vaultEndpoint, clientHttpRequestFactory, sessionManager);
+  @Value("${vdk.vault.approle.secretid:}")
+  String secretId;
+
+  @Bean
+  public VaultOperations vaultOperations(
+      VaultEndpoint vaultEndpoint, SessionManager sessionManager) {
+
+    SimpleClientHttpRequestFactory clientHttpRequestFactory = new SimpleClientHttpRequestFactory();
+    return new VaultTemplate(vaultEndpoint, clientHttpRequestFactory, sessionManager);
+  }
+
+  @NotNull
+  @Override
+  @Bean
+  public VaultEndpoint vaultEndpoint() {
+    try {
+      return VaultEndpoint.from(new URI(this.vaultUri));
+    } catch (URISyntaxException e) {
+      throw new SecretStorageNotConfiguredException();
     }
+  }
 
-    @NotNull
-    @Override
-    @Bean
-    public VaultEndpoint vaultEndpoint() {
-        try {
-            return VaultEndpoint.from(new URI(this.vaultUri));
-        } catch (URISyntaxException e) {
-            throw new SecretStorageNotConfiguredException();
-        }
-    }
+  @NotNull
+  @Override
+  @Bean
+  public ClientAuthentication clientAuthentication() {
+    AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
+        AppRoleAuthenticationOptions.builder()
+            .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
+            .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
 
-    @NotNull
-    @Override
-    @Bean
-    public ClientAuthentication clientAuthentication() {
-        AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder = AppRoleAuthenticationOptions
-                .builder()
-                .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
-                .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri));
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri));
-
-
-        return new AppRoleAuthentication(builder.build(), restTemplate);
-    }
+    return new AppRoleAuthentication(builder.build(), restTemplate);
+  }
 }
