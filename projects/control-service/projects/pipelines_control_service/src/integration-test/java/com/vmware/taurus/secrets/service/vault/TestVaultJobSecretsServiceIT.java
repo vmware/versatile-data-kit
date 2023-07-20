@@ -72,7 +72,7 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
                 + "}\"\n"
                 + "}");
     httpPost.setEntity(requestBody);
-    HttpResponse response = httpClient.execute(httpPost);
+    httpClient.execute(httpPost);
 
     // create "test" role with the policy
     vaultContainer.execInContainer(
