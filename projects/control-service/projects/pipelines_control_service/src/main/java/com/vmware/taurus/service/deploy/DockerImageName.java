@@ -48,12 +48,14 @@ public class DockerImageName {
   /**
    * Extracts the image path from a given container URL.
    *
-   * The method takes a container URL string in the format [hostName]/[imagePath]:[tag] and returns
-   * the image path. This includes the namespace and image name but excludes the host and the tag.
-   * If no tag is present in the URL, the method will return the full image path.
+   * <p>The method takes a container URL string in the format [hostName]/[imagePath]:[tag] and
+   * returns the image path. This includes the namespace and image name but excludes the host and
+   * the tag. If no tag is present in the URL, the method will return the full image path.
    *
-   * @param containerURL A string representing the container URL. Should be in the format [hostName]/[imageName]:[tag].
-   * @return A string representing the image path (i.e., namespace and image name) from the container URL.
+   * @param containerURL A string representing the container URL. Should be in the format
+   *     [hostName]/[imageName]:[tag].
+   * @return A string representing the image path (i.e., namespace and image name) from the
+   *     container URL.
    */
   public static String getImagePath(String containerURL) {
     String imageName = containerURL;

@@ -24,16 +24,12 @@ public class DockerImageNameTest {
 
   @Test
   void testUpdateImageWithTag() {
-    assertEquals(
-        "domain:5000/name:tag2",
-        updateImageWithTag("domain:5000/name:tag", "tag2"));
+    assertEquals("domain:5000/name:tag2", updateImageWithTag("domain:5000/name:tag", "tag2"));
     assertEquals("name:v5", updateImageWithTag("name:v1.0.1", "v5"));
-    assertEquals(
-        "foo.bar/name:v6", updateImageWithTag("foo.bar/name:v1.0.2", "v6"));
+    assertEquals("foo.bar/name:v6", updateImageWithTag("foo.bar/name:v1.0.2", "v6"));
 
     assertEquals("name:tag", updateImageWithTag("name", "tag"));
-    assertEquals(
-        "domain:5000/name:tag", updateImageWithTag("domain:5000/name", "tag"));
+    assertEquals("domain:5000/name:tag", updateImageWithTag("domain:5000/name", "tag"));
   }
 
   @Test
@@ -41,8 +37,9 @@ public class DockerImageNameTest {
     assertEquals("alpine", getImagePath("alpine:latest"));
     assertEquals("image", getImagePath("gcr.io/image:latest"));
     assertEquals("project/another-image", getImagePath("gcr.io/project/another-image:1.0.0"));
-    assertEquals("namespace/subnamespace/image",
-            getImagePath("registry.com/namespace/subnamespace/image:tag"));
+    assertEquals(
+        "namespace/subnamespace/image",
+        getImagePath("registry.com/namespace/subnamespace/image:tag"));
   }
 
   @Test
@@ -52,7 +49,7 @@ public class DockerImageNameTest {
 
   @Test
   public void testGetImageNameWithPortInURL() {
-    assertEquals("my-namespace/my-image", getImagePath("localhost:5000/my-namespace/my-image:latest"));
+    assertEquals(
+        "my-namespace/my-image", getImagePath("localhost:5000/my-namespace/my-image:latest"));
   }
-
 }

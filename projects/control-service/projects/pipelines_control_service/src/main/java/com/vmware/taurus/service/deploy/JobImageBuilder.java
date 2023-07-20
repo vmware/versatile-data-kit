@@ -167,10 +167,8 @@ public class JobImageBuilder {
 
     if (REGISTRY_TYPE_ECR.equalsIgnoreCase(registryType)) {
       ecrRegistryInterface.createRepository(
-              DockerImageName.getImagePath(dockerRepositoryUrl)
-                      + "/"
-                      + dataJob.getName(),
-              awsCredentialsService.createTemporaryCredentials());
+          DockerImageName.getImagePath(dockerRepositoryUrl) + "/" + dataJob.getName(),
+          awsCredentialsService.createTemporaryCredentials());
     }
 
     var args =

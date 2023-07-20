@@ -117,9 +117,10 @@ public class EcrRegistryInterface {
    * Creates a repository in Amazon ECR with the provided repository name. If a repository with the
    * same name already exists, then nothing happens and operation succeeds.
    *
-   * @param repositoryName the name of the repository to be created. This is without the registry part of URI:
-   *                       e.g. if full URL is aws_account_id.dkr.ecr.us-west-2.amazonaws.com/my-ns/my-repository:tag ,
-   *                       the repository name is "my-ns/my-repository"
+   * @param repositoryName the name of the repository to be created. This is without the registry
+   *     part of URI: e.g. if full URL is
+   *     aws_account_id.dkr.ecr.us-west-2.amazonaws.com/my-ns/my-repository:tag , the repository
+   *     name is "my-ns/my-repository"
    * @param awsCredentialsDTO the DTO containing AWS credentials information
    * @throws ExternalSystemError if other exception occurs during repository creation with container
    *     registry
