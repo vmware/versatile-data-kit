@@ -29,6 +29,16 @@ If you wish to contribute code, you must sign the [contributor license agreement
 # Open Development
 All contributors follow GitHub’s pull request (PR) workflow to submit changes. Before merging, all pull requests require two approvals.
 
+# Structure of the repository
+
+Our repository is organized as a monorepo, meaning it houses multiple [projects](https://github.com/vmware/versatile-data-kit/tree/main/projects) and [plugins](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins) within the same repository.
+
+You can find each [individual project](https://github.com/vmware/versatile-data-kit/tree/main/projects) and [plugin](https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins) located in their respective directories.
+The design of our monorepo allows for each project and plugin to be developed independently.
+
+What this means for your workflow is that when you want to work on a specific project or plugin, you only need to load that particular one into your IDE, rather than the entire monorepo.
+This should make it easier to focus on your specific task without getting lost in the entire codebase.
+
 # Semantic Versioning
 VDK follows semantic versioning standards as part of https://semver.org/.
 
