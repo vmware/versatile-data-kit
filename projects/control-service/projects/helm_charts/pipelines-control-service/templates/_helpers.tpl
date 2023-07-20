@@ -184,7 +184,8 @@ Generate default Vault configuration.
 */}}
 {{- define "pipelines-control-service.vaultSecret" -}}
 URI: {{ default "http://localhost:8200" .Values.secrets.vault.uri | b64enc | quote }}
-TOKEN: {{ default "root" .Values.secrets.vault.token | b64enc | quote }}
+ROLEID: {{ default "root" .Values.secrets.vault.approle.roleid | b64enc | quote }}
+SECRETID: {{ default "root" .Values.secrets.vault.approle.secretid | b64enc | quote }}
 {{- end -}}
 
 {{/*
