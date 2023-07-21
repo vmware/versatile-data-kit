@@ -8,7 +8,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 /**
  * This func adds a cell with the necessary commands to enable VDK for a Jupyter notebook
  */
-export function initVDKCell(notebookTracker: INotebookTracker) {
+export function initVDKConfigCell(notebookTracker: INotebookTracker) {
   const notebookPanel = notebookTracker.currentWidget;
   if (notebookPanel) {
     const initCell =
