@@ -1,10 +1,16 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
+from typing import List
+from typing import Optional
+
 from vdk.plugin.control_api_auth.auth_config import InMemAuthConfiguration
 from vdk.plugin.control_api_auth.auth_exception import VDKInvalidAuthParamError
 from vdk.plugin.control_api_auth.autorization_code_auth import RedirectAuthentication
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
 from vdk.plugin.control_api_auth.login_types import LoginTypes
+
+log = logging.getLogger(__name__)
 
 
 class Authentication:
@@ -21,6 +27,7 @@ class Authentication:
         auth_discovery_url: str = None,
         auth_type: str = None,
         cache_locally: bool = False,
+        possible_jwt_user_keys=None,
     ):
         """
         :param username: A user's username in case basic authentication is used.
@@ -45,6 +52,9 @@ class Authentication:
         :param cache_locally:
             A flag, indicating if credentials should be cached locally (in a
             file).
+        :param possible_jwt_user_keys:
+            Used by get_authenticated_username to try to discover correct username if OAuth2 and JWT token is used.
+            Defaults to some common user keys.
         """
         self._username = username
         self._password = password
@@ -59,6 +69,15 @@ class Authentication:
             self._auth = BaseAuth()
         else:
             self._auth = BaseAuth(conf=InMemAuthConfiguration())
+        if possible_jwt_user_keys:
+            self._possible_jwt_user_keys = possible_jwt_user_keys
+        else:  # sensible defaults
+            self._possible_jwt_user_keys = [
+                "username",
+                "acct",
+                "preferred_username",
+                "email",
+            ]
 
     def authenticate(self) -> None:
         if not self._auth_type:
@@ -89,6 +108,38 @@ class Authentication:
                 consequence="Authentication is not possible.",
                 countermeasure="Provide a valid auth_type.",
             )
+
+    def get_authenticated_username(self) -> Optional[str]:
+        """
+        Extract user name about currently authenticated user.
+        It tries to get username or if not available user email or if that fails some user id.
+        The reponse format should not be relied upon, it's meant to be used for logging and telemetry.
+        """
+        if self._username:
+            return self._username
+
+        if not self._token:
+            self._token = self.read_access_token()
+        if not self._token:
+            return None
+
+        try:
+            import jwt
+
+            jwt_payload = jwt.decode(self._token, options={"verify_signature": False})
+            if not jwt_payload:
+                return None
+
+            for key in self._possible_jwt_user_keys:
+                user_id = jwt_payload.get(key)
+                if user_id:
+                    return user_id
+
+        except Exception:
+            log.debug(
+                f"Could not to extract user information from the token.", exc_info=True
+            )
+            return None
 
     def read_access_token(self):
         """Read access token from cache."""
