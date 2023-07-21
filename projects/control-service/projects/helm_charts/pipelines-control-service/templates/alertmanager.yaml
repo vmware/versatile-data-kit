@@ -1,0 +1,25 @@
+{{- /*
+  Copyright 2021-2023 VMware, Inc.
+  SPDX-License-Identifier: Apache-2.0
+ */}}
+
+{{- if .Values.alertmanager.enabled }}
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  labels: {{- include "pipelines-control-service.labels" . | nindent 4 }}
+    {{- range $key, $value := .Values.alertmanager.metadata.labels }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  name: {{ .Values.alertmanager.metadata.name }}
+  namespace: {{ .Values.alertmanager.metadata.namespace }}
+spec:
+  receivers:
+    - emailConfigs: {{ toYaml (index .Values.alertmanager.spec.receivers 0).emailConfigs | nindent 8 }}
+          authPassword:
+            key: authPassword
+            name: {{ .Values.alertmanager.authentication.secretName }}
+            optional: true
+      name: {{ (index .Values.alertmanager.spec.receivers 0).name }}
+  route: {{ toYaml .Values.alertmanager.spec.route | nindent 6 }}
+{{- end }}

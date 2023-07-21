@@ -9,6 +9,8 @@
 # lints them to verify format, builds the UI application and runs the unit tests.
 ###
 
+shared_version=$1
+
 if ! which npm >/dev/null 2>&1 ; then
   echo "ERROR:"
   echo "Please install npm 8.5.5+. Install cannot continue without it."
@@ -26,8 +28,14 @@ rm -f "package-lock.json"
 shared_dist_dir="../../shared-components/gui/dist/shared"
 if [ -d "$shared_dist_dir" ]
 then
-  echo "Linking the shared-components dist rebuild found..."
-  npm link "$shared_dist_dir"
+  if [ -n "$shared_version" ]
+  then
+    echo "Installing the latest shared-components rc-version"
+    npm install --no-save "@versatiledatakit/shared@$shared_version"
+  else
+    echo "Linking the shared-components dist rebuild found..."
+    npm link "$shared_dist_dir"
+  fi
 else
   echo "No shared-components dist rebuild found."
 fi

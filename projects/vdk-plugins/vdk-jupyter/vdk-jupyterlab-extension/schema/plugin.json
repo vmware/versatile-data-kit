@@ -19,10 +19,10 @@
             "command": "jp-vdk:menu-create"
           },
           {
-            "command": "jp-vdk:menu-delete"
+            "command": "jp-vdk:menu-download"
           },
           {
-            "command": "jp-vdk:menu-download"
+            "command": "jp-vdk:menu-convert-job-to-notebook"
           },
           {
             "command": "jp-vdk:menu-create-deployment"

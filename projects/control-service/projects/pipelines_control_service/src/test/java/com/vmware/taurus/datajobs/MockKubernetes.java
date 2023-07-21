@@ -44,7 +44,7 @@ public class MockKubernetes {
   public DataJobsKubernetesService mockDataJobsKubernetesService()
       throws ApiException, IOException, InterruptedException {
     DataJobsKubernetesService mock = mock(DataJobsKubernetesService.class);
-    mockKubernetesService(mock);
+    mockDataJobsKubernetesService(mock);
     return mock;
   }
 
@@ -71,13 +71,12 @@ public class MockKubernetes {
    * <p>NOTES: If job name starts with 'failure-' (e.g failure-my-job) - then Job status will be
    * fail otherwise it's success.
    */
-  private void mockKubernetesService(KubernetesService mock)
+  private void mockDataJobsKubernetesService(DataJobsKubernetesService mock)
       throws ApiException, IOException, InterruptedException {
     // By defautl beans are singleton scoped so we are sure this will be called once
     // hence it's safe to keep the variables here isntead of static.
     final Map<String, Map<String, byte[]>> secrets = new ConcurrentHashMap<>();
     final Map<String, InvocationOnMock> crons = new ConcurrentHashMap<>();
-    final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
 
     when(mock.getSecretData(any()))
         .thenAnswer(inv -> secrets.getOrDefault(inv.getArgument(0), Collections.emptyMap()));
@@ -139,7 +138,13 @@ public class MockKubernetes {
             })
         .when(mock)
         .readCronJob(anyString());
+    mockKubernetesService(mock);
+  }
 
+  private void mockKubernetesService(KubernetesService mock)
+      throws ApiException, IOException, InterruptedException {
+
+    final Map<String, InvocationOnMock> jobs = new ConcurrentHashMap<>();
     doAnswer(inv -> jobs.put(inv.getArgument(0), inv))
         .when(mock)
         .createJob(
@@ -159,7 +164,7 @@ public class MockKubernetes {
             anyLong(),
             anyString(),
             anyString());
-    doAnswer(inv -> jobs.keySet()).when(mock).listCronJobs();
+    doAnswer(inv -> jobs.keySet()).when(mock).listJobs();
     doAnswer(inv -> jobs.remove(inv.getArgument(0))).when(mock).deleteJob(anyString());
 
     doAnswer(

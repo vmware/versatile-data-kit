@@ -39,6 +39,8 @@ def run(job_input: IJobInput):
 
         align_stg_table_with_target(target_table_full_name, staging_table, job_input)
 
+        job_input.execute_query(f"TRUNCATE {staging_table}")
+
         insert_into_staging = insert_query.format(
             target_schema=staging_schema,
             target_table=staging_table_name,

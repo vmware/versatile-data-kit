@@ -573,7 +573,7 @@ database:
    ## Name of the secret which holds JDBC credentials. The chart will not attempt to create this, but will use it as is.
    ## The secret should contain keys: JDBC, USERNAME, PASSWORD
    externalSecretName: ""
-   ## Alternatively provide JDBC url, username and password. externalSecretName takes precendence if both are set.
+   ## Alternatively provide JDBC url, username and password. externalSecretName takes precedence if both are set.
    jdbcUrl: ""
    username: ""
    password: ""
@@ -1023,3 +1023,80 @@ dataJob:
 # Configures the format of logs output by the control service; if set to `JSON`, logs are formatted to JSON;
 # else logs are formatted to their default user-readable format
 # loggingFormat: TEXT
+
+# Configures properties used for sending notifications if emails should go through an
+# authenticated email server. More information:
+# https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
+mail:
+  transport:
+    protocol: "smtp"
+  smtp:
+    auth: false
+    starttls:
+      enable: false
+    host: ""
+    user: ""
+    password: ""
+    ssl:
+      protocols: "TLSv1.2"
+    port: 587
+
+# Alert manager email notification configuration for the Data-Pipelines/Data Jobs
+# (dp) k8s deployment.
+# More information on individual fileds can be found here:
+# https://docs.openshift.com/container-platform/4.10/rest_api/monitoring_apis/alertmanagerconfig-monitoring-coreos-com-v1alpha1.html#specification
+# Pre-requisites for the alertmanager is that prometheus-operator is installed:
+# helm install prometheus-operator prometheus-community/kube-prometheus-stack
+alertmanager:
+  enabled: false
+  # Authentication credentials are mounted into a k8s secret, that's why they are separate.
+  authentication:
+    secretName: "alertmanager-authentication-secret"
+    authPassword: ""
+    authSecret: ""
+    authSecretKey: ""
+    authIdentity: ""
+  metadata:
+    labels:
+      role: infra
+    name: dp-notifications
+    namespace: default
+  spec:
+    receivers:
+      - emailConfigs:
+          - from: ""
+            headers:
+              - key: subject
+                value: ""
+            hello: localhost
+            html: ""
+            requireTLS: false
+            sendResolved: false
+            smarthost: ""
+            to: ""
+            authUsername: ""
+        name: "data-pipelines-receiver"
+    route:
+      groupBy:
+        - alertname
+        - execution_id
+      groupInterval: 1m
+      groupWait: 0s
+      matchers:
+        - name: source
+          value: ""
+      receiver: "data-pipelines-receiver"
+      repeatInterval: 30d
+
+# Vault integration configuration for storing Data Job Secrets
+# More information here: https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1493-vault-integration
+secrets:
+    vault:
+        enabled: false
+        ## Name of the secret which holds Vault URI and Token. The chart will not attempt to create this, but will use it as is.
+        ## The secret should contain keys: URI, TOKEN
+        externalSecretName: ""
+        ## Alternatively provide the uri and token here. externalSecretName takes precedence if both are set.
+        uri: "http://localhost:8200"
+        token: "root"
+        sizeLimitBytes: 1048576

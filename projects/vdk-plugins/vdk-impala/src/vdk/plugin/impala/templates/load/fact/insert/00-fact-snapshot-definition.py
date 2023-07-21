@@ -15,8 +15,8 @@ class FactDailySnapshotParams(BaseModel):
     target_table: str
     source_schema: str
     source_view: str
-    check: Optional[Callable[[str], bool]]
-    staging_schema: Optional[str]
+    check: Optional[Callable[[str], bool]] = None
+    staging_schema: Optional[str] = None
 
 
 class FactDailySnapshot(TemplateArgumentsValidator):

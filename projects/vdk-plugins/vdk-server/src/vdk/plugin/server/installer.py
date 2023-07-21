@@ -700,6 +700,8 @@ class Installer:
             "--set",
             "extraEnvVars.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://localhost",
             "--set",
+            "extraEnvVars.SWAGGER_UI_HOSTNAME=http://localhost:8092",
+            "--set",
             "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
             "--set",
             "datajobTemplate.template.spec.failedJobsHistoryLimit=5",

@@ -1,7 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import os
+import logging
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
@@ -10,6 +10,8 @@ from jupyter_server.utils import url_path_join
 from .job_data import JobDataLoader
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
+
+log = logging.getLogger(__name__)
 
 
 class LoadJobDataHandler(APIHandler):
@@ -22,16 +24,30 @@ class LoadJobDataHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         working_directory = json.loads(self.get_json_body())[VdkOption.PATH.value]
-        data = JobDataLoader(working_directory)
-        self.finish(
-            json.dumps(
-                {
-                    VdkOption.PATH.value: data.get_job_path(),
-                    VdkOption.NAME.value: data.get_job_name(),
-                    VdkOption.TEAM.value: data.get_team_name(),
-                }
+        try:
+            data = JobDataLoader(working_directory)
+            self.finish(
+                json.dumps(
+                    {
+                        VdkOption.PATH.value: data.get_job_path(),
+                        VdkOption.NAME.value: data.get_job_name(),
+                        VdkOption.TEAM.value: data.get_team_name(),
+                    }
+                )
             )
-        )
+        except Exception as e:
+            log.debug(
+                f"Failed to load job information from config.ini with error: {e}."
+            )
+            self.finish(
+                json.dumps(
+                    {
+                        VdkOption.PATH.value: "",
+                        VdkOption.NAME.value: "",
+                        VdkOption.TEAM.value: "",
+                    }
+                )
+            )
 
 
 class RunJobHandler(APIHandler):
@@ -50,26 +66,6 @@ class RunJobHandler(APIHandler):
             input_data[VdkOption.ARGUMENTS.value],
         )
         self.finish(json.dumps(run_result))
-
-
-class DeleteJobHandler(APIHandler):
-    """
-    Class responsible for handling POST request for deleting a Data Job given its name, team and Rest API URL
-    Response: return a json formatted str including:
-        ::error field with error message if an error exists
-        ::message field with status of the Vdk operation
-    """
-
-    @tornado.web.authenticated
-    def post(self):
-        input_data = self.get_json_body()
-        try:
-            status = VdkUI.delete_job(
-                input_data[VdkOption.NAME.value], input_data[VdkOption.TEAM.value]
-            )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class DownloadJobHandler(APIHandler):
@@ -93,6 +89,18 @@ class DownloadJobHandler(APIHandler):
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+
+
+class ConvertJobToNotebookHandler(APIHandler):
+    """
+    Class responsible for handling POST request for converting a Data Job to Notebook given the Rest API URL
+    and the path to its directory
+    """
+
+    @tornado.web.authenticated
+    def post(self):
+        # TODO fix this as part of the implementation
+        print("Successfully connected to the Convert Job To Notebook handler!")
 
 
 class CreateJobHandler(APIHandler):
@@ -176,8 +184,8 @@ def setup_handlers(web_app):
         web_app.add_handlers(host_pattern, job_handlers)
 
     add_handler(RunJobHandler, "run")
-    add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")
+    add_handler(ConvertJobToNotebookHandler, "convertJobToNotebook")
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")

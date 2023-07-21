@@ -12,6 +12,7 @@ metadata:
   {{- if .Values.deploymentAdditionalLabels }}
   {{- include "common.tplvalues.render" (dict "value" .Values.deploymentAdditionalLabels "context" $) | nindent 4 }}
   {{- end }}
+    date: "{{ now | unixEpoch }}"
 spec:
   replicas: {{ .Values.replicas }}
   strategy:
@@ -28,6 +29,7 @@ spec:
       {{- if .Values.deploymentAdditionalLabels }}
       {{- include "common.tplvalues.render" (dict "value" .Values.deploymentAdditionalLabels "context" $) | nindent 8 }}
       {{- end }}
+        date: "{{ now | unixEpoch }}"
       annotations:
         # https://helm.sh/docs/howto/charts_tips_and_tricks Automatically Roll Deployments
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
@@ -278,6 +280,40 @@ spec:
             {{- if .Values.deploymentSupportedPythonVersions }}
             - name: DATAJOBS_DEPLOYMENT_SUPPORTED_PYTHON_VERSIONS
               value: {{ .Values.deploymentSupportedPythonVersions | toJson | quote }}
+            {{- end }}
+            - name: MAIL_SMTP_HOST
+              value: "{{ .Values.mail.smtp.host }}"
+            {{- if .Values.mail.smtp.auth }}
+            - name: MAIL_SMTP_AUTH
+              value: "{{ .Values.mail.smtp.auth }}"
+            - name: MAIL_SMTP_STARTTLS_ENABLE
+              value: "{{ .Values.mail.smtp.starttls.enable }}"
+            - name: MAIL_SMTP_USER
+              value: "{{ .Values.mail.smtp.user }}"
+            - name: MAIL_SMTP_PASSWORD
+              value: "{{ .Values.mail.smtp.password }}"
+            - name: MAIL_SMTP_SSL_PROTOCOLS
+              value: "{{ .Values.mail.smtp.ssl.protocols }}"
+            - name: MAIL_SMTP_PORT
+              value: "{{ .Values.mail.smtp.port }}"
+            - name: MAIL_TRANSPORT_PROTOCOL
+              value: "{{ .Values.mail.transport.protocol }}"
+            {{- end }}
+            {{- if .Values.secrets.vault.enabled }}
+            - name: FEATUREFLAG_VAULT_INTEGRATION_ENABLED
+              value: "{{ .Values.secrets.vault.enabled }}"
+            - name: VDK_VAULT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: { { .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) } }
+                  key: URI
+            - name: VDK_VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: { { .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) } }
+                  key: TOKEN
+            - name: DATAJOBS_VAULT_SIZE_LIMIT_BYTES
+              value: "{{ .Values.secrets.vault.sizeLimitBytes }}"
             {{- end }}
 
 

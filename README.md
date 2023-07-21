@@ -58,48 +58,21 @@ VDK creates data processing workflows to:
 - Provide built-in monitoring and smart notification capabilities.
 - Track both code and data modifications and the relationship between them, allowing quicker troubleshooting and version rollback.
 
-
-![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-img-transparent-light.svg#gh-light-mode-only)
-![Without / With Versatile Data Kit](./support/images/versatile-data-kit-before-after-img-transparent-dark.svg#gh-dark-mode-only)
-![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-light.svg#gh-light-mode-only)
-![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-dark.svg#gh-dark-mode-only)
-
-
-# What VDK can do
-
-<p>
-<img src="./support/images/components/VDK SDK.svg" width="600" />
-</p>
-<p>
-<img src="./support/images/components/VDK SDK modules (1).svg" width="300"/>
-<img src="./support/images/components/VDK SDK modules (2).svg" width="300"/>
-<img src="./support/images/components/VDK SDK modules (3).svg" width="300"/>
-<img src="./support/images/components/VDK SDK modules (4).svg" width="300"/>
-<img src="./support/images/components/VDK SDK modules (5).svg" width="300"/>
-<img src="./support/images/components/VDK SDK modules (6).svg" width="300"/>
-<img src="./support/images/components/VDK SDK modules (7).svg" width="300"/>
-</p>
-
-<p>
-<img src="./support/images/components/VDK CLI.svg" width="600"/>
-</p>
-
-
-<!-- This is going to be transferred to the VDK CLI page to be linked:
-A preview of the VDK CLI commands:
+<!-- This is going to be transferred to the VDK CLI page to be linked: -->
+### A preview of the VDK CLI commands:
 - `vdk create`
 - `vdk run`
 - `vdk deploy`<br>
   <br> <img alt="Gif displaying Versatile Data Kit commands create, run and deploy" src="https://github.com/vmware/versatile-data-kit/blob/main/support/images/versatile-data-kit-cli-retail.gif" width=80% height=auto/>
--->
-<p>
-<img src="./support/images/components/Control Service.svg" width="600"/>
-</p>
-<p>
-<img src="./support/images/components/Control Service modules (1).svg" width="300"/>
-<img src="./support/images/components/Control Service modules (2).svg" width="300"/>
-</p>
 
+![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-light.svg#gh-light-mode-only)
+![Without / With Versatile Data Kit code](./support/images/versatile-data-kit-before-after-code-transparent-dark.svg#gh-dark-mode-only)
+
+
+# VDK components
+
+![VDK Components](./support/images/versatile-data-kit-components-dark-1.svg#gh-dark-mode-only)
+![VDK Components](./support/images/versatile-data-kit-components-light-1.svg#gh-light-mode-only)
 
 # Getting Started
 
@@ -138,14 +111,15 @@ them.
 
 # Next Steps
 
-▶️ [Getting started with VDK Operations UI](https://www.youtube.com/watch?v=DLRGCCGUp0U)</br>
-📖 [Use case examples](https://github.com/vmware/versatile-data-kit/wiki/Examples) that show how VDK fits into the data workflow.</br>
-📖 [VDK with Trino DB](https://towardsdatascience.com/from-raw-data-to-a-cleaned-database-a-deep-dive-into-versatile-data-kit-ab5fd992a02e).</br>
+🏃 [Getting Started](https://github.com/vmware/versatile-data-kit/wiki/getting-started)</br>
+📖 [VDK Examples](https://github.com/vmware/versatile-data-kit/wiki/Examples) try VDK yourself</br>
+🪜 [A step-by-step guide building a Web App with Streamlit and VDK](https://towardsdatascience.com/how-to-build-a-web-app-with-data-ingested-through-versatile-data-kit-ddae43b5f62d](https://towardsdatascience.com/how-to-build-a-web-app-with-data-ingested-through-versatile-data-kit-ddae43b5f62d )</br>
+▶️ [VDK UI - Installation and Getting Started](https://www.youtube.com/watch?v=DLRGCCGUp0U)</br>
 🗣️ Get to know us and ask questions at our [community meeting](https://github.com/vmware/versatile-data-kit/wiki/Community-and-Resources)</br>
 
 # Additional Resources
+🔍 [Documentation](https://github.com/vmware/versatile-data-kit/wiki/Introduction) for VDK.</br>
 📖 [Running in production](https://github.com/vmware/versatile-data-kit/wiki/Installation#install-versatile-data-kit-control-service)</br>
-📖 [Documentation](https://github.com/vmware/versatile-data-kit/wiki/Introduction) for VDK.</br>
 ▶️ [VDK Operations UI Overview](https://www.youtube.com/watch?v=9BkAOSvXuUg)</br>
 
 # Contributing

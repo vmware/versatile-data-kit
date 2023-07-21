@@ -5,7 +5,7 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
-
+import { CREATE_JOB_BUTTON_LABEL } from '../utils';
 
 export default class CreateJobDialog extends Component<(IJobFullProps)> {
   /**
@@ -110,7 +110,7 @@ export default class CreateJobDialog extends Component<(IJobFullProps)> {
 
 export async function showCreateJobDialog() {
   const result = await showDialog({
-    title: 'Create Job',
+    title: CREATE_JOB_BUTTON_LABEL,
     body: (
       <CreateJobDialog
         jobPath={jobData.get(VdkOption.PATH)!}

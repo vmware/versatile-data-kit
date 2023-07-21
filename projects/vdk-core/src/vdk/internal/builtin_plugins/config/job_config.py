@@ -47,17 +47,19 @@ class JobConfig:
         self._config_file = os.path.join(data_job_path, "config.ini")
 
         if not os.path.isfile(self._config_file):
-            raise VdkConfigurationError(
-                ErrorMessage(
-                    summary="Error while loading config.ini file",
-                    what="Cannot extract job Configuration",
-                    why=f"Configuration file config.ini is missing in data job path: {data_job_path}",
-                    consequences="Cannot deploy and configure the data job without config.ini file.",
-                    countermeasures="config.ini must be in the root of the data job folder. "
-                    "Make sure the file is created "
-                    "or double check the data job path is passed correctly.",
-                )
-            )
+            # TODO: Figure out a way to properly handle cases where there is no config.ini present
+            log.info("Missing config.ini file.")
+            # raise VdkConfigurationError(
+            #     ErrorMessage(
+            #         summary="Error while loading config.ini file",
+            #         what="Cannot extract job Configuration",
+            #         why=f"Configuration file config.ini is missing in data job path: {data_job_path}",
+            #         consequences="Cannot deploy and configure the data job without config.ini file.",
+            #         countermeasures="config.ini must be in the root of the data job folder. "
+            #         "Make sure the file is created "
+            #         "or double check the data job path is passed correctly.",
+            #     )
+            # )
         self._read_config_ini_file(
             config_parser=self._config_ini, configuration_file_path=self._config_file
         )

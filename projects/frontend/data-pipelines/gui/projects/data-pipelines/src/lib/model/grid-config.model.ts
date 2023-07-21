@@ -13,7 +13,7 @@ export enum DisplayMode {
 export interface GridFilters {
     jobName?: string;
     teamName?: string;
-    descriptionFilter?: string;
+    description?: string;
     deploymentStatus?: string;
     deploymentLastExecutionStatus?: string;
 }

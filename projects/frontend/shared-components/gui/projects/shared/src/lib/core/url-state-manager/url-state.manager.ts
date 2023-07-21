@@ -7,7 +7,7 @@
 
 import { Location } from '@angular/common';
 
-import { SE_NAVIGATE, SystemEventDispatcher } from '../system-events';
+import { SE_LOCATION_CHANGE, SE_NAVIGATE, SystemEventDispatcher } from '../system-events';
 
 export interface StateManagerParamValue {
     key: string;
@@ -83,6 +83,8 @@ export class URLStateManager {
         }
 
         this.isParamsStateMutated = false;
+
+        this._notifyForLocationChange();
 
         this.urlLocation.go(this.URL);
     }
@@ -243,6 +245,20 @@ export class URLStateManager {
     }
 
     /**
+     * ** Returns params in Map format.
+     */
+    getParamsAsMap(): { [key: string]: string } {
+        const sortedParams = this.getSortedByPosition(this.params);
+        const paramsMap = {};
+
+        for (const paramsPair of sortedParams) {
+            paramsMap[paramsPair.key] = paramsPair.value;
+        }
+
+        return paramsMap;
+    }
+
+    /**
      * ** Build url from base and provided params.
      */
     buildUrlWithParams(): string {
@@ -264,5 +280,20 @@ export class URLStateManager {
         return Array.from(values.entries())
             .sort((p1, p2) => p1[1].position - p2[1].position)
             .map((e) => e[1]);
+    }
+
+    private _notifyForLocationChange(): void {
+        const paramsMap = this.getParamsAsMap();
+        const paramsSerialized = this.buildUrlWithParams();
+        const queryParamsMap = this.getQueryParamsAsMap();
+        const queryParamsSerialized = this.getQueryParamsToString();
+
+        SystemEventDispatcher.post(SE_LOCATION_CHANGE, {
+            url: this.URL,
+            params: paramsMap ? paramsMap : {},
+            paramsSerialized: paramsSerialized ? paramsSerialized : '',
+            queryParams: queryParamsMap ? queryParamsMap : {},
+            queryParamsSerialized: queryParamsSerialized ? queryParamsSerialized.replace(/^\?/, '') : ''
+        });
     }
 }

@@ -1,0 +1,20 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# This is a shared library with common util gitlab "jobs" that can be reused across any project
+# Project specific functionality must go in the project specific .gitlab-ci.yml file
+
+
+.images:dind:
+  image: docker:23.0.1
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  services:
+    - docker:23.0.1-dind
+
+.images:dind:docker-push-to-vdk-repos:
+  extends: .images:dind
+  before_script:
+    - apk add --update bash
+    - export PATH="$(pwd)/cicd:$PATH"

@@ -66,7 +66,9 @@ control_service_build_image:
     changes: *control_service_code_change_locations
 
 control_service_integration_test:
-  extends: .control_service_base_build
+  extends:
+    - .control_service_base_build
+    - .images:dind
   stage: build
   variables:
     DEPLOYMENT_K8S_KUBECONFIG: "~/.kube/config"
@@ -127,7 +129,7 @@ control_service_test_helm_chart:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
 
 control_service_publish_job_base_image:
-  extends: .images:dind
+  extends: .images:dind:docker-push-to-vdk-repos
   stage: publish_artifacts
   script:
     - apk add --no-cache bash
@@ -143,9 +145,18 @@ control_service_publish_job_base_image:
       changes:
         - projects/control-service/projects/job-base-image/**/*
 
-control_service_publish_job_base_image-secure:
-  extends: .images:dind
+.control_service_publish_job_base_image_secure:
+  extends: .images:dind:docker-push-to-vdk-repos
   stage: publish_artifacts
+  needs:
+    - job: control_service_publish_python_image_secure_3_8
+      optional: true
+    - job: control_service_publish_python_image_secure_3_9
+      optional: true
+    - job: control_service_publish_python_image_secure_3_10
+      optional: true
+    - job: control_service_publish_python_image_secure_3_11
+      optional: true
   script:
     - apk add --no-cache bash
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
@@ -158,7 +169,7 @@ control_service_publish_job_base_image-secure:
         && tar -xvf ds.tar.gz
         && mv dist_linux/docker-slim /usr/local/bin/
         && mv dist_linux/docker-slim-sensor /usr/local/bin/
-    - bash -ex ./publish-job-base.sh
+    - bash -ex ./publish-job-base-image.sh $PYTHON_MAJOR $PYTHON_MINOR
   retry: !reference [.control_service_retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -166,6 +177,76 @@ control_service_publish_job_base_image-secure:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - projects/control-service/projects/job-base-image-secure/**/*
+        - projects/control-service/projects/python-image-secure/**/*
+
+control_service_publish_job_base_image_secure_3_8:
+  extends: .control_service_publish_job_base_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 8
+
+control_service_publish_job_base_image_secure_3_9:
+  extends: .control_service_publish_job_base_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 9
+
+control_service_publish_job_base_image_secure_3_10:
+  extends: .control_service_publish_job_base_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 10
+
+control_service_publish_job_base_image_secure_3_11:
+  extends: .control_service_publish_job_base_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 11
+
+.control_service_publish_python_image_secure:
+  extends: .images:dind
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/control-service/projects/python-image-secure
+    - export VERSION_TAG="1.$CI_PIPELINE_ID"
+    - bash -ex ./publish-python-image.sh $PYTHON_MAJOR $PYTHON_MINOR $PYTHON_PATCH
+  retry: !reference [.control_service_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/python-image-secure/**/*
+
+control_service_publish_python_image_secure_3_8:
+  extends: .control_service_publish_python_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 8
+    PYTHON_PATCH: 16
+
+control_service_publish_python_image_secure_3_9:
+  extends: .control_service_publish_python_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 9
+    PYTHON_PATCH: 16
+
+control_service_publish_python_image_secure_3_10:
+  extends: .control_service_publish_python_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 10
+    PYTHON_PATCH: 11
+
+control_service_publish_python_image_secure_3_11:
+  extends: .control_service_publish_python_image_secure
+  variables:
+    PYTHON_MAJOR: 3
+    PYTHON_MINOR: 11
+    PYTHON_PATCH: 3
 
 control_service_publish_job_builder_image:
   extends: .images:dind
@@ -201,7 +282,7 @@ control_service_publish_job_builder_secure_image:
 
 
 control_service_publish_image:
-  extends: .images:dind
+  extends: .images:dind:docker-push-to-vdk-repos
   stage: publish_artifacts
   script:
     - apk add --no-cache git openjdk17-jdk
@@ -210,7 +291,9 @@ control_service_publish_image:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew build -x test --info --stacktrace
-    - ./gradlew :pipelines_control_service:dockerPush --info --stacktrace -Pversion=$TAG
+    - ./gradlew :pipelines_control_service:dockerTag --info --stacktrace -Pversion=$TAG
+    - docker_push_vdk.sh "versatiledatakit/pipelines-control-service:$TAG"
+    - docker_push_vdk.sh "versatiledatakit/pipelines-control-service:latest"
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always
@@ -257,6 +340,9 @@ control_service_deploy_testing_data_pipelines:
     - pip install --upgrade pip && pip install awscli
     - export FRONTEND_TAG=latest
     - export DESIRED_VERSION=v3.12.0 # helm version
+    - curl -LO https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/bin/kubectl
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]

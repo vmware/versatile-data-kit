@@ -11,13 +11,12 @@
     "
 >
     <lib-grid-action
-        [searchQueryValue]="searchQueryValue"
+        [searchQueryValue]="clrGridUIState.search"
         [selectedValue]="selectedJob"
         [quickFilters]="quickFilters"
         [suppressQuickFilterChangeEvent]="true"
         [disableActionableElements]="disableActionableElements"
         (search)="search($event)"
-        (quickFilterChange)="updateQuickFilter($event)"
     >
         <div class="custom-buttons-left">
             <button
@@ -108,7 +107,7 @@
                 data-cy="data-pipelines-jobs-name-column"
                 [clrDgField]="'jobName'"
                 [(clrDgSortOrder)]="clrGridUIState.sort['jobName']"
-                [(clrFilterValue)]="gridFilters.jobName"
+                [(clrFilterValue)]="clrGridUIState.filter.jobName"
                 >Job name
             </clr-dg-column>
 
@@ -118,7 +117,7 @@
                 data-cy="data-pipelines-jobs-team-column"
                 [clrDgField]="'config.team'"
                 [(clrDgSortOrder)]="clrGridUIState.sort['config.team']"
-                [(clrFilterValue)]="gridFilters.teamName"
+                [(clrFilterValue)]="clrGridUIState.filter.teamName"
                 >Team name
             </clr-dg-column>
 
@@ -127,7 +126,7 @@
                 data-cy="data-pipelines-jobs-description-column"
                 [clrDgField]="'config.description'"
                 [(clrDgSortOrder)]="clrGridUIState.sort['config.description']"
-                [(clrFilterValue)]="gridFilters.descriptionFilter"
+                [(clrFilterValue)]="clrGridUIState.filter.description"
             >
                 <ng-template
                     [clrDgHideableColumn]="{
@@ -165,7 +164,7 @@
                         #statusFilter
                         [property]="'deployments.enabled'"
                         [listOfOptions]="deploymentStatuses"
-                        [(value)]="gridFilters.deploymentStatus"
+                        [(value)]="clrGridUIState.filter.deploymentStatus"
                     ></lib-column-filter>
                 </clr-dg-filter>
             </clr-dg-column>
@@ -213,7 +212,7 @@
                         property="deployments.lastExecutionStatus"
                         [optionRenderer]="executionFilterOption"
                         [listOfOptions]="executionStatuses"
-                        [(value)]="gridFilters.deploymentLastExecutionStatus"
+                        [(value)]="clrGridUIState.filter.deploymentLastExecutionStatus"
                     >
                         <ng-template #executionFilterOption let-option>
                             <lib-data-job-execution-status
@@ -528,7 +527,7 @@
                 >
                     <ng-template #emptyTemplate>
                         <div
-                            *ngIf="!searchQueryValue"
+                            *ngIf="!clrGridUIState.search"
                             class="msg-btn-placeholder"
                         >
                             <div>No data jobs created!</div>
@@ -543,10 +542,10 @@
                                 about Data Jobs
                             </a>
                         </div>
-                        <div *ngIf="searchQueryValue">
+                        <div *ngIf="clrGridUIState.search">
                             <span
                                 >No data jobs that match with
-                                <strong>{{ searchQueryValue }}</strong>
+                                <strong>{{ clrGridUIState.search }}</strong>
                                 criteria</span
                             >
                         </div>

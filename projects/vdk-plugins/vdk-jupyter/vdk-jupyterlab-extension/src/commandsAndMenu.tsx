@@ -5,7 +5,7 @@ import { jobData, setJobDataToDefault } from './jobData';
 import { showCreateDeploymentDialog } from './components/DeployJob';
 import { showCreateJobDialog } from './components/CreateJob';
 import { showDownloadJobDialog } from './components/DownloadJob';
-import { showDeleteJobDialog } from './components/DeleteJob';
+import { showConvertJobToNotebookDialog } from './components/ConvertJobToNotebook';
 import { jobdDataRequest } from './serverRequests';
 import { VdkOption } from './vdkOptions/vdk_options';
 import { workingDirectory } from '.';
@@ -20,11 +20,11 @@ export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentMa
   // Add Create job command
   add_command(commands, 'jp-vdk:menu-create','Create','Execute VDK Create Command', showCreateJobDialog);
 
-  // Add Delete job command
-  add_command(commands, 'jp-vdk:menu-delete','Delete','Execute VDK Delete Command', showDeleteJobDialog);
-
   // Add Download job command
   add_command(commands, 'jp-vdk:menu-download','Download','Execute VDK Download Command', showDownloadJobDialog);
+
+  // Add Convert Job To Notebook command
+  add_command(commands, 'jp-vdk:menu-convert-job-to-notebook', 'Convert Job To Notebook', 'Convert Data Job To Jupyter Notebook', showConvertJobToNotebookDialog);
 
   // Add Create Deployment command
   add_command(commands, 'jp-vdk:menu-create-deployment','Deploy','Create deployment of a VDK job', showCreateDeploymentDialog);

@@ -59,6 +59,20 @@ export class DataJobsManagePage extends DataJobsBasePO {
     }
 
     /**
+     * ** Navigate to home page through URL and return instance of page object.
+     * ** Do not wait for bootstrap and interceptors
+     * @type {GetStartedPagePO}
+     */
+    static navigateToNoBootstrap() {
+        /**
+         * @type {DataJobsManagePage}
+         */
+        const page = super.navigateToNoBootstrap('manage');
+        page.waitForGridToLoad(null);
+        return page;
+    }
+
+    /**
      * ** Wait until Data grid is loaded.
      *
      * @param {string} contextSelector

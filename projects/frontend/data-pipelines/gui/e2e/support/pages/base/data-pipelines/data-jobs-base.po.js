@@ -26,6 +26,14 @@ export class DataJobsBasePO extends DataPipelinesBasePO {
         return this.navigateToDataJobUrl(`/${context}/data-jobs`);
     }
 
+    /**
+     * ** Navigate to Data Job Url.
+     * ** Do not wait for bootstrap and interceptors
+     * @param {'explore'|'manage'} context
+     */
+    static navigateToNoBootstrap(context) {
+        return this.navigateToDataJobUrlNoBootstrap(`/${context}/data-jobs`);
+    }
     // Selectors
 
     getDataGridRefreshButton() {

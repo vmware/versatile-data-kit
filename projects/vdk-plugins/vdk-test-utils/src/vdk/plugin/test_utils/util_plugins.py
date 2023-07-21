@@ -13,6 +13,7 @@ from typing import Optional
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.api.plugin.plugin_input import IPropertiesServiceClient
+from vdk.api.plugin.plugin_input import ISecretsServiceClient
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
@@ -145,6 +146,46 @@ class TestPropertiesDecoratedPlugin(IPropertiesServiceClient):
     def initialize_job(self, context: JobContext) -> None:
         context.properties.set_properties_factory_method(
             "test-property-decorated", lambda: self
+        )
+
+
+class TestSecretsServiceClient(ISecretsServiceClient):
+    """Testing secrets client that keeps in memory per job properties."""
+
+    def __init__(self):
+        self._secrets = {}
+
+    def read_secrets(self, job_name: str, team_name: str) -> Dict:
+        res = deepcopy(self._secrets.get(job_name, {}))
+        return res
+
+    def write_secrets(self, job_name: str, team_name: str, secrets: Dict) -> Dict:
+        self._secrets[job_name] = deepcopy(secrets)
+        return self._secrets[job_name]
+
+
+class TestSecretsPlugin:
+    def __init__(self):
+        self.secrets_client = TestSecretsServiceClient()
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        context.secrets.set_secrets_factory_method(
+            "default", lambda: self.secrets_client
+        )
+
+
+class TestSecretsDecoratedPlugin(ISecretsServiceClient):
+    def read_secrets(self, job_name: str, team_name: str) -> Dict:
+        raise NotImplementedError()
+
+    def write_secrets(self, job_name: str, team_name: str, secrets: Dict) -> Dict:
+        return {**secrets, **{"test": "True"}}
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        context.secrets.set_secrets_factory_method(
+            "test-secret-decorated", lambda: self
         )
 
 
