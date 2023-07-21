@@ -1093,10 +1093,13 @@ alertmanager:
 secrets:
     vault:
         enabled: false
-        ## Name of the secret which holds Vault URI and Token. The chart will not attempt to create this, but will use it as is.
-        ## The secret should contain keys: URI, TOKEN
+        ## Name of the secret which holds Vault URI and Approle RoleId and SecretId. The chart will not attempt to
+        ## create this, but will use it as is.
+        ## The secret should contain keys: URI, ROLEID, SECRETID
         externalSecretName: ""
-        ## Alternatively provide the uri and token here. externalSecretName takes precedence if both are set.
+        ## Alternatively provide the uri and Approle Settings here. externalSecretName takes precedence if both are set.
         uri: "http://localhost:8200"
-        token: "root"
+        approle:
+            roleid: foo
+            secretid: foo
         sizeLimitBytes: 1048576
