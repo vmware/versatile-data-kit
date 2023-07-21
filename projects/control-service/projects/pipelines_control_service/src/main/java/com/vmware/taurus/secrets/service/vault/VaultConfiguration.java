@@ -6,6 +6,7 @@
 package com.vmware.taurus.secrets.service.vault;
 
 import com.vmware.taurus.exception.SecretStorageNotConfiguredException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@Slf4j
 @Configuration
 public class VaultConfiguration extends AbstractVaultConfiguration {
 
@@ -67,8 +69,10 @@ public class VaultConfiguration extends AbstractVaultConfiguration {
     // secrets
     // functionality will stop working
     if (StringUtils.isNotBlank(vaultToken)) {
+      log.warn("Initializing vault integration with Token Authentication.");
       return new TokenAuthentication(vaultToken);
     } else {
+      log.info("Initializing vault integration with AppRole Authentication.");
       AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
           AppRoleAuthenticationOptions.builder()
               .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
