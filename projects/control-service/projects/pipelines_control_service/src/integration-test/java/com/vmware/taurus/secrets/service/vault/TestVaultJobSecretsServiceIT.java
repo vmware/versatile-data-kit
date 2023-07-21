@@ -52,7 +52,6 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
     vaultJobSecretService = new VaultJobSecretsService(vaultTemplate);
   }
 
-
   @Test
   public void testGetEmptyDataJobSecrets() throws Exception {
     Map<String, Object> result = vaultJobSecretService.readJobSecrets("testJob");

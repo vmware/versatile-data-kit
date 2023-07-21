@@ -25,81 +25,87 @@ import java.net.URISyntaxException;
 
 public class VaultTestSetup {
 
-    @NotNull
-    static VaultTemplate setupVaultTemplate(String vaultUri, VaultContainer vaultContainer) throws IOException, InterruptedException, URISyntaxException {
-        setupAppRole(vaultUri, vaultContainer);
-        String roleId = getRoleId(vaultContainer);
-        String secretId = getSecretId(vaultContainer);
-        // create the authentication
-        AppRoleAuthentication clientAuthentication = getAppRoleAuthentication(vaultUri, roleId, secretId);
-        VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri + "/v1/"));
-        VaultTemplate vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
-        return vaultTemplate;
-    }
+  @NotNull
+  static VaultTemplate setupVaultTemplate(String vaultUri, VaultContainer vaultContainer)
+      throws IOException, InterruptedException, URISyntaxException {
+    setupAppRole(vaultUri, vaultContainer);
+    String roleId = getRoleId(vaultContainer);
+    String secretId = getSecretId(vaultContainer);
+    // create the authentication
+    AppRoleAuthentication clientAuthentication =
+        getAppRoleAuthentication(vaultUri, roleId, secretId);
+    VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri + "/v1/"));
+    VaultTemplate vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
+    return vaultTemplate;
+  }
 
-    private static void setupAppRole(String vaultUri, ContainerState vaultContainer) throws IOException, InterruptedException {
-        vaultContainer.execInContainer("vault", "auth", "enable", "approle");
+  private static void setupAppRole(String vaultUri, ContainerState vaultContainer)
+      throws IOException, InterruptedException {
+    vaultContainer.execInContainer("vault", "auth", "enable", "approle");
 
-        // Create a new test policy via rest as there's no good way to do it via the command mechanism
-        HttpClient httpClient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(vaultUri + "/v1/sys/policies/acl/testpolicy");
-        httpPost.setHeader("X-Vault-Token", "root");
-        StringEntity requestBody =
-                new StringEntity(
-                        "{\n"
-                                + "  \"policy\": \"path \\\"secret/*\\\" {\\n"
-                                + "  capabilities = [ \\\"create\\\", \\\"read\\\",\\\"update\\\", \\\"patch\\\","
-                                + " \\\"delete\\\",\\\"list\\\" ]\\n"
-                                + "}\"\n"
-                                + "}");
-        httpPost.setEntity(requestBody);
-        httpClient.execute(httpPost);
+    // Create a new test policy via rest as there's no good way to do it via the command mechanism
+    HttpClient httpClient = HttpClients.createDefault();
+    HttpPost httpPost = new HttpPost(vaultUri + "/v1/sys/policies/acl/testpolicy");
+    httpPost.setHeader("X-Vault-Token", "root");
+    StringEntity requestBody =
+        new StringEntity(
+            "{\n"
+                + "  \"policy\": \"path \\\"secret/*\\\" {\\n"
+                + "  capabilities = [ \\\"create\\\", \\\"read\\\",\\\"update\\\", \\\"patch\\\","
+                + " \\\"delete\\\",\\\"list\\\" ]\\n"
+                + "}\"\n"
+                + "}");
+    httpPost.setEntity(requestBody);
+    httpClient.execute(httpPost);
 
-        // create "test" role with the policy
+    // create "test" role with the policy
+    vaultContainer.execInContainer(
+        "vault",
+        "write",
+        "auth/approle/role/test",
+        "token_policies=testpolicy",
+        "token_ttl=1h",
+        "token_max_ttl=4h");
+  }
+
+  @NotNull
+  private static String getRoleId(ContainerState vaultContainer)
+      throws IOException, InterruptedException {
+    org.testcontainers.containers.Container.ExecResult execResult =
         vaultContainer.execInContainer(
-                "vault",
-                "write",
-                "auth/approle/role/test",
-                "token_policies=testpolicy",
-                "token_ttl=1h",
-                "token_max_ttl=4h");
-    }
+            "vault", "read", "auth/approle/role/test/role-id"); // read the role-id
+    String output = execResult.getStdout();
+    String roleId = output.substring(output.lastIndexOf(" ")).trim();
+    return roleId;
+  }
 
-    @NotNull
-    private static String getRoleId(ContainerState vaultContainer) throws IOException, InterruptedException {
-        org.testcontainers.containers.Container.ExecResult execResult =
-                vaultContainer.execInContainer(
-                        "vault", "read", "auth/approle/role/test/role-id"); // read the role-id
-        String output = execResult.getStdout();
-        String roleId = output.substring(output.lastIndexOf(" ")).trim();
-        return roleId;
-    }
+  @NotNull
+  private static String getSecretId(ContainerState vaultContainer)
+      throws IOException, InterruptedException {
+    org.testcontainers.containers.Container.ExecResult execResult =
+        vaultContainer.execInContainer(
+            "vault", "write", "-force", "auth/approle/role/test/secret-id"); // read the secret-id
+    String output = execResult.getStdout();
+    String secretId =
+        output
+            .substring(output.indexOf("secret_id") + 9, output.indexOf("secret_id_accessor"))
+            .trim();
+    return secretId;
+  }
 
-    @NotNull
-    private static String getSecretId(ContainerState vaultContainer) throws IOException, InterruptedException {
-        org.testcontainers.containers.Container.ExecResult execResult =
-                vaultContainer.execInContainer(
-                        "vault", "write", "-force", "auth/approle/role/test/secret-id"); // read the secret-id
-        String output = execResult.getStdout();
-        String secretId =
-                output
-                        .substring(output.indexOf("secret_id") + 9, output.indexOf("secret_id_accessor"))
-                        .trim();
-        return secretId;
-    }
+  @NotNull
+  private static AppRoleAuthentication getAppRoleAuthentication(
+      String vaultUri, String roleId, String secretId) {
+    AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
+        AppRoleAuthenticationOptions.builder()
+            .roleId(AppRoleAuthenticationOptions.RoleId.provided(roleId))
+            .secretId(AppRoleAuthenticationOptions.SecretId.provided(secretId));
 
-    @NotNull
-    private static AppRoleAuthentication getAppRoleAuthentication(String vaultUri, String roleId, String secretId) {
-        AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
-                AppRoleAuthenticationOptions.builder()
-                        .roleId(AppRoleAuthenticationOptions.RoleId.provided(roleId))
-                        .secretId(AppRoleAuthenticationOptions.SecretId.provided(secretId));
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri + "/v1/"));
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri + "/v1/"));
-
-        AppRoleAuthentication clientAuthentication =
-                new AppRoleAuthentication(builder.build(), restTemplate);
-        return clientAuthentication;
-    }
+    AppRoleAuthentication clientAuthentication =
+        new AppRoleAuthentication(builder.build(), restTemplate);
+    return clientAuthentication;
+  }
 }
