@@ -6,15 +6,14 @@
 package com.vmware.taurus.secrets.service.vault;
 
 import com.vmware.taurus.exception.SecretStorageNotConfiguredException;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.vault.authentication.AppRoleAuthentication;
-import org.springframework.vault.authentication.AppRoleAuthenticationOptions;
-import org.springframework.vault.authentication.ClientAuthentication;
-import org.springframework.vault.authentication.SessionManager;
+import org.springframework.lang.Nullable;
+import org.springframework.vault.authentication.*;
 import org.springframework.vault.client.VaultEndpoint;
 import org.springframework.vault.config.AbstractVaultConfiguration;
 import org.springframework.vault.core.VaultOperations;
@@ -36,6 +35,10 @@ public class VaultConfiguration extends AbstractVaultConfiguration {
 
   @Value("${vdk.vault.approle.secretid:}")
   String secretId;
+
+  @Value("${vdk.vault.token:}")
+  @Nullable
+  String vaultToken;
 
   @Bean
   public VaultOperations vaultOperations(
@@ -60,14 +63,20 @@ public class VaultConfiguration extends AbstractVaultConfiguration {
   @Override
   @Bean
   public ClientAuthentication clientAuthentication() {
-    AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
-        AppRoleAuthenticationOptions.builder()
-            .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
-            .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
+    // Token authentication should only be used for development purposes. If the token expires, the secrets
+    // functionality will stop working
+    if (StringUtils.isNotBlank(vaultToken)){
+      return new TokenAuthentication(vaultToken);
+    } else {
+      AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
+              AppRoleAuthenticationOptions.builder()
+                      .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
+                      .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
 
-    RestTemplate restTemplate = new RestTemplate();
-    restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri));
+      RestTemplate restTemplate = new RestTemplate();
+      restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri));
 
-    return new AppRoleAuthentication(builder.build(), restTemplate);
+      return new AppRoleAuthentication(builder.build(), restTemplate);
+    }
   }
 }
