@@ -63,15 +63,16 @@ public class VaultConfiguration extends AbstractVaultConfiguration {
   @Override
   @Bean
   public ClientAuthentication clientAuthentication() {
-    // Token authentication should only be used for development purposes. If the token expires, the secrets
+    // Token authentication should only be used for development purposes. If the token expires, the
+    // secrets
     // functionality will stop working
-    if (StringUtils.isNotBlank(vaultToken)){
+    if (StringUtils.isNotBlank(vaultToken)) {
       return new TokenAuthentication(vaultToken);
     } else {
       AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
-              AppRoleAuthenticationOptions.builder()
-                      .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
-                      .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
+          AppRoleAuthenticationOptions.builder()
+              .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
+              .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
 
       RestTemplate restTemplate = new RestTemplate();
       restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri));
