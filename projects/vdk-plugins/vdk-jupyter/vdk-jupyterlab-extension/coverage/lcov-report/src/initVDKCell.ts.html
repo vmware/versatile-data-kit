@@ -167,40 +167,40 @@ import { INotebookTracker } from '@jupyterlab/notebook';
  * This func adds a cell with the necessary commands to enable VDK for a Jupyter notebook
  */
 export function <span class="fstat-no" title="function not covered" >initVDKCell(</span>notebookTracker: INotebookTracker) {
-    const notebookPanel = <span class="cstat-no" title="statement not covered" >notebookTracker.currentWidget;</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (notebookPanel) {</span>
-      const initCell<span class="cstat-no" title="statement not covered" > =</span>
-        notebookPanel.content.model?.contentFactory?.createCodeCell({
-          cell: {
-            cell_type: 'code',
-            source: [
-              `"""\n`,
-              `vdk_ipython extension introduces a magic command for Jupyter.\n`,
-              `The command enables the user to load VDK for the current notebook.\n`,
-              `VDK provides the job_input API, which has methods for:\n`,
-              `    * executing queries to an OLAP database;\n`,
-              `    * ingesting data into a database;\n`,
-              `    * processing data into a database.\n`,
-              `See the IJobInput documentation for more details.\n`,
-              `https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py\n`,
-              `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n`,
-              `and is only used for development purposes.\n`,
-              `"""\n`,
-              `%reload_ext vdk_ipython\n`,
-              `%reload_VDK\n`,
-              `job_input = VDK.get_initialized_job_input()`
-            ],
-            metadata: {}
-          }
-        });
-      const cells<span class="cstat-no" title="statement not covered" > = notebookTracker.currentWidget?.content.model?.cells;</span>
-      const cellContent = <span class="cstat-no" title="statement not covered" >cells?.get(0).value.text;</span>
-      // check if the notebook has only 1 empty cell, which is how we judge if it is a new notebook or not
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (cells &amp;&amp; initCell &amp;&amp; cells.length &lt;= 1 &amp;&amp; cellContent == '') {</span>
-<span class="cstat-no" title="statement not covered" >        cells.insert(0, initCell);</span>
-<span class="cstat-no" title="statement not covered" >        cells.remove(1);</span>
-      }
+  const notebookPanel = <span class="cstat-no" title="statement not covered" >notebookTracker.currentWidget;</span>
+<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (notebookPanel) {</span>
+    const initCell<span class="cstat-no" title="statement not covered" > =</span>
+      notebookPanel.content.model?.contentFactory?.createCodeCell({
+        cell: {
+          cell_type: 'code',
+          source: [
+            `"""\n`,
+            `vdk_ipython extension introduces a magic command for Jupyter.\n`,
+            `The command enables the user to load VDK for the current notebook.\n`,
+            `VDK provides the job_input API, which has methods for:\n`,
+            `    * executing queries to an OLAP database;\n`,
+            `    * ingesting data into a database;\n`,
+            `    * processing data into a database.\n`,
+            `See the IJobInput documentation for more details.\n`,
+            `https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py\n`,
+            `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n`,
+            `and is only used for development purposes.\n`,
+            `"""\n`,
+            `%reload_ext vdk_ipython\n`,
+            `%reload_VDK\n`,
+            `job_input = VDK.get_initialized_job_input()`
+          ],
+          metadata: {}
+        }
+      });
+    const cells<span class="cstat-no" title="statement not covered" > = notebookTracker.currentWidget?.content.model?.cells;</span>
+    const cellContent = <span class="cstat-no" title="statement not covered" >cells?.get(0).value.text;</span>
+    // check if the notebook has only 1 empty cell, which is how we judge if it is a new notebook or not
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (cells &amp;&amp; initCell &amp;&amp; cells.length &lt;= 1 &amp;&amp; cellContent == '') {</span>
+<span class="cstat-no" title="statement not covered" >      cells.insert(0, initCell);</span>
+<span class="cstat-no" title="statement not covered" >      cells.remove(1);</span>
     }
+  }
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -216,7 +216,7 @@ export function <span class="fstat-no" title="function not covered" >initVDKCell
         rel="noopener noreferrer"
         >istanbul</a
       >
-      at 2023-07-13T14:02:35.721Z
+      at 2023-07-19T11:48:29.157Z
     </div>
     <script src="../prettify.js"></script>
     <script>

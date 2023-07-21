@@ -1,0 +1,165 @@
+Versatile Data Kit (VDK)
+Version: 0.3.765384785
+Build details: RELEASE_VERSION=0.3.765384785, BUILD_DATE=Thu Feb  2 13:10:29 UTC 2023, BUILD_MACHINE_INFO=Linux runner-cvrszkxw-project-28359933-concurrent-0zl9pr 5.4.209-116.363.amzn2.x86_64 #1 SMP Wed Aug 10 21:19:18 UTC 2022 x86_64 GNU/Linux, GITLAB_CI_JOB_ID=3703508297, GIT_COMMIT_SHA=70719cfa0dfb590f607d08a4abdb6c645d74a69d, GIT_BRANCH=main
+Python version: 3.7.16 64bit (/Users/gageorgiev/envs/dev/bin/python3.7)
+
+Installed plugins:
+vdk-server (from package vdk-server, version 0.1.715017056)
+vdk-postgres (from package vdk-postgres, version 0.0.802490643)
+vdk-sqlite (from package vdk-sqlite, version 0.1.477708478)
+vdk-control-service-properties (from package vdk-plugin-control-cli, version 0.1.715017056)
+vdk-execution-skip (from package vdk-plugin-control-cli, version 0.1.715017056)
+vdk-plugin-control-cli (from package vdk-plugin-control-cli, version 0.1.715017056)
+vdk-ingest-http (from package vdk-ingest-http, version 0.2.715017056)
+vdk-ingest-file (from package vdk-ingest-file, version 0.1.715017056)
+sc-config-test (from package sc-config-test, version 0.0.5162396)
+meta-jobs (from package vdk-meta-jobs, version 0.1.0)
+--------------------------------------------------------------------------------
+Run job with directory /Users/gageorgiev/foss/versatile-data-kit/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ui-tests
+2023-07-21 14:46:01,404 [VDK] ui-tests [INFO ] vdk.plugin.control_cli_plugin. properties_plugin.py:22   initialize_job  [id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- Initialize Control Service based Properties client implementation.
+2023-07-21 14:46:01,404 [VDK] ui-tests [INFO ] vdk.plugin.control_cli_plugin.    execution_skip.py:105  _skip_job_if_nec[id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- Checking if job should be skipped:
+2023-07-21 14:46:01,404 [VDK] ui-tests [INFO ] vdk.plugin.control_cli_plugin.    execution_skip.py:107  _skip_job_if_nec[id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- Job : ui-tests, Team : None, Log config: LOCAL, execution_id: e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961
+2023-07-21 14:46:01,404 [VDK] ui-tests [INFO ] root                              execution_skip.py:111  _skip_job_if_nec[id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- Local execution, skipping parallel execution check.
+2023-07-21 14:46:01,405 [VDK] ui-tests [INFO ] vdk.internal.builtin_plugins.r   file_based_step.py:85   run_python_step [id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- Loading jupyter_server_test_config.py FAILURE
+2023-07-21 14:46:01,405 [VDK] ui-tests [ERROR] vdk.internal.builtin_plugins.r            errors.py:438  log_and_rethrow [id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- An error in data job code  occurred. The error should be resolved by User. Here are the details:
+  WHAT HAPPENED : Failed loading job sources of jupyter_server_test_config.py
+WHY IT HAPPENED : An exception occurred, exception message was: name 'c' is not defined
+   CONSEQUENCES : The provided Data Job will not be executed. Terminating application.
+COUNTERMEASURES : See contents of the exception and fix the problem that causes it. Most likely importing a dependency or data job step failed, see logs for details and fix the failed step (details in stacktrace).
+Traceback (most recent call last):
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/file_based_step.py", line 82, in run_python_step
+    python_module = imp.load_source(namespace, str(step.file_path))
+  File "/usr/local/opt/python@3.7/Frameworks/Python.framework/Versions/3.7/lib/python3.7/imp.py", line 171, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 696, in _load
+  File "<frozen importlib._bootstrap>", line 677, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 728, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/Users/gageorgiev/foss/versatile-data-kit/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ui-tests/jupyter_server_test_config.py", line 11, in <module>
+    c.ServerApp.port = 8888
+NameError: name 'c' is not defined
+2023-07-21 14:46:01,406 [VDK] ui-tests [ERROR] vdk.internal.builtin_plugins.r            errors.py:349  log_exception   [id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- An error in data job code  occurred. The error should be resolved by User. Here are the details:
+  WHAT HAPPENED : Processing step jupyter_server_test_config.py completed with error.
+WHY IT HAPPENED : An exception occurred, exception message was: An error in data job code  occurred. The error should be resolved by User. Here are the details:
+  WHAT HAPPENED : Failed loading job sources of jupyter_server_test_config.py
+WHY IT HAPPENED : An exception occurred, exception message was: name 'c' is not defined
+   CONSEQUENCES : The provided Data Job will not be executed. Terminating application.
+COUNTERMEASURES : See contents of the exception and fix the problem that causes it. Most likely importing a dependency or data job step failed, see logs for details and fix the failed step (details in stacktrace).
+   CONSEQUENCES : I will not process the remaining steps (if any), and this Data Job execution will be marked as failed.
+COUNTERMEASURES : See exception and fix the root cause, so that the exception does not appear anymore.
+Traceback (most recent call last):
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/file_based_step.py", line 82, in run_python_step
+    python_module = imp.load_source(namespace, str(step.file_path))
+  File "/usr/local/opt/python@3.7/Frameworks/Python.framework/Versions/3.7/lib/python3.7/imp.py", line 171, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 696, in _load
+  File "<frozen importlib._bootstrap>", line 677, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 728, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/Users/gageorgiev/foss/versatile-data-kit/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ui-tests/jupyter_server_test_config.py", line 11, in <module>
+    c.ServerApp.port = 8888
+NameError: name 'c' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/data_job.py", line 73, in run_step
+    step_executed = step.runner_func(step, context.job_input)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/file_based_step.py", line 96, in run_python_step
+    wrap_in_vdk_error=True,
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/core/errors.py", line 442, in log_and_rethrow
+    raise to_be_raised_exception from exception if wrap_in_vdk_error else exception
+vdk.internal.core.errors.UserCodeError: An error in data job code  occurred. The error should be resolved by User. Here are the details:
+  WHAT HAPPENED : Failed loading job sources of jupyter_server_test_config.py
+WHY IT HAPPENED : An exception occurred, exception message was: name 'c' is not defined
+   CONSEQUENCES : The provided Data Job will not be executed. Terminating application.
+COUNTERMEASURES : See contents of the exception and fix the problem that causes it. Most likely importing a dependency or data job step failed, see logs for details and fix the failed step (details in stacktrace).
+2023-07-21 14:46:01,407 [VDK] ui-tests [INFO ] vdk.internal.builtin_plugins.r           cli_run.py:104  create_and_run_d[id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- Data Job execution summary: {
+  "data_job_name": "ui-tests",
+  "execution_id": "e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961",
+  "start_time": "2023-07-21T11:46:01.404880",
+  "end_time": "2023-07-21T11:46:01.407396",
+  "status": "error",
+  "steps_list": [
+    {
+      "name": "jupyter_server_test_config.py",
+      "type": "python",
+      "start_time": "2023-07-21T11:46:01.404903",
+      "end_time": "2023-07-21T11:46:01.407370",
+      "status": "error",
+      "details": "An exception occurred, exception message was: An error in data job code  occurred. The error should be resolved by User. Here are the details:\n  WHAT HAPPENED : Failed loading job sources of jupyter_server_test_config.py\nWHY IT HAPPENED : An exception occurred, exception message was: name 'c' is not defined\n   CONSEQUENCES : The provided Data Job will not be executed. Terminating application.\nCOUNTERMEASURES : See contents of the exception and fix the problem that causes it. Most likely importing a dependency or data job step failed, see logs for details and fix the failed step (details in stacktrace).",
+      "exception": {
+        "is_logged": true,
+        "cause_exception_name": "NameError",
+        "cause_exception": {
+          "is_logged": true
+        }
+      },
+      "blamee": "User Error",
+      "exception_name": "UserCodeError"
+    }
+  ],
+  "exception": null,
+  "blamee": "User Error",
+  "exception_name": "UserCodeError"
+}
+2023-07-21 14:46:01,408 [VDK] ui-tests [ERROR] vdk.internal.cli_entry                 cli_entry.py:156  vdk_main        [id:e9ed9c99-73e3-4d5e-8e94-e4b43a52d79c-1689939961-77210]- Exiting with exception.
+Traceback (most recent call last):
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/file_based_step.py", line 82, in run_python_step
+    python_module = imp.load_source(namespace, str(step.file_path))
+  File "/usr/local/opt/python@3.7/Frameworks/Python.framework/Versions/3.7/lib/python3.7/imp.py", line 171, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 696, in _load
+  File "<frozen importlib._bootstrap>", line 677, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 728, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/Users/gageorgiev/foss/versatile-data-kit/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ui-tests/jupyter_server_test_config.py", line 11, in <module>
+    c.ServerApp.port = 8888
+NameError: name 'c' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/cli_entry.py", line 140, in vdk_main
+    program_name=program_name,
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/pluggy/hooks.py", line 286, in __call__
+    return self._hookexec(self, self.get_hookimpls(), kwargs)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/pluggy/manager.py", line 93, in _hookexec
+    return self._inner_hookexec(hook, methods, kwargs)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/pluggy/manager.py", line 87, in <lambda>
+    firstresult=hook.spec.opts.get("firstresult") if hook.spec else False,
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/pluggy/callers.py", line 208, in _multicall
+    return outcome.get_result()
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/pluggy/callers.py", line 80, in get_result
+    raise ex[1].with_traceback(ex[2])
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/pluggy/callers.py", line 187, in _multicall
+    res = hook_impl.function(*args)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/cli_entry.py", line 100, in vdk_cli_execute
+    obj=core_context,
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/click/core.py", line 1130, in __call__
+    return self.main(*args, **kwargs)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/click/core.py", line 1055, in main
+    rv = self.invoke(ctx)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/click/core.py", line 1657, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/click/core.py", line 1404, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/click/core.py", line 760, in invoke
+    return __callback(*args, **kwargs)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/click/decorators.py", line 26, in new_func
+    return f(get_current_context(), *args, **kwargs)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/cli_run.py", line 163, in run
+    context, pathlib.Path(data_job_directory), arguments
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/cli_run.py", line 120, in create_and_run_data_job
+    raise execution_result.get_exception_to_raise()
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/data_job.py", line 73, in run_step
+    step_executed = step.runner_func(step, context.job_input)
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/builtin_plugins/run/file_based_step.py", line 96, in run_python_step
+    wrap_in_vdk_error=True,
+  File "/Users/gageorgiev/envs/dev/lib/python3.7/site-packages/vdk/internal/core/errors.py", line 442, in log_and_rethrow
+    raise to_be_raised_exception from exception if wrap_in_vdk_error else exception
+vdk.internal.core.errors.UserCodeError: An error in data job code  occurred. The error should be resolved by User. Here are the details:
+  WHAT HAPPENED : Failed loading job sources of jupyter_server_test_config.py
+WHY IT HAPPENED : An exception occurred, exception message was: name 'c' is not defined
+   CONSEQUENCES : The provided Data Job will not be executed. Terminating application.
+COUNTERMEASURES : See contents of the exception and fix the problem that causes it. Most likely importing a dependency or data job step failed, see logs for details and fix the failed step (details in stacktrace).

@@ -163,3 +163,13 @@ test('should try download operation with empty input and get error', async ({
   });
   await page.getByRole('button', { name: 'OK' }).click();
 });
+
+test('should create an init cell when opening a new notebook', async ({
+  page
+}) => {
+  await page.goto('');
+  await page.locator('.jp-LauncherCard-icon').first().click();
+  await expect(
+    page.getByText(`job_input = VDK.get_initialized_job_input()`)
+  ).toBeVisible();
+});
