@@ -249,7 +249,7 @@ control_service_publish_python_image_secure_3_11:
     PYTHON_PATCH: 3
 
 control_service_publish_job_builder_image:
-  extends: .images:dind
+  extends: .images:dind:docker-push-to-vdk-repos
   stage: publish_artifacts
   script:
     - apk add --no-cache bash

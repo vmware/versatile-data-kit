@@ -17,6 +17,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { trackVdkTags } from './vdkTags';
 import { IThemeManager } from '@jupyterlab/apputils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import { initVDKConfigCell } from './initVDKConfigCell';
 
 /**
  * Current working directory in Jupyter
@@ -48,6 +49,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const { commands } = app;
 
     updateVDKMenu(commands, docManager);
+
+    notebookTracker.activeCellChanged.connect((sender, args) => {
+      initVDKConfigCell(notebookTracker);
+    });
 
     const fileBrowser = factory.defaultBrowser;
     fileBrowser.model.pathChanged.connect(onPathChanged);
