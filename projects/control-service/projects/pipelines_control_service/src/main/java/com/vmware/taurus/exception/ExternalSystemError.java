@@ -54,7 +54,10 @@ public class ExternalSystemError extends SystemError implements UserFacingError 
     GIT("Git"),
 
     /** A secrets storage/repository used to store data jobs secrets. */
-    SECRETS("Secrets");
+    SECRETS("Secrets"),
+
+    /** A container registry (like dockerhub or ECR) used to store container images. */
+    CONTAINER_REGISTRY("Container Registry");
 
     private final String userFacingName;
 
