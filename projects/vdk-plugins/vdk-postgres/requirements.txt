@@ -1,9 +1,8 @@
-
-# testing requirements
-click
 docker-compose
-psycopg2-binary
-pytest-docker
-tabulate
-vdk-core
+# testing requirements
+pytest-docker<2
+
+# install earlier version due to https://github.com/yaml/pyyaml/issues/601
+PyYAML==5.3.1
+
 vdk-test-utils

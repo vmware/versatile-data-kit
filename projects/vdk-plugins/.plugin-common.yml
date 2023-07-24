@@ -9,12 +9,12 @@
 
 .build-plugin:
   stage: build
-  before_script:
+  # before_script: leaving it empty so that script can be extended
+  script:
     - cd projects/vdk-plugins/
     - pip install -U pip
     - pip install ./vdk-test-utils # TODO: REMOVE THIS AT SOME POINT
     - if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../vdk-core; fi
-  script:
     - echo "Build plugin $PLUGIN_NAME"
     - cd ./$PLUGIN_NAME || exit 1
     - ../build-plugin.sh
