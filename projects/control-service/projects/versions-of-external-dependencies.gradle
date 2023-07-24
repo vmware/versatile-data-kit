@@ -52,7 +52,7 @@ project.ext {
 
             // transitive dependencies version force (freeze)
             // on next upgrade, revise if those still need to be set explicitly
-            'org.junit.platform:junit-platform-commons'                          : 'org.junit.platform:junit-platform-commons:1.9.3',
+            'org.junit.platform:junit-platform-commons'                          : 'org.junit.platform:junit-platform-commons:1.10.0',
             'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.14',
             'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.14',
             'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.11.1',
