@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
+import os
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
@@ -68,6 +69,26 @@ class RunJobHandler(APIHandler):
         self.finish(json.dumps(run_result))
 
 
+class DeleteJobHandler(APIHandler):
+    """
+    Class responsible for handling POST request for deleting a Data Job given its name, team and Rest API URL
+    Response: return a json formatted str including:
+        ::error field with error message if an error exists
+        ::message field with status of the Vdk operation
+    """
+
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        try:
+            status = VdkUI.delete_job(
+                input_data[VdkOption.NAME.value], input_data[VdkOption.TEAM.value]
+            )
+            self.finish(json.dumps({"message": f"{status}", "error": ""}))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+
+
 class DownloadJobHandler(APIHandler):
     """
     Class responsible for handling POST request for downloading a Data Job given its name, team,
@@ -91,16 +112,20 @@ class DownloadJobHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
-class ConvertJobToNotebookHandler(APIHandler):
+class ConvertJobHandler(APIHandler):
     """
-    Class responsible for handling POST request for converting a Data Job to Notebook given the Rest API URL
-    and the path to its directory
+    Class responsible for handling POST request for transforming a directory type Data job(with .py and .sql files)
+    to a notebook type data job
     """
 
     @tornado.web.authenticated
     def post(self):
-        # TODO fix this as part of the implementation
-        print("Successfully connected to the Convert Job To Notebook handler!")
+        input_data = self.get_json_body()
+        try:
+            message = json.dumps(VdkUI.convert_job(input_data[VdkOption.PATH.value]))
+            self.finish(json.dumps({"message": f"{message}", "error": ""}))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class CreateJobHandler(APIHandler):
@@ -172,6 +197,12 @@ class GetVdkCellIndicesHandler(APIHandler):
         self.finish(json.dumps(vdk_indices))
 
 
+class GetServerPathHandler(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        self.finish(json.dumps(os.getcwd()))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
@@ -184,10 +215,12 @@ def setup_handlers(web_app):
         web_app.add_handlers(host_pattern, job_handlers)
 
     add_handler(RunJobHandler, "run")
+    add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")
-    add_handler(ConvertJobToNotebookHandler, "convertJobToNotebook")
+    add_handler(ConvertJobHandler, "convertJobToNotebook")
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")
     add_handler(GetNotebookInfoHandler, "notebook")
     add_handler(GetVdkCellIndicesHandler, "vdkCellIndices")
+    add_handler(GetServerPathHandler, "serverPath")

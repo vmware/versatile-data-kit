@@ -91,8 +91,22 @@ export async function jobRequest(endPoint: string): Promise<void> {
   }
 }
 
+/**
+ * Sends a POST request to the server to perform a 'transform job to notebook' operation.
+ * This function prepares the job data and makes the request.
+ *
+ * Upon success, the server returns an object containing:
+ * - message: A string that includes the 'codeStructure' and 'filenames' os the steps of the transformed job.
+ * - status: A boolean indicating the operation's success. It's '' when no errors occurred during the operation.
+ *
+ * Upon failure (either server-side or client-side), the function returns an object
+ * with an error message and 'false' status.
+ * Any error that occurred during the operation is also shown to the user.
+ *
+ * @returns A Promise that resolves to an object containing the message from the server and the status of the operation.
+ */
 export async function jobConvertToNotebookRequest(): Promise<{
-  message: String;
+  message: string;
   status: boolean;
 }> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
@@ -104,13 +118,17 @@ export async function jobConvertToNotebookRequest(): Promise<{
           method: 'POST'
         }
       );
-      return { message: data['message'], status: data['message'] == '0' };
+      return { message: data['message'], status: data['error'] == '' };
     } catch (error) {
       showError(error);
       return { message: '', status: false };
     }
   } else {
-    return { message: '', status: false };
+    return {
+      message:
+        'The job path is not defined. Please define it before attempting to convert the job to a notebook.',
+      status: false
+    };
   }
 }
 
@@ -194,4 +212,20 @@ export async function getVdkCellIndices(
     showError(error);
   }
   return [];
+}
+
+export async function getServerDirRequest(): Promise<string> {
+  const data = await requestAPI<any>('serverPath', {
+    method: 'GET'
+  });
+  if (data) {
+    return data;
+  } else {
+    await showErrorMessage(
+      "Encountered an error while trying to connect the server. Error: \
+      the server's location cannot be identified!",
+      [Dialog.okButton()]
+    );
+    return '';
+  }
 }

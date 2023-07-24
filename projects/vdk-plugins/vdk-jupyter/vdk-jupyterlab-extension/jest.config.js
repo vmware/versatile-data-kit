@@ -6,7 +6,8 @@
 const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
 
 const esModules = [
-  '@jupyterlab/',
+  '.*@jupyterlab/',
+  '@jupyter/ydoc',
   'lib0',
   'y\\-protocols',
   'y\\-websocket',
@@ -20,7 +21,6 @@ const {
   moduleNameMapper,
   preset,
   setupFilesAfterEnv,
-  setupFiles,
   testPathIgnorePatterns,
   transform
 } = jlabConfig;
@@ -30,7 +30,7 @@ module.exports = {
   moduleNameMapper,
   preset,
   setupFilesAfterEnv,
-  setupFiles,
+  setupFiles: ['<rootDir>/testutils/jest-setup-files.js'],
   testPathIgnorePatterns,
   transform,
   automock: false,
