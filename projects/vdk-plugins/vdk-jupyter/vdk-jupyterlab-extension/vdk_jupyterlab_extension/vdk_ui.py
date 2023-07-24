@@ -15,6 +15,7 @@ from vdk.internal.control.utils import cli_utils
 from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
 from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
 
+
 class RestApiUrlConfiguration:
     @staticmethod
     def get_rest_api_url():

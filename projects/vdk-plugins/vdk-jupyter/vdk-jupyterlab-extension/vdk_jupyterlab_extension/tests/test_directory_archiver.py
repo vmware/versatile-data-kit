@@ -23,9 +23,9 @@ class TestDirectoryArchiver(unittest.TestCase):
         dir_name = os.path.basename(self.temp_dir)
         parent_dir = os.path.dirname(self.temp_dir)
         expected_archive_name = os.path.join(parent_dir, f"{dir_name}_archive")
-        self.assertEqual(self.archiver.get_archive_name(), expected_archive_name)
+        self.assertEqual(self.archiver._get_archive_name(), expected_archive_name)
 
     def test_archive_folder(self):
         self.archiver.archive_folder()
-        archive_name = self.archiver.get_archive_name()
+        archive_name = self.archiver._get_archive_name()
         self.assertTrue(os.path.exists(f"{archive_name}.zip"))
