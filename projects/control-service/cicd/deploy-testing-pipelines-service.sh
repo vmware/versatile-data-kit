@@ -63,8 +63,6 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
   fi
 fi
 
-echo $CONTROL_SERVICE_URL
-
 # this is the internal hostname of the Control Service.
 # Since all tests (gitlab runners) are installed inside it's easier if we use it.
 export CONTROL_SERVICE_URL=${CONTROL_SERVICE_URL:-"http://cicd-control-service-svc.cicd.svc.cluster.local:8092"}
@@ -78,8 +76,6 @@ cat $VDK_OPTIONS
 # Update vdk-options with substituted variables like sensitive configuration (passwords)
 export VDK_OPTIONS_SUBSTITUTED="${VDK_OPTIONS}.temp"
 envsubst < $VDK_OPTIONS > $VDK_OPTIONS_SUBSTITUTED
-
-cat $VDK_OPTIONS_SUBSTITUTED
 
 cd $TPCS_CHART || exit
 helm dependency update --kubeconfig=$KUBECONFIG
