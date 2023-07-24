@@ -69,7 +69,7 @@ echo $CONTROL_SERVICE_URL
 # Since all tests (gitlab runners) are installed inside it's easier if we use it.
 export CONTROL_SERVICE_URL=${CONTROL_SERVICE_URL:-"http://cicd-control-service-svc.cicd.svc.cluster.local:8092"}
 # Trino host used by data jobs
-export TRINO_HOST=${TRINO_HOST:-"test-trino"}
+export TRINO_HOST=${TRINO_HOST:-"test-trino.cicd.svc.cluster.local"}
 
 
 echo $CONTROL_SERVICE_URL
