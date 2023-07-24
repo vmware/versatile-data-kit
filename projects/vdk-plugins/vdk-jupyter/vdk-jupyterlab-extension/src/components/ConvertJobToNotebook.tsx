@@ -12,6 +12,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import {  IJobPathProp, JupyterCellProps } from './props';
 
 
+export var notebookContent: JupyterCellProps[];
 
 /**
  * A class responsible for the Transform Job operation
@@ -72,8 +73,8 @@ export async function showConvertJobToNotebookDialog(commands: CommandRegistry,
       let { message, status } = await jobConvertToNotebookRequest();
       if (status) {
         const transformjobResult = JSON.parse(message);
-        const notebookContent = initializeNotebookContent(transformjobResult["code_structure"], transformjobResult["removed_files"])
-        await createTranformedNotebook(notebookContent, commands, fileBrowser, notebookTracker);
+        notebookContent  = initializeNotebookContent(transformjobResult["code_structure"], transformjobResult["removed_files"])
+        await createTranformedNotebook(commands, fileBrowser, notebookTracker);
         await showDialog({
           title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
           body: (
@@ -120,7 +121,7 @@ export async function showConvertJobToNotebookDialog(commands: CommandRegistry,
  * @param {FileBrowser} fileBrowser - The file browser to navigate the file system.
  * @param {INotebookTracker} notebookTracker - The notebook tracker to track changes to the notebook.
  */
-export const createTranformedNotebook = async (notebookContent: JupyterCellProps[],
+export const createTranformedNotebook = async (
   commands: CommandRegistry, fileBrowser: FileBrowser, notebookTracker: INotebookTracker) => {
   try {
     const baseDir = await getServerDirRequest();
@@ -128,7 +129,6 @@ export const createTranformedNotebook = async (notebookContent: JupyterCellProps
       jobData.get(VdkOption.PATH)!.split(/[\\/]/).pop() || ""); //get the name of the job using the directory
     await fileBrowser.model.cd(jobData.get(VdkOption.PATH)!.substring(baseDir.length));  // relative path for Jupyter
     commands.execute('notebook:create-new');
-    await populateNotebook(notebookContent, notebookTracker);
   }
   catch (error) {
     await showErrorMessage(
@@ -177,20 +177,16 @@ export const initializeNotebookContent = (codeStructure: string[], fileNames: st
  *
  * The function takes notebook content and a notebook tracker as parameters.
  * When a new notebook becomes active, it is populated with the provided content.
- *
- * @param {JupyterCellProps[]} notebookContent - The content to populate the notebook with.
  * @param {INotebookTracker} notebookTracker - The notebook tracker to track changes to the notebook.
  */
-export const populateNotebook = async (notebookContent: JupyterCellProps[], notebookTracker: INotebookTracker) => {
-  notebookTracker.activeCellChanged.connect((sender, args) => {
+export const populateNotebook = async (notebookTracker: INotebookTracker) => {
     const notebookPanel = notebookTracker.currentWidget;
     if (notebookPanel) {
-      const cells = notebookPanel.content.model?.cells;
-
-      // check if the notebook has only 1 empty cell, which is how we judge if it is a new notebook or not
+      const cells = notebookTracker.currentWidget?.content.model?.cells;
       const cellContent = cells?.get(0).value.text;
-      if (cells && cells.length === 1 && cellContent === '') {
-        cells.clear(); // clear the initial empty cell
+      // check if the notebook has only 1 empty cell, which is how we judge if it is a new notebook or not
+      if (cells && cells.length <= 1 && cellContent == '') {
+        cells.remove(1);
 
         const addMarkdownCell = (source: string[]) => {
           const markdownCell = notebookPanel.content.model?.contentFactory?.createMarkdownCell({
@@ -285,9 +281,9 @@ export const populateNotebook = async (notebookContent: JupyterCellProps[], note
               ]
             })
           }
-
         }
+
+        notebookContent = [];
       }
     }
-  });
 }

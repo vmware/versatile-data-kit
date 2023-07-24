@@ -13,7 +13,7 @@ import { IDocumentManager } from '@jupyterlab/docmanager';
 import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
 
-var runningVdkOperation = false;
+export var runningVdkOperation = '';
 
 export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentManager, fileBrowser: FileBrowser, notebookTracker: INotebookTracker) {
   // Add Run job command
@@ -48,7 +48,7 @@ function add_command(commands: CommandRegistry, schemaNaming: string, label: str
     execute: async () => {
       try {
         if (!runningVdkOperation) {
-          runningVdkOperation = true;
+          runningVdkOperation = schemaNaming;
           jobData.set(VdkOption.PATH, workingDirectory);
           await jobdDataRequest();
           if (label == 'Convert Job To Notebook') await getOperationDialog(commands, fileBrowser, notebookTracker);
@@ -57,7 +57,7 @@ function add_command(commands: CommandRegistry, schemaNaming: string, label: str
           }
           else await getOperationDialog();
           setJobDataToDefault();
-          runningVdkOperation = false;
+          runningVdkOperation = '';
         } else {
           showErrorMessage(
             'Another VDK operation is currently running!',
