@@ -17,11 +17,11 @@ python_image_repo="$VDK_DOCKER_REGISTRY_URL/$python_name"
 python_image_tag_latest="$python_image_repo:latest"
 
 data_job_base_image_repo="$VDK_DOCKER_REGISTRY_URL/$data_job_base_name"
-data_job_base_image_tag_local="$data_job_base_image_repo:local"
 data_job_base_image_tag_version="$data_job_base_image_repo:$VERSION_TAG"
 data_job_base_image_tag_latest="$data_job_base_image_repo:latest"
 
-docker build -t "$data_job_base_image_tag_local" -f "$SCRIPT_DIR/$data_job_base_docker_file" "$SCRIPT_DIR" \
+docker build -t "$data_job_base_image_tag_version" -t "$data_job_base_image_tag_latest" \
+-f "$SCRIPT_DIR/$data_job_base_docker_file" "$SCRIPT_DIR" \
 --build-arg base_image="$python_image_tag_latest"
 
 docker_push_vdk.sh "$data_job_base_image_tag_version"
