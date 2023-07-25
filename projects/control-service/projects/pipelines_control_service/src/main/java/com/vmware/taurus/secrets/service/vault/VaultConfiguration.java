@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.lang.Nullable;
 import org.springframework.vault.authentication.*;
 import org.springframework.vault.client.VaultEndpoint;
 import org.springframework.vault.config.AbstractVaultConfiguration;
@@ -45,7 +44,7 @@ public class VaultConfiguration extends AbstractVaultConfiguration {
 
   @Bean
   public VaultOperations vaultOperations(
-          VaultEndpoint vaultEndpoint, SessionManager sessionManager) {
+      VaultEndpoint vaultEndpoint, SessionManager sessionManager) {
 
     SimpleClientHttpRequestFactory clientHttpRequestFactory = new SimpleClientHttpRequestFactory();
     return new VaultTemplate(vaultEndpoint, clientHttpRequestFactory, sessionManager);
@@ -69,9 +68,9 @@ public class VaultConfiguration extends AbstractVaultConfiguration {
     if (StringUtils.isNotBlank(this.roleId) && StringUtils.isNotBlank(this.secretId)) {
       log.info("Initializing vault integration with AppRole Authentication.");
       AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
-              AppRoleAuthenticationOptions.builder()
-                      .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
-                      .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
+          AppRoleAuthenticationOptions.builder()
+              .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
+              .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
 
       RestTemplate restTemplate = new RestTemplate();
       restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(this.vaultUri));
