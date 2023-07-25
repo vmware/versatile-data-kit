@@ -16,7 +16,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     install_requires=["vdk-core", "iPython"],
     package_dir={"": "src"},
-    packages=setuptools.find_namespace_packages(where="src"),
     entry_points={"vdk.plugin.run": ["ipython = vdk_ipython"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
