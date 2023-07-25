@@ -1,6 +1,6 @@
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
 
-ARG base_image=registry.hub.docker.com/versatiledatakit/data-job-base-python-3.8-secure:local
+ARG base_image=versatiledatakit/data-job-base-python-3.10-secure:latest
 FROM $base_image
 
 ARG UID=1000
