@@ -41,12 +41,11 @@ public class VaultConfiguration extends AbstractVaultConfiguration {
   String secretId;
 
   @Value("${vdk.vault.token:}")
-  @Nullable
   String vaultToken;
 
   @Bean
   public VaultOperations vaultOperations(
-      VaultEndpoint vaultEndpoint, SessionManager sessionManager) {
+          VaultEndpoint vaultEndpoint, SessionManager sessionManager) {
 
     SimpleClientHttpRequestFactory clientHttpRequestFactory = new SimpleClientHttpRequestFactory();
     return new VaultTemplate(vaultEndpoint, clientHttpRequestFactory, sessionManager);
@@ -67,23 +66,23 @@ public class VaultConfiguration extends AbstractVaultConfiguration {
   @Override
   @Bean
   public ClientAuthentication clientAuthentication() {
-    // Token authentication should only be used for development purposes. If the token expires, the
-    // secrets
-    // functionality will stop working
-    if (StringUtils.isNotBlank(vaultToken)) {
-      log.warn("Initializing vault integration with Token Authentication.");
-      return new TokenAuthentication(vaultToken);
-    } else {
+    if (StringUtils.isNotBlank(this.roleId) && StringUtils.isNotBlank(this.secretId)) {
       log.info("Initializing vault integration with AppRole Authentication.");
       AppRoleAuthenticationOptions.AppRoleAuthenticationOptionsBuilder builder =
-          AppRoleAuthenticationOptions.builder()
-              .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
-              .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
+              AppRoleAuthenticationOptions.builder()
+                      .roleId(AppRoleAuthenticationOptions.RoleId.provided(this.roleId))
+                      .secretId(AppRoleAuthenticationOptions.SecretId.provided(this.secretId));
 
       RestTemplate restTemplate = new RestTemplate();
-      restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(vaultUri));
+      restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(this.vaultUri));
 
       return new AppRoleAuthentication(builder.build(), restTemplate);
+    }
+    // Token authentication should only be used for development purposes. If the token expires, the
+    // secrets functionality will stop working
+    else {
+      log.warn("Initializing vault integration with Token Authentication.");
+      return new TokenAuthentication(this.vaultToken);
     }
   }
 }
