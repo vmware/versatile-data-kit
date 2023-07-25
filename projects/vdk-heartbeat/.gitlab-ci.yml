@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-image: "python:3.9"
 
 .vdk_heartbeat_changes: &vdk_heartbeat_changes_locations
   - projects/vdk-heartbeat/**/*
