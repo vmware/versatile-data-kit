@@ -56,3 +56,10 @@
 .vdk-run-dialog-message-container {
   position: relative;
 }
+
+.jp-vdk-check-status-button {
+  background-color: #11239a;
+  margin: 10px;
+  font-size: 20px;
+  color: #33b53a;
+}

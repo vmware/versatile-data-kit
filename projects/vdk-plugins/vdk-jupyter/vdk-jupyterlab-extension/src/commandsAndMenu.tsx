@@ -10,6 +10,10 @@ import { jobdDataRequest } from './serverRequests';
 import { VdkOption } from './vdkOptions/vdk_options';
 import { workingDirectory } from '.';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import {
+  hideCheckStatusButton,
+  showCheckStatusButton
+} from './components/StatusButton';
 
 var runningVdkOperation = false;
 
@@ -30,7 +34,6 @@ export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentMa
   add_command(commands, 'jp-vdk:menu-create-deployment','Deploy','Create deployment of a VDK job', showCreateDeploymentDialog);
 }
 
-
 /**
  *@param schemaNaming - string representing the command in the schema in schema/plugin.json
  *@param label - the label that will be added in the Menu
@@ -38,7 +41,8 @@ export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentMa
  *@param getOperationDialog - function that will load the dialog for the command
  */
 function add_command(commands: CommandRegistry, schemaNaming: string, label: string, caption: string, getOperationDialog: Function,
-  docManager?: IDocumentManager){
+  docManager?: IDocumentManager
+) {
   commands.addCommand(schemaNaming, {
     label: label,
     caption: caption,
@@ -47,7 +51,9 @@ function add_command(commands: CommandRegistry, schemaNaming: string, label: str
         if (!runningVdkOperation) {
           runningVdkOperation = true;
           jobData.set(VdkOption.PATH, workingDirectory);
+          await showCheckStatusButton(commands);
           await jobdDataRequest();
+          hideCheckStatusButton();
           if(docManager) await getOperationDialog(docManager);
           else  await getOperationDialog();
           setJobDataToDefault();
