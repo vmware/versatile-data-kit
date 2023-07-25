@@ -1102,4 +1102,4 @@ secrets:
         approle:
             roleid: foo
             secretid: foo
-        sizeLimitBytes: 1048576
+        sizeLimitBytes: "1048576"
