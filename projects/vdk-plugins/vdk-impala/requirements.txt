@@ -1,5 +1,8 @@
+docker-compose
 
 # testing requirements
-docker-compose
-pytest-docker
+pytest-docker<2
+
+# install earlier version due to https://github.com/yaml/pyyaml/issues/601
+PyYAML==5.3.1
 vdk-test-utils
