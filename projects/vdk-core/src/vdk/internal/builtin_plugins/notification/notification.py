@@ -15,6 +15,7 @@ from vdk.internal.builtin_plugins.notification.notification_configuration import
     SmtpConfiguration,
 )
 from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
+from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
@@ -29,7 +30,7 @@ def __get_list(value: str) -> List[str]:
     return result
 
 
-def _notify(error_overall, user_error, configuration, state):
+def _notify(error_overall, user_error, configuration, state, job_name):
     notification_cfg = NotificationConfiguration(configuration)
 
     if (
@@ -41,7 +42,6 @@ def _notify(error_overall, user_error, configuration, state):
         f"Prepare to send notification if necessary: error_overall: {error_overall}"
     )
 
-    job_name = state.get(ExecutionStateStoreKeys.JOB_NAME)
     op_id = state.get(CommonStoreKeys.OP_ID)
 
     job_log_url_template = notification_cfg.get_job_log_url_pattern()
@@ -107,9 +107,16 @@ def _notify(error_overall, user_error, configuration, state):
 
 
 class NotificationPlugin:
+    def __init__(self):
+        self._job_name = None
+
     @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder):
         notification_configuration.add_definitions(config_builder)
+
+    @hookimpl
+    def finalize_job(self, context: JobContext):
+        self._job_name = context.name
 
     @hookimpl
     def vdk_exit(self, context: CoreContext, exit_code: int):
@@ -121,4 +128,5 @@ class NotificationPlugin:
                 errors.get_blamee_overall_user_error(),  # TODO: get this from context
                 context.configuration,
                 context.state,
+                job_name=self._job_name,
             )
