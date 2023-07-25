@@ -305,13 +305,18 @@ spec:
             - name: VDK_VAULT_URI
               valueFrom:
                 secretKeyRef:
-                  name: { { .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) } }
+                  name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
                   key: URI
-            - name: VDK_VAULT_TOKEN
+            - name: VDK_VAULT_APPROLE_ROLEID
               valueFrom:
                 secretKeyRef:
-                  name: { { .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) } }
-                  key: TOKEN
+                  name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
+                  key: ROLEID
+            - name: VDK_VAULT_APPROLE_SECRETID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
+                  key: SECRETID
             - name: DATAJOBS_VAULT_SIZE_LIMIT_BYTES
               value: "{{ .Values.secrets.vault.sizeLimitBytes }}"
             {{- end }}

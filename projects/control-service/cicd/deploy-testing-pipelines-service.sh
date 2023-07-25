@@ -61,14 +61,13 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
     kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"},{"name":"'$dockerhub_secretname'"}]}'
 
   fi
-
 fi
 
 # this is the internal hostname of the Control Service.
 # Since all tests (gitlab runners) are installed inside it's easier if we use it.
-export CONTROL_SERVICE_URL=${CONTROL_SERVICE_URL:-"http://cicd-control-service-svc:8092"}
+export CONTROL_SERVICE_URL=${CONTROL_SERVICE_URL:-"http://cicd-control-service-svc.cicd.svc.cluster.local:8092"}
 # Trino host used by data jobs
-export TRINO_HOST=${TRINO_HOST:-"test-trino"}
+export TRINO_HOST=${TRINO_HOST:-"test-trino.cicd.svc.cluster.local"}
 
 # Update vdk-options with substituted variables like sensitive configuration (passwords)
 export VDK_OPTIONS_SUBSTITUTED="${VDK_OPTIONS}.temp"
@@ -113,5 +112,7 @@ helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
       --set security.oauth2.jwtJwkSetUri=https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/token-public-key?format=jwks \
       --set security.oauth2.jwtIssuerUrl=https://gaz-preview.csp-vidm-prod.com \
       --set security.authorizationEnabled=false \
+      --set deploymentK8sNamespace="cicd-deployment" \
+      --set controlK8sNamespace="cicd-control" \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
       --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service"

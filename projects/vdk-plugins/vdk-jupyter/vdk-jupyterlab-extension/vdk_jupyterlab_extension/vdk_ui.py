@@ -8,9 +8,12 @@ import subprocess
 from pathlib import Path
 
 from vdk.internal.control.command_groups.job.create import JobCreate
+from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
+from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
+from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
 
 
 class RestApiUrlConfiguration:
@@ -87,6 +90,18 @@ class VdkUI:
                         error = json.load(file)
                         return {"message": error["details"]}
             return {"message": process.returncode}
+
+    @staticmethod
+    def delete_job(name: str, team: str):
+        """
+        Execute `delete job`.
+        :param name: the name of the data job that will be deleted
+        :param team: the team of the data job that will be deleted
+        :return: message that the job is deleted
+        """
+        cmd = JobDelete(RestApiUrlConfiguration.get_rest_api_url())
+        cmd.delete_job(name, team)
+        return f"Deleted the job with name {name} from {team} team. "
 
     @staticmethod
     def download_job(name: str, team: str, path: str):
@@ -209,3 +224,23 @@ class VdkUI:
                 if "vdk" in jupyter_cell["metadata"].get("tags", {}):
                     vdk_cells.append(index)
             return vdk_cells
+
+    @staticmethod
+    def convert_job(job_dir: str):
+        """
+        Transforms the job in the specified directory by archiving it, processing the Python and SQL files,
+        and returning a processed code structure.
+        :param job_dir: Path to the directory of the job to be transformed.
+        :return: The processed code structure.
+        """
+        job_dir = Path(job_dir)
+        archiver = DirectoryArchiver(job_dir)
+        processor = ConvertJobDirectoryProcessor(job_dir)
+        archiver.archive_folder()
+        processor.process_files()
+        message = {
+            "code_structure": processor.get_code_structure(),
+            "removed_files": processor.get_removed_files(),
+        }
+        processor.cleanup()
+        return message

@@ -51,6 +51,7 @@ def test_run_successfull(smtpd: SMTPDFix):
         assert len(smtpd.messages) == 1
         message: Message = smtpd.messages[0]
         assert "tester@unittest.test" == message.get("To")
+        assert "simple-job" in message.get("Subject")
 
 
 def test_run_successfull_notify_multiple_users(smtpd: SMTPDFix):

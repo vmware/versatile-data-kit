@@ -42,8 +42,8 @@ test('should try to run a job with incorrect data and get a dialog error message
   await page.goto('');
   await page.menu.open('VDK');
   await page.locator('#jp-vdk-menu').getByText('Run').click();
-  await page.getByLabel('Path to parent directory:').click();
-  await page.getByLabel('Path to parent directory:').fill('/my-folder');
+  await page.getByLabel('Path to job directory:').click();
+  await page.getByLabel('Path to job directory:').fill('/my-folder');
   await page.getByRole('button', { name: 'OK' }).click();
   page.once('dialog', async dialog => {
     console.log(`Dialog message: ${dialog.message()}`);
@@ -86,8 +86,8 @@ test('should try to create a job with incorrect input and get error', async ({
   await page.getByLabel('Job name:').fill('first-job');
   await page.getByLabel('Job team:').click();
   await page.getByLabel('Job team:').fill('example-team');
-  await page.getByLabel('Path to parent directory:').click();
-  await page.getByLabel('Path to parent directory:').fill('sdfgsdfsdfsd');
+  await page.getByLabel('Path to job directory:').click();
+  await page.getByLabel('Path to job directory:').fill('sdfgsdfsdfsd');
   await page.getByRole('button', { name: 'OK' }).click();
   await page
     .locator('div')
@@ -117,4 +117,14 @@ test('should try download operation with empty input and get error', async ({
     hasText: 'Encountered an error when trying to download the job. '
   });
   await page.getByRole('button', { name: 'OK' }).click();
+});
+
+test('should create an init cell when opening a new notebook', async ({
+  page
+}) => {
+  await page.goto('');
+  await page.locator('.jp-LauncherCard-icon').first().click();
+  await expect(
+    page.getByText(`job_input = VDK.get_initialized_job_input()`)
+  ).toBeVisible();
 });

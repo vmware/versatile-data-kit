@@ -44,6 +44,9 @@ public class JobImageBuilder {
   @Value("${datajobs.git.password}")
   private String gitPassword;
 
+  @Value("${datajobs.git.branch}")
+  private String gitDataJobsBranch;
+
   @Value("${datajobs.docker.repositoryUrl}")
   private String dockerRepositoryUrl;
 
@@ -83,6 +86,7 @@ public class JobImageBuilder {
   private final KubernetesResources kubernetesResources;
   private final AWSCredentialsService awsCredentialsService;
   private final SupportedPythonVersions supportedPythonVersions;
+  private final EcrRegistryInterface ecrRegistryInterface;
 
   public JobImageBuilder(
       ControlKubernetesService controlKubernetesService,
@@ -90,7 +94,8 @@ public class JobImageBuilder {
       DeploymentNotificationHelper notificationHelper,
       KubernetesResources kubernetesResources,
       AWSCredentialsService awsCredentialsService,
-      SupportedPythonVersions supportedPythonVersions) {
+      SupportedPythonVersions supportedPythonVersions,
+      EcrRegistryInterface ecrRegistryInterface) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
@@ -98,6 +103,7 @@ public class JobImageBuilder {
     this.kubernetesResources = kubernetesResources;
     this.awsCredentialsService = awsCredentialsService;
     this.supportedPythonVersions = supportedPythonVersions;
+    this.ecrRegistryInterface = ecrRegistryInterface;
   }
 
   /**
@@ -117,6 +123,7 @@ public class JobImageBuilder {
   public boolean buildImage(
       String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
+    // TODO: refactor and hide AWS details behind DockerRegistryService?
     var credentials = awsCredentialsService.createTemporaryCredentials();
 
     String builderAwsSecretAccessKey = credentials.awsSecretAccessKey();
@@ -156,6 +163,12 @@ public class JobImageBuilder {
       while (controlKubernetesService.listJobs().contains(builderJobName)) {
         Thread.sleep(1000);
       }
+    }
+
+    if (REGISTRY_TYPE_ECR.equalsIgnoreCase(registryType)) {
+      ecrRegistryInterface.createRepository(
+          DockerImageName.getImagePath(dockerRepositoryUrl) + "/" + dataJob.getName(),
+          awsCredentialsService.createTemporaryCredentials());
     }
 
     var args =
@@ -267,6 +280,7 @@ public class JobImageBuilder {
         entry("DATA_JOB_NAME", jobName),
         entry("GIT_COMMIT", jobVersion),
         entry("JOB_GITHASH", jobVersion),
+        entry("GIT_BRANCH", gitDataJobsBranch),
         entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
         entry("BASE_IMAGE", dataJobBaseImage),
         entry("EXTRA_ARGUMENTS", builderJobExtraArgs),

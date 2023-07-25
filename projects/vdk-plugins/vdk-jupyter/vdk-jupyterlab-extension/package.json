@@ -115,7 +115,8 @@
     "stylelint-config-recommended": "6.0.0",
     "stylelint-config-standard": "24.0.0",
     "stylelint-prettier": "2.0.0",
-    "ts-jest": "27.1.4"
+    "ts-jest": "27.1.4",
+    "jest-fetch-mock": "^3.0.0"
   },
   "sideEffects": [
     "style/*.css",

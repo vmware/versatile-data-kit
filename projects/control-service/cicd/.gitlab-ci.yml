@@ -72,9 +72,9 @@ control_service_integration_test:
   stage: build
   variables:
     DEPLOYMENT_K8S_KUBECONFIG: "~/.kube/config"
-    DEPLOYMENT_K8S_NAMESPACE: $CICD_KUBERNETES_NAMESPACE
+    DEPLOYMENT_K8S_NAMESPACE: cicd-deployment
     CONTROL_K8S_KUBECONFIG: "~/.kube/config"
-    CONTROL_K8S_NAMESPACE: $CICD_KUBERNETES_NAMESPACE
+    CONTROL_K8S_NAMESPACE: cicd-control
     DOCKER_REGISTRY_URL: $CICD_CONTAINER_REGISTRY_URI
     DOCKER_REGISTRY_USERNAME: $CICD_CONTAINER_REGISTRY_USER_NAME
     DOCKER_REGISTRY_PASSWORD: $CICD_CONTAINER_REGISTRY_USER_PASSWORD
@@ -249,7 +249,7 @@ control_service_publish_python_image_secure_3_11:
     PYTHON_PATCH: 3
 
 control_service_publish_job_builder_image:
-  extends: .images:dind
+  extends: .images:dind:docker-push-to-vdk-repos
   stage: publish_artifacts
   script:
     - apk add --no-cache bash
