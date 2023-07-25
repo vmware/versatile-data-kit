@@ -11,4 +11,3 @@ class VdkOption(Enum):
     LOCAL = "local"
     ARGUMENTS = "jobArguments"
     DEPLOYMENT_REASON = "deploymentReason"
-    DEPLOY_ENABLE = "enableDeploy"
