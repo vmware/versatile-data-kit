@@ -1,45 +1,58 @@
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
 
-ARG base_image=versatiledatakit/data-job-base-python-3.10-secure:latest
-
+ARG base_image=registry.hub.docker.com/versatiledatakit/data-job-base-python-3.8-secure:local
 FROM $base_image
 
 ARG UID=1000
 ARG GID=1000
+ARG job_name
+ARG job_githash
+ARG requirements_file=requirements.txt
+
+ENV JOB_NAME $job_name
+ENV VDK_JOB_GITHASH $job_githash
+ENV HOME=/job
 
 # Set the working directory
 WORKDIR /job
 
-# Validate base image is python based
-RUN python -V
-# Create necessary users and set home directory to /job
-RUN groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job
-ENV HOME=/job
-
 # Copy the actual job that has to be executed
-ARG job_name
 COPY --chown=$UID:$GID $job_name $job_name/
 
-# Remove execute permissions for files within the Data job directory, but not for the directories themselves
-RUN chmod -R -x+X $job_name/*
-
-# TODO: this would trigger for any change in job even if requirements.txt does not change
-# but there's no COPY_IF_EXISTS command in docker to try copy it.
-ARG requirements_file=requirements.txt
-RUN if [ -f "$job_name/$requirements_file" ]; then pip3 install --disable-pip-version-check -q -r "$job_name/$requirements_file" || ( echo ">requirements_failed<" && exit 1 ) ; fi
-
-ARG job_githash
-ENV JOB_NAME $job_name
-ENV VDK_JOB_GITHASH $job_githash
-
-# Delete system executables
-RUN rm /usr/bin/chmod
-RUN rm /usr/bin/chown
-RUN rm /usr/sbin/groupadd
-RUN rm /usr/sbin/groupdel
-RUN rm /usr/sbin/useradd
-RUN rm /usr/sbin/userdel
-RUN rm /usr/bin/uname
-RUN python -m pip uninstall pip -y
+# Install native dependencies
+RUN : \
+     && set -ex \
+     && echo "Validating base image is python based ..." \
+     && python -V \
+     && echo "Creating necessary users and set home directory to /job ..." \
+     && yum install shadow libffi-devel -y && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox -y \
+     && echo "Removing execute permissions for files within the Data job directory, but not for the directories themselves ..." \
+     && chmod -R -x+X $job_name/* \
+     && if grep -q -E "^oracledb|^cx_Oracle" "$job_name/$requirements_file"; then \
+           echo "Installing native dependencies related to support for oracledb python library ..." \
+           && mkdir -p /opt/lib/native  \
+           && yum -y install libaio unzip \
+           && curl --insecure --output oracle-instantclient.zip https://download.oracle.com/otn_software/linux/instantclient/2110000/instantclient-basic-linux.x64-21.10.0.0.0dbru.zip \
+           && unzip oracle-instantclient.zip -d /opt/lib/native/oracle && rm -f oracle-instantclient.zip \
+           && sh -c "echo /opt/lib/native/oracle/instantclient_21_10 > /etc/ld.so.conf.d/oracle-instantclient.conf" \
+           && ldconfig; fi \
+    && if [ -f "$job_name/$requirements_file" ]; then \
+          echo "Installing native dependencies ..." \
+          && yum install shadow build-essential gcc glibc-devel git -y \
+          && echo "Installing requirements.txt ..." \
+          && pip3 install --disable-pip-version-check -q -r "$job_name/$requirements_file"  \
+          || ( echo ">requirements_failed<" && exit 1 ) \
+          && echo "Removing native dependencies ..." \
+          && yum autoremove shadow build-essential gcc glibc-devel git curl unzip -y;  fi \
+    && echo "Deleting system directories ..." \
+    && yum install findutils -y  \
+    && rm -rf /boot /home /media /mnt /root /sbin /srv /var /usr/lib/ldscripts /usr/lib/rpm /usr/lib/sysimage  \
+    /usr/lib/tdnf /usr/lib/perl5 /usr/lib/gcc /usr/share/locale /tmp/* /usr/include /usr/libexec /usr/sbin /usr/libexec  \
+    && echo "Deleting system binaries ..." \
+    && python -m pip uninstall pip -y \
+    && cd /usr/local/bin \
+    && ls | grep -xv "python" | grep -xv "python3" | xargs rm -rf \
+    && cd /usr/bin \
+    && ls | grep -xv "sh" | grep -xv "bash" | xargs rm -rf
 
 USER $UID
