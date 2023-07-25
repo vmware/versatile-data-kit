@@ -45,8 +45,7 @@ export function getJobDataJsonObject() {
     cloud: jobData.get(VdkOption.CLOUD),
     local: jobData.get(VdkOption.LOCAL),
     jobArguments: jobData.get(VdkOption.ARGUMENTS),
-    deploymentReason: jobData.get(VdkOption.DEPLOYMENT_REASON),
-    enableDeploy: jobData.get(VdkOption.DEPLOY_ENABLE)
+    deploymentReason: jobData.get(VdkOption.DEPLOYMENT_REASON)
   };
   return jsObj;
 }
