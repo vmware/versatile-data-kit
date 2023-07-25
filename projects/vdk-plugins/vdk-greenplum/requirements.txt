@@ -4,5 +4,5 @@ docker-compose
 pytest-docker<2
 
 # install earlier version due to https://github.com/yaml/pyyaml/issues/601
-PyYAML==5.3.1
+PyYAML==5.4
 vdk-test-utils
