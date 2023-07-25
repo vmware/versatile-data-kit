@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -27,6 +28,7 @@ import java.net.URISyntaxException;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty(value = "featureflag.vault.integration.enabled")
 public class VaultConfiguration extends AbstractVaultConfiguration {
 
   @Value("${vdk.vault.uri:}")
