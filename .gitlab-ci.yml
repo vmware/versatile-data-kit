@@ -1,6 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+# default image used by all pipelines if not overridden per job 
 image: "python:3.9"
 
 include:
