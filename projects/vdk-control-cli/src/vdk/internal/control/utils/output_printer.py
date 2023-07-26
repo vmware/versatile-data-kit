@@ -61,7 +61,7 @@ def printer(output_format: str) -> callable:
 
 
 @printer("text")
-class _PrinterText(Printer):
+class PrinterText(Printer):
     def print_table(self, table: Optional[List[Dict[str, Any]]]) -> None:
         if table and len(table) > 0:
             click.echo(tabulate(table, headers="keys", tablefmt="fancy_grid"))
@@ -94,7 +94,7 @@ def json_format(data, indent=None):
 
 
 @printer("json")
-class _PrinterJson(Printer):
+class PrinterJson(Printer):
     def print_table(self, data: List[Dict[str, Any]]) -> None:
         if data:
             click.echo(json_format(data))
@@ -108,17 +108,17 @@ class _PrinterJson(Printer):
             click.echo("{}")
 
 
-class _MemoryPrinter(Printer):
+class MemoryPrinter(Printer):
     output_buffer = io.StringIO()
 
     def print_table(self, table: Optional[List[Dict[str, Any]]]) -> None:
         if table and len(table) > 0:
             print(
                 tabulate(table, headers="keys", tablefmt="fancy_grid"),
-                file=_MemoryPrinter.output_buffer,
+                file=MemoryPrinter.output_buffer,
             )
         else:
-            print("No Data.", file=_MemoryPrinter.output_buffer)
+            print("No Data.", file=MemoryPrinter.output_buffer)
 
     def print_dict(self, data: Optional[Dict[str, Any]]) -> None:
         if data:
@@ -127,10 +127,10 @@ class _MemoryPrinter(Printer):
                     [[k, v] for k, v in data.items()],
                     headers=("key", "value"),
                 ),
-                file=_MemoryPrinter.output_buffer,
+                file=MemoryPrinter.output_buffer,
             )
         else:
-            print("No Data.", file=_MemoryPrinter.output_buffer)
+            print("No Data.", file=MemoryPrinter.output_buffer)
 
     @classmethod
     def get_memory(cls):
@@ -138,8 +138,8 @@ class _MemoryPrinter(Printer):
 
     @staticmethod
     def cleanup() -> None:
-        _MemoryPrinter.output_buffer.close()
-        _MemoryPrinter.output_buffer = io.StringIO()
+        MemoryPrinter.output_buffer.close()
+        MemoryPrinter.output_buffer = io.StringIO()
 
 
 def create_printer(output_format: str) -> Printer:

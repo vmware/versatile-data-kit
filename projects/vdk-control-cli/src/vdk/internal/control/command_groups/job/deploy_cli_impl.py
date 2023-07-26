@@ -20,9 +20,9 @@ from vdk.internal.control.job.job_config import JobConfig
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
 from vdk.internal.control.utils.cli_utils import get_or_prompt
-from vdk.internal.control.utils.output_printer import _PrinterJson
-from vdk.internal.control.utils.output_printer import _PrinterText
 from vdk.internal.control.utils.output_printer import Printer
+from vdk.internal.control.utils.output_printer import PrinterJson
+from vdk.internal.control.utils.output_printer import PrinterText
 
 log = logging.getLogger(__name__)
 
@@ -193,7 +193,7 @@ class JobDeploy:
         self.deploy_api.deployment_update(
             team_name=team, job_name=name, data_job_deployment=deployment
         )
-        if isinstance(self.__printer, _PrinterText):
+        if isinstance(self.__printer, PrinterText):
             log.info(
                 f"Request to deploy Data Job {name} using version {deployment.job_version} finished successfully.\n"
                 f"It would take a few minutes for the Data Job to be deployed in the server.\n"
@@ -239,7 +239,7 @@ class JobDeploy:
                 ),
                 deployments,
             )
-            if isinstance(self.__printer, _PrinterText):
+            if isinstance(self.__printer, PrinterText):
                 click.echo(
                     "You can compare the version seen here to the one seen when "
                     "deploying to verify your deployment was successful."
@@ -283,7 +283,7 @@ class JobDeploy:
             "Team Name", team or job_config.get_team() or load_default_team_name()
         )
 
-        if isinstance(self.__printer, _PrinterText):
+        if isinstance(self.__printer, PrinterText):
             log.info(
                 f"Deploy Data Job with name {name} from directory {job_path} ... \n"
             )
@@ -294,10 +294,10 @@ class JobDeploy:
         try:
             job_archive_binary = self.__archive_binary(archive_path)
 
-            if isinstance(self.__printer, _PrinterText):
+            if isinstance(self.__printer, PrinterText):
                 log.info("Uploading the data job might take some time ...")
             with click_spinner.spinner(
-                disable=(isinstance(self.__printer, _PrinterJson))
+                disable=(isinstance(self.__printer, PrinterJson))
             ):
                 data_job_version = self.job_sources_api.sources_upload(
                     team_name=team,
