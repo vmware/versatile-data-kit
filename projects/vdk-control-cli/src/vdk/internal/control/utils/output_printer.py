@@ -136,6 +136,11 @@ class _MemoryPrinter(Printer):
     def get_memory(cls):
         return cls.output_buffer.getvalue()
 
+    @staticmethod
+    def cleanup() -> None:
+        _MemoryPrinter.output_buffer.close()
+        _MemoryPrinter.output_buffer = io.StringIO()
+
 
 def create_printer(output_format: str) -> Printer:
     """
