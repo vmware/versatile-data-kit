@@ -257,9 +257,9 @@ spec:
             - name: LOGGING_FORMAT
               value: "{{ .Values.loggingFormat }}"
             {{- end }}
-            {{- if .Values.dataJob.readOnlyRootFilesystem }}
+            {{- if .Values.dataJob.readOnlyRootFileSystem }}
             - name: DATAJOBS_READ_ONLY_ROOT_FILESYSTEM
-              value: "{{ .Values.dataJob.readOnlyRootFilesystem }}"
+              value: "{{ .Values.dataJob.readOnlyRootFileSystem }}"
             {{- end }}
             {{- if .Values.deploymentBuilderImage.password }}
             - name: DATAJOBS_BUILDER_REGISTRY_SECRET
