@@ -8,7 +8,8 @@ from typing import Optional
 import click
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
-from vdk.internal.control.utils import cli_utils, output_printer
+from vdk.internal.control.utils import cli_utils
+from vdk.internal.control.utils import output_printer
 from vdk.internal.control.utils.cli_utils import get_or_prompt
 
 

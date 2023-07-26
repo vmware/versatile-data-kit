@@ -1,6 +1,7 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import abc
+import io
 import json
 from enum import Enum
 from enum import unique
@@ -11,7 +12,6 @@ from typing import Optional
 
 import click
 from tabulate import tabulate
-import io
 
 
 class Printer(abc.ABC):
