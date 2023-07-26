@@ -110,16 +110,16 @@ class PrinterJson(Printer):
 
 class InMemoryTextPrinter(Printer):
     def __init__(self):
-        self.output_buffer = io.StringIO()
+        self.__output_buffer = io.StringIO()
 
     def print_table(self, table: Optional[List[Dict[str, Any]]]) -> None:
         if table and len(table) > 0:
             print(
                 tabulate(table, headers="keys", tablefmt="fancy_grid"),
-                file=self.output_buffer,
+                file=self.__output_buffer,
             )
         else:
-            print("No Data.", file=self.output_buffer)
+            print("No Data.", file=self.__output_buffer)
 
     def print_dict(self, data: Optional[Dict[str, Any]]) -> None:
         if data:
@@ -128,13 +128,13 @@ class InMemoryTextPrinter(Printer):
                     [[k, v] for k, v in data.items()],
                     headers=("key", "value"),
                 ),
-                file=self.output_buffer,
+                file=self.__output_buffer,
             )
         else:
-            print("No Data.", file=self.output_buffer)
+            print("No Data.", file=self.__output_buffer)
 
     def get_memory(self):
-        return self.output_buffer.getvalue()
+        return self.__output_buffer.getvalue()
 
 
 def create_printer(output_format: str) -> Printer:

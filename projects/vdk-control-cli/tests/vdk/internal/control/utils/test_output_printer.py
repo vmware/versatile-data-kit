@@ -90,7 +90,7 @@ class TestMemoryPrinter(unittest.TestCase):
 
         self.printer.print_dict(data)
 
-        output = self.printer.output_buffer.getvalue().strip()
+        output = self.printer.get_memory().strip()
 
         self.assertIn("key", output)
         self.assertIn("value", output)
@@ -102,7 +102,7 @@ class TestMemoryPrinter(unittest.TestCase):
         ]
         self.printer.print_table(data)
 
-        output = self.printer.output_buffer.getvalue().strip()
+        output = self.printer.get_memory().strip()
 
         self.assertIn("key1", output)
         self.assertIn("key2", output)
@@ -115,7 +115,7 @@ class TestMemoryPrinter(unittest.TestCase):
         self.printer.print_dict(None)
 
         expected_output = "No Data."
-        actual_output = self.printer.output_buffer.getvalue().strip()
+        actual_output = self.printer.get_memory().strip()
 
         self.assertEqual(actual_output, expected_output)
 
@@ -123,7 +123,7 @@ class TestMemoryPrinter(unittest.TestCase):
         self.printer.print_table(None)
 
         expected_output = "No Data."
-        actual_output = self.printer.output_buffer.getvalue().strip()
+        actual_output = self.printer.get_memory().strip()
 
         self.assertEqual(actual_output, expected_output)
 
