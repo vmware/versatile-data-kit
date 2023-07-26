@@ -359,7 +359,9 @@ const provideDataJobsExecutions = (taskConfig, config) => {
                                                             jobExecutionTimeout,
                                                             prevCommandInner.lastDeployment,
                                                             targetExecutions -
-                                                                prevCommandInner.executions,
+                                                                prevCommandInner
+                                                                    .executions
+                                                                    .length,
                                                             config
                                                         ).then((result) => {
                                                             return {
