@@ -108,17 +108,17 @@ class PrinterJson(Printer):
             click.echo("{}")
 
 
-class MemoryPrinter(Printer):
+class InMemoryTextPrinter(Printer):
     output_buffer = io.StringIO()
 
     def print_table(self, table: Optional[List[Dict[str, Any]]]) -> None:
         if table and len(table) > 0:
             print(
                 tabulate(table, headers="keys", tablefmt="fancy_grid"),
-                file=MemoryPrinter.output_buffer,
+                file=InMemoryTextPrinter.output_buffer,
             )
         else:
-            print("No Data.", file=MemoryPrinter.output_buffer)
+            print("No Data.", file=InMemoryTextPrinter.output_buffer)
 
     def print_dict(self, data: Optional[Dict[str, Any]]) -> None:
         if data:
@@ -127,10 +127,10 @@ class MemoryPrinter(Printer):
                     [[k, v] for k, v in data.items()],
                     headers=("key", "value"),
                 ),
-                file=MemoryPrinter.output_buffer,
+                file=InMemoryTextPrinter.output_buffer,
             )
         else:
-            print("No Data.", file=MemoryPrinter.output_buffer)
+            print("No Data.", file=InMemoryTextPrinter.output_buffer)
 
     @classmethod
     def get_memory(cls):
@@ -138,8 +138,8 @@ class MemoryPrinter(Printer):
 
     @staticmethod
     def cleanup() -> None:
-        MemoryPrinter.output_buffer.close()
-        MemoryPrinter.output_buffer = io.StringIO()
+        InMemoryTextPrinter.output_buffer.close()
+        InMemoryTextPrinter.output_buffer = io.StringIO()
 
 
 def create_printer(output_format: str) -> Printer:

@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 from vdk.internal.control.utils import output_printer
 from vdk.internal.control.utils.output_printer import create_printer
-from vdk.internal.control.utils.output_printer import MemoryPrinter
+from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
 from vdk.internal.control.utils.output_printer import Printer
 from vdk.internal.control.utils.output_printer import PrinterJson
 from vdk.internal.control.utils.output_printer import PrinterText
@@ -83,7 +83,7 @@ class TestPrinterJson:
 
 class TestMemoryPrinter(unittest.TestCase):
     def setUp(self):
-        self.printer = MemoryPrinter()
+        self.printer = InMemoryTextPrinter()
 
     def test_print_dict(self):
         data = {"key": "value"}
