@@ -19,9 +19,9 @@ from vdk.internal.control.job.job_archive import JobArchive
 from vdk.internal.control.job.job_config import JobConfig
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
-from vdk.internal.control.utils import output_printer
 from vdk.internal.control.utils.cli_utils import get_or_prompt
-from vdk.internal.control.utils.output_printer import OutputFormat
+from vdk.internal.control.utils.output_printer import _PrinterText, _PrinterJson
+from vdk.internal.control.utils.output_printer import Printer
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class JobDeploy:
     ZIP_ARCHIVE_TYPE = "zip"
     ARCHIVE_SUFFIX = "-archive"
 
-    def __init__(self, rest_api_url: str, output_format: str):
+    def __init__(self, rest_api_url: str, printer: Printer):
         self.deploy_api = ApiClientFactory(rest_api_url).get_deploy_api()
         self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
         self.job_sources_api = ApiClientFactory(rest_api_url).get_jobs_sources_api()
@@ -38,8 +38,7 @@ class JobDeploy:
         # Ultimately this will be user facing parameter (possibly fetched from config.ini)
         self.__deployment_id = "production"
         self.__job_archive = JobArchive()
-        self.__output_format = output_format
-        self.__printer = output_printer.create_printer(self.__output_format)
+        self.__printer = printer
 
     @staticmethod
     def __detect_keytab_files_in_job_directory(job_path: str) -> None:
@@ -68,9 +67,9 @@ class JobDeploy:
                 why=f"Team param ({team}) and team value in config.ini ({job_config_team}) do not match.",
                 consequence="The latest change is not deployed, job will continue to run with previous version.",
                 countermeasure=f"1. Fix config.ini to set correct team (if it is {team}) OR\n"
-                f"2. Do not pass team param (team {job_config_team} will be automatically used from config.ini) OR\n"
-                f"3. Pass param team={job_config_team} OR\n"
-                f"4. Create a new job with team={team} and try to deploy it\n",
+                               f"2. Do not pass team param (team {job_config_team} will be automatically used from config.ini) OR\n"
+                               f"3. Pass param team={job_config_team} OR\n"
+                               f"4. Create a new job with team={team} and try to deploy it\n",
             )
 
         # TODO: we may use https://github.com/Yelp/detect-secrets to make sure users do not accidentally pass secrets
@@ -121,7 +120,7 @@ class JobDeploy:
             )
 
     def __update_data_job_deploy_configuration(
-        self, job_path: str, name: str, team: str
+            self, job_path: str, name: str, team: str
     ) -> None:
         job: DataJob = self.__read_data_job(name, team)
         local_config = JobConfig(job_path)
@@ -148,13 +147,13 @@ class JobDeploy:
 
     @ApiClientErrorDecorator()
     def update(
-        self,
-        name: str,
-        team: str,
-        enabled: Optional[bool],  # true, false or None
-        job_version: Optional[str],
-        vdk_version: Optional[str],
-        python_version: Optional[str] = None,
+            self,
+            name: str,
+            team: str,
+            enabled: Optional[bool],  # true, false or None
+            job_version: Optional[str],
+            vdk_version: Optional[str],
+            python_version: Optional[str] = None,
     ) -> None:
         deployment = DataJobDeployment(enabled=None)
         if job_version:
@@ -176,7 +175,7 @@ class JobDeploy:
             log.warning(f"Nothing to update for deployment of job {name}.")
 
     def __patch_deployment(
-        self, name: str, team: str, deployment: DataJobDeployment
+            self, name: str, team: str, deployment: DataJobDeployment
     ) -> None:
         log.debug(f"Update Deployment of a job {name} of team {team} : {deployment}")
         self.deploy_api.deployment_patch(
@@ -193,7 +192,7 @@ class JobDeploy:
         self.deploy_api.deployment_update(
             team_name=team, job_name=name, data_job_deployment=deployment
         )
-        if self.__output_format == OutputFormat.TEXT.value:
+        if isinstance(self.__printer, _PrinterText):
             log.info(
                 f"Request to deploy Data Job {name} using version {deployment.job_version} finished successfully.\n"
                 f"It would take a few minutes for the Data Job to be deployed in the server.\n"
@@ -239,7 +238,7 @@ class JobDeploy:
                 ),
                 deployments,
             )
-            if self.__output_format == OutputFormat.TEXT.value:
+            if isinstance(self.__printer, _PrinterText):
                 click.echo(
                     "You can compare the version seen here to the one seen when "
                     "deploying to verify your deployment was successful."
@@ -253,13 +252,13 @@ class JobDeploy:
 
     @ApiClientErrorDecorator()
     def create(
-        self,
-        name: str,
-        team: str,
-        job_path: str,
-        reason: str,
-        vdk_version: Optional[str],
-        enabled: Optional[bool],
+            self,
+            name: str,
+            team: str,
+            job_path: str,
+            reason: str,
+            vdk_version: Optional[str],
+            enabled: Optional[bool],
     ) -> None:
         log.debug(
             f"Create Deployment of a job {name} of team {team} with local path {job_path} and reason {reason}"
@@ -283,7 +282,7 @@ class JobDeploy:
             "Team Name", team or job_config.get_team() or load_default_team_name()
         )
 
-        if self.__output_format == OutputFormat.TEXT.value:
+        if isinstance(self.__printer, _PrinterText):
             log.info(
                 f"Deploy Data Job with name {name} from directory {job_path} ... \n"
             )
@@ -294,11 +293,10 @@ class JobDeploy:
         try:
             job_archive_binary = self.__archive_binary(archive_path)
 
-            if self.__output_format == OutputFormat.TEXT.value:
+            if isinstance(self.__printer, _PrinterText):
                 log.info("Uploading the data job might take some time ...")
             with click_spinner.spinner(
-                disable=(self.__output_format == OutputFormat.JSON.value)
-            ):
+                    disable=(isinstance(self.__printer, _PrinterJson))):
                 data_job_version = self.job_sources_api.sources_upload(
                     team_name=team,
                     job_name=name,

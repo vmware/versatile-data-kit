@@ -11,6 +11,7 @@ from typing import Optional
 
 import click
 from tabulate import tabulate
+import io
 
 
 class Printer(abc.ABC):
@@ -105,6 +106,35 @@ class _PrinterJson(Printer):
             click.echo(json_format(data))
         else:
             click.echo("{}")
+
+
+class _MemoryPrinter(Printer):
+    output_buffer = io.StringIO()
+
+    def print_table(self, table: Optional[List[Dict[str, Any]]]) -> None:
+        if table and len(table) > 0:
+            print(
+                tabulate(table, headers="keys", tablefmt="fancy_grid"),
+                file=_MemoryPrinter.output_buffer,
+            )
+        else:
+            print("No Data.", file=_MemoryPrinter.output_buffer)
+
+    def print_dict(self, data: Optional[Dict[str, Any]]) -> None:
+        if data:
+            print(
+                tabulate(
+                    [[k, v] for k, v in data.items()],
+                    headers=("key", "value"),
+                ),
+                file=_MemoryPrinter.output_buffer,
+            )
+        else:
+            print("No Data.", file=_MemoryPrinter.output_buffer)
+
+    @classmethod
+    def get_memory(cls):
+        return cls.output_buffer.getvalue()
 
 
 def create_printer(output_format: str) -> Printer:
