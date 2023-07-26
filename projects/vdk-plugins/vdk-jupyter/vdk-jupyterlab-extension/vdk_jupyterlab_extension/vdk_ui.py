@@ -152,12 +152,7 @@ class VdkUI:
         :param reason: the reason of deployment
         :return: output string of the operation
         """
-        import io
-        import sys
-
-        buffer = io.StringIO()
-        sys.stdout = buffer
-        output = "text"
+        output = "memory"
         cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), output)
         cmd.create(
             name=name,
@@ -167,11 +162,10 @@ class VdkUI:
             vdk_version=None,
             enabled=True,
         )
-        output = buffer.getvalue()
-        sys.stdout = sys.__stdout__
+        result = cmd._JobDeploy__printer.get_memory()
         return (
             f"Job with name {name} and team {team} is deployed successfully! "
-            f"Deployment information:\n {output.strip()}"
+            f"Deployment information:\n {result}"
         )
 
     @staticmethod

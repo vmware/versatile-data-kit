@@ -1,6 +1,7 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import abc
+import io
 import json
 from enum import Enum
 from enum import unique
@@ -107,6 +108,36 @@ class _PrinterJson(Printer):
             click.echo("{}")
 
 
+@printer("memory")
+class _MemoryPrinter(Printer):
+    output_buffer = io.StringIO()
+
+    def print_table(self, table: Optional[List[Dict[str, Any]]]) -> None:
+        if table and len(table) > 0:
+            print(
+                tabulate(table, headers="keys", tablefmt="fancy_grid"),
+                file=_MemoryPrinter.output_buffer,
+            )
+        else:
+            print("No Data.", file=_MemoryPrinter.output_buffer)
+
+    def print_dict(self, data: Optional[Dict[str, Any]]) -> None:
+        if data:
+            print(
+                tabulate(
+                    [[k, v] for k, v in data.items()],
+                    headers=("key", "value"),
+                ),
+                file=_MemoryPrinter.output_buffer,
+            )
+        else:
+            print("No Data.", file=_MemoryPrinter.output_buffer)
+
+    @classmethod
+    def get_memory(cls):
+        return cls.output_buffer.getvalue()
+
+
 def create_printer(output_format: str) -> Printer:
     """
     Creates a printer instance for the given output format.
@@ -130,3 +161,4 @@ class OutputFormat(str, Enum):
 
     TEXT = "TEXT"
     JSON = "JSON"
+    FILE = "MEMORY"
