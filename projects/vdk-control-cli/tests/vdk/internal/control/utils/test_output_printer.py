@@ -112,7 +112,6 @@ class TestMemoryPrinter(unittest.TestCase):
         self.assertIn("value4", output)
 
     def test_print_dict_no_data(self):
-        self.printer.cleanup()
         self.printer.print_dict(None)
 
         expected_output = "No Data."
@@ -121,20 +120,12 @@ class TestMemoryPrinter(unittest.TestCase):
         self.assertEqual(actual_output, expected_output)
 
     def test_print_table_no_data(self):
-        self.printer.cleanup()
         self.printer.print_table(None)
 
         expected_output = "No Data."
         actual_output = self.printer.output_buffer.getvalue().strip()
 
         self.assertEqual(actual_output, expected_output)
-
-    def test_cleanup(self):
-        data = {"key": "value"}
-        self.printer.print_dict(data)
-        self.printer.cleanup()
-        actual_output = self.printer.output_buffer.getvalue()
-        self.assertEqual(actual_output, "")
 
 
 class TestCreatePrinter:
