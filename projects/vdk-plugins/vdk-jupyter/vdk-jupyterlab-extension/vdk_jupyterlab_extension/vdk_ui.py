@@ -162,10 +162,10 @@ class VdkUI:
             vdk_version=None,
             enabled=True,
         )
-        result = cmd._JobDeploy__printer.get_memory()
+        # result = cmd._JobDeploy__printer.get_memory()
         return (
             f"Job with name {name} and team {team} is deployed successfully! "
-            f"Deployment information:\n {result}"
+            f"Deployment information:\n"
         )
 
     @staticmethod
