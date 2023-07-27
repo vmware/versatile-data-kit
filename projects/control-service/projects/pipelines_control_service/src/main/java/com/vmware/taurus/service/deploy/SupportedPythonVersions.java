@@ -23,15 +23,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SupportedPythonVersions {
 
-  private static String BASE_IMAGE = "baseImage";
+  protected static String BASE_IMAGE = "baseImage";
 
-  private static String VDK_IMAGE = "vdkImage";
+  protected static String VDK_IMAGE = "vdkImage";
+
+  protected static String BUILDER_IMAGE = "builderImage";
 
   @Value("#{${datajobs.deployment.supportedPythonVersions:{}}}")
   private Map<String, Map<String, String>> supportedPythonVersions;
 
   @Value("${datajobs.deployment.defaultPythonVersion}")
   private String defaultPythonVersion;
+
+  private final DockerRegistryService dockerRegistryService;
 
   /**
    * Check if the pythonVersion passed by the user is supported by the Control Service.
@@ -40,7 +44,7 @@ public class SupportedPythonVersions {
    * @return true if the version is supported, and false otherwise.
    */
   public boolean isPythonVersionSupported(String pythonVersion) {
-    return !supportedPythonVersions.isEmpty() && supportedPythonVersions.containsKey(pythonVersion);
+    return supportedPythonVersions != null && !supportedPythonVersions.isEmpty() && supportedPythonVersions.containsKey(pythonVersion);
   }
 
   /**
@@ -66,7 +70,7 @@ public class SupportedPythonVersions {
    * @return a string of the data job base image.
    */
   public String getJobBaseImage(String pythonVersion) {
-    if (supportedPythonVersions != null && isPythonVersionSupported(pythonVersion)) {
+    if (isPythonVersionSupported(pythonVersion)) {
       return supportedPythonVersions.get(pythonVersion).get(BASE_IMAGE);
     } else {
       log.warn(
@@ -100,6 +104,17 @@ public class SupportedPythonVersions {
     }
   }
 
+  public String getBuilderImage(String pythonVersion) {
+    if (isPythonVersionSupported(pythonVersion)) {
+      return getBuilderImage(supportedPythonVersions.get(pythonVersion));
+    } else {
+      log.warn(
+              "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
+                      + " occurred. Returning default builder image");
+      return getBuilderImage(supportedPythonVersions.get(defaultPythonVersion));
+    }
+  }
+
   public String getDefaultVdkImage() {
     return supportedPythonVersions.get(defaultPythonVersion).get(VDK_IMAGE);
   }
@@ -112,5 +127,9 @@ public class SupportedPythonVersions {
    */
   public String getDefaultPythonVersion() {
     return defaultPythonVersion;
+  }
+
+  private String getBuilderImage(Map<String, String> supportedPythonVersion) {
+    return supportedPythonVersion.getOrDefault(BUILDER_IMAGE, dockerRegistryService.builderImage());
   }
 }

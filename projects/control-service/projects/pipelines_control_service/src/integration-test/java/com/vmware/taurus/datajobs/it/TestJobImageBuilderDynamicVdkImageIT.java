@@ -46,6 +46,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(
     properties = {
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+      "datajobs.deployment.supportedPythonVersions={3.9: {vdkImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/quickstart-vdk:release', baseImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/data-job-base-python-3.9:latest', builderImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/job-builder:1.3.3'}}",
+      "datajobs.deployment.defaultPythonVersion=3.9",
+      "datajobs.builder.image="
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
