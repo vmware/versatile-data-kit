@@ -45,35 +45,8 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
           value="reason"
           label="Deployment reason:"
         ></VDKTextInput>
-        <div>
-          <input
-            type="checkbox"
-            name="enable"
-            id="enable"
-            className="jp-vdk-checkbox"
-            onClick={this.onEnableClick()}
-          />
-          <label className="checkboxLabel" htmlFor="enable">
-            Enable
-          </label>
-        </div>
       </>
     );
-  }
-  /**
-   * Callback invoked upon choosing Enable checkbox
-   */
-  private onEnableClick() {
-    return (event: React.MouseEvent) => {
-      const checkbox = document.getElementById('enable');
-      if (checkbox?.classList.contains('checked')) {
-        checkbox.classList.remove('checked');
-        jobData.set(VdkOption.DEPLOY_ENABLE, '');
-      } else {
-        checkbox?.classList.add('checked');
-        jobData.set(VdkOption.DEPLOY_ENABLE, '1');
-      }
-    };
   }
 }
 

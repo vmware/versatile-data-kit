@@ -172,7 +172,6 @@ class CreateDeploymentHandler(APIHandler):
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
                 input_data[VdkOption.DEPLOYMENT_REASON.value],
-                input_data[VdkOption.DEPLOY_ENABLE.value],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
