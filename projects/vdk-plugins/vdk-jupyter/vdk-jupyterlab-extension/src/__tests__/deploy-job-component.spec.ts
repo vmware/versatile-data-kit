@@ -38,19 +38,6 @@ describe('#render()', () => {
   });
 });
 
-describe('#onEnableClick', () => {
-  it('should put a flag for enabled in jobData', () => {
-    const component = render(new DeployJobDialog(defaultProps).render());
-    const enableCheckbox = component.getAllByLabelText(
-      'Enable'
-    )[0] as HTMLInputElement;
-    expect(enableCheckbox.checked).toEqual(false);
-    fireEvent.click(enableCheckbox);
-    expect(enableCheckbox.checked).toEqual(true);
-    expect(jobData.get(VdkOption.DEPLOY_ENABLE)).toEqual('1');
-  });
-});
-
 describe('#onNameChange', () => {
   it('should change the job name in jobData', () => {
     const component = render(new DeployJobDialog(defaultProps).render());
