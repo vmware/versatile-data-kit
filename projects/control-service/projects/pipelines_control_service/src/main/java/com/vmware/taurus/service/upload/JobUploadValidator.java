@@ -76,7 +76,8 @@ class JobUploadValidator {
    */
   private void validateFile(String jobName, Path filePath, Path pathInsideJob)
       throws InvalidJobUpload {
-    if (filePath.toFile().isDirectory() || "pyc".equals(FilenameUtils.getExtension(filePath.getFileName().toString()))) {
+    if (filePath.toFile().isDirectory()
+        || "pyc".equals(FilenameUtils.getExtension(filePath.getFileName().toString()))) {
       return;
     }
     try {
