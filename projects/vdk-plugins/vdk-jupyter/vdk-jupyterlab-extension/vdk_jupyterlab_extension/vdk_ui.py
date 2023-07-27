@@ -12,6 +12,7 @@ from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
+from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
 from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
 from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
 
@@ -152,8 +153,8 @@ class VdkUI:
         :param reason: the reason of deployment
         :return: output string of the operation
         """
-        output = "memory"
-        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), output)
+        printer = InMemoryTextPrinter()
+        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
         cmd.create(
             name=name,
             team=team,
@@ -162,10 +163,9 @@ class VdkUI:
             vdk_version=None,
             enabled=True,
         )
-        # result = cmd._JobDeploy__printer.get_memory()
         return (
             f"Job with name {name} and team {team} is deployed successfully! "
-            f"Deployment information:\n"
+            f"Deployment information:\n {printer.get_memory().strip()}"
         )
 
     @staticmethod
