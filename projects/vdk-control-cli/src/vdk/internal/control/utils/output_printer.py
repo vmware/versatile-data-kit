@@ -1,6 +1,7 @@
 # Copyright 2023-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import abc
+import io
 import json
 from enum import Enum
 from enum import unique
@@ -60,7 +61,7 @@ def printer(output_format: str) -> callable:
 
 
 @printer("text")
-class _PrinterText(Printer):
+class PrinterText(Printer):
     def print_table(self, table: Optional[List[Dict[str, Any]]]) -> None:
         if table and len(table) > 0:
             click.echo(tabulate(table, headers="keys", tablefmt="fancy_grid"))
@@ -93,7 +94,7 @@ def json_format(data, indent=None):
 
 
 @printer("json")
-class _PrinterJson(Printer):
+class PrinterJson(Printer):
     def print_table(self, data: List[Dict[str, Any]]) -> None:
         if data:
             click.echo(json_format(data))
@@ -105,6 +106,35 @@ class _PrinterJson(Printer):
             click.echo(json_format(data))
         else:
             click.echo("{}")
+
+
+class InMemoryTextPrinter(Printer):
+    def __init__(self):
+        self.__output_buffer = io.StringIO()
+
+    def print_table(self, table: Optional[List[Dict[str, Any]]]) -> None:
+        if table and len(table) > 0:
+            print(
+                tabulate(table, headers="keys", tablefmt="fancy_grid"),
+                file=self.__output_buffer,
+            )
+        else:
+            print("No Data.", file=self.__output_buffer)
+
+    def print_dict(self, data: Optional[Dict[str, Any]]) -> None:
+        if data:
+            print(
+                tabulate(
+                    [[k, v] for k, v in data.items()],
+                    headers=("key", "value"),
+                ),
+                file=self.__output_buffer,
+            )
+        else:
+            print("No Data.", file=self.__output_buffer)
+
+    def get_memory(self):
+        return self.__output_buffer.getvalue()
 
 
 def create_printer(output_format: str) -> Printer:

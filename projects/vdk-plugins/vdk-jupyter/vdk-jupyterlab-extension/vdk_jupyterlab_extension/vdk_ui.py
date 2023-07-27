@@ -12,6 +12,7 @@ from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
+from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
 from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
 from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
 
@@ -143,37 +144,29 @@ class VdkUI:
         return f"Job with name {name} was created."
 
     @staticmethod
-    def create_deployment(name: str, team: str, path: str, reason: str, enabled: bool):
+    def create_deployment(name: str, team: str, path: str, reason: str):
         """
         Execute `Deploy job`.
         :param name: the name of the data job that will be deployed
         :param team: the team of the data job that will be deployed
         :param path: the path to the job's directory
         :param reason: the reason of deployment
-        :param enabled: flag whether the job is enabled (that will basically un-pause the job)
         :return: output string of the operation
         """
-        output = "text"
-        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), output)
-        if enabled:
-            cmd.create(
-                name=name,
-                team=team,
-                job_path=path,
-                reason=reason,
-                vdk_version=None,
-                enabled=True,
-            )
-        else:
-            cmd.create(
-                name=name,
-                team=team,
-                job_path=path,
-                reason=reason,
-                vdk_version=None,
-                enabled=False,
-            )
-        return f"Job with name {name} and team {team} is deployed successfully!"
+        printer = InMemoryTextPrinter()
+        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
+        cmd.create(
+            name=name,
+            team=team,
+            job_path=path,
+            reason=reason,
+            vdk_version=None,
+            enabled=True,
+        )
+        return (
+            f"Job with name {name} and team {team} is deployed successfully! "
+            f"Deployment information:\n {printer.get_memory().strip()}"
+        )
 
     @staticmethod
     def get_notebook_info(cell_id: str, pr_path: str):
