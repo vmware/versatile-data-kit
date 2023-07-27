@@ -1,43 +1,67 @@
-import { showDialog, Dialog } from '@jupyterlab/apputils'; // Import the necessary showDialog and Dialog
-import { checkIcon } from '@jupyterlab/ui-components'; // Import the Jupyter icon
-import React from 'react';
-import { CHECK_STATUS_BUTTON_LABEL } from '../utils';
-import { MainMenu } from '@jupyterlab/mainmenu';
 import { CommandRegistry } from '@lumino/commands';
+import {
+  CHECK_STATUS_BUTTON_COMMAND_ID,
+  CHECK_STATUS_BUTTON_ID,
+  CHECK_STATUS_BUTTON_CLASS,
+  CHECK_STATUS_BUTTON_LABEL
+} from '../utils';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
+import React from 'react';
+import { checkIcon } from '@jupyterlab/ui-components';
 
-let statusButton: HTMLButtonElement | null = null;
+export class StatusButton {
+  private readonly buttonElement: HTMLButtonElement;
 
-export async function showCheckStatusButton(commands: CommandRegistry) {
-  console.log('showCheckStatusButton called');
-  if (!statusButton) {
-    statusButton = document.createElement('button');
-    statusButton.innerHTML = CHECK_STATUS_BUTTON_LABEL;
-    statusButton.id = 'check-status-button';
-    statusButton.className = 'jp-vdk-check-status-button';
-    statusButton.onclick = async () => {
+  constructor(commands: CommandRegistry) {
+    this.buttonElement = document.createElement('button');
+    this.buttonElement.innerHTML = CHECK_STATUS_BUTTON_LABEL;
+    this.buttonElement.id = CHECK_STATUS_BUTTON_ID;
+    this.buttonElement.className = CHECK_STATUS_BUTTON_CLASS;
+
+    // Execute the custom button command when the button is clicked
+    this.buttonElement.onclick = () => {
+      commands.execute(CHECK_STATUS_BUTTON_COMMAND_ID);
+    };
+
+    this.buttonElement.style.display = 'none';
+  }
+
+  get element(): HTMLButtonElement {
+    return this.buttonElement;
+  }
+
+  show(): void {
+    this.buttonElement.style.display = '';
+  }
+
+  hide(): void {
+    this.buttonElement.style.display = 'none';
+  }
+}
+
+export function createStatusButton(commands: CommandRegistry): StatusButton {
+  return new StatusButton(commands);
+}
+
+export function createStatusMenu(commands: CommandRegistry) {
+  commands.addCommand(CHECK_STATUS_BUTTON_COMMAND_ID, {
+    label: CHECK_STATUS_BUTTON_LABEL,
+    icon: checkIcon,
+    execute: async () => {
       await showDialog({
         title: CHECK_STATUS_BUTTON_LABEL,
         body: (
           <div className="vdk-run-dialog-message-container">
-            <div className="jp-vdk-check-status-icon">{checkIcon}</div>
+            {/*TODO find a way to add the icon. This doesn't work*/}
+            {/*<div className="jp-vdk-check-status-icon">{checkIcon}</div>*/}
             <p className="vdk-run-dialog-message">
+              {/*TODO find a way to pass the op details to the dialog*/}
               Operation is currently running!
             </p>
           </div>
         ),
         buttons: [Dialog.okButton()]
       });
-    };
-    const menuItem = new MainMenu(commands);
-    console.log('menuItem', menuItem);
-    menuItem.node.children[0].appendChild(statusButton);
-  }
-}
-
-export function hideCheckStatusButton() {
-  console.log('hideCheckStatusButton called');
-  // if (statusButton) {
-  //   statusButton.remove();
-  //   statusButton = null;
-  // }
+    }
+  });
 }

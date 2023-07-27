@@ -19,6 +19,10 @@ import { IThemeManager } from '@jupyterlab/apputils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { initVDKConfigCell } from './initVDKConfigCell';
 import { populateNotebook } from './components/ConvertJobToNotebook';
+import {
+  createStatusButton,
+  createStatusMenu
+} from './components/StatusButton';
 
 /**
  * Current working directory in Jupyter
@@ -59,9 +63,26 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
+    createStatusMenu(commands);
+    const statusButton = createStatusButton(commands);
+
     const fileBrowser = factory.defaultBrowser;
 
-    updateVDKMenu(commands, docManager, fileBrowser, notebookTracker);
+    app.restored.then(() => {
+      console.log('App restored!');
+      const mainMenu = document.querySelector('.p-MenuBar-content');
+      if (mainMenu) {
+        mainMenu.appendChild(statusButton.element);
+      }
+    });
+
+    updateVDKMenu(
+      commands,
+      docManager,
+      fileBrowser,
+      notebookTracker,
+      statusButton
+    );
 
     fileBrowser.model.pathChanged.connect(onPathChanged);
     trackVdkTags(notebookTracker, themeManager);
