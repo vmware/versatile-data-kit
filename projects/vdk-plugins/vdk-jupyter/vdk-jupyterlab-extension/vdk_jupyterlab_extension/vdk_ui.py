@@ -118,30 +118,35 @@ class VdkUI:
         return f"Downloaded the job with name {name} to {path}. "
 
     @staticmethod
-    def create_job(name: str, team: str, path: str, local: bool, cloud: bool):
+    def create_job(name: str, team: str, path: str):
         """
         Execute `create job`.
         :param name: the name of the data job that will be created
         :param team: the team of the data job that will be created
         :param path: the path to the directory where the job will be created
-        :param local: create sample job on local file system
-        :param cloud: create job in the cloud
         :return: message that the job is created
         """
-        cmd = JobCreate(RestApiUrlConfiguration.get_rest_api_url())
-        if cloud:
-            cli_utils.check_rest_api_url(RestApiUrlConfiguration.get_rest_api_url())
-
-        if local:
-            cmd.validate_job_path(path, name)
-
         jupyter_job_dir = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "jupyter_sample_job")
         )
-
-        cmd.create_job(name, team, path, cloud, local, jupyter_job_dir)
-
-        return f"Job with name {name} was created."
+        try:
+            cmd = JobCreate(RestApiUrlConfiguration.get_rest_api_url())
+            cli_utils.check_rest_api_url(RestApiUrlConfiguration.get_rest_api_url())
+            cmd.validate_job_path(path, name)
+            cmd.create_job(name, team, path, True, True, pathlib.Path(jupyter_job_dir))
+            result = f"Job with name {name} was created locally and in the cloud."
+        except ValueError as e:
+            cmd = JobCreate("")
+            cmd.validate_job_path(path, name)
+            cmd.create_job(name, team, path, False, True, pathlib.Path(jupyter_job_dir))
+            result = (
+                f"Job with name {name} was created only locally. "
+                f"If you are not using the Control Service the next lines should not concern you!"
+                f"We tried to create it in the cloud but come up to:"
+                f"{e}"
+                f""
+            )
+        return result
 
     @staticmethod
     def create_deployment(name: str, team: str, path: str, reason: str):
