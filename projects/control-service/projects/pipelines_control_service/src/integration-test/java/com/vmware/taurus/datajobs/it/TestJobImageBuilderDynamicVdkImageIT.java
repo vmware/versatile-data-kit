@@ -46,10 +46,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(
     properties = {
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-      "datajobs.deployment.supportedPythonVersions={3.8: {"+
-              "vdkImage: 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:pre-release', " +
-              "baseImage: 'versatiledatakit/data-job-base-python-3.8:latest', " +
-              "builderImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/job-builder:1.3.3'}}",
+      "datajobs.deployment.supportedPythonVersions={3.8: {"
+          + "vdkImage: 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:pre-release', "
+          + "baseImage: 'versatiledatakit/data-job-base-python-3.8:latest', "
+          + "builderImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/job-builder:1.3.3'}}",
       "datajobs.deployment.defaultPythonVersion=3.8",
       "datajobs.builder.image="
     })
