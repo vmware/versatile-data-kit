@@ -44,7 +44,9 @@ public class SupportedPythonVersions {
    * @return true if the version is supported, and false otherwise.
    */
   public boolean isPythonVersionSupported(String pythonVersion) {
-    return supportedPythonVersions != null && !supportedPythonVersions.isEmpty() && supportedPythonVersions.containsKey(pythonVersion);
+    return supportedPythonVersions != null
+        && !supportedPythonVersions.isEmpty()
+        && supportedPythonVersions.containsKey(pythonVersion);
   }
 
   /**
@@ -109,8 +111,8 @@ public class SupportedPythonVersions {
       return getBuilderImage(supportedPythonVersions.get(pythonVersion));
     } else {
       log.warn(
-              "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
-                      + " occurred. Returning default builder image");
+          "An issue with the passed pythonVersion or supportedPythonVersions configuration has"
+              + " occurred. Returning default builder image");
       return getBuilderImage(supportedPythonVersions.get(defaultPythonVersion));
     }
   }

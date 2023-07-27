@@ -79,59 +79,127 @@ public class SupportedPythonVersionsTest {
   }
 
   @Test
-  public void getBuilderImage_notSupportedPythonVersionAndProvidedBuilderImage_shouldReturnBuilderImageForDefaultPythonVersion() {
-    var supportedVersions = Map.of(
-            "3.7", Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image_3.7", BUILDER_IMAGE, "test_builder_image_3.7"),
-            "3.8", Map.of(BASE_IMAGE, "python:3.8-slim", VDK_IMAGE, "test_vdk_image_3.8", BUILDER_IMAGE, "test_builder_image_3.8"),
-            "3.9", Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"), BUILDER_IMAGE, "test_builder_image_3.9");
+  public void
+      getBuilderImage_notSupportedPythonVersionAndProvidedBuilderImage_shouldReturnBuilderImageForDefaultPythonVersion() {
+    var supportedVersions =
+        Map.of(
+            "3.7",
+            Map.of(
+                BASE_IMAGE,
+                "python:3.7-slim",
+                VDK_IMAGE,
+                "test_vdk_image_3.7",
+                BUILDER_IMAGE,
+                "test_builder_image_3.7"),
+            "3.8",
+            Map.of(
+                BASE_IMAGE,
+                "python:3.8-slim",
+                VDK_IMAGE,
+                "test_vdk_image_3.8",
+                BUILDER_IMAGE,
+                "test_builder_image_3.8"),
+            "3.9",
+            Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"),
+            BUILDER_IMAGE,
+            "test_builder_image_3.9");
     ReflectionTestUtils.setField(
-            supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
+        supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
     ReflectionTestUtils.setField(supportedPythonVersions, DEFAULT_PYTHON_VERSION, "3.7");
     when(dockerRegistryService.builderImage()).thenReturn("default_builder_image");
 
-    Assertions.assertEquals("test_builder_image_3.7", supportedPythonVersions.getBuilderImage("3.11"));
+    Assertions.assertEquals(
+        "test_builder_image_3.7", supportedPythonVersions.getBuilderImage("3.11"));
   }
 
   @Test
-  public void getBuilderImage_notSupportedPythonVersionAndNotProvidedBuilderImage_shouldReturnDefaultBuilderImage() {
-    var supportedVersions = Map.of(
-            "3.7", Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image_3.7"),
-            "3.8", Map.of(BASE_IMAGE, "python:3.8-slim", VDK_IMAGE, "test_vdk_image_3.8", BUILDER_IMAGE, "test_builder_image_3.8"),
-            "3.9", Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"), BUILDER_IMAGE, "test_builder_image_3.9");
+  public void
+      getBuilderImage_notSupportedPythonVersionAndNotProvidedBuilderImage_shouldReturnDefaultBuilderImage() {
+    var supportedVersions =
+        Map.of(
+            "3.7",
+            Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image_3.7"),
+            "3.8",
+            Map.of(
+                BASE_IMAGE,
+                "python:3.8-slim",
+                VDK_IMAGE,
+                "test_vdk_image_3.8",
+                BUILDER_IMAGE,
+                "test_builder_image_3.8"),
+            "3.9",
+            Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"),
+            BUILDER_IMAGE,
+            "test_builder_image_3.9");
     ReflectionTestUtils.setField(
-            supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
+        supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
     ReflectionTestUtils.setField(supportedPythonVersions, DEFAULT_PYTHON_VERSION, "3.7");
     when(dockerRegistryService.builderImage()).thenReturn("default_builder_image");
 
-    Assertions.assertEquals("default_builder_image", supportedPythonVersions.getBuilderImage("3.11"));
+    Assertions.assertEquals(
+        "default_builder_image", supportedPythonVersions.getBuilderImage("3.11"));
   }
 
   @Test
-  public void getBuilderImage_supportedPythonVersionAndNotProvidedBuilderImage_shouldReturnDefaultBuilderImage() {
-    var supportedVersions = Map.of(
-            "3.7", Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image_3.7"),
-            "3.8", Map.of(BASE_IMAGE, "python:3.8-slim", VDK_IMAGE, "test_vdk_image_3.8", BUILDER_IMAGE, "test_builder_image_3.8"),
-            "3.9", Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"), BUILDER_IMAGE, "test_builder_image_3.9");
+  public void
+      getBuilderImage_supportedPythonVersionAndNotProvidedBuilderImage_shouldReturnDefaultBuilderImage() {
+    var supportedVersions =
+        Map.of(
+            "3.7",
+            Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image_3.7"),
+            "3.8",
+            Map.of(
+                BASE_IMAGE,
+                "python:3.8-slim",
+                VDK_IMAGE,
+                "test_vdk_image_3.8",
+                BUILDER_IMAGE,
+                "test_builder_image_3.8"),
+            "3.9",
+            Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"),
+            BUILDER_IMAGE,
+            "test_builder_image_3.9");
     ReflectionTestUtils.setField(
-            supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
+        supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
     ReflectionTestUtils.setField(supportedPythonVersions, DEFAULT_PYTHON_VERSION, "3.7");
     when(dockerRegistryService.builderImage()).thenReturn("default_builder_image");
 
-    Assertions.assertEquals("default_builder_image", supportedPythonVersions.getBuilderImage("3.7"));
+    Assertions.assertEquals(
+        "default_builder_image", supportedPythonVersions.getBuilderImage("3.7"));
   }
 
   @Test
-  public void getBuilderImage_supportedPythonVersionAndProvidedBuilderImage_shouldReturnBuilderImageForProvidedPythonVersion() {
-    var supportedVersions = Map.of(
-            "3.7", Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image_3.7", BUILDER_IMAGE, "test_builder_image_3.7"),
-            "3.8", Map.of(BASE_IMAGE, "python:3.8-slim", VDK_IMAGE, "test_vdk_image_3.8", BUILDER_IMAGE, "test_builder_image_3.8"),
-            "3.9", Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"), BUILDER_IMAGE, "test_builder_image_3.9");
+  public void
+      getBuilderImage_supportedPythonVersionAndProvidedBuilderImage_shouldReturnBuilderImageForProvidedPythonVersion() {
+    var supportedVersions =
+        Map.of(
+            "3.7",
+            Map.of(
+                BASE_IMAGE,
+                "python:3.7-slim",
+                VDK_IMAGE,
+                "test_vdk_image_3.7",
+                BUILDER_IMAGE,
+                "test_builder_image_3.7"),
+            "3.8",
+            Map.of(
+                BASE_IMAGE,
+                "python:3.8-slim",
+                VDK_IMAGE,
+                "test_vdk_image_3.8",
+                BUILDER_IMAGE,
+                "test_builder_image_3.8"),
+            "3.9",
+            Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"),
+            BUILDER_IMAGE,
+            "test_builder_image_3.9");
     ReflectionTestUtils.setField(
-            supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
+        supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
     ReflectionTestUtils.setField(supportedPythonVersions, DEFAULT_PYTHON_VERSION, "3.7");
     when(dockerRegistryService.builderImage()).thenReturn("default_builder_image");
 
-    Assertions.assertEquals("test_builder_image_3.8", supportedPythonVersions.getBuilderImage("3.8"));
+    Assertions.assertEquals(
+        "test_builder_image_3.8", supportedPythonVersions.getBuilderImage("3.8"));
   }
 
   @Test
