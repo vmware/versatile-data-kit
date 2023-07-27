@@ -49,8 +49,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
       "datajobs.deployment.supportedPythonVersions={3.8: {"
           + "vdkImage: 'registry.hub.docker.com/versatiledatakit/quickstart-vdk:pre-release', "
           + "baseImage: 'versatiledatakit/data-job-base-python-3.8:latest', "
-          + "builderImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/job-builder:1.3.3'}}",
-      "datajobs.deployment.defaultPythonVersion=3.8",
+          + "builderImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/job-builder:1.3.3'}, 3.9: {vdkImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/quickstart-vdk:release', baseImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/data-job-base-python-3.9:latest', builderImage: 'ghcr.io/versatile-data-kit-dev/versatiledatakit/job-builder:1.3.3'}}",
+      "datajobs.deployment.defaultPythonVersion=3.9",
       "datajobs.builder.image="
     })
 @SpringBootTest(
