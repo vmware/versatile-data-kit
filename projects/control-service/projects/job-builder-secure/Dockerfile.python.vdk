@@ -25,7 +25,7 @@ RUN : \
      && echo "Validating base image is python based ..." \
      && python -V \
      && echo "Creating necessary users and set home directory to /job ..." \
-     && yum install shadow libffi-devel libssh -y  && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox -y \
+     && yum install shadow libffi-devel -y && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox -y \
      && echo "Removing execute permissions for files within the Data job directory, but not for the directories themselves ..." \
      && chmod -R -x+X $job_name/* \
      && if grep -q -E "^oracledb|^cx_Oracle" "$job_name/$requirements_file"; then \
@@ -45,14 +45,16 @@ RUN : \
           && echo "Removing native dependencies ..." \
           && yum autoremove shadow build-essential gcc glibc-devel git curl unzip -y;  fi \
     && echo "Deleting system directories ..." \
-    && yum install findutils -y  \
-    && rm -rf /boot /home /media /mnt /root /sbin /srv /usr/lib/ldscripts /usr/lib/rpm /usr/lib/sysimage  \
-    /usr/lib/tdnf /usr/lib/perl5 /usr/lib/gcc /usr/share/locale /tmp/* /usr/include /usr/libexec /usr/sbin /usr/libexec  \
+    && yum install findutils -y \
+    && rm -rf /boot /home /media /mnt /root /srv /usr/lib/ldscripts /usr/lib/rpm /usr/lib/sysimage \
+    /usr/lib/tdnf /usr/lib/perl5 /usr/lib/gcc /usr/share/locale /tmp/* /usr/include /usr/libexec /usr/libexec  \
     && echo "Deleting system binaries ..." \
     && python -m pip uninstall pip -y \
     && cd /usr/local/bin \
     && ls | grep -xv "python" | grep -xv "python3" | grep -xv $(python -c 'import sys; print("python"+str(sys.version_info[0])+"."+str(sys.version_info[1]))') | xargs rm -rf \
     && cd /usr/bin \
-    && ls | grep -xv "sh" | grep -xv "bash" | xargs rm -rf
+    && ls | grep -xv "sh" | grep -xv "bash" | xargs rm -rf \
+    && cd /usr/sbin \
+    && ls | grep -xv "ldconfig" | xargs rm -rf
 
 USER $UID
