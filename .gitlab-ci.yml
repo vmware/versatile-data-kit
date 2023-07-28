@@ -1,7 +1,9 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-image: "python:3.7"
+# default image used by all pipelines if not overridden per job
+# it is better not to rely on default image and specify image explicitly for each job
+image: "python:3.9"
 
 include:
   - "cicd/.gitlab-ci-lib.yml"

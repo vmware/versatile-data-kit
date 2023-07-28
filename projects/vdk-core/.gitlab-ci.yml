@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-image: "python:3.9"
 
 .vdk_core_changes: &vdk_core_locations
   - "projects/vdk-core/*"
