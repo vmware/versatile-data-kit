@@ -266,12 +266,9 @@ control_service_publish_job_builder_secure_image:
     - cd projects/control-service/projects/job-builder-secure
     - bash -ex ./publish-vdk-job-builder-secure.sh
   retry: !reference [.control_service_retry, retry_options]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - projects/control-service/projects/job-builder-secure/version.txt
+  only:
+    refs:
+      - external_pull_requests
 
 
 control_service_publish_image:
