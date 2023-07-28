@@ -93,6 +93,6 @@ RUN : \
 
 FROM photon:latest
 
- # Copies essential binaries, libraries, headers, and Python files from the base Python image,
- # excluding build dependencies.
+# Copies essential binaries, libraries, headers, and Python files from the base Python image,
+# excluding build dependencies.
 COPY --from=build /usr/local/ /usr/local/
