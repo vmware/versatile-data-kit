@@ -1,5 +1,5 @@
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
-FROM photon:latest
+FROM photon:latest as build
 
 ARG PYTHON_MAJOR
 ARG PYTHON_MINOR
@@ -90,3 +90,9 @@ RUN : \
       ${_pylibdir}/tkinter/test \
       ${_pylibdir}/unittest/test \
  && find ${_pylibdir} -type d -name __pycache__ -exec rm -rf '{}' +
+
+FROM photon:latest
+
+ # Copies essential binaries, libraries, headers, and Python files from the base Python image,
+ # excluding build dependencies.
+COPY --from=build /usr/local/ /usr/local/
