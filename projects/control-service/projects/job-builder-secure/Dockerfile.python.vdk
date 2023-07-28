@@ -61,7 +61,6 @@ RUN : \
     && ls | grep -xv "ldconfig" | xargs rm -rf \
     && cd /usr/local/bin \
     && ls | grep -xv "python" | grep -xv "python3" | grep -xv $(python -c 'import sys; print("python"+str(sys.version_info[0])+"."+str(sys.version_info[1]))') | xargs rm -rf \
-    && ls /etc/ssl/certs \
     && cd /usr/bin \
     && ls | grep -xv "sh" | grep -xv "bash" | xargs rm -rf
 
