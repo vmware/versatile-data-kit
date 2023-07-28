@@ -25,7 +25,7 @@ RUN : \
      && echo "Validating base image is python based ..." \
      && python -V \
      && echo "Creating necessary users and set home directory to /job ..." \
-     && yum install shadow libffi-devel -y && pip install libcrypto -y && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox -y \
+     && yum install shadow libffi-devel -y && pip install libcrypto && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox -y \
      && echo "Removing execute permissions for files within the Data job directory, but not for the directories themselves ..." \
      && chmod -R -x+X $job_name/* \
      && if grep -q -E "^oracledb|^cx_Oracle" "$job_name/$requirements_file"; then \
