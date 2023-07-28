@@ -45,7 +45,8 @@ RUN : \
           && echo "Removing native dependencies ..." \
           && yum autoremove shadow build-essential gcc glibc-devel git curl unzip -y;  fi \
     && echo "Deleting system directories ..." \
-    && yum install libffi-devel libstdc++ findutils -y \
+    && yum install libffi-devel libstdc++ openssl-c_rehash findutils -y \
+    && /usr/bin/rehash_ca_certificates.sh \
     && rm -rf /boot /home /media /mnt /root /srv /usr/lib/ldscripts /usr/lib/rpm /usr/lib/sysimage \
     /usr/lib/tdnf /usr/lib/perl5 /usr/lib/gcc /usr/share/locale /tmp/* /usr/include /usr/libexec /usr/libexec  \
     && echo "Deleting system binaries ..." \
