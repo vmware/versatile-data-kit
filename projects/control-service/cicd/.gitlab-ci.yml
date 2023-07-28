@@ -89,77 +89,35 @@ control_service_publish_job_base_image:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-base-image-secure
     - export VERSION_TAG="1.$CI_PIPELINE_ID"
-    - bash -ex ./publish-job-base-image.sh $PYTHON_MAJOR $PYTHON_MINOR
+    - bash -ex ./publish-job-base-image.sh $PYTHON_MAJOR $PYTHON_MINOR $PYTHON_PATCH
   retry: !reference [.control_service_retry, retry_options]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - projects/control-service/projects/job-base-image-secure/**/*
-        - projects/control-service/projects/python-image-secure/**/*
+  only:
+    refs:
+      - external_pull_requests
 
 control_service_publish_job_base_image_secure_3_8:
   extends: .control_service_publish_job_base_image_secure
   variables:
     PYTHON_MAJOR: 3
     PYTHON_MINOR: 8
+    PYTHON_PATCH: 16
 
 control_service_publish_job_base_image_secure_3_9:
   extends: .control_service_publish_job_base_image_secure
   variables:
     PYTHON_MAJOR: 3
     PYTHON_MINOR: 9
+    PYTHON_PATCH: 16
 
 control_service_publish_job_base_image_secure_3_10:
   extends: .control_service_publish_job_base_image_secure
   variables:
     PYTHON_MAJOR: 3
     PYTHON_MINOR: 10
+    PYTHON_PATCH: 11
 
 control_service_publish_job_base_image_secure_3_11:
   extends: .control_service_publish_job_base_image_secure
-  variables:
-    PYTHON_MAJOR: 3
-    PYTHON_MINOR: 11
-
-.control_service_publish_python_image_secure:
-  extends: .images:dind
-  stage: publish_artifacts
-  script:
-    - apk add --no-cache bash
-    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
-    - cd projects/control-service/projects/python-image-secure
-    - export VERSION_TAG="1.$CI_PIPELINE_ID"
-    - bash -ex ./publish-python-image.sh $PYTHON_MAJOR $PYTHON_MINOR $PYTHON_PATCH
-  retry: !reference [.control_service_retry, retry_options]
-  only:
-    refs:
-      - external_pull_requests
-
-control_service_publish_python_image_secure_3_8:
-  extends: .control_service_publish_python_image_secure
-  variables:
-    PYTHON_MAJOR: 3
-    PYTHON_MINOR: 8
-    PYTHON_PATCH: 16
-
-control_service_publish_python_image_secure_3_9:
-  extends: .control_service_publish_python_image_secure
-  variables:
-    PYTHON_MAJOR: 3
-    PYTHON_MINOR: 9
-    PYTHON_PATCH: 16
-
-control_service_publish_python_image_secure_3_10:
-  extends: .control_service_publish_python_image_secure
-  variables:
-    PYTHON_MAJOR: 3
-    PYTHON_MINOR: 10
-    PYTHON_PATCH: 11
-
-control_service_publish_python_image_secure_3_11:
-  extends: .control_service_publish_python_image_secure
   variables:
     PYTHON_MAJOR: 3
     PYTHON_MINOR: 11
