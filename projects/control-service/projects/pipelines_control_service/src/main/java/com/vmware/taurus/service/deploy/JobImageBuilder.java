@@ -185,6 +185,7 @@ public class JobImageBuilder {
             registryPassword,
             builderAwsSessionToken);
     var envs = getBuildParameters(dataJob, jobDeployment);
+    String builderImage = supportedPythonVersions.getBuilderImage(jobDeployment.getPythonVersion());
 
     log.info(
         "Creating builder job {} for data job version {}",
@@ -192,7 +193,7 @@ public class JobImageBuilder {
         jobDeployment.getGitCommitSha());
     controlKubernetesService.createJob(
         builderJobName,
-        dockerRegistryService.builderImage(),
+        builderImage,
         false,
         false,
         envs,

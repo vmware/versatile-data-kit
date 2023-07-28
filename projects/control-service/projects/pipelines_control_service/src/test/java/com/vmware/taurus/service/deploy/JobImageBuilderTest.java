@@ -86,12 +86,12 @@ public class JobImageBuilderTest {
 
   @Test
   public void buildImage_notExist_success() throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
         new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
     when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
+    when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -129,13 +129,13 @@ public class JobImageBuilderTest {
       throws InterruptedException, ApiException, IOException {
     when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
         .thenReturn(false);
-    when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs())
         .thenReturn(Set.of(TEST_BUILDER_IMAGE_NAME), Collections.emptySet());
     var builderJobResult =
         new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
     when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
+    when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -207,13 +207,13 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_jobFailed_failure()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
         new KubernetesService.JobStatusCondition(false, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
     when(kubernetesService.getPodLogs(TEST_BUILDER_JOB_NAME)).thenReturn(TEST_BUILDER_LOGS);
     when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
+    when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -258,13 +258,12 @@ public class JobImageBuilderTest {
   public void
       buildImage_deploymentDataJobBaseImageNullAndSupportedPythonVersions_shouldCreateCronjobUsingSupportedPythonVersions()
           throws InterruptedException, ApiException, IOException {
-
-    when(dockerRegistryService.builderImage()).thenReturn(TEST_BUILDER_IMAGE_NAME);
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
         new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
     when(supportedPythonVersions.getJobBaseImage("3.11")).thenReturn("test-base-image");
+    when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
 
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);

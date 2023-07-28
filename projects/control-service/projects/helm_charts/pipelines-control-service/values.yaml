@@ -279,7 +279,8 @@ deploymentDataJobBaseImage:
 
 ## The map of python versions for data job deployments supported by the Control Service.
 ## All values should be strings, and follow the format
-## {"pythonVersion": {"baseImage": "<repository>:<tag>", "vdkImage": "<registry>/<repository>:<tag>"}}
+## {"pythonVersion": {"baseImage": "<repository>:<tag>", "vdkImage": "<registry>/<repository>:<tag>",
+## "builderImage": "<registry>/<repository>:<tag>"}}
 ##
 ## The value of baseImage will be used to create the image, where data job would be run.
 ## On top of it the job source and its dependencies are installed for each job.
@@ -292,11 +293,16 @@ deploymentDataJobBaseImage:
 ## Only the installed python modules (vdk and its dependencies) will be used from the image.
 ## Everything else is effectively discarded since another image is used as base during execution.
 ##
+## The value of builderImage is the image name of Job Builder, which will be used for data jobs building. \
+## The presence of this parameter is OPTIONAL; if it is not provided, the Control Service will automatically default
+## to the deploymentBuilderImage.
+##
 ## Example:
 ## deploymentSupportedPythonVersions:
 ##   3.7:
 ##     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7:latest"
 ##     vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
+##     builderImage: "registry.hub.docker.com/versatiledatakit/job-builder:latest"
 deploymentSupportedPythonVersions:
   3.9:
     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
