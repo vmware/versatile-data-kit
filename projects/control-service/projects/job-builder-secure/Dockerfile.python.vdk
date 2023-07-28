@@ -1,7 +1,13 @@
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices
 
 ARG base_image=versatiledatakit/data-job-base-python-3.10-secure:latest
-FROM $base_image
+FROM $base_image as base
+
+FROM photon:latest
+
+# Copies essential binaries, libraries, headers, and Python files from the base Python image,
+# excluding build dependencies.
+COPY --from=base /usr/local/ /usr/local/
 
 ARG UID=1000
 ARG GID=1000
@@ -25,7 +31,7 @@ RUN : \
      && echo "Validating base image is python based ..." \
      && python -V \
      && echo "Creating necessary users and set home directory to /job ..." \
-     && yum install shadow openssl-c_rehash -y && /usr/bin/rehash_ca_certificates.sh && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox openssl-c_rehash -y \
+     && yum install shadow -y && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox openssl-c_rehash -y \
      && echo "Removing execute permissions for files within the Data job directory, but not for the directories themselves ..." \
      && chmod -R -x+X $job_name/* \
      && if grep -q -E "^oracledb|^cx_Oracle" "$job_name/$requirements_file"; then \
@@ -43,18 +49,11 @@ RUN : \
           && pip install --disable-pip-version-check -q -r "$job_name/$requirements_file"  \
           || ( echo ">requirements_failed<" && exit 1 ) \
           && echo "Removing native dependencies ..." \
-          && yum autoremove shadow build-essential gcc glibc-devel git curl unzip -y;  fi \
+          && yum autoremove shadow build-essential gcc glibc-devel git unzip -y;  fi \
     && echo "Deleting system directories ..." \
     && yum install libffi-devel libstdc++ findutils -y \
     && rm -rf /boot /home /media /mnt /root /srv /usr/lib/ldscripts /usr/lib/rpm /usr/lib/sysimage \
     /usr/lib/tdnf /usr/lib/perl5 /usr/lib/gcc /usr/share/locale /tmp/* /usr/include /usr/libexec /usr/libexec  \
-    && echo "Deleting system binaries ..." \
-    && python -m pip uninstall pip -y \
-    && cd /usr/sbin \
-    && ls | grep -xv "ldconfig" | xargs rm -rf \
-    && cd /usr/local/bin \
-    && ls | grep -xv "python" | grep -xv "python3" | grep -xv $(python -c 'import sys; print("python"+str(sys.version_info[0])+"."+str(sys.version_info[1]))') | xargs rm -rf \
-    && cd /usr/bin \
-    && ls | grep -xv "sh" | grep -xv "bash" | xargs rm -rf
+    && echo "Deleting system binaries ..."
 
 USER $UID
