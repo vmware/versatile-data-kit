@@ -261,6 +261,7 @@ control_service_publish_job_builder_image:
 control_service_publish_job_builder_secure_image:
   extends: control_service_publish_job_builder_image
   script:
+    - echo "test"
     - apk add --no-cache bash
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-builder-secure
