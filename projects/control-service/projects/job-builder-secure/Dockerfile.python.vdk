@@ -25,7 +25,7 @@ RUN : \
      && echo "Validating base image is python based ..." \
      && python -V \
      && echo "Creating necessary users and set home directory to /job ..." \
-     && yum install shadow libffi-devel libstdc++ -y && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox -y \
+     && yum install shadow -y && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job && yum autoremove shadow toybox -y \
      && echo "Removing execute permissions for files within the Data job directory, but not for the directories themselves ..." \
      && chmod -R -x+X $job_name/* \
      && if grep -q -E "^oracledb|^cx_Oracle" "$job_name/$requirements_file"; then \
@@ -45,7 +45,7 @@ RUN : \
           && echo "Removing native dependencies ..." \
           && yum autoremove shadow build-essential gcc glibc-devel git curl unzip -y;  fi \
     && echo "Deleting system directories ..." \
-    && yum install findutils -y \
+    && yum install libffi-devel libstdc++ findutils -y \
     && rm -rf /boot /home /media /mnt /root /srv /usr/lib/ldscripts /usr/lib/rpm /usr/lib/sysimage \
     /usr/lib/tdnf /usr/lib/perl5 /usr/lib/gcc /usr/share/locale /tmp/* /usr/include /usr/libexec /usr/libexec  \
     && echo "Deleting system binaries ..." \
