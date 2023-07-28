@@ -174,10 +174,6 @@ control_service_publish_job_builder_secure_image:
   script:
     - apk add --no-cache bash
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
-    - cd projects/control-service/projects/job-builder
-    - bash -ex ./publish-vdk-job-builder.sh
-    - apk add --no-cache bash
-    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-builder-secure
     - bash -ex ./publish-vdk-job-builder-secure.sh
   retry: !reference [.control_service_retry, retry_options]
