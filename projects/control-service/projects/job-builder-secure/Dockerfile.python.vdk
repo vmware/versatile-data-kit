@@ -50,6 +50,8 @@ RUN : \
     /usr/lib/tdnf /usr/lib/perl5 /usr/lib/gcc /usr/share/locale /tmp/* /usr/include /usr/libexec /usr/libexec  \
     && echo "Deleting system binaries ..." \
     && python -m pip uninstall pip -y \
+    && cd /usr/sbin \
+    && ls | grep -xv "ldconfig" | xargs rm -rf \
     && cd /usr/local/bin \
     && ls | grep -xv "python" | grep -xv "python3" | grep -xv $(python -c 'import sys; print("python"+str(sys.version_info[0])+"."+str(sys.version_info[1]))') | xargs rm -rf \
     && cd /usr/bin \
