@@ -74,6 +74,25 @@ deploymentSupportedPythonVersions:
 deploymentDefaultPythonVersion: "pre-release"
 ```
 
+If you want to assign a separate job builder for each Python version, this can be accomplished by including the
+`builderImage` optional property:
+
+```yaml
+deploymentSupportedPythonVersions:
+  3.9-release:
+    baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
+    vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
+    builderImage: "registry.hub.docker.com/versatiledatakit/job-builder:release"
+  3.9-pre-release:
+    baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
+    vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:pre-release"
+
+deploymentDefaultPythonVersion: "3.9-pre-release"
+```
+
+The presence of the `builderImage` property is OPTIONAL; if it is not provided, the Control Service will automatically
+default to the `deploymentBuilderImage`.
+
 > NOTE: The full content of the values.yaml file would depend on the configuration
 > of the Control Service. If you use a custom Control Service instance, you can
 > add the above code directly to the values.yaml file used to deploy the Service.
