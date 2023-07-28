@@ -254,7 +254,7 @@ export const populateNotebook = async (notebookTracker: INotebookTracker) => {
 
         addCodeCell([
           `"""\n`,
-          `vdk_ipython extension introduces a magic command for Jupyter.\n`,
+          `vdk.plugin.ipython extension introduces a magic command for Jupyter.\n`,
           `The command enables the user to load VDK for the current notebook.\n`,
           `VDK provides the job_input API, which has methods for:\n`,
           `    * executing queries to an OLAP database;\n`,
@@ -265,7 +265,7 @@ export const populateNotebook = async (notebookTracker: INotebookTracker) => {
           `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n`,
           `and is only used for development purposes.\n`,
           `"""\n`,
-          `%reload_ext vdk_ipython\n`,
+          `%reload_ext vdk.plugin.ipython\n`,
           `%reload_VDK\n`,
           `job_input = VDK.get_initialized_job_input()`
         ], {})

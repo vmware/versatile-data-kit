@@ -4,7 +4,6 @@
  */
 
 import { expect, test } from '@jupyterlab/galata';
-import { assert } from 'console';
 
 /**
  * Don't load JupyterLab webpage before running the tests.
