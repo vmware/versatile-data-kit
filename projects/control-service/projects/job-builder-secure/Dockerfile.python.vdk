@@ -51,7 +51,7 @@ RUN : \
     && echo "Deleting system binaries ..." \
     && python -m pip uninstall pip -y \
     && cd /usr/local/bin \
-    && ls | grep -xv "python" | grep -xv "python3" | xargs rm -rf \
+    && ls | grep -xv "python" | grep -xv "python3" | grep -xv $(python -c 'import sys; print("python"+str(sys.version_info[0])+"."+str(sys.version_info[1]))') | xargs rm -rf \
     && cd /usr/bin \
     && ls | grep -xv "sh" | grep -xv "bash" | xargs rm -rf
 
