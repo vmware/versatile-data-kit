@@ -241,7 +241,7 @@ control_service_publish_python_image_secure_3_11:
     PYTHON_MINOR: 11
     PYTHON_PATCH: 3
 
-control_service_publish_job_builder_image:
+control_service_publish_job_builder_secure_image:
   extends: .images:dind:docker-push-to-vdk-repos
   stage: publish_artifacts
   script:
@@ -249,19 +249,6 @@ control_service_publish_job_builder_image:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-builder
     - bash -ex ./publish-vdk-job-builder.sh
-  retry: !reference [.control_service_retry, retry_options]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - projects/control-service/projects/job-builder/version.txt
-
-
-control_service_publish_job_builder_secure_image:
-  extends: control_service_publish_job_builder_image
-  script:
-    - echo "test"
     - apk add --no-cache bash
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/control-service/projects/job-builder-secure
