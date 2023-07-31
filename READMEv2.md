@@ -29,19 +29,20 @@
 ---
 
 <div align="left">
-    <span><strong>🎯 Write shorter code, more readable, and faster to create. 🎯</strong></span><br>
+    <span>🎯 Write shorter, more readable code. </span><br>
 </div>
 <div align="left">
-    <span><strong>🔄 Ready-to-use data ETL/ELT patterns make Data Engineering with VDK efficient. 🔄</strong></span><br>
+    <span>🔄 Ready-to-use data ETL/ELT patterns. </span><br>
 </div>
 <div align="left">
-    <span><strong>🧩 Lego-like extensibility and easy-to-combine plugins for customizable solutions. 🧩</strong></span><br>
+    <span>🧩 Lego-like extensibility. </span><br>
 </div>
-<div align="right">
-    <span><strong>🚀 Single click deployment to production for speedy deliveries. 🚀</strong></span><br>
+<br>
+<div align="left">
+    <span>🚀Single click deployment. </span><br>
 </div>
-<div align="right">
-    <span><strong>🛠️️ Operate and monitor using Operations UI for smooth oversight 🛠️</strong></span><br>
+<div align="left">
+    <span>🛠Operate and monitor. ️</span><br>
 </div>
 
 ---
@@ -105,7 +106,7 @@ vdk --help</code></pre>
           <li>Creates a dataset or table as a product.</li>
         </ul>
         <hr>
-        <p><b>Get started with ingesting data:</b></p>
+        <p><b>Get started with transforming data:</b></p>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Data-Modeling:-Treating-Data-as-a-Product">Data Modeling: Treating Data as a Product</a> </span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Processing-data-using-SQL-and-local-database">Processing data using SQL and local database</a></span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples">Processing data using Kimball warehousing templates</a></span><br>
@@ -150,8 +151,8 @@ vdk --help</code></pre>
   <tr>
     <td width="50%" >
         <ul>
-          <li>Use Operations UI to monitor, troubleshoot, and set up alerts.</li>
-          <li>VDK can send Slack or email notifications for errors during Data Job deployment.</li>
+          <li>Use Operations UI to monitor, troubleshoot data workloads in production.</li>
+          <li>Notifications for errors during Data Job deployment or execution.</li>
           <li>Route errors to correct people by classifying them into User or Platform errors.</li>
         </ul>
         <hr>
