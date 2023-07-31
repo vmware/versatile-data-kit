@@ -81,7 +81,6 @@ test('should try to create a job with incorrect input and get error', async ({
   await page.goto('');
   await page.menu.open('VDK');
   await page.locator('#jp-vdk-menu').getByText('Create').click();
-  await page.getByLabel('Local').check();
   await page.getByLabel('Job name:').click();
   await page.getByLabel('Job name:').fill('first-job');
   await page.getByLabel('Job team:').click();
