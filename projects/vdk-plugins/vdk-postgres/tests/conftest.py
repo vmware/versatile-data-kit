@@ -7,6 +7,7 @@ from unittest import mock
 
 import pytest
 from testcontainers.core.container import DockerContainer
+from testcontainers.core.waiting_utils import wait_container_is_ready
 from testcontainers.core.waiting_utils import wait_for
 from vdk.plugin.postgres import postgres_plugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -19,15 +20,15 @@ VDK_POSTGRES_HOST = "VDK_POSTGRES_HOST"
 VDK_POSTGRES_PORT = "VDK_POSTGRES_PORT"
 
 
-def _is_responsive(runner):
-    try:
-        result = runner.invoke(["postgres-query", "--query", "SELECT 1"])
-    except Exception as e:
-        raise ConnectionError(str(e)) from e
+@wait_container_is_ready(Exception)
+def wait_for_postgres_to_be_responsive(runner):
+    result = runner.invoke(["postgres-query", "--query", "SELECT 1"])
     if result.exit_code == 0:
         return True
     else:
-        raise ConnectionError(str(result.output))
+        raise ConnectionError(
+            f"Validation query failed with error {str(result.output)}"
+        )
 
 
 @pytest.fixture(scope="session")
@@ -54,7 +55,7 @@ def postgres_service(request):
     try:
         container.start()
         runner = CliEntryBasedTestRunner(postgres_plugin)
-        wait_for(partial(_is_responsive, runner))
+        wait_for_postgres_to_be_responsive(runner)
         # wait 2 seconds to make sure the service is up and responsive
         # might be unnecessary but it's out of abundance of caution
         time.sleep(2)
