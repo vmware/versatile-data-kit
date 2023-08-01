@@ -69,7 +69,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const fileBrowser = factory.defaultBrowser;
 
     app.restored.then(() => {
-      console.log('App restored!');
       const mainMenu = document.querySelector('.p-MenuBar-content');
       if (mainMenu) {
         mainMenu.appendChild(statusButton.element);

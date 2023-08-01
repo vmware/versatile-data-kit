@@ -8,6 +8,7 @@ import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
+import { StatusButton } from './StatusButton';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
@@ -72,13 +73,17 @@ export default class RunJobDialog extends Component<IJobPathProp> {
   };
 }
 
-export async function showRunJobDialog(docManager?: IDocumentManager) {
+export async function showRunJobDialog(
+  docManager?: IDocumentManager,
+  statusButton?: StatusButton
+) {
   const result = await showDialog({
     title: RUN_JOB_BUTTON_LABEL,
     body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!}></RunJobDialog>,
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
+    statusButton?.show('Run');
     let { message, status } = await jobRunRequest();
     if (status) {
       showDialog({

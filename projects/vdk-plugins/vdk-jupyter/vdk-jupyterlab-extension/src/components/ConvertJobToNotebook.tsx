@@ -10,7 +10,7 @@ import { CommandRegistry } from '@lumino/commands';
 import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import {  IJobPathProp, JupyterCellProps } from './props';
-
+import { StatusButton } from './StatusButton';
 
 export var notebookContent: JupyterCellProps[];
 
@@ -48,7 +48,7 @@ export default class ConvertJobToNotebookDialog extends Component<IJobPathProp> 
 }
 
 export async function showConvertJobToNotebookDialog(commands: CommandRegistry,
-  fileBrowser: FileBrowser, notebookTracker: INotebookTracker): Promise<void> {
+  fileBrowser: FileBrowser, notebookTracker: INotebookTracker, statusButton?: StatusButton): Promise<void> {
   const result = await showDialog({
     title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
     body: (
@@ -70,6 +70,7 @@ export async function showConvertJobToNotebookDialog(commands: CommandRegistry,
       buttons: [Dialog.okButton(), Dialog.cancelButton()]
     });
     if (confirmation.button.accept) {
+      statusButton?.show('Convert');
       let { message, status } = await jobConvertToNotebookRequest();
       if (status) {
         const transformjobResult = JSON.parse(message);

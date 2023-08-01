@@ -6,6 +6,7 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_JOB_BUTTON_LABEL } from '../utils';
+import { StatusButton } from './StatusButton';
 
 export default class CreateJobDialog extends Component<(IJobFullProps)> {
   /**
@@ -108,7 +109,7 @@ export default class CreateJobDialog extends Component<(IJobFullProps)> {
   }
 }
 
-export async function showCreateJobDialog() {
+export async function showCreateJobDialog(statusButton?: StatusButton) {
   const result = await showDialog({
     title: CREATE_JOB_BUTTON_LABEL,
     body: (
@@ -121,6 +122,7 @@ export async function showCreateJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
+    statusButton?.show('Create');
     await jobRequest('create');
   }
 }

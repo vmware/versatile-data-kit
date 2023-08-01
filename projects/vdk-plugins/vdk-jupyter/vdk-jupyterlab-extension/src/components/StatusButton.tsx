@@ -11,6 +11,9 @@ import { checkIcon } from '@jupyterlab/ui-components';
 
 export class StatusButton {
   private readonly buttonElement: HTMLButtonElement;
+  private operation: string | undefined;
+  private timerId: number | undefined;
+  private counter: number;
 
   constructor(commands: CommandRegistry) {
     this.buttonElement = document.createElement('button');
@@ -19,22 +22,55 @@ export class StatusButton {
     this.buttonElement.className = CHECK_STATUS_BUTTON_CLASS;
 
     this.buttonElement.onclick = () => {
-      commands.execute(CHECK_STATUS_BUTTON_COMMAND_ID);
+      commands.execute(CHECK_STATUS_BUTTON_COMMAND_ID, {
+        operation: this.operation
+      });
     };
 
     this.buttonElement.style.display = 'none';
+    this.counter = 0;
   }
 
   get element(): HTMLButtonElement {
     return this.buttonElement;
   }
 
-  show(): void {
+  show(operation: string): void {
+    this.operation = operation;
     this.buttonElement.style.display = '';
+    this.startTimer();
   }
 
   hide(): void {
     this.buttonElement.style.display = 'none';
+    this.stopTimer();
+  }
+
+  private startTimer() {
+    this.counter = 0;
+    this.timerId = window.setInterval(() => {
+      this.counter++;
+      this.buttonElement.innerHTML = `${CHECK_STATUS_BUTTON_LABEL} ${this.formatTime(
+        this.counter
+      )}`;
+    }, 1000);
+  }
+
+  private stopTimer() {
+    if (this.timerId) {
+      clearInterval(this.timerId);
+      this.timerId = undefined;
+    }
+    this.buttonElement.innerHTML = CHECK_STATUS_BUTTON_LABEL;
+  }
+
+  private formatTime(seconds: number): string {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m
+      .toString()
+      .padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 }
 
@@ -46,13 +82,14 @@ export function createStatusMenu(commands: CommandRegistry) {
   commands.addCommand(CHECK_STATUS_BUTTON_COMMAND_ID, {
     label: CHECK_STATUS_BUTTON_LABEL,
     icon: checkIcon,
-    execute: async () => {
+    execute: async args => {
+      const operation = args.operation || 'UNKNOWN';
       await showDialog({
         title: CHECK_STATUS_BUTTON_LABEL,
         body: (
           <div className="vdk-run-dialog-message-container">
             <p className="vdk-run-dialog-message">
-              Operation is currently running!
+              {operation} operation is currently running!
             </p>
           </div>
         ),
