@@ -18,7 +18,6 @@ export class StatusButton {
     this.buttonElement.id = CHECK_STATUS_BUTTON_ID;
     this.buttonElement.className = CHECK_STATUS_BUTTON_CLASS;
 
-    // Execute the custom button command when the button is clicked
     this.buttonElement.onclick = () => {
       commands.execute(CHECK_STATUS_BUTTON_COMMAND_ID);
     };
@@ -52,10 +51,7 @@ export function createStatusMenu(commands: CommandRegistry) {
         title: CHECK_STATUS_BUTTON_LABEL,
         body: (
           <div className="vdk-run-dialog-message-container">
-            {/*TODO find a way to add the icon. This doesn't work*/}
-            {/*<div className="jp-vdk-check-status-icon">{checkIcon}</div>*/}
             <p className="vdk-run-dialog-message">
-              {/*TODO find a way to pass the op details to the dialog*/}
               Operation is currently running!
             </p>
           </div>
