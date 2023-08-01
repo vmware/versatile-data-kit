@@ -27,7 +27,7 @@ class TestJobConfig:
 
    enable_attempt_notifications=yes
 
-   [job]
+   [vdk]
    db_default_type=IMPALA
    """
         self._write_to_config_ini(self._test_dir, cfg_string)

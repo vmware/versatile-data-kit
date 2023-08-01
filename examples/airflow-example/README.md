@@ -154,7 +154,7 @@ def run(job_input: IJobInput):
 team = my-team
 
 ; Configuration related to running data jobs
-[job]
+[vdk]
 db_default_type = TRINO
 ```
 </details>
@@ -251,7 +251,7 @@ def run(job_input: IJobInput):
 team = my-team
 
 ; Configuration related to running data jobs
-[job]
+[vdk]
 db_default_type = TRINO
 ```
 </details>
@@ -333,7 +333,7 @@ drop table if exists memory.default.test_airflow_two
 team = my-team
 
 ; Configuration related to running data jobs
-[job]
+[vdk]
 db_default_type = TRINO
 ```
 </details>
