@@ -10,7 +10,7 @@ jest.mock('@jupyterlab/services', () => {
   const originalModule = jest.requireActual('@jupyterlab/services');
   const mockServerConnection = {
     makeSettings: jest.fn(
-      () => ({ baseUrl: 'https://example.com' } as ServerConnection.ISettings)
+      () => ({ baseUrl: 'https://example.com' }) as ServerConnection.ISettings
     ),
     makeRequest: jest.fn(() =>
       Promise.resolve(new Response(JSON.stringify({ message: 'OK' })))
