@@ -39,7 +39,10 @@ export class URLStateManager {
     /**
      * ** Constructor.
      */
-    constructor(public baseURL: string, public urlLocation: Location) {
+    constructor(
+        public baseURL: string,
+        public urlLocation: Location
+    ) {
         this.params = new Map<string, StateManagerParamValue>();
         this.queryParams = new Map<string, StateManagerParamValue>();
 
