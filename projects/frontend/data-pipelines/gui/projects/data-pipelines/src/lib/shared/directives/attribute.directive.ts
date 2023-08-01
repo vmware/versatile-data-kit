@@ -30,7 +30,10 @@ export class AttributesDirective extends TaurusObject implements OnInit, OnChang
     /**
      * ** Constructor.
      */
-    constructor(private readonly el: ElementRef, private readonly renderer: Renderer2) {
+    constructor(
+        private readonly el: ElementRef,
+        private readonly renderer: Renderer2
+    ) {
         super();
     }
 

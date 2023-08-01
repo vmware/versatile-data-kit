@@ -12,7 +12,7 @@ See more about magic commands: https://ipython.readthedocs.io/en/stable/interact
 To use the extension it must be firstly installed with pip as a python package.
 Then to load the extension in Jupyter the user should use:
 ```
-%reload_ext vdk_ipython
+%reload_ext vdk.plugin.ipython
 ```
 And to load the VDK (Job Control object):
 ```
@@ -24,7 +24,7 @@ or giving the job a new with --name, etc.
 ### Example
 The output of this example is "myjob"
 ```
-%reload_ext vdk_ipython
+%reload_ext vdk.plugin.ipython
 
 %reload_VDK --name=myjob
 

@@ -37,7 +37,7 @@ project.ext {
             'org.testcontainers:junit-jupiter'                                   : 'org.testcontainers:junit-jupiter:1.18.3',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.15.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
-            'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.12.0',
+            'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.13.0',
             'org.apache.commons:commons-text'                                    : 'org.apache.commons:commons-text:1.10.0',
             'com.github.tomakehurst:wiremock'                                    : 'com.github.tomakehurst:wiremock:2.27.2',
             'com.graphql-java:graphql-java-extended-scalars'                     : 'com.graphql-java:graphql-java-extended-scalars:20.2',

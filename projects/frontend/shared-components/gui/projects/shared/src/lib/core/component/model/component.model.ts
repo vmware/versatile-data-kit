@@ -22,7 +22,10 @@ export class ComponentModel extends AbstractComponentModel {
     /**
      * ** Constructor.
      */
-    constructor(protected _componentState: ComponentState, protected _routerState: RouterState) {
+    constructor(
+        protected _componentState: ComponentState,
+        protected _routerState: RouterState
+    ) {
         super();
     }
 

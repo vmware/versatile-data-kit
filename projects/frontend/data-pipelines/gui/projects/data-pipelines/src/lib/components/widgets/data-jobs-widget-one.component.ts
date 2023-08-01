@@ -114,7 +114,10 @@ export class DataJobsWidgetOneComponent implements OnInit {
 
     errorJobs: boolean;
 
-    constructor(private readonly dataJobsService: DataJobsApiService, private readonly errorHandlerService: ErrorHandlerService) {}
+    constructor(
+        private readonly dataJobsService: DataJobsApiService,
+        private readonly errorHandlerService: ErrorHandlerService
+    ) {}
 
     @HostListener('window:resize')
     onWindowResize() {
