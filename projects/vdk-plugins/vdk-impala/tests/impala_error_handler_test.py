@@ -243,6 +243,60 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
         )
         mock_native_cursor.execute.assert_not_called()
 
+    def test_handle_failed_to_open_hdfs_new_authorization_exception_is_thrown_after_fix(
+        self, patched_time_sleep
+    ):
+        new_exception = HiveServer2Error(
+            "AuthorizationException: User 'pa__view_test-user' does not have privileges to "
+            "execute 'INVALIDATE METADATA/REFRESH' on"
+        )
+        generic_authorization_exception = HiveServer2Error(
+            "AuthorizationException: User 'pa__view_test-user' does not have privileges to "
+            "execute 'SELECT' on"
+        )
+        test_exception = OperationalError(
+            """Disk I/O error: Failed to open HDFS file
+            hdfs://HDFS/user/hive/warehouse/history.db/vm/pa__arrival_day=1573171200/pa__collector_id=vSphere.6_6/pa__schema_version=1/7642f6c1c2c31372-588d054900000012_186717772_data.0.parq
+            Error(255): Unknown error 255
+            Root cause: ConnectException: Connection refused"""
+        )
+        original_query = "select * from history.vm"
+
+        (
+            mock_native_cursor,
+            _,
+            _,
+            mock_recovery_cursor,
+            _,
+        ) = populate_mock_managed_cursor(
+            mock_exception_to_recover=test_exception, mock_operation=original_query
+        )
+        mock_native_cursor.execute.side_effect = [new_exception, None]
+
+        self.error_handler.handle_error(test_exception, mock_recovery_cursor)
+
+        # make sure we have tried
+        calls = [call("refresh `history`.`vm`"), call(original_query)]
+        mock_native_cursor.execute.assert_has_calls(calls)
+
+        # Verify that authorization exceptions not related to refresh/invalidate metadata
+        # are not handled.
+        mock_native_cursor.execute.side_effect = [
+            None,
+            generic_authorization_exception,
+            None,
+        ]
+
+        # after refresh metadata , original query fail again but with new exception
+        with self.assertRaises(HiveServer2Error) as exc:
+            self.error_handler.handle_error(test_exception, mock_recovery_cursor)
+
+        assert exc.exception == generic_authorization_exception
+
+        # make sure we have tried
+        calls = [call("refresh `history`.`vm`"), call(original_query)]
+        mock_native_cursor.execute.assert_has_calls(calls)
+
 
 if __name__ == "__main__":
     unittest.main()

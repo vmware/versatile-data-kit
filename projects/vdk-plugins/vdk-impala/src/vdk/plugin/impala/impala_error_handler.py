@@ -41,13 +41,13 @@ class ImpalaErrorHandler:
         :param caught_exception: the caught Impala exception
         :param recovery_cursor: cursor that can be used to execute recovery queries and query retries against Impala
         :return: true if and only if the exception was handled successfully and the query passed has succeeded.
-                Otherwise return false - the caught_exception was not handled.
+                Otherwise, return false - the caught_exception was not handled.
                 This method will raise an exception in the following scenarios and assuming handling of the error
                 produced another exception:
                  1. Exceptions are of the same type but have different args.
                  2. Exceptions are different types.
                 Moreover, the root cause stack trace will appear in the error message if an exception is raised.
-                Otherwise stacktrace gets changed and becomes confusing.
+                Otherwise, stacktrace gets changed and becomes confusing.
         """
         if self._handle_should_not_retry_error(caught_exception):
             return False
@@ -56,7 +56,7 @@ class ImpalaErrorHandler:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                 log=self._log,
-                what_happened="An Impala Pool Error occured: " + str(caught_exception),
+                what_happened="An Impala Pool Error occurred: " + str(caught_exception),
                 why_it_happened="Review the contents of the exception.",
                 consequences="The queries will not be executed.",
                 countermeasures=(
@@ -227,6 +227,12 @@ class ImpalaErrorHandler:
                 exception,
                 classname_with_package="impala.error.OperationalError",
                 exception_message_matcher_regex=".*ImpalaRuntimeException: Error making 'updateTableColumnStatistics'.*",
+            )
+            or errors.exception_matches(
+                exception,
+                classname_with_package="impala.error.HiveServer2Error",
+                exception_message_matcher_regex="AuthorizationException: User .*does not have privileges to "
+                "execute 'INVALIDATE METADATA/REFRESH' on.*",
             )
         ):
             sleep_seconds = 2 ** recovery_cursor.get_retries() * self._backoff_seconds
