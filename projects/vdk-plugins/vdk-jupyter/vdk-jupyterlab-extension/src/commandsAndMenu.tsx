@@ -1,5 +1,5 @@
 import { CommandRegistry } from '@lumino/commands';
-import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { showRunJobDialog } from './components/RunJob';
 import { jobData, setJobDataToDefault } from './jobData';
 import { showCreateDeploymentDialog } from './components/DeployJob';
@@ -12,6 +12,8 @@ import { workingDirectory } from '.';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import React from 'react';
+import { closeIcon } from '@jupyterlab/ui-components';
 
 export var runningVdkOperation = '';
 
@@ -59,18 +61,36 @@ function add_command(commands: CommandRegistry, schemaNaming: string, label: str
           setJobDataToDefault();
           runningVdkOperation = '';
         } else {
-          showErrorMessage(
-            'Another VDK operation is currently running!',
-            'Please wait until the operation ends!',
-            [Dialog.okButton()]
-          );
+          await showDialog({
+            title: 'Error',
+            body: (
+              <div className="vdk-error-dialog">
+                <closeIcon.react className="vdk-error-icon" />
+                <div>
+                  <p>Another VDK operation is currently running!</p>
+                  <p>Please wait until the operation ends!</p>
+                </div>
+              </div>
+            ),
+            buttons: [Dialog.okButton({ label: 'OK' })]
+          });
         }
       } catch (error) {
-        await showErrorMessage(
-          'Encountered an error when trying to open the dialog. Error:',
-          error,
-          [Dialog.okButton()]
-        );
+        await showDialog({
+          title: 'Error',
+          body: (
+            <div className="vdk-error-dialog">
+              <closeIcon.react className="vdk-error-icon" color="red" />
+              <div>
+                <p>
+                  Encountered an error when trying to open the dialog. Error:
+                </p>
+                <p>{error}</p>
+              </div>
+            </div>
+          ),
+          buttons: [Dialog.okButton({ label: 'OK'})]
+        });
       }
     }
   });

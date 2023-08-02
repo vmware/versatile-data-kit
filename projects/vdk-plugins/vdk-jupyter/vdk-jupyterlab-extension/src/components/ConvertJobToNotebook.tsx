@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
-import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { getServerDirRequest, jobConvertToNotebookRequest } from '../serverRequests';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL } from '../utils';
@@ -10,6 +10,7 @@ import { CommandRegistry } from '@lumino/commands';
 import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import {  IJobPathProp, JupyterCellProps } from './props';
+import { checkIcon, closeIcon } from '@jupyterlab/ui-components';
 
 
 export var notebookContent: JupyterCellProps[];
@@ -79,6 +80,9 @@ export async function showConvertJobToNotebookDialog(commands: CommandRegistry,
           title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
           body: (
             <div className="vdk-convert-to-notebook-dialog-message-container">
+              <div className="vdk-dialog-check-icon">
+                <checkIcon.react className="vdk-icon" />
+              </div>
               <p className="vdk-convert-to-notebook-dialog-message">
                 The Data Job with path <i>{jobData.get(VdkOption.PATH)}</i> was
                 converted to notebook successfully!
@@ -131,11 +135,22 @@ export const createTranformedNotebook = async (
     commands.execute('notebook:create-new');
   }
   catch (error) {
-    await showErrorMessage(
-      'Something went wrong while trying to create the new transformed notebook. Error:',
-      error,
-      [Dialog.okButton()]
-    );
+    await showDialog({
+      title: 'Error',
+      body: (
+        <div className="vdk-error-dialog">
+          <closeIcon.react className="vdk-error-icon" />
+          <div>
+            <p>
+              Something went wrong while trying to create the new transformed
+              notebook. Error:
+            </p>
+            <p>{error}</p>
+          </div>
+        </div>
+      ),
+      buttons: [Dialog.okButton({ label: 'OK'})]
+    });
   }
 }
 

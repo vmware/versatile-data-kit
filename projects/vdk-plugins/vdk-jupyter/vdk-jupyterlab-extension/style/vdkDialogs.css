@@ -56,3 +56,21 @@
 .vdk-run-dialog-message-container {
   position: relative;
 }
+
+.vdk-dialog-check-icon {
+  margin-right: 10px;
+  display: flex;
+}
+
+.vdk-dialog-check-icon .vdk-icon {
+  color: limegreen;
+}
+
+.vdk-error-dialog {
+  display: flex;
+}
+
+.vdk-error-icon {
+  margin-right: 10px;
+  color: red;
+}

@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import { checkIfVdkOptionDataIsDefined, jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
-import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_DEP_BUTTON_LABEL } from '../utils';
+import { closeIcon } from '@jupyterlab/ui-components';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
@@ -82,19 +83,35 @@ export async function showCreateDeploymentDialog() {
             await jobRequest('deploy');
           }
         } else {
-          showErrorMessage(
-            'Encоuntered an error while running the job!',
-            message,
-            [Dialog.okButton()]
-          );
+          await showDialog({
+            title: 'Error',
+            body: (
+              <div className="vdk-error-dialog">
+                <closeIcon.react className="vdk-error-icon" />
+                <div>
+                  <p>Encountered an error while running the job!</p>
+                  <p>{message}</p>
+                </div>
+              </div>
+            ),
+            buttons: [Dialog.okButton({ label: 'OK' })]
+          });
         }
       }
     } catch (error) {
-      await showErrorMessage(
-        'Encountered an error when deploying the job. Error:',
-        error,
-        [Dialog.okButton()]
-      );
+      await showDialog({
+        title: 'Error',
+        body: (
+          <div className="vdk-error-dialog">
+            <closeIcon.react className="vdk-error-icon" />
+            <div>
+              <p>Encountered an error when deploying the job. Error:</p>
+              <p>{error}</p>
+            </div>
+          </div>
+        ),
+        buttons: [Dialog.okButton({ label: 'OK' })]
+      });
     }
   }
 }
