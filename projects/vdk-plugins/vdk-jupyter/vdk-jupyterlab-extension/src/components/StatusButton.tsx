@@ -17,7 +17,7 @@ export class StatusButton {
 
   constructor(commands: CommandRegistry) {
     this.buttonElement = document.createElement('button');
-    this.buttonElement.innerHTML = CHECK_STATUS_BUTTON_LABEL + ' 00:00:00'
+    this.buttonElement.innerHTML = CHECK_STATUS_BUTTON_LABEL + ' 00:00:00';
     this.buttonElement.id = CHECK_STATUS_BUTTON_ID;
     this.buttonElement.className = CHECK_STATUS_BUTTON_CLASS;
 
@@ -61,7 +61,7 @@ export class StatusButton {
       clearInterval(this.timerId);
       this.timerId = undefined;
     }
-    this.buttonElement.innerHTML = CHECK_STATUS_BUTTON_LABEL;
+    this.buttonElement.innerHTML = CHECK_STATUS_BUTTON_LABEL + ' 00:00:00';
   }
 
   private formatTime(seconds: number): string {
