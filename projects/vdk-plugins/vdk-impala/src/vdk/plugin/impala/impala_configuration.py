@@ -19,6 +19,8 @@ IMPALA_AUTH_COOKIE_NAMES = "IMPALA_AUTH_COOKIE_NAMES"
 IMPALA_RETRIES = "IMPALA_RETRIES"
 IMPALA_SYNC_DDL = "IMPALA_SYNC_DDL"
 IMPALA_QUERY_POOL = "IMPALA_QUERY_POOL"
+IMPALA_RETRIES_ON_ERROR = "IMPALA_RETRIES_ON_ERROR"
+IMPALA_ERROR_BACKOFF_SECONDS = "IMPALA_ERROR_BACKOFF_SECONDS"
 
 
 class ImpalaPluginConfiguration:
@@ -75,6 +77,12 @@ class ImpalaPluginConfiguration:
 
     def query_pool(self):
         return self.__config.get_value(IMPALA_QUERY_POOL)
+
+    def retries_on_error(self):
+        return self.__config.get_value(IMPALA_RETRIES_ON_ERROR)
+
+    def error_backoff_seconds(self):
+        return self.__config.get_value(IMPALA_ERROR_BACKOFF_SECONDS)
 
 
 def add_definitions(config_builder: ConfigurationBuilder) -> None:
@@ -179,4 +187,20 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
         key=IMPALA_QUERY_POOL,
         default_value=None,
         description="The name of the Impala pool to execute queries in.",
+    )
+    config_builder.add(
+        key=IMPALA_RETRIES_ON_ERROR,
+        default_value=5,
+        description="The number of times a query will be retried if an exception is raised.",
+    )
+    config_builder.add(
+        key=IMPALA_ERROR_BACKOFF_SECONDS,
+        default_value=30,
+        description=(
+            "Exponential backoff in seconds, in case retries of a failed query are needed. "
+            "Calculated as `2 ** recovery_cursor.get_retries() * backoff_seconds`, where "
+            "`recovery_cursor.get_retries()` is the number of times the query has already been retried."
+            "For example, if the value of this configuration is 30 seconds, the time intervals will "
+            "be 30s, 60s, 2m, 4m, 8m"
+        ),
     )
