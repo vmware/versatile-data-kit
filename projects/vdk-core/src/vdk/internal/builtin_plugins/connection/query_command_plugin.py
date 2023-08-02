@@ -59,7 +59,7 @@ def sql_query(ctx: click.Context, query: str, output: str) -> None:
             )
             # TODO: this is basically emulating
             # https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-control-cli/src/vdk/internal/control/utils/output_printer.py
-            # It will be best printer functiality to be reusable (either moved to vdk-core or in a library/plugin
+            # It will be best printer functionality to be reusable (either moved to vdk-core or in a library/plugin)
             result = cursor.fetchall()
             if output.lower() == "json":
                 result = [
