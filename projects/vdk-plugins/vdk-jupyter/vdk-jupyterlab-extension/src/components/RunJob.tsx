@@ -83,7 +83,7 @@ export async function showRunJobDialog(
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    statusButton?.show('Run');
+    statusButton?.show('Run', jobData.get(VdkOption.PATH)!);
     let { message, status } = await jobRunRequest();
     if (status) {
       showDialog({

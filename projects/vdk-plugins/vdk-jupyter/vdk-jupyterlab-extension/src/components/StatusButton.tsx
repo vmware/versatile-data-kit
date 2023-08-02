@@ -12,6 +12,7 @@ import { checkIcon } from '@jupyterlab/ui-components';
 export class StatusButton {
   private readonly buttonElement: HTMLButtonElement;
   private operation: string | undefined;
+  private jobPath: string | undefined;
   private timerId: number | undefined;
   private counter: number;
 
@@ -23,7 +24,8 @@ export class StatusButton {
 
     this.buttonElement.onclick = () => {
       commands.execute(CHECK_STATUS_BUTTON_COMMAND_ID, {
-        operation: this.operation
+        operation: this.operation,
+        path: this.jobPath
       });
     };
 
@@ -35,8 +37,9 @@ export class StatusButton {
     return this.buttonElement;
   }
 
-  show(operation: string): void {
+  show(operation: string, path: string): void {
     this.operation = operation;
+    this.jobPath = path;
     this.buttonElement.style.display = '';
     this.startTimer();
   }
@@ -84,12 +87,14 @@ export function createStatusMenu(commands: CommandRegistry) {
     icon: checkIcon,
     execute: async args => {
       const operation = args.operation || 'UNKNOWN';
+      const path = args.path || 'UNKNOWN';
       await showDialog({
         title: CHECK_STATUS_BUTTON_LABEL,
         body: (
           <div className="vdk-status-dialog-message-container">
             <p className="vdk-status-dialog-message">
-              {operation} operation is currently running!
+              {operation} operation is currently running for job with path:{' '}
+              {path}!
             </p>
           </div>
         ),

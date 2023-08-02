@@ -75,7 +75,7 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
         ]
       });
       if (runConfirmationResult.button.accept) {
-        statusButton?.show('Deploy');
+        statusButton?.show('Deploy', jobData.get(VdkOption.PATH)!);
         const { message, status } = await jobRunRequest();
         if (status) {
           if (

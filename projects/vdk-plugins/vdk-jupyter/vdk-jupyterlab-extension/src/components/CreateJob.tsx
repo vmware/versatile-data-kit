@@ -122,7 +122,7 @@ export async function showCreateJobDialog(statusButton?: StatusButton) {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    statusButton?.show('Create');
+    statusButton?.show('Create', jobData.get(VdkOption.PATH)!);
     await jobRequest('create');
   }
 }

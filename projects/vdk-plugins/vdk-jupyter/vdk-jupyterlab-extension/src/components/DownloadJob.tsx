@@ -57,7 +57,7 @@ export async function showDownloadJobDialog(statusButton?: StatusButton) {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    statusButton?.show('Download');
+    statusButton?.show('Download', jobData.get(VdkOption.PATH)!);
     await jobRequest('download');
   }
 }

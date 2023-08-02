@@ -79,7 +79,7 @@ export async function showConvertJobToNotebookDialog(
       buttons: [Dialog.okButton(), Dialog.cancelButton()]
     });
     if (confirmation.button.accept) {
-      statusButton?.show('Convert');
+      statusButton?.show('Convert', jobData.get(VdkOption.PATH)!);
       let { message, status } = await jobConvertToNotebookRequest();
       if (status) {
         const transformjobResult = JSON.parse(message);
