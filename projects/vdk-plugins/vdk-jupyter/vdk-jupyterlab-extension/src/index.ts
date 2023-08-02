@@ -69,9 +69,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const fileBrowser = factory.defaultBrowser;
 
     app.restored.then(() => {
-      const mainMenu = document.querySelector('.p-MenuBar-content');
-      if (mainMenu) {
-        mainMenu.appendChild(statusButton.element);
+      const topPanel = document.querySelector('#jp-top-panel');
+      if (topPanel) {
+        topPanel.appendChild(statusButton.element);
       }
     });
 

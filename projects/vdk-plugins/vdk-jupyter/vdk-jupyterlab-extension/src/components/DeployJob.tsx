@@ -84,7 +84,7 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
             await jobRequest('deploy');
           }
         } else {
-          showErrorMessage(
+          await showErrorMessage(
             'Encоuntered an error while running the job!',
             message,
             [Dialog.okButton()]

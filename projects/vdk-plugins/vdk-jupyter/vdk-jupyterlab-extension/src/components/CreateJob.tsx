@@ -8,7 +8,7 @@ import { IJobFullProps } from './props';
 import { CREATE_JOB_BUTTON_LABEL } from '../utils';
 import { StatusButton } from './StatusButton';
 
-export default class CreateJobDialog extends Component<(IJobFullProps)> {
+export default class CreateJobDialog extends Component<IJobFullProps> {
   /**
    * Returns a React component for rendering a create menu.
    *
@@ -90,7 +90,7 @@ export default class CreateJobDialog extends Component<(IJobFullProps)> {
    * Function that sets job's cloud/local flags
    */
   private setJobFlags(flag: string) {
-    let checkbox = document.getElementById(flag);
+    const checkbox = document.getElementById(flag);
     if (checkbox?.classList.contains('checked')) {
       checkbox.classList.remove('checked');
       if (flag === 'Cloud') {

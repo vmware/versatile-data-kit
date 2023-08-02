@@ -105,11 +105,16 @@ function add_command(
           jobData.set(VdkOption.PATH, workingDirectory);
           await jobdDataRequest();
           if (label === 'Convert Job To Notebook') {
-            await getOperationDialog(commands, fileBrowser, notebookTracker);
+            await getOperationDialog(
+              commands,
+              fileBrowser,
+              notebookTracker,
+              statusButton
+            );
           } else if (docManager) {
-            await getOperationDialog(docManager);
+            await getOperationDialog(docManager, statusButton);
           } else {
-            await getOperationDialog();
+            await getOperationDialog(statusButton);
           }
           statusButton.hide();
           setJobDataToDefault();

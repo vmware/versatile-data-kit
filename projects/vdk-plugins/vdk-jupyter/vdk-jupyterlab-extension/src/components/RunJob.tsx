@@ -130,14 +130,14 @@ export const findFailingCellId = (message: String): string => {
 };
 
 /**
- * Returns a Element that is used for numarating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
+ * Returns a Element that is used for numerating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
  * @param failingCell - parent cell of that element
  * @returns Element or undefined if the element could not be found
  */
-export const getCellInputAreaPromp = (
-  failinCell: Element
+export const getCellInputAreaPrompt = (
+  failingCell: Element
 ): Element | undefined => {
-  const cellInputWrappers = failinCell.getElementsByClassName(
+  const cellInputWrappers = failingCell.getElementsByClassName(
     'jp-Cell-inputWrapper'
   );
   for (let i = 0; i < cellInputWrappers.length; i++) {
@@ -156,7 +156,7 @@ export const getCellInputAreaPromp = (
 };
 
 const switchToFailingCell = (failingCell: Element) => {
-  const prompt = getCellInputAreaPromp(failingCell);
+  const prompt = getCellInputAreaPrompt(failingCell);
   prompt?.classList.add('jp-vdk-failing-cell-prompt');
   failingCell.scrollIntoView();
   failingCell.classList.add('jp-vdk-failing-cell');
@@ -172,8 +172,8 @@ const switchToFailingCell = (failingCell: Element) => {
 
 const unmarkOldFailingCells = (cell: Element) => {
   cell.classList.remove('jp-vdk-failing-cell');
-  const cellPropt = getCellInputAreaPromp(cell);
-  cellPropt?.classList.remove('jp-vdk-failing-cell-prompt');
+  const cellPrompt = getCellInputAreaPrompt(cell);
+  cellPrompt?.classList.remove('jp-vdk-failing-cell-prompt');
 };
 
 export const findFailingCellInNotebookCells = async (
@@ -257,7 +257,7 @@ export const handleErrorsProducedByNotebookCell = async (
       });
 
       if (result.button.accept) {
-        navigateToFailingCell();
+        await navigateToFailingCell();
       }
 
       return true;
