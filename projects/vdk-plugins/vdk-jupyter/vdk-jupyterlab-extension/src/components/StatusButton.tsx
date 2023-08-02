@@ -87,8 +87,8 @@ export function createStatusMenu(commands: CommandRegistry) {
       await showDialog({
         title: CHECK_STATUS_BUTTON_LABEL,
         body: (
-          <div className="vdk-run-dialog-message-container">
-            <p className="vdk-run-dialog-message">
+          <div className="vdk-status-dialog-message-container">
+            <p className="vdk-status-dialog-message">
               {operation} operation is currently running!
             </p>
           </div>
