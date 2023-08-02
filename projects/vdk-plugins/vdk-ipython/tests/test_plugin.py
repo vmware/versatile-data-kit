@@ -9,7 +9,7 @@ from IPython.testing.globalipapp import start_ipython
 from vdk.api.job_input import IJobInput
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk_ipython import JobControl
+from vdk.plugin.ipython import JobControl
 
 _log = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def session_ip():
 
 @pytest.fixture(scope="function")
 def ip(session_ip):
-    session_ip.run_line_magic(magic_name="load_ext", line="vdk_ipython")
+    session_ip.run_line_magic(magic_name="load_ext", line="vdk.plugin.ipython")
     session_ip.run_line_magic(magic_name="reload_VDK", line="")
     yield session_ip
     session_ip.run_line_magic(magic_name="reset", line="-f")

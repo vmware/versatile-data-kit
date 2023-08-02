@@ -70,7 +70,7 @@ test.describe('convert job', () => {
     // go through ipython configuration
     await page
       .locator('pre')
-      .filter({ hasText: '%reload_ext vdk_ipython' })
+      .filter({ hasText: '%reload_ext vdk.plugin.ipython' })
       .click();
     await page.locator('pre').filter({ hasText: '%reload_VDK' }).click();
     await page

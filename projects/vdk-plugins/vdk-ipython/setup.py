@@ -17,7 +17,7 @@ setuptools.setup(
     install_requires=["vdk-core", "iPython"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={"vdk.plugin.run": ["ipython = vdk_ipython"]},
+    entry_points={"vdk.plugin.run": ["ipython = vdk.plugin.ipython"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: Apache Software License",

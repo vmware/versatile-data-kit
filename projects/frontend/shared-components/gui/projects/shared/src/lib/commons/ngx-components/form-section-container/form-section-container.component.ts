@@ -114,7 +114,10 @@ export class VdkFormSectionContainerComponent {
 
     @ViewChild('editButton') editButtonEl: ElementRef;
 
-    constructor(@Optional() @Host() private cspForm: FormGroupDirective, private cdr: ChangeDetectorRef) {}
+    constructor(
+        @Optional() @Host() private cspForm: FormGroupDirective,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     showEditBtn() {
         return this._sectionState === FORM_STATE.CAN_EDIT && this.canEditSection;
