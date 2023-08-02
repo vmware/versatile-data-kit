@@ -39,10 +39,10 @@
 </div>
 <br>
 <div align="left">
-    <span>🚀Single click deployment. </span><br>
+    <span>🚀 Single click deployment. </span><br>
 </div>
 <div align="left">
-    <span>🛠Operate and monitor. ️</span><br>
+    <span>🛠 Operate and monitor. ️</span><br>
 </div>
 
 ---
