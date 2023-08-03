@@ -89,30 +89,13 @@ class IngestToSQLite(IIngesterPlugin):
     def __ingest_payload(
         self, destination_table: str, payload: List[dict], cur: Cursor
     ) -> None:
-        fields, query = self.__create_query(destination_table, cur)
-
-        for obj in payload:
+        values, query = self.__create_query(destination_table, payload, cur)
+        for obj in values:
             try:
                 cur.execute(query, obj)
                 log.debug("Payload was ingested.")
             except Exception as e:
-                if collections.Counter(fields) != collections.Counter(obj.keys()):
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.USER_ERROR,
-                        log,
-                        "Failed to sent payload",
-                        f"""
-                        One or more column names in the input data did NOT
-                        match corresponding column names in the database.
-                           Input Table Columns: {list(obj.keys())}
-                        Database Table Columns: {fields}
-                        """,
-                        "Will not be able to send the payload for ingestion",
-                        "See error message for help ",
-                        e,
-                        wrap_in_vdk_error=True,
-                    )
-                elif isinstance(e, ProgrammingError):
+                if isinstance(e, ProgrammingError):
                     errors.log_and_rethrow(
                         errors.ResolvableBy.USER_ERROR,
                         log,
@@ -169,18 +152,39 @@ class IngestToSQLite(IIngesterPlugin):
             columns.append((row[0], row[1]))
         return columns
 
-    def __create_query(self, destination_table: str, cur: Cursor) -> Tuple[list, str]:
+    def __create_query(
+        self, destination_table: str, payload: List[dict], cur: Cursor
+    ) -> Tuple[list, str]:
         fields = [
             field_tuple[0]
             for field_tuple in cur.execute(
                 f"SELECT name FROM PRAGMA_TABLE_INFO('{destination_table}')"
             ).fetchall()
         ]
-        # the query fstring evaluates to 'INSERT INTO dest_table (val1, val2, val3) VALUES (:val1, :val2, :val3)'
-        # assuming dest_table is the destination_table and val1, val2, val3 are the fields of that table
-        query = f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join([':' + field for field in fields])})"
 
-        return fields, query
+        # verify that the payload header and table column names match
+        for obj in payload:
+            if collections.Counter(fields) != collections.Counter(obj.keys()):
+                errors.log_and_throw(
+                    errors.ResolvableBy.USER_ERROR,
+                    log,
+                    "Failed to sent payload",
+                    f"""
+                    One or more column names in the input data did NOT
+                    match corresponding column names in the database.
+                       Input Table Columns: {list(obj.keys())}
+                    Database Table Columns: {fields}
+                    """,
+                    "Will not be able to send the payload for ingestion",
+                    "See error message for help ",
+                )
+
+        # the query fstring evaluates to 'INSERT INTO dest_table (val1, val2, val3) VALUES (?, ?, ?)'
+        # assuming dest_table is the destination_table and val1, val2, val3 are the fields of that table
+        values = [[obj.get(field) for field in fields] for obj in payload]
+        fields = [field if " " not in field else f'"{field}"' for field in fields]
+        query = f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join(['?' for _ in fields])})"
+        return values, query
 
     def __create_table_if_not_exists(
         self, cur: Cursor, destination_table: str, payload: List[dict]
@@ -198,12 +202,16 @@ class IngestToSQLite(IIngesterPlugin):
     @staticmethod
     def __create_table(cur: Cursor, destination_table: str, columns: Dict[str, str]):
         """
-        Creates table from give list of columns and table name
+        Creates table from given list of columns and table name
         """
-        columns_as_sql_expression = ",".join(
-            [f"{col_name} {col_type}" for col_name, col_type in columns.items()]
-        )
-        sql = f"CREATE TABLE IF NOT EXISTS {destination_table} ( {columns_as_sql_expression} )"
+        names = [
+            f"{col_name} {col_type}"
+            if " " not in col_name
+            else f'"{col_name}" {col_type}'
+            for col_name, col_type in columns.items()
+        ]
+        columns_as_sql_expression = ",".join(names)
+        sql = f"CREATE TABLE IF NOT EXISTS {destination_table} ( {columns_as_sql_expression} );"
         log.debug(f"Create table using {sql}")
         cur.execute(sql)
 
