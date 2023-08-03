@@ -10,11 +10,10 @@
   - [Summary](#summary)
   - [Glossary](#glossary)
   - [Motivation](#motivation)
-    - [Logs on failures](#logs-on-failures)
-    - [Logs on success](#logs-on-success)
-    - [Debug mode](#debug-mode)
-    - [Progress Tracking](#progress-tracking)
-    - [VDK exception handling and  categorization](#vdk-exception-handling-and--categorization)
+    - [Poor assistance around configuration options](#Poor-assistance-around-configuration-options)
+    - [Layers of abstraction aren't clear](#Layers-of-abstraction-are-not-clear)
+    - [Poor documentation around secrets/properties](#Poor-documentation-around-secrets-and-properties)
+    - [Not trivial to run in the IDE](#Not-trivial-to-run-in-the-IDE)
   - [Requirements and goals](#requirements-and-goals)
   - [High-level design](#high-level-design)
   - [API design](#api-design)
@@ -55,7 +54,7 @@ It's not clear which properties go in which section. In fact some properties can
 4. There is no IDE assistance. Frameworks like spring support autocomplete in their property and yaml files.
 
 
-### Layer's of abstraction aren't clear
+### Layer's of abstraction are not clear
 
 The VDK advertises its self as being a useful tool for reading and writing to databases(It helps with retries etc...).
 However if you are reading from a database to ingest the data into VDK you actually don't use VDK SDK to connect to the source database.
@@ -63,7 +62,7 @@ This can be seen in this tutorial: https://github.com/vmware/versatile-data-kit/
 This is extremely confusing. I would expect that I use the postgres plugin to read the data.
 
 
-### Poor documentation around secrets/properties
+### Poor documentation around secrets and properties
 
 When first starting with VDK and your own data you will need to provide VDK with passwords/username/etc. to connect to you data source.
 There is a file based implementation of the properties provider. This is not heavily enough advertised in the getting started docs.
