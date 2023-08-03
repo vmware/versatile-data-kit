@@ -36,6 +36,13 @@ To get started with this template:
     - [VDK exception handling and  categorization](#vdk-exception-handling-and--categorization)
   - [Requirements and goals](#requirements-and-goals)
   - [High-level design](#high-level-design)
+    - [Log Structure](#log-structure)
+    - [Log Less](#log-less)
+      - [Logs not at the apprpopriate level](#logs-not-at-the-apprpopriate-level)
+      - [Multi-layered logging](#multi-layered-logging)
+    - [Don't Repeat Yourself (DRY)](#dont-repeat-yourself-dry)
+    - [Clean Error Handling](#clean-error-handling)
+    - [Progress Indicators](#progress-indicators)
   - [API design](#api-design)
   - [Detailed design](#detailed-design)
   - [Implementation stories](#implementation-stories)
@@ -175,6 +182,123 @@ In this context, a component is any separate software process.
 
 -->
 
+Based on user feedback, we've identified 5 workstreams.
+
+### Log Structure
+
+```
+2023-07-27 17:50:44,918 [VDK] hackernews-top-stories [INFO ] vdk.plugin.control_cli_plugin. properties_plugin.py:30   initialize_job  [id:30618c1b-677b-4f96-86a3-dda26011b3d8-1690469444-20a99]- Control Service REST API URL is not configured. Will not initialize Control Service based Properties client implementation.
+```
+
+`[Local][Cloud]` The current logging format is static and looks something like `<timestamp> [VDK] <job-name> <level> <plugin:line> <step> <id> <message>`. We need a way to configure
+this format dynamically on the data job and on the environment level.
+
+A few ideas on how to do it:
+
+- expose the logging format as an env variable that's overridable per job
+- provide a configuration step that lets users call an api and configure the
+  format, e.g.
+```
+logs.format().use()
+  .timestamp()
+  .job_name()
+  .level()
+```
+  - not sure how it will work on an environment level, maybe we can provide it
+    on the CLI / in the helm config
+- it should be extendable, e.g. if we want to add some new classification to the
+  format (parent job, team name), it should be easy to do in a modular fasion
+
+### Log Less
+
+#### Logs not at the apprpopriate level
+
+`[Local][Cloud]` We have to go through every log statement in every VDK plugin and make sure it's
+at the appropriate level. Judging by user feedback, we have a lot of INFO
+logging that should be at the DEBUG level.
+
+`[Local][Cloud]` There should be an easy way to for the user configure the datajob log level
+dynamically.
+
+Note: There is currently log_level_module which you can set to
+a.b.c=INFO;foo.bar=ERROR. We have to decide if this level of granularity is
+sufficient. We should also improve the documentation around it.
+
+#### Multi-layered logging
+
+`[Local]` Logs on failure should point to the problem and provide the minimum
+amount of troubleshooting information to get started. Error messages in the
+console should show the root cause and the line where the error happened. Any
+other information, e.g. full stack trace, should be output to a temp file.
+
+```
+process_twitter_data Step 10_ingest_data.py Line: 38
+File with path "./some_file.txt does not exist
+Full error log /tmp/30618c1b-677b-4f96-86a3-dda26011b3d8-1690469444-20a99/error.log
+```
+`[Cloud]` Full error log should be output to stderr
+
+### Don't Repeat Yourself (DRY)
+
+`[Local][Cloud]` Remove any repeating info in success logs. Success logs should
+show which step has started or ended and the success status at the end. Note
+that locally, this could be entirely replaced by progress bars, but users should
+be able to choose between one or the other.
+
+### Clean Error Handling
+
+`[Local][Cloud]` Do away with the log-and-throw and log-and-rethrow patterns.
+Errors should be passed up the call stack to the original caller. Errors should
+be caught and wrapped or replaced by other errors only if we're adding more
+information to the existing error.
+
+To preserve information, we can use an error context, parse it and dump it to
+stdout or a log file, depending on configuration. Recoverable errors should not
+be passed up the call stack, but just logged at the `WARN` level. Errors we
+can't recover from should be added to the context and re-thrown.
+
+`[Local][Cloud]` Error classification is good, because it eliminates firction
+between users and support teams.
+
+The current error handling mechanism has encouraged some bad practices, such as
+making the caller add irrelevant information, e.g. 
+
+```
+"WHAT HAPPENED: An error occurred",
+"COUNTERMEASURES: Check exception"
+```
+
+We don't provide sufficient granularity in the errors that can be thrown and
+rely on the caller to "do the right thing", in this case, add relevant
+information. Error classification should be modified to use a class hierarchy of
+generic errors. These errors should help classify the problem, e.g. we should
+have UserError, PlatformError and errors that inherit from them instead of
+making the caller log all the error information.
+
+### Progress Indicators
+
+`[Local]` Replace logs with progress indicators entirely. Give the user the
+option to choose between progress indicators and logs for local jobs.
+
+We should think about exporting progress tracking as a unified module, because
+we can track progress on multiple levels. There are three levels of tracking
+- DAGs
+- Jobs
+- Job Steps
+
+Additonally, we could consider a fourth level - users tracking progress inside
+data jobs steps, e.g. percentage of data ingested. This would require exposing
+an API for the users.
+
+`[Cloud]` If we build a progress tracking module, we should have a good way to
+leverage it for cloud deployments. Cloud jobs will not use progress bars, but
+could still make use of this system and display logs instead.
+
+Resources:
+
+- https://pypi.org/project/progress2/
+- https://tqdm.github.io/
+- https://joblib.readthedocs.io/en/stable/
 
 ## API design
 
