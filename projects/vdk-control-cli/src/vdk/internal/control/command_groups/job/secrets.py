@@ -270,7 +270,7 @@ class JobSecrets:
 def secrets_command(
     name: str,
     team: str,
-    set: Tuple[str, str],
+    set: Tuple[str, str],  # pylint: disable=redefined-builtin
     set_prompt: Tuple[str, str],  # pylint: disable=redefined-builtin
     delete: Tuple[str],
     delete_all_job_secrets: bool,
@@ -325,7 +325,7 @@ def secrets_command(
             )
 
 
-def _get_key_value_pairs(set, set_prompt):
+def _get_key_value_pairs(set, set_prompt):  # pylint: disable=redefined-builtin
     key_value_pairs = {}
     if set:
         for key, value in set:
