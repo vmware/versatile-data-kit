@@ -9,7 +9,7 @@ from vdk.internal.core import errors
 
 
 class ImpalaErrorHandler:
-    def __init__(self, log=None, num_retries=5):
+    def __init__(self, log=None, num_retries=5, backoff_seconds=30):
         """
         This module offers error handling and error recovery for an Impala connection.
 
@@ -21,6 +21,7 @@ class ImpalaErrorHandler:
         self._log = log
 
         self._num_retries = num_retries
+        self._backoff_seconds = backoff_seconds
 
     def handle_error(
         self, caught_exception: Exception, recovery_cursor: RecoveryCursor
@@ -159,7 +160,7 @@ class ImpalaErrorHandler:
                         "refresh `" + database + "`.`" + table + "`"
                     )
                     time.sleep(
-                        2 ** recovery_cursor.get_retries() * 30
+                        2 ** recovery_cursor.get_retries() * self._backoff_seconds
                     )  # exponential backoff 30s, 60s, 2m, 4m, 8m
                 recovery_cursor.retry_operation()
                 return True
@@ -195,7 +196,7 @@ class ImpalaErrorHandler:
             # wait a little before retrying the query, giving time for the network to recover
             if recovery_cursor.get_retries() > 0:
                 time.sleep(
-                    2 ** recovery_cursor.get_retries() * 30
+                    2 ** recovery_cursor.get_retries() * self._backoff_seconds
                 )  # exponential backoff 60s, 2m, 4m, 8m
             # retry the query
             recovery_cursor.retry_operation()
@@ -228,7 +229,7 @@ class ImpalaErrorHandler:
                 exception_message_matcher_regex=".*ImpalaRuntimeException: Error making 'updateTableColumnStatistics'.*",
             )
         ):
-            sleep_seconds = 2 ** recovery_cursor.get_retries() * 30
+            sleep_seconds = 2 ** recovery_cursor.get_retries() * self._backoff_seconds
             self._log.info(
                 f"Query failed with: {exception.__class__} : {str(exception)}"
                 f"Will sleep for {sleep_seconds} seconds and try the query again."
@@ -285,7 +286,7 @@ class ImpalaErrorHandler:
         if (
             pattern_for_the_table_name
         ):  # then one of the exceptions matched and we can handle with invalidate
-            sleep_seconds = 2 ** recovery_cursor.get_retries() * 30
+            sleep_seconds = 2 ** recovery_cursor.get_retries() * self._backoff_seconds
             self._log.info(
                 f"Query failed with: {exception.__class__} : {str(exception)}"
                 f"Will sleep for {sleep_seconds} seconds, will issue invalidate metadata on the table and try the query again."
