@@ -8,4 +8,5 @@ export const CREATE_DEP_BUTTON_LABEL = 'Create Deployment';
 export const CREATE_JOB_BUTTON_LABEL = 'Create Job';
 export const RUN_FAILED_BUTTON_LABEL = 'Run Failed';
 export const DOWNLOAD_JOB_BUTTON_LABEL = 'Download Job';
+export const DOWNLOAD_KEY_BUTTON_LABEL = 'Download Key';
 export const DELETE_JOB_BUTTON_LABEL = 'Delete Job';

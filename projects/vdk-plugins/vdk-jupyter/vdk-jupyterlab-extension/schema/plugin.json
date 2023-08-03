@@ -22,6 +22,9 @@
             "command": "jp-vdk:menu-download"
           },
           {
+            "command": "jp-vdk:menu-download-key"
+          },
+          {
             "command": "jp-vdk:menu-convert-job-to-notebook"
           },
           {

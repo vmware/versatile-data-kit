@@ -118,6 +118,30 @@ test('should try download operation with empty input and get error', async ({
   await page.getByRole('button', { name: 'OK' }).click();
 });
 
+test('should open download key pop up and then cancel the operation', async ({
+  page
+}) => {
+  await page.goto('');
+  await page.menu.open('VDK');
+  await page.locator('#jp-vdk-menu').getByText('Download Key').click();
+  await page.locator('div').filter({ hasText: 'Download Key' });
+  await page.getByRole('button', { name: 'Cancel' }).click();
+});
+
+test('should try download key operation with empty input and get error', async ({
+  page
+}) => {
+  await page.goto('');
+  await page.menu.open('VDK');
+  await page.locator('#jp-vdk-menu').getByText('Download Key').click();
+  await page.locator('div').filter({ hasText: 'Download Key' });
+  await page.getByRole('button', { name: 'OK' }).click();
+  await page.locator('div').filter({
+    hasText: 'Encountered an error when trying to download the job key. '
+  });
+  await page.getByRole('button', { name: 'OK' }).click();
+});
+
 test('should create an init cell when opening a new notebook', async ({
   page
 }) => {

@@ -12,6 +12,7 @@ import DeployJobDialog, {
 } from '../components/DeployJob';
 import CreateJobDialog, { showCreateJobDialog } from '../components/CreateJob';
 import { VdkErrorMessage } from '../components/VdkErrorMessage';
+import DownloadKeyDialog, {showDownloadKeyDialog} from "../components/DownloadKey";
 
 // Mock the showDialog function
 jest.mock('@jupyterlab/apputils', () => ({
@@ -132,6 +133,35 @@ describe('showDownloadJobDialog', () => {
 
     // Expect the jobRequest function to have been called with the correct arguments
     expect(jobRequest).toHaveBeenCalledWith('download');
+  });
+});
+
+describe('showDownloadKeyDialog', () => {
+  beforeEach(() => {
+    jobData.set(VdkOption.PATH, 'test/path');
+    // Mock the result of the showDialog function
+    const mockResult = { button: { accept: true } };
+    (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
+  });
+
+  it('should show a dialog with the Download Key title and a DownloadKeyDialog component as its body', async () => {
+    // Call the function
+    await showDownloadKeyDialog();
+
+    // Expect the showDialog function to have been called with the correct parameters
+    expect(showDialog).toHaveBeenCalledWith({
+      title: 'Download Key',
+      body: <DownloadKeyDialog jobPath={jobData.get(VdkOption.PATH)!} />,
+      buttons: [Dialog.okButton(), Dialog.cancelButton()]
+    });
+  });
+
+  it('should call the jobRequest function with "download" as the argument if the user clicks the accept button', async () => {
+    // Call the function
+    await showDownloadKeyDialog();
+
+    // Expect the jobRequest function to have been called with the correct arguments
+    expect(jobRequest).toHaveBeenCalledWith('download-key');
   });
 });
 

@@ -11,6 +11,7 @@ from vdk.internal.control.command_groups.job.create import JobCreate
 from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
+from vdk.internal.control.command_groups.job.download_key import JobDownloadKey
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
 from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
@@ -116,6 +117,19 @@ class VdkUI:
         cmd = JobDownloadSource(RestApiUrlConfiguration.get_rest_api_url())
         cmd.download(team, name, path)
         return f"Downloaded the job with name {name} to {path}. "
+
+    @staticmethod
+    def download_key(name: str, team: str, path: str):
+        """
+        Execute `download key`.
+        :param name: the name of the data job
+        :param team: the team of the data job
+        :param path: the path to the directory where the data job key will be downloaded
+        :return: message that the key is downloaded
+        """
+        cmd = JobDownloadKey(RestApiUrlConfiguration.get_rest_api_url())
+        cmd.download(team, name, path)
+        return f"Downloaded the key with name {name} to {path}. "
 
     @staticmethod
     def create_job(name: str, team: str, path: str, local: bool, cloud: bool):
