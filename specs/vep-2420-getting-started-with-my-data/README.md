@@ -26,7 +26,7 @@
 
 Users struggle to get started with their own data in VDK.
 When evaluating a data platform like VDK one of the first actions is often to connect it to your own data sources and play around with it.
-Given that this is not a trivial task on VDK it most likely turns a lot of prospective users off. 
+Given that this is not a trivial task on VDK it most likely turns a lot of prospective users off.
 The issues range from:
 1. Poor assistance around configuration options
 2. Layers of abstraction aren't clear
@@ -36,7 +36,7 @@ The issues range from:
 ## Glossary
 
 ## Motivation
-At the moment, VKD users face multiple challenges related to using their own data in VDK. 
+At the moment, VKD users face multiple challenges related to using their own data in VDK.
 Based on user feedback we've received, these can be split into 5 categories.
 
 ### Poor assistance around configuration options
@@ -47,18 +47,18 @@ However despite this there are a number of issues which make it difficult to con
 
 1. Users are expected to configure their job using a config.ini file. Ini files are not popular in the industry
 2. Sections are confusing
-ini files support sections (https://en.wikipedia.org/wiki/INI_file#Sections). 
-Within VDK there are a few different sections, [vdk],[job], [owner].  
-Newer properties always go in the [vdk] section. 
-It's not clear which properties go in which section. In fact some properties can exist in different sections and will have the same result. 
-3. There is no validation on the file at run time to make sure all properties exist. Ideally the system should throw an error if there are properties in the file which don't actually exist. 
+ini files support sections (https://en.wikipedia.org/wiki/INI_file#Sections).
+Within VDK there are a few different sections, [vdk],[job], [owner].
+Newer properties always go in the [vdk] section.
+It's not clear which properties go in which section. In fact some properties can exist in different sections and will have the same result.
+3. There is no validation on the file at run time to make sure all properties exist. Ideally the system should throw an error if there are properties in the file which don't actually exist.
 4. There is no IDE assistance. Frameworks like spring support autocomplete in their property and yaml files.
 
 
 ### Layer's of abstraction aren't clear
 
 The VDK advertises its self as being a useful tool for reading and writing to databases(It helps with retries etc...).
-However if you are reading from a database to ingest the data into VDK you actually don't use VDK SDK to connect to the source database.  
+However if you are reading from a database to ingest the data into VDK you actually don't use VDK SDK to connect to the source database.
 This can be seen in this tutorial: https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-DB-into-Database
 This is extremely confusing. I would expect that I use the postgres plugin to read the data.
 
@@ -66,17 +66,17 @@ This is extremely confusing. I would expect that I use the postgres plugin to re
 ### Poor documentation around secrets/properties
 
 When first starting with VDK and your own data you will need to provide VDK with passwords/username/etc. to connect to you data source.
-There is a file based implementation of the properties provider. This is not heavily enough advertised in the getting started docs. 
+There is a file based implementation of the properties provider. This is not heavily enough advertised in the getting started docs.
 Furthermore there is no file based implementation of the secrets provider. So on even the most trivial example of reading data the user is left wondering how to handle secrets.
 
 ### Not trivial to run in the IDE
 
-There is actually great documentation on how to get this working. 
-But it needs to be included as the first line of the getting started section as this is the first thing that should be done after creating a job. 
+There is actually great documentation on how to get this working.
+But it needs to be included as the first line of the getting started section as this is the first thing that should be done after creating a job.
 
 ## Requirements and goals
 
-1. Easily finding out which properties to set for a given task 
+1. Easily finding out which properties to set for a given task
    1. During development
       1. The IDE should provide auto complete of properties
       2. TODO
