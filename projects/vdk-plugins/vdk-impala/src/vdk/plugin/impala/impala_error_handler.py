@@ -151,13 +151,21 @@ class ImpalaErrorHandler:
                 )
                 # Try refreshing the table metadata several times,
                 # and if the issue is not fixed invalidate the metadata.
-                if recovery_cursor.get_retries() > 3:
-                    recovery_cursor.execute(
-                        "invalidate metadata `" + database + "`.`" + table + "`"
-                    )
-                else:
-                    recovery_cursor.execute(
-                        "refresh `" + database + "`.`" + table + "`"
+                try:
+                    if recovery_cursor.get_retries() > 3:
+                        recovery_cursor.execute(
+                            "invalidate metadata `" + database + "`.`" + table + "`"
+                        )
+                    else:
+                        recovery_cursor.execute(
+                            "refresh `" + database + "`.`" + table + "`"
+                        )
+                        time.sleep(
+                            2 ** recovery_cursor.get_retries() * self._backoff_seconds
+                        )  # exponential backoff 30s, 60s, 2m, 4m, 8m
+                except Exception as e:
+                    self._log.info(
+                        f"Refresh/Invalidate metadata operation failed with error: {e}"
                     )
                     time.sleep(
                         2 ** recovery_cursor.get_retries() * self._backoff_seconds
@@ -227,12 +235,6 @@ class ImpalaErrorHandler:
                 exception,
                 classname_with_package="impala.error.OperationalError",
                 exception_message_matcher_regex=".*ImpalaRuntimeException: Error making 'updateTableColumnStatistics'.*",
-            )
-            or errors.exception_matches(
-                exception,
-                classname_with_package="impala.error.HiveServer2Error",
-                exception_message_matcher_regex="AuthorizationException: User .*does not have privileges to "
-                "execute 'INVALIDATE METADATA/REFRESH' on.*",
             )
         ):
             sleep_seconds = 2 ** recovery_cursor.get_retries() * self._backoff_seconds
@@ -304,9 +306,14 @@ class ImpalaErrorHandler:
             if results and len(results.groups()) == 1:
                 fully_qualified_table_name = results.group(1)
                 # invalidate the metadata for the missing table
-                recovery_cursor.execute(
-                    f"invalidate metadata {fully_qualified_table_name}"
-                )
+                try:
+                    recovery_cursor.execute(
+                        f"invalidate metadata {fully_qualified_table_name}"
+                    )
+                except Exception as e:
+                    self._log.info(
+                        f"Invalidate metadata operation failed with error: {e}"
+                    )
                 # wait a little before retrying the query, relaxing the stress on the metastore service
                 self._log.info(
                     f"Sleeping for {sleep_seconds} seconds before retrying the query ..."
@@ -393,7 +400,10 @@ class ImpalaErrorHandler:
 
             # invalidate the metadata for the table. This is necessary in case the metadata for the table
             # has not been propagated before the query is executed again.
-            recovery_cursor.execute(f"invalidate metadata {detected_table}")
+            try:
+                recovery_cursor.execute(f"invalidate metadata {detected_table}")
+            except Exception as e:
+                self._log.info(f"Invalidate metadata operation failed with error: {e}")
             # wait a little before retrying the query, relaxing the stress on the metastore service
             self._log.info(
                 f"Sleeping for {sleep_seconds} seconds before retrying the query ..."
