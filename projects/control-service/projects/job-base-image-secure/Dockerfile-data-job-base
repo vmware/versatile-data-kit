@@ -98,4 +98,4 @@ FROM photon:latest
 COPY --from=build /usr/local/ /usr/local/
 
 # Installs Python dependencies
-RUN pip install libffi-devel
+RUN yum install libffi-devel -y
