@@ -64,8 +64,8 @@ export VDK_INGEST_TARGET_DEFAULT=vdk-sqlite.db
 export VDK_SQLITE_FILE=vdk-sqlite.db
 ```
 
-Ingest is a confusing term. 
-It is a totally reasonable explanation to think that the ingestion database is the database where we want to ingest data from wheras it means the database we want to ingest data into. 
+Ingest is a confusing term.
+It is a totally reasonable explanation to think that the ingestion database is the database where we want to ingest data from wheras it means the database we want to ingest data into.
 Its not obvious what impact having setting DB_DEFAULT_type has.
 
 ### Layer's of abstraction are not clear
