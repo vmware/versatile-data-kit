@@ -22,8 +22,7 @@
   - [Implementation stories](#implementation-stories)
   - [Alternatives](#alternatives)
 
-## Summary
-
+## Summary (Work in progress)
 Users struggle to get started with their own data in VDK.
 When evaluating a data platform like VDK one of the first actions is often to connect it to your own data sources and play around with it.
 Given that this is not a trivial task on VDK it most likely turns a lot of prospective users off.
