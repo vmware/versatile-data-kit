@@ -129,7 +129,7 @@ class VdkUI:
         """
         cmd = JobDownloadKey(RestApiUrlConfiguration.get_rest_api_url())
         cmd.download(team, name, path)
-        return f"Downloaded the key with name {name} to {path}. "
+        return f"Downloaded the key of data job with name {name} to {path}. "
 
     @staticmethod
     def create_job(name: str, team: str, path: str, local: bool, cloud: bool):
