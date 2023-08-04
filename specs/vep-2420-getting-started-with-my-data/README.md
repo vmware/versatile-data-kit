@@ -37,7 +37,7 @@ The issues range from:
 ## Glossary
 
 ## Motivation
-At the moment, VKD users face multiple challenges related to using their own data in VDK.
+At the moment, VDK users face multiple challenges related to using their own data in VDK.
 Based on user feedback we've received, these can be split into 5 categories.
 
 ### Poor assistance around configuration options
