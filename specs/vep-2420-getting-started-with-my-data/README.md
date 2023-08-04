@@ -26,8 +26,8 @@
 Users struggle to get started with their own data in VDK.
 When evaluating a data platform like VDK one of the first actions is often to connect it to your own data sources and play around with it.
 Given that this is not a trivial task on VDK it most likely turns a lot of prospective users off.
-The issues range from data jobs being difficult to configure to jobs bring difficult to run.  
-On the completion of this initiative user should be able to use VDK to play around with their data in <10 minutes. 
+The issues range from data jobs being difficult to configure to jobs bring difficult to run.
+On the completion of this initiative user should be able to use VDK to play around with their data in <10 minutes.
 
 ## Glossary
 
