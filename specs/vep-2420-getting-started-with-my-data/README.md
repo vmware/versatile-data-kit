@@ -14,6 +14,7 @@
     - [Layers of abstraction aren't clear](#Layers-of-abstraction-are-not-clear)
     - [Poor documentation around secrets/properties](#Poor-documentation-around-secrets-and-properties)
     - [Not trivial to run in the IDE](#Not-trivial-to-run-in-the-IDE)
+    - [Reliant on env variables](#Reliant-on-env-variables)
   - [Requirements and goals](#requirements-and-goals)
   - [High-level design](#high-level-design)
   - [API design](#api-design)
@@ -31,6 +32,7 @@ The issues range from:
 2. Layers of abstraction aren't clear
 3. Poor documentation around secrets/properties
 4. Not trivial to RUN in IDE
+5. Reliant on env variables
 
 ## Glossary
 
@@ -53,6 +55,18 @@ It's not clear which properties go in which section. In fact some properties can
 3. There is no validation on the file at run time to make sure all properties exist. Ideally the system should throw an error if there are properties in the file which don't actually exist.
 4. There is no IDE assistance. Frameworks like spring support autocomplete in their property and yaml files.
 
+### Not obvious what properties do
+Below are the properties most jobs need to set.
+```bash
+export VDK_DB_DEFAULT_TYPE=SQLITE
+export VDK_INGEST_METHOD_DEFAULT=sqlite
+export VDK_INGEST_TARGET_DEFAULT=vdk-sqlite.db
+export VDK_SQLITE_FILE=vdk-sqlite.db
+```
+
+Ingest is a confusing term. 
+It is a totally reasonable explanation to think that the ingestion database is the database where we want to ingest data from wheras it means the database we want to ingest data into. 
+Its not obvious what impact having setting DB_DEFAULT_type has.
 
 ### Layer's of abstraction are not clear
 
@@ -73,18 +87,21 @@ Furthermore there is no file based implementation of the secrets provider. So on
 There is actually great documentation on how to get this working.
 But it needs to be included as the first line of the getting started section as this is the first thing that should be done after creating a job.
 
+### Reliant on env variables
+In our tutorials we encourage users to set ingest destination using env variables: https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-DB-into-Database.
+This is bad because:
+1. How env variables are set is different on linux and windows. This results in our tutorial having less support for windows users as we write our tutorials assuming mac/linux users
+2. Works on my computer problems. If they complete a tutorial and check it into git, someone else won't be able to run it without knowing they need to set a list of env variables
+3. Poor IDE support. If they set the properties in the terminal and run examples they will see everything running ok. then they run it in their IDE and it won't work because it isn't picking up the properties. This is painful experince for developers
+4. they might restart their computer and the example won't run and they can't remember why
+
+
 ## Requirements and goals
 
 1. Easily finding out which properties to set for a given task
    1. During development
       1. The IDE should provide auto complete of properties
       2. TODO
-
-**Out of scope**
-
-Issues related to VDK internal cloud deployments, e.g. write permissions, data
-format issues, etc. These should be forwarded to the appropriate VMWare team.
-
 
 ## High-level design
 
