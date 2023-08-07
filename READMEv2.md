@@ -65,7 +65,7 @@ vdk --help</code></pre>
         <span>&#10145; Develop your <a href="https://github.com/vmware/versatile-data-kit/wiki/First-Data-Job">First Data Job</a> if you are impatient to start quickly.</span><br>
     </td>
     <td width="50%" >
-        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/02d5eab0-15a7-4545-bfaf-c7fc011e5f36" alt="vdk-introduction"  >
+        <img src="https://github.com/vmware/versatile-data-kit/assets/11227374/21a8761f-5fce-4721-8fa7-d6cb33cbe0db" alt="vdk-introduction"  >
     </td>
   </tr>
 </table>
