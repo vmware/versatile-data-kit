@@ -41,13 +41,13 @@ class ImpalaErrorHandler:
         :param caught_exception: the caught Impala exception
         :param recovery_cursor: cursor that can be used to execute recovery queries and query retries against Impala
         :return: true if and only if the exception was handled successfully and the query passed has succeeded.
-                Otherwise return false - the caught_exception was not handled.
+                Otherwise, return false - the caught_exception was not handled.
                 This method will raise an exception in the following scenarios and assuming handling of the error
                 produced another exception:
                  1. Exceptions are of the same type but have different args.
                  2. Exceptions are different types.
                 Moreover, the root cause stack trace will appear in the error message if an exception is raised.
-                Otherwise stacktrace gets changed and becomes confusing.
+                Otherwise, stacktrace gets changed and becomes confusing.
         """
         if self._handle_should_not_retry_error(caught_exception):
             return False
@@ -56,7 +56,7 @@ class ImpalaErrorHandler:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                 log=self._log,
-                what_happened="An Impala Pool Error occured: " + str(caught_exception),
+                what_happened="An Impala Pool Error occurred: " + str(caught_exception),
                 why_it_happened="Review the contents of the exception.",
                 consequences="The queries will not be executed.",
                 countermeasures=(
@@ -151,13 +151,21 @@ class ImpalaErrorHandler:
                 )
                 # Try refreshing the table metadata several times,
                 # and if the issue is not fixed invalidate the metadata.
-                if recovery_cursor.get_retries() > 3:
-                    recovery_cursor.execute(
-                        "invalidate metadata `" + database + "`.`" + table + "`"
-                    )
-                else:
-                    recovery_cursor.execute(
-                        "refresh `" + database + "`.`" + table + "`"
+                try:
+                    if recovery_cursor.get_retries() > 3:
+                        recovery_cursor.execute(
+                            "invalidate metadata `" + database + "`.`" + table + "`"
+                        )
+                    else:
+                        recovery_cursor.execute(
+                            "refresh `" + database + "`.`" + table + "`"
+                        )
+                        time.sleep(
+                            2 ** recovery_cursor.get_retries() * self._backoff_seconds
+                        )  # exponential backoff 30s, 60s, 2m, 4m, 8m
+                except Exception as e:
+                    self._log.info(
+                        f"Refresh/Invalidate metadata operation failed with error: {e}"
                     )
                     time.sleep(
                         2 ** recovery_cursor.get_retries() * self._backoff_seconds
@@ -298,9 +306,14 @@ class ImpalaErrorHandler:
             if results and len(results.groups()) == 1:
                 fully_qualified_table_name = results.group(1)
                 # invalidate the metadata for the missing table
-                recovery_cursor.execute(
-                    f"invalidate metadata {fully_qualified_table_name}"
-                )
+                try:
+                    recovery_cursor.execute(
+                        f"invalidate metadata {fully_qualified_table_name}"
+                    )
+                except Exception as e:
+                    self._log.info(
+                        f"Invalidate metadata operation failed with error: {e}"
+                    )
                 # wait a little before retrying the query, relaxing the stress on the metastore service
                 self._log.info(
                     f"Sleeping for {sleep_seconds} seconds before retrying the query ..."
@@ -387,7 +400,10 @@ class ImpalaErrorHandler:
 
             # invalidate the metadata for the table. This is necessary in case the metadata for the table
             # has not been propagated before the query is executed again.
-            recovery_cursor.execute(f"invalidate metadata {detected_table}")
+            try:
+                recovery_cursor.execute(f"invalidate metadata {detected_table}")
+            except Exception as e:
+                self._log.info(f"Invalidate metadata operation failed with error: {e}")
             # wait a little before retrying the query, relaxing the stress on the metastore service
             self._log.info(
                 f"Sleeping for {sleep_seconds} seconds before retrying the query ..."
