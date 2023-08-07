@@ -72,6 +72,18 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
   }
 
   @Test
+  public void testSetEmptyDataJobSecrets() throws Exception {
+    Map<String, Object> temp = new HashMap<>();
+
+    Map<String, Object> secrets = Collections.unmodifiableMap(temp);
+
+    vaultJobSecretService.updateJobSecrets("testJob2", secrets);
+
+    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
+    Assertions.assertEquals(secrets, readResult);
+  }
+
+  @Test
   void testUpdateJobSecretsLimit() throws JsonProcessingException {
     Map<String, Object> temp = new HashMap<>();
     temp.put("key1", "value1");

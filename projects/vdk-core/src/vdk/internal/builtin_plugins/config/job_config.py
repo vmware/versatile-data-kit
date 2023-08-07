@@ -42,24 +42,29 @@ class JobConfig:
     For more see the user wiki
     """
 
-    def __init__(self, data_job_path: Union[pathlib.Path, str]):
+    def __init__(
+        self, data_job_path: Union[pathlib.Path, str], should_fail_missing_config=False
+    ):
         self._config_ini = configparser.ConfigParser()
         self._config_file = os.path.join(data_job_path, "config.ini")
+        self._should_fail_missing_config = should_fail_missing_config
 
         if not os.path.isfile(self._config_file):
-            # TODO: Figure out a way to properly handle cases where there is no config.ini present
-            log.info("Missing config.ini file.")
-            # raise VdkConfigurationError(
-            #     ErrorMessage(
-            #         summary="Error while loading config.ini file",
-            #         what="Cannot extract job Configuration",
-            #         why=f"Configuration file config.ini is missing in data job path: {data_job_path}",
-            #         consequences="Cannot deploy and configure the data job without config.ini file.",
-            #         countermeasures="config.ini must be in the root of the data job folder. "
-            #         "Make sure the file is created "
-            #         "or double check the data job path is passed correctly.",
-            #     )
-            # )
+            if should_fail_missing_config:
+                raise VdkConfigurationError(
+                    ErrorMessage(
+                        summary="Error while loading config.ini file",
+                        what="Cannot extract job Configuration",
+                        why=f"Configuration file config.ini is missing in data job path: {data_job_path}",
+                        consequences="Cannot deploy and configure the data job without config.ini file.",
+                        countermeasures="config.ini must be in the root of the data job folder. "
+                        "Make sure the file is created "
+                        "or double check the data job path is passed correctly.",
+                    )
+                )
+            else:
+                log.info("Missing config.ini file.")
+
         self._read_config_ini_file(
             config_parser=self._config_ini, configuration_file_path=self._config_file
         )
