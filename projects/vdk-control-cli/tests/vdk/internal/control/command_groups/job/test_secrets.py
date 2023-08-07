@@ -82,7 +82,7 @@ def test_secrets_set_secret_prompt(httpserver: PluginHTTPServer):
     rest_api_url = _mock_secrets_server(httpserver)
 
     result = _run_secrets_command(
-        rest_api_url, ["--set", "secret", ""], input="my-secret-value"
+        rest_api_url, ["--set-prompt", "secret"], input="my-secret-value"
     )
     test_utils.assert_click_status(result, 0)
 
