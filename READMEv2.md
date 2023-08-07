@@ -65,10 +65,11 @@ vdk --help</code></pre>
         <span>&#10145; Develop your <a href="https://github.com/vmware/versatile-data-kit/wiki/First-Data-Job">First Data Job</a> if you are impatient to start quickly.</span><br>
     </td>
     <td width="50%" >
-        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/f1fea122-35a7-4acb-bae4-0745989229ca" alt="vdk-introduction"  >
+        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/18e944a9-d55b-491b-be35-7440e6feae73" alt="vdk-introduction"  >
     </td>
   </tr>
 </table>
+
 
 <h3 align="center">Data Ingestion</h1>
 
@@ -88,13 +89,12 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/blob/main/examples/incremental-ingest-from-db-example/README.md">Incremental ingestion using Job Properties</a></span><br>
     </td>
     <td width="50%" >
-        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/a072d4c0-dabf-46df-b8a4-b54728731d81" alt="vdk-introduction"  >
+        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/066b1d17-51bb-42c6-8e42-14db8c9db1ef" alt="vdk-introduction"  >
     </td>
   </tr>
 </table>
 
-
-
+ 
 <h3 align="center">Data Transformation</h1>
 
 <table width="100%" >
