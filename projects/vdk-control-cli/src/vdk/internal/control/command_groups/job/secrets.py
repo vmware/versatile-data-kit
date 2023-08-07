@@ -29,6 +29,7 @@ class SecretOperation(Enum):
     """
 
     SET = "set"
+    SET_PROMPT = "set_prompt"  # nosec
     GET = "get"
 
 
@@ -183,8 +184,12 @@ class JobSecrets:
      vdk secrets --set my-key "my-value"
 
      \b
+     # Will prompt for the value so it's not printed on the screen.
+     vdk secrets --set-prompt "my-secret"
+
+     \b
      # Update multiple secrets at once.
-     vdk secrets --set "key1" "value1" --set "key2" "value2" --set "secret1" --set "secret2"
+     vdk secrets --set "key1" "value1" --set "key2" "value2" --set-prompt "secret1" --set-prompt  "secret2"
 
      \b
      # Use backslash \\ to set them on multiple lines
@@ -229,6 +234,13 @@ class JobSecrets:
     "You can set multiple secrets by using --set multiple times",
 )
 @click.option(
+    "--set-prompt",
+    multiple=True,
+    type=click.STRING,
+    help="Set a secret by only passing a key without a value and enter it when prompted."
+    "The difference from --set is that it will be prompted and input would be masked. ",
+)
+@click.option(
     "--delete",
     nargs=1,
     type=click.STRING,
@@ -259,6 +271,7 @@ def secrets_command(
     name: str,
     team: str,
     set: Tuple[str, str],  # pylint: disable=redefined-builtin
+    set_prompt: Tuple[str, str],  # pylint: disable=redefined-builtin
     delete: Tuple[str],
     delete_all_job_secrets: bool,
     overwrite_all_job_secrets: _io.BufferedReader,
@@ -267,10 +280,10 @@ def secrets_command(
     rest_api_url: str,
     output: OutputFormat,
 ):
-    if (set or delete) and (get or list):
+    if (set or delete or set_prompt) and (get or list):
         raise VDKException(
             what="Invalid arguments",
-            why="Wrong input. Cannot pass --get or --list at the same time as --set and --delete.",
+            why="Wrong input. Cannot pass --get or --list at the same time as --set, --set-prompt and --delete.",
             consequence="Command will abort with error.",
             countermeasure="Fix passed arguments such that get/list are not passed in the same time as set/delete.",
         )
@@ -283,10 +296,10 @@ def secrets_command(
         )
     log.debug(
         f"secrets passed options: name: {name}, team: {team}, "
-        f"set: {set}, get: {get}, list: {list}, delete: {delete} "
+        f"set: {set}, set_prompt: {set_prompt}, get: {get}, list: {list}, delete: {delete} "
         f"rest_api_url: {rest_api_url}, output: {output}"
     )
-    key_value_pairs = _get_key_value_pairs(set)
+    key_value_pairs = _get_key_value_pairs(set, set_prompt)
     cmd = JobSecrets(rest_api_url, name, team, output)
     if key_value_pairs:
         cmd.update_secrets(key_value_pairs)
@@ -312,13 +325,13 @@ def secrets_command(
             )
 
 
-def _get_key_value_pairs(set):  # pylint: disable=redefined-builtin
+def _get_key_value_pairs(set, set_prompt):  # pylint: disable=redefined-builtin
     key_value_pairs = {}
     if set:
         for key, value in set:
-            if value:
-                key_value_pairs[key] = value
-            else:
-                value = click.prompt(f"{key}", hide_input=True)
-                key_value_pairs[key] = value
+            key_value_pairs[key] = value
+    if set_prompt:
+        for key in set_prompt:
+            value = click.prompt(f"{key}", hide_input=True)
+            key_value_pairs[key] = value
     return key_value_pairs

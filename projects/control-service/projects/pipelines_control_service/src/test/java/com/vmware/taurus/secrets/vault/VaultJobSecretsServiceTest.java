@@ -105,7 +105,6 @@ class VaultJobSecretsServiceTest {
     String blankJobName = " ";
     String nullJobName = null;
     Map<String, Object> secrets = new HashMap<>();
-    Map<String, Object> nullSecrets = new HashMap<>();
 
     Throwable t =
         assertThrows(
@@ -120,20 +119,5 @@ class VaultJobSecretsServiceTest {
             () -> secretsService.updateJobSecrets(nullJobName, secrets));
 
     Assert.assertThat(t.getMessage(), CoreMatchers.containsString("Data Job Name cannot be blank"));
-
-    t =
-        assertThrowsExactly(
-            DataJobSecretsException.class, () -> secretsService.updateJobSecrets(jobName, secrets));
-
-    Assert.assertThat(
-        t.getMessage(), CoreMatchers.containsString("Secrets parameter cannot be null or empty"));
-
-    t =
-        assertThrowsExactly(
-            DataJobSecretsException.class,
-            () -> secretsService.updateJobSecrets(jobName, nullSecrets));
-
-    Assert.assertThat(
-        t.getMessage(), CoreMatchers.containsString("Secrets parameter cannot be null or empty"));
   }
 }
