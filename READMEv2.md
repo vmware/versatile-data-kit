@@ -65,11 +65,11 @@ vdk --help</code></pre>
         <span>&#10145; Develop your <a href="https://github.com/vmware/versatile-data-kit/wiki/First-Data-Job">First Data Job</a> if you are impatient to start quickly.</span><br>
     </td>
     <td width="50%" >
-        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/18e944a9-d55b-491b-be35-7440e6feae73" alt="vdk-introduction"  >
+        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/02d5eab0-15a7-4545-bfaf-c7fc011e5f36" alt="vdk-introduction"  >
     </td>
   </tr>
 </table>
-
+ 
 
 <h3 align="center">Data Ingestion</h1>
 
