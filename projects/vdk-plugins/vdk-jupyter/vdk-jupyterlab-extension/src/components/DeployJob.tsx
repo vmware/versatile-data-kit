@@ -62,7 +62,7 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
 export async function showCreateDeploymentDialog() {
   let runBeforeDeploy = false;
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     runBeforeDeploy = event.target.checked;
   };
 
