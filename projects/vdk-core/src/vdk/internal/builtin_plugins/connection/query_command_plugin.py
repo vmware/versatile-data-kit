@@ -20,7 +20,7 @@ OUTPUT_OPTIONS = ["json", "text"]
 # TODOs:
 # Remove logs  by default only show output (and perhaps warning logs)
 # When logging omit "job details" logs
-# Make clear how it is authenticated. Currently
+# Make clear how it is authenticated.
 
 
 @click.command(
