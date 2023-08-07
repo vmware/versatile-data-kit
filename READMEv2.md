@@ -69,7 +69,7 @@ vdk --help</code></pre>
     </td>
   </tr>
 </table>
- 
+
 
 <h3 align="center">Data Ingestion</h1>
 
@@ -92,7 +92,7 @@ vdk --help</code></pre>
         <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/49f881dc-67e0-4e2c-ac74-0073557e5374" alt="vdk-introduction"  >
     </td>
   </tr>
-</table> 
+</table>
 
 
 <h3 align="center">Data Transformation</h1>
