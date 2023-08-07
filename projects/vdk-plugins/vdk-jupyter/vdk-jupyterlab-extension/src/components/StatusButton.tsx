@@ -1,9 +1,9 @@
 import { CommandRegistry } from '@lumino/commands';
 import {
-  CHECK_STATUS_BUTTON_COMMAND_ID,
-  CHECK_STATUS_BUTTON_ID,
-  CHECK_STATUS_BUTTON_CLASS,
-  CHECK_STATUS_BUTTON_LABEL
+  STATUS_BUTTON_COMMAND_ID,
+  STATUS_BUTTON_ID,
+  STATUS_BUTTON_CLASS,
+  STATUS_BUTTON_LABEL
 } from '../utils';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import React from 'react';
@@ -19,8 +19,8 @@ export class StatusButton {
 
   constructor(commands: CommandRegistry) {
     this.buttonElement = document.createElement('button');
-    this.buttonElement.id = CHECK_STATUS_BUTTON_ID;
-    this.buttonElement.className = CHECK_STATUS_BUTTON_CLASS;
+    this.buttonElement.id = STATUS_BUTTON_ID;
+    this.buttonElement.className = STATUS_BUTTON_CLASS;
 
     const contentContainer = document.createElement('div');
     contentContainer.className = 'jp-vdk-status-button-content';
@@ -33,7 +33,7 @@ export class StatusButton {
     this.buttonElement.appendChild(contentContainer);
 
     this.buttonElement.onclick = () => {
-      commands.execute(CHECK_STATUS_BUTTON_COMMAND_ID, {
+      commands.execute(STATUS_BUTTON_COMMAND_ID, {
         operation: this.operation,
         path: this.jobPath
       });
@@ -98,14 +98,14 @@ export function createStatusButton(commands: CommandRegistry): StatusButton {
 }
 
 export function createStatusMenu(commands: CommandRegistry) {
-  commands.addCommand(CHECK_STATUS_BUTTON_COMMAND_ID, {
-    label: CHECK_STATUS_BUTTON_LABEL,
+  commands.addCommand(STATUS_BUTTON_COMMAND_ID, {
+    label: STATUS_BUTTON_LABEL,
     icon: checkIcon,
     execute: async args => {
       const operation = args.operation || 'UNKNOWN';
       const path = args.path || 'UNKNOWN';
       await showDialog({
-        title: CHECK_STATUS_BUTTON_LABEL,
+        title: STATUS_BUTTON_LABEL,
         body: (
           <div className="vdk-status-dialog-message-container">
             <p className="vdk-status-dialog-message">
