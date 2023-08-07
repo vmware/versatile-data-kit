@@ -66,7 +66,22 @@
 }
 
 .jp-vdk-check-status-button {
-  color: #182026;
   position: absolute;
-  right: 0;
+  right: 1px;
+  border-radius: 5px;
+}
+
+.jp-vdk-status-button-content {
+  display: flex;
+  align-items: center;
+}
+
+.jp-vdk-check-status-button .jp-vdk-logo {
+  position: static;
+  padding-right: 5px;
+}
+
+.jp-vdk-check-status-button:hover {
+  background-color: #e0e0e0;
+  cursor: pointer;
 }

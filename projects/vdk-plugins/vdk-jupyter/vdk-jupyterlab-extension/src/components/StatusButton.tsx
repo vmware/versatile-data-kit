@@ -8,6 +8,7 @@ import {
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import React from 'react';
 import { checkIcon } from '@jupyterlab/ui-components';
+import { addVdkLogo } from '../vdkTags';
 
 export class StatusButton {
   private readonly buttonElement: HTMLButtonElement;
@@ -18,9 +19,18 @@ export class StatusButton {
 
   constructor(commands: CommandRegistry) {
     this.buttonElement = document.createElement('button');
-    this.buttonElement.innerHTML = CHECK_STATUS_BUTTON_LABEL + ' 00:00:00';
     this.buttonElement.id = CHECK_STATUS_BUTTON_ID;
     this.buttonElement.className = CHECK_STATUS_BUTTON_CLASS;
+
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'jp-vdk-status-button-content';
+    addVdkLogo(contentContainer);
+
+    const timeElement = document.createElement('span');
+    timeElement.innerHTML = '00:00:00';
+    contentContainer.appendChild(timeElement);
+
+    this.buttonElement.appendChild(contentContainer);
 
     this.buttonElement.onclick = () => {
       commands.execute(CHECK_STATUS_BUTTON_COMMAND_ID, {
@@ -29,6 +39,8 @@ export class StatusButton {
       });
     };
 
+    this.buttonElement.title =
+      'VDK operation is in progress. Click here for more info.';
     this.buttonElement.style.display = 'none';
     this.counter = 0;
   }
@@ -53,9 +65,10 @@ export class StatusButton {
     this.counter = 0;
     this.timerId = window.setInterval(() => {
       this.counter++;
-      this.buttonElement.innerHTML = `${CHECK_STATUS_BUTTON_LABEL} ${this.formatTime(
-        this.counter
-      )}`;
+      const timeElement = this.buttonElement.querySelector('span');
+      if (timeElement) {
+        timeElement.innerHTML = `${this.formatTime(this.counter)}`;
+      }
     }, 1000);
   }
 
@@ -64,7 +77,10 @@ export class StatusButton {
       clearInterval(this.timerId);
       this.timerId = undefined;
     }
-    this.buttonElement.innerHTML = CHECK_STATUS_BUTTON_LABEL + ' 00:00:00';
+    const timeElement = this.buttonElement.querySelector('span');
+    if (timeElement) {
+      timeElement.innerHTML = '00:00:00';
+    }
   }
 
   private formatTime(seconds: number): string {
@@ -93,8 +109,8 @@ export function createStatusMenu(commands: CommandRegistry) {
         body: (
           <div className="vdk-status-dialog-message-container">
             <p className="vdk-status-dialog-message">
-              {operation} operation is currently running for job with path:{' '}
-              {path}!
+              <b>{operation}</b> operation is currently running for job with
+              path: <i>{path}</i>!
             </p>
           </div>
         ),
