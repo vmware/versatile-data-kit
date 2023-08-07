@@ -132,7 +132,7 @@ describe('showDownloadJobDialog', () => {
     await showDownloadJobDialog();
 
     // Expect the jobRequest function to have been called with the correct arguments
-    expect(jobRequest).toHaveBeenCalledWith('download');
+    expect(jobRequest).toHaveBeenCalledWith('downloadJob');
   });
 });
 
@@ -161,7 +161,7 @@ describe('showDownloadKeyDialog', () => {
     await showDownloadKeyDialog();
 
     // Expect the jobRequest function to have been called with the correct arguments
-    expect(jobRequest).toHaveBeenCalledWith('download-key');
+    expect(jobRequest).toHaveBeenCalledWith('downloadKey');
   });
 });
 

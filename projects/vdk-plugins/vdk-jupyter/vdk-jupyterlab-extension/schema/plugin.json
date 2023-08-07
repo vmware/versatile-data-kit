@@ -19,7 +19,7 @@
             "command": "jp-vdk:menu-create"
           },
           {
-            "command": "jp-vdk:menu-download"
+            "command": "jp-vdk:menu-download-job"
           },
           {
             "command": "jp-vdk:menu-download-key"

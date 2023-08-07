@@ -99,7 +99,7 @@ test('should open download job pop up and then cancel the operation', async ({
 }) => {
   await page.goto('');
   await page.menu.open('VDK');
-  await page.locator('#jp-vdk-menu').getByText('Download').click();
+  await page.locator('#jp-vdk-menu').getByText('Download Job').click();
   await page.locator('div').filter({ hasText: 'Download Job' });
   await page.getByRole('button', { name: 'Cancel' }).click();
 });
@@ -109,7 +109,7 @@ test('should try download operation with empty input and get error', async ({
 }) => {
   await page.goto('');
   await page.menu.open('VDK');
-  await page.locator('#jp-vdk-menu').getByText('Download').click();
+  await page.locator('#jp-vdk-menu').getByText('Download Job').click();
   await page.locator('div').filter({ hasText: 'Download Job' });
   await page.getByRole('button', { name: 'OK' }).click();
   await page.locator('div').filter({

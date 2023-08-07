@@ -238,7 +238,7 @@ def setup_handlers(web_app):
 
     add_handler(RunJobHandler, "run")
     add_handler(DeleteJobHandler, "delete")
-    add_handler(DownloadJobHandler, "download")
+    add_handler(DownloadJobHandler, "downloadJob")
     add_handler(DownloadKeyHandler, "downloadKey")
     add_handler(ConvertJobHandler, "convertJobToNotebook")
     add_handler(CreateJobHandler, "create")

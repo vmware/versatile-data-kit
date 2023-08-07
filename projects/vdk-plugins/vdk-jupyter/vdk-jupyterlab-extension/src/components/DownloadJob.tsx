@@ -56,6 +56,6 @@ export async function showDownloadJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    await jobRequest('download');
+    await jobRequest('downloadJob');
   }
 }

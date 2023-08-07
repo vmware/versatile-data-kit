@@ -24,7 +24,7 @@ export function updateVDKMenu(commands: CommandRegistry, docManager: IDocumentMa
   add_command(commands, 'jp-vdk:menu-create', 'Create', 'Execute VDK Create Command', showCreateJobDialog);
 
   // Add Download job command
-  add_command(commands, 'jp-vdk:menu-download', 'Download', 'Execute VDK Download Command', showDownloadJobDialog);
+  add_command(commands, 'jp-vdk:menu-download-job', 'Download Job', 'Execute VDK Download Job Command', showDownloadJobDialog);
 
   // Add Download key command
   add_command(commands, 'jp-vdk:menu-download-key', 'Download Key', 'Execute VDK Download Key Command', showDownloadKeyDialog);
