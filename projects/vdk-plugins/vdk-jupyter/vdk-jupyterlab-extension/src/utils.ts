@@ -10,3 +10,11 @@ export const RUN_FAILED_BUTTON_LABEL = 'Run Failed';
 export const DOWNLOAD_JOB_BUTTON_LABEL = 'Download Job';
 export const DOWNLOAD_KEY_BUTTON_LABEL = 'Download Key';
 export const DELETE_JOB_BUTTON_LABEL = 'Delete Job';
+export function getParentDirectory(path: string): string {
+  const segments = path.split('/');
+  if (segments.length > 1) {
+    segments.pop();
+    return segments.join('/');
+  }
+  return path;
+}

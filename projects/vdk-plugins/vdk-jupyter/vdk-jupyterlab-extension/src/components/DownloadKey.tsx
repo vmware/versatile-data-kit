@@ -5,7 +5,7 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { jobData } from '../jobData';
-import { DOWNLOAD_KEY_BUTTON_LABEL } from '../utils';
+import { DOWNLOAD_KEY_BUTTON_LABEL, getParentDirectory } from '../utils';
 
 export default class DownloadKeyDialog extends Component<IJobPathProp> {
   /**
@@ -37,7 +37,7 @@ export default class DownloadKeyDialog extends Component<IJobPathProp> {
         ></VDKTextInput>
         <VDKTextInput
           option={VdkOption.PATH}
-          value={this.props.jobPath}
+          value={getParentDirectory(this.props.jobPath)}
           label="Destination path to data job key directory:"
         ></VDKTextInput>
       </>
@@ -46,6 +46,7 @@ export default class DownloadKeyDialog extends Component<IJobPathProp> {
 }
 
 export async function showDownloadKeyDialog() {
+  const defaultPath = jobData.get(VdkOption.PATH)!;
   const result = await showDialog({
     title: DOWNLOAD_KEY_BUTTON_LABEL,
     body: (
@@ -56,6 +57,9 @@ export async function showDownloadKeyDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
+    if (jobData.get(VdkOption.PATH) === defaultPath) {
+      jobData.set(VdkOption.PATH, getParentDirectory(defaultPath));
+    }
     await jobRequest('downloadKey');
   }
 }
