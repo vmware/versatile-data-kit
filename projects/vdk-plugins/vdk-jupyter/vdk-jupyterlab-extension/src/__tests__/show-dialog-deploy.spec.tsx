@@ -35,7 +35,8 @@ describe('showCreateDeploymentDialog', () => {
       });
     });
   
-    it('should show a dialog with the Create Deployment title and a DeployJobDialog component as its body', async () => {
+    it('should show a dialog with the Create Deployment title and \
+        a DeployJobDialog component as its body', async () => {
       // Call the function
       await showCreateDeploymentDialog();
   

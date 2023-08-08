@@ -71,9 +71,9 @@ export async function showCreateDeploymentDialog() {
     body: (
       <>
         <DeployJobDialog
-          jobName={jobData.get(VdkOption.NAME)!}
-          jobPath={jobData.get(VdkOption.PATH)!}
-          jobTeam={jobData.get(VdkOption.TEAM)!}
+          jobName={jobData.get(VdkOption.NAME) || ""}
+          jobPath={jobData.get(VdkOption.PATH) || ""}
+          jobTeam={jobData.get(VdkOption.TEAM) || ""}
         />
         <div>
           <input
