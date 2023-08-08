@@ -93,7 +93,7 @@ class VdkUI:
             return {"message": process.returncode}
 
     @staticmethod
-    def delete_job(name: str, team: str):
+    def delete_job(name: str, team: str) -> str:
         """
         Execute `delete job`.
         :param name: the name of the data job that will be deleted
@@ -105,7 +105,7 @@ class VdkUI:
         return f"Deleted the job with name {name} from {team} team. "
 
     @staticmethod
-    def download_job(name: str, team: str, path: str):
+    def download_job(name: str, team: str, path: str) -> str:
         """
         Execute `download job`.
         :param name: the name of the data job that will be downloaded
@@ -118,7 +118,7 @@ class VdkUI:
         return f"Downloaded the job with name {name} to {path}. "
 
     @staticmethod
-    def create_job(name: str, team: str, path: str):
+    def create_job(name: str, team: str, path: str) -> str:
         """
         Execute `create job`.
         :param name: the name of the data job that will be created
@@ -129,23 +129,28 @@ class VdkUI:
         jupyter_job_dir = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "jupyter_sample_job")
         )
+        rest_api_url = ""
+        cloud = False
+        error = ""
         try:
-            cmd = JobCreate(RestApiUrlConfiguration.get_rest_api_url())
-            cli_utils.check_rest_api_url(RestApiUrlConfiguration.get_rest_api_url())
-            cmd.validate_job_path(path, name)
-            cmd.create_job(name, team, path, True, True, pathlib.Path(jupyter_job_dir))
-            result = f"Job with name {name} was created locally and in the cloud."
+            rest_api_url = RestApiUrlConfiguration.get_rest_api_url()
+            cli_utils.check_rest_api_url(rest_api_url)
+            cloud = True
         except ValueError as e:
-            cmd = JobCreate("")
-            cmd.validate_job_path(path, name)
-            cmd.create_job(name, team, path, False, True, pathlib.Path(jupyter_job_dir))
+            error = str(e)
+        cmd = JobCreate(rest_api_url)
+        cmd.create_job(name, team, path, cloud, True, pathlib.Path(jupyter_job_dir))
+        if cloud:
+            result = f"Job with name {name} was created successfully!"
+        else:
             result = (
                 f"Job with name {name} was created only locally. "
-                f"If you are not using the Control Service the next lines should not concern you!"
+                f"If you are not using the Control Service the next lines should not concern you! \n"
                 f"We tried to create it in the cloud but come up to:"
-                f"{e}"
+                f"{error}"
                 f""
             )
+
         return result
 
     @staticmethod
