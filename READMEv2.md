@@ -89,7 +89,7 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/blob/main/examples/incremental-ingest-from-db-example/README.md">Incremental ingestion using Job Properties</a></span><br>
     </td>
     <td width="50%" >
-        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/49f881dc-67e0-4e2c-ac74-0073557e5374" alt="vdk-introduction"  >
+        <img src="https://github.com/vmware/versatile-data-kit/assets/11227374/8f57b917-aec5-46c8-bb4f-3de55c77a407" alt="vdk-introduction"  >
     </td>
   </tr>
 </table>
