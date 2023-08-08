@@ -48,9 +48,9 @@ export function updateVDKMenu(
   // Add Download job command
   add_command(
     commands,
-    'jp-vdk:menu-download',
-    'Download',
-    'Execute VDK Download Command',
+    'jp-vdk:menu-download-job',
+    'Download Job',
+    'Execute VDK Download Job Command',
     showDownloadJobDialog,
     statusButton
   );
