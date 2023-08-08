@@ -128,7 +128,7 @@ You can find a video presenting a few UI components in the main directory of the
 
 A new API to access Job Input interfaces, `VDK.get_initialized_job_input()`, is available only when running a notebook. It is provided by `vdk-ipython` plugin.
 
-Full usage would look like this: 
+Full usage would look like this:
 ```
 %reload_ext vdk.plugin.ipython
 %reload_VDK --name=myjob
@@ -238,7 +238,7 @@ In terms of security, Jupyter uses tornado to ensure only authorized user can re
 You can read more [here](https://jupyter-notebook.readthedocs.io/en/stable/security.html#).
 
 VDK Control Service uses authentication in REST API, based on OAuth2 To authenticate specify OAuth2 access token as an Authorization/Bearer Header.
-Access token would be generated using one of 2 approaches depending on how Jupyter server is deployed:  
+Access token would be generated using one of 2 approaches depending on how Jupyter server is deployed:
 
 * Standalone JupyterLab (catered for individual users in their local environments):
    * Login:
