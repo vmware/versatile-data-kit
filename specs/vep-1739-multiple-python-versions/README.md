@@ -2,7 +2,7 @@
 # VEP-1739: Multiple Python Versions
 
 * **Author(s):** Andon Andonov (andonova@vmware.com)
-* **Status:** implementable
+* **Status:** implemented
 
 <!-- Provide table of content as it's helpful. -->
 
