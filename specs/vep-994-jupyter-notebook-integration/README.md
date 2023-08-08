@@ -135,7 +135,7 @@ Full usage would look like this:
 job_input = VDK.get_initialized_job_input()
 ```
 
-A new API to finalize (completes/ends) a job is added. It should be used rarely as the job finalization is automatically triggered when the kernel is stopped/interrupted.  It looks like this: 
+A new API to finalize (completes/ends) a job is added. It should be used rarely as the job finalization is automatically triggered when the kernel is stopped/interrupted.  It looks like this:
 
 ```
 VDK.finalize()
@@ -253,8 +253,8 @@ Access token would be generated using one of 2 approaches depending on how Jupyt
        Access token, once received, is securely stored within JupyterLab backend.
    * Logout: Access token data is deleted from the backend
 * JupyterHub Deployment (or any other similar multi-user, centralized deployments, with users already authenticated):
-   * Login: 
-      * When a user wants to access a Jupyter notebook via multi-user notebook server platform (like JupyterHub), usually they would have to authenticate. Upon successful authentication, an access token is generated. VDK can re-use the same access token for authenentication against VDK Control Service. This is optional feature as it may not make sense in some deployments. 
+   * Login:
+      * When a user wants to access a Jupyter notebook via multi-user notebook server platform (like JupyterHub), usually they would have to authenticate. Upon successful authentication, an access token is generated. VDK can re-use the same access token for authenentication against VDK Control Service. This is optional feature as it may not make sense in some deployments.
       * The access token can be fetched from the Browser local storage using pre-configured keys specified during installation of vdk-jupyter extension.
       * It is securely sent and stored within JupyterLab backend.
       * As a backup, retains the Standalone Jupyter approach. The Login button can be hidden upon installation if desired though.
