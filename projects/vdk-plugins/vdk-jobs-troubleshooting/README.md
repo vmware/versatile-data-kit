@@ -12,13 +12,15 @@ Before you can use the plugin you should add it to your data job or custom-sdk, 
 requirements.txt file:
 
 ```commandline
-install_requires = vdk-jobs-troubleshooting
+vdk-jobs-troubleshooting
 ```
 
 Next you need to add the list of utilities to use to your data job configuration. For example, to enable the thread-dump
-utility you have to add the following to your data job configuration.
+utility you have to add the following to your data job's config.ini file.
 
-```commandline
+```properties
+[vdk]
+
 TROUBLESHOOT_UTILITIES_TO_USE=thread-dump
 ```
 
@@ -36,7 +38,7 @@ So in order to get a thread dump from the running data job do the following.
 2. Start a port forward from your local machine to the target pod and port for example
 
 ```commandline
-kubectl port-forward pods/starshot-prod-processing-csp-jira-1691419320-jcsn7 8783:8783
+kubectl port-forward pods/my-problematic-job-1691419320-jcsn7 8783:8783
 ```
 
 3. In a new/different console execute a curl command, to the pod. Example
@@ -57,14 +59,7 @@ Thread:payload-poster0 alive:True daemon:True
 Thread:ThreadPoolExecutor-0_0 alive:True daemon:True
 Thread:payload-aggregator alive:True daemon:True
 Thread:payload-poster0 alive:True daemon:True
-Thread:payload-poster1 alive:True daemon:True
-Thread:payload-poster2 alive:True daemon:True
-Thread:payload-poster3 alive:True daemon:True
-Thread:payload-poster4 alive:True daemon:True
-Thread:payload-poster5 alive:True daemon:True
-Thread:payload-poster6 alive:True daemon:True
-Thread:payload-poster7 alive:True daemon:True
-Thread:payload-poster8 alive:True daemon:True
+...
 Thread:payload-poster9 alive:True daemon:True
 Thread:troubleshooting_utility alive:True daemon:True
  # ThreadID: 140056075323136
@@ -74,101 +69,7 @@ Thread:troubleshooting_utility alive:True daemon:True
  /usr/local/lib/python3.7/socketserver.py::232::serve_forever::ready = selector.select(poll_interval)
  /usr/local/lib/python3.7/selectors.py::415::select::fd_event_list = self._selector.poll(timeout)
  # ThreadID: 140054872303360
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140054880696064
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140054889088768
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140055897159424
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140055905552128
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140055913944832
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140055922337536
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140055930730240
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140056011343616
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140056019736320
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::423::_payload_poster_thread::payload = self._payloads_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140056065881856
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/vdk/internal/builtin_plugins/ingestion/ingester_base.py::264::_payload_aggregator_thread::timeout=self._payload_aggregator_timeout_seconds
- /usr/local/lib/python3.7/queue.py::179::get::self.not_empty.wait(remaining)
- /usr/local/lib/python3.7/threading.py::300::wait::gotit = waiter.acquire(True, timeout)
- # ThreadID: 140055885453056
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /usr/local/lib/python3.7/concurrent/futures/thread.py::78::_worker::work_item = work_queue.get(block=True)
- # ThreadID: 140055877060352
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/supercollider/vdk/telemetry/telemetry_client.py::239::_payload_poster_thread::) = self._payload_queue.get()
- /usr/local/lib/python3.7/queue.py::170::get::self.not_empty.wait()
- /usr/local/lib/python3.7/threading.py::296::wait::waiter.acquire()
- # ThreadID: 140055868667648
- /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
- /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
- /usr/local/lib/python3.7/threading.py::870::run::self._target(*self._args, **self._kwargs)
- /vdk/site-packages/supercollider/vdk/telemetry/telemetry_client.py::141::_payload_aggregator_thread::timeout=self._payload_aggregator_timeout_seconds
- /usr/local/lib/python3.7/queue.py::179::get::self.not_empty.wait(remaining)
- /usr/local/lib/python3.7/threading.py::300::wait::gotit = waiter.acquire(True, timeout)
+...
  # ThreadID: 140055860274944
  /usr/local/lib/python3.7/threading.py::890::_bootstrap::self._bootstrap_inner()
  /usr/local/lib/python3.7/threading.py::926::_bootstrap_inner::self.run()
