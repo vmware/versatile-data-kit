@@ -247,9 +247,13 @@ Access token would be generated using one of 2 approaches depending on how Jupyt
        Access token, once received, is securely stored within JupyterLab backend.
    * Logout: Access token data is deleted from the backend
 * JupyterHub Deployment (or any other similar multi-user, centralized deployments, with users already authenticated):
-   * Login: Leverages the access token generated during JupyterHub's authentication.
-            The access token can be fetched from the Browser local storage using pre-configured keys and is securely sent and stored within JupyterLab backend.
-            As a backup, retains the Standalone Jupyter approach. The Login button can be hidden upon installation if desired though.
+   * Login: 
+      * When a user wants to access a Jupyter notebook via multi-user notebook server platform (like JupyterHub), usually they would have to authenticate. Upon successful authentication, an access token is generated. VDK can re-use the same access token for authenentication against VDK Control Service. This is optional feature as it may not make sense in some deployments. 
+      * The access token can be fetched from the Browser local storage using pre-configured keys specified during installation of vdk-jupyter extension.
+      * It is securely sent and stored within JupyterLab backend.
+      * As a backup, retains the Standalone Jupyter approach. The Login button can be hidden upon installation if desired though.
+      * More information specifically for JupyterHub can be seen [here](https://jupyterhub.readthedocs.io/en/stable/reference/services.html#implementing-your-own-authentication-with-jupyterhub) and [here](https://jupyterhub.readthedocs.io/en/stable/reference/services.html#hub-authentication-and-services)
+      * The design aims ot support any similar platform and not specifically JupyterHub. JupyterHub is the most famous example for such platfrom.
    * Logout: Invalidates/deletes the VDK-specific access token without logging the user out of JupyterHub
 
 <!--
