@@ -1,8 +1,8 @@
 
 # VEP-994: Jupyter Notebook Integration
 
-* **Author(s):** Duygu Hasan(hduyg@vmware.com)
-* **Status:** draft
+* **Author(s):** Duygu Hasan(hduyg@vmware.com), Antoni Ivanov(aivanov@vmware.com)
+* **Status:** implementable
 
 - [Summary](#summary)
 - [Glossary](#glossary)
