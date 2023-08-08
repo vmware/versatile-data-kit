@@ -65,7 +65,7 @@ repos:
   #        args: [ -s, B101 ]
   # add copyright notice
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.1
+    rev: v1.5.3
     hooks:
       - id: insert-license
         files: \.java$
@@ -144,7 +144,7 @@ repos:
           - --license-filepath
           - NOTICE.txt
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0
+    rev: v3.0.1
     hooks:
       - id: prettier
         types_or: [scss, css, javascript, ts, html]
