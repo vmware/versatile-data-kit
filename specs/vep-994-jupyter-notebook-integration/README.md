@@ -135,6 +135,12 @@ Full usage would look like this:
 job_input = VDK.get_initialized_job_input()
 ```
 
+A new API to finalize (completes/ends) a job is added. It should be used rarely as the job finalization is automatically triggered when the kernel is stopped/interrupted.  It looks like this: 
+
+```
+VDK.finalize()
+```
+
 ## Detailed design
 
 ### VDK Notebook plugin
