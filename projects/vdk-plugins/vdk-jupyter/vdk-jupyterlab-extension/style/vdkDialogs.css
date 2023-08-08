@@ -69,6 +69,7 @@
   position: absolute;
   right: 1px;
   border-radius: 5px;
+  border: none;
 }
 
 .jp-vdk-status-button-content {
