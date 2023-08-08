@@ -125,7 +125,15 @@ on the VDK menu.
 You can find a video presenting a few UI components in the main directory of the VEP.
 
 ## API design
-No direct changes to the public API.
+
+A new API to access Job Input interfaces, `VDK.get_initialized_job_input()`, is available only when running a notebook. It is provided by `vdk-ipython` plugin.
+
+Full usage would look like this: 
+```
+%reload_ext vdk.plugin.ipython
+%reload_VDK --name=myjob
+job_input = VDK.get_initialized_job_input()
+```
 
 ## Detailed design
 
@@ -142,22 +150,22 @@ As it can be seen from the below diagram the plugin will consist of a new hook a
 The VDK Hook will encapsulate the logic for the initialization of a job that will get the code from Notebook files. When initialized like that jobs that work with Notebooks will be run as a standard data job which works with .py and .sql files.
 It will be using the Notebook and the NotebookLocator classes.
 #### NotebookLocator
-It is a simple class which has a method which returns the notebook files found in a given directory.
+It is a simple class that has a method that returns the notebook files found in a given directory.
 #### Cell
-Before giving a proper definition to this class, we should see how we categorise the [Notebook cells](#glossary):
+Before giving a proper definition to this class, we should see how we categorize the [Notebook cells](#glossary):
 
 ![jupyter-cells](images/cells.jpeg)
 
-Jupyter itself categorises the cells into three groups: code, markdown and raw.
+Jupyter itself categorizes the cells into three groups: code, markdown, and raw.
 We will be looking into only the code ones since the plugin works only with them.
-The code cells can be categorised into two types - ones which are tagged with "vdk" and the ones that are not.
+The code cells can be categorized into two types - ones that are tagged with "vdk" and the ones that are not.
 The ones that are untagged are ignored by our plugin, and will not take part in the data job.
 The "vdk" tagged cells should have only Python code in it, since VDK does not work with iPython.
 
 The Cell class is a dataclass that encapsulates this logic.
 
 #### Notebook
-This class has one static method.The method has the responsibility to register the NotebookSteps to JobContext
+This class has one static method. The method has the responsibility to register the NotebookSteps to JobContext
 from a given notebook file. The context of the job is passed to it by the VDKHook.
 
 #### NotebookStep
@@ -229,9 +237,20 @@ The availability of the extension will be managed by JupyterLab since it is goin
 In terms of security, Jupyter uses tornado to ensure only authorized user can request the Jupyter server
 You can read more [here](https://jupyter-notebook.readthedocs.io/en/stable/security.html#).
 
-VDK Control Service uses authentication in REST API, based on OAuth2 To authenticate specify OAuth2 access token as Authorization/Bearer Header.
-The testing installation uses (Staging) CSP Authentication provider. To get access token you need refresh or access token To get refresh token go to https://console-stg.cloud.vmware.com/csp/gateway/portal/#/user/tokens
+VDK Control Service uses authentication in REST API, based on OAuth2 To authenticate specify OAuth2 access token as an Authorization/Bearer Header.
+Access token would be generated using one of 2 approaches depending on how Jupyter server is deployed:  
 
+* Standalone JupyterLab (catered for individual users in their local environments):
+   * Login:
+       Initiates the [OAuth2 Authorization Flow](https://tools.ietf.org/html/rfc6749#section-4.1) upon selecting "Login" from the VDK dropdown with callback to the server
+       The server would finish the authorization flow leveraging [tornado Oauth2Mixin](https://www.tornadoweb.org/en/stable/auth.html)
+       Access token, once received, is securely stored within JupyterLab backend.
+   * Logout: Access token data is deleted from the backend
+* JupyterHub Deployment (or any other similar multi-user, centralized deployments, with users already authenticated):
+   * Login: Leverages the access token generated during JupyterHub's authentication.
+            The access token can be fetched from the Browser local storage using pre-configured keys and is securely sent and stored within JupyterLab backend.
+            As a backup, retains the Standalone Jupyter approach. The Login button can be hidden upon installation if desired though.
+   * Logout: Invalidates/deletes the VDK-specific access token without logging the user out of JupyterHub
 
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
