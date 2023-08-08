@@ -9,3 +9,7 @@ export const CREATE_JOB_BUTTON_LABEL = 'Create Job';
 export const RUN_FAILED_BUTTON_LABEL = 'Run Failed';
 export const DOWNLOAD_JOB_BUTTON_LABEL = 'Download Job';
 export const DELETE_JOB_BUTTON_LABEL = 'Delete Job';
+export const STATUS_BUTTON_LABEL = 'Status';
+export const STATUS_BUTTON_CLASS = 'jp-vdk-check-status-button';
+export const STATUS_BUTTON_COMMAND_ID = 'jp-vdk:check-status-button';
+export const STATUS_BUTTON_ID = 'jp-vdk-check-status-button';
