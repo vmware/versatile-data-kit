@@ -41,7 +41,7 @@ def test_get_authenticated_username_priority_order_kept(mock_jwt_decode):
     auth = Authentication(
         token="testtoken", possible_jwt_user_keys=["user", "email", "sub", "acct"]
     )
-    assert auth.get_authenticated_username() == "user_from_sub2"
+    assert auth.get_authenticated_username() == "user_from_sub"
 
 
 def test_get_authenticated_username_without_username_or_token():
