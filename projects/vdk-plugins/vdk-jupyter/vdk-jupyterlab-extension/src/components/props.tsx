@@ -19,12 +19,12 @@ export type IJobNameAndTeamProps = {
 export type IJobFullProps = IJobPathProp & IJobNameAndTeamProps;
 
 export interface JupyterCellProps {
-  /**
+    /**
    * Source code of the cell
    */
-  source: string;
-  /**
-   * Type of the cell
-   */
-  type: string;
+     source: string;
+     /**
+      * Type of the cell
+      */
+     type: string;
 }

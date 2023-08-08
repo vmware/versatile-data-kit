@@ -8,7 +8,6 @@ import { IJobPathProp } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
-import { StatusButton } from './StatusButton';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
@@ -73,17 +72,13 @@ export default class RunJobDialog extends Component<IJobPathProp> {
   };
 }
 
-export async function showRunJobDialog(
-  docManager?: IDocumentManager,
-  statusButton?: StatusButton
-) {
+export async function showRunJobDialog(docManager?: IDocumentManager) {
   const result = await showDialog({
     title: RUN_JOB_BUTTON_LABEL,
     body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!}></RunJobDialog>,
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    statusButton?.show('Run', jobData.get(VdkOption.PATH)!);
     let { message, status } = await jobRunRequest();
     if (status) {
       showDialog({
@@ -130,14 +125,14 @@ export const findFailingCellId = (message: String): string => {
 };
 
 /**
- * Returns a Element that is used for numerating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
+ * Returns a Element that is used for numarating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
  * @param failingCell - parent cell of that element
  * @returns Element or undefined if the element could not be found
  */
-export const getCellInputAreaPrompt = (
-  failingCell: Element
+export const getCellInputAreaPromp = (
+  failinCell: Element
 ): Element | undefined => {
-  const cellInputWrappers = failingCell.getElementsByClassName(
+  const cellInputWrappers = failinCell.getElementsByClassName(
     'jp-Cell-inputWrapper'
   );
   for (let i = 0; i < cellInputWrappers.length; i++) {
@@ -156,7 +151,7 @@ export const getCellInputAreaPrompt = (
 };
 
 const switchToFailingCell = (failingCell: Element) => {
-  const prompt = getCellInputAreaPrompt(failingCell);
+  const prompt = getCellInputAreaPromp(failingCell);
   prompt?.classList.add('jp-vdk-failing-cell-prompt');
   failingCell.scrollIntoView();
   failingCell.classList.add('jp-vdk-failing-cell');
@@ -172,8 +167,8 @@ const switchToFailingCell = (failingCell: Element) => {
 
 const unmarkOldFailingCells = (cell: Element) => {
   cell.classList.remove('jp-vdk-failing-cell');
-  const cellPrompt = getCellInputAreaPrompt(cell);
-  cellPrompt?.classList.remove('jp-vdk-failing-cell-prompt');
+  const cellPropt = getCellInputAreaPromp(cell);
+  cellPropt?.classList.remove('jp-vdk-failing-cell-prompt');
 };
 
 export const findFailingCellInNotebookCells = async (
@@ -257,7 +252,7 @@ export const handleErrorsProducedByNotebookCell = async (
       });
 
       if (result.button.accept) {
-        await navigateToFailingCell();
+        navigateToFailingCell();
       }
 
       return true;

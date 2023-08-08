@@ -6,7 +6,6 @@ import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_DEP_BUTTON_LABEL } from '../utils';
-import { StatusButton } from './StatusButton';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
@@ -51,7 +50,7 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
   }
 }
 
-export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
+export async function showCreateDeploymentDialog() {
   const result = await showDialog({
     title: CREATE_DEP_BUTTON_LABEL,
     body: (
@@ -75,7 +74,6 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
         ]
       });
       if (runConfirmationResult.button.accept) {
-        statusButton?.show('Deploy', jobData.get(VdkOption.PATH)!);
         const { message, status } = await jobRunRequest();
         if (status) {
           if (
@@ -84,7 +82,7 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
             await jobRequest('deploy');
           }
         } else {
-          await showErrorMessage(
+          showErrorMessage(
             'Encоuntered an error while running the job!',
             message,
             [Dialog.okButton()]

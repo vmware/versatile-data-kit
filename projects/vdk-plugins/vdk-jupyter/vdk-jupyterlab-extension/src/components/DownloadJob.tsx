@@ -6,7 +6,6 @@ import { jobRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { jobData } from '../jobData';
 import { DOWNLOAD_JOB_BUTTON_LABEL } from '../utils';
-import { StatusButton } from './StatusButton';
 
 export default class DownloadJobDialog extends Component<IJobPathProp> {
   /**
@@ -46,7 +45,7 @@ export default class DownloadJobDialog extends Component<IJobPathProp> {
   }
 }
 
-export async function showDownloadJobDialog(statusButton?: StatusButton) {
+export async function showDownloadJobDialog() {
   const result = await showDialog({
     title: DOWNLOAD_JOB_BUTTON_LABEL,
     body: (
@@ -57,7 +56,6 @@ export async function showDownloadJobDialog(statusButton?: StatusButton) {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    statusButton?.show('Download', jobData.get(VdkOption.PATH)!);
     await jobRequest('download');
   }
 }

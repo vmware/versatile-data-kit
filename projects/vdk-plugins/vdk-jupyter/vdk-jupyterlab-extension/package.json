@@ -91,7 +91,6 @@
     "@types/react": "17.0.53",
     "yjs": "^13.5.17",
     "@jupyterlab/application": "3.6.3",
-    "@jupyterlab/mainmenu": "3.6.3",
     "word-wrap": "1.2.4"
   },
   "devDependencies": {
