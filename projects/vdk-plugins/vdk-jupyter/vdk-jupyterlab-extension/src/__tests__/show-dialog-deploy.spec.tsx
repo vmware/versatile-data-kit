@@ -34,12 +34,12 @@ describe('showCreateDeploymentDialog', () => {
         status: true
       });
     });
-  
+
     it('should show a dialog with the Create Deployment title and \
         a DeployJobDialog component as its body', async () => {
       // Call the function
       await showCreateDeploymentDialog();
-  
+
       // Expect the first showDialog function to have been called with the correct parameters
       expect(showDialog).toHaveBeenCalledWith({
         title: 'Create Deployment',
@@ -56,7 +56,7 @@ describe('showCreateDeploymentDialog', () => {
                 name="deployRun"
                 id="deployRun"
                 className="jp-vdk-checkbox"
-                onChange={expect.any(Function)} 
+                onChange={expect.any(Function)}
               />
               <label className="checkboxLabel" htmlFor="deployRun">
                 Run before deployment
