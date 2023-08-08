@@ -10,6 +10,9 @@ import React from 'react';
 import { checkIcon } from '@jupyterlab/ui-components';
 import { addVdkLogo } from '../vdkTags';
 
+const formatSeconds = (s: number): string =>
+  new Date(s * 1000).toISOString().substr(11, 8);
+
 export class StatusButton {
   private readonly buttonElement: HTMLButtonElement;
   private operation: string | undefined;
@@ -67,7 +70,7 @@ export class StatusButton {
       this.counter++;
       const timeElement = this.buttonElement.querySelector('span');
       if (timeElement) {
-        timeElement.innerHTML = `${this.formatTime(this.counter)}`;
+        timeElement.innerHTML = `${formatSeconds(this.counter)}`;
       }
     }, 1000);
   }
@@ -81,15 +84,6 @@ export class StatusButton {
     if (timeElement) {
       timeElement.innerHTML = '00:00:00';
     }
-  }
-
-  private formatTime(seconds: number): string {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m
-      .toString()
-      .padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 }
 
