@@ -53,7 +53,7 @@ class Authentication:
             A flag, indicating if credentials should be cached locally (in a
             file).
         :param possible_jwt_user_keys:
-            Used by get_authenticated_username to try to discover correct username if OAuth2 and JWT token is used.
+            Used by get_authenticated_username to try to discover correct username if OAuth2 and JWT token is used. It is a list of keys where the first existing key in a JTW token is returned.
             Defaults to some common user keys.
         """
         self._username = username
