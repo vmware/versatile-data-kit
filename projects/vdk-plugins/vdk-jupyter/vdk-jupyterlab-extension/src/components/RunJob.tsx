@@ -9,7 +9,7 @@ import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 import { StatusButton } from './StatusButton';
-import { checkIcon } from '@jupyterlab/ui-components';
+import { checkIcon, closeIcon } from '@jupyterlab/ui-components';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
@@ -112,6 +112,9 @@ export async function showRunJobDialog(
           title: RUN_JOB_BUTTON_LABEL,
           body: (
             <div className="vdk-run-error-message ">
+              <div className="vdk-dialog-check-icon">
+                <closeIcon.react className="vdk-error-icon" />
+              </div>
               <p>{errorMessage.exception_message}</p>
               <p>{errorMessage.what_happened}</p>
               <p>{errorMessage.why_it_happened}</p>

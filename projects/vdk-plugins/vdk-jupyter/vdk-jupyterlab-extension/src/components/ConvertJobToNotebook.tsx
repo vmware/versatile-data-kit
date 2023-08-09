@@ -112,6 +112,9 @@ export async function showConvertJobToNotebookDialog(
             title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
             body: (
               <div className="vdk-convert-to-notebook-error-message ">
+                <div className="vdk-dialog-check-icon">
+                  <closeIcon.react className="vdk-error-icon" />
+                </div>
                 <p>{errorMessage.exception_message}</p>
                 <p>{errorMessage.what_happened}</p>
                 <p>{errorMessage.why_it_happened}</p>

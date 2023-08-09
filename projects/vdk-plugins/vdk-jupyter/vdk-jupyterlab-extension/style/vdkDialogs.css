@@ -32,11 +32,10 @@
 
 .vdk-run-error-message {
   color: #c0392b;
-  padding: 20px;
+  padding: 16px;
   font-weight: bold;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .vdk-run-error-message p {
@@ -49,8 +48,8 @@
 }
 
 .vdk-run-dialog-message {
-  font-size: 20px;
-  padding: 20px;
+  font-size: 16px;
+  color: #33b53a;
 }
 .vdk-run-dialog-message-container {
   display: flex;
@@ -58,7 +57,7 @@
 }
 
 .vdk-status-dialog-message {
-  font-size: 20px;
+  font-size: 16px;
   padding: 20px;
 }
 
@@ -88,11 +87,17 @@
   margin-right: 10px;
 }
 
+.vdk-dialog-error-icon .jp-icon3[fill] {
+  fill: #c0392b;
+}
+
 .vdk-dialog-check-icon .vdk-icon .jp-icon3[fill] {
   fill: #33b53a;
 }
 
 .vdk-error-dialog {
+  font-size: 16px;
+  color: #c0392b;
   display: flex;
   align-items: center;
 }
@@ -101,8 +106,4 @@
   margin-right: 10px;
   display: flex;
   align-items: center;
-}
-
-.vdk-dialog-error-icon .jp-icon3[fill] {
-  fill: red;
 }
