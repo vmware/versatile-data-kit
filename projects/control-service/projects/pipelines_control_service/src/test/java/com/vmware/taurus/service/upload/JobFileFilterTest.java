@@ -19,14 +19,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
-@TestPropertySource(
-    properties = {
-        "upload.validation.fileTypes.filterlist=application/pyc"
-    })
+@TestPropertySource(properties = {"upload.validation.fileTypes.filterlist=application/pyc"})
 public class JobFileFilterTest {
 
-  @Autowired
-  private JobUploadFileFilter jobUploadFileFilter;
+  @Autowired private JobUploadFileFilter jobUploadFileFilter;
 
   static File getTestJob() throws IOException {
     return Paths.get(new ClassPathResource("filter-job").getURI()).toFile();
@@ -34,20 +30,22 @@ public class JobFileFilterTest {
 
   @Test
   void testDeletePycFileBeforeUpload() throws IOException {
-    var jobDirectoryFiles = FileUtils.listFiles(getTestJob(), TrueFileFilter.INSTANCE,
-        TrueFileFilter.INSTANCE);
+    var jobDirectoryFiles =
+        FileUtils.listFiles(getTestJob(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 
-    boolean pycFileExists = jobDirectoryFiles.stream()
-        .anyMatch(file -> file.toString().endsWith("10_python_step.cpython-39.pyc"));
+    boolean pycFileExists =
+        jobDirectoryFiles.stream()
+            .anyMatch(file -> file.toString().endsWith("10_python_step.cpython-39.pyc"));
     Assertions.assertTrue(pycFileExists);
     Assertions.assertEquals(jobDirectoryFiles.stream().count(), 6);
 
     jobUploadFileFilter.filterDirectory(getTestJob(), "test-job");
 
-    jobDirectoryFiles = FileUtils.listFiles(getTestJob(), TrueFileFilter.INSTANCE,
-        TrueFileFilter.INSTANCE);
-    pycFileExists = jobDirectoryFiles.stream()
-        .anyMatch(file -> file.toString().endsWith("10_python_step.cpython-39.pyc"));
+    jobDirectoryFiles =
+        FileUtils.listFiles(getTestJob(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+    pycFileExists =
+        jobDirectoryFiles.stream()
+            .anyMatch(file -> file.toString().endsWith("10_python_step.cpython-39.pyc"));
     Assertions.assertFalse(pycFileExists);
     Assertions.assertEquals(jobDirectoryFiles.stream().count(), 5);
   }

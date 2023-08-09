@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
  * This class filters out the job directory from forbidden files so that it can be uploaded without
  * them. Forbidden files are specified in a comma separated list in apache tika format. Full list of
  * supported files can be found - https://tika.apache.org ; This operation is intended to allow the
- * upload of a data job by deleting any files specified in the: upload.validation.fileTypes.filterlist
- * property.
+ * upload of a data job by deleting any files specified in the:
+ * upload.validation.fileTypes.filterlist property.
  */
 @Service
 @Slf4j
@@ -34,13 +34,12 @@ public class JobUploadFileFilter {
       @Value("${upload.validation.fileTypes.filterlist:}") String[] filterList) {
     this.filterList = filterList;
     this.formatDetector = new FileFormatDetector();
-
   }
 
   /**
-   * Data job directory to be filtered from files present in the upload.validation.fileTypes.filterlist
-   * variable. All matching files are deleted from the directory and sub-directories before being
-   * uploaded to git version control.
+   * Data job directory to be filtered from files present in the
+   * upload.validation.fileTypes.filterlist variable. All matching files are deleted from the
+   * directory and sub-directories before being uploaded to git version control.
    *
    * @param jobFolder
    * @param jobName
@@ -52,18 +51,20 @@ public class JobUploadFileFilter {
     }
 
     try (Stream<Path> stream = Files.walk(Paths.get(jobFolder.getPath()))) {
-      stream.filter(Files::isRegularFile)
-          .forEach(file -> {
-            validateFile(file.toAbsolutePath(), jobName);
-          });
+      stream
+          .filter(Files::isRegularFile)
+          .forEach(
+              file -> {
+                validateFile(file.toAbsolutePath(), jobName);
+              });
     } catch (IOException e) {
       log.error("Exception while processing filter list: {}", e);
-      throw new InvalidJobUpload(jobName,
+      throw new InvalidJobUpload(
+          jobName,
           "The control-service was unable to process the filter list of files.",
           "Please check for any corrupted files and try again or contact support.");
     }
   }
-
 
   private void validateFile(Path filePath, String jobName) {
     if (filePath.toFile().isDirectory()) {
@@ -76,7 +77,8 @@ public class JobUploadFileFilter {
         filePath.toFile().delete();
       }
     } catch (IOException e) {
-      throw new InvalidJobUpload(jobName,
+      throw new InvalidJobUpload(
+          jobName,
           "The control-service was unable to process the file: " + filePath.getFileName(),
           "Please check the file and fix any issues/try again or contact support.");
     }
