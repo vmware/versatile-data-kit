@@ -6,6 +6,7 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_DEP_BUTTON_LABEL } from '../utils';
+import { StatusButton } from './StatusButton';
 import { closeIcon } from '@jupyterlab/ui-components';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
@@ -51,7 +52,7 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
   }
 }
 
-export async function showCreateDeploymentDialog() {
+export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
   const result = await showDialog({
     title: CREATE_DEP_BUTTON_LABEL,
     body: (
@@ -75,6 +76,7 @@ export async function showCreateDeploymentDialog() {
         ]
       });
       if (runConfirmationResult.button.accept) {
+        statusButton?.show('Deploy', jobData.get(VdkOption.PATH)!);
         const { message, status } = await jobRunRequest();
         if (status) {
           if (
