@@ -47,7 +47,7 @@
 
 ---
 
-<h3 align="center">Introduction to the VDK SDK</h3>
+<h3 id="intro" align="center">Introduction to the VDK SDK</h3>
 
 <table width="100%" >
   <tr>
