@@ -128,6 +128,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
+
 <h3 align="center">Data Transformation</h3>
 
 <table width="100%" >
@@ -165,6 +166,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
+
 <h3 align="center">Data Job Deployment (build, deploy, release)</h3>
 
 <table width="100%" >
@@ -204,6 +206,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
+
 <h3 align="center">Operations and Monitoring</h3>
 
 <table width="100%" >
