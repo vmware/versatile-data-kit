@@ -6,9 +6,8 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_JOB_BUTTON_LABEL } from '../utils';
-import { StatusButton } from './StatusButton';
 
-export default class CreateJobDialog extends Component<IJobFullProps> {
+export default class CreateJobDialog extends Component<(IJobFullProps)> {
   /**
    * Returns a React component for rendering a create menu.
    *
@@ -26,32 +25,6 @@ export default class CreateJobDialog extends Component<IJobFullProps> {
   render(): React.ReactElement {
     return (
       <>
-        <div className="jp-vdk-checkbox-wrappers">
-          <div>
-            <input
-              type="checkbox"
-              name="Local"
-              id="Local"
-              className="jp-vdk-checkbox"
-              onClick={this._onLocalClick()}
-            />
-            <label className="checkboxLabel" htmlFor="Local">
-              Local
-            </label>
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              name="Cloud"
-              id="Cloud"
-              className="jp-vdk-checkbox"
-              onClick={this._onCloudClick()}
-            />
-            <label className="checkboxLabel" htmlFor="Cloud">
-              Cloud
-            </label>
-          </div>
-        </div>
         <VDKTextInput
           option={VdkOption.NAME}
           value={this.props.jobName}
@@ -70,46 +43,9 @@ export default class CreateJobDialog extends Component<IJobFullProps> {
       </>
     );
   }
-  /**
-   * Callback invoked upon choosing local checkbox
-   */
-  private _onLocalClick() {
-    return (event: React.MouseEvent) => {
-      this.setJobFlags('Local');
-    };
-  }
-  /**
-   * Callback invoked upon choosing cloud checkbox
-   */
-  private _onCloudClick() {
-    return (event: React.MouseEvent) => {
-      this.setJobFlags('Cloud');
-    };
-  }
-  /**
-   * Function that sets job's cloud/local flags
-   */
-  private setJobFlags(flag: string) {
-    const checkbox = document.getElementById(flag);
-    if (checkbox?.classList.contains('checked')) {
-      checkbox.classList.remove('checked');
-      if (flag === 'Cloud') {
-        jobData.set(VdkOption.CLOUD, '');
-      } else {
-        jobData.set(VdkOption.LOCAL, '');
-      }
-    } else {
-      checkbox?.classList.add('checked');
-      if (flag === 'Cloud') {
-        jobData.set(VdkOption.CLOUD, '1');
-      } else {
-        jobData.set(VdkOption.LOCAL, '1');
-      }
-    }
-  }
 }
 
-export async function showCreateJobDialog(statusButton?: StatusButton) {
+export async function showCreateJobDialog() {
   const result = await showDialog({
     title: CREATE_JOB_BUTTON_LABEL,
     body: (
@@ -122,7 +58,6 @@ export async function showCreateJobDialog(statusButton?: StatusButton) {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    statusButton?.show('Create', jobData.get(VdkOption.PATH)!);
     await jobRequest('create');
   }
 }
