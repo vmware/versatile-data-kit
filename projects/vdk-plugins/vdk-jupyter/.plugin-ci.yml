@@ -33,6 +33,41 @@ build-vdk-jupyterlab-extension:
         - "projects/vdk-plugins/vdk-jupyter/**/*"
 
 
+test-vdk-jupyterlab-extension:
+  stage: test
+  image: "python:3.8-alpine"
+  before_script:
+    - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
+    - pip install -U pip setuptools pre-commit
+    - apk --no-cache add npm rust cargo libffi-dev
+    - pip install jupyter
+  script:
+    - echo "Running Server tests..."
+    - pip install -e ".[test]"
+    - pytest -vv -r ap --cov vdk-jupyterlab-extension
+
+    - echo "Running Frontend tests..."
+    - jlpm
+    - jlpm test
+
+    - echo "Running Integration tests..."
+    - jlpm install
+    - jlpm build:prod
+    - cd ./ui-tests
+    - jlpm install
+    - jlpm playwright install
+    - jlpm playwright test
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/vdk-plugins/vdk-jupyter/**/*"
+  artifacts:
+    when: always
+    reports:
+      junit: "tests.xml"
+
+
 release-vdk-jupyter:
   variables:
     PLUGIN_NAME:
