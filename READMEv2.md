@@ -118,7 +118,7 @@ vdk --help</code></pre>
 
 
 
-<p align="center">
+<p id="transformation" align="center">
     <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
     <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
     <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-blue?style=plastic" alt="Transformation"></a>
@@ -128,7 +128,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
-<h3 id="transformation" align="center">Data Transformation</h3>
+<h3 align="center">Data Transformation</h3>
 
 <table width="100%" >
   <tr>
@@ -155,7 +155,7 @@ vdk --help</code></pre>
 
 
 
-<p align="center">
+<p id="deployment" align="center">
     <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
     <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
     <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
@@ -165,7 +165,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
-<h3 id="deployment" align="center">Data Job Deployment (build, deploy, release)</h3>
+<h3 align="center">Data Job Deployment (build, deploy, release)</h3>
 
 <table width="100%" >
   <tr>
@@ -194,7 +194,7 @@ vdk --help</code></pre>
 
 
 
-<p align="center">
+<p id="operations" align="center">
     <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
     <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
     <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
@@ -204,7 +204,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
-<h3 id="operations" align="center">Operations and Monitoring</h3>
+<h3 align="center">Operations and Monitoring</h3>
 
 <table width="100%" >
   <tr>
@@ -231,7 +231,7 @@ vdk --help</code></pre>
 
 
 
-<p align="center">
+<p id="plugins" align="center">
     <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
     <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
     <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
@@ -241,7 +241,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
-<h3 id="plugins" align="center">Lego like extensibility</h3>
+<h3 align="center">Lego like extensibility</h3>
 
 <table width="100%" >
   <tr>
