@@ -262,6 +262,9 @@ Access token would be generated using one of 2 approaches depending on how Jupyt
       * The design aims ot support any similar platform and not specifically JupyterHub. JupyterHub is the most famous example for such platfrom.
    * Logout: Invalidates/deletes the VDK-specific access token without logging the user out of JupyterHub
 
+![vdk-notebook-plugin](images/jupyter-auth.svg)
+<!-- source of image: https://www.plantuml.com/plantuml/uml/jLFBZXCn4BpFLvHo0edam35Iq2wx81OM8Us3UyVk92QEUx3R2U7h6NiIAIC6mONBoAEkwghgjg-IKjIyyqrBKPrnBGN5v3bnd80ISdSObZxczgWSyNnN0T_wtt7CMp9R3hO2b_rv2FnodNNp6kKhqVqaTHBmo75_aXSgzI7dw-qdt4ZGABv2dU6AtTjjqomMU5GAbhm4nid7FIsnM3HD2OFfcxDdp77ZdTacJEvbxS84goWxbFusIclb49eAhQnpW8vr5vmwKiQe_VTU3WqPTVi2ESS-ixj6VIZCyS3VCoUjV0xgJ6tGdEhJWUO3MnVPQCB1wMOe2IEMHnNU_J0R2ciUmMCb4TV6S4fuaYt_KLTp34EWvT_YpMQp2mDb5vXVvcBavC8QMXkKyb1cE094Jgs4n4tTwEVirKthzbfFsXdVuGNFrkVzViZBbxZbrijnnq7BheCeG_OSKMYlJckSusdZ4bRTXa0fvHsdMeTB81-Px15qOThMOL_8W885zIagQK_EqzBpREnszKCxqr4yBKMsuvVgWKj2BACSIYClXZoIIgGr8z6URI_xlqPT9zsz0qZMlx-M3lJFp-MMFIiNu3IrRDpA6L0_cjxZLOVBE_yB >
+
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.
 Consider at least the below topics but you do not need to cover those that are not applicable.
