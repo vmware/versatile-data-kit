@@ -86,7 +86,7 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
           }
         } else {
           await showDialog({
-            title: 'Error',
+            title: CREATE_DEP_BUTTON_LABEL,
             body: (
               <div className="vdk-error-dialog">
                 <div className="vdk-dialog-error-icon">
@@ -104,7 +104,7 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
       }
     } catch (error) {
       await showDialog({
-        title: 'Error',
+        title: CREATE_DEP_BUTTON_LABEL,
         body: (
           <div className="vdk-error-dialog">
             <div className="vdk-dialog-error-icon">

@@ -158,7 +158,7 @@ export const createTranformedNotebook = async (
     commands.execute('notebook:create-new');
   } catch (error) {
     await showDialog({
-      title: 'Error',
+      title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
       body: (
         <div className="vdk-error-dialog">
           <div className="vdk-dialog-error-icon">
