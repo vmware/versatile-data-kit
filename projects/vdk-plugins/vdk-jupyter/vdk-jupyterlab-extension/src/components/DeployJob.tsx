@@ -89,7 +89,9 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
             title: 'Error',
             body: (
               <div className="vdk-error-dialog">
-                <closeIcon.react className="vdk-dialog-error-icon" />
+                <div className="vdk-dialog-error-icon">
+                  <closeIcon.react className="vdk-error-icon" />
+                </div>
                 <div>
                   <p>Encountered an error while running the job!</p>
                   <p>{message}</p>
@@ -105,7 +107,9 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
         title: 'Error',
         body: (
           <div className="vdk-error-dialog">
-            <closeIcon.react className="vdk-dialog-error-icon" />
+            <div className="vdk-dialog-error-icon">
+              <closeIcon.react className="vdk-error-icon" />
+            </div>
             <div>
               <p>Encountered an error when deploying the job. Error:</p>
               <p>{error}</p>

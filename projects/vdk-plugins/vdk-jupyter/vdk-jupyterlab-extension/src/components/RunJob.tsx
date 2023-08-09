@@ -112,7 +112,7 @@ export async function showRunJobDialog(
           title: RUN_JOB_BUTTON_LABEL,
           body: (
             <div className="vdk-run-error-message ">
-              <div className="vdk-dialog-check-icon">
+              <div className="vdk-dialog-error-icon">
                 <closeIcon.react className="vdk-error-icon" />
               </div>
               <p>{errorMessage.exception_message}</p>
@@ -250,6 +250,9 @@ export const handleErrorsProducedByNotebookCell = async (
         title: RUN_JOB_BUTTON_LABEL,
         body: (
           <div className="vdk-run-error-message ">
+            <div className="vdk-dialog-error-icon">
+              <closeIcon.react className="vdk-error-icon" />
+            </div>
             <p>{message.exception_message}</p>
             <p>{message.what_happened}</p>
             <p>{message.why_it_happened}</p>

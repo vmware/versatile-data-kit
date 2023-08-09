@@ -112,7 +112,7 @@ export async function showConvertJobToNotebookDialog(
             title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
             body: (
               <div className="vdk-convert-to-notebook-error-message ">
-                <div className="vdk-dialog-check-icon">
+                <div className="vdk-dialog-error-icon">
                   <closeIcon.react className="vdk-error-icon" />
                 </div>
                 <p>{errorMessage.exception_message}</p>
@@ -161,7 +161,9 @@ export const createTranformedNotebook = async (
       title: 'Error',
       body: (
         <div className="vdk-error-dialog">
-          <closeIcon.react className="vdk-dialog-error-icon" />
+          <div className="vdk-dialog-error-icon">
+            <closeIcon.react className="vdk-error-icon" />
+          </div>
           <div>
             <p>
               Something went wrong while trying to create the new transformed

@@ -87,6 +87,12 @@
   margin-right: 10px;
 }
 
+.vdk-convert-to-notebook-error-message {
+  display: flex;
+  font-size: 16px;
+  color: #c0392b;
+}
+
 .vdk-dialog-error-icon .jp-icon3[fill] {
   fill: #c0392b;
 }
