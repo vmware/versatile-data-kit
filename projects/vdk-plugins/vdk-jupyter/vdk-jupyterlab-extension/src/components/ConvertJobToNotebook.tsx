@@ -158,7 +158,7 @@ export const createTranformedNotebook = async (
       title: 'Error',
       body: (
         <div className="vdk-error-dialog">
-          <closeIcon.react className="vdk-error-icon" />
+          <closeIcon.react className="vdk-dialog-error-icon" />
           <div>
             <p>
               Something went wrong while trying to create the new transformed

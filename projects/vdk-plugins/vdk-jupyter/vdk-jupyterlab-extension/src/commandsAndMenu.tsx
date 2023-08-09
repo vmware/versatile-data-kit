@@ -126,7 +126,7 @@ function add_command(
             title: 'Error',
             body: (
               <div className="vdk-error-dialog">
-                <closeIcon.react className="vdk-error-icon" />
+                <closeIcon.react className="vdk-dialog-error-icon" />
                 <div>
                   <p>Another VDK operation is currently running!</p>
                   <p>Please wait until the operation ends!</p>
@@ -141,7 +141,7 @@ function add_command(
           title: 'Error',
           body: (
             <div className="vdk-error-dialog">
-              <closeIcon.react className="vdk-error-icon" color="red" />
+              <closeIcon.react className="vdk-dialog-error-icon" color="red" />
               <div>
                 <p>
                   Encountered an error when trying to open the dialog. Error:

@@ -50,7 +50,6 @@
 
 .vdk-run-dialog-message {
   font-size: 20px;
-  color: #33b53a;
   padding: 20px;
 }
 .vdk-run-dialog-message-container {
@@ -90,17 +89,24 @@
 .vdk-dialog-check-icon {
   margin-right: 10px;
   display: flex;
+  align-items: center;
 }
 
-.vdk-dialog-check-icon .vdk-icon {
-  color: limegreen;
+.vdk-dialog-check-icon .vdk-icon .jp-icon3[fill] {
+  fill: #33b53a;
 }
 
 .vdk-error-dialog {
   display: flex;
+  align-items: center;
 }
 
-.vdk-error-icon {
+.vdk-dialog-error-icon {
   margin-right: 10px;
-  color: red;
+  display: flex;
+  align-items: center;
+}
+
+.vdk-dialog-error-icon .jp-icon3[fill] {
+  fill: red;
 }
