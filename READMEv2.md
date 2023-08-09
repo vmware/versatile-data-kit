@@ -131,8 +131,8 @@ vdk --help</code></pre>
         <ul>
           <li>Scheduling, packaging, dependencies management, deployment.</li>
           <li>Execution management and monitoring.</li>
-          <li>Sources Versioning.</li>
-          <li>Properties and Secrets.</li>
+          <li>Source code versioning and tracking. Fast rollback.</li>
+          <li>Manage state and credentials using Properties and Secrets.</li>
         </ul>
         <hr>
         <p><b>Get started with deploying jobs in control service:</b></p>
