@@ -129,7 +129,7 @@ vdk --help</code></pre>
     <td width="50%" >
         <span>VDK Control Service provides REST API for users to create, deploy, manage, and execute data jobs in a Kubernetes runtime environment.</span>
         <ul>
-          <li>Scheduling and deployment.</li>
+          <li>Scheduling, packaging, dependencies management, deployment.</li>
           <li>Execution management and monitoring.</li>
           <li>Sources Versioning.</li>
           <li>Properties and Secrets.</li>
