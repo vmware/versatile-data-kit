@@ -57,7 +57,7 @@
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
-<h3 id="intro" align="center">Introduction to the VDK SDK</h3>
+<h3 align="center">Introduction to the VDK SDK</h3>
 
 <table width="100%" >
   <tr>
