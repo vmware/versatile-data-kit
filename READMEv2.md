@@ -56,7 +56,6 @@
     <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility">
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing">
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts">
-    <a href="#code-of-conduct"><img src="https://img.shields.io/badge/Code%20of%20conduct-lightblue?style=plastic" alt="Code of conduct">
 
 </p>
 
