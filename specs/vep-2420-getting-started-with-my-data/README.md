@@ -40,7 +40,13 @@ Based on user feedback we've received, these can be split into 5 categories.
 VDK documents all config and all config can be seen with 'vdk config-help'.
 However despite this there are a number of issues which make it difficult to configure VDK.
 
+#### Pain points
+Customers often provide the configuration incorrectly. 
+1. Either using the wrong names 
+2. Putting it in the wrong place
+3. Using values that aren't supported at all
 
+#### Root causes
 1. Users are expected to configure their job using a config.ini file. Ini files are not popular in the industry
 2. Sections are confusing
 ini files support sections (https://en.wikipedia.org/wiki/INI_file#Sections).
@@ -49,42 +55,39 @@ Newer properties always go in the [vdk] section.
 It's not clear which properties go in which section. In fact some properties can exist in different sections and will have the same result.
 3. There is no validation on the file at run time to make sure all properties exist. Ideally the system should throw an error if there are properties in the file which don't actually exist.
 4. There is no IDE assistance. Frameworks like spring support autocomplete in their property and yaml files.
-5. Over reliance on using config files instead of users setting the values through python objects. Which would provide better error handling, documentation etc... It is more common practise when using a library/framework to  use less config file and most object initialization. The exception being spring.
-
-### Not obvious what properties do
-Below are the properties most jobs need to set.
-```bash
-export VDK_DB_DEFAULT_TYPE=SQLITE
-export VDK_INGEST_METHOD_DEFAULT=sqlite
-export VDK_INGEST_TARGET_DEFAULT=vdk-sqlite.db
-export VDK_SQLITE_FILE=vdk-sqlite.db
-```
-
-Ingestion is confusing. It is a totally reasonable explanation to think that the ingestion database is the database where we want to ingest data from wheras it means the database we want to ingest data into.
-Its not obvious what impact having setting DB_DEFAULT_type has.
-
-### Layer's of abstraction are not clear
-
-The VDK advertises its self as being a useful tool for reading and writing to databases(It helps with retries etc...).
-However if you are reading from a database to ingest the data into VDK you actually don't use VDK SDK to connect to the source database.
-This can be seen in this tutorial: https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-DB-into-Database
-This is extremely confusing. I would expect that I use the postgres plugin to read the data.
+5. Over reliance on using config files instead of users setting the values through python objects. Which would provide better error handling, documentation etc... It is more common practise when using a library/framework to  use less config file and most object initialization. The exception being spring.  
 
 
-### Poor documentation around secrets and properties
+### Poor documentation and implementation around secrets and properties
 
 When first starting with VDK and your own data you will need to provide VDK with passwords/username/etc. to connect to you data source.
-There is a file based implementation of the properties provider. This is not heavily enough advertised in the getting started docs.
-Furthermore there is no file based implementation of the secrets provider. So on even the most trivial example of reading data the user is left wondering how to handle secrets.
+
+#### Pain points
+The documentation completely omits how to handle this in the getting started section. 
+After you have completed a getting started section it leaves a user still unsure how to write a production quality job.  
+
+#### Root Causes
+1. There is a file based implementation of the properties' provider. This is not heavily enough advertised in the docs.
+2. Furthermore there is no file based implementation of the secrets provider. So on even the most trivial example of reading data the user is left wondering how to handle secrets.
 
 ### Not trivial to run in the IDE
 
-There is actually great documentation on how to get this working.
-But it needs to be included as the first line of the getting started section as this is the first thing that should be done after creating a job.
+Alot of developers just want to copy a getting started into their IDE and click run. 
+That will be used as a launch point to explore the product.
+
+#### Pain points
+Its not obvious how to run it in the IDE
+
+
+#### Root Causes
+1. There is actually great documentation on how to get this working. But it needs to be included as the first line of the getting started section as this is the first thing that should be done after creating a job.
+2. They don't call our product from a main. If they called it from a main we wouldn't need to explain how to run it. 
 
 ### Reliant on env variables
+
 In our tutorials we encourage users to set ingest destination using env variables: https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-DB-into-Database.
-This is bad because:
+
+#### Pain points
 1. How env variables are set is different on linux and windows. This results in our tutorial having less support for windows users as we write our tutorials assuming mac/linux users
 2. Works on my computer problems. If they complete a tutorial and check it into git, someone else won't be able to run it without knowing they need to set a list of env variables
 3. Poor IDE support. If they set the properties in the terminal and run examples they will see everything running ok. then they run it in their IDE and it won't work because it isn't picking up the properties. This is painful experince for developers
@@ -98,21 +101,21 @@ This is bad because:
       1. The IDE should provide auto complete of properties
       2. TODO
 
-**Out of scope because they are handled else where**
+### Out of scope because they are handled else where
 1. Improving the logs. https://github.com/vmware/versatile-data-kit/issues/2448
-  1. The logs need to be cleaned up so when getting started it is easier to debug the simple errors you will encounter
+   1. The logs need to be cleaned up so when getting started it is easier to debug the simple errors you will encounter
 2. Improving the docs: https://github.com/vmware/versatile-data-kit/issues/2426
-  2. The class docs are not exposed in an easy to read fashion. For open source projects this is not common and if this is tackled as part of the other initiative if will make getting started way easier
+   2. The class docs are not exposed in an easy to read fashion. For open source projects this is not common and if this is tackled as part of the other initiative if will make getting started way easier  
 3. Making changes to the ingest terminology/aiming too much criticism about how data is read/written: https://github.com/vmware/versatile-data-kit/issues/2422
 
-**Out of scope, but not immediate plan to deal with**
-1. VDK requires understanding a CLI and library before getting started
+### Out of scope, but not immediate plan to deal with
+#### VDK requires understanding a CLI and library before getting started
 
 How developers interact with most projects:
 
 Alot of projects developers use are libraries.
 Steps are user will do
-1. We install them using a package installer
+1. We install them using a package installer 
 2. have a quick look at the readme to see how to import the main entry point class
 3. From there start playing around with it. changing method parameters as they see fit, looking through docs etc...
 
@@ -122,11 +125,32 @@ Less projects are CLI tools for example kubectl.
 3. From there start playing around with it.
 
 
-However for VDK you are required to familiarise your self with a CLI and also a library.
-In the getting started examples it's not entirely clear why a CLI is needed.
-Arguably you don't, Other tools like it don't require their own CLI.
+However for VDK you are required to familiarise your self with a CLI and also a library. 
+In the getting started examples it's not entirely clear why a CLI is needed. 
+Arguably you don't, Other tools like it don't require their own CLI. 
 
-When just getting started and changing an example it is likely that you will forget how to run it and forget entirely about the the CLI.
+When just getting started and changing an example it is likely that you will forget how to run it and forget entirely about the the CLI. 
+
+
+
+#### Not obvious what properties do
+Below are the properties most jobs need to set.
+```bash
+export VDK_DB_DEFAULT_TYPE=SQLITE
+export VDK_INGEST_METHOD_DEFAULT=sqlite
+export VDK_INGEST_TARGET_DEFAULT=vdk-sqlite.db
+export VDK_SQLITE_FILE=vdk-sqlite.db
+```
+
+Ingestion is confusing. It is a totally reasonable explanation to think that the ingestion database is the database where we want to ingest data from wheras it means the database we want to ingest data into.
+Its not obvious what impact having setting DB_DEFAULT_type has.
+
+#### Layer's of abstraction are not clear
+
+The VDK advertises its self as being a useful tool for reading and writing to databases(It helps with retries etc...).
+However if you are reading from a database to ingest the data into VDK you actually don't use VDK SDK to connect to the source database.
+This can be seen in this tutorial: https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-DB-into-Database
+This is extremely confusing. I would expect that I use the postgres plugin to read the data.
 
 
 ## High-level design
