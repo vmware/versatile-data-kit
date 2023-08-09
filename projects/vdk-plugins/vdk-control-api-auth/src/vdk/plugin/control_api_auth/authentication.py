@@ -119,7 +119,10 @@ class Authentication:
             return self._username
 
         if not self._token:
-            self._token = self.read_access_token()
+            try:
+                self._token = self.read_access_token()
+            except Exception:
+                log.debug(f"Could not to read access token.", exc_info=True)
         if not self._token:
             return None
 
