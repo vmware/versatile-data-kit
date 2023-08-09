@@ -189,6 +189,11 @@ uploadGitReadWritePassword: ""
 # If set to empty, then all file types are allowed.
 uploadValidationFileTypesAllowList: ""
 
+# Works as the uploadValidationFileTypesAllowList above, only it deletes the files instead of failing
+# the job upload. Runs before the allow list, therefore if only files of the same types are present in
+# both lists, job upload will succeed.
+uploadValidationFileTypesFilterList: ""
+
 ## [Required] The repository where the data job images will be stored (so write permission must be granted)
 ## Automatically a repository will be created for each data job in ${deploymentDockerRepository}/data-job-name
 ## (without https:// scheme)
