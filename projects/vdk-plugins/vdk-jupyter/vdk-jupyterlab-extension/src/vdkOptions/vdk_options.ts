@@ -7,8 +7,6 @@ export enum VdkOption {
   NAME = 'jobName',
   TEAM = 'jobTeam',
   PATH = 'jobPath',
-  CLOUD = 'cloud',
-  LOCAL = 'local',
   ARGUMENTS = 'jobArguments',
   DEPLOYMENT_REASON = 'deploymentReason'
 }
