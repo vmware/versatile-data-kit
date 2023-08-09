@@ -47,7 +47,7 @@
 
 ---
 
-<p align="center">
+<p id="intro" align="center">
     <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-blue?style=plastic" alt="Intro to VDK SDK"></a>
     <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
     <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
@@ -57,8 +57,6 @@
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
-
-
 <h3 id="intro" align="center">Introduction to the VDK SDK</h3>
 
 <table width="100%" >
@@ -84,7 +82,7 @@ vdk --help</code></pre>
 
 
 
-<p align="center">
+<p id="ingestion" align="center">
     <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
     <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-blue?style=plastic" alt="Ingestion"></a>
     <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
@@ -94,8 +92,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
     <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
-
-<h3 id="ingestion" align="center">Data Ingestion</h3>
+<h3 align="center">Data Ingestion</h3>
 
 <table width="100%" >
   <tr>
