@@ -49,6 +49,7 @@ Newer properties always go in the [vdk] section.
 It's not clear which properties go in which section. In fact some properties can exist in different sections and will have the same result.
 3. There is no validation on the file at run time to make sure all properties exist. Ideally the system should throw an error if there are properties in the file which don't actually exist.
 4. There is no IDE assistance. Frameworks like spring support autocomplete in their property and yaml files.
+5. Over reliance on using config files instead of users setting the values through python objects. Which would provide better error handling, documentation etc... It is more common practise when using a library/framework to  use less config file and most object initialization. The exception being spring.  
 
 ### Not obvious what properties do
 Below are the properties most jobs need to set.
@@ -59,8 +60,7 @@ export VDK_INGEST_TARGET_DEFAULT=vdk-sqlite.db
 export VDK_SQLITE_FILE=vdk-sqlite.db
 ```
 
-Ingest is a confusing term.
-It is a totally reasonable explanation to think that the ingestion database is the database where we want to ingest data from wheras it means the database we want to ingest data into.
+Ingestion is confusing. It is a totally reasonable explanation to think that the ingestion database is the database where we want to ingest data from wheras it means the database we want to ingest data into.
 Its not obvious what impact having setting DB_DEFAULT_type has.
 
 ### Layer's of abstraction are not clear
@@ -97,6 +97,37 @@ This is bad because:
    1. During development
       1. The IDE should provide auto complete of properties
       2. TODO
+
+**Out of scope because they are handled else where**
+1. Improving the logs. https://github.com/vmware/versatile-data-kit/issues/2448
+  1. The logs need to be cleaned up so when getting started it is easier to debug the simple errors you will encounter
+2. Improving the docs: https://github.com/vmware/versatile-data-kit/issues/2426
+  2. The class docs are not exposed in an easy to read fashion. For open source projects this is not common and if this is tackled as part of the other initiative if will make getting started way easier  
+3. Making changes to the ingest terminology/aiming too much criticism about how data is read/written: https://github.com/vmware/versatile-data-kit/issues/2422
+
+**Out of scope, but not immediate plan to deal with**
+1. VDK requires understanding a CLI and library before getting started
+
+How developers interact with most projects:
+
+Alot of projects developers use are libraries.
+Steps are user will do
+1. We install them using a package installer 
+2. have a quick look at the readme to see how to import the main entry point class
+3. From there start playing around with it. changing method parameters as they see fit, looking through docs etc...
+
+Less projects are CLI tools for example kubectl.
+1. We install them using a package installer
+2. Follow some quickstart tutorials
+3. From there start playing around with it.
+
+
+However for VDK you are required to familiarise your self with a CLI and also a library. 
+In the getting started examples it's not entirely clear why a CLI is needed. 
+Arguably you don't, Other tools like it don't require their own CLI. 
+
+When just getting started and changing an example it is likely that you will forget how to run it and forget entirely about the the CLI. 
+
 
 ## High-level design
 
