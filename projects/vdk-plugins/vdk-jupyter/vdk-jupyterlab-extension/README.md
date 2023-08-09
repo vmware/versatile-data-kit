@@ -4,8 +4,7 @@ A Jupyterlab extension for using VDK
 For more information see: https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-994-jupyter-notebook-integration
 
 This extension is composed of a Python package named `vdk-jupyterlab-extension`
-for the server extension and a NPM package named `vdk-jupyterlab-extension`
-for the frontend extension.
+for the server extension and a NPM package named `vdk-jupyterlab-extension` for the frontend extension.
 
 ## Requirements
 
@@ -48,8 +47,8 @@ jupyter labextension list
 ```
 
 If you are struggling with a particular aspect of the JupyterLab API,
-you can contact the Jupyter team in the following way: go to their repo
-(https://github.com/jupyterlab/jupyterlab), go to Issues, go to New issue,
+you can contact the Jupyter team in the following way: go to their repo issues page at
+https://github.com/jupyterlab/jupyterlab/issues/new/choose
 then click on Open in the "Chat with the devs" section, which will send you
 to a Gitter channel where you can ask your question.
 
@@ -64,19 +63,7 @@ The `jlpm` command is JupyterLab's pinned version of
 `yarn` or `npm` in lieu of `jlpm` below.
 
 ```bash
-# Clone the repo to your local environment
-# Change directory to the vdk-jupyterlab-extension directory
-# Once in the project directory, use the npm ci command to install
-# the exact versions of the dependencies specified in the package-lock.json
-npm ci
-# Install package in development mode
-pip install -e .
-# Link your development version of the extension with JupyterLab
-jupyter labextension develop . --overwrite
-# Server extension must be manually installed in develop mode
-jupyter server extension enable vdk-jupyterlab-extension
-# Rebuild extension Typescript source after making changes
-jlpm build
+../cicd/build.sh
 ```
 
 NB: If you're changing some dependencies of the project,

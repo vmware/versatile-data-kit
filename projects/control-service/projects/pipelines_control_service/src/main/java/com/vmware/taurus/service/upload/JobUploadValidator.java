@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.upload;
 
 import com.vmware.taurus.exception.ExternalSystemError;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,7 +76,8 @@ class JobUploadValidator {
    */
   private void validateFile(String jobName, Path filePath, Path pathInsideJob)
       throws InvalidJobUpload {
-    if (filePath.toFile().isDirectory()) {
+    if (filePath.toFile().isDirectory()
+        || "pyc".equals(FilenameUtils.getExtension(filePath.getFileName().toString()))) {
       return;
     }
     try {

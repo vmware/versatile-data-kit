@@ -54,13 +54,13 @@ def test_sqlite_ingestion(tmpdir):
             [
                 "sqlite-query",
                 "--query",
-                "CREATE TABLE test_table (some_data TEXT, more_data TEXT)",
+                r"CREATE TABLE test_table (some\ data TEXT, more_data TEXT)",
             ]
         )
 
         mock_sqlite_conf = mock.MagicMock(SQLiteConfiguration)
         sqlite_ingester = IngestToSQLite(mock_sqlite_conf)
-        payload = [{"some_data": "some_test_data", "more_data": "more_test_data"}]
+        payload = [{"some data": "some test data", "more_data": "more_test_data"}]
 
         sqlite_ingester.ingest_payload(
             payload=payload,
@@ -73,9 +73,9 @@ def test_sqlite_ingestion(tmpdir):
         )
 
         assert check_result.stdout == (
-            "some_data       more_data\n"
+            "some data       more_data\n"
             "--------------  --------------\n"
-            "some_test_data  more_test_data\n"
+            "some test data  more_test_data\n"
         )
 
 

@@ -23,23 +23,19 @@ export class DataJobsManagePage extends DataJobsBasePO {
      * @return {DataJobsManagePage}
      */
     static navigateWithSideMenu() {
-        return super.navigateWithSideMenu(
-            'navLinkManageDataJobs',
-            'openManage',
-            {
-                before: () => {
-                    this.waitForApplicationBootstrap();
-                    this.waitForDataJobsApiGetReqInterceptor(3);
-                },
-                after: () => {
-                    this.waitForDataJobsApiGetReqInterceptor();
+        return super.navigateWithSideMenu('navLinkManageDataJobs', 'openManage', {
+            before: () => {
+                this.waitForApplicationBootstrap();
+                this.waitForDataJobsApiGetReqInterceptor(3);
+            },
+            after: () => {
+                this.waitForDataJobsApiGetReqInterceptor();
 
-                    const page = this.getPage();
-                    page.waitForGridToLoad(null);
-                    page.waitForViewToRenderShort();
-                }
+                const page = this.getPage();
+                page.waitForGridToLoad(null);
+                page.waitForViewToRenderShort();
             }
-        );
+        });
     }
 
     /**
@@ -79,14 +75,8 @@ export class DataJobsManagePage extends DataJobsBasePO {
      * @param {number} timeout
      * @returns {Cypress.Chainable<Subject>}
      */
-    waitForGridToLoad(
-        contextSelector,
-        timeout = DataJobsBasePO.WAIT_SHORT_TASK
-    ) {
-        return this._waitForGridToLoad(
-            'data-pipelines-manage-data-jobs',
-            timeout
-        );
+    waitForGridToLoad(contextSelector, timeout = DataJobsBasePO.WAIT_SHORT_TASK) {
+        return this._waitForGridToLoad('data-pipelines-manage-data-jobs', timeout);
     }
 
     getDataGrid() {
@@ -94,13 +84,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
     }
 
     getDataGridNavigateBtn(team, job) {
-        return cy.get(
-            '[data-cy=data-pipelines-manage-grid-details-link][data-job-params="' +
-                team +
-                ';' +
-                job +
-                '"]'
-        );
+        return cy.get('[data-cy=data-pipelines-manage-grid-details-link][data-job-params="' + team + ';' + job + '"]');
     }
 
     getDataGridRefreshButton() {
@@ -142,10 +126,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
     }
 
     changeStatus(newStatus) {
-        cy.get(`[data-cy=data-pipelines-job-${newStatus}-btn]`)
-            .should('exist')
-            .should('be.enabled')
-            .click({ force: true });
+        cy.get(`[data-cy=data-pipelines-job-${newStatus}-btn]`).should('exist').should('be.enabled').click({ force: true });
     }
 
     toggleJobStatus(jobName) {
@@ -158,9 +139,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
 
             const newStatus = currentStatus === 'enable' ? 'disable' : 'enable';
 
-            cy.log(
-                `Current status: ${currentStatus}, new status: ${newStatus}`
-            );
+            cy.log(`Current status: ${currentStatus}, new status: ${newStatus}`);
 
             this.changeStatus(newStatus);
 
@@ -168,9 +147,7 @@ export class DataJobsManagePage extends DataJobsBasePO {
                 this.waitForDataJobDeploymentPatchReqInterceptor();
             });
 
-            this.getToastTitle()
-                .should('exist')
-                .should('contain.text', 'Status update completed');
+            this.getToastTitle().should('exist').should('contain.text', 'Status update completed');
 
             this.getToastDismiss().should('exist').click({ force: true });
 
