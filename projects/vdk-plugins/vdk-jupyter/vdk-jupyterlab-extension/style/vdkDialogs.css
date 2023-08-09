@@ -53,15 +53,13 @@
   padding: 20px;
 }
 .vdk-run-dialog-message-container {
-  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .vdk-status-dialog-message {
   font-size: 20px;
   padding: 20px;
-}
-.vdk-status-dialog-message-container {
-  position: relative;
 }
 
 .jp-vdk-check-status-button {
@@ -88,8 +86,6 @@
 
 .vdk-dialog-check-icon {
   margin-right: 10px;
-  display: flex;
-  align-items: center;
 }
 
 .vdk-dialog-check-icon .vdk-icon .jp-icon3[fill] {
