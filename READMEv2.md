@@ -47,7 +47,7 @@
 
 ---
 
-<h3 align="center">Introduction to the VDK SDK</h1>
+<h3 align="center">Introduction to the VDK SDK</h3>
 
 <table width="100%" >
   <tr>
@@ -74,7 +74,7 @@ vdk --help</code></pre>
 
 
 
-<h3 align="center">Data Ingestion</h1>
+<h3 align="center">Data Ingestion</h3>
 
 <table width="100%" >
   <tr>
@@ -98,7 +98,7 @@ vdk --help</code></pre>
 </table>
 
 
-<h3 align="center">Data Transformation</h1>
+<h3 align="center">Data Transformation</h3>
 
 <table width="100%" >
   <tr>
@@ -122,7 +122,7 @@ vdk --help</code></pre>
 
 
 
-<h3 align="center">Data Job Deployment (build, deploy, release)</h1>
+<h3 align="center">Data Job Deployment (build, deploy, release)</h3>
 
 <table width="100%" >
   <tr>
@@ -148,7 +148,7 @@ vdk --help</code></pre>
 
 
 
-<h3 align="center">Operations and Monitoring</h1>
+<h3 align="center">Operations and Monitoring</h3>
 
 <table width="100%" >
   <tr>
@@ -172,7 +172,7 @@ vdk --help</code></pre>
 
 
 
-<h3 align="center">Lego like extensibility</h1>
+<h3 align="center">Lego like extensibility</h3>
 
 <table width="100%" >
   <tr>
