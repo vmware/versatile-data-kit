@@ -1,0 +1,5 @@
+<mime-type type="application/pyc">
+  <_comment>Python compiled file</_comment>
+  <glob pattern="*.pyc"/>
+  <sub-class-of type="application/octet-stream"/>
+</mime-type>

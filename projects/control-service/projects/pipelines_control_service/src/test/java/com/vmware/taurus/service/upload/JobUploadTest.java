@@ -5,12 +5,20 @@
 
 package com.vmware.taurus.service.upload;
 
-import com.google.common.collect.Iterables;
+import static com.vmware.taurus.service.upload.FileUtils.createTempDir;
 
+import com.google.common.collect.Iterables;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.TestIOUtils;
 import com.vmware.taurus.authorization.provider.AuthorizationProvider;
 import com.vmware.taurus.base.FeatureFlags;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Optional;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
@@ -19,7 +27,11 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
@@ -30,16 +42,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Optional;
-
-import static com.vmware.taurus.service.upload.FileUtils.createTempDir;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -58,6 +60,8 @@ public class JobUploadTest {
   @Mock private AuthorizationProvider authorizationProvider;
 
   @Mock private JobUploadValidator jobUploadValidator;
+
+  @Mock private JobUploadFileFilter jobUploadFileFilter;
 
   private JobUpload jobUpload;
 
@@ -85,7 +89,8 @@ public class JobUploadTest {
             gitWrapper,
             featureFlags,
             authorizationProvider,
-            jobUploadValidator);
+            jobUploadValidator,
+            jobUploadFileFilter);
   }
 
   @AfterEach
@@ -253,7 +258,8 @@ public class JobUploadTest {
             gitWrapper,
             featureFlags,
             authorizationProvider,
-            jobUploadValidator);
+            jobUploadValidator,
+            jobUploadFileFilter);
 
     Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
 
