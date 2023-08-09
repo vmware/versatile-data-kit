@@ -49,14 +49,13 @@
 
 <p align="center">
     <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
-    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion">
-    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation">
-    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue?style=plastic" alt="Job Deployment">
-    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue?style=plastic" alt="Job Operations">
-    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility">
-    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing">
-    <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts">
-
+    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
+    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
+    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue?style=plastic" alt="Job Deployment"></a>
+    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue?style=plastic" alt="Job Operations"></a>
+    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility"></a>
+    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing-lightblue?style=plastic" alt="Contributing"></a>
+    <a href="#contacts"><img src="https://img.shields.io/badge/Contacts-lightblue?style=plastic" alt="Contacts"></a>
 </p>
 
 ---
