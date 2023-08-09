@@ -41,8 +41,8 @@ VDK documents all config and all config can be seen with 'vdk config-help'.
 However despite this there are a number of issues which make it difficult to configure VDK.
 
 #### Pain points
-Customers often provide the configuration incorrectly. 
-1. Either using the wrong names 
+Customers often provide the configuration incorrectly.
+1. Either using the wrong names
 2. Putting it in the wrong place
 3. Using values that aren't supported at all
 
@@ -55,7 +55,7 @@ Newer properties always go in the [vdk] section.
 It's not clear which properties go in which section. In fact some properties can exist in different sections and will have the same result.
 3. There is no validation on the file at run time to make sure all properties exist. Ideally the system should throw an error if there are properties in the file which don't actually exist.
 4. There is no IDE assistance. Frameworks like spring support autocomplete in their property and yaml files.
-5. Over reliance on using config files instead of users setting the values through python objects. Which would provide better error handling, documentation etc... It is more common practise when using a library/framework to  use less config file and most object initialization. The exception being spring.  
+5. Over reliance on using config files instead of users setting the values through python objects. Which would provide better error handling, documentation etc... It is more common practise when using a library/framework to  use less config file and most object initialization. The exception being spring.
 
 
 ### Poor documentation and implementation around secrets and properties
@@ -63,8 +63,8 @@ It's not clear which properties go in which section. In fact some properties can
 When first starting with VDK and your own data you will need to provide VDK with passwords/username/etc. to connect to you data source.
 
 #### Pain points
-The documentation completely omits how to handle this in the getting started section. 
-After you have completed a getting started section it leaves a user still unsure how to write a production quality job.  
+The documentation completely omits how to handle this in the getting started section.
+After you have completed a getting started section it leaves a user still unsure how to write a production quality job.
 
 #### Root Causes
 1. There is a file based implementation of the properties' provider. This is not heavily enough advertised in the docs.
@@ -72,7 +72,7 @@ After you have completed a getting started section it leaves a user still unsure
 
 ### Not trivial to run in the IDE
 
-Alot of developers just want to copy a getting started into their IDE and click run. 
+Alot of developers just want to copy a getting started into their IDE and click run.
 That will be used as a launch point to explore the product.
 
 #### Pain points
@@ -81,7 +81,7 @@ Its not obvious how to run it in the IDE
 
 #### Root Causes
 1. There is actually great documentation on how to get this working. But it needs to be included as the first line of the getting started section as this is the first thing that should be done after creating a job.
-2. They don't call our product from a main. If they called it from a main we wouldn't need to explain how to run it. 
+2. They don't call our product from a main. If they called it from a main we wouldn't need to explain how to run it.
 
 ### Reliant on env variables
 
@@ -105,7 +105,7 @@ In our tutorials we encourage users to set ingest destination using env variable
 1. Improving the logs. https://github.com/vmware/versatile-data-kit/issues/2448
    1. The logs need to be cleaned up so when getting started it is easier to debug the simple errors you will encounter
 2. Improving the docs: https://github.com/vmware/versatile-data-kit/issues/2426
-   2. The class docs are not exposed in an easy to read fashion. For open source projects this is not common and if this is tackled as part of the other initiative if will make getting started way easier  
+   2. The class docs are not exposed in an easy to read fashion. For open source projects this is not common and if this is tackled as part of the other initiative if will make getting started way easier
 3. Making changes to the ingest terminology/aiming too much criticism about how data is read/written: https://github.com/vmware/versatile-data-kit/issues/2422
 
 ### Out of scope, but not immediate plan to deal with
@@ -115,7 +115,7 @@ How developers interact with most projects:
 
 Alot of projects developers use are libraries.
 Steps are user will do
-1. We install them using a package installer 
+1. We install them using a package installer
 2. have a quick look at the readme to see how to import the main entry point class
 3. From there start playing around with it. changing method parameters as they see fit, looking through docs etc...
 
@@ -125,11 +125,11 @@ Less projects are CLI tools for example kubectl.
 3. From there start playing around with it.
 
 
-However for VDK you are required to familiarise your self with a CLI and also a library. 
-In the getting started examples it's not entirely clear why a CLI is needed. 
-Arguably you don't, Other tools like it don't require their own CLI. 
+However for VDK you are required to familiarise your self with a CLI and also a library.
+In the getting started examples it's not entirely clear why a CLI is needed.
+Arguably you don't, Other tools like it don't require their own CLI.
 
-When just getting started and changing an example it is likely that you will forget how to run it and forget entirely about the the CLI. 
+When just getting started and changing an example it is likely that you will forget how to run it and forget entirely about the the CLI.
 
 
 
