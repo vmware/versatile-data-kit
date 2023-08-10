@@ -128,3 +128,23 @@ def test_audit_multiple_events_enabled_and_permitted_action():
         print(result.output)
         cli_assert_equal(0, result)
         assert not os._exit.called
+
+
+def test_audit_single_event_enabled_and_not_misclassified_error():
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_AUDIT_HOOK_ENABLED": "True",
+            "VDK_AUDIT_HOOK_FORBIDDEN_EVENTS_LIST": "os.removexattr;",
+        },
+    ):
+        os._exit = mock.MagicMock()
+        runner = CliEntryBasedTestRunner(audit_plugin)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("os-remove-command-job")]
+        )
+
+        print(result.output)
+        cli_assert_equal(0, result)
+        assert not os._exit.called
