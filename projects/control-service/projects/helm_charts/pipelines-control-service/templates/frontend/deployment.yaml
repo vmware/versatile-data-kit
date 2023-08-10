@@ -3,6 +3,8 @@
   SPDX-License-Identifier: Apache-2.0
  */}}
 
+{{- if .Values.operationsUi.enabled }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -55,3 +57,5 @@ spec:
         - name: config-volume
           configMap:
             name: ui-config
+
+{{- end }}
