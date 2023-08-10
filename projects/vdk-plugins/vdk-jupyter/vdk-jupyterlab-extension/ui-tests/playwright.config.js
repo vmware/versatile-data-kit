@@ -15,5 +15,6 @@ module.exports = {
     url: 'http://localhost:8888/lab',
     timeout: 200 * 100000,
     reuseExistingServer: !process.env.CI
-  }
+  },
+  reporter: [['junit', { outputFile: '../integration_tests_results.xml' }]]
 };
