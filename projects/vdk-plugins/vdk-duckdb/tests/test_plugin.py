@@ -1,3 +1,6 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import pathlib
 from unittest import mock
@@ -25,5 +28,7 @@ def test_dummy():
         # and mock large parts of it - e.g passed our own plugins
         runner = CliEntryBasedTestRunner(plugin_entry)
 
-        result: Result = runner.invoke(["run", jobs_path_from_caller_directory("job-using-a-plugin")])
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("job-using-a-plugin")]
+        )
         cli_assert_equal(0, result)
