@@ -96,7 +96,7 @@ In our tutorials we encourage users to set ingest destination using env variable
 
 ## Requirements and goals
 
-1. Easily finding out which properties need to be set for a given task. On completion:
+1. Easily finding out which properties need to be set for a given task
    1. Within reason, it should be impossible to run a job with invalid config. This would include misspelling a property, or putting it in the wrong section of the ini file
    2. Sections in the ini are simplified or config.ini is deprecated in favour of setting more properties in python or using a newer file format
    3. At the start of this initiative we ran user interviews asking users to read from postgres and write to sqlite. When the user interviews are run at the end of this initiative, users not only know which properties to set but be able to give a good explanation of what thosee properties do
