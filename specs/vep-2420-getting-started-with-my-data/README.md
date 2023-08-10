@@ -96,10 +96,17 @@ In our tutorials we encourage users to set ingest destination using env variable
 
 ## Requirements and goals
 
-1. Easily finding out which properties to set for a given task
-   1. During development
-      1. The IDE should provide auto complete of properties
-      2. TODO
+1. Easily finding out which properties need to be set for a given task. On completion:
+   1. Within reason, it should be impossible to run a job with invalid config. This would include misspelling a property, or putting it in the wrong section of the ini file
+   2. Sections in the ini are simplified or config.ini is deprecated in favour of setting more properties in python or using a newer file format
+   3. At the start of this initiative we ran user interviews asking users to read from postgres and write to sqlite. When the user interviews are run at the end of this initiative, users not only know which properties to set but be able to give a good explanation of what thosee properties do
+   4. In getting started examples the destination database should be set at a single property and not need to be duplicated twice as is the case now
+2. Users should feel that they have written a production ready job
+   1. All the jobs written during the previous user test would not have been fit to deploy to production because there are secrets in the user code. When the user interviews are run at the end of this initiative, users should have produced jobs that are sutible to deploy to production.
+3. Env variables are supported but not advertised as the primary method of setting properties
+   1. No getting started sections will suggest setting env variables. (arguably this is change should be part of the docs initiative)
+4. IDE support should be more adopted
+   1.  When the user interviews are run at the end of this initiative, users should run it in their IDE without being mandated to do so. But a small bit of encouragement is fine.
 
 ### Out of scope because they are handled else where
 1. Improving the logs. https://github.com/vmware/versatile-data-kit/issues/2448
