@@ -91,7 +91,7 @@ In our tutorials we encourage users to set ingest destination using env variable
 1. How env variables are set is different on linux and windows. This results in our tutorial having less support for windows users as we write our tutorials assuming mac/linux users
 2. Works on my computer problems. If they complete a tutorial and check it into git, someone else won't be able to run it without knowing they need to set a list of env variables
 3. Poor IDE support. If they set the properties in the terminal and run examples they will see everything running ok. then they run it in their IDE and it won't work because it isn't picking up the properties. This is painful experince for developers
-4. they might restart their computer and the example won't run and they can't remember why
+4. They might restart their computer and the example won't run and they can't remember why
 
 
 ## Requirements and goals
