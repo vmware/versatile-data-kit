@@ -62,9 +62,9 @@
   <tr>
     <td width="50%" >
         <ul>
-          <li>A toolset enabling you to run your data jobs.</li>
+          <li>Framework to simplify data ingestion and data processing.</li>
           <li>Write any code using Python or SQL.</li>
-          <li>VDK abstractions to simplify data ingestion and data processing.</li>
+          <li>A toolset enabling you to run data jobs.</li>
         </ul>
         <hr>
         <p><b>Get started with VDK SDK:</b></p>
