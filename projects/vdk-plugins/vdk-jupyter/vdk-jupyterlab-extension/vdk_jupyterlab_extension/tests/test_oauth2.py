@@ -13,7 +13,6 @@ from tornado.web import Application
 from vdk.plugin.control_api_auth.auth_config import InMemAuthConfiguration
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
 from vdk_jupyterlab_extension.handlers import OAuth2Handler
-from vdk_jupyterlab_extension.oauth2 import SingletonInMemAuthConfiguration
 
 
 def test_fix_redirect_uri():
@@ -81,13 +80,13 @@ def test_get_without_code(oauth2_handler):
 
     auth_url = urlparse(mock_finish.call_args[0][0])
     assert auth_url.netloc == "example.com"
-    assert auth_url.path == "auth"
+    assert auth_url.path == "/auth"
     assert auth_url.scheme == "https"
 
     query_params = parse_qs(auth_url.query)
-    assert query_params.get("response_type") == "code"
-    assert query_params.get("client_id") == "sample_client_id"
-    assert query_params.get("code_challenge") is not None
+    assert query_params.get("response_type") == ["code"]
+    assert query_params.get("client_id") == ["sample_client_id"]
+    assert query_params.get("code_challenge")
 
 
 @httpretty.activate
