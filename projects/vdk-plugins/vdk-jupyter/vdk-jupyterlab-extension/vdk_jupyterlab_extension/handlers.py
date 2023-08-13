@@ -8,7 +8,9 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
+from . import VdkJupyterConfig
 from .job_data import JobDataLoader
+from .oauth2 import OAuth2Handler
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
 
@@ -200,17 +202,20 @@ class GetServerPathHandler(APIHandler):
         self.finish(json.dumps(os.getcwd()))
 
 
-def setup_handlers(web_app):
+def setup_handlers(web_app, vdk_config: VdkJupyterConfig):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
 
-    def add_handler(handler, endpoint):
+    def add_handler(handler, endpoint, args=None):
         job_route_pattern = url_path_join(
             base_url, "vdk-jupyterlab-extension", endpoint
         )
-        job_handlers = [(job_route_pattern, handler)]
+        if args is None:
+            args = {}
+        job_handlers = [(job_route_pattern, handler, args)]
         web_app.add_handlers(host_pattern, job_handlers)
 
+    add_handler(OAuth2Handler, "login", {"vdk_config": vdk_config})
     add_handler(RunJobHandler, "run")
     add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")
