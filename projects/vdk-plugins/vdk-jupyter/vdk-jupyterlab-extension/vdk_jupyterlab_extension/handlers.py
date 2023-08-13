@@ -213,6 +213,7 @@ def setup_handlers(web_app, vdk_config: VdkJupyterConfig):
         if args is None:
             args = {}
         job_handlers = [(job_route_pattern, handler, args)]
+        log.info(f"Job handlers: {job_handlers}")
         web_app.add_handlers(host_pattern, job_handlers)
 
     add_handler(OAuth2Handler, "login", {"vdk_config": vdk_config})

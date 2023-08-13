@@ -22,6 +22,8 @@ log = logging.getLogger(__name__)
 
 class OAuth2Handler(APIHandler):
     def initialize(self, vdk_config: VdkJupyterConfig):
+        log.info(f"VDK config: {vdk_config.__dict__}")
+
         self._authorization_url = vdk_config.oauth2_authorization_url
         self._access_token_url = vdk_config.oauth2_token_url
         self._client_id = vdk_config.oauth2_client_id
