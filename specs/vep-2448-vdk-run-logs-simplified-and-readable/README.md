@@ -261,7 +261,7 @@ can't recover from should be added to the context and re-thrown.
 between users and support teams.
 
 The current error handling mechanism has encouraged some bad practices, such as
-making the caller add irrelevant information, e.g. 
+making the caller add irrelevant information, e.g.
 
 ```
 "WHAT HAPPENED: An error occurred",
