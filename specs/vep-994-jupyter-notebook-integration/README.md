@@ -249,7 +249,7 @@ Access token would be generated using one of 2 approaches depending on how Jupyt
 * Standalone JupyterLab (catered for individual users in their local environments):
    * Login:
        Initiates the [OAuth2 Authorization Flow](https://tools.ietf.org/html/rfc6749#section-4.1) upon selecting "Login" from the VDK dropdown with callback to the server
-       The server would finish the authorization flow leveraging [tornado Oauth2Mixin](https://www.tornadoweb.org/en/stable/auth.html)
+       The server would finish the authorization flow leveraging [vdk-control-api-auth](https://pypi.org/project/vdk-control-api-auth/)
        Access token, once received, is securely stored within JupyterLab backend.
    * Logout: Access token data is deleted from the backend
 * JupyterHub Deployment (or any other similar multi-user, centralized deployments, with users already authenticated):

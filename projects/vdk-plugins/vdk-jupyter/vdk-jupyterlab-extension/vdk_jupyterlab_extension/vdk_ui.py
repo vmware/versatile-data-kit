@@ -5,6 +5,7 @@ import os
 import pathlib
 import shlex
 import subprocess
+import time
 from pathlib import Path
 
 from vdk.internal.control.command_groups.job.create import JobCreate
@@ -13,6 +14,7 @@ from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
+from vdk.plugin.control_api_auth.base_auth import BaseAuth
 from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
 from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
 
@@ -247,3 +249,10 @@ class VdkUI:
         }
         processor.cleanup()
         return message
+
+    @staticmethod
+    def update_access_token(access_token: str):
+        if access_token:
+            auth = BaseAuth()
+            auth.update_access_token(access_token)
+            auth.update_access_token_expiration_time(time.time() + 3600)

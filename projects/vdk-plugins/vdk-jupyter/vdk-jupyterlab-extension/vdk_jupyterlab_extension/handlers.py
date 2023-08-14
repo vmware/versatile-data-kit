@@ -200,6 +200,31 @@ class GetServerPathHandler(APIHandler):
         self.finish(json.dumps(os.getcwd()))
 
 
+class GetAccessTokenLocation(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        location = os.environ.get(
+            "ACCESS_TOKEN_WEB_LOCATION",
+            json.dumps(
+                {
+                    "storageType": "localStorage",
+                    "key": "instaml-session-stg",
+                    "valuePath": "token.access_token",
+                }
+            ),
+        )
+
+        self.finish(location)
+
+
+class UpdateAccessToken(APIHandler):
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        VdkUI.update_access_token(input_data.token)
+        self.finish()
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
@@ -221,3 +246,5 @@ def setup_handlers(web_app):
     add_handler(GetNotebookInfoHandler, "notebook")
     add_handler(GetVdkCellIndicesHandler, "vdkCellIndices")
     add_handler(GetServerPathHandler, "serverPath")
+    add_handler(GetAccessTokenLocation, "vdkAccessTokenLocation")
+    add_handler(UpdateAccessToken, "vdkAccessToken")
