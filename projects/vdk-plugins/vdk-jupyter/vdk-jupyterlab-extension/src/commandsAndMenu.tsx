@@ -1,5 +1,4 @@
 import { CommandRegistry } from '@lumino/commands';
-import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { showRunJobDialog } from './components/RunJob';
 import { jobData, setJobDataToDefault } from './jobData';
 import { showCreateDeploymentDialog } from './components/DeployJob';
@@ -13,8 +12,8 @@ import { IDocumentManager } from '@jupyterlab/docmanager';
 import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { StatusButton } from './components/StatusButton';
-import React from 'react';
-import { closeIcon } from '@jupyterlab/ui-components';
+import {  ERROR_LABEL  } from './utils';
+import { showErrorDialog } from './components/props';
 
 export var runningVdkOperation = '';
 
@@ -122,35 +121,21 @@ function add_command(
           setJobDataToDefault();
           runningVdkOperation = '';
         } else {
-          await showDialog({
-            title: 'Error',
-            body: (
-              <div className="vdk-error-dialog">
-                <closeIcon.react className="vdk-dialog-error-icon" />
-                <div>
-                  <p>Another VDK operation is currently running!</p>
-                  <p>Please wait until the operation ends!</p>
-                </div>
-              </div>
-            ),
-            buttons: [Dialog.okButton({ label: 'OK' })]
+          await showErrorDialog({
+            title: ERROR_LABEL,
+            messages: [
+              'Another VDK operation is currently running!',
+              'Please wait until the operation ends!'
+            ]
           });
         }
       } catch (error) {
-        await showDialog({
-          title: 'Error',
-          body: (
-            <div className="vdk-error-dialog">
-              <closeIcon.react className="vdk-dialog-error-icon" color="red" />
-              <div>
-                <p>
-                  Encountered an error when trying to open the dialog. Error:
-                </p>
-                <p>{error}</p>
-              </div>
-            </div>
-          ),
-          buttons: [Dialog.okButton({ label: 'OK'})]
+        await showErrorDialog({
+          title: ERROR_LABEL,
+          messages: [
+            'Encountered an error when trying to open the dialog. Error:'
+          ],
+          error: error
         });
       }
     }

@@ -4,10 +4,9 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
-import { IJobFullProps } from './props';
+import { IJobFullProps, showErrorDialog } from './props';
 import { CREATE_DEP_BUTTON_LABEL } from '../utils';
 import { StatusButton } from './StatusButton';
-import { closeIcon } from '@jupyterlab/ui-components';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
@@ -85,38 +84,18 @@ export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
             await jobRequest('deploy');
           }
         } else {
-          await showDialog({
+          await showErrorDialog({
             title: CREATE_DEP_BUTTON_LABEL,
-            body: (
-              <div className="vdk-error-dialog">
-                <div className="vdk-dialog-error-icon">
-                  <closeIcon.react className="vdk-error-icon" />
-                </div>
-                <div>
-                  <p>Encountered an error while running the job!</p>
-                  <p>{message}</p>
-                </div>
-              </div>
-            ),
-            buttons: [Dialog.okButton({ label: 'OK' })]
+            messages: ['Encountered an error while running the job!'],
+            error: message
           });
         }
       }
     } catch (error) {
-      await showDialog({
+      await showErrorDialog({
         title: CREATE_DEP_BUTTON_LABEL,
-        body: (
-          <div className="vdk-error-dialog">
-            <div className="vdk-dialog-error-icon">
-              <closeIcon.react className="vdk-error-icon" />
-            </div>
-            <div>
-              <p>Encountered an error when deploying the job. Error:</p>
-              <p>{error}</p>
-            </div>
-          </div>
-        ),
-        buttons: [Dialog.okButton({ label: 'OK' })]
+        messages: ['Encountered an error when deploying the job. Error:'],
+        error: error
       });
     }
   }
