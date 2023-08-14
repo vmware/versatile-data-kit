@@ -5,6 +5,9 @@
 
 package com.vmware.taurus.authorization.webhook;
 
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.authorization.provider.AuthorizationProvider;
+import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.exception.AuthorizationError;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.service.webhook.WebHookResult;
@@ -17,8 +20,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,13 +37,24 @@ import java.io.UnsupportedEncodingException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+        classes = ControlplaneApplication.class)
+@ActiveProfiles({"MockKubernetes", "MockKerberos", "unittest", "MockGit", "MockTelemetry"})
 public class AuthorizationWebHookProviderTest {
 
-  @Mock private RestTemplate restTemplate;
+  @MockBean
+  private RestTemplate restTemplate;
 
-  @InjectMocks
-  private AuthorizationWebHookProvider webhookProvider = new AuthorizationWebHookProvider("", 1);
+  @MockBean
+  private FeatureFlags featureFlags;
+
+  @MockBean
+  private AuthorizationProvider authorizationProvider;
+
+  @Autowired
+  private AuthorizationWebHookProvider webhookProvider;
 
   private AuthorizationBody authzBody;
 
@@ -49,6 +70,7 @@ public class AuthorizationWebHookProviderTest {
 
   @BeforeEach
   public void setUp() {
+    ReflectionTestUtils.setField(webhookProvider, "webHookEndpoint", "http://localhost:4444");
     authzBody = new AuthorizationBody();
     authzBody.setRequestedHttpPath("/data-jobs");
     authzBody.setRequestedHttpVerb("POST");
@@ -62,7 +84,6 @@ public class AuthorizationWebHookProviderTest {
 
   @Test
   public void testUnauthorizedStatus() throws UnsupportedEncodingException {
-    ReflectionTestUtils.setField(webhookProvider, "webHookEndpoint", "http://localhost:4444");
     ResponseEntity re =
         new ResponseEntity<>(
             "Authorization response: User does not have team", null, HttpStatus.UNAUTHORIZED);
@@ -83,7 +104,6 @@ public class AuthorizationWebHookProviderTest {
 
   @Test
   public void testWebhookAuthorizationSuccess() {
-    ReflectionTestUtils.setField(webhookProvider, "webHookEndpoint", "http://localhost:4444");
     ResponseEntity re = new ResponseEntity<>("User authorized", null, HttpStatus.OK);
     Mockito.when(
             restTemplate.exchange(
@@ -101,21 +121,13 @@ public class AuthorizationWebHookProviderTest {
 
   @Test
   public void testRestClientResponseExceptionHandling() {
-    ReflectionTestUtils.setField(webhookProvider, "webHookEndpoint", "http://localhost:4444");
     Mockito.when(
             restTemplate.exchange(
                 Mockito.anyString(),
                 Mockito.any(HttpMethod.class),
                 Mockito.any(),
                 Mockito.<Class<String>>any()))
-        .thenThrow(
-            new RestClientResponseException(
-                "Server down",
-                HttpStatus.UNAUTHORIZED.value(),
-                anyString(),
-                Mockito.any(HttpHeaders.class),
-                any(),
-                any()));
+        .thenThrow(HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, "", null, null, null));
 
     WebHookResult decision = webhookProvider.invokeWebHook(authzBody).get();
     Assertions.assertEquals("", decision.getMessage());
@@ -125,7 +137,6 @@ public class AuthorizationWebHookProviderTest {
 
   @Test
   public void testInformationalStatusCode() {
-    ReflectionTestUtils.setField(webhookProvider, "webHookEndpoint", "http://localhost:4444");
     ResponseEntity re = new ResponseEntity<>("User authorized", null, HttpStatus.CONTINUE);
     Mockito.when(
             restTemplate.exchange(
@@ -141,7 +152,6 @@ public class AuthorizationWebHookProviderTest {
 
   @Test
   public void testRedirectionStatusCode() {
-    ReflectionTestUtils.setField(webhookProvider, "webHookEndpoint", "http://localhost:4444");
     ResponseEntity re = new ResponseEntity<>("User authorized", null, HttpStatus.MOVED_PERMANENTLY);
     Mockito.when(
             restTemplate.exchange(
@@ -157,7 +167,6 @@ public class AuthorizationWebHookProviderTest {
 
   @Test
   public void testServiceUnavailable() {
-    ReflectionTestUtils.setField(webhookProvider, "webHookEndpoint", "http://localhost:4444");
     ResponseEntity re =
         new ResponseEntity<>("Service unavailable", null, HttpStatus.SERVICE_UNAVAILABLE);
     Mockito.when(
@@ -183,7 +192,6 @@ public class AuthorizationWebHookProviderTest {
   @Test
   public void testExchangeCalledWithValid() {
     // TODO: probably we should add that argument validation test logic to other tests
-    ReflectionTestUtils.setField(webhookProvider, "webHookEndpoint", "http://localhost:4444");
 
     ResponseEntity re = new ResponseEntity<>("User authorized", null, HttpStatus.OK);
 

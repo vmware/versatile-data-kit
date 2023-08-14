@@ -6,11 +6,19 @@
 package com.vmware.taurus.datajobs.webhook;
 
 import lombok.Getter;
-import org.mockito.InjectMocks;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
+@TestPropertySource(
+        properties = {
+                "datajobs.post.delete.webhook.endpoint=http://localhost:4444",
+                "datajobs.post.delete.webhook.internal.errors.retries=0",
+                "datajobs.post.delete.webhook.authentication.enabled=false"
+        })
 @Getter
 /** See {@link BaseWebHookProviderTest} for the details of the tests. */
 public class PostDeleteWebHookProviderTest extends BaseWebHookProviderTest {
-  @InjectMocks
-  private PostDeleteWebHookProvider webHookProvider = new PostDeleteWebHookProvider("", -1);
+
+  @Autowired
+  private PostDeleteWebHookProvider webHookProvider;
 }

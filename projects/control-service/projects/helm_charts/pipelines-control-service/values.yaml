@@ -392,9 +392,11 @@ webHooks:
    postCreate:
       webhookUri: ""
       internalErrorsRetries: 3
+      authenticationEnabled: false
    postDelete:
       webhookUri: ""
       internalErrorsRetries: 3
+      authenticationEnabled: false
 
 ### Security configuration
 
