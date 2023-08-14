@@ -45,10 +45,7 @@ class VdkUI:
         :param arguments: the additional variables for the job run
         :return: response with status code.
         """
-        if not os.path.exists(path):
-            path = os.getcwd() + path
-            if not os.path.exists(path):
-                return {"message": f"Incorrect path! {path} does not exist!"}
+        path = expand_path(path)
         script_files = [
             x
             for x in Path(path).iterdir()
@@ -61,7 +58,7 @@ class VdkUI:
         if len(script_files) == 0:
             return {"message": f"No steps were found in {path}!"}
         with open("vdk_logs.txt", "w+") as log_file:
-            path = shlex.quote(path)
+            path = shlex.quote(str(path))
             cmd: list[str] = ["vdk", "run", f"{path}"]
             if arguments:
                 arguments = shlex.quote(arguments)
@@ -114,7 +111,7 @@ class VdkUI:
         :return: message that the job is downloaded
         """
         cmd = JobDownloadSource(RestApiUrlConfiguration.get_rest_api_url())
-        cmd.download(team, name, path)
+        cmd.download(team, name, expand_path(path))
         return f"Downloaded the job with name {name} to {path}. "
 
     @staticmethod
@@ -131,6 +128,8 @@ class VdkUI:
         cmd = JobCreate(RestApiUrlConfiguration.get_rest_api_url())
         if cloud:
             cli_utils.check_rest_api_url(RestApiUrlConfiguration.get_rest_api_url())
+
+        path = expand_path(path)
 
         if local:
             cmd.validate_job_path(path, name)
@@ -158,7 +157,7 @@ class VdkUI:
         cmd.create(
             name=name,
             team=team,
-            job_path=path,
+            job_path=expand_path(path),
             reason=reason,
             vdk_version=None,
             enabled=True,
@@ -226,7 +225,7 @@ class VdkUI:
         :param job_dir: Path to the directory of the job to be transformed.
         :return: The processed code structure.
         """
-        job_dir = Path(job_dir)
+        job_dir = Path(expand_path(job_dir))
         archiver = DirectoryArchiver(job_dir)
         processor = ConvertJobDirectoryProcessor(job_dir)
         archiver.archive_folder()
@@ -237,3 +236,16 @@ class VdkUI:
         }
         processor.cleanup()
         return message
+
+
+def expand_path(path: str):
+    """
+    Expands the path parameter to be rooted at the file system location where Jupyter was initially ran.
+    It also does this in a way where it does not matter whether the user inputs an initial forward slash or not.
+
+    :param path: path parameter provided by the user
+    :return: expanded path
+    """
+    return pathlib.Path(
+        os.getcwd() + "/" + (path[1:] if path.startswith("/") else path)
+    )
