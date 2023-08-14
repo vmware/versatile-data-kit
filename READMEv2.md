@@ -138,7 +138,7 @@ vdk --help</code></pre>
         </ul>
         <hr>
         <p><b>Get started with transforming data:</b></p>
-        <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Data-Modeling:-Treating-Data-as-a-Product">Data Modeling: Treating Data as a Product</a> </span><br>
+        <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Data-Modeling-Guide:-Treating-Data-as-a-Product">Data Modeling: Treating Data as a Product</a> </span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Processing-data-using-SQL-and-local-database">Processing data using SQL and local database</a></span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples">Processing data using Kimball warehousing templates</a></span><br>
     </td>
