@@ -10,6 +10,7 @@
 
 .common-setup-vdk-jupyterlab-extension:
   image: "python:3.8-alpine"
+  stage: build
   before_script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - pip install -U pip setuptools pre-commit
@@ -20,10 +21,13 @@
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
         - "projects/vdk-plugins/vdk-jupyter/**/*"
+  artifacts:
+    when: always
+    reports:
+      junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/*.xml"
 
 
 build-vdk-jupyterlab-extension:
-  stage: build
   extends: .common-setup-vdk-jupyterlab-extension
   script:
     - echo "Install Dependencies..."
@@ -36,31 +40,22 @@ build-vdk-jupyterlab-extension:
 
 server-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
-  stage: test
   script:
     - echo "Running Server tests..."
     - pip install -e ".[test]"
     - pytest -vv -r ap --cov vdk-jupyterlab-extension --junit-xml=server_tests_results.xml
-  artifacts:
-    when: always
-    reports:
-      junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/server_tests_results.xml"
+
 
 frontend-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
-  stage: test
   script:
     - echo "Running Frontend tests..."
     - jlpm
     - jlpm test
-  artifacts:
-    when: always
-    reports:
-      junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/frontend_tests_results.xml"
+
 
 integration-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
-  stage: test
   script:
     - echo "Running Integration tests..."
     - jlpm install
@@ -69,10 +64,6 @@ integration-tests-vdk-jupyterlab-extension:
     - jlpm install
     - jlpm playwright install
     - jlpm playwright test
-  artifacts:
-    when: always
-    reports:
-      junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/integration_tests_results.xml"
 
 
 release-vdk-jupyter:
