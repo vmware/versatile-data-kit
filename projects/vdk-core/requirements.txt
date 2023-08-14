@@ -20,4 +20,3 @@ pytest-randomly
 pytest-sugar
 reorder-python-imports
 smtpdfix
-vdk-sqlite
