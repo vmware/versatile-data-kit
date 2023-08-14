@@ -33,20 +33,13 @@ public class AuthorizationWebHookProvider extends WebHookService<AuthorizationBo
 
   public AuthorizationWebHookProvider(
       @Value("${datajobs.authorization.webhook.endpoint}") String webHookEndpoint,
-      @Value("${datajobs.authorization.webhook.internal.errors.retries:1}") int retriesOn5xxErrors,
-      @Value("${datajobs.authorization.webhook.authentication.enabled:false}")
-          boolean authenticationEnabled,
+      @Value("${datajobs.authorization.webhook.internal.errors.retries:1}")
+          int retriesOn5xxErrors,
+      @Value("${datajobs.authorization.webhook.authentication.enabled:false}") boolean authenticationEnabled,
       RestTemplate restTemplate,
       FeatureFlags featureFlags,
       AuthorizationProvider authorizationProvider) {
-    super(
-        webHookEndpoint,
-        retriesOn5xxErrors,
-        authenticationEnabled,
-        log,
-        restTemplate,
-        featureFlags,
-        authorizationProvider);
+    super(webHookEndpoint, retriesOn5xxErrors, authenticationEnabled, log, restTemplate, featureFlags, authorizationProvider);
   }
 
   @Override

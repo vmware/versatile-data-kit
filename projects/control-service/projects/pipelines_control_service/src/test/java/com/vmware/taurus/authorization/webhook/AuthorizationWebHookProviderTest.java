@@ -16,34 +16,45 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-    classes = ControlplaneApplication.class)
+        webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+        classes = ControlplaneApplication.class)
 @ActiveProfiles({"MockKubernetes", "MockKerberos", "unittest", "MockGit", "MockTelemetry"})
 public class AuthorizationWebHookProviderTest {
 
-  @MockBean private RestTemplate restTemplate;
+  @MockBean
+  private RestTemplate restTemplate;
 
-  @MockBean private FeatureFlags featureFlags;
+  @MockBean
+  private FeatureFlags featureFlags;
 
-  @MockBean private AuthorizationProvider authorizationProvider;
+  @MockBean
+  private AuthorizationProvider authorizationProvider;
 
-  @Autowired private AuthorizationWebHookProvider webhookProvider;
+  @Autowired
+  private AuthorizationWebHookProvider webhookProvider;
 
   private AuthorizationBody authzBody;
 

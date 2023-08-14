@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
 @TestPropertySource(
-    properties = {
-      "datajobs.post.delete.webhook.endpoint=http://localhost:4444",
-      "datajobs.post.delete.webhook.internal.errors.retries=0",
-      "datajobs.post.delete.webhook.authentication.enabled=false"
-    })
+        properties = {
+                "datajobs.post.delete.webhook.endpoint=http://localhost:4444",
+                "datajobs.post.delete.webhook.internal.errors.retries=0",
+                "datajobs.post.delete.webhook.authentication.enabled=false"
+        })
 @Getter
 /** See {@link BaseWebHookProviderTest} for the details of the tests. */
 public class PostDeleteWebHookProviderTest extends BaseWebHookProviderTest {
 
-  @Autowired private PostDeleteWebHookProvider webHookProvider;
+  @Autowired
+  private PostDeleteWebHookProvider webHookProvider;
 }
