@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.upload;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +41,9 @@ public class JobUploadFilterListValidator extends AbstractJobFileValidator {
   }
 
   @Override
-  boolean matchTypes(String detectedType, String targetType) {
-    return detectedType.endsWith(targetType);
+  boolean matchTypes(String detectedType) {
+    return Arrays.stream(getValidationTypes())
+        .anyMatch(validationType -> detectedType.endsWith(validationType));
   }
 
   @Override
@@ -51,5 +53,4 @@ public class JobUploadFilterListValidator extends AbstractJobFileValidator {
         jobName);
     filePath.toFile().delete();
   }
-
 }

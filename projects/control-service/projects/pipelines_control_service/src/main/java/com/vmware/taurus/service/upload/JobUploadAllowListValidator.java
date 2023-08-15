@@ -50,8 +50,9 @@ class JobUploadAllowListValidator extends AbstractJobFileValidator {
    * performed.
    */
   @Override
-  boolean matchTypes(String detectedType, String targetType) {
-    return !formatDetector.matchTypes(detectedType, targetType);
+  boolean matchTypes(String detectedType) {
+    return Arrays.stream(getValidationTypes())
+        .noneMatch(validationType -> formatDetector.matchTypes(detectedType, validationType));
   }
 
   @Override

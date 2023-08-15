@@ -9,9 +9,7 @@ import com.vmware.taurus.exception.ExternalSystemError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
 
 @Slf4j
 public abstract class AbstractJobFileValidator {
@@ -25,9 +23,9 @@ public abstract class AbstractJobFileValidator {
   abstract String[] getValidationTypes();
 
   /**
-   * Performs an operation on user uploaded files which returns a formatted string which is used to
-   * check if any match against the validation types. E.g. returns the apache tika file type, or
-   * file ending etc.
+   * Performs an operation on user uploaded files which returns a formatted string used to check if
+   * any match against the validation types. E.g. returns the apache tika file type, or file ending
+   * etc.
    *
    * @param filePath
    * @return
@@ -36,14 +34,13 @@ public abstract class AbstractJobFileValidator {
   abstract String detectFileType(Path filePath) throws IOException;
 
   /**
-   * Checks if the detected file type matches against one of the strings present in validation
-   * types.
+   * Checks if the detected file type matches against one of the strings present in validation types
+   * according to a condition which should be defined in the overriding class.
    *
    * @param detectedType
-   * @param targetType
    * @return
    */
-  abstract boolean matchTypes(String detectedType, String targetType);
+  abstract boolean matchTypes(String detectedType);
 
   /**
    * Performs operations on already matched files, such as throwing exception, logging or deleting.
@@ -58,10 +55,10 @@ public abstract class AbstractJobFileValidator {
 
 
   /**
-   * Validate all files of a data job that are being upto standard and are not containing anything
-   * forbidden. The validation done is by detecting the file type and checking if that file type is
-   * allowed against preconfigurd list controlled by the extending class. If the allowList is empty
-   * then all files are allowed and no further processing is performed.
+   * Validate all files of a data job to be upto standard and do not contain anything forbidden. The
+   * validation done is by detecting the file type and checking if that file type is allowed against
+   * pre-configured list specified in the extending class. If the allowList is empty then all files
+   * are allowed and no further processing is performed.
    *
    * @param jobName      the name of the data job whose files are validated
    * @param jobDirectory path to the data job directory where unarchived content of the data job
@@ -98,9 +95,7 @@ public abstract class AbstractJobFileValidator {
     try {
       var fileType = detectFileType(filePath);
       log.debug("Job {}'s file {} is of type {}", jobName, filePath, pathInsideJob);
-
-      if (Arrays.stream(getValidationTypes())
-          .anyMatch(validationType -> matchTypes(fileType, validationType))) {
+      if (matchTypes(fileType)) {
         processMatchedFile(filePath, jobName, pathInsideJob.toString());
       }
     } catch (IOException e) {
