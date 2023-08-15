@@ -33,7 +33,7 @@ class AuditPlugin:
 
         def _audit(event, args):
             if any(
-                event in not_permitted_event
+                event == not_permitted_event
                 for not_permitted_event in forbidden_events_list
             ):
                 logger.warning(

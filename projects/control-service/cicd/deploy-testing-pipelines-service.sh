@@ -20,7 +20,7 @@ export VDK_OPTIONS="$SCRIPT_DIR/vdk-options.ini"
 export TPCS_CHART=${TPCS_CHART:-"$SCRIPT_DIR/../projects/helm_charts/pipelines-control-service"}
 export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
 export TESTING_PIPELINES_SERVICE_VALUES_FILE=${TESTING_PIPELINES_SERVICE_VALUES_FILE:-"$SCRIPT_DIR/testing-pipelines-service-values.yaml"}
-
+export HELM_EXTRA_ARGUMENTS=${HELM_EXTRA_ARGUMENTS:-""}
 
 RUN_ENVIRONMENT_SETUP=${RUN_ENVIRONMENT_SETUP:-'n'}
 
@@ -86,13 +86,12 @@ if [[ $helm_latest_deployment == *"pending-upgrade"* ]]; then
   exit 125
 fi
 
-
 #
 # TODO :change container images with official ones when they are being deployed (I've currently uploaded them once in ghcr.io/tozka)
 #
 # image.tag is fixed during release. It is set here to deploy using latest change in source code.
 # We are using here embedded database, and we need to set the storageclass since in our test k8s no default storage class is not set.
-helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
+helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $RELEASE_NAME . \
       -f "$TESTING_PIPELINES_SERVICE_VALUES_FILE" \
       --set image.tag="$TAG" \
       --set operationsUi.image.tag="$FRONTEND_TAG" \

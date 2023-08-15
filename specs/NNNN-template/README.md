@@ -1,7 +1,7 @@
 
 # VEP-NNNN: Your short, descriptive title
 
-* **Author(s):** Name (mail), ...
+* **Author(s):** Name (mail), ... <!-- main contributors to the proposal (not just writers) and expected points of contact for questions -->
 * **Status:** draft | implementable | implemented | rejected | withdrawn | replaced
 
 

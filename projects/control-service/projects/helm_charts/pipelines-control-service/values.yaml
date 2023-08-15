@@ -29,6 +29,7 @@ image:
 # All config related to the operations ui lives under this tag.
 # examples of what can be configured are, what docker image to pull, how many replicas of the service to run and how many resources to give to each replica
 operationsUi:
+  enabled: true
   image:
     registry: registry.hub.docker.com/versatiledatakit
     repository: vdk-operations-ui

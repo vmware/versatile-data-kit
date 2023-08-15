@@ -284,7 +284,7 @@ control_service_publish_api_client:
 # (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
 # The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
 # Go to the namespace -> StorageClass
-control_service_deploy_testing_data_pipelines:
+.control_service_deploy_testing_data_pipelines:
   stage: pre_release
   image: docker:23.0.1
   script:
@@ -298,6 +298,9 @@ control_service_deploy_testing_data_pipelines:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
   retry: !reference [.control_service_retry, retry_options]
+
+control_service_deploy_testing_data_pipelines:
+  extends: .control_service_deploy_testing_data_pipelines
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
@@ -305,6 +308,19 @@ control_service_deploy_testing_data_pipelines:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *control_service_code_change_locations
     - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *control_service_helm_change_locations
+
+control_service_helm_chart_dry_run:
+  extends: .control_service_deploy_testing_data_pipelines
+  before_script:
+    - export HELM_EXTRA_ARGUMENTS="--dry-run"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *control_service_code_change_locations
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *control_service_helm_change_locations
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
