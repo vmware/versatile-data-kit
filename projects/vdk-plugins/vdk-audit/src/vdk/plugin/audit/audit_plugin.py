@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class AuditPlugin:
     @staticmethod
-    @hookimpl
+    @hookimpl(tryfirst=True)
     def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         add_definitions(config_builder)
 
