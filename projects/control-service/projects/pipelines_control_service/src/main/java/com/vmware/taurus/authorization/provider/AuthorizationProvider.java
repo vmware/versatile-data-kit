@@ -93,7 +93,8 @@ public class AuthorizationProvider {
 
     if (authentication instanceof JwtAuthenticationToken) {
       JwtAuthenticationToken oauthToken = (JwtAuthenticationToken) authentication;
-      accessToken = Optional.ofNullable(oauthToken.getToken())
+      accessToken =
+          Optional.ofNullable(oauthToken.getToken())
               .map(AbstractOAuth2Token::getTokenValue)
               .orElse(null);
     }
