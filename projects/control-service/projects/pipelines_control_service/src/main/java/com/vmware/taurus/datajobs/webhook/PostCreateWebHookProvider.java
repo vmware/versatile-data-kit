@@ -28,10 +28,18 @@ public class PostCreateWebHookProvider extends WebHookService<WebHookRequestBody
   public PostCreateWebHookProvider(
       @Value("${datajobs.post.create.webhook.endpoint}") String webHookEndpoint,
       @Value("${datajobs.post.create.webhook.internal.errors.retries:-1}") int retriesOn5xxErrors,
-      @Value("${datajobs.post.create.webhook.authentication.enabled:false}") boolean authenticationEnabled,
+      @Value("${datajobs.post.create.webhook.authentication.enabled:false}")
+          boolean authenticationEnabled,
       RestTemplate restTemplate,
       FeatureFlags featureFlags,
       AuthorizationProvider authorizationProvider) {
-    super(webHookEndpoint, retriesOn5xxErrors, authenticationEnabled, log, restTemplate, featureFlags, authorizationProvider);
+    super(
+        webHookEndpoint,
+        retriesOn5xxErrors,
+        authenticationEnabled,
+        log,
+        restTemplate,
+        featureFlags,
+        authorizationProvider);
   }
 }

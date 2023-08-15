@@ -33,12 +33,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-        classes = ControlplaneApplication.class)
-@TestPropertySource(
-        properties = {
-                "featureflag.security.enabled=false"
-        })
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    classes = ControlplaneApplication.class)
+@TestPropertySource(properties = {"featureflag.security.enabled=false"})
 public abstract class BaseWebHookProviderTest {
 
   private static final int ONE_RETRY = 1;
@@ -47,14 +44,11 @@ public abstract class BaseWebHookProviderTest {
 
   WebHookRequestBody requestBody;
 
-  @MockBean
-  private RestTemplate restTemplate;
+  @MockBean private RestTemplate restTemplate;
 
-  @MockBean
-  private FeatureFlags featureFlags;
+  @MockBean private FeatureFlags featureFlags;
 
-  @MockBean
-  private AuthorizationProvider authorizationProvider;
+  @MockBean private AuthorizationProvider authorizationProvider;
 
   abstract WebHookService<WebHookRequestBody> getWebHookProvider();
 
@@ -77,12 +71,11 @@ public abstract class BaseWebHookProviderTest {
             "Bad request: The post create action needs more parameters",
             null,
             HttpStatus.BAD_REQUEST);
-    when(
-            restTemplate.exchange(
-                Mockito.anyString(),
-                Mockito.any(HttpMethod.class),
-                Mockito.any(),
-                Mockito.<Class<String>>any()))
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
         .thenReturn(re);
 
     WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
@@ -95,12 +88,11 @@ public abstract class BaseWebHookProviderTest {
   @Test
   public void testWebHookSuccess() {
     ResponseEntity re = new ResponseEntity<>("Good request", null, HttpStatus.ACCEPTED);
-    when(
-            restTemplate.exchange(
-                Mockito.anyString(),
-                Mockito.any(HttpMethod.class),
-                Mockito.any(),
-                Mockito.<Class<String>>any()))
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
         .thenReturn(re);
 
     WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
@@ -111,14 +103,12 @@ public abstract class BaseWebHookProviderTest {
 
   @Test
   public void testRestClientResponseExceptionHandling() {
-    when(
-            restTemplate.exchange(
-                Mockito.anyString(),
-                Mockito.any(HttpMethod.class),
-                Mockito.any(),
-                Mockito.<Class<String>>any()))
-        .thenThrow(
-            HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "", null, null, null));
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
+        .thenThrow(HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "", null, null, null));
 
     WebHookResult webHookResult = getWebHookProvider().invokeWebHook(requestBody).get();
     Assertions.assertEquals("", webHookResult.getMessage());
@@ -129,12 +119,11 @@ public abstract class BaseWebHookProviderTest {
   @Test
   public void testInformationalStatusCode() {
     ResponseEntity re = new ResponseEntity<>("User authorized", null, HttpStatus.CONTINUE);
-    when(
-            restTemplate.exchange(
-                Mockito.anyString(),
-                Mockito.any(HttpMethod.class),
-                Mockito.any(),
-                Mockito.<Class<String>>any()))
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
         .thenReturn(re);
 
     Assertions.assertThrows(
@@ -144,12 +133,11 @@ public abstract class BaseWebHookProviderTest {
   @Test
   public void testRedirectionStatusCode() {
     ResponseEntity re = new ResponseEntity<>("User authorized", null, HttpStatus.MOVED_PERMANENTLY);
-    when(
-            restTemplate.exchange(
-                Mockito.anyString(),
-                Mockito.any(HttpMethod.class),
-                Mockito.any(),
-                Mockito.<Class<String>>any()))
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
         .thenReturn(re);
 
     Assertions.assertThrows(
@@ -161,12 +149,11 @@ public abstract class BaseWebHookProviderTest {
     ReflectionTestUtils.setField(getWebHookProvider(), "retriesOn5xxErrors", ONE_RETRY);
     ResponseEntity re =
         new ResponseEntity<>("Service unavailable", null, HttpStatus.SERVICE_UNAVAILABLE);
-    when(
-            restTemplate.exchange(
-                Mockito.anyString(),
-                Mockito.any(HttpMethod.class),
-                Mockito.any(),
-                Mockito.<Class<String>>any()))
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
         .thenReturn(re);
 
     Assertions.assertThrows(
@@ -183,12 +170,11 @@ public abstract class BaseWebHookProviderTest {
   public void testInternalErrorDefaultNoRetry() {
     ResponseEntity re =
         new ResponseEntity<>("Internal Server error", null, HttpStatus.INTERNAL_SERVER_ERROR);
-    when(
-            restTemplate.exchange(
-                Mockito.anyString(),
-                Mockito.any(HttpMethod.class),
-                Mockito.any(),
-                Mockito.<Class<String>>any()))
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
         .thenReturn(re);
 
     Assertions.assertThrows(
@@ -217,34 +203,33 @@ public abstract class BaseWebHookProviderTest {
     when(authorizationProvider.getAccessToken()).thenReturn(expectedAccessToken);
 
     ResponseEntity re = new ResponseEntity<>("Good request", null, HttpStatus.ACCEPTED);
-    when(
-            restTemplate.exchange(
-                    Mockito.anyString(),
-                    Mockito.any(HttpMethod.class),
-                    Mockito.any(),
-                    Mockito.<Class<String>>any()))
-            .thenReturn(re);
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
+        .thenReturn(re);
 
     getWebHookProvider().invokeWebHook(requestBody);
 
     ArgumentCaptor<HttpEntity> httpEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     Mockito.verify(restTemplate, Mockito.times(SINGLE_INVOCATION_COUNT))
-            .exchange(
-                    Mockito.anyString(),
-                    Mockito.any(HttpMethod.class),
-                    httpEntityCaptor.capture(),
-                    Mockito.<Class<String>>any());
+        .exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            httpEntityCaptor.capture(),
+            Mockito.<Class<String>>any());
 
-    List<String> authorizationHttpHeader = httpEntityCaptor.getValue()
-            .getHeaders()
-            .get(HttpHeaders.AUTHORIZATION);
+    List<String> authorizationHttpHeader =
+        httpEntityCaptor.getValue().getHeaders().get(HttpHeaders.AUTHORIZATION);
     Assertions.assertNotNull(authorizationHttpHeader);
     Assertions.assertEquals(1, authorizationHttpHeader.size());
     Assertions.assertEquals("Bearer " + expectedAccessToken, authorizationHttpHeader.get(0));
   }
 
   @Test
-  public void testInvokeWebHook_withAuthenticationDisabled_shouldNotContainAuthorizationHttpHeader() {
+  public void
+      testInvokeWebHook_withAuthenticationDisabled_shouldNotContainAuthorizationHttpHeader() {
     String expectedAccessToken = "testAccessToken";
 
     ReflectionTestUtils.setField(getWebHookProvider(), "authenticationEnabled", false);
@@ -252,27 +237,25 @@ public abstract class BaseWebHookProviderTest {
     when(authorizationProvider.getAccessToken()).thenReturn(expectedAccessToken);
 
     ResponseEntity re = new ResponseEntity<>("Good request", null, HttpStatus.ACCEPTED);
-    when(
-            restTemplate.exchange(
-                    Mockito.anyString(),
-                    Mockito.any(HttpMethod.class),
-                    Mockito.any(),
-                    Mockito.<Class<String>>any()))
-            .thenReturn(re);
+    when(restTemplate.exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            Mockito.any(),
+            Mockito.<Class<String>>any()))
+        .thenReturn(re);
 
     getWebHookProvider().invokeWebHook(requestBody);
 
     ArgumentCaptor<HttpEntity> httpEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     Mockito.verify(restTemplate, Mockito.times(SINGLE_INVOCATION_COUNT))
-            .exchange(
-                    Mockito.anyString(),
-                    Mockito.any(HttpMethod.class),
-                    httpEntityCaptor.capture(),
-                    Mockito.<Class<String>>any());
+        .exchange(
+            Mockito.anyString(),
+            Mockito.any(HttpMethod.class),
+            httpEntityCaptor.capture(),
+            Mockito.<Class<String>>any());
 
-    List<String> authorizationHttpHeader = httpEntityCaptor.getValue()
-            .getHeaders()
-            .get(HttpHeaders.AUTHORIZATION);
+    List<String> authorizationHttpHeader =
+        httpEntityCaptor.getValue().getHeaders().get(HttpHeaders.AUTHORIZATION);
     Assertions.assertNull(authorizationHttpHeader);
   }
 }
