@@ -53,16 +53,15 @@ public abstract class AbstractJobFileValidator {
   abstract void processMatchedFile(Path filePath, String jobName, String pathInsideJob)
       throws IOException;
 
-
   /**
    * Validate all files of a data job to be upto standard and do not contain anything forbidden. The
    * validation done is by detecting the file type and checking if that file type is allowed against
    * pre-configured list specified in the extending class. If the allowList is empty then all files
    * are allowed and no further processing is performed.
    *
-   * @param jobName      the name of the data job whose files are validated
+   * @param jobName the name of the data job whose files are validated
    * @param jobDirectory path to the data job directory where unarchived content of the data job
-   *                     being uploaded can be seen.
+   *     being uploaded can be seen.
    * @throws InvalidJobUpload
    */
   public void validateJob(String jobName, Path jobDirectory) {
@@ -79,7 +78,8 @@ public abstract class AbstractJobFileValidator {
   void validateAllowedFiles(String jobName, Path jobDirectory) throws IOException {
     if (getValidationTypes().length == 0) {
       log.debug(
-          "List of validation files is empty. That means all files are allowed. No checks are done.");
+          "List of validation files is empty. That means all files are allowed. No checks are"
+              + " done.");
       return;
     }
     Files.walk(jobDirectory)

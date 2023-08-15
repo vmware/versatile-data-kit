@@ -31,7 +31,8 @@ public class JobFileFilterTest {
   @Test
   void testDeletePycFileBeforeUpload() throws IOException {
     var jobDirectoryFiles =
-        FileUtils.listFiles(getTestJob().toFile(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+        FileUtils.listFiles(
+            getTestJob().toFile(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 
     boolean pycFileExists =
         jobDirectoryFiles.stream()
@@ -42,7 +43,8 @@ public class JobFileFilterTest {
     jobUploadFilterListValidator.validateJob("test-job", getTestJob());
 
     jobDirectoryFiles =
-        FileUtils.listFiles(getTestJob().toFile(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+        FileUtils.listFiles(
+            getTestJob().toFile(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
     pycFileExists =
         jobDirectoryFiles.stream()
             .anyMatch(file -> file.toString().endsWith("10_python_step.cpython-39.pyc"));

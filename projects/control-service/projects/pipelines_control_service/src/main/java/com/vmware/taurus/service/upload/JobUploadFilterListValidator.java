@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
  * This class filters out the job directory from forbidden files so that it can be uploaded without
  * them. Forbidden files are specified in a comma separated list in apache tika format. Full list of
  * supported files can be found - https://tika.apache.org ; This operation is intended to allow the
- * upload of a data job by deleting any files specified in the: upload.validation.fileTypes.filterlist
- * property.
+ * upload of a data job by deleting any files specified in the:
+ * upload.validation.fileTypes.filterlist property.
  */
 @Service
 @Slf4j
@@ -48,7 +48,8 @@ public class JobUploadFilterListValidator extends AbstractJobFileValidator {
 
   @Override
   void processMatchedFile(Path filePath, String jobName, String pathInsideJob) {
-    log.debug("Deleting file: {}, from job: {}, before uploading to version control.",
+    log.debug(
+        "Deleting file: {}, from job: {}, before uploading to version control.",
         pathInsideJob,
         jobName);
     filePath.toFile().delete();
