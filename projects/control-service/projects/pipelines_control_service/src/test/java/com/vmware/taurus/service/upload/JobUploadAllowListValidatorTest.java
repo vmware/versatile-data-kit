@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class JobUploadValidatorTest {
+class JobUploadAllowListValidatorTest {
 
   /**
    * The testing job has the following structure: ├── config.ini ├── package │ ├── binary │ ├──
@@ -25,29 +25,29 @@ class JobUploadValidatorTest {
 
   @Test
   void test_validateJobAllowedWhenAllowListIsEmpty() throws IOException {
-    JobUploadValidator validator = new JobUploadValidator(new String[] {});
+    JobUploadAllowListValidator validator = new JobUploadAllowListValidator(new String[] {});
     validator.validateJob("foo", getTestJob());
   }
 
   @Test
   void test_validateJobAllowed_base_types() throws IOException {
-    JobUploadValidator validator =
-        new JobUploadValidator(new String[] {"text", "application/octet-stream"});
+    JobUploadAllowListValidator validator =
+        new JobUploadAllowListValidator(new String[] {"text", "application/octet-stream"});
     validator.validateJob("foo", getTestJob());
   }
 
   @Test
   void test_validateJobAllowed_full_types() throws IOException {
-    JobUploadValidator validator =
-        new JobUploadValidator(
+    JobUploadAllowListValidator validator =
+        new JobUploadAllowListValidator(
             new String[] {"application/octet-stream", "text/x-ini", "text/x-sql", "text/x-python"});
     validator.validateJob("foo", getTestJob());
   }
 
   @Test
   void test_validateJobAllowed_not_allowed_sql_extension() {
-    JobUploadValidator validator =
-        new JobUploadValidator(
+    JobUploadAllowListValidator validator =
+        new JobUploadAllowListValidator(
             new String[] {"application/octet-stream", "text/x-ini", "text/x-python"});
     Assertions.assertThrows(
         InvalidJobUpload.class, () -> validator.validateJob("foo", getTestJob()));
@@ -55,7 +55,7 @@ class JobUploadValidatorTest {
 
   @Test
   void test_validateFileNotAllowed_binary() {
-    JobUploadValidator validator = new JobUploadValidator(new String[] {"text"});
+    JobUploadAllowListValidator validator = new JobUploadAllowListValidator(new String[] {"text"});
     Assertions.assertThrows(
         InvalidJobUpload.class, () -> validator.validateJob("foo", getTestJob()));
   }

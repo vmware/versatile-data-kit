@@ -59,9 +59,9 @@ public class JobUploadTest {
 
   @Mock private AuthorizationProvider authorizationProvider;
 
-  @Mock private JobUploadValidator jobUploadValidator;
+  @Mock private JobUploadAllowListValidator jobUploadAllowListValidator;
 
-  @Mock private JobUploadFileFilter jobUploadFileFilter;
+  @Mock private JobUploadFilterListValidator jobUploadFilterListValidator;
 
   private JobUpload jobUpload;
 
@@ -89,8 +89,8 @@ public class JobUploadTest {
             gitWrapper,
             featureFlags,
             authorizationProvider,
-            jobUploadValidator,
-            jobUploadFileFilter);
+            jobUploadAllowListValidator,
+            jobUploadFilterListValidator);
   }
 
   @AfterEach
@@ -258,8 +258,8 @@ public class JobUploadTest {
             gitWrapper,
             featureFlags,
             authorizationProvider,
-            jobUploadValidator,
-            jobUploadFileFilter);
+            jobUploadAllowListValidator,
+            jobUploadFilterListValidator);
 
     Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
 
