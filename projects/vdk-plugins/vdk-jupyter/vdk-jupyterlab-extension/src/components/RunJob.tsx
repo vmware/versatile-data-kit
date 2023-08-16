@@ -4,11 +4,12 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { getNotebookInfo, jobRunRequest } from '../serverRequests';
-import { IJobPathProp } from './props';
+import { IJobPathProp, showErrorDialog } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 import { StatusButton } from './StatusButton';
+import { checkIcon } from '@jupyterlab/ui-components';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
@@ -90,6 +91,7 @@ export async function showRunJobDialog(
         title: RUN_JOB_BUTTON_LABEL,
         body: (
           <div className="vdk-run-dialog-message-container">
+            <checkIcon.react className="vdk-dialog-check-icon" />
             <p className="vdk-run-dialog-message">
               The job was executed successfully!
             </p>
@@ -104,18 +106,15 @@ export async function showRunJobDialog(
         !docManager ||
         !(await handleErrorsProducedByNotebookCell(errorMessage, docManager))
       ) {
-        showDialog({
+        await showErrorDialog({
           title: RUN_JOB_BUTTON_LABEL,
-          body: (
-            <div className="vdk-run-error-message ">
-              <p>{errorMessage.exception_message}</p>
-              <p>{errorMessage.what_happened}</p>
-              <p>{errorMessage.why_it_happened}</p>
-              <p>{errorMessage.consequences}</p>
-              <p>{errorMessage.countermeasures}</p>
-            </div>
-          ),
-          buttons: [Dialog.okButton()]
+          messages: [
+            errorMessage.exception_message,
+            errorMessage.what_happened,
+            errorMessage.why_it_happened,
+            errorMessage.consequences,
+            errorMessage.countermeasures
+          ]
         });
       }
     }
@@ -239,17 +238,15 @@ export const handleErrorsProducedByNotebookCell = async (
         }
       };
 
-      const result = await showDialog({
+      const result = await showErrorDialog({
         title: RUN_JOB_BUTTON_LABEL,
-        body: (
-          <div className="vdk-run-error-message ">
-            <p>{message.exception_message}</p>
-            <p>{message.what_happened}</p>
-            <p>{message.why_it_happened}</p>
-            <p>{message.consequences}</p>
-            <p>{message.countermeasures}</p>
-          </div>
-        ),
+        messages: [
+          message.exception_message,
+          message.what_happened,
+          message.why_it_happened,
+          message.consequences,
+          message.countermeasures
+        ],
         buttons: [
           Dialog.okButton({ label: 'See failing cell' }),
           Dialog.cancelButton()
