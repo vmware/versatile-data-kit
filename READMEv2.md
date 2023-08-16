@@ -109,11 +109,13 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/blob/main/examples/incremental-ingest-from-db-example/README.md">Incremental ingestion using Job Properties</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted poster="https://github.com/vmware/versatile-data-kit/assets/11227374/b8958a1b-c6ce-40ca-adb8-b5a9aadae1f0" src="https://github.com/vmware/versatile-data-kit/assets/11227374/1d909b8f-834b-40ac-95b3-043b3d28b256
-" aria-label="30 seconds video tutorial for Data Ingestion"></video>
+        <video controls loop muted poster="https://github.com/vmware/versatile-data-kit/assets/11227374/b8958a1b-c6ce-40ca-adb8-b5a9aadae1f0" src="https://github.com/vmware/versatile-data-kit/assets/11227374/b6e8896e-e828-450c-9ea3-02ed10a21299" aria-label="30 seconds video tutorial for Data Ingestion"></video>
     </td>
   </tr>
 </table>
+
+
+
 
 
 
