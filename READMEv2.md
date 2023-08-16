@@ -74,7 +74,7 @@ vdk --help</code></pre>
         <span>&#10145; Develop your <a href="https://github.com/vmware/versatile-data-kit/wiki/First-Data-Job">First Data Job</a> if you are impatient to start quickly.</span><br>
     </td>
     <td width="50%" >
-        <video controls loop autoplay muted src="https://github.com/vmware/versatile-data-kit/assets/2536458/dd019f32-209e-44fd-a7cf-26c6bd5f4d9a" aria-label="30 seconds video tutorial of getting started and quickstart-vdk installation"></video>
+        <video controls loop autoplay muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/3de70f5e-55ab-4558-8304-e3f5a744af2b" aria-label="30 seconds video tutorial of getting started and quickstart-vdk installation"></video>
     </td>
   </tr>
 </table>
@@ -109,7 +109,7 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/blob/main/examples/incremental-ingest-from-db-example/README.md">Incremental ingestion using Job Properties</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted poster="https://github.com/vmware/versatile-data-kit/assets/11227374/b8958a1b-c6ce-40ca-adb8-b5a9aadae1f0" src="https://github.com/vmware/versatile-data-kit/assets/11227374/b6e8896e-e828-450c-9ea3-02ed10a21299" aria-label="30 seconds video tutorial for Data Ingestion"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/b6e8896e-e828-450c-9ea3-02ed10a21299" aria-label="30 seconds video tutorial for Data Ingestion"></video>
     </td>
   </tr>
 </table>
