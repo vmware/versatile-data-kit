@@ -60,10 +60,8 @@ integration-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
   script:
     - echo "Running Integration tests..."
-    - jlpm install
     - jlpm build:prod
     - cd ./ui-tests
-    - jlpm install
     - jlpm playwright install
     - jlpm playwright test
   artifacts:
