@@ -174,6 +174,8 @@ spec:
               value: "{{ .Values.webHooks.postDelete.internalErrorsRetries }}"
             - name: DATAJOBS_AUTHORIZATION_JWT_CLAIM_USERNAME
               value: "{{ .Values.security.authorization.jwtClaimUsername }}"
+            - name: DATAJOBS_DEPLOYER_IMAGE_PULL_POLICY
+              value: "{{ .Values.dataJob.deployer.imagePullPolicy }}"
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
             - name: VDK_OPTIONS_INI
