@@ -42,7 +42,7 @@ public class JobImageDeployer {
   @Value("${datajobs.deployment.readOnlyRootFilesystem:}")
   private boolean readOnlyRootFilesystem;
 
-  @Value("${datajobs.deployment.imagePullPolicy:IfNotPresent}")
+  @Value("${datajobs.deployment.jobImagePullPolicy:IfNotPresent}")
   private String jobImagePullPolicy;
 
   private static final String VOLUME_NAME = "vdk";

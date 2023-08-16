@@ -1001,7 +1001,7 @@ dataJob:
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
   deployment:
-    imagePullPolicy: "IfNotPresent"
+    jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer
       resources:
