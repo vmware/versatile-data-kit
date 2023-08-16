@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
-import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
 import {
   getServerDirRequest,
   jobConvertToNotebookRequest
@@ -12,8 +12,9 @@ import { CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL } from '../utils';
 import { CommandRegistry } from '@lumino/commands';
 import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { IJobPathProp, JupyterCellProps } from './props';
+import { IJobPathProp, JupyterCellProps, showErrorDialog } from './props';
 import { StatusButton } from './StatusButton';
+import { checkIcon } from '@jupyterlab/ui-components';
 
 export var notebookContent: JupyterCellProps[];
 
@@ -92,6 +93,7 @@ export async function showConvertJobToNotebookDialog(
           title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
           body: (
             <div className="vdk-convert-to-notebook-dialog-message-container">
+              <checkIcon.react className="vdk-dialog-check-icon" />
               <p className="vdk-convert-to-notebook-dialog-message">
                 The Data Job with path <i>{jobData.get(VdkOption.PATH)}</i> was
                 converted to notebook successfully!
@@ -104,18 +106,15 @@ export async function showConvertJobToNotebookDialog(
         if (message) {
           message = 'ERROR : ' + message;
           const errorMessage = new VdkErrorMessage(message);
-          await showDialog({
+          await showErrorDialog({
             title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
-            body: (
-              <div className="vdk-convert-to-notebook-error-message ">
-                <p>{errorMessage.exception_message}</p>
-                <p>{errorMessage.what_happened}</p>
-                <p>{errorMessage.why_it_happened}</p>
-                <p>{errorMessage.consequences}</p>
-                <p>{errorMessage.countermeasures}</p>
-              </div>
-            ),
-            buttons: [Dialog.okButton()]
+            messages: [
+              errorMessage.exception_message,
+              errorMessage.what_happened,
+              errorMessage.why_it_happened,
+              errorMessage.consequences,
+              errorMessage.countermeasures
+            ]
           });
         }
       }
@@ -150,11 +149,13 @@ export const createTranformedNotebook = async (
     ); // relative path for Jupyter
     commands.execute('notebook:create-new');
   } catch (error) {
-    await showErrorMessage(
-      'Something went wrong while trying to create the new transformed notebook. Error:',
-      error,
-      [Dialog.okButton()]
-    );
+    await showErrorDialog({
+      title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,
+      messages: [
+        'Something went wrong while trying to create the new transformed notebook. Error:'
+      ],
+      error: error
+    });
   }
 };
 
