@@ -1000,10 +1000,8 @@ dataJob:
       # In case of negative number it will be subtracted from the {{end_time}}.
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
-  deployer:
-    # imagePullPolicy for data job images deployed to K8S.
-    imagePullPolicy: "IfNotPresent"
   deployment:
+    imagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer
       resources:
