@@ -79,6 +79,8 @@ vdk --help</code></pre>
   </tr>
 </table>
 
+
+
 <br/><br/>
 <p id="ingestion" align="center">
     <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
@@ -107,10 +109,12 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/blob/main/examples/incremental-ingest-from-db-example/README.md">Incremental ingestion using Job Properties</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted src="https://github.com/vmware/versatile-data-kit/assets/2536458/2c59b945-0f08-4d4d-8782-6d907ecb29be" aria-label="30 seconds video tutorial for Data Ingestion"></video>
+        <video controls loop muted poster="https://github.com/vmware/versatile-data-kit/assets/11227374/b8958a1b-c6ce-40ca-adb8-b5a9aadae1f0" src="https://github.com/vmware/versatile-data-kit/assets/11227374/1d909b8f-834b-40ac-95b3-043b3d28b256
+" aria-label="30 seconds video tutorial for Data Ingestion"></video>
     </td>
   </tr>
 </table>
+
 
 
 
