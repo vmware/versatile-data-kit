@@ -8,7 +8,6 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 
-
 from .job_data import JobDataLoader
 from .jupyter_notebook import NotebookJobDirectory
 from .vdk_options.vdk_options import VdkOption
@@ -167,14 +166,14 @@ class CreateDeploymentHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         try:
+            job = NotebookJobDirectory(input_data[VdkOption.PATH.value])
+            job.remove_outputs_from_all()
             status = VdkUI.create_deployment(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
                 input_data[VdkOption.DEPLOYMENT_REASON.value],
             )
-            job = NotebookJobDirectory(input_data[VdkOption.PATH.value])
-            job.remove_outputs_from_all()
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
