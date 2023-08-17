@@ -241,11 +241,8 @@ class VdkUI:
 def expand_path(path: str):
     """
     Expands the path parameter to be rooted at the file system location where Jupyter was initially ran.
-    It also does this in a way where it does not matter whether the user inputs an initial forward slash or not.
 
     :param path: path parameter provided by the user
     :return: expanded path
     """
-    return pathlib.Path(
-        os.getcwd() + "/" + (path[1:] if path.startswith("/") else path)
-    )
+    return pathlib.Path(os.getcwd()).joinpath(path)
