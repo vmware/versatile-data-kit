@@ -49,18 +49,10 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
       </>
     );
   }
-
-  handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const eventDetail = { runBeforeDeploy: event.target.checked };
-    const customEvent = new CustomEvent('deployRunChange', {
-      detail: eventDetail
-    });
-    window.dispatchEvent(customEvent);
-  };
 }
 
 export async function showCreateDeploymentDialog() {
-  let runBeforeDeploy = false;
+  let runBeforeDeploy = true;
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     runBeforeDeploy = event.target.checked;
@@ -82,6 +74,7 @@ export async function showCreateDeploymentDialog() {
             id="deployRun"
             className="jp-vdk-checkbox"
             onChange={handleCheckboxChange}
+            defaultChecked={true}
           />
           <label className="checkboxLabel" htmlFor="deployRun">
             Run before deployment
