@@ -77,7 +77,7 @@ export async function showCreateDeploymentDialog() {
             defaultChecked={true}
           />
           <label className="checkboxLabel" htmlFor="deployRun">
-            Run before deployment
+            Run data job before deployment
           </label>
         </div>
       </>
