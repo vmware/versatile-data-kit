@@ -49,8 +49,8 @@ frontend-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
   script:
     - echo "Running Frontend tests..."
-    - jlpm
-    - jlpm test
+    - npm install
+    - npm test
   artifacts:
     when: always
     reports:
@@ -60,12 +60,12 @@ integration-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
   script:
     - echo "Running Integration tests..."
-    - jlpm install
-    - jlpm build:prod
+    - npm install
+    - npm run build:prod
     - cd ./ui-tests
-    - jlpm install
-    - jlpm playwright install
-    - jlpm playwright test
+    - npm install
+    - npx playwright install
+    - npx playwright test
   artifacts:
     when: always
     reports:
