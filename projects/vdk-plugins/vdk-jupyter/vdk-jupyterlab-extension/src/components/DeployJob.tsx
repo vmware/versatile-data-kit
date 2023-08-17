@@ -7,6 +7,7 @@ import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_DEP_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 import { VdkErrorMessage } from './VdkErrorMessage';
+import { VDKCheckbox } from './VdkCheckbox';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
@@ -54,10 +55,6 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
 export async function showCreateDeploymentDialog() {
   let runBeforeDeploy = true;
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    runBeforeDeploy = event.target.checked;
-  };
-
   const result = await showDialog({
     title: CREATE_DEP_BUTTON_LABEL,
     body: (
@@ -67,19 +64,12 @@ export async function showCreateDeploymentDialog() {
           jobPath={jobData.get(VdkOption.PATH) || ''}
           jobTeam={jobData.get(VdkOption.TEAM) || ''}
         />
-        <div>
-          <input
-            type="checkbox"
-            name="deployRun"
-            id="deployRun"
-            className="jp-vdk-checkbox"
-            onChange={handleCheckboxChange}
-            defaultChecked={true}
-          />
-          <label className="checkboxLabel" htmlFor="deployRun">
-            Run data job before deployment
-          </label>
-        </div>
+        <VDKCheckbox
+                    checked={true}
+                    onChange={(checked) => runBeforeDeploy = checked}
+                    label="Run data job before deployment"
+                    id="deployRun"
+                />
       </>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
