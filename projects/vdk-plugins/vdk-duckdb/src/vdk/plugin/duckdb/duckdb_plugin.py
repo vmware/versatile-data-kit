@@ -12,7 +12,7 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.util.decorators import closing_noexcept_on_close
 
-log = logging.getlogger(__name__)
+log = logging.getLogger(__name__)
 """
 Include the plugins implementation. For example:
 """
@@ -21,7 +21,7 @@ Include the plugins implementation. For example:
 @hookimpl
 def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     """Define the configuration settings needed for duckdb"""
-    config_builder.add_key_value("DUCKDB_FILE", default_value="mydb.duckdb")
+    config_builder.add("DUCKDB_FILE", default_value="mydb.duckdb")
 
 
 @hookimpl
@@ -41,7 +41,7 @@ def initialize_job(context: JobContext) -> None:
 @click.pass_context
 def duckdb_query(ctx: click.Context, query):
     conf = ctx.obj.configuration
-    duckdb_file = conf.get_valu("DUCKDB_FILE")
+    duckdb_file = conf.get_value("DUCKDB_FILE")
     conn = duckdb.connect(database=duckdb_file)
 
     with closing_noexcept_on_close(conn.cursor()) as cursor:

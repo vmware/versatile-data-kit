@@ -1,12 +1,12 @@
 # this file is used to provide testing requirements
 # for requirements (dependencies) needed during and after installation of the plugin see (and update) setup.py install_requires section
 
-click
 duckdb
-pytest
-
+click
 pytest
 pytest-cov
 
 vdk-core
+
+pytest
 vdk-test-utils

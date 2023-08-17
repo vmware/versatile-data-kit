@@ -1,34 +1,50 @@
-# Copyright 2021-2023 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
-
 import os
-import pathlib
-from unittest import mock
+import unittest
 
-from click.testing import Result
-from vdk.plugin.duckdb import duckdb_plugin
-from vdk.plugin.test_utils.util_funcs import cli_assert_equal
-from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
-from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
-
-"""
-This is a sample test file showing a recommended way to test new plugins.
-A good way to test a new plugin is how it would be used in the command that it extends.
-"""
+import duckdb
+from vdk.internal.core.config import Configuration
+from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
+from vdk.plugin.duckdb.ingest_to_duckdb import IngestToDuckDB
 
 
-def test_dummy():
-    with mock.patch.dict(
-        os.environ,
-        {
-            # mock the vdk configuration needed for our test
-        },
-    ):
-        # CliEntryBasedTestRunner (provided by vdk-test-utils) gives a away to simulate vdk command
-        # and mock large parts of it - e.g passed our own plugins
-        runner = CliEntryBasedTestRunner(plugin_entry)
+class TestIngestToDuckDB(unittest.TestCase):
 
-        result: Result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("job-using-a-plugin")]
+    def setUp(self):
+        self.temp_db_file = "test_db.duckdb"
+
+        self.connection = duckdb.connect(self.temp_db_file)
+        cur = self.connection.cursor()
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS test_table (
+            col1 INTEGER,
+            col2 TEXT
         )
-        cli_assert_equal(0, result)
+        """)
+        cur.close()
+
+        duckdb_conf = Configuration({
+            "DUCKDB_FILE": self.temp_db_file,
+            "DUCKDB_INGEST_AUTO_CREATE_TABLE_ENABLED": True
+        }, {})
+        self.conf = DuckDBConfiguration(duckdb_conf)
+        self.ingester = IngestToDuckDB(self.conf)
+
+    def tearDown(self):
+        self.connection.close()
+        os.remove(self.temp_db_file)
+
+    def test_ingest_payload(self):
+        destination_table = "test_table"
+        payload = [{"col1": 1, "col2": "text"}]
+
+        self.ingester.ingest_payload(payload, destination_table=destination_table)
+
+        with duckdb.connect(self.temp_db_file) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT * FROM {destination_table}")
+            result = cursor.fetchall()
+            self.assertEqual(result, [(1, "text")])
+
+    if __name__ == '__main__':
+        unittest.main()
+
