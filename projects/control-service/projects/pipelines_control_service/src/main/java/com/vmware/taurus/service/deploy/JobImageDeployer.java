@@ -42,6 +42,9 @@ public class JobImageDeployer {
   @Value("${datajobs.deployment.readOnlyRootFilesystem:}")
   private boolean readOnlyRootFilesystem;
 
+  @Value("${datajobs.deployment.jobImagePullPolicy:IfNotPresent}")
+  private String jobImagePullPolicy;
+
   private static final String VOLUME_NAME = "vdk";
   private static final String VOLUME_MOUNT_PATH = "/vdk";
   private static final String EPHEMERAL_VOLUME_NAME = "tmpfs";
@@ -245,7 +248,7 @@ public class JobImageDeployer {
             jobContainerEnvVars,
             List.of(),
             List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
-            "Always",
+            jobImagePullPolicy,
             defaultConfigurations.dataJobRequests(),
             defaultConfigurations.dataJobLimits(),
             null,
@@ -266,15 +269,11 @@ public class JobImageDeployer {
             Map.of(),
             List.of(),
             List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
-            "Always",
+            jobImagePullPolicy,
             kubernetesResources.dataJobInitContainerRequests(),
             kubernetesResources.dataJobInitContainerLimits(),
             null,
             vdkCommand);
-    // TODO: changing imagePullPolicy to IfNotPresent might be necessary optimization when running
-    // thousands of jobs.
-    // At the moment Always is chosen because it's possible to have a change in image that is not
-    // detected.
 
     var jobLabels = getJobLabels(dataJob, jobDeployment);
     var jobAnnotations =

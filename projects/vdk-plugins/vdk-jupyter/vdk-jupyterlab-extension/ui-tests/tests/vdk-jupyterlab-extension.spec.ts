@@ -4,7 +4,6 @@
  */
 
 import { expect, test } from '@jupyterlab/galata';
-import { assert } from 'console';
 
 /**
  * Don't load JupyterLab webpage before running the tests.
@@ -81,7 +80,6 @@ test('should try to create a job with incorrect input and get error', async ({
   await page.goto('');
   await page.menu.open('VDK');
   await page.locator('#jp-vdk-menu').getByText('Create').click();
-  await page.getByLabel('Local').check();
   await page.getByLabel('Job name:').click();
   await page.getByLabel('Job name:').fill('first-job');
   await page.getByLabel('Job team:').click();
@@ -92,6 +90,25 @@ test('should try to create a job with incorrect input and get error', async ({
   await page
     .locator('div')
     .filter({ hasText: 'Encountered an error when creating the job.' });
+  await page.getByRole('button', { name: 'OK' }).click();
+});
+
+test('should try to create a job successfully', async ({ page }) => {
+  await page.goto('');
+  await page.menu.open('VDK');
+  await page.locator('#jp-vdk-menu').getByText('Create').click();
+  await page.getByLabel('Job name:').click();
+  await page.getByLabel('Job name:').fill('first-job');
+  await page.getByLabel('Job team:').click();
+  await page.getByLabel('Job team:').fill('my-team');
+  await page.getByRole('button', { name: 'OK' }).click();
+  page.on('dialog', async dialog => {
+    expect(dialog.type()).toContain('alert');
+    expect(dialog.message()).toContain(
+      'Job with name first-job was created successfully!'
+    );
+    await dialog.accept();
+  });
   await page.getByRole('button', { name: 'OK' }).click();
 });
 

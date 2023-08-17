@@ -32,11 +32,10 @@
 
 .vdk-run-error-message {
   color: #c0392b;
-  padding: 20px;
+  padding: 16px;
   font-weight: bold;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .vdk-run-error-message p {
@@ -49,10 +48,68 @@
 }
 
 .vdk-run-dialog-message {
-  font-size: 20px;
+  font-size: 16px;
   color: #33b53a;
-  padding: 20px;
 }
 .vdk-run-dialog-message-container {
-  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.vdk-status-dialog-message {
+  font-size: 16px;
+  padding: 20px;
+}
+
+.jp-vdk-check-status-button {
+  position: absolute;
+  right: 1px;
+  border-radius: 5px;
+  border: none;
+}
+
+.jp-vdk-status-button-content {
+  display: flex;
+  align-items: center;
+}
+
+.jp-vdk-check-status-button .jp-vdk-logo {
+  position: static;
+  padding-right: 5px;
+}
+
+.jp-vdk-check-status-button:hover {
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+.vdk-dialog-check-icon {
+  margin-right: 10px;
+}
+
+.vdk-convert-to-notebook-error-message {
+  display: flex;
+  font-size: 16px;
+  color: #c0392b;
+}
+
+.vdk-dialog-error-icon .jp-icon3[fill] {
+  fill: #c0392b;
+}
+
+.vdk-dialog-check-icon .jp-icon3[fill] {
+  fill: #33b53a;
+}
+
+.vdk-error-dialog {
+  font-size: 16px;
+  color: #c0392b;
+  display: flex;
+  align-items: center;
+}
+
+.vdk-dialog-error-icon {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
 }
