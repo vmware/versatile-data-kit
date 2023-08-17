@@ -19,8 +19,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
-@TestPropertySource(properties = {"upload.validation.fileTypes.filterlist=pyc"})
-public class JobFileFilterTest {
+@TestPropertySource(properties = {"upload.validation.fileExtensions.filterlist=pyc"})
+public class JobUploadFilterListValidatorDeleteTest {
 
   @Autowired private JobUploadFilterListValidator jobUploadFilterListValidator;
 

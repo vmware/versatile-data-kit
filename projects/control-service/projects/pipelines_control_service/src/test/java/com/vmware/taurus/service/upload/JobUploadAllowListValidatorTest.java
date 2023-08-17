@@ -25,14 +25,16 @@ class JobUploadAllowListValidatorTest {
 
   @Test
   void test_validateJobAllowedWhenAllowListIsEmpty() throws IOException {
-    JobUploadAllowListValidator validator = new JobUploadAllowListValidator(new String[] {});
+    JobUploadAllowListValidator validator = new JobUploadAllowListValidator(new String[]{},
+        new String[]{});
     validator.validateJob("foo", getTestJob());
   }
 
   @Test
   void test_validateJobAllowed_base_types() throws IOException {
     JobUploadAllowListValidator validator =
-        new JobUploadAllowListValidator(new String[] {"text", "application/octet-stream"});
+        new JobUploadAllowListValidator(new String[]{"text", "application/octet-stream"},
+            new String[]{});
     validator.validateJob("foo", getTestJob());
   }
 
@@ -40,7 +42,8 @@ class JobUploadAllowListValidatorTest {
   void test_validateJobAllowed_full_types() throws IOException {
     JobUploadAllowListValidator validator =
         new JobUploadAllowListValidator(
-            new String[] {"application/octet-stream", "text/x-ini", "text/x-sql", "text/x-python"});
+            new String[]{"application/octet-stream", "text/x-ini", "text/x-sql", "text/x-python"},
+            new String[]{});
     validator.validateJob("foo", getTestJob());
   }
 
@@ -48,15 +51,51 @@ class JobUploadAllowListValidatorTest {
   void test_validateJobAllowed_not_allowed_sql_extension() {
     JobUploadAllowListValidator validator =
         new JobUploadAllowListValidator(
-            new String[] {"application/octet-stream", "text/x-ini", "text/x-python"});
+            new String[]{"application/octet-stream", "text/x-ini", "text/x-python"},
+            new String[]{});
     Assertions.assertThrows(
         InvalidJobUpload.class, () -> validator.validateJob("foo", getTestJob()));
   }
 
   @Test
   void test_validateFileNotAllowed_binary() {
-    JobUploadAllowListValidator validator = new JobUploadAllowListValidator(new String[] {"text"});
+    JobUploadAllowListValidator validator = new JobUploadAllowListValidator(new String[]{"text"},
+        new String[]{});
     Assertions.assertThrows(
         InvalidJobUpload.class, () -> validator.validateJob("foo", getTestJob()));
+  }
+
+  @Test
+  void test_validateFileTypeExtension_expectInvalidUpload() {
+    var validator = new JobUploadAllowListValidator(
+        new String[]{"application/octet-stream", "text/x-ini", "text/x-sql", "text/x-python"},
+        new String[]{"ini"});
+    Assertions.assertThrows(InvalidJobUpload.class,
+        () -> validator.validateJob("foo", getTestJob()));
+  }
+
+  @Test
+  void test_validateFileTypeExtension_expectValidUpload() throws IOException {
+    var validator = new JobUploadAllowListValidator(
+        new String[]{"application/octet-stream", "text/x-ini", "text/x-sql", "text/x-python"},
+        new String[]{"ini", "py", "sql", ""});
+    validator.validateJob("foo", getTestJob());
+  }
+
+  @Test
+  void test_validateFileExtension_expectInvalidUpload() {
+    var validator = new JobUploadAllowListValidator(
+        new String[]{},
+        new String[]{"ini", "py", "sql"});
+    Assertions.assertThrows(InvalidJobUpload.class,
+        () -> validator.validateJob("foo", getTestJob()));
+  }
+
+  @Test
+  void test_validateFileExtension_expectValidUpload() throws IOException {
+    var validator = new JobUploadAllowListValidator(
+        new String[]{},
+        new String[]{"ini", "py", "sql", ""});
+    validator.validateJob("foo", getTestJob());
   }
 }

@@ -10,45 +10,32 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 
 @Slf4j
 public abstract class AbstractJobFileValidator {
 
+  private final FileFormatDetector formatDetector = new FileFormatDetector();
+
   /**
-   * Returns a list of file types against which the validation logic will perform operations for the
-   * currently validated user file.
-   *
-   * @return
+   * Returns a list of file types against which the validation logic should perform operations.
    */
   abstract String[] getValidationTypes();
 
   /**
-   * Performs an operation on user uploaded files which returns a formatted string used to check if
-   * any match against the validation types. E.g. returns the apache tika file type, or file ending
-   * etc.
-   *
-   * @param filePath
-   * @return
-   * @throws IOException
+   * Returns a list of file extensions against which the validation logic should perform
+   * operations.
    */
-  abstract String detectFileType(Path filePath) throws IOException;
+  abstract String[] getValidationExtensions();
 
   /**
    * Checks if the detected file type matches against one of the strings present in validation types
    * according to a condition which should be defined in the overriding class.
-   *
-   * @param detectedType
-   * @return
    */
-  abstract boolean matchTypes(String detectedType);
+  abstract boolean matchTypes(String detectedType, String detectedExtension);
 
   /**
    * Performs operations on already matched files, such as throwing exception, logging or deleting.
-   *
-   * @param filePath
-   * @param jobName
-   * @param pathInsideJob
-   * @throws IOException
    */
   abstract void processMatchedFile(Path filePath, String jobName, String pathInsideJob)
       throws IOException;
@@ -59,10 +46,9 @@ public abstract class AbstractJobFileValidator {
    * pre-configured list specified in the extending class. If the allowList is empty then all files
    * are allowed and no further processing is performed.
    *
-   * @param jobName the name of the data job whose files are validated
+   * @param jobName      the name of the data job whose files are validated
    * @param jobDirectory path to the data job directory where unarchived content of the data job
-   *     being uploaded can be seen.
-   * @throws InvalidJobUpload
+   *                     being uploaded can be seen.
    */
   public void validateJob(String jobName, Path jobDirectory) {
     try {
@@ -75,8 +61,8 @@ public abstract class AbstractJobFileValidator {
     }
   }
 
-  void validateAllowedFiles(String jobName, Path jobDirectory) throws IOException {
-    if (getValidationTypes().length == 0) {
+  private void validateAllowedFiles(String jobName, Path jobDirectory) throws IOException {
+    if (getValidationTypes().length == 0 && getValidationExtensions().length == 0) {
       log.debug(
           "List of validation files is empty. That means all files are allowed. No checks are"
               + " done.");
@@ -94,8 +80,9 @@ public abstract class AbstractJobFileValidator {
     }
     try {
       var fileType = detectFileType(filePath);
+      var fileExtension = detectFileExtension(filePath);
       log.debug("Job {}'s file {} is of type {}", jobName, filePath, pathInsideJob);
-      if (matchTypes(fileType)) {
+      if (matchTypes(fileType, fileExtension)) {
         processMatchedFile(filePath, jobName, pathInsideJob.toString());
       }
     } catch (IOException e) {
@@ -104,5 +91,13 @@ public abstract class AbstractJobFileValidator {
           String.format("Unable to open and process file %s", pathInsideJob),
           e);
     }
+  }
+
+  String detectFileType(Path filePath) throws IOException {
+    return this.formatDetector.detectFileType(filePath);
+  }
+
+  String detectFileExtension(Path filePath) {
+    return FilenameUtils.getExtension(filePath.getFileName().toString());
   }
 }

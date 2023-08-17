@@ -201,8 +201,12 @@ spec:
               value: "{{ .Values.monitoringSync.initialDelayMillis }}"
             - name: UPLOAD_VALIDATION_FILETYPES_ALLOWLIST
               value: "{{ .Values.uploadValidationFileTypesAllowList }}"
+            - name: UPLOAD_VALIDATION_EXTENSIONS_ALLOWLIST
+              value: "{{ .Values.uploadValidationFileExtensionsAllowList }}"
             - name: UPLOAD_VALIDATION_FILETYPES_FILTER_LIST
               value: "{{ .Values.uploadValidationFileTypesFilterList }}"
+            - name: UPLOAD_VALIDATION_EXTENSIONS_FILTER_LIST
+              value: "{{ .Values.uploadValidationFileExtensionsFilterList }}"
             - name: DATAJOBS_TEMP_STORAGE_FOLDER
               value: /datajobs_temp_storage
             {{- if .Values.datajobTemplate.enabled }}
