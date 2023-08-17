@@ -136,7 +136,9 @@ class VdkUI:
         except ValueError as e:
             error = str(e)
         cmd = JobCreate(rest_api_url)
-        cmd.create_job(name, team, expand_path(path), cloud, True, pathlib.Path(jupyter_job_dir))
+        cmd.create_job(
+            name, team, expand_path(path), cloud, True, pathlib.Path(jupyter_job_dir)
+        )
         if cloud:
             result = f"Job with name {name} was created successfully!"
         else:
