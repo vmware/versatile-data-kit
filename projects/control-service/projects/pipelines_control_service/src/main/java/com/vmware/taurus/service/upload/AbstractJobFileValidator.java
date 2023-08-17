@@ -17,14 +17,11 @@ public abstract class AbstractJobFileValidator {
 
   private final FileFormatDetector formatDetector = new FileFormatDetector();
 
-  /**
-   * Returns a list of file types against which the validation logic should perform operations.
-   */
+  /** Returns a list of file types against which the validation logic should perform operations. */
   abstract String[] getValidationTypes();
 
   /**
-   * Returns a list of file extensions against which the validation logic should perform
-   * operations.
+   * Returns a list of file extensions against which the validation logic should perform operations.
    */
   abstract String[] getValidationExtensions();
 
@@ -46,9 +43,9 @@ public abstract class AbstractJobFileValidator {
    * pre-configured list specified in the extending class. If the allowList is empty then all files
    * are allowed and no further processing is performed.
    *
-   * @param jobName      the name of the data job whose files are validated
+   * @param jobName the name of the data job whose files are validated
    * @param jobDirectory path to the data job directory where unarchived content of the data job
-   *                     being uploaded can be seen.
+   *     being uploaded can be seen.
    */
   public void validateJob(String jobName, Path jobDirectory) {
     try {

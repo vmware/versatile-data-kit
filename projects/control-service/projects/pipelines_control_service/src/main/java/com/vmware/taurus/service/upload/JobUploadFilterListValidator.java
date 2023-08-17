@@ -46,10 +46,9 @@ public class JobUploadFilterListValidator extends AbstractJobFileValidator {
 
   @Override
   boolean matchTypes(String detectedType, String detectedExtension) {
-    return Arrays.stream(getValidationExtensions())
-        .anyMatch(detectedExtension::endsWith)
+    return Arrays.stream(getValidationExtensions()).anyMatch(detectedExtension::endsWith)
         || Arrays.stream(getValidationTypes())
-        .anyMatch(validationType -> formatDetector.matchTypes(detectedType, validationType));
+            .anyMatch(validationType -> formatDetector.matchTypes(detectedType, validationType));
   }
 
   @Override
@@ -66,12 +65,11 @@ public class JobUploadFilterListValidator extends AbstractJobFileValidator {
               "File: %s was scheduled for deletion before uploading"
                   + " job code to version control but the operation was unsuccessful.",
               pathInsideJob),
-          "Remove the file locally from your data job and deploy it again. " +
-              "List of file types that will be scheduled for deletion " + Arrays.toString(
-              getValidationTypes()) +
-              " List of file extensions that will be scheduled for deletion " + Arrays.toString(
-              getValidationExtensions())
-      );
+          "Remove the file locally from your data job and deploy it again. "
+              + "List of file types that will be scheduled for deletion "
+              + Arrays.toString(getValidationTypes())
+              + " List of file extensions that will be scheduled for deletion "
+              + Arrays.toString(getValidationExtensions()));
     }
   }
 }

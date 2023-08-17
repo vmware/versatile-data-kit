@@ -33,8 +33,10 @@ class JobUploadAllowListValidator extends AbstractJobFileValidator {
     this.allowListTypes = allowListTypes;
     this.allowListExtensions = allowListExtensions;
     this.formatDetector = new FileFormatDetector();
-    log.debug("Job sources upload validator allowlistTypes: {} allowListExtensions: {}",
-        Arrays.toString(allowListTypes), Arrays.toString(allowListExtensions));
+    log.debug(
+        "Job sources upload validator allowlistTypes: {} allowListExtensions: {}",
+        Arrays.toString(allowListTypes),
+        Arrays.toString(allowListExtensions));
   }
 
   @Override
@@ -57,9 +59,7 @@ class JobUploadAllowListValidator extends AbstractJobFileValidator {
     return matchTypes(detectedType) || matchExtensions(detectedExtension);
   }
 
-  /**
-   * If the list of validationTypes is empty, all types are allowed.
-   */
+  /** If the list of validationTypes is empty, all types are allowed. */
   private boolean matchTypes(String detectedType) {
     if (getValidationTypes().length == 0) {
       return false;
@@ -68,15 +68,12 @@ class JobUploadAllowListValidator extends AbstractJobFileValidator {
         .noneMatch(validationType -> formatDetector.matchTypes(detectedType, validationType));
   }
 
-  /**
-   * If the list of validationExtensions is empty, all extensions are allowed.
-   */
+  /** If the list of validationExtensions is empty, all extensions are allowed. */
   private boolean matchExtensions(String detectedExtension) {
     if (getValidationExtensions().length == 0) {
       return false;
     }
-    return Arrays.stream(getValidationExtensions())
-        .noneMatch(detectedExtension::endsWith);
+    return Arrays.stream(getValidationExtensions()).noneMatch(detectedExtension::endsWith);
   }
 
   @Override
