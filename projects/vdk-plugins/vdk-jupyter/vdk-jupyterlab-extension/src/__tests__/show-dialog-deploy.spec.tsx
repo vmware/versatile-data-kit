@@ -1,4 +1,4 @@
-import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobData } from '../jobData';
 import React from 'react';
 import { VdkOption } from '../vdkOptions/vdk_options';
@@ -11,6 +11,7 @@ import { VDKCheckbox } from '../components/VdkCheckbox';
 
 jest.mock('@jupyterlab/apputils', () => ({
   showDialog: jest.fn(),
+  showErrorMessage: jest.fn(),
   Dialog: {
     okButton: jest.fn(),
     cancelButton: jest.fn()
@@ -61,5 +62,21 @@ describe('showCreateDeploymentDialog', () => {
         ),
         buttons: [Dialog.okButton(), Dialog.cancelButton()]
       });
+    });
+
+    it('should not call jobRunRequest when checkbox is unchecked', async () => {
+      const mockResult = { button: { accept: true }, value: false };
+      (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
+
+      await showCreateDeploymentDialog();
+      expect(jobRunRequest).not.toHaveBeenCalled();
+    });
+
+    it('should handle failures in jobRunRequest', async () => {
+      (jobRunRequest as jest.Mock).mockRejectedValueOnce(new Error('Failed to run job'));
+
+      await showCreateDeploymentDialog();
+
+      expect(showErrorMessage).toHaveBeenCalledTimes(1);
     });
   });
