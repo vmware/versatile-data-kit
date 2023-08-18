@@ -494,6 +494,9 @@ security:
       ## 4xx response content is shown to end user as an error message.
       ## 5xx responses will be retried
       webhookUri: ""
+      ## In case webhookAuthenticationEnabled is set to true, the Control Service (CS) will transmit the oAuth2 access token
+      ## to the WebHook API. This access token serves the purpose of authenticating the client against the CS.
+      webhookAuthenticationEnabled: false
       ## What JWT token claim (aka attribute/field) will fetch the username from.
       jwtClaimUsername: "username"
 
