@@ -401,12 +401,17 @@ webHooks:
    ##    4xx or 5xx the job is not created/deleted
    ## 4xx response content is shown to end user as an error message.
    ## 5xx responses will be retried (number of retries is based on configuration, defaults to 3)
+   ##
+   ## In case authenticationEnabled is set to true, the Control Service (CS) will transmit the oAuth2 access token
+   ## to the WebHook API. This access token serves the purpose of authenticating the client against the CS.
    postCreate:
       webhookUri: ""
       internalErrorsRetries: 3
+      authenticationEnabled: false
    postDelete:
       webhookUri: ""
       internalErrorsRetries: 3
+      authenticationEnabled: false
 
 ### Security configuration
 
@@ -1013,6 +1018,7 @@ dataJob:
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
   deployment:
+    jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer
       resources:

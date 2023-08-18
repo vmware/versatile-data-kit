@@ -1,5 +1,4 @@
 import { CommandRegistry } from '@lumino/commands';
-import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
 import { showRunJobDialog } from './components/RunJob';
 import { jobData, setJobDataToDefault } from './jobData';
 import { showCreateDeploymentDialog } from './components/DeployJob';
@@ -13,6 +12,8 @@ import { IDocumentManager } from '@jupyterlab/docmanager';
 import { FileBrowser } from '@jupyterlab/filebrowser';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { StatusButton } from './components/StatusButton';
+import {  ERROR_LABEL  } from './utils';
+import { showErrorDialog } from './components/props';
 
 export var runningVdkOperation = '';
 
@@ -120,18 +121,22 @@ function add_command(
           setJobDataToDefault();
           runningVdkOperation = '';
         } else {
-          await showErrorMessage(
-            'Another VDK operation is currently running!',
-            'Please wait until the operation ends!',
-            [Dialog.okButton()]
-          );
+          await showErrorDialog({
+            title: ERROR_LABEL,
+            messages: [
+              'Another VDK operation is currently running!',
+              'Please wait until the operation ends!'
+            ]
+          });
         }
       } catch (error) {
-        await showErrorMessage(
-          'Encountered an error when trying to open the dialog. Error:',
-          error,
-          [Dialog.okButton()]
-        );
+        await showErrorDialog({
+          title: ERROR_LABEL,
+          messages: [
+            'Encountered an error when trying to open the dialog. Error:'
+          ],
+          error: error
+        });
       }
     }
   });
