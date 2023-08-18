@@ -57,7 +57,7 @@ def run(job_input: IJobInput):
 
         if check(staging_table):
             job_input.execute_query(f"COMPUTE STATS {staging_table}")
-            
+
             insert_into_target = overwrite_target_query.format(
                 staging_schema=staging_schema,
                 staging_table_name=staging_table_name,
