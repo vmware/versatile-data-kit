@@ -1,4 +1,4 @@
-FROM cypress/browsers:node16.14.2-slim-chrome100-ff99-edge
+FROM node18.12.0-chrome107
 
 RUN apt-get update && apt-get install -y \
     curl \
