@@ -1,5 +1,9 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+stages:
+  - build
+  - test
+  - release
 
 .retry:
   retry_options:
@@ -10,7 +14,6 @@
 
 .common-setup-vdk-jupyterlab-extension:
   image: "python:3.8-alpine"
-  stage: build
   before_script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - pip install -U pip setuptools pre-commit
@@ -25,6 +28,7 @@
 
 build-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
+  stage: build
   script:
     - echo "Install Dependencies..."
     - npm ci
@@ -36,10 +40,11 @@ build-vdk-jupyterlab-extension:
 
 server-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
+  stage: test
   script:
     - echo "Running Server tests..."
     - pip install -e ".[test]"
-    - pytest -vv -r ap --cov vdk-jupyterlab-extension --junit-xml=server_tests_results.xml
+    - pytest -vv -r ap --cov=vdk-jupyterlab-extension --junit-xml=server_tests_results.xml
   artifacts:
     when: always
     reports:
@@ -47,6 +52,7 @@ server-tests-vdk-jupyterlab-extension:
 
 frontend-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
+  stage: test
   script:
     - echo "Running Frontend tests..."
     - npm install
@@ -58,6 +64,7 @@ frontend-tests-vdk-jupyterlab-extension:
 
 integration-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
+  stage: test
   script:
     - echo "Running Integration tests..."
     - npm install
