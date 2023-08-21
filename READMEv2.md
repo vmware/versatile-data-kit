@@ -183,10 +183,12 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Using-VDK-DAGs-to-manage-jobs">Using VDK DAGs to orchestrate Data Jobs</a></span><br>
     </td>
     <td width="50%" >
-        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/a072d4c0-dabf-46df-b8a4-b54728731d81" alt="vdk-introduction"  >
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/42506b5d-6c6b-4aed-b514-88302bd1b8ef" aria-label="30 seconds video tutorial for VDK Control Service"></video>
     </td>
   </tr>
 </table>
+
+
 
 
 
