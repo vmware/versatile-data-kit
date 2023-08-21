@@ -113,3 +113,30 @@
   display: flex;
   align-items: center;
 }
+
+.jp-vdk-login2-input {
+  width: 80%;
+}
+
+.jp-vdk-login2-button {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  background: linear-gradient(to bottom, #f7f7f7, #e7e7e7);
+  font-weight: 600;
+  border-radius: 2px;
+  cursor: pointer;
+  color: #333;
+  text-align: center;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.jp-vdk-login2-button:hover {
+  background: linear-gradient(to bottom, #e7e7e7, #d7d7d7);
+}
+
+.jp-vdk-login2-dialog-container {
+  text-align: left;
+  padding: 20px;
+  width: 600px;
+}
