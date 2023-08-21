@@ -1,5 +1,4 @@
-import React from "react";
-import { Component } from "react";
+import React, { Component } from "react";
 
 interface CheckboxProps {
     checked: boolean;
@@ -9,7 +8,7 @@ interface CheckboxProps {
 }
 
 export class VDKCheckbox extends Component<CheckboxProps> {
-    render() {
+    render(): React.ReactElement {
         return (
             <div>
                 <input
