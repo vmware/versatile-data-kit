@@ -1,8 +1,7 @@
 
 # VEP-1507: Versatile Data Kit Operations UI
 
-* **Author(s):** Paul Murphy (murphp15@tcd.ie), Iva Koleva (ikoleva@vmware.com),
-  Dilyan Marinov (mdilyan@vmware.com)
+* **Author(s):** Paul Murphy (murphp15@tcd.ie), Iva Koleva (ikoleva@vmware.com), Dilyan Marinov (mdilyan@vmware.com) , Stanislav Abadzhiev (sabadzhiev@vmware.com), Goran Kokinovski (gkokinovski@vmware.com)
 * **Status:** implemented
 
 - [VEP-1507: Versatile Data Kit Operations UI](#vep-1507-versatile-data-kit-operations-ui)
