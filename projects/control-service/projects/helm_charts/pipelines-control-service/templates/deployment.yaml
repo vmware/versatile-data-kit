@@ -154,6 +154,8 @@ spec:
               value: "{{ .Values.security.authorizationEnabled }}"
             - name: DATAJOBS_AUTHORIZATION_WEBHOOK_ENDPOINT
               value: "{{ .Values.security.authorization.webhookUri }}"
+            - name: DATAJOBS_AUTHORIZATION_WEBHOOK_AUTHENTICATION_ENABLED
+              value: "{{ .Values.security.authorization.webhookAuthenticationEnabled }}"
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
               value: "{{ .Values.security.oauth2.jwtIssuerUrl }}"
             - name: AUTHORITIES_CLAIM_NAME
@@ -168,12 +170,18 @@ spec:
               value: "{{ .Values.webHooks.postCreate.webhookUri }}"
             - name: DATAJOBS_POST_CREATE_WEBHOOK_INTERNAL_ERRORS_RETRIES
               value: "{{ .Values.webHooks.postCreate.internalErrorsRetries }}"
+            - name: DATAJOBS_POST_CREATE_WEBHOOK_AUTHENTICATION_ENABLED
+              value: "{{ .Values.webHooks.postCreate.authenticationEnabled }}"
             - name: DATAJOBS_POST_DELETE_WEBHOOK_ENDPOINT
               value: "{{ .Values.webHooks.postDelete.webhookUri }}"
             - name: DATAJOBS_POST_DELETE_WEBHOOK_INTERNAL_ERRORS_RETRIES
               value: "{{ .Values.webHooks.postDelete.internalErrorsRetries }}"
+            - name: DATAJOBS_POST_DELETE_WEBHOOK_AUTHENTICATION_ENABLED
+              value: "{{ .Values.webHooks.postDelete.authenticationEnabled }}"
             - name: DATAJOBS_AUTHORIZATION_JWT_CLAIM_USERNAME
               value: "{{ .Values.security.authorization.jwtClaimUsername }}"
+            - name: DATAJOBS_DEPLOYMENT_JOB_IMAGE_PULL_POLICY
+              value: "{{ .Values.dataJob.deployment.jobImagePullPolicy }}"
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
             - name: VDK_OPTIONS_INI
@@ -201,6 +209,12 @@ spec:
               value: "{{ .Values.monitoringSync.initialDelayMillis }}"
             - name: UPLOAD_VALIDATION_FILETYPES_ALLOWLIST
               value: "{{ .Values.uploadValidationFileTypesAllowList }}"
+            - name: UPLOAD_VALIDATION_EXTENSIONS_ALLOWLIST
+              value: "{{ .Values.uploadValidationFileExtensionsAllowList }}"
+            - name: UPLOAD_VALIDATION_FILETYPES_FILTER_LIST
+              value: "{{ .Values.uploadValidationFileTypesFilterList }}"
+            - name: UPLOAD_VALIDATION_EXTENSIONS_FILTER_LIST
+              value: "{{ .Values.uploadValidationFileExtensionsFilterList }}"
             - name: DATAJOBS_TEMP_STORAGE_FOLDER
               value: /datajobs_temp_storage
             {{- if .Values.datajobTemplate.enabled }}

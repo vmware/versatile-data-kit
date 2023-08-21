@@ -354,7 +354,14 @@ export class DataJobManageExecutionsPage extends DataJobBasePO {
     getDataGridExecTypeContainers(type) {
         return this.getDataGrid()
             .should('exist')
-            .find('[data-cy=data-pipelines-job-executions-type-container]')
+            .then(($gridContainer) => {
+                /**
+                 * @type {JQuery<HTMLElement>}
+                 */
+                const $containers = $gridContainer.find('[data-cy=data-pipelines-job-executions-type-container]');
+
+                return cy.wrap($containers.length === 0 ? [] : $containers);
+            })
             .then(($containers) => {
                 return cy.wrap(
                     Array.from($containers)

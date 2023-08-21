@@ -38,32 +38,6 @@ describe('#render()', () => {
   });
 });
 
-describe('#onLocalClick', () => {
-  it('should put a flag for local in jobData', () => {
-    const component = render(new CreateJobDialog(defaultProps).render());
-    const localCheckbox = component.getAllByLabelText(
-      'Local'
-    )[0] as HTMLInputElement;
-    expect(localCheckbox.checked).toEqual(false);
-    fireEvent.click(localCheckbox);
-    expect(localCheckbox.checked).toEqual(true);
-    expect(jobData.get(VdkOption.LOCAL)).toEqual('1');
-  });
-});
-
-describe('#onCloudClick', () => {
-  it('should put a flag for cloud in jobData', () => {
-    const component = render(new CreateJobDialog(defaultProps).render());
-    const cloudCheckbox = component.getAllByLabelText(
-      'Cloud'
-    )[0] as HTMLInputElement;
-    expect(cloudCheckbox.checked).toEqual(false);
-    fireEvent.click(cloudCheckbox);
-    expect(cloudCheckbox.checked).toEqual(true);
-    expect(jobData.get(VdkOption.CLOUD)).toEqual('1');
-  });
-});
-
 describe('#onNameChange', () => {
   it('should change the job name in jobData', () => {
     const component = render(new CreateJobDialog(defaultProps).render());

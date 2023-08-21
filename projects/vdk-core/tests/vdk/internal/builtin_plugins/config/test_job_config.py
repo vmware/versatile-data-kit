@@ -83,6 +83,14 @@ class TestJobConfig:
         self.assertEqual(False, cfg.get_enable_attempt_notifications())
         # this is the only important default no need to verify the others.
 
+    def test_error_raised_missing_config(self, tmpdir):
+        empty_job_dir = tmpdir.mkdir("foo-job")
+
+        with pytest.raises(VdkConfigurationError) as exc:
+            JobConfig(pathlib.Path(empty_job_dir), should_fail_missing_config=True)
+
+        assert "Error while loading config.ini file" in exc.value.args[0]
+
     def test_vdk_options_empty(self):
         self.assertEqual({}, self._cfg.get_vdk_options())
 
@@ -97,15 +105,14 @@ class TestJobConfig:
         cfg = JobConfig(self._test_dir)
         self.assertEqual({"a": "b"}, cfg.get_vdk_options())
 
-    # TODO: Enable when JobConfig issues resolved, tests still present in https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-control-cli/tests/vdk/internal/control/command_groups/job/test_datajob_config.py
-    # def test_set_team(self):
-    #     self._perform_set_team_test("my_unique_team_name")
-    #
-    # def test_set_empty_team(self):
-    #     self._perform_set_team_test("")
-    #
-    # def test_set_team_with_spaces(self):
-    #     self._perform_set_team_test("my unique team name")
+    def test_set_team(self):
+        self._perform_set_team_test("my_unique_team_name")
+
+    def test_set_empty_team(self):
+        self._perform_set_team_test("")
+
+    def test_set_team_with_spaces(self):
+        self._perform_set_team_test("my unique team name")
 
     def test_set_team_with_no_team_in_config_ini(self):
         # remove all contents of config.ini (including team option)
