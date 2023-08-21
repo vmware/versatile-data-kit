@@ -145,13 +145,10 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples">Processing data using Kimball warehousing templates</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/e5811764-3b7e-4393-8017-e3205b0572fa" aria-label="30 seconds video tutorial for Data Trnsformation"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/10f21e27-ed69-420a-b38c-f0aa1fe752e2" aria-label="30 seconds video tutorial for Data Transformation"></video>
     </td>
   </tr>
 </table>
-
-
-
 
 
 
