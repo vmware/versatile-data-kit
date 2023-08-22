@@ -1,25 +1,16 @@
-import json
-from pathlib import Path
+import nbformat
+from nbconvert.preprocessors import ClearOutputPreprocessor
 
 
-def remove_outputs_from_notebook(notebook_path):
-    with notebook_path.open('r') as f:
-        content = json.load(f)
+class NotebookOutputCleaner:
+    def __init__(self, notebook_path: str):
+        self.notebook_path = notebook_path
 
-    for cell in content["cells"]:
-        if cell["cell_type"] == "code":
-            cell['outputs'] = []
-            cell['execution_count'] = None
+    def clear_outputs(self):
+        with open(self.notebook_path, 'r', encoding='utf-8') as f:
+            notebook = nbformat.read(f, as_version=4)
+            clearer = ClearOutputPreprocessor()
+            clearer.preprocess(notebook, {})
 
-    with notebook_path.open('w') as f:
-        json.dump(content, f, indent=4)
-
-
-class NotebookJobDirectory:
-    def __init__(self, directory_path):
-        self.directory_path = Path(directory_path)
-        self.notebook_paths = list(self.directory_path.glob('*.ipynb'))
-
-    def remove_outputs_from_all(self):
-        for notebook_path in self.notebook_paths:
-            remove_outputs_from_notebook(notebook_path)
+        with open(self.notebook_path, 'w', encoding='utf-8') as f:
+            nbformat.write(notebook, f)

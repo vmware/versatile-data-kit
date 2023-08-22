@@ -4,6 +4,7 @@ import json
 import os
 import pathlib
 import shlex
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
 from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
 from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
+from vdk_jupyterlab_extension.jupyter_notebook import NotebookOutputCleaner
 
 
 class RestApiUrlConfiguration:
@@ -163,16 +165,32 @@ class VdkUI:
         :param reason: the reason of deployment
         :return: output string of the operation
         """
+        # Make a copy of the directory at the same location
+        destination_path = os.path.join(path, os.path.basename(path))
+        shutil.copytree(path, destination_path)
+
+        # Clear outputs for all notebooks in the destination path
+        for dir_path, _, filenames in os.walk(destination_path):
+            for filename in filenames:
+                if filename.endswith('.ipynb'):
+                    notebook_path = os.path.join(dir_path, filename)
+                    cleaner = NotebookOutputCleaner(notebook_path)
+                    cleaner.clear_outputs()
+
         printer = InMemoryTextPrinter()
         cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
         cmd.create(
             name=name,
             team=team,
-            job_path=path,
+            job_path=destination_path,
             reason=reason,
             vdk_version=None,
             enabled=True,
         )
+
+        # After deployment, delete the copied directory
+        shutil.rmtree(destination_path)
+
         return (
             f"Job with name {name} and team {team} is deployed successfully! "
             f"Deployment information:\n {printer.get_memory().strip()}"

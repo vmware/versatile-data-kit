@@ -5,7 +5,8 @@ import shutil
 from pathlib import Path
 
 import pytest
-from vdk_jupyterlab_extension.jupyter_notebook import NotebookJobDirectory
+
+from vdk_jupyterlab_extension.jupyter_notebook import NotebookOutputCleaner
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -27,14 +28,14 @@ def backup_and_restore_notebooks():
 
 
 @pytest.mark.parametrize("job_dir", ["ingest-job", "mixed-job"])
-def test_remove_outputs(job_dir):
+def test_notebook_output_cleaner(job_dir):
     base_dir = Path(__file__).parent / "jobs"
     dir_path = base_dir / job_dir
 
-    job = NotebookJobDirectory(dir_path)
-    job.remove_outputs_from_all()
+    for notebook_path in dir_path.glob("*.ipynb"):
+        cleaner = NotebookOutputCleaner(str(notebook_path))
+        cleaner.clear_outputs()
 
-    # Verify outputs have been removed from the notebook files
     for notebook_path in dir_path.glob("*.ipynb"):
         with notebook_path.open("r") as f:
             content = json.load(f)
@@ -42,3 +43,4 @@ def test_remove_outputs(job_dir):
             if cell["cell_type"] == "code":
                 assert cell["execution_count"] is None
                 assert not cell["outputs"]
+
