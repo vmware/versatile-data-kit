@@ -145,10 +145,16 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples">Processing data using Kimball warehousing templates</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/10f21e27-ed69-420a-b38c-f0aa1fe752e2" aria-label="30 seconds video tutorial for Data Transformation"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/82ba18b7-bcdf-4c0a-9816-b61deae307ab" aria-label="30 seconds video tutorial for Data Transformation"></video>
     </td>
   </tr>
 </table>
+
+
+
+
+
+
 
 
 
@@ -183,13 +189,10 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Using-VDK-DAGs-to-manage-jobs">Using VDK DAGs to orchestrate Data Jobs</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/42506b5d-6c6b-4aed-b514-88302bd1b8ef" aria-label="30 seconds video tutorial for VDK Control Service"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/48164d16-d8ae-40a5-aebc-58340e6b3f35" aria-label="30 seconds video tutorial for VDK Control Service"></video>
     </td>
   </tr>
 </table>
-
-
-
 
 
 
@@ -223,10 +226,11 @@ vdk --help</code></pre>
         <span>&#10145;  <a href=""></a></span><br>
     </td>
     <td width="50%" >
-        <img src="https://github.com/vmware/versatile-data-kit/assets/2536458/a072d4c0-dabf-46df-b8a4-b54728731d81" alt="vdk-introduction"  >
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/6bf0c1cd-8c85-4f8a-8256-42a566bf53c0" aria-label="30 seconds video tutorial for VDK Operations UI"></video>
     </td>
   </tr>
 </table>
+
 
 
 
