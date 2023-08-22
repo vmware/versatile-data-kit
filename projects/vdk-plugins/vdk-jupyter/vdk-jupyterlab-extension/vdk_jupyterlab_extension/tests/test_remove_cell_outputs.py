@@ -5,7 +5,8 @@ import shutil
 from pathlib import Path
 
 import pytest
-from vdk_jupyterlab_extension.jupyter_notebook import NotebookOutputCleaner
+
+from vdk_jupyterlab_extension.jupyter_notebook import clear_notebook_outputs
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -32,8 +33,7 @@ def test_notebook_output_cleaner(job_dir):
     dir_path = base_dir / job_dir
 
     for notebook_path in dir_path.glob("*.ipynb"):
-        cleaner = NotebookOutputCleaner(str(notebook_path))
-        cleaner.clear_outputs()
+        clear_notebook_outputs(str(notebook_path))
 
     for notebook_path in dir_path.glob("*.ipynb"):
         with notebook_path.open("r") as f:

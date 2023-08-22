@@ -16,7 +16,7 @@ from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
 from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
 from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
-from vdk_jupyterlab_extension.jupyter_notebook import NotebookOutputCleaner
+from vdk_jupyterlab_extension.jupyter_notebook import clear_notebook_outputs
 
 
 class RestApiUrlConfiguration:
@@ -174,21 +174,26 @@ class VdkUI:
             for filename in filenames:
                 if filename.endswith(".ipynb"):
                     notebook_path = os.path.join(dir_path, filename)
-                    cleaner = NotebookOutputCleaner(notebook_path)
-                    cleaner.clear_outputs()
+                    clear_notebook_outputs(notebook_path)
 
         printer = InMemoryTextPrinter()
-        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
-        cmd.create(
-            name=name,
-            team=team,
-            job_path=destination_path,
-            reason=reason,
-            vdk_version=None,
-            enabled=True,
-        )
+        try:
+            cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
+            cmd.create(
+                name=name,
+                team=team,
+                job_path=destination_path,
+                reason=reason,
+                vdk_version=None,
+                enabled=True,
+            )
+        except Exception as e:
+            # Delete the copied directory, if operation fails
+            shutil.rmtree(destination_path)
+            # Rethrowing since it is handled in the handler
+            raise
 
-        # After deployment, delete the copied directory
+        # After successful deployment, delete the copied directory
         shutil.rmtree(destination_path)
 
         return (
