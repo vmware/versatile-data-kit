@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-
 from vdk_jupyterlab_extension.jupyter_notebook import clear_notebook_outputs
 
 
