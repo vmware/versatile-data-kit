@@ -1,13 +1,12 @@
 import collections
 import logging
 from contextlib import closing
-
-import duckdb
-from duckdb import DuckDBPyConnection, DuckDBPyCursor
 from typing import Any, Dict, List, Optional, Tuple
 
+import duckdb
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
+
 from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
 from vdk.plugin.duckdb.duckdb_connection import DuckDBConnection
 
@@ -21,9 +20,6 @@ class IngestToDuckDB(IIngesterPlugin):
 
     def __init__(self, conf: DuckDBConfiguration):
         self.conf = conf
-
-    def create_table(test_table: str, cur: DuckDBPyCursor):
-        cur.execute(f"CREATE TABLE{test_table} (col1 INT, col2 TEXT)")
 
     def ingest_payload(
             self,
@@ -90,7 +86,7 @@ class IngestToDuckDB(IIngesterPlugin):
                     )
 
     def __check_destination_table_exists(
-            self, destination_table: str, cur: DuckDBPyCursor
+            self, destination_table: str, cur: duckdb.cursor
     ) -> None:
         if not self._check_if_table_exists(destination_table, cur):
             errors.log_and_throw(
@@ -110,7 +106,7 @@ class IngestToDuckDB(IIngesterPlugin):
         return (table_name, ) in tables
 
     def __table_columns(
-            self, cur: DuckDBPyCursor, destination_table: str
+            self, cur: duckdb.cursor, destination_table: str
     ) -> List[Tuple[str, str]]:
         columns = []
         if self._check_if_table_exists(destination_table, cur):
@@ -121,7 +117,7 @@ class IngestToDuckDB(IIngesterPlugin):
         return columns
 
     def __create_query(
-            self, destination_table: str, payload: List[dict], cur: DuckDBPyCursor
+            self, destination_table: str, payload: List[dict], cur: duckdb.cursor
     ) -> Tuple[list, str]:
         fields = [
             field_tuple[0]
@@ -165,7 +161,7 @@ class IngestToDuckDB(IIngesterPlugin):
             log.info(f"Table {destination_table} created.")
 
     @staticmethod
-    def __create_table(cur: DuckDBPyCursor, destination_table: str, columns: Dict[str, str]):
+    def __create_table(cur: duckdb.cursor, destination_table: str, columns: Dict[str, str]):
         names = [
             f"{col_name} {col_type}"
             if " " not in col_name
