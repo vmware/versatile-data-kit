@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-
 from vdk_jupyterlab_extension.jupyter_notebook import NotebookOutputCleaner
 
 
@@ -43,4 +42,3 @@ def test_notebook_output_cleaner(job_dir):
             if cell["cell_type"] == "code":
                 assert cell["execution_count"] is None
                 assert not cell["outputs"]
-

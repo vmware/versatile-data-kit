@@ -172,7 +172,7 @@ class VdkUI:
         # Clear outputs for all notebooks in the destination path
         for dir_path, _, filenames in os.walk(destination_path):
             for filename in filenames:
-                if filename.endswith('.ipynb'):
+                if filename.endswith(".ipynb"):
                     notebook_path = os.path.join(dir_path, filename)
                     cleaner = NotebookOutputCleaner(notebook_path)
                     cleaner.clear_outputs()
