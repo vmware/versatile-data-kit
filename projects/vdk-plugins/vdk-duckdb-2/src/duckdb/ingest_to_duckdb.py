@@ -1,14 +1,21 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import collections
 import logging
 import pathlib
-import duckdb
 from contextlib import closing
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
+import duckdb
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
-from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
 from vdk.plugin.duckdb.duckdb_connection import DuckDBConnection
+from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
 
 log = logging.getLogger(__name__)
 

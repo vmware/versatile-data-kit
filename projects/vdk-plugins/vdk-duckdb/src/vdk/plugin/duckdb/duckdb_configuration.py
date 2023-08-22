@@ -1,3 +1,6 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import pathlib
 import tempfile
 
@@ -20,7 +23,6 @@ class DuckDBConfiguration:
         return pathlib.Path(duckdb_file_path)
 
 
-
 def add_definitions(config_builder: ConfigurationBuilder):
     config_builder.add(
         key=DUCKDB_FILE,
@@ -33,5 +35,5 @@ def add_definitions(config_builder: ConfigurationBuilder):
         key=DUCKDB_INGEST_AUTO_CREATE_TABLE_ENABLED,
         default_value=True,
         description="If set to true, auto create table if it does not exist during ingestion."
-                    "This is only applicable when ingesting data into DuckDB (ingest method is DuckDB).",
+        "This is only applicable when ingesting data into DuckDB (ingest method is DuckDB).",
     )
