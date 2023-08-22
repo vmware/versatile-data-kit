@@ -24,7 +24,7 @@ setuptools.setup(
     # Define entry point called "vdk.plugin.run" with name of plugin and module to act as entry point.
     entry_points={
         "vdk.plugin.run": [
-            "vdk-duckdb = vdk.plugin.duckdb.plugin_entry"
+            "vdk-duckdb = vdk.plugin.duckdb.duckdb_plugin"
         ]
     },
     classifiers=[
