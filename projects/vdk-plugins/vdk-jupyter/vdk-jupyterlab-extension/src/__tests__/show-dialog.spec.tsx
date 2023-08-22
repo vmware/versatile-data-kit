@@ -21,6 +21,10 @@ jest.mock('@jupyterlab/apputils', () => ({
     cancelButton: jest.fn()
   }
 }));
+// Mock the showErrorDialog function
+jest.mock('../components/props', () => ({
+  showErrorDialog: jest.fn()
+}));
 jest.mock('../serverRequests', () => ({
   jobRunRequest: jest.fn(),
   jobRequest: jest.fn()
