@@ -137,7 +137,7 @@ public class JobExecutionUtil {
         String.format(
             "/data-jobs/for-team/%s/jobs/%s/deployments/%s/executions",
             teamName, jobName, deploymentId);
-    MvcResult dataJobExecutionResponse =
+    var dataJobExecutionResponse =
         mockMvc
             .perform(
                 post(triggerDataJobExecutionUrl)
@@ -147,11 +147,19 @@ public class JobExecutionUtil {
                         objectMapper.writeValueAsString(
                             new DataJobExecutionRequest().startedBy(username)))
                     .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is(202))
-            .andReturn();
+            .andReturn()
+            .getResponse();
+
+    if (dataJobExecutionResponse.getStatus() != 202) {
+      throw new Exception(
+          "status is "
+              + dataJobExecutionResponse.getStatus()
+              + "\nbody is "
+              + dataJobExecutionResponse.getContentAsString());
+    }
 
     // Check the data job execution status
-    String location = dataJobExecutionResponse.getResponse().getHeader("location");
+    String location = dataJobExecutionResponse.getHeader("location");
     String executionId = location.substring(location.lastIndexOf("/") + 1);
     return ImmutablePair.of(opId, executionId);
   }

@@ -54,14 +54,19 @@ if [ $# -eq 2 ]
 fi
 npm_token=$3
 
-# optional; defaults to registry.npmjs.org public repo
 if [ $# -eq 3 ]
   then
-    npm_registry="registry.npmjs.org"
-  else
-    npm_registry=$4
+    echo "ERROR: No argument for npm registry url provided."
+    exit 3
 fi
+npm_registry=$4
 
+if [ $# -eq 4 ]
+  then
+    echo "ERROR: No argument for npm tag provided."
+    exit 3
+fi
+npm_tag=$5
 
 # Locate the project dist directory
 if [ -d "./dist/$project_type/" ]
@@ -87,4 +92,4 @@ npm set //$npm_registry/:_authToken $npm_token
 
 # Publish
 echo "Publishing @vdk/$(basename "$PWD"):${package_version}..."
-npm publish --ignore-scripts --access public
+npm publish --ignore-scripts --access public --tag $npm_tag

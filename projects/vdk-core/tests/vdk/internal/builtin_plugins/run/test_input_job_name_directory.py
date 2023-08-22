@@ -17,6 +17,7 @@ def test_job_name_propagation():
         MagicMock(),
         MagicMock(),
         MagicMock(),
+        MagicMock(),
     )
 
     assert job_input.get_name() == name
@@ -27,6 +28,7 @@ def test_job_directory_propagation():
     job_input = JobInput(
         MagicMock(),
         job_directory,
+        MagicMock(),
         MagicMock(),
         MagicMock(),
         MagicMock(),

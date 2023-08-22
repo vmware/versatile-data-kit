@@ -133,10 +133,12 @@ class ImpalaPlugin:
                     )
                 ) from exception
 
-    @staticmethod
     @hookimpl
-    def db_connection_recover_operation(recovery_cursor: RecoveryCursor) -> None:
-        impala_error_handler = ImpalaErrorHandler()
+    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
+        impala_error_handler = ImpalaErrorHandler(
+            num_retries=self._impala_cfg.retries_on_error(),
+            backoff_seconds=self._impala_cfg.error_backoff_seconds(),
+        )
 
         if impala_error_handler.handle_error(
             recovery_cursor.get_exception(), recovery_cursor

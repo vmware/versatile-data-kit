@@ -17,6 +17,9 @@ from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRoute
 from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
 )
+from vdk.internal.builtin_plugins.job_secrets.secrets_router import (
+    SecretsRouter,
+)
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
     SqlArgumentSubstitutor,
@@ -45,6 +48,7 @@ class JobInput(IJobInput):
         managed_connection_builder: ManagedConnectionRouter,
         ingester: IngesterRouter,
         properties_router: PropertiesRouter,
+        secrets_router: SecretsRouter,
     ):
         """Constructor."""
 
@@ -56,6 +60,7 @@ class JobInput(IJobInput):
         self.__managed_connection_builder = managed_connection_builder
         self.__ingester = ingester
         self.__properties_router = properties_router
+        self.__secrets_router = secrets_router
         self.__vdk_internal_telemetry = None
 
     # Connections
@@ -76,6 +81,15 @@ class JobInput(IJobInput):
 
     def set_all_properties(self, properties):
         return self.__properties_router.set_all_properties(properties)
+
+    def get_secret(self, name, default_value=None):
+        return self.__secrets_router.get_secret(name, default_value)
+
+    def get_all_secrets(self):
+        return self.__secrets_router.get_all_secrets()
+
+    def set_all_secrets(self, secrets):
+        return self.__secrets_router.set_all_secrets(secrets)
 
     def _substitute_query_params(self, sql: str):
         sql = textwrap.dedent(sql).strip("\n") + "\n"
@@ -186,3 +200,7 @@ class JobInput(IJobInput):
             ),
         )
         raise SkipRemainingStepsException(error_message)
+
+    def get_temporary_write_directory(self) -> pathlib.Path:
+        path_string = self.__statestore.get(CommonStoreKeys.TEMPORARY_WRITE_DIRECTORY)
+        return pathlib.Path(path_string)

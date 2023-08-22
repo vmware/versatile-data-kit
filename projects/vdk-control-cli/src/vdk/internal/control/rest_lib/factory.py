@@ -8,6 +8,7 @@ from taurus_datajob_api import DataJobsApi
 from taurus_datajob_api import DataJobsDeploymentApi
 from taurus_datajob_api import DataJobsExecutionApi
 from taurus_datajob_api import DataJobsPropertiesApi
+from taurus_datajob_api import DataJobsSecretsApi
 from taurus_datajob_api import DataJobsServiceApi
 from taurus_datajob_api import DataJobsSourcesApi
 from urllib3 import Retry
@@ -67,6 +68,9 @@ class ApiClientFactory:
 
     def get_properties_api(self) -> DataJobsPropertiesApi:
         return DataJobsPropertiesApi(self._new_api_client())
+
+    def get_secrets_api(self) -> DataJobsSecretsApi:
+        return DataJobsSecretsApi(self._new_api_client())
 
     def get_service_api(self) -> DataJobsServiceApi:
         return DataJobsServiceApi(self._new_api_client())

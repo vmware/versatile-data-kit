@@ -29,6 +29,9 @@ from vdk.internal.builtin_plugins.ingestion.ingester_configuration_plugin import
 from vdk.internal.builtin_plugins.job_properties.properties_api_plugin import (
     PropertiesApiPlugin,
 )
+from vdk.internal.builtin_plugins.job_secrets.secrets_api_plugin import (
+    SecretsApiPlugin,
+)
 from vdk.internal.builtin_plugins.notification.notification import NotificationPlugin
 from vdk.internal.builtin_plugins.termination_message.writer import (
     TerminationMessageWriterPlugin,
@@ -97,6 +100,10 @@ class RuntimeStateInitializePlugin:
 
         context.state.set(CommonStoreKeys.VDK_VERSION, vdk_build_info.RELEASE_VERSION)
         context.state.set(CommonStoreKeys.START_TIME, datetime.utcnow())
+        context.state.set(
+            CommonStoreKeys.TEMPORARY_WRITE_DIRECTORY,
+            context.configuration.get_value(vdk_config.TEMPORARY_WRITE_DIRECTORY),
+        )
 
 
 @hookimpl
@@ -115,6 +122,7 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     plugin_registry.load_plugin_with_hooks_impl(NotificationPlugin())
     plugin_registry.load_plugin_with_hooks_impl(IngesterConfigurationPlugin())
     plugin_registry.load_plugin_with_hooks_impl(PropertiesApiPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(SecretsApiPlugin())
     # TODO: should be in run package only
     plugin_registry.add_hook_specs(JobRunHookSpecs)
     plugin_registry.load_plugin_with_hooks_impl(JobConfigIniPlugin())

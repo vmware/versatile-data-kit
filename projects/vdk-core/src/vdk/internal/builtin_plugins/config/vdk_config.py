@@ -3,6 +3,7 @@
 import logging
 import os
 import pathlib
+import tempfile
 from os import getenv
 from typing import Optional
 
@@ -23,6 +24,8 @@ WORKING_DIR = "WORKING_DIR"
 ATTEMPT_ID = "ATTEMPT_ID"
 EXECUTION_ID = "EXECUTION_ID"
 OP_ID = "OP_ID"
+TEMPORARY_WRITE_DIRECTORY = "TEMPORARY_WRITE_DIRECTORY"
+PYTHON_VERSION = "PYTHON_VERSION"
 
 log = logging.getLogger(__name__)
 
@@ -113,6 +116,19 @@ class CoreConfigDefinitionPlugin:
             "Data Job execution can run a Data Job one or more times."
             "Each distinct run would a single attempt.",
         )
+        config_builder.add(
+            TEMPORARY_WRITE_DIRECTORY,
+            tempfile.gettempdir(),
+            True,
+            "Temporary data job write directory, to be used if job needs to"
+            " write temporary files to local storage during job execution"
+            " (since writing to any directory might be restricted on a"
+            " deployment basis). Default value is tempfile.gettempdir()."
+            " Deletion of temporary files in the default directory is managed"
+            " by the underlying OS the data job executes on. There is"
+            " no guarantee that files created during a local data job execution"
+            " will  be present or absent for the next execution.",
+        )
 
 
 class EnvironmentVarsConfigPlugin:
@@ -187,6 +203,23 @@ It can be overridden by environment variables configuration (set by operators in
             default_value="always_enabled",
             description=description,
         )
+        config_builder.add(
+            key=PYTHON_VERSION,
+            default_value=None,
+            show_default_value=False,
+            description="The python version, which is to be used for the data job deployment."
+            " This configuration is to only be set in the [job] section of the config"
+            ".ini file, and will be ignored if set in any other way (e.g., as an environment"
+            " variable). As the configuration is optional, if not set, the default python version"
+            " set by the Control Service would be used. To see what python versions"
+            " are supported by a Versatile Data Kit deployment, use the `vdk info` command.\n"
+            " EXAMPLE USAGE:\n"
+            " --------------\n"
+            "[job]\n"
+            "schedule_cron = */50 * * * *\n"
+            "python_version = 3.9",
+        )
+
         if (
             self.__job_path
             and self.__job_path.exists()
@@ -215,6 +248,10 @@ It can be overridden by environment variables configuration (set by operators in
             config_builder.set_value(
                 JobConfigKeys.ENABLE_ATTEMPT_NOTIFICATIONS.value,
                 job_config.get_enable_attempt_notifications(),
+            )
+            config_builder.set_value(
+                JobConfigKeys.PYTHON_VERSION.value,
+                job_config.get_python_version(),
             )
 
             for key, value in job_config.get_vdk_options().items():

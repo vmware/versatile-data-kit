@@ -12,7 +12,7 @@ import { ArrayElement, CollectionsUtil } from '../../../utils';
 
 import { Replacer, TaurusNavigateAction } from '../../../common';
 
-import { SE_NAVIGATE, SystemEventHandler, SystemEventHandlerClass } from '../../system-events';
+import { SE_NAVIGATE, SystemEventHandler, SystemEventHandlerClass, SystemEventNavigatePayload } from '../../system-events';
 
 import { RouterService, RouteState } from '../../router';
 import { RouteStateFactory } from '../../router/factory';
@@ -28,7 +28,10 @@ export class NavigationService {
     /**
      * ** Constructor.
      */
-    constructor(private readonly router: Router, private readonly routerService: RouterService) {
+    constructor(
+        private readonly router: Router,
+        private readonly routerService: RouterService
+    ) {
         this._routeStateFactory = new RouteStateFactory();
     }
 
@@ -36,7 +39,7 @@ export class NavigationService {
      * ** Intercept SE_NAVIGATE Event and handle (react) on it.
      */
     @SystemEventHandler(SE_NAVIGATE)
-    _navigationSystemEventHandler_(payload: { url: string | string[]; extras?: NavigationExtras }): Promise<boolean> {
+    _navigationSystemEventHandler_(payload: SystemEventNavigatePayload): Promise<boolean> {
         if (CollectionsUtil.isNil(payload)) {
             return Promise.resolve(false);
         }

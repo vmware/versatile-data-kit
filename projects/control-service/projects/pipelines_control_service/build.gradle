@@ -42,11 +42,14 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.retry:spring-retry'
 
+    // Hashicorp Vault client libraries
+    implementation versions.'org.springframework.vault:spring-vault-core'
+
     // Janino is used for conditional processing in the logback-spring.xml file
     implementation 'org.codehaus.janino:janino'
 
     // Logstash is used for encoding logs to JSON
-    implementation 'net.logstash.logback:logstash-logback-encoder:7.3'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
     implementation versions.'org.zeroturnaround:zt-exec' // for kerberos shell kadmin command
 
@@ -77,6 +80,8 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'com.amazonaws:aws-java-sdk-core'
     implementation versions.'com.amazonaws:aws-java-sdk-sts'
 
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+
     compileOnly versions.'org.hibernate:hibernate-jpamodelgen'
     annotationProcessor versions.'org.hibernate:hibernate-jpamodelgen'
 
@@ -84,11 +89,12 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation versions.'com.mmnaseri.utils:spring-data-mock'
     testImplementation versions.'org.mock-server:mockserver-netty'
-    testImplementation 'org.springframework.security:spring-security-oauth2-jose'
     testImplementation versions.'org.mockito:mockito-core'
     testImplementation versions.'net.bytebuddy:byte-buddy'
     testImplementation versions.'org.testcontainers:testcontainers'
     testImplementation versions.'org.awaitility:awaitility'
+    testImplementation versions.'org.testcontainers:vault'
+    testImplementation versions.'org.testcontainers:junit-jupiter'
     testImplementation 'com.github.kirviq:dumbster:1.7.1'
     testImplementation versions.'org.junit.jupiter:junit-jupiter-api'
     testImplementation versions.'org.junit.platform:junit-platform-suite-api'
@@ -107,6 +113,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'com.squareup.okio:okio'
     implementation versions.'io.micrometer:micrometer-core'
     implementation versions.'io.micrometer:micrometer-registry-prometheus'
+    testImplementation versions.'com.icegreen.greenmail'
 }
 
 task wrapper(type: Wrapper) {

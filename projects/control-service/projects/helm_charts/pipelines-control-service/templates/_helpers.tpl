@@ -178,6 +178,23 @@ JDBC secret name
 {{ include "common.names.fullname" . }}-jdbc
 {{- end -}}
 
+
+{{/*
+Generate default Vault configuration.
+*/}}
+{{- define "pipelines-control-service.vaultSecret" -}}
+URI: {{ default "http://localhost:8200" .Values.secrets.vault.uri | b64enc | quote }}
+ROLEID: {{ default "root" .Values.secrets.vault.approle.roleid | b64enc | quote }}
+SECRETID: {{ default "root" .Values.secrets.vault.approle.secretid | b64enc | quote }}
+{{- end -}}
+
+{{/*
+Vault secret name
+*/}}
+{{- define "pipelines-control-service.vaultSecretName" -}}
+{{ include "common.names.fullname" . }}-vault
+{{- end -}}
+
 {{/*
 VDK distribution docker repository secret name
 */}}

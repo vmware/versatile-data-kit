@@ -3,6 +3,7 @@
 import os
 
 from vdk.api.job_input import IJobInput
+from vdk.plugin.impala.templates.data_quality_exception import DataQualityException
 from vdk.plugin.impala.templates.utility import align_stg_table_with_target
 from vdk.plugin.impala.templates.utility import get_file_content
 from vdk.plugin.impala.templates.utility import get_staging_table_name
@@ -38,10 +39,9 @@ def run(job_input: IJobInput):
         staging_table_name = get_staging_table_name(target_schema, target_table)
 
         staging_table = f"{staging_schema}.{staging_table_name}"
+        target_table_full_name = f"{target_schema}.{target_table}"
 
-        align_stg_table_with_target(
-            f"{target_schema}.{target_table}", staging_table, job_input
-        )
+        align_stg_table_with_target(target_table_full_name, staging_table, job_input)
 
         insert_into_staging = insert_query.format(
             current_target_schema=staging_schema,
@@ -56,6 +56,8 @@ def run(job_input: IJobInput):
         job_input.execute_query(insert_into_staging)
 
         if check(staging_table):
+            job_input.execute_query(f"COMPUTE STATS {staging_table}")
+
             insert_into_target = overwrite_target_query.format(
                 staging_schema=staging_schema,
                 staging_table_name=staging_table_name,
@@ -65,7 +67,11 @@ def run(job_input: IJobInput):
             )
             job_input.execute_query(insert_into_target)
         else:
-            raise Exception("The data is not passing the quality checks!")
+            raise DataQualityException(
+                checked_object=staging_table,
+                source_view=f"{source_schema}.{source_view}",
+                target_table=target_table_full_name,
+            )
 
     else:
         insert_query = insert_query.replace(

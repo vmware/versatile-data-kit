@@ -29,7 +29,6 @@ class PropertyOperation(Enum):
     """
 
     SET = "set"
-    SET_SECRET = "set_secret"  # nosec
     GET = "get"
 
 
@@ -60,9 +59,9 @@ class JobProperties:
 
     @staticmethod
     def _to_bool(value: str) -> bool:
-        if value == "true" or value == "True":
+        if value.lower() == "true":
             return True
-        if value == "false" or value == "False":
+        if value.lower() == "false":
             return False
         raise ValueError("bool cast accept only True/true/False/false values.")
 
@@ -176,8 +175,8 @@ class JobProperties:
     """
          Job properties are most commonly used to:
 
-         * store credentials securely
          * store data job state
+         * store credentials (when a secrets backend has not been configured)
 
      Examples:
 
@@ -186,12 +185,8 @@ class JobProperties:
      vdk properties --set my-key "my-value"
 
      \b
-     # Will prompt for the value so it's not printed on the screen.
-     vdk properties --set-secret "my-secret"
-
-     \b
      # Update multiple properties at once.
-     vdk properties --set "key1" "value1" --set "key2" "value2" --set-secret "secret1" --set-secret "secret2"
+     vdk properties --set "key1" "value1" --set "key2" "value2"
 
      \b
      # Use backslash \\ to set them on multiple lines
@@ -236,13 +231,6 @@ class JobProperties:
     "You can set multiple properties by using --set multiple times",
 )
 @click.option(
-    "--set-secret",
-    multiple=True,
-    type=click.STRING,
-    help="Set key value property which is a secret. It behaves almost the same way as --set."
-    "The difference from --set is that it will be prompted and input would be masked. ",
-)
-@click.option(
     "--delete",
     nargs=1,
     type=click.STRING,
@@ -273,7 +261,6 @@ def properties_command(
     name: str,
     team: str,
     set: Tuple[str, str],
-    set_secret: Tuple[str, str],
     delete: Tuple[str],
     delete_all_job_properties: bool,
     overwrite_all_job_properties: _io.BufferedReader,
@@ -282,12 +269,12 @@ def properties_command(
     rest_api_url: str,
     output: OutputFormat,
 ):
-    if (set or set_secret or delete) and (get or list):
+    if (set or delete) and (get or list):
         raise VDKException(
             what="Invalid arguments",
-            why="Wrong input. Cannot pass --get or --list at the same time as --set or --set-secret.",
+            why="Wrong input. Cannot pass --get or --list at the same time as --set.",
             consequence="Command will abort with error.",
-            countermeasure="Fix passed arguments such that get/list are not passed in the same time as set/set-secret.",
+            countermeasure="Fix passed arguments such that get/list are not passed in the same time as set/.",
         )
     if get and list:
         raise VDKException(
@@ -298,10 +285,10 @@ def properties_command(
         )
     log.debug(
         f"properties passed options: name: {name}, team: {team}, "
-        f"set: {set}, set_secret: {set_secret}, get: {get}, list: {list}, delete: {delete} "
+        f"set: {set}, get: {get}, list: {list}, delete: {delete} "
         f"rest_api_url: {rest_api_url}, output: {output}"
     )
-    key_value_pairs = _get_key_value_pairs(set, set_secret)
+    key_value_pairs = _get_key_value_pairs(set)
     cmd = JobProperties(rest_api_url, name, team, output)
     if key_value_pairs:
         cmd.update_properties(key_value_pairs)
@@ -327,13 +314,9 @@ def properties_command(
             )
 
 
-def _get_key_value_pairs(set, set_secret):
+def _get_key_value_pairs(set):
     key_value_pairs = {}
     if set:
         for key, value in set:
-            key_value_pairs[key] = value
-    if set_secret:
-        for key in set_secret:
-            value = click.prompt(f"{key}", hide_input=True)
             key_value_pairs[key] = value
     return key_value_pairs

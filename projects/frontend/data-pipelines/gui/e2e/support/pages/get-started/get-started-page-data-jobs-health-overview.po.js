@@ -48,9 +48,7 @@ export class GetStartedDataJobsHealthOverviewWidgetPO extends DataPipelinesBaseP
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getExecutionStatusGaugeWidget() {
-        return this.getDataJobsHealthPanel()
-            .should('exist')
-            .find('lib-widget-execution-status-gauge');
+        return this.getDataJobsHealthPanel().should('exist').find('lib-widget-execution-status-gauge');
     }
 
     /**
@@ -104,9 +102,7 @@ export class GetStartedDataJobsHealthOverviewWidgetPO extends DataPipelinesBaseP
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getFailingJobsWidget() {
-        return this.getDataJobsHealthPanel()
-            .should('exist')
-            .find('lib-data-jobs-failed-widget');
+        return this.getDataJobsHealthPanel().should('exist').find('lib-data-jobs-failed-widget');
     }
 
     /**
@@ -115,9 +111,7 @@ export class GetStartedDataJobsHealthOverviewWidgetPO extends DataPipelinesBaseP
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getAllFailingJobs() {
-        return this.getFailingJobsWidget()
-            .should('exist')
-            .find('clr-dg-row clr-dg-cell.job-name-column');
+        return this.getFailingJobsWidget().should('exist').find('clr-dg-row clr-dg-cell.job-name-column');
     }
 
     /**
@@ -126,9 +120,7 @@ export class GetStartedDataJobsHealthOverviewWidgetPO extends DataPipelinesBaseP
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getAllFailingJobsLinks() {
-        return this.getFailingJobsWidget()
-            .should('exist')
-            .find('[data-cy=dp-failed-data-jobs-widget-job-name-link]');
+        return this.getFailingJobsWidget().should('exist').find('[data-cy=dp-failed-data-jobs-widget-job-name-link]');
     }
 
     /**
@@ -137,9 +129,7 @@ export class GetStartedDataJobsHealthOverviewWidgetPO extends DataPipelinesBaseP
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getMostRecentFailingJobsWidget() {
-        return this.getDataJobsHealthPanel()
-            .should('exist')
-            .find('lib-data-jobs-executions-widget');
+        return this.getDataJobsHealthPanel().should('exist').find('lib-data-jobs-executions-widget');
     }
 
     /**
@@ -148,9 +138,7 @@ export class GetStartedDataJobsHealthOverviewWidgetPO extends DataPipelinesBaseP
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getAllMostRecentFailingJobs() {
-        return this.getMostRecentFailingJobsWidget()
-            .should('exist')
-            .find('clr-dg-row clr-dg-cell.job-name-column');
+        return this.getMostRecentFailingJobsWidget().should('exist').find('clr-dg-row clr-dg-cell.job-name-column');
     }
 
     /**
@@ -159,11 +147,7 @@ export class GetStartedDataJobsHealthOverviewWidgetPO extends DataPipelinesBaseP
      * @returns {Cypress.Chainable<JQuery<HTMLElement>>}
      */
     getAllMostRecentFailingJobsLinks() {
-        return this.getMostRecentFailingJobsWidget()
-            .should('exist')
-            .find(
-                '[data-cy=dp-failed-data-jobs-executions-widget-job-name-link]'
-            );
+        return this.getMostRecentFailingJobsWidget().should('exist').find('[data-cy=dp-failed-data-jobs-executions-widget-job-name-link]');
     }
 
     // Actions
@@ -173,11 +157,7 @@ export class GetStartedDataJobsHealthOverviewWidgetPO extends DataPipelinesBaseP
     }
 
     navigateToMostRecentFailingJobExecutions(jobName) {
-        this._navigateToDataJob(
-            this.getAllMostRecentFailingJobsLinks(),
-            jobName,
-            3
-        );
+        this._navigateToDataJob(this.getAllMostRecentFailingJobsLinks(), jobName, 3);
     }
 
     /**

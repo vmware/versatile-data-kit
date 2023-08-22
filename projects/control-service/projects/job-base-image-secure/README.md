@@ -10,7 +10,7 @@ some python packages which user may specify for their data job.
 
 ## Build
 
-To build the job_base images run `./publish-job-base` which will publish new base image to versatiledatakit container registry.
+To build the job_base images run `./publish-job-base-imagetest` which will publish new base image to versatiledatakit container registry.
 
 ## Use
 

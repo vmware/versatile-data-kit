@@ -5,16 +5,7 @@
 
 /// <reference types="cypress" />
 
-import {
-    TEAM_VDK,
-    TEAM_VDK_DATA_JOB_FAILING,
-    TEAM_VDK_DATA_JOB_TEST_V10,
-    TEAM_VDK_DATA_JOB_TEST_V11,
-    TEAM_VDK_DATA_JOB_TEST_V12,
-    TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V0,
-    TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V1,
-    TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V2
-} from '../../../helpers/constants.support';
+import { TEAM_VDK, TEAM_VDK_DATA_JOB_FAILING, TEAM_VDK_DATA_JOB_TEST_V10, TEAM_VDK_DATA_JOB_TEST_V11, TEAM_VDK_DATA_JOB_TEST_V12, TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V0, TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V1, TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V2 } from '../../../helpers/constants.support';
 
 import { applyGlobalEnvSettings } from '../../../../plugins/helpers/util-helpers.plugins';
 
@@ -48,17 +39,22 @@ export class DataPipelinesBasePO extends BasePagePO {
      * @param {string} url
      * @param {number} numberOfDataJobsApiGetReqInterceptorWaiting
      */
-    static navigateToDataJobUrl(
-        url,
-        numberOfDataJobsApiGetReqInterceptorWaiting = 1
-    ) {
+    static navigateToDataJobUrl(url, numberOfDataJobsApiGetReqInterceptorWaiting = 1) {
         this.navigateToUrl(url);
 
         this.waitForApplicationBootstrap();
-        this.waitForDataJobsApiGetReqInterceptor(
-            numberOfDataJobsApiGetReqInterceptorWaiting
-        );
+        this.waitForDataJobsApiGetReqInterceptor(numberOfDataJobsApiGetReqInterceptorWaiting);
 
+        return this.getPage();
+    }
+
+    /**
+     * ** Navigate to some url without bootstrap.
+     *
+     * @param {string} url
+     */
+    static navigateToDataJobUrlNoBootstrap(url) {
+        this.navigateToUrl(url);
         return this.getPage();
     }
 
@@ -68,9 +64,7 @@ export class DataPipelinesBasePO extends BasePagePO {
      * @return {Cypress.Chainable<undefined>}
      */
     static waitForDataJobExecutionPostReqInterceptor() {
-        return this.executeCypressCommand(
-            'waitForDataJobExecutionPostReqInterceptor'
-        );
+        return this.executeCypressCommand('waitForDataJobExecutionPostReqInterceptor');
     }
 
     /**
@@ -79,9 +73,7 @@ export class DataPipelinesBasePO extends BasePagePO {
      * @return {Cypress.Chainable<undefined>}
      */
     static waitForDataJobDeploymentPatchReqInterceptor() {
-        return this.executeCypressCommand(
-            'waitForDataJobDeploymentPatchReqInterceptor'
-        );
+        return this.executeCypressCommand('waitForDataJobDeploymentPatchReqInterceptor');
     }
 
     // Plugins invoking
@@ -159,9 +151,7 @@ export class DataPipelinesBasePO extends BasePagePO {
      */
     static provideExecutionsForLongLivedJobs(...instruction) {
         const relativePathToFixtures = [];
-        const foundFailingIndex = instruction.findIndex(
-            (i) => i.job === 'failing'
-        );
+        const foundFailingIndex = instruction.findIndex((i) => i.job === 'failing');
         if (foundFailingIndex !== -1) {
             relativePathToFixtures.push({
                 pathToFixture: `/base/data-jobs/${TEAM_VDK}/${TEAM_VDK_DATA_JOB_FAILING}.json`,
@@ -188,27 +178,29 @@ export class DataPipelinesBasePO extends BasePagePO {
         const relativePathToFixtures = [];
         if (jobVersion.includes('v0')) {
             relativePathToFixtures.push({
-                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V0}.json`
+                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V0}.json`,
+                executions: 1
             });
         }
 
         if (jobVersion.includes('v1')) {
             relativePathToFixtures.push({
-                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V1}.json`
+                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V1}.json`,
+                executions: 1
             });
         }
 
         if (jobVersion.includes('v2')) {
             relativePathToFixtures.push({
-                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V2}.json`
+                pathToFixture: `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V2}.json`,
+                executions: 1
             });
         }
 
         return cy.task(
             'provideDataJobsExecutions',
             {
-                relativePathToFixtures,
-                executions: 1
+                relativePathToFixtures
             },
             { timeout: DataPipelinesBasePO.WAIT_EXTRA_LONG_TASK }
         );
@@ -321,9 +313,7 @@ export class DataPipelinesBasePO extends BasePagePO {
                 },
                 { timeout: DataPipelinesBasePO.WAIT_LONG_TASK }
             )
-            .then(() =>
-                cy.wait(DataPipelinesBasePO.WAIT_AFTER_API_MODIFY_CALL)
-            );
+            .then(() => cy.wait(DataPipelinesBasePO.WAIT_AFTER_API_MODIFY_CALL));
     }
 
     /**
@@ -332,16 +322,15 @@ export class DataPipelinesBasePO extends BasePagePO {
      * @param {'v0'|'v1'|'v2'} jobVersion
      */
     static waitForShortLivedTestJobWithDeployExecutionToComplete(jobVersion) {
-        return this.loadShortLivedTestJobFixtureWithDeploy(jobVersion).then(
-            (jobFixture) =>
-                cy.task(
-                    'waitForDataJobExecutionToComplete',
-                    {
-                        jobFixture,
-                        jobExecutionTimeout: 240000
-                    },
-                    { timeout: DataPipelinesBasePO.WAIT_LONG_TASK }
-                )
+        return this.loadShortLivedTestJobFixtureWithDeploy(jobVersion).then((jobFixture) =>
+            cy.task(
+                'waitForDataJobExecutionToComplete',
+                {
+                    jobFixture,
+                    jobExecutionTimeout: 240000
+                },
+                { timeout: DataPipelinesBasePO.WAIT_LONG_TASK }
+            )
         );
     }
 
@@ -419,11 +408,7 @@ export class DataPipelinesBasePO extends BasePagePO {
      * @returns {Cypress.Chainable<{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}>}
      */
     static loadLongLivedFailingJobFixture() {
-        return cy
-            .fixture(
-                `/base/data-jobs/${TEAM_VDK}/${TEAM_VDK_DATA_JOB_FAILING}.json`
-            )
-            .then((fixture) => applyGlobalEnvSettings(fixture));
+        return cy.fixture(`/base/data-jobs/${TEAM_VDK}/${TEAM_VDK_DATA_JOB_FAILING}.json`).then((fixture) => applyGlobalEnvSettings(fixture));
     }
 
     /**
@@ -443,9 +428,7 @@ export class DataPipelinesBasePO extends BasePagePO {
             jobName = TEAM_VDK_DATA_JOB_TEST_WITH_DEPLOY_V2;
         }
 
-        return cy
-            .fixture(`/base/data-jobs/${TEAM_VDK}/short-lived/${jobName}.json`)
-            .then((fixture) => applyGlobalEnvSettings(fixture));
+        return cy.fixture(`/base/data-jobs/${TEAM_VDK}/short-lived/${jobName}.json`).then((fixture) => applyGlobalEnvSettings(fixture));
     }
 
     /**
@@ -454,29 +437,13 @@ export class DataPipelinesBasePO extends BasePagePO {
      * @returns {Cypress.Chainable<Array<{job_name:string; description:string; team:string; config:{db_default_type:string; contacts:{}; schedule:{schedule_cron:string}; generate_keytab:boolean; enable_execution_notifications:boolean}}>>}
      */
     static loadShortLivedTestJobsFixtureNoDeploy() {
-        return cy
-            .fixture(
-                `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_V10}.json`
-            )
-            .then((fixture1) => {
-                return cy
-                    .fixture(
-                        `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_V11}.json`
-                    )
-                    .then((fixture2) => {
-                        return cy
-                            .fixture(
-                                `/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_V12}.json`
-                            )
-                            .then((fixture3) => {
-                                return [
-                                    applyGlobalEnvSettings(fixture1),
-                                    applyGlobalEnvSettings(fixture2),
-                                    applyGlobalEnvSettings(fixture3)
-                                ];
-                            });
-                    });
+        return cy.fixture(`/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_V10}.json`).then((fixture1) => {
+            return cy.fixture(`/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_V11}.json`).then((fixture2) => {
+                return cy.fixture(`/base/data-jobs/${TEAM_VDK}/short-lived/${TEAM_VDK_DATA_JOB_TEST_V12}.json`).then((fixture3) => {
+                    return [applyGlobalEnvSettings(fixture1), applyGlobalEnvSettings(fixture2), applyGlobalEnvSettings(fixture3)];
+                });
             });
+        });
     }
 
     /**
@@ -522,9 +489,7 @@ export class DataPipelinesBasePO extends BasePagePO {
      * @param {() => void} interceptor
      */
     confirmInConfirmDialog(interceptor) {
-        cy.get('[data-cy=confirmation-dialog-ok-btn]')
-            .should('exist')
-            .click({ force: true });
+        cy.get('[data-cy=confirmation-dialog-ok-btn]').should('exist').click({ force: true });
 
         if (interceptor) {
             interceptor();

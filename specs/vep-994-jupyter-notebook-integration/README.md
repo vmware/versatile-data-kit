@@ -1,8 +1,8 @@
 
 # VEP-994: Jupyter Notebook Integration
 
-* **Author(s):** Duygu Hasan(hduyg@vmware.com)
-* **Status:** draft
+* **Author(s):** Duygu Hasan(hduyg@vmware.com), Antoni Ivanov(aivanov@vmware.com)
+* **Status:** implementable
 
 - [Summary](#summary)
 - [Glossary](#glossary)
@@ -87,6 +87,7 @@ For this purpose, a JupyterLab extension will be implemented, and it will give u
 Since JupyterLab works with notebook files the proposed design should support getting the job steps from them and executing them. To the purpose, a new VDK plugin will be introduced which will allow vdk to run steps which came from notebook files.
 
 Since users should be able to work with data jobs directly in .ipynb files, an ipython extension package will be introduced. It will be responsible for loading the data job in the Jupyter environment.
+Additionally, support for creating a job with a notebook inside will be provided.
 
 ### Ux flows
 Please, before reading this section make sure you read the user [guide](https://github.com/vmware/versatile-data-kit/wiki/User-Guide).
@@ -96,21 +97,21 @@ Pay attention: the job directory which will be mentioned bellow is the standard 
 
 |                  Operation                  |                                                                                                                                                                                                                       Flow                                                                                                                                                                                                                        | Covered  use cases | Priority |
 |:-------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------:|:--------:|
-|               Run VDK Jupyter               |                                                                                                                                                                      The user runs a single CLI command which opens the web version of JupyterLab. Examples: vdk jupyter lab                                                                                                                                                                      |         1          |   high   |
-|                    Help                     |                                                                                             After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Help" option. There he will be able to check for more information about how to use the VDK extension and where to find specific buttons and other UI elements                                                                                              |         1          |   mid    |
-|                   Log in                    |                                                                                                       After the user enters Jupyter lab he/she will see the VDK drop down menu where he can find the "Log in" option. It is for authentication against Control service. A pop out with the corresponding login options will be introduced.                                                                                                        |         1          |   mid    |
-|                   Log out                   |                                                                                                                             After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Log out" option. By clicking the option the user will be logged out from the Control Service.                                                                                                                              |         1          |   mid    |
-|                 Create job                  | After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Create job" option. After clicking that option the user gets a pop up where he should enter the needed information for the job that will be created: name, team, directory and whether it will only be created locally or in the cloud as well. After filling all the needed information for the job by clicking a "Create" button it will be created. |         1          |   high   |
-|                 Delete job                  |                                                                                                                                                                                              "Delete job" will be introduced just like "Create job".                                                                                                                                                                                              |         1          |   mid    |
-|                Work with SQL                |                                                                                                                                                    SQL queries will be executed using python. Using the job_input.execute_query method. These are going to be recognised as Python steps, too.                                                                                                                                                    |      2,3,4,7       |   high   |
-|       Work with Python NotebookSteps        |                                                                     One Python step can be introduced as one cell. The cells that will be part of the job should have a tag ("vdk") that shows that the cell should be included in the job. All the cells that do not have that tag will not be included in the job as a step. One notebook file can have many Python steps.                                                                      |       2,3,4        |   high   |
-|                   Deploy                    |                                     It will be added as an option in the vdk drop down menu mentioned in the first column of the table (where "create", "download" will be). A pop up will be introduced asking for what the user wants to do whether he wants to latest deployed version of specific job, to disable a data job, etc. Afterwards, he will be asked about the needed information to do that.                                      |         1          |   high   |
-|               Download a job                |                                                                                                                                                                                                      Similar to "Create job", "Delete job".                                                                                                                                                                                                       |         1          |   high   |
-|                 Execute job                 |                                                                                                                                                                                                                Similar to "Deploy"                                                                                                                                                                                                                |         1          |   mid    |
-|             Properties command              |                                                                                                                                      Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                      |         1          |   low    |
-|                List command                 |                                                                                                                                      Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                      |         1          |   low    |
-|                Show command                 |                                                                                                                                      Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                      |         1          |   low    |
-|                   Run job                   |                                                                                         After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Run job" option. After clicking that option the user gets a pop up where he should enter the needed information for the job that will be ran: the location/name/team.                                                                                          |         1          |   high   |
+|               Run VDK Jupyter               |                                                                                                                                                                      The user runs a single CLI command which opens the web version of JupyterLab. Examples: vdk jupyter lab                                                                                                                                                                                                                                        |         1          |   high   |
+|                    Help                     |                                                                                             After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Help" option. There he will be able to check for more information about how to use the VDK extension and where to find specific buttons and other UI elements                                                                                                                                                                |         1          |   mid    |
+|                   Log in                    |                                                                                                       After the user enters Jupyter lab he/she will see the VDK drop down menu where he can find the "Log in" option. It is for authentication against Control service. A pop out with the corresponding login options will be introduced.                                                                                                                                                                          |         1          |   mid    |
+|                   Log out                   |                                                                                                                             After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Log out" option. By clicking the option the user will be logged out from the Control Service.                                                                                                                                                                                                |         1          |   mid    |
+|                 Create job                  | After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Create job" option. After clicking that option the user gets a pop up where he should enter the needed information for the job that will be created: name, team, directory and whether it will only be created locally or in the cloud as well. After filling all the needed information for the job by clicking a "Create" button it will be created. The job will contain one single notebook file and no other steps. |         1          |   high   |
+|                 Delete job                  |                                                                                                                                                                                              "Delete job" will be introduced just like "Create job".                                                                                                                                                                                                                                                                |         1          |   mid    |
+|                Work with SQL                |                                                                                                                                                    SQL queries will be executed using python. Using the job_input.execute_query method. These are going to be recognised as Python steps, too.                                                                                                                                                                                                                      |      2,3,4,7       |   high   |
+|       Work with Python NotebookSteps        |                                                                     One Python step can be introduced as one cell. The cells that will be part of the job should have a tag ("vdk") that shows that the cell should be included in the job. All the cells that do not have that tag will not be included in the job as a step. One notebook file can have many Python steps.                                                                                                                                        |       2,3,4        |   high   |
+|                   Deploy                    |                                     It will be added as an option in the vdk drop down menu mentioned in the first column of the table (where "create", "download" will be). A pop up will be introduced asking for what the user wants to do whether he wants to latest deployed version of specific job, to disable a data job, etc. Afterwards, he will be asked about the needed information to do that.                                                                                                        |         1          |   high   |
+|               Download a job                |                                                                                                                                                                                                      Similar to "Create job", "Delete job".                                                                                                                                                                                                                                                                         |         1          |   high   |
+|                 Execute job                 |                                                                                                                                                                                                                Similar to "Deploy"                                                                                                                                                                                                                                                                                  |         1          |   mid    |
+|             Properties command              |                                                                                                                                      Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                                                                                        |         1          |   low    |
+|                List command                 |                                                                                                                                      Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                                                                                        |         1          |   low    |
+|                Show command                 |                                                                                                                                      Similar to execute deploy download. After the needed information is filled in the pop up, by clicking a button a window with the result information will be introduced.                                                                                                                                                                                                        |         1          |   low    |
+|                   Run job                   |                                                                                         After the user enters JupyterLab he will see the VDK drop down menu where he can find the "Run job" option. After clicking that option the user gets a pop up where he should enter the needed information for the job that will be ran: the location/name/team.                                                                                                                                                            |         1          |   high   |
 
 This is how a notebook with 7 steps would look like:
 
@@ -124,7 +125,21 @@ on the VDK menu.
 You can find a video presenting a few UI components in the main directory of the VEP.
 
 ## API design
-No direct changes to the public API.
+
+A new API to access Job Input interfaces, `VDK.get_initialized_job_input()`, is available only when running a notebook. It is provided by `vdk-ipython` plugin.
+
+Full usage would look like this:
+```
+%reload_ext vdk.plugin.ipython
+%reload_VDK --name=myjob
+job_input = VDK.get_initialized_job_input()
+```
+
+A new API to finalize (completes/ends) a job is added. It should be used rarely as the job finalization is automatically triggered when the kernel is stopped/interrupted.  It looks like this:
+
+```
+VDK.finalize()
+```
 
 ## Detailed design
 
@@ -141,22 +156,22 @@ As it can be seen from the below diagram the plugin will consist of a new hook a
 The VDK Hook will encapsulate the logic for the initialization of a job that will get the code from Notebook files. When initialized like that jobs that work with Notebooks will be run as a standard data job which works with .py and .sql files.
 It will be using the Notebook and the NotebookLocator classes.
 #### NotebookLocator
-It is a simple class which has a method which returns the notebook files found in a given directory.
+It is a simple class that has a method that returns the notebook files found in a given directory.
 #### Cell
-Before giving a proper definition to this class, we should see how we categorise the [Notebook cells](#glossary):
+Before giving a proper definition to this class, we should see how we categorize the [Notebook cells](#glossary):
 
 ![jupyter-cells](images/cells.jpeg)
 
-Jupyter itself categorises the cells into three groups: code, markdown and raw.
+Jupyter itself categorizes the cells into three groups: code, markdown, and raw.
 We will be looking into only the code ones since the plugin works only with them.
-The code cells can be categorised into two types - ones which are tagged with "vdk" and the ones that are not.
+The code cells can be categorized into two types - ones that are tagged with "vdk" and the ones that are not.
 The ones that are untagged are ignored by our plugin, and will not take part in the data job.
 The "vdk" tagged cells should have only Python code in it, since VDK does not work with iPython.
 
-The Cell  class is a dataclass class that encapsulates this logic.
+The Cell class is a dataclass that encapsulates this logic.
 
 #### Notebook
-This class has one static method.The method has the responsibility to register the NotebookSteps to JobContex
+This class has one static method. The method has the responsibility to register the NotebookSteps to JobContext
 from a given notebook file. The context of the job is passed to it by the VDKHook.
 
 #### NotebookStep
@@ -228,9 +243,27 @@ The availability of the extension will be managed by JupyterLab since it is goin
 In terms of security, Jupyter uses tornado to ensure only authorized user can request the Jupyter server
 You can read more [here](https://jupyter-notebook.readthedocs.io/en/stable/security.html#).
 
-VDK Control Service uses authentication in REST API, based on OAuth2 To authenticate specify OAuth2 access token as Authorization/Bearer Header.
-The testing installation uses (Staging) CSP Authentication provider. To get access token you need refresh or access token To get refresh token go to https://console-stg.cloud.vmware.com/csp/gateway/portal/#/user/tokens
+VDK Control Service uses authentication in REST API, based on OAuth2 To authenticate specify OAuth2 access token as an Authorization/Bearer Header.
+Access token would be generated using one of 2 approaches depending on how Jupyter server is deployed:
 
+* Standalone JupyterLab (catered for individual users in their local environments):
+   * Login:
+       Initiates the [OAuth2 Authorization Flow](https://tools.ietf.org/html/rfc6749#section-4.1) upon selecting "Login" from the VDK dropdown with callback to the server
+       The server would finish the authorization flow leveraging [tornado Oauth2Mixin](https://www.tornadoweb.org/en/stable/auth.html)
+       Access token, once received, is securely stored within JupyterLab backend.
+   * Logout: Access token data is deleted from the backend
+* JupyterHub Deployment (or any other similar multi-user, centralized deployments, with users already authenticated):
+   * Login:
+      * When a user wants to access a Jupyter notebook via multi-user notebook server platform (like JupyterHub), usually they would have to authenticate. Upon successful authentication, an access token is generated. VDK can re-use the same access token for authenentication against VDK Control Service. This is optional feature as it may not make sense in some deployments.
+      * The access token can be fetched from the Browser local storage using pre-configured keys specified during installation of vdk-jupyter extension.
+      * It is securely sent and stored within JupyterLab backend.
+      * As a backup, retains the Standalone Jupyter approach. The Login button can be hidden upon installation if desired though.
+      * More information specifically for JupyterHub can be seen [here](https://jupyterhub.readthedocs.io/en/stable/reference/services.html#implementing-your-own-authentication-with-jupyterhub) and [here](https://jupyterhub.readthedocs.io/en/stable/reference/services.html#hub-authentication-and-services)
+      * The design aims ot support any similar platform and not specifically JupyterHub. JupyterHub is the most famous example for such platfrom.
+   * Logout: Invalidates/deletes the VDK-specific access token without logging the user out of JupyterHub
+
+![vdk-notebook-plugin](images/jupyter-auth.svg)
+<!-- source of image: https://www.plantuml.com/plantuml/uml/jLFBZXCn4BpFLvHo0edam35Iq2wx81OM8Us3UyVk92QEUx3R2U7h6NiIAIC6mONBoAEkwghgjg-IKjIyyqrBKPrnBGN5v3bnd80ISdSObZxczgWSyNnN0T_wtt7CMp9R3hO2b_rv2FnodNNp6kKhqVqaTHBmo75_aXSgzI7dw-qdt4ZGABv2dU6AtTjjqomMU5GAbhm4nid7FIsnM3HD2OFfcxDdp77ZdTacJEvbxS84goWxbFusIclb49eAhQnpW8vr5vmwKiQe_VTU3WqPTVi2ESS-ixj6VIZCyS3VCoUjV0xgJ6tGdEhJWUO3MnVPQCB1wMOe2IEMHnNU_J0R2ciUmMCb4TV6S4fuaYt_KLTp34EWvT_YpMQp2mDb5vXVvcBavC8QMXkKyb1cE094Jgs4n4tTwEVirKthzbfFsXdVuGNFrkVzViZBbxZbrijnnq7BheCeG_OSKMYlJckSusdZ4bRTXa0fvHsdMeTB81-Px15qOThMOL_8W885zIagQK_EqzBpREnszKCxqr4yBKMsuvVgWKj2BACSIYClXZoIIgGr8z6URI_xlqPT9zsz0qZMlx-M3lJFp-MMFIiNu3IrRDpA6L0_cjxZLOVBE_yB >
 
 <!--
 Dig deeper into each component. The section can be as long or as short as necessary.

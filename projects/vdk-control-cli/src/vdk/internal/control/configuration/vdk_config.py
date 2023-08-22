@@ -129,13 +129,7 @@ class VDKConfig:
 
     @property
     def sample_job_directory(self) -> str:
-        sample_job_dir = os.getenv("VDK_CONTROL_SAMPLE_JOB_DIRECTORY", None)
-        if not sample_job_dir:
-            import vdk.internal.control.job.sample_job
-
-            template_module_path = vdk.internal.control.job.sample_job.__path__._path[0]
-            sample_job_dir = os.path.abspath(template_module_path)
-        return sample_job_dir
+        return os.getenv("VDK_CONTROL_SAMPLE_JOB_DIRECTORY", None)
 
 
 class VDKConfigFolder:

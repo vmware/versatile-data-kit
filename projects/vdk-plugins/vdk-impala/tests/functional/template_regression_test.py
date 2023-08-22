@@ -13,6 +13,8 @@ from unittest.mock import patch
 import pytest
 from vdk.internal.core import errors
 from vdk.plugin.impala import impala_plugin
+from vdk.plugin.test_utils.util_funcs import cli_assert
+from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import get_test_job_path
 
@@ -51,7 +53,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_table": target_table,
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
         assert actual_rs.output and expected_rs.output
@@ -71,7 +73,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "target_table": target_table,
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
@@ -127,7 +129,7 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
 
-        assert not res.exception
+        cli_assert(not res.exception, res)
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
         assert actual_rs.output and expected_rs.output
@@ -180,7 +182,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "id_column": "id",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -259,7 +261,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "updated_at_column": "updated_at",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -308,7 +310,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "updated_at_column": "updated_at",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -434,7 +436,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "last_arrival_ts": "updated_at",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -466,7 +468,7 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
         # Expecting data job not to finish due to empty source.
-        assert not res.exception
+        cli_assert(not res.exception, res)
         assert res.exit_code == 0
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
@@ -498,7 +500,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "last_arrival_ts": "updated_at",
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -560,7 +562,7 @@ class TestTemplateRegression(unittest.TestCase):
             },
         )
 
-        assert not res.exception
+        cli_assert(not res.exception, res)
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
@@ -724,7 +726,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "expect_table": expect_table,
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -754,7 +756,7 @@ class TestTemplateRegression(unittest.TestCase):
                 "expect_table": expect_table,
             },
         )
-        assert not res.exception
+        cli_assert(not res.exception, res)
 
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
@@ -765,4 +767,117 @@ class TestTemplateRegression(unittest.TestCase):
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
+
+    def test_insert_checks_positive(self) -> None:
+        test_schema = "vdkprototypes"
+        staging_schema = "staging_vdkprototypes"
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+
+        res = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "check": "use_positive_check",
+                "staging_schema": staging_schema,
+            },
+        )
+
+        cli_assert(not res.exception, res)
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
+
+    def test_insert_checks_negative(self) -> None:
+        test_schema = "vdkprototypes"
+        staging_schema = "staging_vdkprototypes"
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+
+        res = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "check": "use_negative_check",
+                "staging_schema": staging_schema,
+            },
+        )
+
+        assert res.exception
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+        assert actual_rs.output != expected_rs.output
+
+    def test_insert_clean_staging(self) -> None:
+        test_schema = "vdkprototypes"
+        staging_schema = "staging_vdkprototypes"
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+
+        res_first_exec = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "check": "use_positive_check",
+                "staging_schema": staging_schema,
+            },
+        )
+        staging_table_name = f"vdk_check_{test_schema}_{target_table}"
+        first_exec_rs = self._run_query(
+            f"SELECT * FROM {staging_schema}.{staging_table_name}"
+        )
+        cli_assert_equal(0, res_first_exec)
+
+        res_second_exec = self._run_job(
+            "insert_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+                "expect_schema": test_schema,
+                "expect_table": expect_table,
+                "check": "use_positive_check",
+                "staging_schema": staging_schema,
+            },
+        )
+        cli_assert_equal(0, res_second_exec)
+
+        second_exec_rs = self._run_query(
+            f"SELECT * FROM {staging_schema}.{staging_table_name}"
+        )
+        first_exec = {x for x in first_exec_rs.output.split("\n")}
+        second_exec = {x for x in second_exec_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            first_exec,
+            second_exec,
+            f"Clean up of staging table - {staging_table_name} is not made properly. Different data was found in the table after consecutive executions.",
         )

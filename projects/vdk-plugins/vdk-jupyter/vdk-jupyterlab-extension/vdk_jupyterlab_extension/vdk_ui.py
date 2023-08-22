@@ -12,7 +12,9 @@ from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
-from vdk.internal.control.utils.cli_utils import get_or_prompt
+from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
+from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
+from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
 
 
 class RestApiUrlConfiguration:
@@ -91,7 +93,7 @@ class VdkUI:
             return {"message": process.returncode}
 
     @staticmethod
-    def delete_job(name: str, team: str):
+    def delete_job(name: str, team: str) -> str:
         """
         Execute `delete job`.
         :param name: the name of the data job that will be deleted
@@ -103,7 +105,7 @@ class VdkUI:
         return f"Deleted the job with name {name} from {team} team. "
 
     @staticmethod
-    def download_job(name: str, team: str, path: str):
+    def download_job(name: str, team: str, path: str) -> str:
         """
         Execute `download job`.
         :param name: the name of the data job that will be downloaded
@@ -115,55 +117,66 @@ class VdkUI:
         cmd.download(team, name, path)
         return f"Downloaded the job with name {name} to {path}. "
 
-    # TODO: make it work with notebook jobs
     @staticmethod
-    def create_job(name: str, team: str, path: str, local: bool, cloud: bool):
+    def create_job(name: str, team: str, path: str) -> str:
         """
         Execute `create job`.
         :param name: the name of the data job that will be created
         :param team: the team of the data job that will be created
         :param path: the path to the directory where the job will be created
-        :param local: create sample job on local file system
-        :param cloud: create job in the cloud
         :return: message that the job is created
         """
-        cmd = JobCreate(RestApiUrlConfiguration.get_rest_api_url())
+        jupyter_job_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "jupyter_sample_job")
+        )
+        rest_api_url = ""
+        cloud = False
+        error = ""
+        try:
+            rest_api_url = RestApiUrlConfiguration.get_rest_api_url()
+            cli_utils.check_rest_api_url(rest_api_url)
+            cloud = True
+        except ValueError as e:
+            error = str(e)
+        cmd = JobCreate(rest_api_url)
+        cmd.create_job(name, team, path, cloud, True, pathlib.Path(jupyter_job_dir))
         if cloud:
-            cli_utils.check_rest_api_url(RestApiUrlConfiguration.get_rest_api_url())
+            result = f"Job with name {name} was created successfully!"
+        else:
+            result = (
+                f"Job with name {name} was created only locally. "
+                f"If you are not using the Control Service the next lines should not concern you! \n"
+                f"We tried to create it in the cloud but come up to:"
+                f"{error}"
+                f""
+            )
 
-        if local:
-            cmd.validate_job_path(path, name)
-
-        cmd.create_job(name, team, path, cloud, local)
-        return f"Job with name {name} was created."
+        return result
 
     @staticmethod
-    def create_deployment(name: str, team: str, path: str, reason: str, enabled: bool):
+    def create_deployment(name: str, team: str, path: str, reason: str):
         """
         Execute `Deploy job`.
         :param name: the name of the data job that will be deployed
         :param team: the team of the data job that will be deployed
         :param path: the path to the job's directory
         :param reason: the reason of deployment
-        :param enabled: flag whether the job is enabled (that will basically un-pause the job)
         :return: output string of the operation
         """
-        output = ""
-        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), output)
-        path = get_or_prompt("Job Path", path)
-        default_name = os.path.basename(path)
-        name = get_or_prompt("Job Name", name, default_name)
-        reason = get_or_prompt("Reason", reason)
+        printer = InMemoryTextPrinter()
+        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
         cmd.create(
             name=name,
             team=team,
             job_path=path,
             reason=reason,
-            output=output,
             vdk_version=None,
-            enabled=enabled,
+            enabled=True,
         )
-        return output
+        return (
+            f"Job with name {name} and team {team} is deployed successfully! "
+            f"Deployment information:\n {printer.get_memory().strip()}"
+        )
 
     @staticmethod
     def get_notebook_info(cell_id: str, pr_path: str):
@@ -214,3 +227,23 @@ class VdkUI:
                 if "vdk" in jupyter_cell["metadata"].get("tags", {}):
                     vdk_cells.append(index)
             return vdk_cells
+
+    @staticmethod
+    def convert_job(job_dir: str):
+        """
+        Transforms the job in the specified directory by archiving it, processing the Python and SQL files,
+        and returning a processed code structure.
+        :param job_dir: Path to the directory of the job to be transformed.
+        :return: The processed code structure.
+        """
+        job_dir = Path(job_dir)
+        archiver = DirectoryArchiver(job_dir)
+        processor = ConvertJobDirectoryProcessor(job_dir)
+        archiver.archive_folder()
+        processor.process_files()
+        message = {
+            "code_structure": processor.get_code_structure(),
+            "removed_files": processor.get_removed_files(),
+        }
+        processor.cleanup()
+        return message

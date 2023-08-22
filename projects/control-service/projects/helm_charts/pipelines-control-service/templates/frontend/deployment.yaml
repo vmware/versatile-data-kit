@@ -3,12 +3,15 @@
   SPDX-License-Identifier: Apache-2.0
  */}}
 
+{{- if .Values.operationsUi.enabled }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-ui
   labels:
     app: {{ .Release.Name }}-ui
+    date: "{{ now | unixEpoch }}"
 spec:
   replicas: {{ .Values.operationsUi.replicaCount }}
   selector:
@@ -18,6 +21,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-ui
+        date: "{{ now | unixEpoch }}"
     spec:
       {{- if and (.Values.operationsUi.image.username) (.Values.operationsUi.image.password) }}
       imagePullSecrets:
@@ -53,3 +57,5 @@ spec:
         - name: config-volume
           configMap:
             name: ui-config
+
+{{- end }}

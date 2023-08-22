@@ -51,7 +51,6 @@ dependencies {
 
    implementation "org.springframework:spring-aspects"
 
-   implementation versions.'org.influxdb:influxdb-java'
    implementation versions.'com.google.guava:guava'
    implementation versions.'io.micrometer:micrometer-registry-prometheus'
    implementation versions.'org.apache.commons:commons-lang3'

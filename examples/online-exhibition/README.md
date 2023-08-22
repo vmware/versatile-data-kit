@@ -125,15 +125,7 @@ trino_schema = online-exhibition
 ### Europeana API key
 We can add the Europeana API key as a vdk property as follows:
 ```
-vdk properties --set-secret api_key
-```
-
-vdk will ask you for the following information:
-```
-vdk properties --set-secret api_key
-Job Name: online-exhibition
-Job Team: my-team
-api_key: YOUR_API_KEY
+vdk properties --set api_key YOUR_API_KEY
 ```
 
 Then, we will access it in data job with the `job_input.get_property()` method.

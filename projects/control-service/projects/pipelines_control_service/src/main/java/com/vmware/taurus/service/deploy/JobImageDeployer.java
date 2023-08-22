@@ -42,6 +42,9 @@ public class JobImageDeployer {
   @Value("${datajobs.deployment.readOnlyRootFilesystem:}")
   private boolean readOnlyRootFilesystem;
 
+  @Value("${datajobs.deployment.jobImagePullPolicy:IfNotPresent}")
+  private String jobImagePullPolicy;
+
   private static final String VOLUME_NAME = "vdk";
   private static final String VOLUME_MOUNT_PATH = "/vdk";
   private static final String EPHEMERAL_VOLUME_NAME = "tmpfs";
@@ -51,6 +54,8 @@ public class JobImageDeployer {
   private static final String KEYTAB_FILENAME_ENV = "VDK_KEYTAB_FILENAME";
   private static final String ATTEMPT_ID = "VDK_ATTEMPT_ID";
   private static final String BASE_CONFIG_FOLDER = "VDK_BASE_CONFIG_FOLDER";
+  private static final String VDK_TEMPORARY_WRITE_DIRECTORY = "VDK_TEMPORARY_WRITE_DIRECTORY";
+  private static final String TEMPORARY_WRITE_DIRECTORY_PATH = EPHEMERAL_VOLUME_MOUNT_PATH;
 
   private final JobCredentialsService jobCredentialsService;
   private final DataJobsKubernetesService dataJobsKubernetesService;
@@ -229,6 +234,7 @@ public class JobImageDeployer {
     jobContainerEnvVars.put(KEYTAB_FILENAME_ENV, JobCredentialsService.K8S_KEYTAB_KEY_IN_SECRET);
     jobContainerEnvVars.put(ATTEMPT_ID, "$metadata.name");
     jobContainerEnvVars.put(BASE_CONFIG_FOLDER, EPHEMERAL_VOLUME_MOUNT_PATH);
+    jobContainerEnvVars.put(VDK_TEMPORARY_WRITE_DIRECTORY, TEMPORARY_WRITE_DIRECTORY_PATH);
     jobContainerEnvVars.putAll(getSystemDefaults());
     jobContainerEnvVars.putAll(vdkEnvs);
     jobContainerEnvVars.putAll(jobConfigBasedEnvVars(dataJob.getJobConfig()));
@@ -246,7 +252,7 @@ public class JobImageDeployer {
             jobContainerEnvVars,
             List.of(),
             List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
-            "Always",
+            jobImagePullPolicy,
             defaultConfigurations.dataJobRequests(),
             defaultConfigurations.dataJobLimits(),
             null,
@@ -267,15 +273,11 @@ public class JobImageDeployer {
             Map.of(),
             List.of(),
             List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
-            "Always",
+            jobImagePullPolicy,
             kubernetesResources.dataJobInitContainerRequests(),
             kubernetesResources.dataJobInitContainerLimits(),
             null,
             vdkCommand);
-    // TODO: changing imagePullPolicy to IfNotPresent might be necessary optimization when running
-    // thousands of jobs.
-    // At the moment Always is chosen because it's possible to have a change in image that is not
-    // detected.
 
     var jobLabels = getJobLabels(dataJob, jobDeployment);
     var jobAnnotations =

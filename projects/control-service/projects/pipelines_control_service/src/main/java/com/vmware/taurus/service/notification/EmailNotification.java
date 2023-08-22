@@ -5,23 +5,17 @@
 
 package com.vmware.taurus.service.notification;
 
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,44 +28,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailNotification {
 
-  @Configuration
-  public static class SmtpProperties {
-
-    @Bean
-    @ConfigurationProperties(prefix = "mail.smtp")
-    public Map<String, String> smtp() {
-      return new HashMap<>();
-    }
-
-    public Map<String, String> smtpWithPrefix() {
-      Map<String, String> result = new HashMap<>();
-      var props = this.smtp();
-      props.forEach(((key, value) -> result.put("mail.smtp." + key, value)));
-      return result;
-    }
-  }
-
   static Logger log = LoggerFactory.getLogger(EmailNotification.class);
 
   private static final String CONTENT_TYPE = "text/html; charset=utf-8";
 
   private final Session session;
+  private final EmailConfiguration emailConfiguration;
 
-  public EmailNotification(SmtpProperties smtpProperties) {
+  public EmailNotification(EmailConfiguration emailConfiguration) {
+    this.emailConfiguration = emailConfiguration;
     Properties properties = System.getProperties();
-    properties.putAll(smtpProperties.smtpWithPrefix());
-    session = Session.getDefaultInstance(properties);
+    properties.putAll(emailConfiguration.smtpWithPrefix());
+    properties.setProperty("mail.transport.protocol", emailConfiguration.getTransportProtocol());
+    session = Session.getInstance(properties);
   }
 
   public void send(NotificationContent notificationContent) throws MessagingException {
     if (recipientsExist(notificationContent.getRecipients())) {
-      MimeMessage mimeMessage = new MimeMessage(session);
-      mimeMessage.setFrom(notificationContent.getSender());
-      mimeMessage.setRecipients(MimeMessage.RecipientType.TO, notificationContent.getRecipients());
-      mimeMessage.setSubject(notificationContent.getSubject());
-      mimeMessage.setContent(notificationContent.getContent(), CONTENT_TYPE);
       try {
-        Transport.send(mimeMessage);
+        sendEmail(notificationContent, notificationContent.getRecipients());
       } catch (SendFailedException firstException) {
         log.info(
             "Following addresses are invalid: {}",
@@ -79,9 +54,8 @@ public class EmailNotification {
         var validUnsentAddresses = firstException.getValidUnsentAddresses();
         if (recipientsExist(validUnsentAddresses)) {
           log.info("Retrying unsent valid addresses: {}", concatAddresses(validUnsentAddresses));
-          mimeMessage.setRecipients(MimeMessage.RecipientType.TO, validUnsentAddresses);
           try {
-            Transport.send(mimeMessage);
+            sendEmail(notificationContent, validUnsentAddresses);
           } catch (SendFailedException retriedException) {
             log.warn(
                 "\nwhat: {}\nwhy: {}\nconsequence: {}\ncountermeasure: {}",
@@ -95,18 +69,50 @@ public class EmailNotification {
     }
   }
 
-  private boolean recipientsExist(Address[] recipients) {
-    if (recipients.length == 0) {
-      return false;
+  private void sendEmail(NotificationContent notificationContent, Address[] recipients)
+      throws MessagingException {
+    if (emailConfiguration.isAuthEnabled()) {
+      sendAuthenticatedEmail(notificationContent, recipients);
+    } else {
+      sendUnauthenticatedEmail(notificationContent, recipients);
     }
-    return true;
+  }
+
+  private void sendUnauthenticatedEmail(
+      NotificationContent notificationContent, Address[] recipients) throws MessagingException {
+    var mimeMessage = prepareMessage(notificationContent);
+    Transport.send(mimeMessage, recipients);
+  }
+
+  private void sendAuthenticatedEmail(NotificationContent notificationContent, Address[] recipients)
+      throws MessagingException {
+    Transport transport = session.getTransport();
+    var mimeMessage = prepareMessage(notificationContent);
+    try {
+      transport.connect(emailConfiguration.getUsername(), emailConfiguration.getPassword());
+      transport.sendMessage(mimeMessage, recipients);
+    } finally {
+      transport.close();
+    }
+  }
+
+  private MimeMessage prepareMessage(NotificationContent notificationContent)
+      throws MessagingException {
+    MimeMessage mimeMessage = new MimeMessage(session);
+    mimeMessage.setFrom(notificationContent.getSender());
+    mimeMessage.setRecipients(MimeMessage.RecipientType.TO, notificationContent.getRecipients());
+    mimeMessage.setSubject(notificationContent.getSubject());
+    mimeMessage.setContent(notificationContent.getContent(), CONTENT_TYPE);
+    return mimeMessage;
+  }
+
+  private boolean recipientsExist(Address[] recipients) {
+    return recipients.length > 0;
   }
 
   String concatAddresses(Address[] addresses) {
     return addresses == null
         ? null
-        : Arrays.asList(addresses).stream()
-            .map(addr -> addr.toString())
-            .collect(Collectors.joining(" "));
+        : Arrays.stream(addresses).map(Address::toString).collect(Collectors.joining(" "));
   }
 }

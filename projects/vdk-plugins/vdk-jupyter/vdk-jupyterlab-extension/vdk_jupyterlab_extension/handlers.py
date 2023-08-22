@@ -1,6 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
+import logging
 import os
 
 import tornado
@@ -10,6 +11,8 @@ from jupyter_server.utils import url_path_join
 from .job_data import JobDataLoader
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
+
+log = logging.getLogger(__name__)
 
 
 class LoadJobDataHandler(APIHandler):
@@ -22,16 +25,30 @@ class LoadJobDataHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         working_directory = json.loads(self.get_json_body())[VdkOption.PATH.value]
-        data = JobDataLoader(working_directory)
-        self.finish(
-            json.dumps(
-                {
-                    VdkOption.PATH.value: data.get_job_path(),
-                    VdkOption.NAME.value: data.get_job_name(),
-                    VdkOption.TEAM.value: data.get_team_name(),
-                }
+        try:
+            data = JobDataLoader(working_directory)
+            self.finish(
+                json.dumps(
+                    {
+                        VdkOption.PATH.value: data.get_job_path(),
+                        VdkOption.NAME.value: data.get_job_name(),
+                        VdkOption.TEAM.value: data.get_team_name(),
+                    }
+                )
             )
-        )
+        except Exception as e:
+            log.debug(
+                f"Failed to load job information from config.ini with error: {e}."
+            )
+            self.finish(
+                json.dumps(
+                    {
+                        VdkOption.PATH.value: "",
+                        VdkOption.NAME.value: "",
+                        VdkOption.TEAM.value: "",
+                    }
+                )
+            )
 
 
 class RunJobHandler(APIHandler):
@@ -95,6 +112,22 @@ class DownloadJobHandler(APIHandler):
             self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
+class ConvertJobHandler(APIHandler):
+    """
+    Class responsible for handling POST request for transforming a directory type Data job(with .py and .sql files)
+    to a notebook type data job
+    """
+
+    @tornado.web.authenticated
+    def post(self):
+        input_data = self.get_json_body()
+        try:
+            message = json.dumps(VdkUI.convert_job(input_data[VdkOption.PATH.value]))
+            self.finish(json.dumps({"message": f"{message}", "error": ""}))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+
+
 class CreateJobHandler(APIHandler):
     """
     Class responsible for handling POST request for creating a Data Job given its name, team,
@@ -113,8 +146,6 @@ class CreateJobHandler(APIHandler):
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
-                bool(input_data[VdkOption.LOCAL.value]),
-                bool(input_data[VdkOption.CLOUD.value]),
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -139,7 +170,6 @@ class CreateDeploymentHandler(APIHandler):
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
                 input_data[VdkOption.DEPLOYMENT_REASON.value],
-                input_data[VdkOption.DEPLOY_ENABLE.value],
             )
             self.finish(json.dumps({"message": f"{status}", "error": ""}))
         except Exception as e:
@@ -164,6 +194,12 @@ class GetVdkCellIndicesHandler(APIHandler):
         self.finish(json.dumps(vdk_indices))
 
 
+class GetServerPathHandler(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        self.finish(json.dumps(os.getcwd()))
+
+
 def setup_handlers(web_app):
     host_pattern = ".*$"
     base_url = web_app.settings["base_url"]
@@ -178,8 +214,10 @@ def setup_handlers(web_app):
     add_handler(RunJobHandler, "run")
     add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")
+    add_handler(ConvertJobHandler, "convertJobToNotebook")
     add_handler(CreateJobHandler, "create")
     add_handler(LoadJobDataHandler, "job")
     add_handler(CreateDeploymentHandler, "deploy")
     add_handler(GetNotebookInfoHandler, "notebook")
     add_handler(GetVdkCellIndicesHandler, "vdkCellIndices")
+    add_handler(GetServerPathHandler, "serverPath")

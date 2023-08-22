@@ -9,7 +9,7 @@ import {
 } from '@jupyterlab/application';
 
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { updateVDKMenu } from './commandsAndMenu';
+import { runningVdkOperation, updateVDKMenu } from './commandsAndMenu';
 
 import { FileBrowserModel, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { IChangedArgs } from '@jupyterlab/coreutils';
@@ -17,6 +17,12 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { trackVdkTags } from './vdkTags';
 import { IThemeManager } from '@jupyterlab/apputils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import { initVDKConfigCell } from './initVDKConfigCell';
+import { populateNotebook } from './components/ConvertJobToNotebook';
+import {
+  createStatusButton,
+  createStatusMenu
+} from './components/StatusButton';
 
 /**
  * Current working directory in Jupyter
@@ -47,9 +53,36 @@ const plugin: JupyterFrontEndPlugin<void> = {
   ) => {
     const { commands } = app;
 
-    updateVDKMenu(commands, docManager);
+    notebookTracker.activeCellChanged.connect((sender, args) => {
+      if (runningVdkOperation !== 'jp-vdk:menu-convert-job-to-notebook') {
+        initVDKConfigCell(notebookTracker);
+      } else {
+        //  * Populates notebook with provided content for convert job operation
+        //  * Check src/components/ConvertJobToNotebook.tsx for more
+        populateNotebook(notebookTracker);
+      }
+    });
+
+    createStatusMenu(commands);
+    const statusButton = createStatusButton(commands);
 
     const fileBrowser = factory.defaultBrowser;
+
+    app.restored.then(() => {
+      const topPanel = document.querySelector('#jp-top-panel');
+      if (topPanel) {
+        topPanel.appendChild(statusButton.element);
+      }
+    });
+
+    updateVDKMenu(
+      commands,
+      docManager,
+      fileBrowser,
+      notebookTracker,
+      statusButton
+    );
+
     fileBrowser.model.pathChanged.connect(onPathChanged);
     trackVdkTags(notebookTracker, themeManager);
   }

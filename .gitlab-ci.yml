@@ -1,9 +1,12 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-image: "python:3.7"
+# default image used by all pipelines if not overridden per job
+# it is better not to rely on default image and specify image explicitly for each job
+image: "python:3.9"
 
 include:
+  - "cicd/.gitlab-ci-lib.yml"
   - "projects/vdk-control-cli/.gitlab-ci.yml"
   - "projects/vdk-core/.gitlab-ci.yml"
   - "projects/frontend/cicd/.gitlab-ci.yml"
@@ -37,3 +40,14 @@ end:
   only:
     refs:
       - external_pull_requests
+
+notify_failure:
+  stage: end
+  script:
+    - ./cicd/notify.sh "The pipeline for the $CI_COMMIT_BRANCH branch has failed.\nPlease take the necessary steps to fix it. https://gitlab.com/vmware-analytics/versatile-data-kit/-/pipelines/$CI_PIPELINE_ID" $VDK_SLACK_NOTIFICATION_HOOK
+  allow_failure: true
+  rules:
+    - if: '$CI_COMMIT_BRANCH != "main"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_failure

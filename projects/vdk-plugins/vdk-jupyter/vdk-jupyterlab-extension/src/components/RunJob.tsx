@@ -4,9 +4,12 @@ import { VdkOption } from '../vdkOptions/vdk_options';
 import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { getNotebookInfo, jobRunRequest } from '../serverRequests';
-import { IJobPathProp } from './props';
+import { IJobPathProp, showErrorDialog } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
+import { StatusButton } from './StatusButton';
+import { checkIcon } from '@jupyterlab/ui-components';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
   /**
@@ -71,19 +74,24 @@ export default class RunJobDialog extends Component<IJobPathProp> {
   };
 }
 
-export async function showRunJobDialog(docManager?: IDocumentManager) {
+export async function showRunJobDialog(
+  docManager?: IDocumentManager,
+  statusButton?: StatusButton
+) {
   const result = await showDialog({
-    title: 'Run Job',
+    title: RUN_JOB_BUTTON_LABEL,
     body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!}></RunJobDialog>,
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
+    statusButton?.show('Run', jobData.get(VdkOption.PATH)!);
     let { message, status } = await jobRunRequest();
     if (status) {
       showDialog({
-        title: 'Run Job',
+        title: RUN_JOB_BUTTON_LABEL,
         body: (
           <div className="vdk-run-dialog-message-container">
+            <checkIcon.react className="vdk-dialog-check-icon" />
             <p className="vdk-run-dialog-message">
               The job was executed successfully!
             </p>
@@ -98,18 +106,15 @@ export async function showRunJobDialog(docManager?: IDocumentManager) {
         !docManager ||
         !(await handleErrorsProducedByNotebookCell(errorMessage, docManager))
       ) {
-        showDialog({
-          title: 'Run Job',
-          body: (
-            <div className="vdk-run-error-message ">
-              <p>{errorMessage.exception_message}</p>
-              <p>{errorMessage.what_happened}</p>
-              <p>{errorMessage.why_it_happened}</p>
-              <p>{errorMessage.consequences}</p>
-              <p>{errorMessage.countermeasures}</p>
-            </div>
-          ),
-          buttons: [Dialog.okButton()]
+        await showErrorDialog({
+          title: RUN_JOB_BUTTON_LABEL,
+          messages: [
+            errorMessage.exception_message,
+            errorMessage.what_happened,
+            errorMessage.why_it_happened,
+            errorMessage.consequences,
+            errorMessage.countermeasures
+          ]
         });
       }
     }
@@ -124,14 +129,14 @@ export const findFailingCellId = (message: String): string => {
 };
 
 /**
- * Returns a Element that is used for numarating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
+ * Returns a Element that is used for numerating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
  * @param failingCell - parent cell of that element
  * @returns Element or undefined if the element could not be found
  */
-export const getCellInputAreaPromp = (
-  failinCell: Element
+export const getCellInputAreaPrompt = (
+  failingCell: Element
 ): Element | undefined => {
-  const cellInputWrappers = failinCell.getElementsByClassName(
+  const cellInputWrappers = failingCell.getElementsByClassName(
     'jp-Cell-inputWrapper'
   );
   for (let i = 0; i < cellInputWrappers.length; i++) {
@@ -150,7 +155,7 @@ export const getCellInputAreaPromp = (
 };
 
 const switchToFailingCell = (failingCell: Element) => {
-  const prompt = getCellInputAreaPromp(failingCell);
+  const prompt = getCellInputAreaPrompt(failingCell);
   prompt?.classList.add('jp-vdk-failing-cell-prompt');
   failingCell.scrollIntoView();
   failingCell.classList.add('jp-vdk-failing-cell');
@@ -166,8 +171,8 @@ const switchToFailingCell = (failingCell: Element) => {
 
 const unmarkOldFailingCells = (cell: Element) => {
   cell.classList.remove('jp-vdk-failing-cell');
-  const cellPropt = getCellInputAreaPromp(cell);
-  cellPropt?.classList.remove('jp-vdk-failing-cell-prompt');
+  const cellPrompt = getCellInputAreaPrompt(cell);
+  cellPrompt?.classList.remove('jp-vdk-failing-cell-prompt');
 };
 
 export const findFailingCellInNotebookCells = async (
@@ -178,7 +183,7 @@ export const findFailingCellInNotebookCells = async (
   const cells = element.children;
   if (failingCellIndex > cells.length) {
     showDialog({
-      title: 'Run Failed',
+      title: RUN_FAILED_BUTTON_LABEL,
       body: (
         <div>
           <p>
@@ -233,17 +238,15 @@ export const handleErrorsProducedByNotebookCell = async (
         }
       };
 
-      const result = await showDialog({
-        title: 'Run Job',
-        body: (
-          <div className="vdk-run-error-message ">
-            <p>{message.exception_message}</p>
-            <p>{message.what_happened}</p>
-            <p>{message.why_it_happened}</p>
-            <p>{message.consequences}</p>
-            <p>{message.countermeasures}</p>
-          </div>
-        ),
+      const result = await showErrorDialog({
+        title: RUN_JOB_BUTTON_LABEL,
+        messages: [
+          message.exception_message,
+          message.what_happened,
+          message.why_it_happened,
+          message.consequences,
+          message.countermeasures
+        ],
         buttons: [
           Dialog.okButton({ label: 'See failing cell' }),
           Dialog.cancelButton()
@@ -251,7 +254,7 @@ export const handleErrorsProducedByNotebookCell = async (
       });
 
       if (result.button.accept) {
-        navigateToFailingCell();
+        await navigateToFailingCell();
       }
 
       return true;

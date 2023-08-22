@@ -19,9 +19,10 @@ from vdk.internal.control.job.job_archive import JobArchive
 from vdk.internal.control.job.job_config import JobConfig
 from vdk.internal.control.rest_lib.factory import ApiClientFactory
 from vdk.internal.control.rest_lib.rest_client_errors import ApiClientErrorDecorator
-from vdk.internal.control.utils import output_printer
 from vdk.internal.control.utils.cli_utils import get_or_prompt
-from vdk.internal.control.utils.output_printer import OutputFormat
+from vdk.internal.control.utils.output_printer import Printer
+from vdk.internal.control.utils.output_printer import PrinterJson
+from vdk.internal.control.utils.output_printer import PrinterText
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class JobDeploy:
     ZIP_ARCHIVE_TYPE = "zip"
     ARCHIVE_SUFFIX = "-archive"
 
-    def __init__(self, rest_api_url: str, output_format: str):
+    def __init__(self, rest_api_url: str, printer: Printer):
         self.deploy_api = ApiClientFactory(rest_api_url).get_deploy_api()
         self.jobs_api = ApiClientFactory(rest_api_url).get_jobs_api()
         self.job_sources_api = ApiClientFactory(rest_api_url).get_jobs_sources_api()
@@ -38,8 +39,7 @@ class JobDeploy:
         # Ultimately this will be user facing parameter (possibly fetched from config.ini)
         self.__deployment_id = "production"
         self.__job_archive = JobArchive()
-        self.__output_format = output_format
-        self.__printer = output_printer.create_printer(self.__output_format)
+        self.__printer = printer
 
     @staticmethod
     def __detect_keytab_files_in_job_directory(job_path: str) -> None:
@@ -193,7 +193,7 @@ class JobDeploy:
         self.deploy_api.deployment_update(
             team_name=team, job_name=name, data_job_deployment=deployment
         )
-        if self.__output_format == OutputFormat.TEXT.value:
+        if isinstance(self.__printer, PrinterText):
             log.info(
                 f"Request to deploy Data Job {name} using version {deployment.job_version} finished successfully.\n"
                 f"It would take a few minutes for the Data Job to be deployed in the server.\n"
@@ -239,7 +239,7 @@ class JobDeploy:
                 ),
                 deployments,
             )
-            if self.__output_format == OutputFormat.TEXT.value:
+            if isinstance(self.__printer, PrinterText):
                 click.echo(
                     "You can compare the version seen here to the one seen when "
                     "deploying to verify your deployment was successful."
@@ -283,7 +283,7 @@ class JobDeploy:
             "Team Name", team or job_config.get_team() or load_default_team_name()
         )
 
-        if self.__output_format == OutputFormat.TEXT.value:
+        if isinstance(self.__printer, PrinterText):
             log.info(
                 f"Deploy Data Job with name {name} from directory {job_path} ... \n"
             )
@@ -294,10 +294,10 @@ class JobDeploy:
         try:
             job_archive_binary = self.__archive_binary(archive_path)
 
-            if self.__output_format == OutputFormat.TEXT.value:
+            if isinstance(self.__printer, PrinterText):
                 log.info("Uploading the data job might take some time ...")
             with click_spinner.spinner(
-                disable=(self.__output_format == OutputFormat.JSON.value)
+                disable=(isinstance(self.__printer, PrinterJson))
             ):
                 data_job_version = self.job_sources_api.sources_upload(
                     team_name=team,

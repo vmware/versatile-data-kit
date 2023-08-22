@@ -14,7 +14,7 @@ global: {}
 image:
   registry: registry.hub.docker.com/versatiledatakit
   repository: pipelines-control-service
-  tag: "99a4957"
+  tag: "stable"
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -29,10 +29,11 @@ image:
 # All config related to the operations ui lives under this tag.
 # examples of what can be configured are, what docker image to pull, how many replicas of the service to run and how many resources to give to each replica
 operationsUi:
+  enabled: true
   image:
     registry: registry.hub.docker.com/versatiledatakit
     repository: vdk-operations-ui
-    tag: "latest"
+    tag: "stable"
     username:
     password:
   replicaCount: 1
@@ -188,6 +189,18 @@ uploadGitReadWritePassword: ""
 # Full list of file types are documented in https://tika.apache.org
 # If set to empty, then all file types are allowed.
 uploadValidationFileTypesAllowList: ""
+# List of file extensions that are allowed to be uploaded. Comma separated list e.g: "py,csv,sql"
+# only files with extensions that are present in this list will be allowed to be uploaded.
+# if the list is empty all extensions are allowed.
+uploadValidationFileExtensionsAllowList: ""
+# Works as the uploadValidationFileTypesAllowList above, only it deletes the files instead of failing
+# the job upload. Runs before the allow list, therefore if only files of the same types are present in
+# both lists, job upload will succeed.
+uploadValidationFileTypesFilterList: ""
+# List of file extensions that are automatically deleted from data job source code before upload.
+# Comma separated list e.g: "pyc,exe,sh". If the list is empty no files will be deleted.
+# Files are first deleted before the allow list performs its checks.
+uploadValidationFileExtensionsFilterList: ""
 
 ## [Required] The repository where the data job images will be stored (so write permission must be granted)
 ## Automatically a repository will be created for each data job in ${deploymentDockerRepository}/data-job-name
@@ -279,7 +292,8 @@ deploymentDataJobBaseImage:
 
 ## The map of python versions for data job deployments supported by the Control Service.
 ## All values should be strings, and follow the format
-## {"pythonVersion": {"baseImage": "<repository>:<tag>", "vdkImage": "<registry>/<repository>:<tag>"}}
+## {"pythonVersion": {"baseImage": "<repository>:<tag>", "vdkImage": "<registry>/<repository>:<tag>",
+## "builderImage": "<registry>/<repository>:<tag>"}}
 ##
 ## The value of baseImage will be used to create the image, where data job would be run.
 ## On top of it the job source and its dependencies are installed for each job.
@@ -292,11 +306,16 @@ deploymentDataJobBaseImage:
 ## Only the installed python modules (vdk and its dependencies) will be used from the image.
 ## Everything else is effectively discarded since another image is used as base during execution.
 ##
+## The value of builderImage is the image name of Job Builder, which will be used for data jobs building. \
+## The presence of this parameter is OPTIONAL; if it is not provided, the Control Service will automatically default
+## to the deploymentBuilderImage.
+##
 ## Example:
 ## deploymentSupportedPythonVersions:
 ##   3.7:
 ##     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.7:latest"
 ##     vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
+##     builderImage: "registry.hub.docker.com/versatiledatakit/job-builder:latest"
 deploymentSupportedPythonVersions:
   3.9:
     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
@@ -382,12 +401,17 @@ webHooks:
    ##    4xx or 5xx the job is not created/deleted
    ## 4xx response content is shown to end user as an error message.
    ## 5xx responses will be retried (number of retries is based on configuration, defaults to 3)
+   ##
+   ## In case authenticationEnabled is set to true, the Control Service (CS) will transmit the oAuth2 access token
+   ## to the WebHook API. This access token serves the purpose of authenticating the client against the CS.
    postCreate:
       webhookUri: ""
       internalErrorsRetries: 3
+      authenticationEnabled: false
    postDelete:
       webhookUri: ""
       internalErrorsRetries: 3
+      authenticationEnabled: false
 
 ### Security configuration
 
@@ -470,6 +494,9 @@ security:
       ## 4xx response content is shown to end user as an error message.
       ## 5xx responses will be retried
       webhookUri: ""
+      ## In case webhookAuthenticationEnabled is set to true, the Control Service (CS) will transmit the oAuth2 access token
+      ## to the WebHook API. This access token serves the purpose of authenticating the client against the CS.
+      webhookAuthenticationEnabled: false
       ## What JWT token claim (aka attribute/field) will fetch the username from.
       jwtClaimUsername: "username"
 
@@ -573,7 +600,7 @@ database:
    ## Name of the secret which holds JDBC credentials. The chart will not attempt to create this, but will use it as is.
    ## The secret should contain keys: JDBC, USERNAME, PASSWORD
    externalSecretName: ""
-   ## Alternatively provide JDBC url, username and password. externalSecretName takes precendence if both are set.
+   ## Alternatively provide JDBC url, username and password. externalSecretName takes precedence if both are set.
    jdbcUrl: ""
    username: ""
    password: ""
@@ -994,6 +1021,7 @@ dataJob:
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
   deployment:
+    jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer
       resources:
@@ -1023,3 +1051,83 @@ dataJob:
 # Configures the format of logs output by the control service; if set to `JSON`, logs are formatted to JSON;
 # else logs are formatted to their default user-readable format
 # loggingFormat: TEXT
+
+# Configures properties used for sending notifications if emails should go through an
+# authenticated email server. More information:
+# https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
+mail:
+  transport:
+    protocol: "smtp"
+  smtp:
+    auth: false
+    starttls:
+      enable: false
+    host: ""
+    user: ""
+    password: ""
+    ssl:
+      protocols: "TLSv1.2"
+    port: 587
+
+# Alert manager email notification configuration for the Data-Pipelines/Data Jobs
+# (dp) k8s deployment.
+# More information on individual fileds can be found here:
+# https://docs.openshift.com/container-platform/4.10/rest_api/monitoring_apis/alertmanagerconfig-monitoring-coreos-com-v1alpha1.html#specification
+# Pre-requisites for the alertmanager is that prometheus-operator is installed:
+# helm install prometheus-operator prometheus-community/kube-prometheus-stack
+alertmanager:
+  enabled: false
+  # Authentication credentials are mounted into a k8s secret, that's why they are separate.
+  authentication:
+    secretName: "alertmanager-authentication-secret"
+    authPassword: ""
+    authSecret: ""
+    authSecretKey: ""
+    authIdentity: ""
+  metadata:
+    labels:
+      role: infra
+    name: dp-notifications
+    namespace: default
+  spec:
+    receivers:
+      - emailConfigs:
+          - from: ""
+            headers:
+              - key: subject
+                value: ""
+            hello: localhost
+            html: ""
+            requireTLS: false
+            sendResolved: false
+            smarthost: ""
+            to: ""
+            authUsername: ""
+        name: "data-pipelines-receiver"
+    route:
+      groupBy:
+        - alertname
+        - execution_id
+      groupInterval: 1m
+      groupWait: 0s
+      matchers:
+        - name: source
+          value: ""
+      receiver: "data-pipelines-receiver"
+      repeatInterval: 30d
+
+# Vault integration configuration for storing Data Job Secrets
+# More information here: https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1493-vault-integration
+secrets:
+    vault:
+        enabled: false
+        ## Name of the secret which holds Vault URI and Approle RoleId and SecretId. The chart will not attempt to
+        ## create this, but will use it as is.
+        ## The secret should contain keys: URI, ROLEID, SECRETID
+        externalSecretName: ""
+        ## Alternatively provide the uri and Approle Settings here. externalSecretName takes precedence if both are set.
+        uri: "http://localhost:8200"
+        approle:
+            roleid: foo
+            secretid: foo
+        sizeLimitBytes: "1048576"

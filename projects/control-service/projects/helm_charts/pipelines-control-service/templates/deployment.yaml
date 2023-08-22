@@ -12,6 +12,7 @@ metadata:
   {{- if .Values.deploymentAdditionalLabels }}
   {{- include "common.tplvalues.render" (dict "value" .Values.deploymentAdditionalLabels "context" $) | nindent 4 }}
   {{- end }}
+    date: "{{ now | unixEpoch }}"
 spec:
   replicas: {{ .Values.replicas }}
   strategy:
@@ -28,6 +29,7 @@ spec:
       {{- if .Values.deploymentAdditionalLabels }}
       {{- include "common.tplvalues.render" (dict "value" .Values.deploymentAdditionalLabels "context" $) | nindent 8 }}
       {{- end }}
+        date: "{{ now | unixEpoch }}"
       annotations:
         # https://helm.sh/docs/howto/charts_tips_and_tricks Automatically Roll Deployments
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
@@ -152,6 +154,8 @@ spec:
               value: "{{ .Values.security.authorizationEnabled }}"
             - name: DATAJOBS_AUTHORIZATION_WEBHOOK_ENDPOINT
               value: "{{ .Values.security.authorization.webhookUri }}"
+            - name: DATAJOBS_AUTHORIZATION_WEBHOOK_AUTHENTICATION_ENABLED
+              value: "{{ .Values.security.authorization.webhookAuthenticationEnabled }}"
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
               value: "{{ .Values.security.oauth2.jwtIssuerUrl }}"
             - name: AUTHORITIES_CLAIM_NAME
@@ -166,12 +170,18 @@ spec:
               value: "{{ .Values.webHooks.postCreate.webhookUri }}"
             - name: DATAJOBS_POST_CREATE_WEBHOOK_INTERNAL_ERRORS_RETRIES
               value: "{{ .Values.webHooks.postCreate.internalErrorsRetries }}"
+            - name: DATAJOBS_POST_CREATE_WEBHOOK_AUTHENTICATION_ENABLED
+              value: "{{ .Values.webHooks.postCreate.authenticationEnabled }}"
             - name: DATAJOBS_POST_DELETE_WEBHOOK_ENDPOINT
               value: "{{ .Values.webHooks.postDelete.webhookUri }}"
             - name: DATAJOBS_POST_DELETE_WEBHOOK_INTERNAL_ERRORS_RETRIES
               value: "{{ .Values.webHooks.postDelete.internalErrorsRetries }}"
+            - name: DATAJOBS_POST_DELETE_WEBHOOK_AUTHENTICATION_ENABLED
+              value: "{{ .Values.webHooks.postDelete.authenticationEnabled }}"
             - name: DATAJOBS_AUTHORIZATION_JWT_CLAIM_USERNAME
               value: "{{ .Values.security.authorization.jwtClaimUsername }}"
+            - name: DATAJOBS_DEPLOYMENT_JOB_IMAGE_PULL_POLICY
+              value: "{{ .Values.dataJob.deployment.jobImagePullPolicy }}"
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
             - name: VDK_OPTIONS_INI
@@ -199,6 +209,12 @@ spec:
               value: "{{ .Values.monitoringSync.initialDelayMillis }}"
             - name: UPLOAD_VALIDATION_FILETYPES_ALLOWLIST
               value: "{{ .Values.uploadValidationFileTypesAllowList }}"
+            - name: UPLOAD_VALIDATION_EXTENSIONS_ALLOWLIST
+              value: "{{ .Values.uploadValidationFileExtensionsAllowList }}"
+            - name: UPLOAD_VALIDATION_FILETYPES_FILTER_LIST
+              value: "{{ .Values.uploadValidationFileTypesFilterList }}"
+            - name: UPLOAD_VALIDATION_EXTENSIONS_FILTER_LIST
+              value: "{{ .Values.uploadValidationFileExtensionsFilterList }}"
             - name: DATAJOBS_TEMP_STORAGE_FOLDER
               value: /datajobs_temp_storage
             {{- if .Values.datajobTemplate.enabled }}
@@ -255,9 +271,9 @@ spec:
             - name: LOGGING_FORMAT
               value: "{{ .Values.loggingFormat }}"
             {{- end }}
-            {{- if .Values.dataJob.readOnlyRootFilesystem }}
+            {{- if .Values.dataJob.readOnlyRootFileSystem }}
             - name: DATAJOBS_READ_ONLY_ROOT_FILESYSTEM
-              value: "{{ .Values.dataJob.readOnlyRootFilesystem }}"
+              value: "{{ .Values.dataJob.readOnlyRootFileSystem }}"
             {{- end }}
             {{- if .Values.deploymentBuilderImage.password }}
             - name: DATAJOBS_BUILDER_REGISTRY_SECRET
@@ -278,6 +294,45 @@ spec:
             {{- if .Values.deploymentSupportedPythonVersions }}
             - name: DATAJOBS_DEPLOYMENT_SUPPORTED_PYTHON_VERSIONS
               value: {{ .Values.deploymentSupportedPythonVersions | toJson | quote }}
+            {{- end }}
+            - name: MAIL_SMTP_HOST
+              value: "{{ .Values.mail.smtp.host }}"
+            {{- if .Values.mail.smtp.auth }}
+            - name: MAIL_SMTP_AUTH
+              value: "{{ .Values.mail.smtp.auth }}"
+            - name: MAIL_SMTP_STARTTLS_ENABLE
+              value: "{{ .Values.mail.smtp.starttls.enable }}"
+            - name: MAIL_SMTP_USER
+              value: "{{ .Values.mail.smtp.user }}"
+            - name: MAIL_SMTP_PASSWORD
+              value: "{{ .Values.mail.smtp.password }}"
+            - name: MAIL_SMTP_SSL_PROTOCOLS
+              value: "{{ .Values.mail.smtp.ssl.protocols }}"
+            - name: MAIL_SMTP_PORT
+              value: "{{ .Values.mail.smtp.port }}"
+            - name: MAIL_TRANSPORT_PROTOCOL
+              value: "{{ .Values.mail.transport.protocol }}"
+            {{- end }}
+            {{- if .Values.secrets.vault.enabled }}
+            - name: FEATUREFLAG_VAULT_INTEGRATION_ENABLED
+              value: "{{ .Values.secrets.vault.enabled }}"
+            - name: VDK_VAULT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
+                  key: URI
+            - name: VDK_VAULT_APPROLE_ROLEID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
+                  key: ROLEID
+            - name: VDK_VAULT_APPROLE_SECRETID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
+                  key: SECRETID
+            - name: DATAJOBS_VAULT_SIZE_LIMIT_BYTES
+              value: "{{ .Values.secrets.vault.sizeLimitBytes }}"
             {{- end }}
 
 

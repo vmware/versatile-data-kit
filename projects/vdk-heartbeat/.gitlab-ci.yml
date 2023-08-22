@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-image: "python:3.9"
 
 .vdk_heartbeat_changes: &vdk_heartbeat_changes_locations
   - projects/vdk-heartbeat/**/*
@@ -26,6 +25,28 @@ vdk-heartbeat-test:
     when: always
     reports:
       junit: tests.xml
+
+
+vdk-heartbeat-release-acceptance-test:
+  stage: pre_release
+  before_script:
+    - cd projects/vdk-heartbeat
+  script:
+    - set -x
+    - python setup.py sdist --formats=gztar
+    - pip install vdk-heartbeat --extra-index-url $PIP_EXTRA_INDEX_URL
+    - export VDK_HEARTBEAT_API_TOKEN=$VDK_API_TOKEN
+    - export VDK_HEARTBEAT_OP_ID="vdk-heartbeat-$CI_PIPELINE_ID"
+    - export JOB_NAME=vdk-heartbeat-release-test-job-$(date +%s)
+    - vdk-heartbeat -f cicd/cicd_heartbeat_config.ini
+  artifacts:
+    when: always
+    reports:
+      junit: tests.xml
+  only:
+    refs: # TODO switch to "main" so it is used as a pre-release test not pre-merge test
+      - external_pull_requests
+    changes: *vdk_heartbeat_changes_locations
 
 
 vdk-heartbeat-release:

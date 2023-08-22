@@ -69,6 +69,30 @@ export VDK_INGEST_METHOD_DEFAULT=IMPALA
 Then, from inside the run function in a Python step, you can use the `send_object_for_ingestion` or `send_tabular_data_for_ingestion` methods to ingest your data.
 -->
 
+#### Data Quality Checks
+
+Most of the processing templates support quality checks that are used for preventing bad data going into production tables.
+The checks represent a callback function that is passed as an optional parameter to the job_input.execute_template() method.
+
+Example:
+```python
+    def run(job_input: IJobInput) -> None:
+
+        def check(tmp_table_name):
+            result = #Implement your data quality check logic and return True/False
+            return result
+
+        job_input.execute_template(
+            template_name="load/dimension/scd1",
+            "source_schema": test_schema,
+            "source_view": source_view,
+            "target_schema": test_schema,
+            "target_table": target_table,
+            "check": check,
+            "staging_schema": staging_schema, #If not provided the checks would be performed in the target_schema
+        )
+```
+
 # Configuration
 
 Run vdk config-help - search for those prefixed with "IMPALA_" to see what configuration options are available.

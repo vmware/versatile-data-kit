@@ -15,6 +15,7 @@ export VDK_PACKAGE=${VDK_PACKAGE:-$(python setup.py --name)}
 export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
 export DOCKER_REGISTRY_IMAGE=${DOCKER_REGISTRY_IMAGE:-"$VDK_DOCKER_REGISTRY_URL/$VDK_PACKAGE"}  # where the image should be pushed
 export PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL:-https://test.pypi.org/simple/}
+export VDK_BASE_PYTHON_IMAGE=${VDK_BASE_PYTHON_IMAGE:-python:3.7-slim}
 
 set -o errexit -o nounset
 
@@ -47,6 +48,7 @@ docker build  -t "${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}" -t "${DOCKER_REGISTRY_
   --build-arg vdk_package="${VDK_PACKAGE}" \
   --build-arg vdk_version="${VDK_VERSION}" \
   --build-arg pip_extra_index_url="${PIP_EXTRA_INDEX_URL}" \
+  --build-arg vdk_base_python_image="${VDK_BASE_PYTHON_IMAGE}" \
   .
 
 # docker registry must allow override

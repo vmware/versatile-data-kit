@@ -2,8 +2,8 @@
   "name": "data-pipelines-wrapper",
   "version": "0.0.0",
   "engines": {
-    "node": "^14.15.0 || >=16.10.0",
-    "npm": ">=8.5.5"
+    "node": "^14.15.0 || >=18.12.0",
+    "npm": ">=9.7.2"
   },
   "private": true,
   "scripts": {
@@ -17,7 +17,8 @@
     "test:headless": "npm run test -- --browsers=ChromeHeadless_No_Sandbox",
     "lint": "npm run ng -- lint",
     "cypress:sc": "node --max_old_space_size=2048 ./node_modules/cypress/bin/cypress",
-    "e2e": "([ ! -z ${OAUTH2_API_TOKEN} ] || echo 'WARN: No OAUTH2_API_TOKEN set.') && npm run cypress:sc -- run --browser chrome --env grepTags=${CYPRESS_grepTags},OAUTH2_API_TOKEN=${OAUTH2_API_TOKEN},test_environment=${CYPRESS_test_environment},CYPRESS_TERMINAL_LOGS='./e2e/logs'",
+    "e2e": "([ ! -z ${OAUTH2_API_TOKEN} ] || echo 'WARN: No OAUTH2_API_TOKEN set.') && npm run cypress:sc -- run --browser chrome --env grepTags=${CYPRESS_grepTags},OAUTH2_API_TOKEN=${OAUTH2_API_TOKEN},test_environment=${CYPRESS_test_environment},CYPRESS_TERMINAL_LOGS='./e2e/logs' --spec './e2e/integration/frontend-tests/**/*.spec.js'",
+    "quickstart-smoke": "npm run cypress:sc -- run --browser chrome --env grepTags=${CYPRESS_grepTags},OAUTH2_API_TOKEN=${OAUTH2_API_TOKEN},test_environment=${CYPRESS_test_environment},CYPRESS_TERMINAL_LOGS='./e2e/logs' --spec ./e2e/integration/quickstart-operability/quickstart.spec.js",
     "start-server-and-test-e2e": "start-server-and-test start http://localhost.vmware.com:4200 e2e",
     "dev-start": "npm run build && npm run start",
     "clean:dist": "rimraf dist",

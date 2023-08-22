@@ -16,7 +16,7 @@ In summary, it overwrites the target table with the source data.
 - target_table         - SC Data Warehouse table of DW type 'Slowly Changing Dimension Type 1', where target data is loaded
 - source_schema        - SC Data Lake schema, where source raw data is loaded from
 - source_view          - SC Data Lake view, where source raw data is loaded from
-- check                - (Optional) Callback function responsible for checking the quality of the data
+- check                - (Optional) Callback function responsible for checking the quality of the data. Takes in a table name as a parameter which will be used for data validation
 - staging_schema       - (Optional) Schema where the checks will be executed. If not provided target_schema will be used as default
 
 ### Prerequisites:

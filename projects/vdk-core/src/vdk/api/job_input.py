@@ -33,6 +33,26 @@ class IProperties:
         pass
 
 
+class ISecrets:
+    """
+    Allows for Data Job to store and retrieve sensitive data.
+    Secrets are solution for the following use cases
+    * Keeping API keys and passwords necessary to connect to different systems
+    """
+
+    @abstractmethod
+    def get_secret(self, key: str, default_value: Any = None) -> str:
+        pass
+
+    @abstractmethod
+    def get_all_secrets(self) -> dict:
+        pass
+
+    @abstractmethod
+    def set_all_secrets(self, secrets: dict):
+        pass
+
+
 class IJobArguments:
     """
     Allows for users to pass arguments to data job run.
@@ -332,7 +352,9 @@ class ITemplate:
         pass
 
 
-class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArguments):
+class IJobInput(
+    IProperties, IManagedConnection, IIngester, ITemplate, IJobArguments, ISecrets
+):
     @abstractmethod
     def get_name(self) -> str:
         """
@@ -380,3 +402,25 @@ class IJobInput(IProperties, IManagedConnection, IIngester, ITemplate, IJobArgum
             depends on processing data from a source which has indicated no new entries since last run, then we can skip
             the execution.
         """
+
+    @abstractmethod
+    def get_temporary_write_directory(self) -> pathlib.Path:
+        """
+        :return:
+            Returns a path pointing to a writable directory for
+            data job executions in the cloud. This is needed because
+            different cloud deployments may restrict access to the file
+            system in a cloud execution. In this way data job users can make
+            sure the returned folder will allow read/write access.
+            Files written to this directory are temporary and there is no
+            guarantee that a file created during a local data job execution will
+            be present in a subsequent local execution. Therefore precautions
+            must be taken when developing locally since temporary files created
+            might not have been deleted by the OS. Files created during
+            cloud executions are deleted when the data job completes. Users can
+            assume that the temp directory is empty on subsequent cloud
+            executions. Default returned folder (non cloud executions) is
+            tempfile.gettempdir() therefore the default temporary directory is
+            managed by the underlying OS.
+        """
+        pass
