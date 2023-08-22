@@ -177,6 +177,7 @@ class VdkUI:
                     clear_notebook_outputs(notebook_path)
 
         printer = InMemoryTextPrinter()
+
         try:
             cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
             cmd.create(
@@ -187,19 +188,14 @@ class VdkUI:
                 vdk_version=None,
                 enabled=True,
             )
-        except Exception as e:
-            # Delete the copied directory, if operation fails
+            return (
+                f"Job with name {name} and team {team} is deployed successfully! "
+                f"Deployment information:\n {printer.get_memory().strip()}"
+            )
+
+        finally:
+            # Ensure the copied directory is deleted, whether the operation was successful or not
             shutil.rmtree(destination_path)
-            # Rethrowing since it is handled in the handler
-            raise
-
-        # After successful deployment, delete the copied directory
-        shutil.rmtree(destination_path)
-
-        return (
-            f"Job with name {name} and team {team} is deployed successfully! "
-            f"Deployment information:\n {printer.get_memory().strip()}"
-        )
 
     @staticmethod
     def get_notebook_info(cell_id: str, pr_path: str):
