@@ -1,11 +1,13 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
 import pathlib
 import tempfile
 from typing import List
 
-from vdk.internal.util.decorators import closing_noexcept_on_close
-
 import duckdb
+from vdk.internal.util.decorators import closing_noexcept_on_close
 
 log = logging.getLogger(__name__)
 
@@ -16,10 +18,10 @@ class DuckDBConnection:
     """
 
     def __init__(
-            self,
-            duckdb_file: pathlib.Path = pathlib.Path(tempfile.gettempdir()).joinpath(
-                "vdk-duckdb.db"
-            ),
+        self,
+        duckdb_file: pathlib.Path = pathlib.Path(tempfile.gettempdir()).joinpath(
+            "vdk-duckdb.db"
+        ),
     ):
         self.__db_file = duckdb_file
 
