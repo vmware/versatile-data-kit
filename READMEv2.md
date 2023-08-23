@@ -262,10 +262,16 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins#write-your-own-plugin">Write your own plugin</a></span><br>
     </td>
     <td width="50%" >
-      <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/d5142582-3bbd-4262-ae1f-1275df8fbcf0" aria-label="30 seconds video tutorial for VDK Plugins"></video>
+      <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/f4b94b31-2321-4972-bb54-1df2bcd20e32" aria-label="30 seconds video tutorial for VDK Plugins"></video>
     </td>
   </tr>
 </table>
+
+
+
+
+
+
 
 
 
