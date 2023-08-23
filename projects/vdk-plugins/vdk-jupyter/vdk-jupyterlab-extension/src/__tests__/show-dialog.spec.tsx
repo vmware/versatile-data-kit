@@ -36,6 +36,7 @@ describe('showRunJobDialog', () => {
     // Mock the result of the showDialog function
     const mockResult = { button: { accept: true } };
     (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
+    (showErrorDialog as jest.Mock).mockResolvedValueOnce(mockResult);
     // Mock the jobRunRequest function
   });
 
