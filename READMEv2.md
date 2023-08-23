@@ -223,7 +223,6 @@ vdk --help</code></pre>
         <p><b>Get started with operating and monitoring data jobs:</b></p>
         <span>&#10145;  <a href="https://youtu.be/DLRGCCGUp0U?t=111">Versatile Data Kit UI - Installation and Getting Started</a> </span><br>
         <span>&#10145;  <a href="https://www.youtube.com/watch?v=9BkAOSvXuUg">VDK Operations User Interface - Versatile Data Kit</a></span><br>
-        <span>&#10145;  <a href=""></a></span><br>
     </td>
     <td width="50%" >
         <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/6bf0c1cd-8c85-4f8a-8256-42a566bf53c0" aria-label="30 seconds video tutorial for VDK Operations UI"></video>
