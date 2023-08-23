@@ -225,13 +225,10 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://www.youtube.com/watch?v=9BkAOSvXuUg">VDK Operations User Interface - Versatile Data Kit</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/6bf0c1cd-8c85-4f8a-8256-42a566bf53c0" aria-label="30 seconds video tutorial for VDK Operations UI"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/9104b51b-8a86-4edf-ab9c-03fa19ba2e22" aria-label="30 seconds video tutorial for VDK Operations UI"></video>
     </td>
   </tr>
 </table>
-
-
-
 
 
 
