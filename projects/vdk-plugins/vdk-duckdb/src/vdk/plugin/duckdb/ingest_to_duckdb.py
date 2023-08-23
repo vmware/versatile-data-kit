@@ -62,7 +62,7 @@ class IngestToDuckDB(IIngesterPlugin):
             f"collection_id: {collection_id}"
         )
 
-        with (DuckDBConnection(duckdb_file=target).new_connection()) as conn:
+        with (DuckDBConnection(duckdb_file=target).new_connection() as conn):
             with closing(conn.cursor()) as cur:
                 if self.conf.get_auto_create_table_enabled():
                     self.__create_table_if_not_exists(cur, destination_table, payload)
