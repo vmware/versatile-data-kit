@@ -41,12 +41,16 @@ class JobControl:
     ):
         path = pathlib.Path(path) if path else pathlib.Path(os.getcwd())
         job_args = json.loads(arguments) if arguments else None
-        self._name = name
+        self._name = path.name if name is None else name
         self._path = path
         self._arguments = job_args
         self._template = template
         self.job = None
         self.job_input = None
+        log.debug(
+            f"Job Control for job with name {self._name} from path {self._path} "
+            f"with arguments {self._arguments} and template {self._template}"
+        )
 
     def get_initialized_job_input(self):
         """
