@@ -29,7 +29,7 @@ class IngestToDuckDB(IIngesterPlugin):
 
     def ingest_payload(
         self,
-        payload: List[Dict[str, Any]],
+        payload: List[Dict[str,Any]],
         destination_table: Optional[str] = None,
         target: str = None,
         collection_id: Optional[str] = None,
