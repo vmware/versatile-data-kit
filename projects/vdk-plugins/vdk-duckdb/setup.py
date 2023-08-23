@@ -22,11 +22,7 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(where="src"),
     # This is the only vdk plugin specifc part
     # Define entry point called "vdk.plugin.run" with name of plugin and module to act as entry point.
-    entry_points={
-        "vdk.plugin.run": [
-            "vdk-duckdb = vdk.plugin.duckdb.duckdb_plugin"
-        ]
-    },
+    entry_points={"vdk.plugin.run": ["vdk-duckdb = vdk.plugin.duckdb.duckdb_plugin"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: Apache Software License",

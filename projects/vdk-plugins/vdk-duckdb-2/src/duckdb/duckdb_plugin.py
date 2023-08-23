@@ -1,6 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 # this is module myproject.pluginmodule, which will be our plugin
 # define hookimpl as follows
 # you need to have vdk-core as dependency
