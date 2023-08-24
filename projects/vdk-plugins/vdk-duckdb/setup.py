@@ -14,7 +14,7 @@ setuptools.setup(
     name="vdk-duckdb",
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
-    description="Simple description of my project.",
+    description="DuckDB Plugin for VDK.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core", "tabulate"],

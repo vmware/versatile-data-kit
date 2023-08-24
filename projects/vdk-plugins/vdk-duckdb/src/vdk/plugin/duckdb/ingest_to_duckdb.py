@@ -42,13 +42,10 @@ class IngestToDuckDB(IIngesterPlugin):
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
                 log,
-                "Failed to proceed with ingestion",
-                "Target was not supplied as a parameter",
-                "Will not proceed with ingestion",
-                (
-                    "Set target either through the target parameter in send_object_for_ingestion,"
-                    "or through either of the VDK_INGEST_TARGET_DEFAULT or VDK_DUCKDB_FILE environment variables"
-                ),
+                "Failed to proceed with ingestion.",
+                "Target was not supplied as a parameter.",
+                "Will not proceed with ingestion.",
+                "Set the correct target parameter.",
             )
         if not payload:
             log.debug(
@@ -77,7 +74,7 @@ class IngestToDuckDB(IIngesterPlugin):
         for obj in values:
             try:
                 cur.execute(query, obj)
-                log.debug("Payload was ingested.")
+                log.debug(f"{obj} ingested.")
             except Exception as e:
                 errors.log_and_rethrow(
                     errors.ResolvableBy.PLATFORM_ERROR,
@@ -147,10 +144,6 @@ class IngestToDuckDB(IIngesterPlugin):
                     "See error message for help ",
                 )
 
-        values = [[obj.get(field) for field in fields] for obj in payload]
-        fields = [field if " " not in field else f'"{field}"' for field in fields]
-        query = f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join(['?' for _ in fields])})"
-        return values, query
 
     def __create_table_if_not_exists(
         self, cur: duckdb.cursor, destination_table: str, payload: List[dict]
