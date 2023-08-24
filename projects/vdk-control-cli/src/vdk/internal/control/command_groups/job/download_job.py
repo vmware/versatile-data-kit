@@ -6,6 +6,7 @@ import os
 import click
 import click_spinner
 from taurus_datajob_api import ApiResponse
+from vdk.internal.control.command_groups.job.download_key import JobDownloadKey
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.job.job_archive import JobArchive
@@ -18,7 +19,7 @@ log = logging.getLogger(__name__)
 
 class JobDownloadSource:
     def __init__(self, rest_api_url: str):
-        self.sources_api = ApiClientFactory(rest_api_url).get_jobs_sources_api()
+        self.api = ApiClientFactory(rest_api_url)
         self.__job_archive = JobArchive()
 
     @ApiClientErrorDecorator()
@@ -29,7 +30,7 @@ class JobDownloadSource:
         try:
             log.info(f"Downloading data job {name} in {path}/{name} ...")
             with click_spinner.spinner():
-                response = self.sources_api.data_job_sources_download_with_http_info(
+                response = self.api.get_jobs_sources_api().data_job_sources_download_with_http_info(
                     team_name=team, job_name=name, _preload_content=False
                 )
                 self.__write_response_to_archive(job_archive_path, response)
@@ -38,6 +39,16 @@ class JobDownloadSource:
                 )
 
             log.info(f"Downloaded Data Job in {path}/{name}")
+
+            log.info(f"Downloading keytab...")
+            keytab_file_path = os.path.join(path, f"{name}.keytab")
+            response = self.api.get_jobs_api().data_job_keytab_download_with_http_info(
+                team_name=team, job_name=name, _preload_content=False
+            )
+            with open(keytab_file_path, "wb") as w:
+                w.write(response.raw_data)
+            log.info(f"Saved keytab in {keytab_file_path}")
+
         finally:
             self.__cleanup_archive(job_archive_path)
 
