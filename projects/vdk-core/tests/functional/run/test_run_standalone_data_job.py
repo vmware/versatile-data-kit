@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 import collections
 from pathlib import Path
+from typing import List
 
 import pytest
 from functional.run import util
+from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.builtin_plugins.run.standalone_data_job import (
     StandaloneDataJobFactory,
@@ -81,3 +83,44 @@ def test_standalone_data_job_from_template():
         data_job._core_context.state.get(ExecutionStateStoreKeys.TEMPLATE_NAME)
         == template_name
     )
+
+
+def test_standalone_data_job_handles_arguments():
+    job_args = {"arg1": "value1", "arg2": "value2"}
+
+    with StandaloneDataJobFactory.create(
+        data_job_directory=Path(__file__).parent, job_args=job_args
+    ) as job_input:
+        assert job_input.get_arguments() == job_args
+
+
+def test_standalone_data_job_passes_command_line_arguments():
+    class CommandLineCatcher:
+        def __init__(self):
+            self.command_line_args = []
+
+        @hookimpl
+        def vdk_start(
+            self, plugin_registry: "IPluginRegistry", command_line_args: List
+        ) -> None:
+            self.command_line_args = command_line_args
+
+    job_dir = Path(__file__).parent
+    cmd_line_catcher = CommandLineCatcher()
+
+    with StandaloneDataJobFactory.create(
+        data_job_directory=job_dir, extra_plugins=[cmd_line_catcher]
+    ) as job_input:
+        assert cmd_line_catcher.command_line_args == ["run", str(job_dir)]
+
+    with StandaloneDataJobFactory.create(
+        data_job_directory=job_dir,
+        extra_plugins=[cmd_line_catcher],
+        job_args={"a": "b"},
+    ) as job_input:
+        assert cmd_line_catcher.command_line_args == [
+            "run",
+            str(job_dir),
+            "--arguments",
+            '{"a": "b"}',
+        ]
