@@ -168,7 +168,9 @@ class VdkUI:
         """
         with tempfile.TemporaryDirectory() as temp_dir:
             if not os.path.exists(path):
-                raise NotADirectoryError(f"The provided path '{path}' is not a valid directory.")
+                raise NotADirectoryError(
+                    f"The provided path '{path}' is not a valid directory."
+                )
 
             # Copy the contents of the original directory to the temporary directory
             for item in os.listdir(path):
