@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
+import json
 import logging
 import pathlib
 import sys
@@ -89,8 +90,17 @@ class StandaloneDataJob(IStandaloneDataJob):
         )
         self._template_name = template_name
 
+        command_line_args = ["run", str(data_job_directory)] + (
+            ["--arguments", json.dumps(job_args)] if job_args else []
+        )
+        log.debug(
+            f"Pass command line arguments for standalone data job to simulate vdk run: {command_line_args}"
+        )
         cast(CoreHookSpecs, self._plugin_registry.hook()).vdk_start.call_historic(
-            kwargs=dict(plugin_registry=self._plugin_registry, command_line_args=[])
+            kwargs=dict(
+                plugin_registry=self._plugin_registry,
+                command_line_args=command_line_args,
+            )
         )
 
         conf_builder = ConfigurationBuilder()
