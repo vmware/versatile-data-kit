@@ -183,7 +183,7 @@ vdk --help</code></pre>
         <p><b>Get started with deploying jobs in control service:</b></p>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Versatile-Data-Kit-Control-Service#install-locally">Install Local Control Service with vdk server --install</a> </span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Scheduling-a-Data-Job-for-automatic-execution">Scheduling a Data Job for automatic execution</a></span><br>
-        <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Using-VDK-DAGs-to-manage-jobs">Using VDK DAGs to orchestrate Data Jobs</a></span><br>
+        <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Using-VDK-DAGs-to-orchestrate-data-jobs">Using VDK DAGs to orchestrate Data Jobs</a></span><br>
     </td>
     <td width="50%" >
         <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/48164d16-d8ae-40a5-aebc-58340e6b3f35" aria-label="30 seconds video tutorial for VDK Control Service"></video>
