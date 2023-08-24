@@ -5,7 +5,7 @@ import unittest
 
 import duckdb
 from vdk.internal.core.config import Configuration
-from vdk.internal.core.errors import UserCodeError  #
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
 from vdk.plugin.duckdb.ingest_to_duckdb import IngestToDuckDB
 
