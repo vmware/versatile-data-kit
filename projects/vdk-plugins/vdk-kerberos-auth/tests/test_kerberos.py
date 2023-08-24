@@ -1,5 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import asyncio
 import os
 import pathlib
 import unittest
@@ -257,3 +258,10 @@ class TestKerberosAuthentication(unittest.TestCase):
 
             assert "Cannot locate keytab file" in str(result.exception)
             cli_assert_equal(1, result)
+
+    def test_minikerberos_authentication_within_asyncio_event_loop(self):
+        async def test_coroutine():
+            self.test_minikerberos_authentication()
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(test_coroutine())

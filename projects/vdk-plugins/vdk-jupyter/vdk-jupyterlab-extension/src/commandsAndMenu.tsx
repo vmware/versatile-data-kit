@@ -14,6 +14,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { StatusButton } from './components/StatusButton';
 import {  ERROR_LABEL  } from './utils';
 import { showErrorDialog } from './components/props';
+import {showLogin2Dialog} from "./components/Login2";
 
 export var runningVdkOperation = '';
 
@@ -24,6 +25,12 @@ export function updateVDKMenu(
   notebookTracker: INotebookTracker,
   statusButton: StatusButton
 ) {
+
+  commands.addCommand('jp-vdk:menu-login', {
+    label: 'Login',
+    caption: 'Execute VDK Login Command',
+    execute: showLogin2Dialog });
+
   // Add Run job command
   add_command(
     commands,
