@@ -148,7 +148,7 @@ vdk --help</code></pre>
     </td>
     <td width="50%" >
         <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/82ba18b7-bcdf-4c0a-9816-b61deae307ab" aria-label="30 seconds video tutorial for Data Transformation"></video>
-        <!-- link to the video above https://www.canva.com/design/DAFqxoSAXdM/oOG1pB0ekgrCCnKUyaB60Q/edit?utm_content=DAFqxoSAXdM -->    
+        <!-- link to the video above https://www.canva.com/design/DAFqxoSAXdM/oOG1pB0ekgrCCnKUyaB60Q/edit?utm_content=DAFqxoSAXdM -->
     </td>
   </tr>
 </table>
@@ -187,7 +187,7 @@ vdk --help</code></pre>
     </td>
     <td width="50%" >
         <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/48164d16-d8ae-40a5-aebc-58340e6b3f35" aria-label="30 seconds video tutorial for VDK Control Service"></video>
-        <!-- link to the video above https://www.canva.com/design/DAFsIj6BtVY/QMLKEYNGCJZRHSIJmYW99A/edit?utm_content=DAFsIj6BtVY -->    
+        <!-- link to the video above https://www.canva.com/design/DAFsIj6BtVY/QMLKEYNGCJZRHSIJmYW99A/edit?utm_content=DAFsIj6BtVY -->
     </td>
   </tr>
 </table>
@@ -224,7 +224,7 @@ vdk --help</code></pre>
     </td>
     <td width="50%" >
         <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/9104b51b-8a86-4edf-ab9c-03fa19ba2e22" aria-label="30 seconds video tutorial for VDK Operations UI"></video>
-        <!-- link to the video above https://www.canva.com/design/DAFsPZyGThU/nx5DNB7Ybzjx6OEkyjRVBQ/edit?utm_content=DAFsPZyGThU -->    
+        <!-- link to the video above https://www.canva.com/design/DAFsPZyGThU/nx5DNB7Ybzjx6OEkyjRVBQ/edit?utm_content=DAFsPZyGThU -->
     </td>
   </tr>
 </table>
@@ -262,7 +262,7 @@ vdk --help</code></pre>
     </td>
     <td width="50%" >
       <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/11227374/f4b94b31-2321-4972-bb54-1df2bcd20e32" aria-label="30 seconds video tutorial for VDK Plugins"></video>
-        <!-- link to the video above https://www.canva.com/design/DAFsQ3IeJy4/1b2x-HgStJAbztUwGANX5w/edit?utm_content=DAFsQ3IeJy4 -->    
+        <!-- link to the video above https://www.canva.com/design/DAFsQ3IeJy4/1b2x-HgStJAbztUwGANX5w/edit?utm_content=DAFsQ3IeJy4 -->
     </td>
   </tr>
 </table>
