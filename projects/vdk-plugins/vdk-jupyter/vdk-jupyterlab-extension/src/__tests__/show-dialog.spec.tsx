@@ -74,7 +74,7 @@ describe('showRunJobDialog', () => {
               <div className="vdk-run-dialog-message-container">
                 <checkIcon.react className="vdk-dialog-check-icon" />
                 <p className="vdk-run-dialog-message">
-                  The job was executed successfully!
+                  The job failed!
                 </p>
               </div>
           ),
