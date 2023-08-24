@@ -201,6 +201,8 @@ class VdkUI:
                 return (
                     f"Request to deploy job with name {name} and team {team} is sent successfully!"
                     f"It would take a few minutes for the Data Job to be deployed in the server."
+                    f"If notified_on_job_deploy option in config.ini is configured then "
+                    f"notification will be sent on successful deploy or in case of an error.\n\n"
                     f"Deployment information:\n {printer.get_memory().strip()}"
                 )
 
