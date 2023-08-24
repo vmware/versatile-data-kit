@@ -26,6 +26,9 @@
         - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
   artifacts:
     when: always
+    paths:
+      - "projects/vdk-plugins/$PLUGIN_NAME/tests.xml"
+    expire_in: 1 week
     reports:
       junit: "projects/vdk-plugins/$PLUGIN_NAME/tests.xml"
 
