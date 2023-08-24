@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import shutil
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 import pytest
 from vdk_jupyterlab_extension.jupyter_notebook import clear_notebook_outputs
@@ -35,4 +35,3 @@ def test_notebook_output_cleaner(job_dir, create_temporary_directory):
             if cell["cell_type"] == "code":
                 assert cell["execution_count"] is None
                 assert not cell["outputs"]
-
