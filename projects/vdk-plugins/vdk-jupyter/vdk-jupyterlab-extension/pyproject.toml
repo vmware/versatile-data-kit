@@ -36,7 +36,8 @@ test = [
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "pytest-tornasync"
+    "pytest-tornasync",
+    "httpretty"
 ]
 
 [tool.hatch.version]
