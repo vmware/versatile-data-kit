@@ -144,7 +144,6 @@ class IngestToDuckDB(IIngesterPlugin):
                     "See error message for help ",
                 )
 
-
     def __create_table_if_not_exists(
         self, cur: duckdb.cursor, destination_table: str, payload: List[dict]
     ):
