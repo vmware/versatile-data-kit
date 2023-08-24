@@ -10,8 +10,8 @@ from vdk_jupyterlab_extension.jupyter_notebook import clear_notebook_outputs
 
 @pytest.fixture(scope="module", autouse=True)
 def backup_and_restore_notebooks():
-    base_dir = Path(__file__).parent / "jobs"
-    backup_dir = Path(__file__).parent / "jobs_backup"
+    base_dir = Path(__file__).parent / "data"
+    backup_dir = Path(__file__).parent / "data_backup"
 
     # Backup the original directories
     if backup_dir.exists():
@@ -26,9 +26,9 @@ def backup_and_restore_notebooks():
     shutil.rmtree(backup_dir)
 
 
-@pytest.mark.parametrize("job_dir", ["ingest-job", "mixed-job"])
+@pytest.mark.parametrize("job_dir", ["ingest-notebook"])
 def test_notebook_output_cleaner(job_dir):
-    base_dir = Path(__file__).parent / "jobs"
+    base_dir = Path(__file__).parent / "data"
     dir_path = base_dir / job_dir
 
     for notebook_path in dir_path.glob("*.ipynb"):

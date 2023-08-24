@@ -6,6 +6,7 @@ import pathlib
 import shlex
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from vdk.internal.control.command_groups.job.create import JobCreate
@@ -165,38 +166,47 @@ class VdkUI:
         :param reason: the reason of deployment
         :return: output string of the operation
         """
-        # Make a copy of the directory at the same location
-        destination_path = os.path.join(path, os.path.basename(path))
-        shutil.copytree(path, destination_path)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            if not os.path.exists(path):
+                raise NotADirectoryError(f"The provided path '{path}' is not a valid directory.")
 
-        # Clear outputs for all notebooks in the destination path
-        for dir_path, _, filenames in os.walk(destination_path):
-            for filename in filenames:
-                if filename.endswith(".ipynb"):
-                    notebook_path = os.path.join(dir_path, filename)
-                    clear_notebook_outputs(notebook_path)
+            # Copy the contents of the original directory to the temporary directory
+            for item in os.listdir(path):
+                source_item = os.path.join(path, item)
+                destination_item = os.path.join(temp_dir, item)
+                if os.path.isdir(source_item):
+                    shutil.copytree(source_item, destination_item)
+                else:
+                    shutil.copy2(source_item, destination_item)
 
-        printer = InMemoryTextPrinter()
+            # Clear outputs for all notebooks in the temporary directory
+            for dir_path, _, filenames in os.walk(temp_dir):
+                for filename in filenames:
+                    if filename.endswith(".ipynb"):
+                        notebook_path = os.path.join(dir_path, filename)
+                        clear_notebook_outputs(notebook_path)
 
-        try:
-            cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
-            cmd.create(
-                name=name,
-                team=team,
-                job_path=destination_path,
-                reason=reason,
-                vdk_version=None,
-                enabled=True,
-            )
-            return (
-                f"Request to deploy job with name {name} and team {team} is sent successfully!"
-                f"It would take a few minutes for the Data Job to be deployed in the server."
-                f"Deployment information:\n {printer.get_memory().strip()}"
-            )
+            printer = InMemoryTextPrinter()
 
-        finally:
-            # Ensure the copied directory is deleted, whether the operation was successful or not
-            shutil.rmtree(destination_path)
+            try:
+                cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
+                cmd.create(
+                    name=name,
+                    team=team,
+                    job_path=temp_dir,
+                    reason=reason,
+                    vdk_version=None,
+                    enabled=True,
+                )
+                return (
+                    f"Request to deploy job with name {name} and team {team} is sent successfully!"
+                    f"It would take a few minutes for the Data Job to be deployed in the server."
+                    f"Deployment information:\n {printer.get_memory().strip()}"
+                )
+
+            finally:
+                # Temporary directory will be automatically cleaned up
+                pass
 
     @staticmethod
     def get_notebook_info(cell_id: str, pr_path: str):
