@@ -189,7 +189,8 @@ class VdkUI:
                 enabled=True,
             )
             return (
-                f"Job with name {name} and team {team} is deployed successfully! "
+                f"Request to deploy job with name {name} and team {team} is sent successfully!"
+                f"It would take a few minutes for the Data Job to be deployed in the server."
                 f"Deployment information:\n {printer.get_memory().strip()}"
             )
 
