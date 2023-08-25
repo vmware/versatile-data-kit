@@ -84,7 +84,12 @@ export async function showCreateDeploymentDialog() {
       if (runBeforeDeploy) {
         const { message, status } = await jobRunRequest();
         if (status) {
-          await jobRequest('deploy');
+          const success = await jobRequest('deploy');
+          // We only handle the successful deployment scenario.
+          // The failign scenario is handled in the request itself.
+          if(success){
+            alert("Job was run successfully! \n" + success);
+          }
         } else {
           const errorMessage = new VdkErrorMessage('ERROR : ' + message);
           showDialog({
@@ -102,7 +107,10 @@ export async function showCreateDeploymentDialog() {
           });
         }
       } else {
-        await jobRequest('deploy');
+        const success = await jobRequest('deploy');
+        if(success){
+          alert(success);
+        }
       }
     } catch (error) {
       await showErrorMessage(

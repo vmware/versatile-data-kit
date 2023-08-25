@@ -20,8 +20,6 @@ jest.mock('../handler', () => {
   };
 });
 
-window.alert = jest.fn();
-
 describe('jobdDataRequest', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -123,20 +121,12 @@ describe('jobRequest()', () => {
     };
     (requestAPI as jest.Mock).mockResolvedValue(serverVdkOperationResultMock);
 
-    const alertMock = jest
-      .spyOn(window, 'alert')
-      .mockImplementationOnce(() => {});
-
     await jobRequest(endPoint);
 
-    expect(alertMock as jest.Mock).toHaveBeenCalledWith(
-      serverVdkOperationResultMock['message']
-    );
     expect(requestAPI).toHaveBeenCalledWith(endPoint, {
       body: JSON.stringify(getJobDataJsonObject()),
       method: 'POST'
     });
-    (window.alert as jest.Mock).mockClear();
   });
 });
 

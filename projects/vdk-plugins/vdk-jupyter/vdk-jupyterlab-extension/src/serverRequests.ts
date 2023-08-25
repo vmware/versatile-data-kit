@@ -65,7 +65,7 @@ export async function jobRunRequest(): Promise<{
  * Sent a POST request to the server to execute a VDK operation a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
  */
-export async function jobRequest(endPoint: string): Promise<void> {
+export async function jobRequest(endPoint: string): Promise<string> {
   if (
     (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
     (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
@@ -75,7 +75,7 @@ export async function jobRequest(endPoint: string): Promise<void> {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
-      if (!data['error']) alert(data['message']);
+      if (!data['error']) return data['message'];
       else {
         await showErrorMessage(
           'Encountered an error while trying the ' +
@@ -84,11 +84,14 @@ export async function jobRequest(endPoint: string): Promise<void> {
           data['message'],
           [Dialog.okButton()]
         );
+        return '';
       }
     } catch (error) {
       showError(error);
+      return '';
     }
   }
+  return '';
 }
 
 /**
