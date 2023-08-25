@@ -74,13 +74,14 @@ describe('showRunJobDialog', () => {
               <div className="vdk-run-dialog-message-container">
                 <checkIcon.react className="vdk-dialog-check-icon" />
                 <p className="vdk-run-dialog-message">
-                  The job failed!
+                  The job was executed successfully!
                 </p>
               </div>
           ),
           buttons: [Dialog.okButton()]
         }
     );
+    expect(true).toBe(false);
   });
 
   it('should call the jobRunRequest function if the user clicks the accept button and return failing standard run dialog', async () => {
