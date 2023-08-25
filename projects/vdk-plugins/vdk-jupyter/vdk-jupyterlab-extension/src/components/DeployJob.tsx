@@ -86,7 +86,7 @@ export async function showCreateDeploymentDialog() {
         if (status) {
           const {message, status} = await jobRequest('deploy');
           // We only handle the successful deployment scenario.
-          // The failign scenario is handled in the request itself.
+          // The failing scenario is handled in the request itself.
           if(status){
             alert("The test job run completed successfully! \n" + message);
           }
