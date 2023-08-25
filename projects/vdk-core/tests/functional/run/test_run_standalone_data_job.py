@@ -8,16 +8,18 @@ import pytest
 from functional.run import util
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
+from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.standalone_data_job import (
     StandaloneDataJobFactory,
 )
+from vdk.internal.builtin_plugins.run.step import Step
 
 ExecutedStandaloneDataJobDetails = collections.namedtuple(
     "ExecutedStandalongDataJob", "hook_tracker job_input_name"
 )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def executed_standalone_data_job():
     hook_tracker = util.HookCallTracker()
     job_input_name = "unknown"
@@ -124,3 +126,34 @@ def test_standalone_data_job_passes_command_line_arguments():
             "--arguments",
             '{"a": "b"}',
         ]
+
+
+def test_standalone_data_job_ignore_steps_added_by_other_plugins(
+    executed_standalone_data_job,
+):
+    class AddNewStep:
+        def __init__(self):
+            self.step_executed = []
+
+        @hookimpl
+        def initialize_job(self, context: JobContext):
+            def func(_step, _job_input):
+                self.step_executed.append("")
+                return True
+
+            step = Step(
+                name="NoOpStep",
+                type="noop",
+                runner_func=func,
+                file_path=Path(__file__),
+                job_dir=context.job_directory,
+            )
+            context.step_builder.add_step(step)
+
+    new_step_plugin = AddNewStep()
+    with StandaloneDataJobFactory.create(
+        data_job_directory=Path(__file__), extra_plugins=[new_step_plugin]
+    ) as job_input:
+        pass
+
+    assert len(new_step_plugin.step_executed) == 0

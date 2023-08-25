@@ -20,9 +20,9 @@ from vdk.internal.builtin_plugins.run.data_job import DataJobDefaultHookImplPlug
 from vdk.internal.builtin_plugins.run.data_job import JobArguments
 from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.builtin_plugins.run.execution_tracking import ExecutionTrackingPlugin
-from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
+from vdk.internal.builtin_plugins.run.step import StepBuilder
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import StateStore
@@ -122,6 +122,20 @@ class StandaloneDataJob(IStandaloneDataJob):
         self._core_context = core_context
         self._job_context = None
 
+    def __override_with_noop_step(self):
+        noop_step = Step(
+            name="NoOpStep",
+            type="noop",
+            runner_func=lambda _step, _job_input: True,  # Intentional noop
+            file_path=Path(__file__),
+            job_dir=self._job_context.job_directory,
+        )
+        log.debug(
+            f"StandaloneDataJob will ignore following steps of the data job {self._job_context.step_builder}"
+        )
+        self._job_context.step_builder = StepBuilder()
+        self._job_context.step_builder.add_step(noop_step)
+
     def __enter__(self) -> IJobInput:
         try:
             self._core_context.plugin_registry.load_plugin_with_hooks_impl(
@@ -148,6 +162,8 @@ class StandaloneDataJob(IStandaloneDataJob):
             cast(JobRunHookSpecs, self._plugin_registry.hook()).initialize_job(
                 context=self._job_context
             )
+            self.__override_with_noop_step()
+
             cast(JobRunHookSpecs, self._plugin_registry.hook()).run_job(
                 context=self._job_context
             )
