@@ -4,7 +4,9 @@ import json
 import os
 import pathlib
 import shlex
+import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from vdk.internal.control.command_groups.job.create import JobCreate
@@ -15,6 +17,7 @@ from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils.output_printer import InMemoryTextPrinter
 from vdk_jupyterlab_extension.convert_job import ConvertJobDirectoryProcessor
 from vdk_jupyterlab_extension.convert_job import DirectoryArchiver
+from vdk_jupyterlab_extension.jupyter_notebook import clear_notebook_outputs
 
 
 class RestApiUrlConfiguration:
@@ -163,20 +166,51 @@ class VdkUI:
         :param reason: the reason of deployment
         :return: output string of the operation
         """
-        printer = InMemoryTextPrinter()
-        cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
-        cmd.create(
-            name=name,
-            team=team,
-            job_path=path,
-            reason=reason,
-            vdk_version=None,
-            enabled=True,
-        )
-        return (
-            f"Job with name {name} and team {team} is deployed successfully! "
-            f"Deployment information:\n {printer.get_memory().strip()}"
-        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            if not os.path.exists(path):
+                raise NotADirectoryError(
+                    f"The provided path '{path}' is not a valid directory."
+                )
+
+            # Copy the contents of the original directory to the temporary directory
+            for item in os.listdir(path):
+                source_item = os.path.join(path, item)
+                destination_item = os.path.join(temp_dir, item)
+                if os.path.isdir(source_item):
+                    shutil.copytree(source_item, destination_item)
+                else:
+                    shutil.copy2(source_item, destination_item)
+
+            # Clear outputs for all notebooks in the temporary directory
+            for dir_path, _, filenames in os.walk(temp_dir):
+                for filename in filenames:
+                    if filename.endswith(".ipynb"):
+                        notebook_path = os.path.join(dir_path, filename)
+                        clear_notebook_outputs(notebook_path)
+
+            printer = InMemoryTextPrinter()
+
+            try:
+                cmd = JobDeploy(RestApiUrlConfiguration.get_rest_api_url(), printer)
+                cmd.create(
+                    name=name,
+                    team=team,
+                    job_path=temp_dir,
+                    reason=reason,
+                    vdk_version=None,
+                    enabled=True,
+                )
+                return (
+                    f"Request to deploy job with name {name} and team {team} is sent successfully!"
+                    f"It would take a few minutes for the Data Job to be deployed in the server."
+                    f"If notified_on_job_deploy option in config.ini is configured then "
+                    f"notification will be sent on successful deploy or in case of an error.\n\n"
+                    f"Deployment information:\n {printer.get_memory().strip()}"
+                )
+
+            finally:
+                # Temporary directory will be automatically cleaned up
+                pass
 
     @staticmethod
     def get_notebook_info(cell_id: str, pr_path: str):
