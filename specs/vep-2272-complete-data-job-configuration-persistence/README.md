@@ -128,6 +128,9 @@ replicated:
 
 * `git_commit_sha`
 * `vdk_version`
+* `vdk_image_name`
+* `image_name`
+* `cron_job_name`
 * `python_version`
 * `cpu_request`
 * `cpu_limit`
@@ -136,6 +139,7 @@ replicated:
 * `deployed_by`
 * `deployed_date`
 * `deployment_version_sha`
+* `mode`
 
 The columns shown above were found by comparing the properties of the current Cron Job with the columns in the database.
 
