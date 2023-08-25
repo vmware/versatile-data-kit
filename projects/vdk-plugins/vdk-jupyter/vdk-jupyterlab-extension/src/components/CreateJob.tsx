@@ -60,9 +60,9 @@ export async function showCreateJobDialog() {
   if (result.button.accept) {
      // We only handle the successful deployment scenario.
      // The failign scenario is handled in the request itself.
-    const success = await jobRequest('create');
-    if(success){
-      alert(success);
-    }
+     const { message, status } = await jobRequest('create');
+        if(status && message){
+          alert(message);
+        }
   }
 }

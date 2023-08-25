@@ -109,6 +109,9 @@ describe('showDownloadJobDialog', () => {
     // Mock the result of the showDialog function
     const mockResult = { button: { accept: true } };
     (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
+
+        const mockOperationResult = { message: "message", status: true };
+    (jobRequest as jest.Mock).mockResolvedValueOnce(mockOperationResult);
   });
 
   it('should show a dialog with the Download Job title and a DownloadJobDialog component as its body', async () => {
@@ -140,6 +143,9 @@ describe('showCreateJobDialog', () => {
     // Mock the result of the showDialog function
     const mockResult = { button: { accept: true }, value: true };
     (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
+
+    const mockOperationResult = { message: "message", status: true };
+    (jobRequest as jest.Mock).mockResolvedValueOnce(mockOperationResult);
   });
 
   it('should call showDialog with correct arguments', async () => {
