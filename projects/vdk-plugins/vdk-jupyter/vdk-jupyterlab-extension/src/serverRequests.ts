@@ -64,7 +64,8 @@ export async function jobRunRequest(): Promise<{
 /**
  * Sent a POST request to the server to execute a VDK operation a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
- * Returns a pair of boolean (representing whether the vdk operation was successful) and a string (representing the result message)
+ * Returns a pair of boolean (representing whether the vdk operation was successful)
+ *                                     and a string (representing the result message)
  * Currently, the result message of a fail is empty string since the error is handled in the current operation
  */
 export async function jobRequest(endPoint: string): Promise<{
