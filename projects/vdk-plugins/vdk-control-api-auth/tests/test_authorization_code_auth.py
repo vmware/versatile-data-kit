@@ -4,18 +4,18 @@ import pytest
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from test_core_auth import allow_oauthlib_insecure_transport
 from test_core_auth import get_json_response_mock
+from vdk.plugin.control_api_auth.auth_config import InMemoryCredentialsCache
 from vdk.plugin.control_api_auth.auth_exception import VDKInvalidAuthParamError
 from vdk.plugin.control_api_auth.auth_exception import VDKLoginFailedError
 from vdk.plugin.control_api_auth.authentication import Authentication
 from vdk.plugin.control_api_auth.autorization_code_auth import LoginHandler
 from vdk.plugin.control_api_auth.autorization_code_auth import RedirectAuthentication
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
-from vdk.plugin.control_api_auth.base_auth import InMemAuthConfiguration
 
 
 def test_verify_redirect_url():
     allow_oauthlib_insecure_transport()
-    in_mem_conf = InMemAuthConfiguration()
+    in_mem_conf = InMemoryCredentialsCache()
     auth = BaseAuth(in_mem_conf)
 
     auth = RedirectAuthentication(
@@ -38,7 +38,7 @@ def test_verify_redirect_url():
 def test_login_handler_exceptions(httpserver: PluginHTTPServer):
     allow_oauthlib_insecure_transport()
     httpserver.expect_request("/foo").respond_with_json(get_json_response_mock())
-    in_mem_conf = InMemAuthConfiguration()
+    in_mem_conf = InMemoryCredentialsCache()
     auth = BaseAuth(in_mem_conf)
 
     handler = LoginHandler(
@@ -75,6 +75,7 @@ def test_authorization_code_no_secret(httpserver: PluginHTTPServer):
         token="apitoken",
         authorization_url=httpserver.url_for("/foo"),
         auth_type="credentials",
+        credentials_cache=InMemoryCredentialsCache(),
     )
     with pytest.raises(VDKInvalidAuthParamError) as exc_info:
         auth.authenticate()

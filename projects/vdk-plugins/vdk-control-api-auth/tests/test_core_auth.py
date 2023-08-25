@@ -10,7 +10,7 @@ from time import time
 from unittest.mock import patch
 
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
-from vdk.plugin.control_api_auth.auth_config import InMemAuthConfiguration
+from vdk.plugin.control_api_auth.auth_config import InMemoryCredentialsCache
 from vdk.plugin.control_api_auth.base_auth import AuthenticationCache
 from vdk.plugin.control_api_auth.base_auth import AuthenticationCacheSerDe
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
@@ -41,10 +41,12 @@ def test_auth_cache_backwards_compatibility_missing_keys():
     assert cache.access_token is None
 
 
-# The Following tests use the AuthConfigFolder to test configuration storage
+# The Following tests use the LocalFolderCredentialsCache to test configuration storage
 # ==========================================================================
 def test_auth_updates():
-    with patch("vdk.plugin.control_api_auth.auth_config.AuthConfigFolder") as mock_conf:
+    with patch(
+        "vdk.plugin.control_api_auth.auth_config.LocalFolderCredentialsCache"
+    ) as mock_conf:
         # after login cache is populated with auth uri and refresh token
         test_cache = AuthenticationCache()
         mock_conf.read_credentials.return_value = AuthenticationCacheSerDe.serialize(
@@ -65,7 +67,9 @@ def test_auth_updates():
 
 def test_auth_acquire_token(httpserver: PluginHTTPServer):
     allow_oauthlib_insecure_transport()
-    with patch("vdk.plugin.control_api_auth.auth_config.AuthConfigFolder") as mock_conf:
+    with patch(
+        "vdk.plugin.control_api_auth.auth_config.LocalFolderCredentialsCache"
+    ) as mock_conf:
         httpserver.expect_request("/foo").respond_with_json(get_json_response_mock())
 
         test_cache = AuthenticationCache(
@@ -89,7 +93,9 @@ def test_auth_acquire_token(httpserver: PluginHTTPServer):
 
 def test_auth_read_access_token_expired(httpserver: PluginHTTPServer):
     allow_oauthlib_insecure_transport()
-    with patch("vdk.plugin.control_api_auth.auth_config.AuthConfigFolder") as mock_conf:
+    with patch(
+        "vdk.plugin.control_api_auth.auth_config.LocalFolderCredentialsCache"
+    ) as mock_conf:
         httpserver.expect_request("/foo").respond_with_json(get_json_response_mock())
 
         test_cache = AuthenticationCache(
@@ -115,7 +121,9 @@ def test_auth_read_access_token_expired(httpserver: PluginHTTPServer):
 
 
 def test_auth_read_access_token():
-    with patch("vdk.plugin.control_api_auth.auth_config.AuthConfigFolder") as mock_conf:
+    with patch(
+        "vdk.plugin.control_api_auth.auth_config.LocalFolderCredentialsCache"
+    ) as mock_conf:
         test_cache = AuthenticationCache(
             "http://foo", "refresh", "access-token", time() + 200
         )
@@ -137,7 +145,7 @@ def test_auth_read_access_token():
 # ==========================================================================
 def test_auth_updates_in_memory():
     # after login cache is populated with auth uri and refresh token
-    in_mem_conf = InMemAuthConfiguration()
+    in_mem_conf = InMemoryCredentialsCache()
     auth = BaseAuth(in_mem_conf)
     auth.update_refresh_token("refresh")
     auth.update_access_token("access")
@@ -151,7 +159,7 @@ def test_auth_updates_in_memory():
 def test_auth_acquire_token_in_memory(httpserver: PluginHTTPServer):
     allow_oauthlib_insecure_transport()
     httpserver.expect_request("/foo").respond_with_json(get_json_response_mock())
-    in_mem_conf = InMemAuthConfiguration()
+    in_mem_conf = InMemoryCredentialsCache()
 
     auth = BaseAuth(conf=in_mem_conf)
 
@@ -176,7 +184,7 @@ def test_auth_read_access_token_expired_in_memory(httpserver: PluginHTTPServer):
         access_token="expired-token",
         access_token_expiration_time=time(),
     )
-    in_mem_conf = InMemAuthConfiguration()
+    in_mem_conf = InMemoryCredentialsCache()
     in_mem_conf.save_credentials(AuthenticationCacheSerDe.serialize(test_cache))
 
     auth = BaseAuth(in_mem_conf)
@@ -192,7 +200,7 @@ def test_auth_read_access_token_in_memory():
     test_cache = AuthenticationCache(
         "http://foo", "refresh", "access-token", time() + 200
     )
-    in_mem_conf = InMemAuthConfiguration()
+    in_mem_conf = InMemoryCredentialsCache()
     in_mem_conf.save_credentials(AuthenticationCacheSerDe.serialize(test_cache))
 
     auth = BaseAuth(in_mem_conf)
