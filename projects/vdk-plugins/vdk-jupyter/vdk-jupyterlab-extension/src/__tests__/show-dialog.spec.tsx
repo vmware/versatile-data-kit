@@ -35,7 +35,7 @@ describe('showRunJobDialog', () => {
   it('should show a dialog with the Run Job title and a RunJobDialog component as its body', async () => {
     (jobRunRequest as jest.Mock).mockResolvedValueOnce({
       message: 'Job completed successfully!',
-      status: true
+      isSuccessful: true
     });
 
     await showRunJobDialog();
@@ -51,7 +51,7 @@ describe('showRunJobDialog', () => {
   it('should call the jobRunRequest function if the user clicks the accept button and return success dialog', async () => {
     (jobRunRequest as jest.Mock).mockResolvedValueOnce({
       message: 'Job completed successfully!',
-      status: true
+      isSuccessful: true
     });
 
     // Call the function
@@ -77,7 +77,7 @@ describe('showRunJobDialog', () => {
   it('should call the jobRunRequest function if the user clicks the accept button and return failing standard run dialog', async () => {
     (jobRunRequest as jest.Mock).mockResolvedValueOnce({
       message: 'Error message',
-      status: false
+      isSuccessful: false
     });
     const errorMessage = new VdkErrorMessage('ERROR : ' + 'Error message');
     // Call the function
@@ -110,7 +110,7 @@ describe('showDownloadJobDialog', () => {
     const mockResult = { button: { accept: true } };
     (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
 
-        const mockOperationResult = { message: "message", status: true };
+        const mockOperationResult = { message: "message", isSuccessful: true };
     (jobRequest as jest.Mock).mockResolvedValueOnce(mockOperationResult);
   });
 
@@ -144,7 +144,7 @@ describe('showCreateJobDialog', () => {
     const mockResult = { button: { accept: true }, value: true };
     (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
 
-    const mockOperationResult = { message: "message", status: true };
+    const mockOperationResult = { message: "message", isSuccessful: true };
     (jobRequest as jest.Mock).mockResolvedValueOnce(mockOperationResult);
   });
 

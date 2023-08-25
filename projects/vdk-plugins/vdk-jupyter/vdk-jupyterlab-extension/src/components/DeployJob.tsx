@@ -82,16 +82,16 @@ export async function showCreateDeploymentDialog() {
   ) {
     try {
       if (runBeforeDeploy) {
-        const { message, status } = await jobRunRequest();
-        if (status) {
-          const {message, status} = await jobRequest('deploy');
+        const run = await jobRunRequest();
+        if (run.isSuccessful) {
+          const deployment = await jobRequest('deploy');
           // We only handle the successful deployment scenario.
           // The failing scenario is handled in the request itself.
-          if(status){
-            alert("The test job run completed successfully! \n" + message);
+          if(deployment.isSuccessful && deployment.message){
+            alert("The test job run completed successfully! \n" + deployment.message);
           }
         } else {
-          const errorMessage = new VdkErrorMessage('ERROR : ' + message);
+          const errorMessage = new VdkErrorMessage('ERROR : ' + run.message);
           showDialog({
             title: RUN_JOB_BUTTON_LABEL,
             body: (
@@ -107,9 +107,9 @@ export async function showCreateDeploymentDialog() {
           });
         }
       } else {
-        const { message, status } = await jobRequest('deploy');
-        if(status && message){
-          alert(message);
+        const deployment = await jobRequest('deploy');
+        if(deployment.isSuccessful && deployment.message){
+          alert(deployment.message);
         }
       }
     } catch (error) {
