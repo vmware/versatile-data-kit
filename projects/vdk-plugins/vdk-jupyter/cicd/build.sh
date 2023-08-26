@@ -33,15 +33,11 @@ echo "Upgrade pip"
 pip install -U pip
 echo "Install python package in development mode"
 pip install -e .
-echo "Link the development version of the extension with JupyterLab"
-jupyter labextension develop . --overwrite
-echo "Install JupyterLab server extension in develop mode"
-jupyter server extension enable vdk-jupyterlab-extension
 echo "Build JavaScript assets for the JupyterLab extension"
-jlpm build
+npm rebuild
 
 echo "Notes:"
-echo "Rebuild extension Typescript source after making changes using  jlpm build  or start  jlpm watch  to track and rebuild automatically"
+echo "Rebuild extension Typescript source after making changes using  npm build  or start  npm run watch  to track and rebuild automatically"
 
 echo "Start jupyter server using"
 echo "jupyter lab"
