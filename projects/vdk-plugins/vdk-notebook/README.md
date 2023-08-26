@@ -30,6 +30,12 @@ To run the data job from the parent-dir we need to use:
 vdk run example-job
 ```
 
+- Each cell which has tag "vdk" is executed
+- There could be two type of VDK Cells:
+  - VDK Python Cell. Those are normal Python cells tagged with "vdk"
+  - VDK SQL Cell. Those are cells marked with `%%vdksql` magic and tagged with "vdk"
+
+For more information and examples see [vdk-ipython](../vdk-ipython/README.md) documentation
 
 ### Testing
 Testing this plugin locally requires installing the dependencies listed in vdk-plugins/vdk-notebook/requirements.txt
