@@ -87,9 +87,10 @@ def load_job(
     template: str = None,
     log_level_vdk: str = "WARNING",
 ):
+    if log_level_vdk:
+        logging.getLogger("vdk").setLevel(log_level_vdk)
     job = JobControl(path, name, arguments, template)
     get_ipython().push(variables={"VDK": job})
-    logging.getLogger("vdk").setLevel(log_level_vdk)
 
     def finalize_atexit():
         job.finalize()
