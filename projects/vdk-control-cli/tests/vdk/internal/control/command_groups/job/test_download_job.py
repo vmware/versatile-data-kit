@@ -99,3 +99,25 @@ def test_download_job_does_not_exist(httpserver: PluginHTTPServer, tmpdir: Local
     assert "The requested resource cannot be found" in result.output
     # assert that vdk does not try cleaning up a non-existent archive
     assert "Cannot cleanup archive" not in result.output
+
+
+def test_download_job_key_error(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+    rest_api_url = httpserver.url_for("")
+    temp_dir = tmpdir.mkdir("job")
+
+    httpserver.expect_request(
+        uri="/data-jobs/for-team/test-team/jobs/test-job/sources"
+    ).respond_with_response(Response(status=510))
+
+    httpserver.expect_request(
+        uri="/data-jobs/for-team/test-team/jobs/test-job/sources", method="GET"
+    ).respond_with_response(Response(status=404))
+
+    runner = CliRunner()
+    result = runner.invoke(
+        download_job,
+        ["-n", "test-job", "-t", "test-team", "-u", rest_api_url, "-p", temp_dir],
+    )
+
+    assert result.exit_code != 0
+    assert "what" in result.output and "why" in result.output
