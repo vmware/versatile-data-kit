@@ -160,6 +160,16 @@ class BaseAuth:
         response = post(
             self._cache.authorization_url, data=data, headers=headers, auth=basic_auth
         )
+        if response.status_code >= 400:
+            raise VDKAuthException(
+                what="Failed to refresh access token",
+                why="Authorization server returned status code: {response.status_code}, error response: {response.text}",
+                consequence="Subsequent API calls may fail.",
+                countermeasure="Try to log in again the usual way. "
+                "If using the CLI, you can login using the 'vdk login' command. "
+                "If using a notebook, use the Login Button.",
+            )
+
         json_data = json.loads(response.text)
         log.debug(
             f"Refresh access token response received: status: {response.status_code}"
