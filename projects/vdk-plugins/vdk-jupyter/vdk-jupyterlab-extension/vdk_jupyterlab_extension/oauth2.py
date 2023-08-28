@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
-import os
 import time
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
@@ -11,7 +10,6 @@ import requests
 from jupyter_server.base.handlers import APIHandler
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
-from vdk.plugin.control_api_auth.auth_config import InMemAuthConfiguration
 from vdk.plugin.control_api_auth.auth_request_values import AuthRequestValues
 from vdk.plugin.control_api_auth.autorization_code_auth import generate_pkce_codes
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
