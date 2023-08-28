@@ -81,7 +81,6 @@ describe('showRunJobDialog', () => {
           buttons: [Dialog.okButton()]
         }
     );
-    expect(true).toBe(false);
   });
 
   it('should call the jobRunRequest function if the user clicks the accept button and return failing standard run dialog', async () => {
