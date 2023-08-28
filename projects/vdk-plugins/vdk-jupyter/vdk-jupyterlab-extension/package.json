@@ -51,7 +51,7 @@
     "prettier:check": "jlpm prettier:base --check",
     "stylelint": "jlpm stylelint:check --fix",
     "stylelint:check": "stylelint --cache \"style/**/*.css\"",
-    "test": "jest --coverage --detectOpenHandles --forceExit --clearCache",
+    "test": "jest --coverage --detectOpenHandles --forceExit",
     "watch": "run-p watch:src watch:labextension",
     "watch:src": "tsc -w",
     "watch:labextension": "jupyter labextension watch ."
