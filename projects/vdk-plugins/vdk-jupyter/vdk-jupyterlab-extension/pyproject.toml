@@ -37,6 +37,7 @@ test = [
     "pytest-asyncio",
     "pytest-cov",
     "pytest-tornasync",
+    "pytest-jupyter",
     "httpretty"
 ]
 

@@ -42,6 +42,16 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text'],
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: './',
+        outputName: 'frontend_tests_results.xml'
+      }
+    ]
+  ],
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.json'
