@@ -36,36 +36,47 @@ type serverVdkOperationResult = {
   message: string;
 };
 
+type jobRequestResult = {
+  /**
+   * Result message of the operation
+   */
+  message: string;
+  /**
+   * Status of the operation
+   */
+  isSuccessful: boolean;
+};
+
 /**
  * Sent a POST request to the server to run a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
  * Returns a pair of boolean (representing whether the vdk run was run) and a string (representing the result of vdk run)
  */
-export async function jobRunRequest(): Promise<{
-  message: String;
-  status: boolean;
-}> {
+export async function jobRunRequest(): Promise<jobRequestResult> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
       const data = await requestAPI<serverVdkOperationResult>('run', {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
-      return { message: data['message'], status: data['message'] == '0' };
+      return { message: data['message'], isSuccessful: data['message'] == '0' };
     } catch (error) {
       showError(error);
-      return { message: '', status: false };
+      return { message: '', isSuccessful: false };
     }
   } else {
-    return { message: '', status: false };
+    return { message: '', isSuccessful: false };
   }
 }
 
 /**
  * Sent a POST request to the server to execute a VDK operation a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
+ * Returns a pair of boolean (representing whether the vdk operation was successful)
+ *                                     and a string (representing the result message)
+ * Currently, the result message of a fail is empty string since the error is handled in the current operation
  */
-export async function jobRequest(endPoint: string): Promise<void> {
+export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
   if (
     (await checkIfVdkOptionDataIsDefined(VdkOption.NAME)) &&
     (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
@@ -75,7 +86,8 @@ export async function jobRequest(endPoint: string): Promise<void> {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
-      if (!data['error']) alert(data['message']);
+      if (!data['error'])
+        return { message: data['message'], isSuccessful: true };
       else {
         await showErrorMessage(
           'Encountered an error while trying the ' +
@@ -84,11 +96,14 @@ export async function jobRequest(endPoint: string): Promise<void> {
           data['message'],
           [Dialog.okButton()]
         );
+        return { message: '', isSuccessful: false };
       }
     } catch (error) {
       showError(error);
+      return { message: '', isSuccessful: false };
     }
   }
+  return { message: '', isSuccessful: false };
 }
 
 /**

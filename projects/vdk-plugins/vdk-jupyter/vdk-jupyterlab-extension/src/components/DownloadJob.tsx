@@ -58,6 +58,11 @@ export async function showDownloadJobDialog(statusButton?: StatusButton) {
   });
   if (result.button.accept) {
     statusButton?.show('Download', jobData.get(VdkOption.PATH)!);
-    await jobRequest('download');
+    // We only handle the successful deployment scenario.
+    // The failing scenario is handled in the request itself.
+    const download = await jobRequest('download');
+    if (download.isSuccessful && download.message) {
+      alert(download.message);
+    }
   }
 }
