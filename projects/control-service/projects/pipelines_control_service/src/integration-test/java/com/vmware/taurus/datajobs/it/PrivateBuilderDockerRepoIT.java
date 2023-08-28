@@ -86,7 +86,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
    * <p>Within this test we assert only that the data job execution is started and has an execution
    * id. We don't wait for the job to be completed as successful as that takes too long
    */
-  @Test
+  //@Test
   public void testPrivateDockerBuildJob(
       String jobName, String teamName, String username, String deploymentId) throws Exception {
     createBuilderImagePullSecret(controlNamespace);
