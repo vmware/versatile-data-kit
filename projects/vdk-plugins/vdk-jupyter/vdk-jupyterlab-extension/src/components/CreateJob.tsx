@@ -58,6 +58,11 @@ export async function showCreateJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    await jobRequest('create');
+     // We only handle the successful deployment scenario.
+     // The failing scenario is handled in the request itself.
+     const creation = await jobRequest('create');
+        if(creation.isSuccessful && creation.message){
+          alert(creation.message);
+        }
   }
 }

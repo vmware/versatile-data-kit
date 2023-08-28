@@ -1,8 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import abc
 import logging
 import os
 import pathlib
+from abc import abstractmethod
 from pathlib import Path
 from typing import Optional
 
@@ -49,9 +51,30 @@ class AuthConfig:
         return os.getenv("VDK_BASE_CONFIG_FOLDER", str(Path.home()))
 
 
-class InMemAuthConfiguration:
+class CredentialsCache(abc.ABC):
+    @abstractmethod
+    def save_credentials(self, content: str) -> None:
+        """
+        Save the credentials data securely
+        :param content: the content of the credentials. It's a text based format.
+        :return:
+        """
+
+    def delete_credentials(self) -> None:
+        """
+        Delete any credentials data stored.
+        """
+
+    def read_credentials(self) -> Optional[str]:
+        """
+        Read the stored credentials data
+        :return: the data
+        """
+
+
+class InMemoryCredentialsCache(CredentialsCache):
     """
-    A class providing the equivalent of an in-memory AuthConfigFolder.
+    A class providing the equivalent of an in-memory LocalFolderCredentialsCache.
     This configuration is available as long as the python process is running,
     and is lost when the process is terminated.
     """
@@ -62,16 +85,31 @@ class InMemAuthConfiguration:
         self._config = dict()
 
     def save_credentials(self, content: str) -> None:
-        self._config[InMemAuthConfiguration.CREDS_KEY] = content
+        self._config[InMemoryCredentialsCache.CREDS_KEY] = content
 
     def delete_credentials(self) -> None:
-        self._config[InMemAuthConfiguration.CREDS_KEY] = ""
+        self._config[InMemoryCredentialsCache.CREDS_KEY] = ""
 
     def read_credentials(self) -> Optional[str]:
-        return self._config.get(InMemAuthConfiguration.CREDS_KEY)
+        return self._config.get(InMemoryCredentialsCache.CREDS_KEY)
 
 
-class AuthConfigFolder:
+class SingletonInMemoryCredentialsCache:
+    """
+    Singleton class for InMemAuthConfiguration,
+    ensuring that there is only one instance of
+    InMemAuthConfiguration with shared state across the application.
+    """
+
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = InMemoryCredentialsCache()
+        return cls._instance
+
+
+class LocalFolderCredentialsCache(CredentialsCache):
     """
     A class responsible for managing the configuration files in the vdk configuration
     folder
@@ -84,7 +122,7 @@ class AuthConfigFolder:
 
     def __init__(self, base_dir=AuthConfig().local_config_folder):
         self.vdk_config_folder = os.path.join(
-            base_dir, AuthConfigFolder.CONFIG_FOLDER_NAME
+            base_dir, LocalFolderCredentialsCache.CONFIG_FOLDER_NAME
         )
         if os.path.isfile(self.vdk_config_folder):
             raise VDKAuthOSError(
@@ -154,4 +192,10 @@ class AuthConfigFolder:
             )
 
     def __get_cred_file(self):
-        return os.path.join(self.vdk_config_folder, AuthConfigFolder.CREDENTIALS_FILE)
+        return os.path.join(
+            self.vdk_config_folder, LocalFolderCredentialsCache.CREDENTIALS_FILE
+        )
+
+
+# Keep for backwards compatability the old name until needed
+AuthConfigFolder = LocalFolderCredentialsCache

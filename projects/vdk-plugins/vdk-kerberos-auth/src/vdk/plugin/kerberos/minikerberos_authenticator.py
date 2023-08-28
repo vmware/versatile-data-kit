@@ -4,6 +4,7 @@ import asyncio
 import logging
 import os
 import tempfile
+import threading
 
 from minikerberos.common.creds import KerberosCredential
 from minikerberos.common.target import KerberosTarget
@@ -36,11 +37,17 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
             kerberos_kdc_hostname,
         )
 
-        self._ccache_file = tempfile.NamedTemporaryFile(
-            prefix="vdkkrb5cc", delete=True
-        ).name
-        os.environ["KRB5CCNAME"] = "FILE:" + self._ccache_file
-        log.info(f"KRB5CCNAME is set to a new file {self._ccache_file}")
+        krb5ccname = os.environ.get("KRB5CCNAME", None)
+        if krb5ccname and krb5ccname.startswith("FILE:"):
+            log.debug("FILE type KRB5CCNAME set and will reuse it.")
+            self._ccache_file = os.environ["KRB5CCNAME"].split(":", 1)[1]
+        else:
+            log.debug("Will set its own KRB5CCNAME.")
+            self._ccache_file = tempfile.NamedTemporaryFile(
+                prefix="vdkkrb5cc", delete=True
+            ).name
+            os.environ["KRB5CCNAME"] = "FILE:" + self._ccache_file
+        log.debug(f"KRB5CCNAME is set to a file {self._ccache_file}")
 
     def __repr__(self):
         return {
@@ -57,8 +64,42 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
         except OSError:
             pass
 
+    import asyncio
+
+    @staticmethod
+    def _run_coroutine(coroutine):
+        """
+        Executes the given coroutine, ensuring that it runs to completion, even if called within an already running event loop.
+
+        If called within a running event loop, this function will start a new thread to execute the coroutine.
+
+        :param coroutine: The coroutine to execute.
+        :return: The result of the coroutine execution if the loop is not running. None otherwise.
+        """
+        result = None
+        try:
+            loop = asyncio.get_running_loop()
+            if loop.is_running():
+
+                def run_in_new_thread():
+                    nonlocal result
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    result = loop.run_until_complete(coroutine)
+
+                thread = threading.Thread(target=run_in_new_thread)
+                thread.start()
+                thread.join()
+            else:
+                result = loop.run_until_complete(coroutine)
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            result = loop.run_until_complete(coroutine)
+        return result
+
     def _kinit(self) -> None:
-        log.info(
+        log.debug(
             "Getting kerberos TGT for principal: %s, realm: %s using keytab file: %s from kdc: %s",
             self._kerberos_principal,
             self._kerberos_realm,
@@ -85,14 +126,12 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
             # 3) After the kerberos TGT is retrieved and the coroutine has
             #    finished, close the event loop. As it is a single coroutine,
             #    we don't really need to do anything else.
-            loop = asyncio.new_event_loop()
-            try:
-                loop.run_until_complete(get_tgt())
-            finally:
-                loop.close()
+
+            self._run_coroutine(get_tgt())
+            log.debug(f"krb_client is {krb_client}")
 
             krb_client.ccache.to_file(self._ccache_file)
-            log.info(
+            log.debug(
                 f"Got Kerberos TGT for {self._kerberos_principal}@{self._kerberos_realm} "
                 f"and stored to file: {self._ccache_file}"
             )

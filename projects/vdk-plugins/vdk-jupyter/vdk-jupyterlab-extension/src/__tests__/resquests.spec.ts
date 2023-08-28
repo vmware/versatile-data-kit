@@ -20,8 +20,6 @@ jest.mock('../handler', () => {
   };
 });
 
-window.alert = jest.fn();
-
 describe('jobdDataRequest', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -74,13 +72,13 @@ describe('jobRunRequest()', () => {
 
   it('should call requestAPI with correct arguments and return successful result', async () => {
     const expectedMessage = '0';
-    const expectedResponse = { message: '0', status: true };
+    const expectedResponse = { message: '0', isSuccessful: true };
     (requestAPI as jest.Mock).mockResolvedValue(expectedResponse);
 
     const result = await jobRunRequest();
 
     expect(requestAPI).toHaveBeenCalledTimes(1);
-    expect(result).toEqual({ message: expectedMessage, status: true });
+    expect(result).toEqual({ message: expectedMessage, isSuccessful: true });
   });
 
   it('should call requestAPI with correct arguments and return unsuccessful result', async () => {
@@ -92,7 +90,7 @@ describe('jobRunRequest()', () => {
     expect(requestAPI).toHaveBeenCalledTimes(1);
     expect(result).toEqual({
       message: '1',
-      status: false
+      isSuccessful: false
     });
   });
 });
@@ -123,20 +121,12 @@ describe('jobRequest()', () => {
     };
     (requestAPI as jest.Mock).mockResolvedValue(serverVdkOperationResultMock);
 
-    const alertMock = jest
-      .spyOn(window, 'alert')
-      .mockImplementationOnce(() => {});
-
     await jobRequest(endPoint);
 
-    expect(alertMock as jest.Mock).toHaveBeenCalledWith(
-      serverVdkOperationResultMock['message']
-    );
     expect(requestAPI).toHaveBeenCalledWith(endPoint, {
       body: JSON.stringify(getJobDataJsonObject()),
       method: 'POST'
     });
-    (window.alert as jest.Mock).mockClear();
   });
 });
 
