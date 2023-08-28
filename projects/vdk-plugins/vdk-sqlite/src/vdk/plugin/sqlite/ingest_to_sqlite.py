@@ -93,7 +93,7 @@ class IngestToSQLite(IIngesterPlugin):
         for obj in values:
             try:
                 cur.execute(query, obj)
-                log.debug(f"{obj} ingested.")
+                log.debug("Payload was ingested.")
             except Exception as e:
                 if isinstance(e, ProgrammingError):
                     errors.log_and_rethrow(
