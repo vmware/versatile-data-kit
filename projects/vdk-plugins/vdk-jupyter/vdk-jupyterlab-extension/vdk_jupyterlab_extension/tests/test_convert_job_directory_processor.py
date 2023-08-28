@@ -63,7 +63,7 @@ class TestConvertJobDirectoryProcessor(unittest.TestCase):
     def test_get_code_structure(self):
         self.processor.process_files()
         expected_code_structure = [
-            f'job_input.fail_test("""{self.sql_content}""")',
+            f'job_input.execute_query("""{self.sql_content}""")',
             self.py_content_run,
         ]
         self.assertEqual(self.processor.get_code_structure(), expected_code_structure)
