@@ -40,7 +40,7 @@ server-tests-vdk-jupyterlab-extension:
   script:
     - echo "Running Server tests..."
     - pip install -e ".[test]"
-    - pytest -vv -r ap --junit-xml=server_tests_results.xml
+    - pytest -vv -r ap --cov=vdk-jupyterlab-extension --junit-xml=server_tests_results.xml
   artifacts:
     when: always
     reports:
@@ -53,7 +53,7 @@ frontend-tests-vdk-jupyterlab-extension:
   script:
     - echo "Running Frontend tests..."
     - npm install
-    - npm test
+    - npm run test:ci
   artifacts:
     when: always
     reports:
