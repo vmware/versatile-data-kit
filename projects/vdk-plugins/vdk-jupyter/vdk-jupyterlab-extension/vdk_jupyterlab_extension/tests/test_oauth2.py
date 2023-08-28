@@ -3,14 +3,11 @@
 import os
 from unittest import mock
 from unittest.mock import MagicMock
-from unittest.mock import Mock
-from unittest.mock import patch
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
 from tornado import httputil
 from tornado.web import Application
-from vdk.plugin.control_api_auth.auth_config import InMemAuthConfiguration
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
 from vdk_jupyterlab_extension.handlers import OAuth2Handler
 
