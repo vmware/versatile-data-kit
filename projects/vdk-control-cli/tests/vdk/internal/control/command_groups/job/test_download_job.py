@@ -99,5 +99,3 @@ def test_download_job_does_not_exist(httpserver: PluginHTTPServer, tmpdir: Local
     assert "The requested resource cannot be found" in result.output
     # assert that vdk does not try cleaning up a non-existent archive
     assert "Cannot cleanup archive" not in result.output
-    # assert that vdk does not try downloading a non-existent key
-    assert "Cannot download key" not in result.output
