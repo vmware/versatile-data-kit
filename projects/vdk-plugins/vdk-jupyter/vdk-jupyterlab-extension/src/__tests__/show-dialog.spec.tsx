@@ -8,7 +8,10 @@ import DownloadJobDialog, {
   showDownloadJobDialog
 } from '../components/DownloadJob';
 import CreateJobDialog, { showCreateJobDialog } from '../components/CreateJob';
-import { VdkErrorMessage } from '../components/VdkErrorMessage';
+import {VdkErrorMessage} from "../components/VdkErrorMessage";
+import {checkIcon} from "@jupyterlab/ui-components";
+import {RUN_JOB_BUTTON_LABEL} from "../utils";
+import {showErrorDialog} from "../components/props";
 
 // Mock the showDialog function
 jest.mock('@jupyterlab/apputils', () => ({
@@ -17,6 +20,10 @@ jest.mock('@jupyterlab/apputils', () => ({
     okButton: jest.fn(),
     cancelButton: jest.fn()
   }
+}));
+// Mock the showErrorDialog function
+jest.mock('../components/props', () => ({
+  showErrorDialog: jest.fn()
 }));
 jest.mock('../serverRequests', () => ({
   jobRunRequest: jest.fn(),
@@ -29,6 +36,7 @@ describe('showRunJobDialog', () => {
     // Mock the result of the showDialog function
     const mockResult = { button: { accept: true } };
     (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
+    (showErrorDialog as jest.Mock).mockResolvedValueOnce(mockResult);
     // Mock the jobRunRequest function
   });
 
@@ -42,7 +50,7 @@ describe('showRunJobDialog', () => {
 
     // Expect the showDialog function to have been called with the correct parameters
     expect(showDialog).toHaveBeenCalledWith({
-      title: 'Run Job',
+      title: RUN_JOB_BUTTON_LABEL,
       body: <RunJobDialog jobPath={jobData.get(VdkOption.PATH)!} />,
       buttons: [Dialog.okButton(), Dialog.cancelButton()]
     });
@@ -60,17 +68,18 @@ describe('showRunJobDialog', () => {
     // Expect the jobRunRequest function to have been called
     expect(jobRunRequest).toHaveBeenCalled();
     expect(showDialog).toHaveBeenCalledWith(
-      {
-        title: 'Run Job',
-        body: (
-          <div className="vdk-run-dialog-message-container">
-            <p className="vdk-run-dialog-message">
-              The job was executed successfully!
-            </p>
-          </div>
-        ),
-        buttons: [Dialog.okButton()]
-      }
+        {
+          title: RUN_JOB_BUTTON_LABEL,
+          body: (
+              <div className="vdk-run-dialog-message-container">
+                <checkIcon.react className="vdk-dialog-check-icon" />
+                <p className="vdk-run-dialog-message">
+                  The job was executed successfully!
+                </p>
+              </div>
+          ),
+          buttons: [Dialog.okButton()]
+        }
     );
   });
 
@@ -85,20 +94,17 @@ describe('showRunJobDialog', () => {
 
     // Expect the jobRunRequest function to have been called
     expect(jobRunRequest).toHaveBeenCalled();
-    expect(showDialog).toHaveBeenCalledWith(
-      {
-        title: 'Run Job',
-          body: (
-            <div className="vdk-run-error-message ">
-              <p>{errorMessage.exception_message}</p>
-              <p>{errorMessage.what_happened}</p>
-              <p>{errorMessage.why_it_happened}</p>
-              <p>{errorMessage.consequences}</p>
-              <p>{errorMessage.countermeasures}</p>
-            </div>
-          ),
-          buttons: [Dialog.okButton()]
-      }
+    expect(showErrorDialog).toHaveBeenCalledWith(
+        {
+          title: RUN_JOB_BUTTON_LABEL,
+          messages: [
+            errorMessage.exception_message,
+            errorMessage.what_happened,
+            errorMessage.why_it_happened,
+            errorMessage.consequences,
+            errorMessage.countermeasures
+          ]
+        }
     );
   });
 });
@@ -110,7 +116,7 @@ describe('showDownloadJobDialog', () => {
     const mockResult = { button: { accept: true } };
     (showDialog as jest.Mock).mockResolvedValueOnce(mockResult);
 
-        const mockOperationResult = { message: "message", isSuccessful: true };
+    const mockOperationResult = { message: "message", isSuccessful: true };
     (jobRequest as jest.Mock).mockResolvedValueOnce(mockOperationResult);
   });
 
