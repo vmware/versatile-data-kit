@@ -43,9 +43,18 @@ class PluginException(Exception):
 """
 Alias for the type of plugin hook call result returned in hookWrapper=True types of plugin hooks
 """
-HookCallResult = (
-    pluggy.callers._Result if pluggy.__version__ < "1.0" else pluggy._callers._Result
-)
+
+
+def parse_version(version_str):
+    return tuple(map(int, version_str.split(".")))
+
+
+if parse_version(pluggy.__version__) < parse_version("1.0"):
+    HookCallResult = pluggy.callers._Result
+elif parse_version(pluggy.__version__) < parse_version("1.3"):
+    HookCallResult = pluggy._callers._Result
+else:  # since 1.3
+    HookCallResult = pluggy.Result
 
 
 class IPluginRegistry(metaclass=ABCMeta):

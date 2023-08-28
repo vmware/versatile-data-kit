@@ -13,6 +13,8 @@ pip install -U pip setuptools
 pip install --upgrade --extra-index-url $PIP_EXTRA_INDEX_URL -r requirements.txt
 pip install --upgrade -e . --extra-index-url $PIP_EXTRA_INDEX_URL
 
+if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../../vdk-core; fi
+
 # List exceptions to below check here.
 # Those are not technically plugins so they would not have entry point defined.
 if [ "$PLUGIN_NAME" != 'quickstart-vdk' ] && \
@@ -25,6 +27,8 @@ then
   if ! vdk version 2>&1 | grep -q "$PLUGIN_NAME"; then
     echo "Plugin entry point seems to be mis-configured."
     echo "Make sure to set setup.py entry_points for the plugin or update an exception case in above if statement."
+    echo "Running vdk version:"
+    vdk version
     exit 1
   else
     echo "Check passed."
@@ -33,6 +37,5 @@ fi
 
 pip install pytest-cov
 
-if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../../vdk-core; fi
 
 pytest --junitxml=tests.xml --cov vdk --cov-report term-missing --cov-report xml:coverage.xml
