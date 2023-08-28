@@ -20,7 +20,7 @@ setuptools.setup(
     install_requires=["vdk-core", "tabulate"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    # This is the only vdk plugin specifc part
+    # This is the only vdk plugin specific part
     # Define entry point called "vdk.plugin.run" with name of plugin and module to act as entry point.
     entry_points={"vdk.plugin.run": ["vdk-duckdb = vdk.plugin.duckdb.duckdb_plugin"]},
     classifiers=[
