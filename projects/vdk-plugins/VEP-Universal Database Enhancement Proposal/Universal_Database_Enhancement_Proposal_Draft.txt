@@ -16,7 +16,7 @@ q# VEP-NNNN: Universal Database Enhancement Proposal
 
 <!--
 This is a proposal for creating a universal Database plugin, than can be used for ingesting data from multiple databases.
-As an result it will make the process easier and faster because there wouldn't be a need for having multiple plugins for each database. 
+As an result it will make the process easier and faster because there wouldn't be a need for having multiple plugins for each database.
 This plugin will be a all-in-one plugin that can handle ingestion's from multiple databases.
 -->
 
@@ -28,15 +28,15 @@ DAL: Database Abstraction Layer
 
 ## Motivation
 <!--
-Implementing a Universal Database Plugin takes away the work of creating a new plugin on every Database the user request. 
-Therefore if a new Database should be added for ingestion, this can be implemented faster. Above that having one plugin will result in having a better support, easier management and debugging. 
+Implementing a Universal Database Plugin takes away the work of creating a new plugin on every Database the user request.
+Therefore if a new Database should be added for ingestion, this can be implemented faster. Above that having one plugin will result in having a better support, easier management and debugging.
 -->
 
 ## Requirements and goals
 <!--
 With this UniversalDB-Plugin we are trying to achieve a plugin that is able to handle all/multiple databases for ingestion.
 Above that by generalizing a plugin and making it multi functional it will make it easier to modify and debug the plugin.
-And it will also let us focus on one plugin instead of multiple plugins. 
+And it will also let us focus on one plugin instead of multiple plugins.
 This plugin will be able to work with databases that are using the PEP249 standard and are using the same SQL queries.
 
 
@@ -48,8 +48,8 @@ By generalizing a plugin for universal databases ingestion we would be able focu
 ## High-level design
 
 <!--
-How do we implement this universal Database plugin? 
-For changing the plugin to a universal plugin for multiple databases we would need to change: 
+How do we implement this universal Database plugin?
+For changing the plugin to a universal plugin for multiple databases we would need to change:
 Setup.py, Requirements.txt, Configuration.py, Connection.py, Plugin.py, Ingestion.py and test_plugin.py.
 The desired outcome of this plugin would be to be able to use multiple databases that are using the PEP249 standard and the same SQL Queries.
 We can test this outcome by writing a test-plugin that creates a temporary database file and tries to ingest on a given destination table.
@@ -82,7 +82,7 @@ For the modification of the Connection, we need to modify 6 things.
 -Use of the Database drivers. For each datbase a driver or library is required to connect to it.
 -Database Configuration. Databases need multiple configuration parameters (Host, port, username, password, database name, etc.)
 So extend the class to accept these as parameters.
--Abstract Database Operations: Create an abstract base class that defines the methods any database connection class should implement. 
+-Abstract Database Operations: Create an abstract base class that defines the methods any database connection class should implement.
 -Implement Database-specific Classes. Example DuckDBConnection.
 -Modify the connection establishment. Each database has it's way of establishing a connection.
 -Modify the cursor and methods. These Cursors and Methods vary per database.
