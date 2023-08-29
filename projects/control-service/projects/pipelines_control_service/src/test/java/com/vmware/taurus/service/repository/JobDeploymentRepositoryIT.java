@@ -18,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 
-
 /** Integration tests of the setup of Spring Data repository for data job deployments */
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobDeploymentRepositoryIT {
