@@ -74,14 +74,11 @@ vdk --help</code></pre>
         <span>&#10145; Develop your <a href="https://github.com/vmware/versatile-data-kit/wiki/First-Data-Job">First Data Job</a> if you are impatient to start quickly.</span><br>
     </td>
     <td width="50%" >
-        <video controls loop autoplay muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/e4de5bfa-f658-4eb9-be55-4e367be0cc35" aria-label="30 seconds video tutorial of getting started and quickstart-vdk installation"></video>
+        <video controls loop autoplay muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/1e768ddb-c622-45e2-bfd9-20dd2ae9c1dd" aria-label="30 seconds video tutorial of getting started and quickstart-vdk installation"></video>
         <!-- link to the video above https://www.canva.com/design/DAFqSRgP3xs/Tp5rVRywkwUQdUEsmWCcfw/edit?utm_content=DAFqSRgP3xs -->
     </td>
   </tr>
 </table>
-
-
-
 
 
 
@@ -117,7 +114,7 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/blob/main/examples/incremental-ingest-from-db-example/README.md">Incremental ingestion using Job Properties</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/26a10fc9-9b91-428b-8291-e3b247a82548" aria-label="30 seconds video tutorial for Data Ingestion"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/a46a5ecb-63f7-4b4f-9e2d-099e80522dac" aria-label="30 seconds video tutorial for Data Ingestion"></video>
         <!-- link to the video above https://www.canva.com/design/DAFq7Tc2vNk/3Qfi7ge5nOkEAbAEohEzgw/edit?utm_content=DAFq7Tc2vNk -->
     </td>
   </tr>
@@ -158,7 +155,7 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/SQL-Data-Processing-templates-examples">Processing data using Kimball warehousing templates</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/21c4a29e-cbca-4833-bf24-b55103b188eb" aria-label="30 seconds video tutorial for Data Transformation"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/56be0a37-257e-4f9d-a558-afd012715dcb" aria-label="30 seconds video tutorial for Data Transformation"></video>
         <!-- link to the video above https://www.canva.com/design/DAFqxoSAXdM/oOG1pB0ekgrCCnKUyaB60Q/edit?utm_content=DAFqxoSAXdM -->
     </td>
   </tr>
@@ -201,7 +198,7 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Using-VDK-DAGs-to-orchestrate-data-jobs">Using VDK DAGs to orchestrate Data Jobs</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/343c6448-ca91-4f4d-ac16-0151af8b79e7" aria-label="30 seconds video tutorial for VDK Control Service"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/5bf96910-ff27-4ecf-a631-c0e64e1db249" aria-label="30 seconds video tutorial for VDK Control Service"></video>
         <!-- link to the video above https://www.canva.com/design/DAFsIj6BtVY/QMLKEYNGCJZRHSIJmYW99A/edit?utm_content=DAFsIj6BtVY -->
     </td>
   </tr>
@@ -244,7 +241,7 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://www.youtube.com/watch?v=9BkAOSvXuUg">VDK Operations User Interface - Versatile Data Kit</a></span><br>
     </td>
     <td width="50%" >
-        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/6e7231c5-6399-47cf-88fd-e2fabc85b96a" aria-label="30 seconds video tutorial for VDK Operations UI"></video>
+        <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/4e4b5677-267d-4b9b-9b61-65ae7623f161" aria-label="30 seconds video tutorial for VDK Operations UI"></video>
         <!-- link to the video above https://www.canva.com/design/DAFsPZyGThU/nx5DNB7Ybzjx6OEkyjRVBQ/edit?utm_content=DAFsPZyGThU -->
     </td>
   </tr>
@@ -284,7 +281,7 @@ vdk --help</code></pre>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins#write-your-own-plugin">Write your own plugin</a></span><br>
     </td>
     <td width="50%" >
-      <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/b412c1e1-e9b7-4c78-b700-b311f4f04527" aria-label="30 seconds video tutorial for VDK Plugins"></video>
+      <video controls loop muted preload="metadata" src="https://github.com/vmware/versatile-data-kit/assets/2536458/2fea5d6e-3fe4-475f-91ec-89838f18ebf3" aria-label="30 seconds video tutorial for VDK Plugins"></video>
         <!-- link to the video above https://www.canva.com/design/DAFsQ3IeJy4/1b2x-HgStJAbztUwGANX5w/edit?utm_content=DAFsQ3IeJy4 -->
     </td>
   </tr>
