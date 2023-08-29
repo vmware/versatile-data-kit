@@ -17,22 +17,20 @@ export function initVDKConfigCell(notebookTracker: INotebookTracker) {
           cell_type: 'code',
           source: [
             `"""\n`,
+            `This cell must be executed to load VDK job_input variable .\n\n`,
             `vdk.plugin.ipython extension introduces a magic command for Jupyter.\n`,
             `The command enables the user to load VDK for the current notebook.\n`,
             `VDK provides the job_input API, which has methods for:\n`,
             `    * executing queries to an OLAP database;\n`,
             `    * ingesting data into a database;\n`,
             `    * processing data into a database.\n`,
-            `See the IJobInput documentation for more details.\n`,
-            `https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py\n`,
-            `Please refrain from tagging this cell with VDK as it is not an actual part of the data job\n`,
-            `and is only used for development purposes.\n`,
+            `Type help(job_input) to see its documentation.\n`,
             `"""\n`,
             `%reload_ext vdk.plugin.ipython\n`,
             `%reload_VDK\n`,
             `job_input = VDK.get_initialized_job_input()`
           ],
-          metadata: {}
+          metadata: { editable: false }
         }
       });
     const cells = notebookTracker.currentWidget?.content.model?.cells;
