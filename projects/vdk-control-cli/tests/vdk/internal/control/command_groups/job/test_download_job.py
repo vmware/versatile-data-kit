@@ -101,16 +101,20 @@ def test_download_job_does_not_exist(httpserver: PluginHTTPServer, tmpdir: Local
     assert "Cannot cleanup archive" not in result.output
 
 
-def test_download_job_key_error(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+def test_download_key_does_not_exist(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     rest_api_url = httpserver.url_for("")
-    temp_dir = tmpdir.mkdir("job")
+    temp_dir = tmpdir.mkdir("foo")
 
-    httpserver.expect_request(
-        uri="/data-jobs/for-team/test-team/jobs/test-job/sources"
-    ).respond_with_response(Response(status=510))
+    test_job_zip = test_utils.find_test_resource("job-zip/test-job.zip")
+    data = _read_file(test_job_zip)
 
     httpserver.expect_request(
         uri="/data-jobs/for-team/test-team/jobs/test-job/sources", method="GET"
+    ).respond_with_data(data)
+
+    # This is the expected failure for the keytab download
+    httpserver.expect_request(
+        uri="/data-jobs/for-team/test-team/jobs/test-job/keytab", method="GET"
     ).respond_with_response(Response(status=404))
 
     runner = CliRunner()
@@ -119,5 +123,6 @@ def test_download_job_key_error(httpserver: PluginHTTPServer, tmpdir: LocalPath)
         ["-n", "test-job", "-t", "test-team", "-u", rest_api_url, "-p", temp_dir],
     )
 
-    assert result.exit_code != 0
-    assert "what" in result.output and "why" in result.output
+    assert result.exit_code == 0
+    assert "Failed to download keytab for job test-job" in result.output
+    assert "The requested resource cannot be found" not in result.output

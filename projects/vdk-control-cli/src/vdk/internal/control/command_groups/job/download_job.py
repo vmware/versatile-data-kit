@@ -38,7 +38,13 @@ class JobDownloadSource:
                 )
 
             log.info(f"Downloaded Data Job in {path}/{name}")
+            self.__download_keytab(team, name, path)
 
+        finally:
+            self.__cleanup_archive(job_archive_path)
+
+    def __download_keytab(self, team: str, name: str, path: str):
+        try:
             log.info(f"Downloading keytab...")
             keytab_file_path = os.path.join(path, f"{name}.keytab")
             response = self.api.get_jobs_api().data_job_keytab_download_with_http_info(
@@ -48,8 +54,8 @@ class JobDownloadSource:
                 w.write(response.raw_data)
             log.info(f"Saved keytab in {keytab_file_path}")
 
-        finally:
-            self.__cleanup_archive(job_archive_path)
+        except Exception as e:
+            log.error(f"Failed to download keytab for job {name}. Error: {e}.")
 
     @staticmethod
     def __write_response_to_archive(job_archive_path: str, response: ApiResponse):
