@@ -6,7 +6,6 @@ import os
 import click
 import click_spinner
 from taurus_datajob_api import ApiResponse
-from vdk.internal.control.command_groups.job.download_key import JobDownloadKey
 from vdk.internal.control.configuration.defaults_config import load_default_team_name
 from vdk.internal.control.exception.vdk_exception import VDKException
 from vdk.internal.control.job.job_archive import JobArchive
