@@ -55,7 +55,7 @@ class JobDownloadSource:
             log.info(f"Saved keytab in {keytab_file_path}")
 
         except Exception as e:
-            log.error(f"Failed to download keytab for job {name}. Error: {e}.")
+            log.warning(f"Failed to download keytab for job {name}. Error: {e}.")
 
     @staticmethod
     def __write_response_to_archive(job_archive_path: str, response: ApiResponse):

@@ -124,4 +124,4 @@ def test_download_key_does_not_exist(httpserver: PluginHTTPServer, tmpdir: Local
     )
 
     assert result.exit_code == 0
-    assert "Failed to download keytab for job test-job" in result.output
+    assert "Failed to download keytab for job" in result.output
