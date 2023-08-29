@@ -9,23 +9,15 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobDeployment;
-import com.vmware.taurus.service.model.DataJobExecution;
-import com.vmware.taurus.service.model.ExecutionStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
-import static com.vmware.taurus.RepositoryUtil.getTimeAccurateToMicroSecond;
 
 /** Integration tests of the setup of Spring Data repository for data job deployments */
 @SpringBootTest(classes = ControlplaneApplication.class)
@@ -49,12 +41,14 @@ public class JobDeploymentRepositoryIT {
   public void testDelete_deploymentShouldBeDeleted() {
     DataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
 
-    var actualDataJobDeployment = jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
+    var actualDataJobDeployment =
+        jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertTrue(actualDataJobDeployment.isPresent());
     Assertions.assertEquals(expectedDataJobDeployment, actualDataJobDeployment.get());
 
     jobDeploymentRepository.deleteById(expectedDataJobDeployment.getDataJobName());
-    var deletedDataJobDeployment = jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
+    var deletedDataJobDeployment =
+        jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertFalse(deletedDataJobDeployment.isPresent());
   }
 
@@ -62,14 +56,16 @@ public class JobDeploymentRepositoryIT {
   public void testUpdate_deploymentShouldBeUpdated() {
     DataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
 
-    var createdDataJobDeployment = jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
+    var createdDataJobDeployment =
+        jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertTrue(createdDataJobDeployment.isPresent());
     Assertions.assertEquals(expectedDataJobDeployment, createdDataJobDeployment.get());
 
     expectedDataJobDeployment.setGitCommitSha("new-sha");
     jobDeploymentRepository.save(expectedDataJobDeployment);
 
-    var updatedDataJobDeployment = jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
+    var updatedDataJobDeployment =
+        jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertTrue(updatedDataJobDeployment.isPresent());
     Assertions.assertEquals(expectedDataJobDeployment, updatedDataJobDeployment.get());
   }
@@ -77,10 +73,24 @@ public class JobDeploymentRepositoryIT {
   private DataJobDeployment createDataJobDeployment() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-    DataJobDeployment expectedDataJobDeployment = new DataJobDeployment(actualDataJob.getName(), actualDataJob, "sha", "3.9-secure", "commit", 1F, 1F, 1, 1, OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS), "user", true);
+    DataJobDeployment expectedDataJobDeployment =
+        new DataJobDeployment(
+            actualDataJob.getName(),
+            actualDataJob,
+            "sha",
+            "3.9-secure",
+            "commit",
+            1F,
+            1F,
+            1,
+            1,
+            OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            "user",
+            true);
     jobDeploymentRepository.save(expectedDataJobDeployment);
 
-    var createdDataJobDeployment = jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
+    var createdDataJobDeployment =
+        jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertTrue(createdDataJobDeployment.isPresent());
     Assertions.assertEquals(expectedDataJobDeployment, createdDataJobDeployment.get());
 

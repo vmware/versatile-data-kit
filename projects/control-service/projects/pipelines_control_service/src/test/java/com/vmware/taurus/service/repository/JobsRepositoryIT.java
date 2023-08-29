@@ -7,7 +7,6 @@ package com.vmware.taurus.service.repository;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.model.*;
-import com.vmware.taurus.service.repository.JobsRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -120,7 +119,20 @@ public class JobsRepositoryIT {
     var dataJobEntity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
     repository.save(dataJobEntity);
 
-    DataJobDeployment expectedDataJobDeployment = new DataJobDeployment(dataJobEntity.getName(), dataJobEntity, "sha", "3.9-secure", "git_commit_sha", 1F, 1F, 1, 1, OffsetDateTime.now(), "user", true);
+    DataJobDeployment expectedDataJobDeployment =
+        new DataJobDeployment(
+            dataJobEntity.getName(),
+            dataJobEntity,
+            "sha",
+            "3.9-secure",
+            "git_commit_sha",
+            1F,
+            1F,
+            1,
+            1,
+            OffsetDateTime.now(),
+            "user",
+            true);
     jobDeploymentRepository.save(expectedDataJobDeployment);
 
     Assertions.assertTrue(repository.findById(dataJobEntity.getName()).isPresent());

@@ -19,32 +19,32 @@ import java.time.OffsetDateTime;
 @Entity
 public class DataJobDeployment {
 
-    @Id
-    @Column(name = "data_job_name")
-    private String dataJobName;
+  @Id
+  @Column(name = "data_job_name")
+  private String dataJobName;
 
-    @OneToOne(mappedBy = "dataJobDeployment")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private DataJob dataJob;
+  @OneToOne(mappedBy = "dataJobDeployment")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private DataJob dataJob;
 
-    private String deploymentVersionSha;
+  private String deploymentVersionSha;
 
-    private String pythonVersion;
+  private String pythonVersion;
 
-    private String gitCommitSha;
+  private String gitCommitSha;
 
-    private Float resourcesCpuRequest;
+  private Float resourcesCpuRequest;
 
-    private Float resourcesCpuLimit;
+  private Float resourcesCpuLimit;
 
-    private Integer resourcesMemoryRequest;
+  private Integer resourcesMemoryRequest;
 
-    private Integer resourcesMemoryLimit;
+  private Integer resourcesMemoryLimit;
 
-    private OffsetDateTime lastDeployedDate;
+  private OffsetDateTime lastDeployedDate;
 
-    private String lastDeployedBy;
+  private String lastDeployedBy;
 
-    private Boolean enabled;
+  private Boolean enabled;
 }
