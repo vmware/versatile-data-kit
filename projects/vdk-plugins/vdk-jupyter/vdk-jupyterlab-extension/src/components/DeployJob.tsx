@@ -8,6 +8,7 @@ import { IJobFullProps } from './props';
 import { CREATE_DEP_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { VDKCheckbox } from './VdkCheckbox';
+import { StatusButton } from './StatusButton';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
@@ -52,7 +53,7 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
   }
 }
 
-export async function showCreateDeploymentDialog() {
+export async function showCreateDeploymentDialog(statusButton?: StatusButton) {
   let runBeforeDeploy = true;
 
   const result = await showDialog({
@@ -65,11 +66,11 @@ export async function showCreateDeploymentDialog() {
           jobTeam={jobData.get(VdkOption.TEAM) || ''}
         />
         <VDKCheckbox
-                    checked={true}
-                    onChange={(checked) => runBeforeDeploy = checked}
-                    label="Run data job before deployment"
-                    id="deployRun"
-                />
+          checked={true}
+          onChange={checked => (runBeforeDeploy = checked)}
+          label="Run data job before deployment"
+          id="deployRun"
+        />
       </>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
@@ -82,13 +83,18 @@ export async function showCreateDeploymentDialog() {
   ) {
     try {
       if (runBeforeDeploy) {
+        statusButton?.show('Run', jobData.get(VdkOption.PATH)!);
         const run = await jobRunRequest();
         if (run.isSuccessful) {
+          statusButton?.hide();
+          statusButton?.show('Deploy', jobData.get(VdkOption.PATH)!);
           const deployment = await jobRequest('deploy');
           // We only handle the successful deployment scenario.
           // The failing scenario is handled in the request itself.
-          if(deployment.isSuccessful && deployment.message){
-            alert("The test job run completed successfully! \n" + deployment.message);
+          if (deployment.isSuccessful && deployment.message) {
+            alert(
+              'The test job run completed successfully! \n' + deployment.message
+            );
           }
         } else {
           const errorMessage = new VdkErrorMessage('ERROR : ' + run.message);
@@ -107,8 +113,9 @@ export async function showCreateDeploymentDialog() {
           });
         }
       } else {
+        statusButton?.show('Deploy', jobData.get(VdkOption.PATH)!);
         const deployment = await jobRequest('deploy');
-        if(deployment.isSuccessful && deployment.message){
+        if (deployment.isSuccessful && deployment.message) {
           alert(deployment.message);
         }
       }
