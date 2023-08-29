@@ -251,37 +251,51 @@ export const populateNotebook = async (notebookTracker: INotebookTracker) => {
           jobData.get(VdkOption.PATH) +
           '.*\n',
         '*  *If you are not familiar with notebook data jobs make sure to check the **Getting Started**(TODO: add link) page.*\n',
-        '*  *You can find the **original job** at ' +
+        '*  *You can find an archive of the **original job** at ' +
           jobData.get(VdkOption.PATH)!.split(/[/\\]/).slice(0, -1).join('/') +
           '.*'
       ]);
 
       addMarkdownCell([
-        '#### Execution Order and Identifying Cells\n',
-        '*  *The below cells are automatically generated corresponding to a step(.sql or .py file with VDK run function) \n',
-        '    in your original job.* \n',
-        '*  *You will notice that some cells are coloured and include the VDK logo and a numbering. \n',
-        '    These are the "vdk" tagged cells.\n',
-        '    Only these cells are executed during VDK run and all the others are ignored(for example the current cell).*\n',
-        '*  *Code cells in the notebook will be executed according to the numbering when running the notebook data job with VDK.\n',
-        '    This means that the steps in the job are organized from the top to the bottom, starting with the first step.*\n',
-        '*  *When you see a title saying **"Step generated from: sample.py"** before some blocks of code, \n',
-        '    it means that the code below that title was created from the "sample.py" file.*\n',
-        '*  *Similarly, if you come across code cells that have the format **"job_input.execute_query(query_string)"** ,\n',
-        '    it means that those cells contain code generated from ".sql" files.*\n',
-        '*  *On the other hand, code cells originating from ".py" files remain unchanged.\n',
-        '    However, an additional cell is included that calls the "run" function using the command **"run(job_input)"** . \n',
-        '    This cell executes the "run" function from the code generated from the ".py" file.*\n',
-        '*  *You can delete the cells that are not tagged with "vdk" \n',
-        "    as they are not essential to the data job's execution.\n",
-        '    However, removing tagged cells will result in a different data job run.* '
+        '#### What happened to my Data Job?\n',
+        '\n',
+        "<p> The Data Job's cells are automatically generated corresponding to VDK steps in the original files </p>\n",
+        '\n',
+        '<i>\n',
+        '<details><summary>Click to learn more</summary> \n',
+        '    <ul>\n',
+        '        <li> The below cells are automatically generated corresponding to a step (.sql file or .py file with VDK run(job_input) function) in your original job.</li>\n',
+        '        <li> When you see a title saying <b>"Step generated from: sample.py"</b> before some blocks of code, \n',
+        '        it means that the code below that title was created from the "sample.py" file.</li>\n',
+        '        <li> Similarly, if you come across code cells that have the format <b>"job_input.execute_query(query_string)"</b> ,\n',
+        '        it means that those cells contain code generated from ".sql" files.</li>\n',
+        '        <li> On the other hand, code cells originating from ".py" files remain unchanged.\n',
+        '        However, an additional cell is included that calls the "run" function using the command <b>"run(job_input)"</b> . \n',
+        '            This cell executes the "run" function from the code generated from the ".py" file.</li>\n',
+        '        <li> ".py" files that are not considered a step - without VDK run(job_input) function - remain as files unchanged.</li>\n',
+        '    </ul>\n',
+        '</details>\n',
+        '</i>'
       ]);
 
       addMarkdownCell([
-        '#### Tips: \n',
-        '* *Before running the job, it is recommended to review the cells\n',
-        '    to ensure a clear understanding of the data job run.  \n',
-        '    This will help to ensure the desired outcome.* '
+        '#### What are those numbers with VDK Logo next to them?\n',
+        '\n',
+        '<p>They identify a <b>VDK cell</b>.<br/> <b>VDK cells</b> would be executed, in the specified order, when the data job is either deployed and subsequently executed with <b>VDK run</b>, or locally executed with <b>VDK run</b>.</p>\n',
+        '<i>\n',
+        '<details><summary>Click to learn more</summary>\n',
+        '    <ul>\n',
+        '        <li>You will notice that some cells are coloured and include the VDK logo and a numbering. \n',
+        '            These are the "vdk" tagged cells. They have special meaning when using VDK run command.</li>\n',
+        '        <li>You can mark a cell as <b>VDK cell</b> by setting the "vdk" tag on the cell. And removing it as a vdk cell step by removing the "vdk" tag.\n',
+        '        <li>Only these cells are executed during VDK run command and all the others are ignored (for example the current cell). </li>\n',
+        '        <li>The cells in the notebook will be executed according to the numbering when running the notebook data job with VDK Run. This means that the steps in the job are organized from the top to the bottom, starting with the first step.</li>\n',
+        '        <li>You can delete the cells that are not tagged with "vdk" as they are not essential to the data job\'s execution.\n',
+        '            However, removing tagged cells will result in a different data job run.</li>\n',
+        '    </ul> \n',
+        '</details>\n',
+        '</i>\n',
+        '<br/>'
       ]);
 
       addCodeCell(
