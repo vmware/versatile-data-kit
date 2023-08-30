@@ -101,14 +101,14 @@ In our tutorials we encourage users to set ingest destination using env variable
    2. Sections in the ini are simplified or config.ini is deprecated in favour of setting more properties in python or using a newer file format
    3. At the start of this initiative we ran user interviews asking users to read from postgres and write to sqlite. When the user interviews are run at the end of this initiative, users not only know which properties to set but be able to give a good explanation of what thosee properties do
    4. In getting started examples the destination database should be set at a single property and not need to be duplicated twice as is the case now
-2.  Easily finding out which SDK functionality and method are needed for a given task
+2. Easily finding out which SDK functionality and method are needed for a given task
    1. Ensure documentation reference is available that can serve as a quick reference for SDK functionalities
-   2. Provide users with capability to auto generate boilerplate code customized according to their requirements and needs.
-4. Users should feel that they have written a production ready job
+   2. Provide users with the capability to auto-generate boilerplate code customized according to their requirements and needs.
+3. Users should feel that they have written a production ready job
    1. All the jobs written during the previous user test would not have been fit to deploy to production because there are secrets in the user code. When the user interviews are run at the end of this initiative, users should have produced jobs that are sutible to deploy to production.
-5. Env variables are supported but not advertised as the primary method of setting properties
+4. Env variables are supported but not advertised as the primary method of setting properties
    1. No getting started sections will suggest setting env variables. (arguably this is change should be part of the docs initiative)
-6. IDE support should be more adopted
+5. IDE support should be more adopted
    1.  When the user interviews are run at the end of this initiative, users should run it in their IDE without being mandated to do so. But a small bit of encouragement is fine.
 
 ### Out of scope because they are handled else where
