@@ -25,6 +25,7 @@ class JobDownloadSource:
     def download(self, team: str, name: str, path: str):
         log.debug(f"Download job {name} of team {team} into parent {path}")
         self.__validate_job_path(path, name)
+        path_for_keytab = path
         job_archive_path = os.path.join(path, f"{name}.zip")
         try:
             log.info(f"Downloading data job {name} in {path}/{name} ...")
@@ -38,7 +39,7 @@ class JobDownloadSource:
                 )
 
             log.info(f"Downloaded Data Job in {path}/{name}")
-            self.__download_keytab(team, name, path)
+            self.__download_keytab(team, name, path_for_keytab)
 
         finally:
             self.__cleanup_archive(job_archive_path)
