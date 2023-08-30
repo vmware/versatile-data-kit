@@ -14,6 +14,7 @@ from vdk.plugin.ipython.job import JobControl
 
 _log = logging.getLogger(__name__)
 
+
 @contextmanager
 def get_vdk_ipython(session_ip, vdk_load_arguments_line=""):
     session_ip.run_line_magic(magic_name="load_ext", line="vdk.plugin.ipython")
