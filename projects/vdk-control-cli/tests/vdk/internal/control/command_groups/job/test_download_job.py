@@ -123,6 +123,7 @@ def test_download_key_does_error(httpserver: PluginHTTPServer, tmpdir: LocalPath
         ["-n", "test-job", "-t", "test-team", "-u", rest_api_url, "-p", temp_dir],
     )
 
+    assert "Failed to download keytab for job" in result.output
     # check error is printed to user (all errors have what/why/... format)
     assert "what" in result.output and "why" in result.output
     test_utils.assert_click_status(result, 0)

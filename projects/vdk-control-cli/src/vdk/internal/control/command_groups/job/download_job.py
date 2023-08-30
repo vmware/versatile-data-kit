@@ -39,9 +39,10 @@ class JobDownloadSource:
                 )
 
             log.info(f"Downloaded Data Job in {path}/{name}")
-
-            self.__download_keytab(team, name, path_for_keytab)
-
+            try:
+                self.__download_keytab(team, name, path_for_keytab)
+            except VDKException as e:
+                log.warning(f"Failed to download keytab for job {name}. Error: {e}.")
         finally:
             self.__cleanup_archive(job_archive_path)
 
