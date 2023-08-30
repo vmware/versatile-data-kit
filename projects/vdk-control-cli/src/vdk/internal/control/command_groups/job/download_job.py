@@ -40,10 +40,7 @@ class JobDownloadSource:
 
             log.info(f"Downloaded Data Job in {path}/{name}")
 
-            try:
-                self.__download_keytab(team, name, path_for_keytab)
-            except Exception as e:
-                log.info(f"Failed to download keytab for job {name}. Error: {e}.")
+            self.__download_keytab(team, name, path_for_keytab)
 
         finally:
             self.__cleanup_archive(job_archive_path)

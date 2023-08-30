@@ -101,7 +101,7 @@ def test_download_job_does_not_exist(httpserver: PluginHTTPServer, tmpdir: Local
     assert "Cannot cleanup archive" not in result.output
 
 
-def test_download_key_does_not_exist(httpserver: PluginHTTPServer, tmpdir: LocalPath):
+def test_download_key_does_error(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     rest_api_url = httpserver.url_for("")
     temp_dir = tmpdir.mkdir("foo")
 
@@ -115,7 +115,7 @@ def test_download_key_does_not_exist(httpserver: PluginHTTPServer, tmpdir: Local
     # This is the expected failure for the keytab download
     httpserver.expect_request(
         uri="/data-jobs/for-team/test-team/jobs/test-job/keytab", method="GET"
-    ).respond_with_response(Response(status=404))
+    ).respond_with_response(Response(status=510))
 
     runner = CliRunner()
     result = runner.invoke(
@@ -123,5 +123,6 @@ def test_download_key_does_not_exist(httpserver: PluginHTTPServer, tmpdir: Local
         ["-n", "test-job", "-t", "test-team", "-u", rest_api_url, "-p", temp_dir],
     )
 
+    # check error is printed to user (all errors have what/why/... format)
+    assert "what" in result.output and "why" in result.output
     test_utils.assert_click_status(result, 0)
-    assert "Failed to download keytab for job" in result.output
