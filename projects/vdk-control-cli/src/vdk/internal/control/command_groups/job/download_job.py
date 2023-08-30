@@ -43,6 +43,7 @@ class JobDownloadSource:
         finally:
             self.__cleanup_archive(job_archive_path)
 
+    @staticmethod
     def __download_keytab(self, team: str, name: str, path: str):
         try:
             log.info(f"Downloading keytab...")
@@ -53,7 +54,6 @@ class JobDownloadSource:
             with open(keytab_file_path, "wb") as w:
                 w.write(response.raw_data)
             log.info(f"Saved keytab in {keytab_file_path}")
-
         except Exception as e:
             log.warning(f"Failed to download keytab for job {name}. Error: {e}.")
 
