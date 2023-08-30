@@ -6,7 +6,7 @@
 package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobExecutionRepository;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

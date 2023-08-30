@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.monitoring;
 
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import org.slf4j.Logger;

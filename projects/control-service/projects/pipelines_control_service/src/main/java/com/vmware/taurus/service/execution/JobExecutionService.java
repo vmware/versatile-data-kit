@@ -12,7 +12,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.datajobs.ToModelApiConverter;
 import com.vmware.taurus.exception.*;
-import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobExecutionRepository;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.deploy.DeploymentService;
