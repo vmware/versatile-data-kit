@@ -2,8 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import time
+from contextlib import contextmanager
 
 import pytest
+from _pytest._py.path import LocalPath
+from _pytest.monkeypatch import MonkeyPatch
 from IPython.core.error import UsageError
 from IPython.testing.globalipapp import start_ipython
 from vdk.api.job_input import IJobInput
@@ -23,6 +26,14 @@ def session_ip():
 def ip(session_ip):
     session_ip.run_line_magic(magic_name="load_ext", line="vdk.plugin.ipython")
     session_ip.run_line_magic(magic_name="reload_VDK", line="")
+    yield session_ip
+    session_ip.run_line_magic(magic_name="reset", line="-f")
+
+
+@contextmanager
+def get_vdk_ipython(session_ip, vdk_load_arguments_line=""):
+    session_ip.run_line_magic(magic_name="load_ext", line="vdk.plugin.ipython")
+    session_ip.run_line_magic(magic_name="reload_VDK", line=vdk_load_arguments_line)
     yield session_ip
     session_ip.run_line_magic(magic_name="reset", line="-f")
 
@@ -53,13 +64,13 @@ def test_get_initialized_job_input(ip):
     assert isinstance(ip.user_global_ns["job_input"], IJobInput)
 
 
-def test_calling_get_initialise_job_input_multiple_times(ip, tmpdir):
+def test_calling_get_initialise_job_input_multiple_times(ip):
     assert ip.user_global_ns["VDK"] is not None
     assert isinstance(ip.user_global_ns["VDK"], JobControl)
 
     # first call
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
-    result_job_input = ip.get_ipython().getoutput("job_input")
+    result_job_input = ip.user_global_ns["job_input"]
 
     # test first called object
     assert ip.user_global_ns["job_input"] is not None
@@ -73,16 +84,17 @@ def test_calling_get_initialise_job_input_multiple_times(ip, tmpdir):
     assert isinstance(ip.user_global_ns["job_input"], IJobInput)
 
     # check whether first job_input is the same as the second one
-    assert result_job_input == ip.get_ipython().getoutput("job_input")
+    assert result_job_input == ip.user_global_ns["job_input"]
 
 
 # uses the pytest tmpdir fixture - https://docs.pytest.org/en/6.2.x/tmpdir.html#the-tmpdir-fixture
-async def test_extension_with_ingestion_job(ip, tmpdir):
+def test_extension_with_ingestion_job(ip, tmpdir):
     # set environmental variables via Jupyter notebook
     job_dir = str(tmpdir) + "vdk-sqlite.db"
     ip.get_ipython().run_cell("%env VDK_INGEST_METHOD_DEFAULT=sqlite")
     ip.get_ipython().run_cell(f"%env VDK_SQLITE_FILE={job_dir}")
     ip.get_ipython().run_cell("%env VDK_DB_DEFAULT_TYPE=SQLITE")
+    ip.get_ipython().run_cell("%env INGESTER_WAIT_TO_FINISH_AFTER_EVERY_SEND=true")
 
     # get the job_input
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
@@ -111,11 +123,11 @@ async def test_extension_with_ingestion_job(ip, tmpdir):
     )
 
     # get the data that is going to be ingested
-    ip.get_ipython().run_cell("import requests")
+    ip.get_ipython().run_cell("import json")
     ip.get_ipython().run_cell(
-        'response = requests.get("https://jsonplaceholder.typicode.com/todos/1")'
+        """raw = '{ "userId": 1, "id": 1, "title": "delectus aut autem", "completed": false }' """
     )
-    ip.get_ipython().run_cell("payload = response.json()")
+    ip.get_ipython().run_cell("payload = json.loads(raw)")
 
     # send data for ingestion
     ip.get_ipython().run_cell(
@@ -174,6 +186,55 @@ def test_extension_with_pure_sql_job(ip, tmpdir):
     )
     assert "2021-01-01  GOOG          123" in (
         ip.get_ipython().getoutput("! " "vdk " "sqlite-query -q 'SELECT * FROM stocks'")
+    )
+
+
+def test_extension_with_job_input_get_job_dir(
+    session_ip, tmpdir: LocalPath, monkeypatch: MonkeyPatch
+):
+    monkeypatch.chdir(str(tmpdir))
+    with get_vdk_ipython(session_ip) as ip:
+        ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+        assert ip.get_ipython().run_cell(
+            "str(job_input.get_job_directory())"
+        ).result == str(tmpdir)
+
+
+def test_extension_with_job_input_get_name(
+    session_ip, tmpdir: LocalPath, monkeypatch: MonkeyPatch
+):
+    monkeypatch.chdir(str(tmpdir))
+    with get_vdk_ipython(session_ip) as ip:
+        ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+
+        assert (
+            ip.get_ipython().run_cell("job_input.get_name()").result == tmpdir.basename
+        )
+        assert ip.user_global_ns["job_input"].get_name() == tmpdir.basename
+
+
+def test_extension_with_job_input_execution_properties(
+    ip, tmpdir: LocalPath, monkeypatch: MonkeyPatch
+):
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+
+    execution_properties = ip.user_global_ns["job_input"].get_execution_properties()
+    assert "pa__execution_id" in execution_properties
+    assert "pa__op_id" in execution_properties
+
+
+def test_extension_with_job_input_get_arguments(session_ip):
+    with get_vdk_ipython(session_ip, '--arguments {"a":2}') as ip:
+        ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+
+        assert ip.get_ipython().run_cell("job_input.get_arguments()").result == {"a": 2}
+
+
+def test_extension_with_job_input_properties(ip):
+    ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
+    assert ip.get_ipython().run_cell("job_input.set_all_properties({'test':'my-test'})")
+    assert (
+        ip.get_ipython().run_cell("job_input.get_property('test')").result == "my-test"
     )
 
 
@@ -236,7 +297,7 @@ def test_call_finalize_before_get_initialized_job_input(ip):
     # verifying that calling finalize before get_initialized_job_input won't produce errors(the method will not fail)
 
 
-def test_calling_get_initialise_job_input_multiple_times_after_finalize(ip, tmpdir):
+def test_calling_get_initialise_job_input_multiple_times_after_finalize(ip):
     # first call
     ip.get_ipython().run_cell("job_input = VDK.get_initialized_job_input()")
     result_job_input = ip.get_ipython().run_cell("job_input").result

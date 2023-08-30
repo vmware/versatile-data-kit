@@ -1,0 +1,22 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-duckdb:
+  variables:
+    PLUGIN_NAME: vdk-duckdb
+  extends: .build-plugin
+
+build-py37-vdk-duckdb:
+  extends: .build-vdk-duckdb
+  image: "python:3.7"
+
+build-py311-vdk-duckdb:
+  extends: .build-vdk-duckdb
+  image: "python:3.11"
+
+release-vdk-duckdb:
+  variables:
+    PLUGIN_NAME: vdk-duckdb
+  extends: .release-plugin

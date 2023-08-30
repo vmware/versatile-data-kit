@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.google.common.collect.Lists;
+import com.vmware.taurus.service.repository.JobsRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

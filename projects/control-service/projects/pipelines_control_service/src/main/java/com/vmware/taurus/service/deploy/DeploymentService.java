@@ -7,7 +7,7 @@ package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.exception.*;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.model.*;
