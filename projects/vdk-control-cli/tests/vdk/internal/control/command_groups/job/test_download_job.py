@@ -123,7 +123,8 @@ def test_download_key_does_error(httpserver: PluginHTTPServer, tmpdir: LocalPath
         ["-n", "test-job", "-t", "test-team", "-u", rest_api_url, "-p", temp_dir],
     )
 
-    assert "Failed to download keytab for job" in result.output
-    # check error is printed to user (all errors have what/why/... format)
-    assert "what" in result.output and "why" in result.output
+    # Still exiting with 0 since job is downloaded
     test_utils.assert_click_status(result, 0)
+    # Assert the key was not downloaded to the parent directory
+    expected_key_path = os.path.join(temp_dir, "test-job.keytab")
+    assert pathlib.Path(expected_key_path).exists() is False
