@@ -41,7 +41,7 @@ class JobControl:
     ):
         path = pathlib.Path(path) if path else pathlib.Path(os.getcwd())
         job_args = json.loads(arguments) if arguments else None
-        self._name = path.name if name is None else name
+        self._name = path.name if not name else name
         self._path = path
         self._arguments = job_args
         self._template = template
