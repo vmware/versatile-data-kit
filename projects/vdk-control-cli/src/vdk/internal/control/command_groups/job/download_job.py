@@ -47,7 +47,7 @@ class JobDownloadSource:
             self.__cleanup_archive(job_archive_path)
 
     def __download_keytab(self, team: str, name: str, path: str):
-        log.info(f"Downloading keytab...")
+        log.info("Downloading keytab...")
         keytab_file_path = os.path.join(path, f"{name}.keytab")
         response = self.api.get_jobs_api().data_job_keytab_download_with_http_info(
             team_name=team, job_name=name, _preload_content=False
