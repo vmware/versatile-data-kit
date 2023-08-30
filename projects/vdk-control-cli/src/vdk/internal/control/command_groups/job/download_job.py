@@ -44,7 +44,6 @@ class JobDownloadSource:
         finally:
             self.__cleanup_archive(job_archive_path)
 
-    @staticmethod
     def __download_keytab(self, team: str, name: str, path: str):
         try:
             log.info(f"Downloading keytab...")
