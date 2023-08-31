@@ -99,7 +99,8 @@ public class SecurityConfiguration {
       FeatureFlags featureFlags,
       @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}") String jwksUri,
       @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuer,
-      @Value("${datajobs.authorization.oauth2.resourceserver.jwt.extra-issuer.uris:}") String[] extraIssuers,
+      @Value("${datajobs.authorization.oauth2.resourceserver.jwt.extra-issuer.uris:}")
+          String[] extraIssuers,
       @Value("${datajobs.authorization.authorities-claim-name:}") String authoritiesClaimName,
       @Value("${datajobs.authorization.custom-claim-name:}") String customClaimName,
       @Value("${datajobs.authorization.authorized-custom-claim-values:}")
