@@ -144,23 +144,23 @@ class StepFuncFactory:
                 # confusing message to the users.
                 log.debug(e)
                 raise e
-            except BaseException as e:
-                from vdk.internal.builtin_plugins.run.job_input_error_classifier import (
-                    whom_to_blame,
-                )
-
-                errors.log_and_rethrow(
-                    to_be_fixed_by=whom_to_blame(e, __file__, None),
-                    log=log,
-                    what_happened=f"Data Job step {step_name} completed with error.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences="I will not process the remaining steps (if any), "
-                    "and this Data Job execution will be marked as failed.",
-                    countermeasures="See exception and fix the root cause, so that the exception does "
-                    "not appear anymore.",
-                    exception=e,
-                    wrap_in_vdk_error=True,
-                )
+        #            except BaseException as e:
+        #                from vdk.internal.builtin_plugins.run.job_input_error_classifier import (
+        #                    whom_to_blame,
+        #                )
+        #
+        #                errors.log_and_rethrow(
+        #                    to_be_fixed_by=whom_to_blame(e, __file__, None),
+        #                    log=log,
+        #                    what_happened=f"Data Job step {step_name} completed with error.",
+        #                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+        #                    consequences="I will not process the remaining steps (if any), "
+        #                    "and this Data Job execution will be marked as failed.",
+        #                    countermeasures="See exception and fix the root cause, so that the exception does "
+        #                    "not appear anymore.",
+        #                    exception=e,
+        #                    wrap_in_vdk_error=True,
+        #                )
         else:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,

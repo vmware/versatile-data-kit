@@ -89,17 +89,17 @@ class DataJobDefaultHookImplPlugin:
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
             blamee = whom_to_blame(e, __file__, context.job_directory)
             exception = e
-            errors.log_exception(
-                blamee,
-                log,
-                what_happened=f"Processing step {step.name} completed with error.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences="I will not process the remaining steps (if any), "
-                "and this Data Job execution will be marked as failed.",
-                countermeasures="See exception and fix the root cause, so that the exception does "
-                "not appear anymore.",
-                exception=e,
-            )
+        #            errors.log_exception(
+        #                blamee,
+        #                log,
+        #                what_happened=f"Processing step {step.name} completed with error.",
+        #                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+        #                consequences="I will not process the remaining steps (if any), "
+        #                "and this Data Job execution will be marked as failed.",
+        #                countermeasures="See exception and fix the root cause, so that the exception does "
+        #                "not appear anymore.",
+        #                exception=e,
+        #            )
 
         return StepResult(
             name=step.name,
@@ -144,17 +144,17 @@ class DataJobDefaultHookImplPlugin:
             except BaseException as e:
                 blamee = whom_to_blame(e, __file__, context.job_directory)
                 exception = e
-                errors.log_exception(
-                    blamee,
-                    log,
-                    what_happened=f"Processing step {current_step.name} completed with error.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences="I will not process the remaining steps (if any), "
-                    "and this Data Job execution will be marked as failed.",
-                    countermeasures="See exception and fix the root cause, so that the exception does "
-                    "not appear anymore.",
-                    exception=e,
-                )
+                #                errors.log_exception(
+                #                    blamee,
+                #                    log,
+                #                    what_happened=f"Processing step {current_step.name} completed with error.",
+                #                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                #                    consequences="I will not process the remaining steps (if any), "
+                #                    "and this Data Job execution will be marked as failed.",
+                #                    countermeasures="See exception and fix the root cause, so that the exception does "
+                #                    "not appear anymore.",
+                #                    exception=e,
+                #                )
                 res = StepResult(
                     name=current_step.name,
                     type=current_step.type,
@@ -312,17 +312,17 @@ class DataJob:
             return self._plugin_hook.run_job(context=job_context)
         except BaseException as ex:
             blamee = whom_to_blame(ex, __file__, job_context.job_directory)
-            errors.log_exception(
-                blamee,
-                log,
-                what_happened=f"Data Job {self._name} completed with error.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(ex),
-                consequences="I will not process the remaining steps (if any), "
-                "and this Data Job execution will be marked as failed.",
-                countermeasures="See exception and fix the root cause, so that the exception does "
-                "not appear anymore.",
-                exception=ex,
-            )
+            #            errors.log_exception(
+            #                blamee,
+            #                log,
+            #                what_happened=f"Data Job {self._name} completed with error.",
+            #                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(ex),
+            #                consequences="I will not process the remaining steps (if any), "
+            #                "and this Data Job execution will be marked as failed.",
+            #                countermeasures="See exception and fix the root cause, so that the exception does "
+            #                "not appear anymore.",
+            #                exception=ex,
+            #            )
             execution_result = ExecutionResult(
                 self._name,
                 self._core_context.state.get(CommonStoreKeys.EXECUTION_ID),
