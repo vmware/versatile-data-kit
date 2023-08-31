@@ -165,15 +165,17 @@ class BaseVdkError(Exception):
      - Domain errors
     """
 
-    def __init__(self, error_message: ErrorMessage):
-        """
 
-        :param error_message: required - error message describing the error
-        :param cause_exception: cause exception. Included if you want to be visualized by toString().
-                In python you specify cause using `raise X from Cause`
-                https://docs.python.org/3/tutorial/errors.html#exception-chaining
-        """
-        super().__init__(str(error_message))
+#
+#    def __init__(self, error_message: ErrorMessage):
+#        """
+#
+#        :param error_message: required - error message describing the error
+#        :param cause_exception: cause exception. Included if you want to be visualized by toString().
+#                In python you specify cause using `raise X from Cause`
+#                https://docs.python.org/3/tutorial/errors.html#exception-chaining
+#        """
+#        super().__init__(str(">>>>>>>>>>Here's your message<<<<<<<<<<<"))
 
 
 class PlatformServiceError(BaseVdkError):
@@ -241,7 +243,7 @@ class ErrorMessage:
         self.countermeasures = countermeasures
 
     def _get_template(self, replace_with: str) -> str:
-        return "{}r%15s : {}r%15s : {}r%15s : {}r%15s : {}".replace(
+        return "\n-----------------------------\n{}r%15s : {}r%15s : {}r%15s : {}r%15s : {}\n-----------------------------".replace(
             "r", replace_with
         ) % (
             "what happened".upper(),
@@ -346,7 +348,7 @@ def log_exception(
     )
 
     __set_error_is_logged(exception)
-    log.exception(error_message)
+    # log.exception(error_message)
 
 
 def log_and_throw(
@@ -390,8 +392,8 @@ def log_and_throw(
             Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
         )
         lines = __get_caller_stacktrace()
-        log.error(str(error_message) + "\n" + lines)
-        __set_error_is_logged(e)
+        #        log.error(str(error_message) + "\n" + lines)
+        #        __set_error_is_logged(e)
         raise
 
 
@@ -434,9 +436,9 @@ def log_and_rethrow(
             to_be_fixed_by, error_message, exception
         )
 
-    if not __error_is_logged(exception):
-        log.exception(error_message)
-        __set_error_is_logged(exception)
+    # if not __error_is_logged(exception):
+    #    log.exception(error_message)
+    #    __set_error_is_logged(exception)
 
     try:
         raise to_be_raised_exception from exception if wrap_in_vdk_error else exception

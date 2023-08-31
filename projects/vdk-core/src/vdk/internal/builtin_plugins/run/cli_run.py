@@ -150,16 +150,16 @@ class CliRunImpl:
                 temp_exec_result = json.loads(string_exec_result)
                 steps = temp_exec_result.pop("steps_list")
 
-                log.info(
-                    f"Data Job execution summary: {json.dumps(temp_exec_result, indent=2)}"
-                )
+                ## log.info(
+                ##     f"Data Job execution summary: {json.dumps(temp_exec_result, indent=2)}"
+                ## )
 
                 chunks = math.ceil(len(string_exec_result) / 5000)
                 for i in self.__split_into_chunks(exec_steps=steps, chunks=chunks):
                     log.info(f"Execution Steps: {json.dumps(i, indent=2)}")
 
-            else:
-                log.info(f"Data Job execution summary: {execution_result}")
+        #            else:
+        ## log.info(f"Data Job execution summary: {execution_result}")
         except BaseException as e:
             errors.log_and_rethrow(
                 job_input_error_classifier.whom_to_blame(
