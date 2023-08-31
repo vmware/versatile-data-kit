@@ -5,6 +5,8 @@ import time
 from contextlib import contextmanager
 
 import pytest
+from _pytest._py.path import LocalPath
+from _pytest.monkeypatch import MonkeyPatch
 from conftest import ip
 from IPython.core.error import UsageError
 from vdk.api.job_input import IJobInput
