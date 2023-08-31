@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -169,6 +170,8 @@ public class SecurityConfiguration {
   }
 
   @Bean
+  @ConditionalOnExpression(
+      "not '${spring.security.oauth2.resourceserver.jwt.issuer-uri:}'.equals('')")
   JwtIssuerAuthenticationManagerResolver byIssuer(JwtAuthenticationConverter converter) {
     Map<String, AuthenticationManager> managers = new HashMap<>();
     List<String> issuers = Lists.asList(issuer, extraIssuers);
