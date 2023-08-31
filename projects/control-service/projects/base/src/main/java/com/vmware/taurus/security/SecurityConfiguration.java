@@ -170,12 +170,16 @@ public class SecurityConfiguration {
   }
 
   @Bean
-  @ConditionalOnExpression(
-      "not '${spring.security.oauth2.resourceserver.jwt.issuer-uri:}'.equals('')")
+  @ConditionalOnExpression("${datajobs.security.oauth2.enabled}")
   JwtIssuerAuthenticationManagerResolver byIssuer(JwtAuthenticationConverter converter) {
     Map<String, AuthenticationManager> managers = new HashMap<>();
     List<String> issuers = Lists.asList(issuer, extraIssuers);
     for (String issuer : issuers) {
+
+      if (issuer.isBlank()) {
+        continue;
+      }
+
       JwtDecoder decoder = jwtDecoder(issuer);
       JwtAuthenticationProvider provider = new JwtAuthenticationProvider(decoder);
       provider.setJwtAuthenticationConverter(converter);
@@ -184,7 +188,10 @@ public class SecurityConfiguration {
     return new JwtIssuerAuthenticationManagerResolver(managers::get);
   }
 
-  private JwtDecoder jwtDecoder(String issuer) {
+  @Bean
+  @ConditionalOnExpression(
+      "not '${spring.security.oauth2.resourceserver.jwt.issuer-uri:}'.equals('')")
+  public JwtDecoder jwtDecoder(String issuer) {
     OAuth2TokenValidator<Jwt> defaultValidators = JwtValidators.createDefaultWithIssuer(issuer);
     OAuth2TokenValidator<Jwt> customTokenValidator =
         new CustomClaimTokenValidator(customClaimName, authorizedCustomClaimValues);
