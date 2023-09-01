@@ -98,8 +98,7 @@ public class DeploymentNotificationHelperTest {
 
     verify(deploymentProgress)
         .failed(
-            testDataJob.getJobConfig(),
-            testJobDeployment,
+            testDataJob,
             DeploymentStatus.USER_ERROR,
             errorMessage,
             true);

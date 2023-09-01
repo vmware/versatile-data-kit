@@ -174,7 +174,7 @@ public class DeploymentServiceTest {
             any(),
             anyList());
     verify(deploymentMonitor)
-        .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
+        .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS, null);
     verify(dataJobNotification).notifyJobDeploySuccess(testDataJob.getJobConfig());
 
     var dataJobCaptor = ArgumentCaptor.forClass(DataJob.class);
@@ -215,7 +215,7 @@ public class DeploymentServiceTest {
             any(),
             anyList());
     verify(deploymentMonitor)
-        .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
+        .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS, null);
     verify(dataJobNotification).notifyJobDeploySuccess(testDataJob.getJobConfig());
 
     verify(jobsRepository, never()).save(any());
@@ -265,7 +265,7 @@ public class DeploymentServiceTest {
             any());
     verify(dataJobNotification, never()).notifyJobDeploySuccess(testDataJob.getJobConfig());
     // The builder class is responsible for sending metrics and notifications on failed build.
-    verify(deploymentMonitor, never()).recordDeploymentStatus(any(), any());
+    verify(deploymentMonitor, never()).recordDeploymentStatus(any(), any(), any());
     verify(dataJobNotification, never())
         .notifyJobDeployError(eq(testDataJob.getJobConfig()), any(), any());
   }
@@ -308,7 +308,7 @@ public class DeploymentServiceTest {
             any(),
             any());
     verify(deploymentMonitor)
-        .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.PLATFORM_ERROR);
+        .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.PLATFORM_ERROR, null);
     verify(dataJobNotification).notifyJobDeployError(eq(testDataJob.getJobConfig()), any(), any());
   }
 
@@ -413,6 +413,6 @@ public class DeploymentServiceTest {
 
     verify(kubernetesService, never()).deleteJob(any());
     verify(kubernetesService, never()).deleteCronJob(any());
-    verify(deploymentMonitor).recordDeploymentStatus(any(), eq(DeploymentStatus.SUCCESS));
+    verify(deploymentMonitor).recordDeploymentStatus(any(), eq(DeploymentStatus.SUCCESS), any());
   }
 }

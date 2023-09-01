@@ -141,8 +141,7 @@ public class JobImageDeployer {
             log.error(msg);
           }
           deploymentProgress.failed(
-              dataJob.getJobConfig(),
-              jobDeployment,
+              dataJob,
               DeploymentStatus.USER_ERROR,
               msg,
               sendNotification);

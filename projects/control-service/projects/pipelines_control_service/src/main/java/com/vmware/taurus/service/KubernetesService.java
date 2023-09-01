@@ -156,6 +156,22 @@ public abstract class KubernetesService {
     String initContainerTerminationReason;
   }
 
+  @Value
+  @Builder
+  @ToString
+  public static class CronJob {
+    String name;
+    String image;
+    String schedule;
+    boolean enable;
+    V1Container jobContainer;
+    V1Container initContainer;
+    List<V1Volume> volumes;
+    Map<String, String> jobAnnotations;
+    Map<String, String> jobLabels;
+    List<String> imagePullSecret;
+  }
+
   @AllArgsConstructor
   private enum ContainerResourceType {
     CPU("cpu"),
@@ -715,6 +731,7 @@ public abstract class KubernetesService {
             jobAnnotations,
             jobLabels,
             imagePullSecrets);
+
     V1beta1CronJob nsJob =
         batchV1beta1Api.replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
     log.debug(
@@ -1640,16 +1657,16 @@ public abstract class KubernetesService {
     }
   }
 
-  V1beta1CronJob v1beta1CronJobFromTemplate(
-      String name,
-      String schedule,
-      boolean suspend,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobAnnotations,
-      Map<String, String> jobLabels,
-      List<String> imagePullSecrets) {
+  protected V1beta1CronJob v1beta1CronJobFromTemplate(
+          String name,
+          String schedule,
+          boolean suspend,
+          V1Container jobContainer,
+          V1Container initContainer,
+          List<V1Volume> volumes,
+          Map<String, String> jobAnnotations,
+          Map<String, String> jobLabels,
+          List<String> imagePullSecrets) {
     V1beta1CronJob cronjob = loadV1beta1CronjobTemplate();
     v1beta1checkForMissingEntries(cronjob);
     cronjob.getMetadata().setName(name);
@@ -1694,16 +1711,16 @@ public abstract class KubernetesService {
     return cronjob;
   }
 
-  V1CronJob v1CronJobFromTemplate(
-      String name,
-      String schedule,
-      boolean suspend,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobAnnotations,
-      Map<String, String> jobLabels,
-      List<String> imagePullSecrets) {
+  protected V1CronJob v1CronJobFromTemplate(
+          String name,
+          String schedule,
+          boolean suspend,
+          V1Container jobContainer,
+          V1Container initContainer,
+          List<V1Volume> volumes,
+          Map<String, String> jobAnnotations,
+          Map<String, String> jobLabels,
+          List<String> imagePullSecrets) {
     V1CronJob cronjob = loadV1CronjobTemplate();
     v1checkForMissingEntries(cronjob);
     cronjob.getMetadata().setName(name);

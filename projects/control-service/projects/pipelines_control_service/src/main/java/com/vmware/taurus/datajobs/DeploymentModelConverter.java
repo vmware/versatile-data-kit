@@ -7,6 +7,7 @@ package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.service.deploy.SupportedPythonVersions;
+import com.vmware.taurus.service.model.DataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,26 @@ public class DeploymentModelConverter {
     deployment.setMode(jobDeploymentStatus.getMode());
     deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
     deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
+    deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
+
+    return deployment;
+  }
+
+  public static JobDeployment toJobDeployment(
+          String teamName, String jobName, DataJobDeployment jobDeploymentStatus) {
+    JobDeployment deployment = new JobDeployment();
+    deployment.setDataJobTeam(teamName);
+    deployment.setDataJobName(jobName);
+    deployment.setEnabled(jobDeploymentStatus.getEnabled());
+
+    DataJobResources dataJobResources = new DataJobResources();
+    dataJobResources.setCpuLimit(jobDeploymentStatus.getResourcesCpuLimit());
+    dataJobResources.setCpuRequest(jobDeploymentStatus.getResourcesCpuRequest());
+    dataJobResources.setMemoryLimit(jobDeploymentStatus.getResourcesMemoryLimit());
+    dataJobResources.setMemoryRequest(jobDeploymentStatus.getResourcesMemoryRequest());
+    deployment.setResources(dataJobResources);
+
+    deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
     deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
 
     return deployment;
