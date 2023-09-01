@@ -3,6 +3,7 @@
 import functools
 import getpass
 import logging
+import os
 import platform
 import socket
 import sys
@@ -36,9 +37,20 @@ class ExecutionEnvironment:
         ip = self._get_result_noexcept(
             lambda: socket.gethostbyname(socket.gethostname()), "ip"
         )
+        host = self._get_result_noexcept(socket.gethostname, "host")
+        domain = self._get_result_noexcept(socket.getfqdn, "domain")
+        cwd = self._get_result_noexcept(os.getcwd, "cwd")
         os_info = self._get_result_noexcept(platform.platform, "os-info")
 
-        return f"{user}@{ip}({os_info})"
+        cpu_info = self._get_result_noexcept(lambda: os.cpu_count(), "cpu")
+        mem_info = self._get_result_noexcept(
+            lambda: os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES"), "memory"
+        )
+        disk_info = self._get_result_noexcept(
+            lambda: os.statvfs("/").f_frsize * os.statvfs("/").f_blocks, "disk"
+        )
+
+        return f"{user}@{ip}({os_info})({host})({domain})({cwd})({cpu_info}; {mem_info}; {disk_info})"
 
     @functools.lru_cache(maxsize=None)
     def get_python_version(self):
