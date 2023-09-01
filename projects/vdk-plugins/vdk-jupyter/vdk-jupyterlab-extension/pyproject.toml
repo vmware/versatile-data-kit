@@ -43,6 +43,8 @@ test = [
 ]
 # Opinionated dependecies added by VDK dev team that we think make jupyterlab easier and better for users.
 opinionated = [
+    "vdk-notebook", 
+    "vdk-ipython"
     "jupyterlab_execute_time",
     "lckr-jupyterlab-variableinspector",
     "ipyaggrid",
