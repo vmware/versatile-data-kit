@@ -84,22 +84,22 @@ class DataJobDefaultHookImplPlugin:
                 f"Job execution skipped from step: {step.name}. Because skip_remaining_steps() method "
                 + "was invoked"
             )
-        except Exception as e:
-            status = ExecutionStatus.ERROR
-            details = errors.MSG_WHY_FROM_EXCEPTION(e)
-            blamee = whom_to_blame(e, __file__, context.job_directory)
-            exception = e
-            errors.log_exception(
-                blamee,
-                log,
-                what_happened=f"Processing step {step.name} completed with error.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences="I will not process the remaining steps (if any), "
-                "and this Data Job execution will be marked as failed.",
-                countermeasures="See exception and fix the root cause, so that the exception does "
-                "not appear anymore.",
-                exception=e,
-            )
+        #        except Exception as e:
+        #            status = ExecutionStatus.ERROR
+        #            details = errors.MSG_WHY_FROM_EXCEPTION(e)
+        #            blamee = whom_to_blame(e, __file__, context.job_directory)
+        #            exception = e
+        #            errors.log_exception(
+        #                blamee,
+        #                log,
+        #                what_happened=f"Processing step {step.name} completed with error.",
+        #                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+        #                consequences="I will not process the remaining steps (if any), "
+        #                "and this Data Job execution will be marked as failed.",
+        #                countermeasures="See exception and fix the root cause, so that the exception does "
+        #                "not appear anymore.",
+        #                exception=e,
+        #            )
 
         return StepResult(
             name=step.name,
@@ -137,34 +137,34 @@ class DataJobDefaultHookImplPlugin:
         execution_status = ExecutionStatus.SUCCESS
         for current_step in steps:
             step_start_time = datetime.utcnow()
-            try:
-                res = context.core_context.plugin_registry.hook().run_step(
-                    context=context, step=current_step
-                )
-            except BaseException as e:
-                blamee = whom_to_blame(e, __file__, context.job_directory)
-                exception = e
-                errors.log_exception(
-                    blamee,
-                    log,
-                    what_happened=f"Processing step {current_step.name} completed with error.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences="I will not process the remaining steps (if any), "
-                    "and this Data Job execution will be marked as failed.",
-                    countermeasures="See exception and fix the root cause, so that the exception does "
-                    "not appear anymore.",
-                    exception=e,
-                )
-                res = StepResult(
-                    name=current_step.name,
-                    type=current_step.type,
-                    start_time=step_start_time,
-                    end_time=datetime.utcnow(),
-                    status=ExecutionStatus.ERROR,
-                    details=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    exception=e,
-                    blamee=blamee,
-                )
+            #            try:
+            res = context.core_context.plugin_registry.hook().run_step(
+                context=context, step=current_step
+            )
+            #            except BaseException as e:
+            #                blamee = whom_to_blame(e, __file__, context.job_directory)
+            #                exception = e
+            #                errors.log_exception(
+            #                    blamee,
+            #                    log,
+            #                    what_happened=f"Processing step {current_step.name} completed with error.",
+            #                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+            #                    consequences="I will not process the remaining steps (if any), "
+            #                    "and this Data Job execution will be marked as failed.",
+            #                    countermeasures="See exception and fix the root cause, so that the exception does "
+            #                    "not appear anymore.",
+            #                    exception=e,
+            #                )
+            #                res = StepResult(
+            #                    name=current_step.name,
+            #                    type=current_step.type,
+            #                    start_time=step_start_time,
+            #                    end_time=datetime.utcnow(),
+            #                    status=ExecutionStatus.ERROR,
+            #                    details=errors.MSG_WHY_FROM_EXCEPTION(e),
+            #                    exception=e,
+            #                    blamee=blamee,
+            #                )
 
             step_results.append(res)
             # errors.clear_intermediate_errors()  # step completed successfully, so we can forget errors

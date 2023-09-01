@@ -11,6 +11,7 @@ It defines classes and methods for handling exceptions, and ensuring that there 
 from __future__ import annotations
 
 import enum
+import json
 import logging
 import re
 import sys
@@ -251,9 +252,14 @@ class ErrorMessage:
         )
 
     def _to_string(self, template: str) -> str:
-        return template.format(
-            self.summary, self.what, self.why, self.consequences, self.countermeasures
-        )
+        out = {
+            "summary": self.summary,
+            "what_happened": self.what,
+            "why_it_happened": self.why,
+            "result": self.consequences,
+            "how to fix it": self.countermeasures,
+        }
+        return json.dumps(out, indent=1)
 
     def __str__(self) -> str:
         return self._to_string(self._get_template("\n"))
@@ -360,7 +366,6 @@ def log_and_throw(
     """
     Log error message and then throw it to be handled up the stack.
     """
-
     resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
     error_message = __build_message_for_end_user(
         to_be_fixed_by,
@@ -370,29 +375,53 @@ def log_and_throw(
         consequences,
         countermeasures,
     )
+    just_throw(error_message, to_be_fixed_by)
 
+
+#
+#     exception: BaseVdkError
+#     if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
+#         exception = PlatformServiceError(error_message)
+#     elif ResolvableBy.USER_ERROR == to_be_fixed_by:
+#         exception = UserCodeError(error_message)
+#     elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
+#         exception = VdkConfigurationError(error_message)
+#     else:
+#         raise Exception(
+#             "BUG! Fix me!"
+#         )  # What type is the error that caused this and whom to blame Platform or Data Jobs Developer?
+#
+#     try:
+#         raise exception
+#     except BaseVdkError as e:
+#         resolvable_context().add(
+#             Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
+#         )
+#         lines = __get_caller_stacktrace()
+#         log.error(str(error_message) + "\n" + lines)
+#         __set_error_is_logged(e)
+#         raise
+
+
+def just_throw(message, to_be_fixed_by):
+    resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
     exception: BaseVdkError
     if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        exception = PlatformServiceError(error_message)
+        exception = PlatformServiceError(message)
     elif ResolvableBy.USER_ERROR == to_be_fixed_by:
-        exception = UserCodeError(error_message)
+        exception = UserCodeError(message)
     elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
-        exception = VdkConfigurationError(error_message)
-    else:
-        raise Exception(
-            "BUG! Fix me!"
-        )  # What type is the error that caused this and whom to blame Platform or Data Jobs Developer?
+        exception = VdkConfigurationError(message)
+    raise exception
 
-    try:
-        raise exception
-    except BaseVdkError as e:
-        resolvable_context().add(
-            Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
+
+def just_re_throw(exception, to_be_fixed_by, message, wrap_in_vdk_error):
+    to_be_raised_exception = exception
+    if wrap_in_vdk_error:
+        to_be_raised_exception = __wrap_exception_if_not_already(
+            to_be_fixed_by, message, exception
         )
-        lines = __get_caller_stacktrace()
-        log.error(str(error_message) + "\n" + lines)
-        __set_error_is_logged(e)
-        raise
+    raise to_be_raised_exception
 
 
 def log_and_rethrow(
@@ -417,7 +446,6 @@ def log_and_rethrow(
     :param wrap_in_vdk_error: If the exception is not wrapped by BaseVdkError
             it will wrap it in corresponding BaseVdkError exception based on to_be_fixed_by parameter
     """
-
     resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
     error_message = __build_message_for_end_user(
         to_be_fixed_by,
@@ -428,23 +456,27 @@ def log_and_rethrow(
         countermeasures,
     )
 
-    to_be_raised_exception = exception
-    if wrap_in_vdk_error:
-        to_be_raised_exception = __wrap_exception_if_not_already(
-            to_be_fixed_by, error_message, exception
-        )
+    just_re_throw(exception, to_be_fixed_by, error_message, wrap_in_vdk_error)
 
-    if not __error_is_logged(exception):
-        log.exception(error_message)
-        __set_error_is_logged(exception)
 
-    try:
-        raise to_be_raised_exception from exception if wrap_in_vdk_error else exception
-    except Exception as e:
-        resolvable_context().add(
-            Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
-        )
-        raise
+#
+#    to_be_raised_exception = exception
+#    if wrap_in_vdk_error:
+#        to_be_raised_exception = __wrap_exception_if_not_already(
+#            to_be_fixed_by, error_message, exception
+#        )
+#
+#    if not __error_is_logged(exception):
+#        log.exception(error_message)
+#        __set_error_is_logged(exception)
+#
+#    try:
+#        raise to_be_raised_exception from exception if wrap_in_vdk_error else exception
+#    except Exception as e:
+#        resolvable_context().add(
+#            Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
+#        )
+#        raise
 
 
 def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:

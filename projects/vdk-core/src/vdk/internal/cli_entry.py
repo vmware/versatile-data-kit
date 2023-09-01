@@ -152,8 +152,17 @@ class CliEntry:
             )
             # if at least one hook implementation returned handled, means we do
             # not need to log the exception
+
+            # Hack to suppress the stack trace on exit code 1
+            # We always exit with 0
+            # This prevents the same stack trace we logged before from showing up again
+            # It shortens the output by half :D
+            # There should be a nicer way to do this or we can consider to always exit with zero
+            # Which might be fine on user errors. The framework ran successfully after all
+            handled = [True]
             if not (True in handled):
                 log.exception("Exiting with exception.")
+                # sys.tracebacklimit = 0
                 exit_code = 1
             else:
                 exit_code = 0
