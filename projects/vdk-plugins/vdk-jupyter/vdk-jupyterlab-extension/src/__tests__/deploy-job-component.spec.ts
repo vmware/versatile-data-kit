@@ -68,7 +68,7 @@ describe('#onPathChange', () => {
 describe('#onDeploymentReasonChange', () => {
   it('should change the vdk version in jobData', () => {
     const component = render(new DeployJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText('reason');
+    const input = component.getByLabelText('Deployment reason:');
     fireEvent.change(input, { target: { value: 'Another reason' } });
     expect(jobData.get(VdkOption.DEPLOYMENT_REASON)).toEqual('Another reason');
   });

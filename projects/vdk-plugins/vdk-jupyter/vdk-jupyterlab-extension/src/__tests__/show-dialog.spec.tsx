@@ -12,6 +12,7 @@ import {VdkErrorMessage} from "../components/VdkErrorMessage";
 import {checkIcon} from "@jupyterlab/ui-components";
 import {RUN_JOB_BUTTON_LABEL} from "../utils";
 import {showErrorDialog} from "../components/props";
+import {StatusButton} from "../components/StatusButton";
 
 // Mock the showDialog function
 jest.mock('@jupyterlab/apputils', () => ({
@@ -29,6 +30,11 @@ jest.mock('../serverRequests', () => ({
   jobRunRequest: jest.fn(),
   jobRequest: jest.fn()
 }));
+
+const mockStatusButton = {
+  show: jest.fn()
+} as unknown as StatusButton;
+
 
 describe('showRunJobDialog', () => {
   beforeEach(() => {
@@ -155,7 +161,7 @@ describe('showCreateJobDialog', () => {
   });
 
   it('should call showDialog with correct arguments', async () => {
-    await showCreateJobDialog();
+    await showCreateJobDialog(mockStatusButton);
 
     expect(showDialog).toHaveBeenCalledWith({
       title: 'Create Job',
@@ -169,8 +175,9 @@ describe('showCreateJobDialog', () => {
   });
 
   it('should call jobRequest function with "create" argument when user accepts dialog', async () => {
-    await showCreateJobDialog();
+    await showCreateJobDialog(mockStatusButton);
 
     expect(jobRequest).toHaveBeenCalledWith('create');
+    expect(mockStatusButton.show).toHaveBeenCalled();
   });
 });
