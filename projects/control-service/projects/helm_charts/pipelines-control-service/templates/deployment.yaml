@@ -158,6 +158,8 @@ spec:
               value: "{{ .Values.security.authorization.webhookAuthenticationEnabled }}"
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
               value: "{{ .Values.security.oauth2.jwtIssuerUrl }}"
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URIS
+              value: "{{ .Values.security.oauth2.jwtIssuerUris }}"
             - name: AUTHORITIES_CLAIM_NAME
               value: "{{ .Values.security.authorization.authoritiesClaimName }}"
             - name: CUSTOM_CLAIM_NAME
