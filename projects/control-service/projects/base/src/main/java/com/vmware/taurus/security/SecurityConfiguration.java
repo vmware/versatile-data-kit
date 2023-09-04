@@ -100,8 +100,7 @@ public class SecurityConfiguration {
       FeatureFlags featureFlags,
       @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}") String jwksUri,
       @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuer,
-      @Value("${spring.security.oauth2.resourceserver.jwt.issuer.uris:}")
-          String[] extraIssuers,
+      @Value("${spring.security.oauth2.resourceserver.jwt.issuer.uris:}") String[] extraIssuers,
       @Value("${datajobs.authorization.authorities-claim-name:}") String authoritiesClaimName,
       @Value("${datajobs.authorization.custom-claim-name:}") String customClaimName,
       @Value("${datajobs.authorization.authorized-custom-claim-values:}")
@@ -183,13 +182,14 @@ public class SecurityConfiguration {
     return new JwtIssuerAuthenticationManagerResolver(managers::get);
   }
 
-  private List<String> getJwtIssuers(){
-    var issuers = Lists.asList(issuer, extraIssuers).stream()
-        .filter(element -> !element.isBlank()).toList();
+  private List<String> getJwtIssuers() {
+    var issuers =
+        Lists.asList(issuer, extraIssuers).stream().filter(element -> !element.isBlank()).toList();
 
-    if(issuers.isEmpty()){
+    if (issuers.isEmpty()) {
       throw new IllegalStateException(
-          "No JWT issuers found in the configuration, yet security is enabled. Provide JWT issuers, or disable oauth2 security.");
+          "No JWT issuers found in the configuration, yet security is enabled. Provide JWT issuers,"
+              + " or disable oauth2 security.");
     }
     return issuers;
   }
