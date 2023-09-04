@@ -165,6 +165,7 @@ class VdkUI:
         :param reason: the reason of deployment
         :return: output string of the operation
         """
+        path = expand_path(path)
         with tempfile.TemporaryDirectory() as temp_dir:
             if not os.path.exists(path):
                 raise NotADirectoryError(
@@ -221,7 +222,7 @@ class VdkUI:
              if the specified parent directory does not exist, an empty dictionary is returned.
         """
         if not os.path.exists(pr_path):
-            pr_path = os.getcwd() + pr_path
+            pr_path = expand_path(pr_path)
             if not os.path.exists(pr_path):
                 return {"path": "", "cellIndex": ""}
         notebook_files = [
@@ -250,8 +251,8 @@ class VdkUI:
              If the specified notebook path does not exist, an empty list is returned.
         """
         if not os.path.exists(notebook_path):
-            job_notebook = os.getcwd() + notebook_path
-            if not os.path.exists(job_notebook):
+            notebook_path = expand_path(notebook_path)
+            if not os.path.exists(notebook_path):
                 return []
         with open(notebook_path) as f:
             notebook_json = json.load(f)
