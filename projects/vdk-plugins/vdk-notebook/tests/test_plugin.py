@@ -37,6 +37,30 @@ class JupyterTests(unittest.TestCase):
             "       1     1  delectus aut autem            0\n"
         )
 
+    def test_successful_job_magic_cells(self) -> None:
+        result: Result = self.__runner.invoke(
+            ["run", jobs_path_from_caller_directory("ingest-job-sql-magic-cells")]
+        )
+        cli_assert_equal(0, result)
+        actual_rs: Result = self.__runner.invoke(
+            ["sqlite-query", "--query", "SELECT * FROM rest_target_table_magic"]
+        )
+        assert actual_rs.stdout == (
+            "  userId    id  title                 completed\n"
+            "--------  ----  ------------------  -----------\n"
+            "       1     1  delectus aut autem            0\n"
+        )
+
+    def test_successful_job_magic_cells_broken(self) -> None:
+        result: Result = self.__runner.invoke(
+            [
+                "run",
+                jobs_path_from_caller_directory("ingest-job-sql-magic-cells-broken"),
+            ]
+        )
+        cli_assert_equal(1, result)
+        assert "SyntaxError" in result.output
+
     def test_failing_job_with_syntax_error(self) -> None:
         result: Result = self.__runner.invoke(
             ["run", jobs_path_from_caller_directory("ingest-job-fail-syntax-error")]
