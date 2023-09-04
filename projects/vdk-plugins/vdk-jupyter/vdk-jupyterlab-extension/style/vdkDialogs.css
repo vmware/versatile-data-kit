@@ -61,6 +61,11 @@
   padding: 20px;
 }
 
+.vdk-status-dialog-message-little {
+  font-size: 14px;
+  padding: 20px;
+}
+
 .jp-vdk-check-status-button {
   position: absolute;
   right: 1px;

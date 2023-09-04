@@ -18,6 +18,7 @@ out
 build
 dist
 src/*.egg-info
+.yarn
 
 # Project files
 .ropeproject

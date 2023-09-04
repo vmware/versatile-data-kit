@@ -16,6 +16,78 @@ from vdk.internal.core import errors
 class ErrorClassifierTest(unittest.TestCase):
     EXECUTOR_MODULE = data_job.__file__
     EXECUTOR_MODULE_DIR = os.path.dirname(EXECUTOR_MODULE)
+    INGESTOR_MODULE_DIR = os.path.dirname(EXECUTOR_MODULE).replace("run", "ingestion")
+
+    PLATFORM_ERROR_EXTERNAL_LIBRARY = [
+        """
+        File "/opt/homebrew/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 912, in read_csv
+        """,
+        """
+        File "{}/job_input.py", line 155, in send_tabular_data_for_ingestion
+        """.format(
+            EXECUTOR_MODULE_DIR
+        ),
+        """
+        File "{}/file_based_step.py", line 139, in invoke_run_function
+        """.format(
+            EXECUTOR_MODULE_DIR
+        ),
+        """
+        File "{}", line 9, in run
+        """.format(
+            os.path.join("job", "moonshine-ri", "21-find-ri-optimal.py")
+        ),
+        """
+        File "{}/ingester_router.py", line 142, in send_tabular_data_for_ingestion
+        """.format(
+            INGESTOR_MODULE_DIR
+        ),
+    ]
+
+    USER_ERROR_USER_PROVIDED_ITERATOR = [
+        """
+        File "{}", line 9, in run
+        """.format(
+            os.path.join("job", "moonshine-ri", "21-find-ri-optimal.py")
+        ),
+        """
+        File "{}/job_input.py", line 155, in send_tabular_data_for_ingestion
+        """.format(
+            EXECUTOR_MODULE_DIR
+        ),
+        """
+        File "{}", line 5, in run
+        """.format(
+            os.path.join("job", "moonshine-ri", "21-find-ri-optimal.py")
+        ),
+        """
+        File "{}/ingester_router.py", line 142, in send_tabular_data_for_ingestion
+        """.format(
+            INGESTOR_MODULE_DIR
+        ),
+    ]
+
+    USER_ERROR_USER_PROVIDED_ITERATOR_EXTERNAL_LIBRARY = [
+        """
+        File "/opt/homebrew/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 912, in read_csv
+        """,
+        """
+        File "{}/job_input.py", line 155, in send_tabular_data_for_ingestion
+        """.format(
+            EXECUTOR_MODULE_DIR
+        ),
+        """
+        File "{}", line 5, in run
+        """.format(
+            os.path.join("job", "moonshine-ri", "21-find-ri-optimal.py")
+        ),
+        """
+        File "{}/ingester_router.py", line 142, in send_tabular_data_for_ingestion
+        """.format(
+            INGESTOR_MODULE_DIR
+        ),
+    ]
+
     USER_ERROR_STACKTRACE = [
         """File "{exec_module}", line 123, in _run_step
       step_executed = runner_func(file_path)""".format(
@@ -65,15 +137,15 @@ class ErrorClassifierTest(unittest.TestCase):
     def test_vdk_user_code_error(self):
         exception = errors.UserCodeError("User error")
         self.assertEqual(
-            whom_to_blame(exception, self.EXECUTOR_MODULE),
             errors.ResolvableBy.USER_ERROR,
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
     def test_vdk_platform_service_error(self):
         exception = errors.PlatformServiceError("Platform error")
         self.assertEqual(
-            whom_to_blame(exception, self.EXECUTOR_MODULE),
             errors.ResolvableBy.PLATFORM_ERROR,
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
     # Test generic errors specifically recognised as user errors by VDK.
@@ -82,8 +154,8 @@ class ErrorClassifierTest(unittest.TestCase):
         mock_is_user_error.return_value = True
         exception = Exception("User Error")
         self.assertEqual(
-            whom_to_blame(exception, self.EXECUTOR_MODULE),
             errors.ResolvableBy.USER_ERROR,
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
     # Test generic errors that are not specifically recognised by VDK.
@@ -94,8 +166,8 @@ class ErrorClassifierTest(unittest.TestCase):
         mock_is_user_error.return_value = False
         mock_traceback_format_tb.return_value = self.USER_ERROR_STACKTRACE
         self.assertEqual(
-            whom_to_blame(exception, self.EXECUTOR_MODULE),
             errors.ResolvableBy.USER_ERROR,
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
     # Test generic errors in user code that are not specifically recognised by VDK.
@@ -106,9 +178,33 @@ class ErrorClassifierTest(unittest.TestCase):
 
         mock_traceback_format_tb.return_value = self.GENERIC_USER_ERROR_STACKTRACE
         self.assertEqual(
-            whom_to_blame(exception, self.EXECUTOR_MODULE, data_job_path),
             errors.ResolvableBy.USER_ERROR,
+            whom_to_blame(exception, self.EXECUTOR_MODULE, data_job_path),
         )
+
+    # TODO: https://github.com/vmware/versatile-data-kit/issues/2620
+    # Test error for user-provided iterator
+    #    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
+    #    def test_error_user_provided_iterator(self, mock_traceback_format_tb):
+    #        exception = Exception("User Error")
+    #
+    #        mock_traceback_format_tb.return_value = self.USER_ERROR_USER_PROVIDED_ITERATOR
+    #        self.assertEqual(
+    #            errors.ResolvableBy.USER_ERROR,
+    #            whom_to_blame(exception, self.EXECUTOR_MODULE),
+    #        )
+
+    # TODO: https://github.com/vmware/versatile-data-kit/issues/2620
+    # Test error for user-provided iterator that uses external library
+    #    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
+    #    def test_error_user_provided_iterator_external_library(self, mock_traceback_format_tb):
+    #        exception = Exception("User Error")
+    #
+    #        mock_traceback_format_tb.return_value = self.USER_ERROR_USER_PROVIDED_ITERATOR_EXTERNAL_LIBRARY
+    #        self.assertEqual(
+    #            errors.ResolvableBy.USER_ERROR,
+    #            whom_to_blame(exception, self.EXECUTOR_MODULE),
+    #        )
 
     # Test errors in user code that cannot be recognised by VDK due to lack of valid job_path.
     @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
@@ -118,8 +214,19 @@ class ErrorClassifierTest(unittest.TestCase):
 
         mock_traceback_format_tb.return_value = self.GENERIC_USER_ERROR_STACKTRACE
         self.assertEqual(
-            whom_to_blame(exception, self.EXECUTOR_MODULE, data_job_path),
             errors.ResolvableBy.PLATFORM_ERROR,
+            whom_to_blame(exception, self.EXECUTOR_MODULE, data_job_path),
+        )
+
+    # Test errors thrown from external libraries used by vdk internal components
+    @patch(f"{traceback.format_tb.__module__}.{traceback.format_tb.__name__}")
+    def test_error_thrown_in_external_library(self, mock_traceback_format_tb):
+        exception = Exception("Should be Platform Error")
+        print(self.EXECUTOR_MODULE)
+        mock_traceback_format_tb.return_value = self.PLATFORM_ERROR_EXTERNAL_LIBRARY
+        self.assertEqual(
+            errors.ResolvableBy.PLATFORM_ERROR,
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
     # Generic error thrown by job_input that is not specifically recognised by VDK should be VAC error.
@@ -132,8 +239,8 @@ class ErrorClassifierTest(unittest.TestCase):
         mock_is_user_error.return_value = False
         mock_traceback_format_tb.return_value = self.PLATFORM_ERROR_STACKTRACE
         self.assertEqual(
-            whom_to_blame(exception, self.EXECUTOR_MODULE),
             errors.ResolvableBy.PLATFORM_ERROR,
+            whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
 

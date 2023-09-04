@@ -13,6 +13,7 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.monitoring.DataJobMetrics;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

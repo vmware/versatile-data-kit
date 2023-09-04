@@ -25,7 +25,6 @@ from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.internal.core.statestore import StateStore
 from vdk.internal.util.utils import parse_config_sequence
 
-
 IngesterPluginFactory = Callable[[], IIngesterPlugin]
 
 log = logging.getLogger(__name__)

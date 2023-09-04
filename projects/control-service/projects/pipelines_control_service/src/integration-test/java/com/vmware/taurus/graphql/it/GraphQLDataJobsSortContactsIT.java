@@ -8,7 +8,7 @@ package com.vmware.taurus.graphql.it;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobContacts;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
 import org.hamcrest.Matchers;
