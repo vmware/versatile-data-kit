@@ -6,8 +6,9 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_JOB_BUTTON_LABEL } from '../utils';
+import {StatusButton} from "./StatusButton";
 
-export default class CreateJobDialog extends Component<(IJobFullProps)> {
+export default class CreateJobDialog extends Component<IJobFullProps> {
   /**
    * Returns a React component for rendering a create menu.
    *
@@ -45,7 +46,7 @@ export default class CreateJobDialog extends Component<(IJobFullProps)> {
   }
 }
 
-export async function showCreateJobDialog() {
+export async function showCreateJobDialog(statusButton: StatusButton) {
   const result = await showDialog({
     title: CREATE_JOB_BUTTON_LABEL,
     body: (
@@ -58,6 +59,12 @@ export async function showCreateJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    await jobRequest('create');
+    statusButton.show('Create', jobData.get(VdkOption.PATH)!);
+    // We only handle the successful deployment scenario.
+    // The failing scenario is handled in the request itself.
+    const creation = await jobRequest('create');
+    if (creation.isSuccessful && creation.message) {
+      alert(creation.message);
+    }
   }
 }

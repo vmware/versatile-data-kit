@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.monitoring;
 
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Gauge;

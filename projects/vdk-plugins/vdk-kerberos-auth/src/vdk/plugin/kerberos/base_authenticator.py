@@ -48,6 +48,12 @@ class BaseAuthenticator(ABC):
 
     def authenticate(self):
         if not self._is_authenticated:
+            log.debug(
+                f"Starting kerberos authentication for principal {self._kerberos_principal}"
+                f" to KDC host {self._kerberos_kdc_hostname}"
+                f" at KDC realm {self._kerberos_realm}"
+                f" using keytab {self._keytab_pathname}"
+            )
             self._kinit()
             self._is_authenticated = True
         else:

@@ -11,7 +11,7 @@ from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.plugin.notebook.cell import Cell
-from vdk.plugin.notebook.notebook_based_step import NotebookStep
+from vdk.plugin.notebook.notebook_based_step import NotebookCellStep
 from vdk.plugin.notebook.notebook_based_step import NotebookStepFuncFactory
 
 log = logging.getLogger(__name__)
@@ -65,15 +65,17 @@ class Notebook:
                     cell = Cell(jupyter_cell)
                     if "vdk" in cell.tags:
                         index += 1
-                        step = NotebookStep(
+                        step = NotebookCellStep(
                             name="".join(
                                 [
                                     file_path.name.replace(".ipynb", "_"),
                                     str(index),
                                 ]
                             ),
-                            type=TYPE_PYTHON,
-                            runner_func=NotebookStepFuncFactory.run_python_step,
+                            type=cell.source_type,
+                            runner_func=NotebookStepFuncFactory.get_run_function(
+                                cell.source_type
+                            ),
                             file_path=file_path,
                             job_dir=context.job_directory,
                             source=cell.source,

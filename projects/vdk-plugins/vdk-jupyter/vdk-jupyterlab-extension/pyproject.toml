@@ -36,8 +36,23 @@ test = [
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "pytest-tornasync"
+    "pytest-tornasync",
+    "pytest-jupyter",
+    "httpretty"
 ]
+# Opinionated dependecies added by VDK dev team that we think make jupyterlab easier and better for users.
+opinionated = [
+    "jupyterlab_execute_time",
+    "lckr-jupyterlab-variableinspector",
+    "ipyaggrid",
+    # TODO: those are good options for being tested and evaluated
+    # jupyterlab-git
+    # "pyforest", should automaticcally add imports but did not work well enough when testing. should try again.
+    #"jupyterlab-lsp", # improve auto-completion
+    # elyra-code-snippet-extension? # looked useful
+    # jupyterlab_sql - if integrated with vdk sql
+]
+
 
 [tool.hatch.version]
 source = "nodejs"

@@ -19,6 +19,7 @@ export class StatusButton {
   private jobPath: string | undefined;
   private timerId: number | undefined;
   private counter: number;
+  private commands: CommandRegistry
 
   constructor(commands: CommandRegistry) {
     this.buttonElement = document.createElement('button');
@@ -34,6 +35,7 @@ export class StatusButton {
     contentContainer.appendChild(timeElement);
 
     this.buttonElement.appendChild(contentContainer);
+    this.commands = commands;
 
     this.buttonElement.onclick = () => {
       commands.execute(STATUS_BUTTON_COMMAND_ID, {
@@ -57,6 +59,10 @@ export class StatusButton {
     this.jobPath = path;
     this.buttonElement.style.display = '';
     this.startTimer();
+    this.commands.execute(STATUS_BUTTON_COMMAND_ID, {
+      operation: this.operation,
+      path: this.jobPath
+    });
   }
 
   hide(): void {
@@ -104,7 +110,11 @@ export function createStatusMenu(commands: CommandRegistry) {
           <div className="vdk-status-dialog-message-container">
             <p className="vdk-status-dialog-message">
               <b>{operation}</b> operation is currently running for job with
-              path: <i>{path}</i>!
+              path: <i>{path}</i>!<br />
+            </p>
+            <p className="vdk-status-dialog-message-little">
+              You can close this dialog and follow the operation using the
+              status button in the upper right corner.
             </p>
           </div>
         ),

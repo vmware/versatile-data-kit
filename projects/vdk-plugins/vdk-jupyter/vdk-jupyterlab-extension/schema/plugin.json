@@ -10,6 +10,9 @@
         "rank": 80,
         "items": [
           {
+            "command": "jp-vdk:menu-login"
+          },
+          {
             "command": "jp-vdk:menu-run"
           },
           {

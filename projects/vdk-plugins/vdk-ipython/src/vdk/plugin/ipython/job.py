@@ -10,11 +10,10 @@ from IPython import get_ipython
 from IPython.core.magic_arguments import argument
 from IPython.core.magic_arguments import magic_arguments
 from IPython.core.magic_arguments import parse_argstring
+from vdk.api.job_input import IJobInput
 from vdk.internal.builtin_plugins.run import standalone_data_job
 
 log = logging.getLogger(__name__)
-
-# see https://ipython.readthedocs.io/en/stable/api/generated/IPython.core.hooks.html for more options
 
 
 class JobControl:
@@ -41,14 +40,18 @@ class JobControl:
     ):
         path = pathlib.Path(path) if path else pathlib.Path(os.getcwd())
         job_args = json.loads(arguments) if arguments else None
-        self._name = name
+        self._name = path.name if not name else name
         self._path = path
         self._arguments = job_args
         self._template = template
         self.job = None
         self.job_input = None
+        log.debug(
+            f"Job Control for job with name {self._name} from path {self._path} "
+            f"with arguments {self._arguments} and template {self._template}"
+        )
 
-    def get_initialized_job_input(self):
+    def get_initialized_job_input(self) -> IJobInput:
         """
         Get initialised IJobInput object for the current job if present
             :return:  an IJobInput object
@@ -77,21 +80,30 @@ class JobControl:
             )
 
 
-def load_ipython_extension(ipython):
-    """
-    Function that registers %reload_VDK magic
-    IPython will look for this function specifically.
-    See https://ipython.readthedocs.io/en/stable/config/extensions/index.html
-    """
-    ipython.register_magic_function(magic_load_job, magic_name="reload_VDK")
+def load_job(
+    path: str = None,
+    name: str = None,
+    arguments: str = None,
+    template: str = None,
+    log_level_vdk: str = "WARNING",
+):
+    if log_level_vdk:
+        logging.getLogger("vdk").setLevel(log_level_vdk)
+    job = JobControl(path, name, arguments, template)
+    get_ipython().push(variables={"VDK": job})
+
+    def finalize_atexit():
+        job.finalize()
+
+    atexit.register(finalize_atexit)
 
 
-# TODO: add extra-plugins option
 @magic_arguments()
 @argument("-p", "--path", type=str, default=None)
 @argument("-n", "--name", type=str, default=None)
 @argument("-a", "--arguments", type=str, default=None)
 @argument("-t", "--template", type=str, default=None)
+@argument("-l", "--log-level-vdk", type=str, default="WARNING")
 def magic_load_job(line: str):
     """
         %reload_data_job magic function which parses arguments from the magic
@@ -100,17 +112,6 @@ def magic_load_job(line: str):
     JobControl. Using its get_initialized_job_input() method can get an initialized job_input variable to work with.
     See more for line magic: https://ipython.readthedocs.io/en/stable/interactive/magics.html
     """
+    # TODO: add extra-plugins option
     args = parse_argstring(magic_load_job, line)
-    load_job(args.path, args.name, args.arguments, args.template)
-
-
-def load_job(
-    path: str = None, name: str = None, arguments: str = None, template: str = None
-):
-    job = JobControl(path, name, arguments, template)
-    get_ipython().push(variables={"VDK": job})
-
-    def finalize_atexit():
-        job.finalize()
-
-    atexit.register(finalize_atexit)
+    load_job(args.path, args.name, args.arguments, args.template, args.log_level_vdk)

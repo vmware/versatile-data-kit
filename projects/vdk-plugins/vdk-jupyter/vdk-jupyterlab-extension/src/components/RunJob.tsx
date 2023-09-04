@@ -85,8 +85,8 @@ export async function showRunJobDialog(
   });
   if (result.button.accept) {
     statusButton?.show('Run', jobData.get(VdkOption.PATH)!);
-    let { message, status } = await jobRunRequest();
-    if (status) {
+    let { message, isSuccessful } = await jobRunRequest();
+    if (isSuccessful) {
       showDialog({
         title: RUN_JOB_BUTTON_LABEL,
         body: (

@@ -8,16 +8,23 @@
       - always
 
 
-build-vdk-jupyterlab-extension:
-  stage: build
+.common-setup-vdk-jupyterlab-extension:
   image: "python:3.8-alpine"
   before_script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - pip install -U pip setuptools pre-commit
-    - apk --no-cache add npm
-    - apk add rust cargo
-    - apk add libffi-dev
+    - apk --no-cache add npm rust cargo libffi-dev
     - pip install jupyter
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/vdk-plugins/vdk-jupyter/**/*"
+
+
+build-vdk-jupyterlab-extension:
+  extends: .common-setup-vdk-jupyterlab-extension
+  stage: build
   script:
     - echo "Install Dependencies..."
     - npm ci
@@ -25,12 +32,32 @@ build-vdk-jupyterlab-extension:
     - pip install .
     - echo "Building VDK JupyterLab Extension..."
     - npm rebuild
-  retry: !reference [.retry, retry_options]
-  rules: # we want to trigger build jobs if there are changes to this package,
-    # but not if there are changes to VDK plugins or the main directory
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes:
-        - "projects/vdk-plugins/vdk-jupyter/**/*"
+
+
+server-tests-vdk-jupyterlab-extension:
+  extends: .common-setup-vdk-jupyterlab-extension
+  stage: pre_release_test
+  script:
+    - echo "Running Server tests..."
+    - pip install -e ".[test]"
+    - pytest -vv -r ap --cov=vdk-jupyterlab-extension --junit-xml=server_tests_results.xml
+  artifacts:
+    when: always
+    reports:
+      junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/server_tests_results.xml"
+
+
+frontend-tests-vdk-jupyterlab-extension:
+  extends: .common-setup-vdk-jupyterlab-extension
+  stage: pre_release_test
+  script:
+    - echo "Running Frontend tests..."
+    - npm install
+    - npm run test:ci
+  artifacts:
+    when: always
+    reports:
+      junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/frontend_tests_results.xml"
 
 
 release-vdk-jupyter:

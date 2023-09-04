@@ -5,6 +5,8 @@
 
 package com.vmware.taurus.service;
 
+import com.vmware.taurus.service.repository.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.BeansException;
