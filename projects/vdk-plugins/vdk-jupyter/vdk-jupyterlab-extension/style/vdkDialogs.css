@@ -9,6 +9,10 @@
   margin-top: 15px;
 }
 
+.jp-vdk-input {
+  transition: width 0.2s;
+}
+
 .hidden {
   display: none;
 }
