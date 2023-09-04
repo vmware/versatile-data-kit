@@ -13,6 +13,9 @@
             "command": "jp-vdk:menu-login"
           },
           {
+            "type": "separator"
+          },
+          {
             "command": "jp-vdk:menu-run"
           },
           {
