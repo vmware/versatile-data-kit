@@ -29,6 +29,7 @@ image:
 # All config related to the operations ui lives under this tag.
 # examples of what can be configured are, what docker image to pull, how many replicas of the service to run and how many resources to give to each replica
 operationsUi:
+  enabled: true
   image:
     registry: registry.hub.docker.com/versatiledatakit
     repository: vdk-operations-ui
@@ -188,6 +189,18 @@ uploadGitReadWritePassword: ""
 # Full list of file types are documented in https://tika.apache.org
 # If set to empty, then all file types are allowed.
 uploadValidationFileTypesAllowList: ""
+# List of file extensions that are allowed to be uploaded. Comma separated list e.g: "py,csv,sql"
+# only files with extensions that are present in this list will be allowed to be uploaded.
+# if the list is empty all extensions are allowed.
+uploadValidationFileExtensionsAllowList: ""
+# Works as the uploadValidationFileTypesAllowList above, only it deletes the files instead of failing
+# the job upload. Runs before the allow list, therefore if only files of the same types are present in
+# both lists, job upload will succeed.
+uploadValidationFileTypesFilterList: ""
+# List of file extensions that are automatically deleted from data job source code before upload.
+# Comma separated list e.g: "pyc,exe,sh". If the list is empty no files will be deleted.
+# Files are first deleted before the allow list performs its checks.
+uploadValidationFileExtensionsFilterList: ""
 
 ## [Required] The repository where the data job images will be stored (so write permission must be granted)
 ## Automatically a repository will be created for each data job in ${deploymentDockerRepository}/data-job-name
@@ -388,12 +401,17 @@ webHooks:
    ##    4xx or 5xx the job is not created/deleted
    ## 4xx response content is shown to end user as an error message.
    ## 5xx responses will be retried (number of retries is based on configuration, defaults to 3)
+   ##
+   ## In case authenticationEnabled is set to true, the Control Service (CS) will transmit the oAuth2 access token
+   ## to the WebHook API. This access token serves the purpose of authenticating the client against the CS.
    postCreate:
       webhookUri: ""
       internalErrorsRetries: 3
+      authenticationEnabled: false
    postDelete:
       webhookUri: ""
       internalErrorsRetries: 3
+      authenticationEnabled: false
 
 ### Security configuration
 
@@ -413,7 +431,12 @@ security:
       jwtJwkSetUri: ""
 
       ## [ Required if security.enabled = True ]
+      ## Deprecated in favor of jwtIssuerUris.
       jwtIssuerUrl: ""
+      ## [Required if security.enabled = True]
+      ## Comma separated list of issuers to use.
+      jwtIssuerUris: ""
+
    kerberos:
       ## These values contain configuration settings for the kerberos authentication provider in control-service.
       ## The values are exposed as environment variables through the helm chart
@@ -476,6 +499,9 @@ security:
       ## 4xx response content is shown to end user as an error message.
       ## 5xx responses will be retried
       webhookUri: ""
+      ## In case webhookAuthenticationEnabled is set to true, the Control Service (CS) will transmit the oAuth2 access token
+      ## to the WebHook API. This access token serves the purpose of authenticating the client against the CS.
+      webhookAuthenticationEnabled: false
       ## What JWT token claim (aka attribute/field) will fetch the username from.
       jwtClaimUsername: "username"
 
@@ -1000,6 +1026,7 @@ dataJob:
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
   deployment:
+    jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer
       resources:

@@ -62,9 +62,6 @@ test.describe('convert job', () => {
     await page
       .locator('pre')
       .filter({ hasText: '#### Introduction and Preparations' });
-    await page
-      .locator('pre')
-      .filter({ hasText: '#### Execution Order and Identifying Cells' });
     await page.locator('pre').filter({ hasText: '#### Tips:' });
 
     // go through ipython configuration

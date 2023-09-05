@@ -14,7 +14,7 @@ setuptools.setup(
     description="Ipython extension for VDK",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "iPython"],
+    install_requires=["vdk-core", "iPython", "pandas"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={"vdk.plugin.run": ["ipython = vdk.plugin.ipython"]},

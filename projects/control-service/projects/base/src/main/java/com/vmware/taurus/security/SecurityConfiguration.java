@@ -5,7 +5,15 @@
 
 package com.vmware.taurus.security;
 
+import com.google.common.collect.Lists;
 import com.vmware.taurus.base.FeatureFlags;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +45,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Authentication and Authorization configuration. <br>
@@ -66,6 +71,7 @@ public class SecurityConfiguration {
 
   private final String jwksUri;
   private final String issuer;
+  private final String[] extraIssuers;
   private final String authoritiesClaimName;
   private final String customClaimName;
   private final Set<String> authorizedCustomClaimValues;
@@ -94,6 +100,7 @@ public class SecurityConfiguration {
       FeatureFlags featureFlags,
       @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:}") String jwksUri,
       @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuer,
+      @Value("${spring.security.oauth2.resourceserver.jwt.issuer.uris:}") String[] extraIssuers,
       @Value("${datajobs.authorization.authorities-claim-name:}") String authoritiesClaimName,
       @Value("${datajobs.authorization.custom-claim-name:}") String customClaimName,
       @Value("${datajobs.authorization.authorized-custom-claim-values:}")
@@ -104,6 +111,7 @@ public class SecurityConfiguration {
     this.featureFlags = featureFlags;
     this.jwksUri = jwksUri;
     this.issuer = issuer;
+    this.extraIssuers = extraIssuers;
     this.authoritiesClaimName = authoritiesClaimName;
     this.customClaimName = customClaimName;
     this.authorizedCustomClaimValues = parseOrgIds(authorizedCustomClaimValues);
@@ -148,7 +156,8 @@ public class SecurityConfiguration {
             });
 
     if (featureFlags.isOAuth2Enabled()) {
-      http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
+      http.oauth2ResourceServer(
+          oauth2 -> oauth2.authenticationManagerResolver(byIssuer(jwtAuthenticationConverter())));
     }
 
     if (featureFlags.isKrbAuthEnabled()) {
@@ -157,6 +166,40 @@ public class SecurityConfiguration {
           BasicAuthenticationFilter.class);
     }
     return http.build();
+  }
+
+  @Bean
+  @ConditionalOnExpression(
+      "not '${spring.security.oauth2.resourceserver.jwt.issuer-uri:}'.equals('') or not"
+          + " '${spring.security.oauth2.resourceserver.jwt.issuer.uris}'.equals('')")
+  JwtIssuerAuthenticationManagerResolver byIssuer(JwtAuthenticationConverter converter) {
+    Map<String, AuthenticationManager> managers = new HashMap<>();
+    List<String> issuers = getJwtIssuers();
+    for (String issuer : issuers) {
+      JwtDecoder decoder = jwtDecoder(issuer);
+      JwtAuthenticationProvider provider = new JwtAuthenticationProvider(decoder);
+      provider.setJwtAuthenticationConverter(converter);
+      managers.put(issuer, provider::authenticate);
+    }
+    return new JwtIssuerAuthenticationManagerResolver(managers::get);
+  }
+
+  private List<String> getJwtIssuers() {
+    var issuers =
+        Lists.asList(issuer, extraIssuers).stream().filter(element -> !element.isBlank()).toList();
+    return issuers;
+  }
+
+  public JwtDecoder jwtDecoder(String issuer) {
+    OAuth2TokenValidator<Jwt> defaultValidators = JwtValidators.createDefaultWithIssuer(issuer);
+    OAuth2TokenValidator<Jwt> customTokenValidator =
+        new CustomClaimTokenValidator(customClaimName, authorizedCustomClaimValues);
+    OAuth2TokenValidator<Jwt> validator =
+        new DelegatingOAuth2TokenValidator<>(customTokenValidator, defaultValidators);
+
+    NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
+    jwtDecoder.setJwtValidator(validator);
+    return jwtDecoder;
   }
 
   @Bean
@@ -178,25 +221,6 @@ public class SecurityConfiguration {
     }
 
     return grantedAuthoritiesConverter;
-  }
-
-  /**
-   * Instantiate the jwtDecoder bean only when security is enabled to avoid having to specify the
-   * required issuer property with disabled authorization.
-   */
-  @Bean
-  @ConditionalOnExpression(
-      "not '${spring.security.oauth2.resourceserver.jwt.issuer-uri:}'.equals('')")
-  public JwtDecoder jwtDecoder() {
-    OAuth2TokenValidator<Jwt> defaultValidators = JwtValidators.createDefaultWithIssuer(issuer);
-    OAuth2TokenValidator<Jwt> customTokenValidator =
-        new CustomClaimTokenValidator(customClaimName, authorizedCustomClaimValues);
-    OAuth2TokenValidator<Jwt> validator =
-        new DelegatingOAuth2TokenValidator<>(customTokenValidator, defaultValidators);
-
-    NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuer);
-    jwtDecoder.setJwtValidator(validator);
-    return jwtDecoder;
   }
 
   private Set<String> parseOrgIds(String orgIds) {

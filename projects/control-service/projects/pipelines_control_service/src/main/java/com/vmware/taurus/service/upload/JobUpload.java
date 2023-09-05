@@ -39,7 +39,8 @@ public class JobUpload {
   private final GitWrapper gitWrapper;
   private final FeatureFlags featureFlags;
   private final AuthorizationProvider authorizationProvider;
-  private final JobUploadValidator jobUploadValidator;
+  private final JobUploadAllowListValidator jobUploadAllowListValidator;
+  private final JobUploadFilterListValidator jobUploadFilterListValidator;
 
   @Autowired
   public JobUpload(
@@ -48,13 +49,15 @@ public class JobUpload {
       GitWrapper gitWrapper,
       FeatureFlags featureFlags,
       AuthorizationProvider authorizationProvider,
-      JobUploadValidator jobUploadValidator) {
+      JobUploadAllowListValidator jobUploadAllowListValidator,
+      JobUploadFilterListValidator jobUploadFilterListValidator) {
     this.datajobsTempStorageFolder = datajobsTempStorageFolder;
     this.gitCredentialsProvider = gitCredentialsProvider;
     this.gitWrapper = gitWrapper;
     this.featureFlags = featureFlags;
     this.authorizationProvider = authorizationProvider;
-    this.jobUploadValidator = jobUploadValidator;
+    this.jobUploadAllowListValidator = jobUploadAllowListValidator;
+    this.jobUploadFilterListValidator = jobUploadFilterListValidator;
   }
 
   /**
@@ -116,7 +119,8 @@ public class JobUpload {
     try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "deploy")) {
       File jobFolder =
           FileUtils.unzipDataJob(resource, new File(tempDirPath.toFile(), "job"), jobName);
-      jobUploadValidator.validateJob(jobName, jobFolder.toPath());
+      jobUploadFilterListValidator.validateJob(jobName, jobFolder.toPath());
+      jobUploadAllowListValidator.validateJob(jobName, jobFolder.toPath());
 
       Git git =
           gitWrapper.cloneJobRepository(

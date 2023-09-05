@@ -6,6 +6,7 @@ import { jobRequest } from '../serverRequests';
 import { IJobPathProp } from './props';
 import { jobData } from '../jobData';
 import { DOWNLOAD_JOB_BUTTON_LABEL } from '../utils';
+import { StatusButton } from './StatusButton';
 
 export default class DownloadJobDialog extends Component<IJobPathProp> {
   /**
@@ -45,7 +46,7 @@ export default class DownloadJobDialog extends Component<IJobPathProp> {
   }
 }
 
-export async function showDownloadJobDialog() {
+export async function showDownloadJobDialog(statusButton?: StatusButton) {
   const result = await showDialog({
     title: DOWNLOAD_JOB_BUTTON_LABEL,
     body: (
@@ -56,6 +57,12 @@ export async function showDownloadJobDialog() {
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
   if (result.button.accept) {
-    await jobRequest('download');
+    statusButton?.show('Download', jobData.get(VdkOption.PATH)!);
+    // We only handle the successful deployment scenario.
+    // The failing scenario is handled in the request itself.
+    const download = await jobRequest('download');
+    if (download.isSuccessful && download.message) {
+      alert(download.message);
+    }
   }
 }
