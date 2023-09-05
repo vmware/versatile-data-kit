@@ -20,26 +20,25 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
     classes = ControlplaneApplication.class)
 public class DataJobDeploymentPropertiesConfigTest {
 
-  @Autowired
-  private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+  @Autowired private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
   @Test
   public void testWriteToK8SProperty() {
-    //testing default behaviour.
+    // testing default behaviour.
     Assertions.assertTrue(dataJobDeploymentPropertiesConfig.isWriteToK8S());
   }
 
   @Test
   public void testWriteToDBProperty() {
-    //testing default behaviour.
+    // testing default behaviour.
     Assertions.assertTrue(dataJobDeploymentPropertiesConfig.isWriteToDB());
   }
 
   @Test
   public void testReadFromProperty() {
-    //testing default behaviour.
-    Assertions.assertEquals(dataJobDeploymentPropertiesConfig.getReadDataSource(),
-        PropertyPersistence.K8S);
+    // testing default behaviour.
+    Assertions.assertEquals(
+        dataJobDeploymentPropertiesConfig.getReadDataSource(), PropertyPersistence.K8S);
   }
 
   @Test

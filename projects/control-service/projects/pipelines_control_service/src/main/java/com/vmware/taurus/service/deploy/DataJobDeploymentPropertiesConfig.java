@@ -26,5 +26,4 @@ public class DataJobDeploymentPropertiesConfig {
   private boolean writeToK8S;
   private boolean writeToDB;
   private PropertyPersistence readDataSource;
-
 }
