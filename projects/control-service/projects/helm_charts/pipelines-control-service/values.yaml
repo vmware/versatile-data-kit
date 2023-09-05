@@ -1026,6 +1026,17 @@ dataJob:
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
   deployment:
+    configuration:
+      # Configuration persistence are the persisted properties that allow the seamless migration
+      # (re-deployment) of data jobs to a new K8S cluster.
+      persistence:
+        # Variable to enable/disable property writes to Kubernetes
+        writeToK8S: true
+        # Variable to enable/disable property writes to the database
+        writeToDB: true
+        # Variable to select the truth data source for reading properties. Options are DB for database and
+        # K8S for kubernetes.
+        readDataSource: "K8S"
     jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer

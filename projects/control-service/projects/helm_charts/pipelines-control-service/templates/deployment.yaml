@@ -184,6 +184,12 @@ spec:
               value: "{{ .Values.security.authorization.jwtClaimUsername }}"
             - name: DATAJOBS_DEPLOYMENT_JOB_IMAGE_PULL_POLICY
               value: "{{ .Values.dataJob.deployment.jobImagePullPolicy }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_PERSISTENCE_WRITE_TO_K8S
+              value: "{{ .Values.dataJob.deployment.configuration.persistence.writeToK8S }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_PERSISTENCE_WRITE_TO_DB
+              value: "{{ .Values.dataJob.deployment.configuration.persistence.writeToDB }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_PERSISTENCE_READ_DATA_SOURCE
+              value: "{{ .Values.dataJob.deployment.configuration.persistence.readDataSource }}"
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
             - name: VDK_OPTIONS_INI
