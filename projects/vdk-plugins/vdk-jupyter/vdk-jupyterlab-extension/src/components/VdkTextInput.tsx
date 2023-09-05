@@ -54,7 +54,7 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
    adjustInputWidth() {
     if (!this.inputRef.current) return;
 
-    let maxWidth = 150;
+    let maxWidth = 250;
 
     jobData.forEach((value) => {
         const tempSpan = document.createElement('span');
