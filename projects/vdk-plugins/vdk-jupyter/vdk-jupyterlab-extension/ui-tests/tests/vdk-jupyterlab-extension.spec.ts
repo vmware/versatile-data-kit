@@ -164,7 +164,7 @@ test(
     await page.getByLabel('Job team:').click();
     await page.getByLabel('Job team:').fill('example-team');
     await page.getByLabel('Path to job directory:').click();
-    await page.getByLabel('Path to job directory:').fill('/test-dir/');
+    await page.getByLabel('Path to job directory:').fill('test-dir');
     await page.getByRole('button', { name: 'OK' }).click();
   }
 );
