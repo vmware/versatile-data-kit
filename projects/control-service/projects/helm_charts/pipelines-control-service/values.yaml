@@ -1034,8 +1034,8 @@ dataJob:
         writeToK8S: true
         # Variable to enable/disable property writes to the database
         writeToDB: true
-        # Variable to select the truth data source for reading properties. Options are DB for database and
-        # K8S for kubernetes.
+        # Variable to select the truth data source for reading properties. Options are "DB" for database and
+        # "K8S" for kubernetes.
         readDataSource: "K8S"
     jobImagePullPolicy: "IfNotPresent"
     initContainer:
