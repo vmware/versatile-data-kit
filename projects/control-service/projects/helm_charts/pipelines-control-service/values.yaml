@@ -431,7 +431,12 @@ security:
       jwtJwkSetUri: ""
 
       ## [ Required if security.enabled = True ]
+      ## Deprecated in favor of jwtIssuerUris.
       jwtIssuerUrl: ""
+      ## [Required if security.enabled = True]
+      ## Comma separated list of issuers to use.
+      jwtIssuerUris: ""
+
    kerberos:
       ## These values contain configuration settings for the kerberos authentication provider in control-service.
       ## The values are exposed as environment variables through the helm chart
