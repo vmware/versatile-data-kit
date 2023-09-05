@@ -169,7 +169,9 @@ public class SecurityConfiguration {
   }
 
   @Bean
-  @ConditionalOnExpression("${datajobs.security.oauth2.enabled}")
+  @ConditionalOnExpression(
+      "not '${spring.security.oauth2.resourceserver.jwt.issuer-uri:}'.equals('') or not"
+          + " '${spring.security.oauth2.resourceserver.jwt.issuer.uris}'.equals('')")
   JwtIssuerAuthenticationManagerResolver byIssuer(JwtAuthenticationConverter converter) {
     Map<String, AuthenticationManager> managers = new HashMap<>();
     List<String> issuers = getJwtIssuers();
