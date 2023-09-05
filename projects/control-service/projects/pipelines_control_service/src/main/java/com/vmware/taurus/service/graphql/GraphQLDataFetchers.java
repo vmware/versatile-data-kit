@@ -6,7 +6,7 @@
 package com.vmware.taurus.service.graphql;
 
 import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.DataJobPage;

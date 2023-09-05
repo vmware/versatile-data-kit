@@ -8,18 +8,21 @@ package com.vmware.taurus.authorization.provider;
 import com.vmware.taurus.authorization.AuthorizationInterceptor;
 import com.vmware.taurus.authorization.webhook.AuthorizationBody;
 import com.vmware.taurus.authorization.webhook.AuthorizationWebHookProvider;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 /**
  * AuthorizationProvider class used in {@link AuthorizationInterceptor} responsible for handling of
@@ -82,6 +85,21 @@ public class AuthorizationProvider {
         return principal.toString();
       }
     }
+  }
+
+  public String getAccessToken() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String accessToken = null;
+
+    if (authentication instanceof JwtAuthenticationToken) {
+      JwtAuthenticationToken oauthToken = (JwtAuthenticationToken) authentication;
+      accessToken =
+          Optional.ofNullable(oauthToken.getToken())
+              .map(AbstractOAuth2Token::getTokenValue)
+              .orElse(null);
+    }
+
+    return accessToken;
   }
 
   String parsePropertyFromURI(String contextPath, String fullPath, int index) {

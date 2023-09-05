@@ -4,14 +4,13 @@ import json
 import logging
 import time
 from typing import Optional
-from typing import Union
 
 from requests import post
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 from vdk.plugin.control_api_auth.auth_config import AuthConfig
-from vdk.plugin.control_api_auth.auth_config import AuthConfigFolder
-from vdk.plugin.control_api_auth.auth_config import InMemAuthConfiguration
+from vdk.plugin.control_api_auth.auth_config import CredentialsCache
+from vdk.plugin.control_api_auth.auth_config import LocalFolderCredentialsCache
 from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
 from vdk.plugin.control_api_auth.auth_request_values import AuthRequestValues
 from vdk.plugin.control_api_auth.login_types import LoginTypes
@@ -96,7 +95,7 @@ class BaseAuth:
 
     def __init__(
         self,
-        conf: Union[AuthConfigFolder, InMemAuthConfiguration] = AuthConfigFolder(),
+        conf: CredentialsCache = LocalFolderCredentialsCache(),
         vdk_config=AuthConfig(),
     ):
         self._conf = conf
@@ -161,6 +160,16 @@ class BaseAuth:
         response = post(
             self._cache.authorization_url, data=data, headers=headers, auth=basic_auth
         )
+        if response.status_code >= 400:
+            raise VDKAuthException(
+                what="Failed to refresh access token",
+                why="Authorization server returned status code: {response.status_code}, error response: {response.text}",
+                consequence="Subsequent API calls may fail.",
+                countermeasure="Try to log in again the usual way. "
+                "If using the CLI, you can login using the 'vdk login' command. "
+                "If using a notebook, use the Login Button.",
+            )
+
         json_data = json.loads(response.text)
         log.debug(
             f"Refresh access token response received: status: {response.status_code}"
@@ -172,8 +181,8 @@ class BaseAuth:
 
     def read_access_token(self) -> Optional[str]:
         """
-        Read access token from _cache or fetch it from Authorization server.
-        If not available in _cache it will get it using provided configuration during VDK CLI login to fetch it.
+        Read access token from cache or fetch it from Authorization server.
+        If not available in cache it will get it using provided configuration during VDK CLI login to fetch it.
         If it detects that token is about to expire it will try to refresh it.
         :return: the access token or None if it cannot detect any credentials.
         """
@@ -183,6 +192,14 @@ class BaseAuth:
         ):
             log.debug("Acquire access token (it's either expired or missing) ...")
             self.acquire_and_cache_access_token()
+        return self._cache.access_token
+
+    def read_cached_access_token_only(self) -> Optional[str]:
+        """
+        Read access token from credentials cache and will return it if available.
+        Will not check if it is valid (for example not expired) but return it directly.
+        Will not try to fetch it form Authorization provider if it is not available. Instead, will simply return None
+        """
         return self._cache.access_token
 
     def acquire_and_cache_access_token(self):

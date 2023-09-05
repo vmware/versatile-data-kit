@@ -25,7 +25,7 @@
       - always
 
 frontend-data-pipelines-build:
-  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
   stage: build
   needs:
     - job: frontend-shared-components-build
@@ -59,7 +59,7 @@ frontend-data-pipelines-build:
 
 # TODO: Add the cicd path back to the rule once e2e tests are stabilized
 frontend-data-pipelines-e2e-tests:
-  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
   stage: pre_release_test
   before_script:
     - cd projects/frontend/
@@ -82,7 +82,7 @@ frontend-data-pipelines-e2e-tests:
     expire_in: 1 week
 
 frontend-data-pipelines-release:
-  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
   stage: release
   before_script:
     - cd projects/frontend/
@@ -193,7 +193,7 @@ frontend_quickstart_operability_test:
     - job: frontend-data-pipelines-build
       optional: false
       artifacts: true
-  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
   before_script:
     - cd projects/frontend/data-pipelines/gui
   script:
@@ -226,7 +226,7 @@ frontend_publish_test_image:
   extends: .frontend_publish_docker_image
 
 frontend-shared-components-build:
-  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
   stage: build
   before_script:
     - cd projects/frontend/shared-components/gui
@@ -253,7 +253,7 @@ frontend-shared-components-build:
     expire_in: 1 week
 
 frontend-shared-components-release:
-  image: "versatiledatakit/vdk-cicd-base-gui:2.0.0"
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
   stage: release
   before_script:
     - cd projects/frontend/

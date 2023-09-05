@@ -45,7 +45,6 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   public void updateJobSecrets(String jobName, Map<String, Object> secrets) {
 
     checkJobName(jobName);
-    checkJobSecretsMap(jobName, secrets);
 
     Versioned<VaultJobSecrets> readResponse =
         vaultOperations.opsForVersionedKeyValue(SECRET).get(jobName, VaultJobSecrets.class);
@@ -100,12 +99,6 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   private void checkJobName(String jobName) {
     if (jobName == null || jobName.isBlank()) {
       throw new DataJobSecretsException(jobName, "Data Job Name cannot be blank");
-    }
-  }
-
-  private void checkJobSecretsMap(String jobName, Map<String, Object> secrets) {
-    if (secrets == null || secrets.isEmpty()) {
-      throw new DataJobSecretsException(jobName, "Secrets parameter cannot be null or empty");
     }
   }
 }
