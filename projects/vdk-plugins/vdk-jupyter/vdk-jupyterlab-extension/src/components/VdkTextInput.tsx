@@ -55,8 +55,18 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
     }
 
     /**
-     * Adjusts the input width based on its placeholder value.
-     */
+       * Dynamically adjusts the width of the input field based on content from jobData.
+       *
+       * This method performs the following steps:
+       *  - Creates a temporary HTML span element for each value in jobData.
+       *  - Applies styles from the input field to this temporary span.
+       *  - Measures the rendered width of the span to determine the necessary input width.
+       *  - The maximum width encountered from jobData is then used to set the input field's width.
+       *  - An additional padding is added to the maximum width to ensure content fits comfortably.
+       *
+       * Note: The primary purpose is to ensure that the input width is sufficient to display the
+       * longest string from jobData without clipping.
+       */
      adjustInputWidth(): void {
          const currentInput = this.inputRef.current;
          if (!currentInput) return;
