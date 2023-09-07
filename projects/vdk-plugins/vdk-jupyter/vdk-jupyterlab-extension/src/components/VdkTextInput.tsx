@@ -48,7 +48,7 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
      *
      * @param prevProps - previous component properties
      */
-    componentDidUpdate(prevProps: IVdkTextInputProps) {
+    componentDidUpdate(prevProps: IVdkTextInputProps): void {
         if (prevProps.value !== this.props.value) {
             this.adjustInputWidth();
         }
@@ -57,30 +57,32 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
     /**
      * Adjusts the input width based on its placeholder value.
      */
-    adjustInputWidth() {
-        if (!this.inputRef.current) return;
+     adjustInputWidth(): void {
+         const currentInput = this.inputRef.current;
+         if (!currentInput) return;
 
-        let maxWidth = 250;
+         let maxWidth = 250;
 
-        jobData.forEach((value) => {
-            const tempSpan = document.createElement('span');
-            tempSpan.innerHTML = value;
+         jobData.forEach((value) => {
+             const tempSpan = document.createElement('span');
+             tempSpan.innerHTML = value;
 
-            const styles = ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing', 'textTransform'];
-            styles.forEach(style => {
-                tempSpan.style[style as any] = window.getComputedStyle(this.inputRef.current!).getPropertyValue(style);
-            });
+             const styles = ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing', 'textTransform'];
+             styles.forEach(style => {
+                 const computedStyle = currentInput ? window.getComputedStyle(currentInput).getPropertyValue(style) : '';
+                 tempSpan.style[style as any] = computedStyle;
+             });
 
-            document.body.appendChild(tempSpan);
-            const spanWidth = tempSpan.getBoundingClientRect().width;
-            document.body.removeChild(tempSpan);
+             document.body.appendChild(tempSpan);
+             const spanWidth = tempSpan.getBoundingClientRect().width;
+             document.body.removeChild(tempSpan);
+             const PADDING_WIDTH: number = 100;
+             maxWidth = Math.max(maxWidth, spanWidth + PADDING_WIDTH);
+         });
 
-            maxWidth = Math.max(maxWidth, spanWidth + 100);
-        });
-
-        this.inputRef.current.style.width = `${maxWidth}px`;
-        this.props.onWidthComputed && this.props.onWidthComputed(maxWidth);
-    }
+         currentInput.style.width = `${maxWidth}px`;
+         this.props.onWidthComputed && this.props.onWidthComputed(maxWidth);
+     }
 
     /**
      * Renders a div with input and value for VDK Option.

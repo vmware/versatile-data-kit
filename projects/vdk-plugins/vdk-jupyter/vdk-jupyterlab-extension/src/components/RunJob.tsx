@@ -11,9 +11,13 @@ import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 import { StatusButton } from './StatusButton';
 import { checkIcon } from '@jupyterlab/ui-components';
 
+interface IRunJobDialogState {
+  inputWidth: number;
+}
+
 export default class RunJobDialog extends Component<IJobPathProp> {
-  state = {
-      inputWidth: 0
+  state: IRunJobDialogState = {
+    inputWidth: 0
   };
 
   /**
