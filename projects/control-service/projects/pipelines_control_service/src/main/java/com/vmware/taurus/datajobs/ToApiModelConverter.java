@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.datajobs;
 
-import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.controlplane.model.data.DataJobPage;
 import com.vmware.taurus.controlplane.model.data.*;

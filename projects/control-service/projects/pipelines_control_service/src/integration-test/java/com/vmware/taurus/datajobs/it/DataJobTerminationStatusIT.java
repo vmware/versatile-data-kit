@@ -29,7 +29,7 @@ import org.springframework.boot.test.autoconfigure.actuate.metrics.AutoConfigure
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.service.repository.JobsRepository;
+import com.vmware.taurus.service.JobsRepository;
 
 @AutoConfigureMetrics
 @SpringBootTest(
