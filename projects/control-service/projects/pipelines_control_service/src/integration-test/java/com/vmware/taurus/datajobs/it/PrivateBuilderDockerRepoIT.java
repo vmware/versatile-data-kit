@@ -17,6 +17,7 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1SecretBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -85,7 +86,7 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
    * <p>Within this test we assert only that the data job execution is started and has an execution
    * id. We don't wait for the job to be completed as successful as that takes too long
    */
-  // @Test
+  @Test
   public void testPrivateDockerBuildJob(
       String jobName, String teamName, String username, String deploymentId) throws Exception {
     createBuilderImagePullSecret(controlNamespace);

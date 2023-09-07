@@ -7,7 +7,7 @@ package com.vmware.taurus.authorization;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.KerberosUtil;
-import com.vmware.taurus.service.repository.JobsRepository;
+import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobConfig;
 import org.apache.kerby.kerberos.kerb.KrbException;
