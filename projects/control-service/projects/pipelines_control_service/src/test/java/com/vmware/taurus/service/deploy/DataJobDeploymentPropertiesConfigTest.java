@@ -21,8 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
     classes = ServiceApp.class)
 public class DataJobDeploymentPropertiesConfigTest {
 
-  @Autowired
-  private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+  @Autowired private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
   @Test
   public void testWriteToK8SProperty() {
@@ -39,8 +38,7 @@ public class DataJobDeploymentPropertiesConfigTest {
   @Test
   public void testReadFromProperty() {
     // testing default behaviour.
-    Assertions.assertEquals(
-        dataJobDeploymentPropertiesConfig.getReadDataSource(), ReadFrom.K8S);
+    Assertions.assertEquals(dataJobDeploymentPropertiesConfig.getReadDataSource(), ReadFrom.K8S);
   }
 
   @Test
