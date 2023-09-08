@@ -153,7 +153,8 @@ class CliEntry:
             # if at least one hook implementation returned handled, means we do
             # not need to log the exception
             if not (True in handled):
-                log.exception("Exiting with exception.")
+                if core_context.configuration.get_value("LOG_STACK_TRACE_ON_EXIT"):
+                    log.exception("Exiting with exception.")
                 exit_code = 1
             else:
                 exit_code = 0
