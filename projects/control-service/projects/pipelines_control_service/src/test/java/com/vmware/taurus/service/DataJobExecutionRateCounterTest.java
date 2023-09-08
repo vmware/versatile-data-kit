@@ -10,8 +10,6 @@ import com.vmware.taurus.ServiceApp;
 import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.ExecutionStatus;
-import com.vmware.taurus.service.repository.JobExecutionRepository;
-import com.vmware.taurus.service.repository.JobsRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

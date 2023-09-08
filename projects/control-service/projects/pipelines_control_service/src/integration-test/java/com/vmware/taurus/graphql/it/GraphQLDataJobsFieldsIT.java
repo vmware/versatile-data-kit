@@ -8,7 +8,7 @@ package com.vmware.taurus.graphql.it;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.datajobs.it.common.DataJobDeploymentExtension;
-import com.vmware.taurus.service.repository.JobsRepository;
+import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package com.vmware.taurus.service.repository;
+package com.vmware.taurus.service;
 
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.service.model.*;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.model.ExecutionStatus;
+import com.vmware.taurus.service.model.JobConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +24,6 @@ import java.time.ZoneOffset;
 public class JobsRepositoryIT {
 
   @Autowired private JobsRepository repository;
-
-  @Autowired private JobDeploymentRepository jobDeploymentRepository;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -112,35 +113,5 @@ public class JobsRepositoryIT {
     Assertions.assertEquals(
         ExecutionStatus.USER_ERROR, persistedEntity.get().getLatestJobTerminationStatus());
     Assertions.assertEquals("new-id", persistedEntity.get().getLatestJobExecutionId());
-  }
-
-  @Test
-  void testDeleteDataJob_withAssociatedDeployment_dataJobAndDeploymentShouldBeDeleted() {
-    var dataJobEntity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
-    repository.save(dataJobEntity);
-
-    DataJobDeployment expectedDataJobDeployment =
-        new DataJobDeployment(
-            dataJobEntity.getName(),
-            dataJobEntity,
-            "sha",
-            "3.9-secure",
-            "git_commit_sha",
-            1F,
-            1F,
-            1,
-            1,
-            OffsetDateTime.now(),
-            "user",
-            true);
-    jobDeploymentRepository.save(expectedDataJobDeployment);
-
-    Assertions.assertTrue(repository.findById(dataJobEntity.getName()).isPresent());
-    Assertions.assertTrue(jobDeploymentRepository.findById(dataJobEntity.getName()).isPresent());
-
-    repository.deleteById(dataJobEntity.getName());
-
-    Assertions.assertFalse(repository.findById(dataJobEntity.getName()).isPresent());
-    Assertions.assertFalse(jobDeploymentRepository.findById(dataJobEntity.getName()).isPresent());
   }
 }
