@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.ServiceApp;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.PropertyPersistence;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    classes = ControlplaneApplication.class)
+    classes = ServiceApp.class)
 public class DataJobDeploymentPropertiesConfigTest {
 
   @Autowired private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
