@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,12 +19,17 @@ import org.springframework.context.annotation.Configuration;
 public class DataJobDeploymentPropertiesConfig {
 
   @AllArgsConstructor
-  public enum PropertyPersistence {
+  public enum ReadFrom {
     DB,
     K8S
   }
 
-  private boolean writeToK8S;
-  private boolean writeToDB;
-  private PropertyPersistence readDataSource;
+  @AllArgsConstructor
+  public enum WriteTo {
+    K8S,
+    DB
+  }
+
+  private Set<WriteTo> writeTos;
+  private ReadFrom readDataSource;
 }

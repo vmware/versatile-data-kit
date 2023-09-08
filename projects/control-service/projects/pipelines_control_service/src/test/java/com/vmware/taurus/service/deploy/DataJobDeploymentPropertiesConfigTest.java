@@ -6,7 +6,8 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.ServiceApp;
-import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.PropertyPersistence;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.ReadFrom;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.WriteTo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,30 +21,37 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
     classes = ServiceApp.class)
 public class DataJobDeploymentPropertiesConfigTest {
 
-  @Autowired private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+  @Autowired
+  private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
   @Test
   public void testWriteToK8SProperty() {
     // testing default behaviour.
-    Assertions.assertTrue(dataJobDeploymentPropertiesConfig.isWriteToK8S());
+    Assertions.assertTrue(dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.K8S));
   }
 
   @Test
   public void testWriteToDBProperty() {
     // testing default behaviour.
-    Assertions.assertTrue(dataJobDeploymentPropertiesConfig.isWriteToDB());
+    Assertions.assertTrue(dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB));
   }
 
   @Test
   public void testReadFromProperty() {
     // testing default behaviour.
     Assertions.assertEquals(
-        dataJobDeploymentPropertiesConfig.getReadDataSource(), PropertyPersistence.K8S);
+        dataJobDeploymentPropertiesConfig.getReadDataSource(), ReadFrom.K8S);
   }
 
   @Test
-  public void testSupportedValues() {
-    Assertions.assertEquals(PropertyPersistence.valueOf("K8S"), PropertyPersistence.K8S);
-    Assertions.assertEquals(PropertyPersistence.valueOf("DB"), PropertyPersistence.DB);
+  public void testReadSupportedValues() {
+    Assertions.assertEquals(ReadFrom.valueOf("K8S"), ReadFrom.K8S);
+    Assertions.assertEquals(ReadFrom.valueOf("DB"), ReadFrom.DB);
+  }
+
+  @Test
+  public void testWriteToSupportedValues() {
+    Assertions.assertEquals(WriteTo.valueOf("K8S"), WriteTo.K8S);
+    Assertions.assertEquals(WriteTo.valueOf("DB"), WriteTo.DB);
   }
 }
