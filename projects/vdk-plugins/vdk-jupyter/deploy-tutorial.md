@@ -19,12 +19,12 @@ and have developed the job.
 3. Enter your job name, team, and describe the latest change to the job in the
 'Deployment reason' section. The path should be configured automatically if
    you have navigated to the job directory.
-   
+
 ![The job will be executed before deployment](./run-job-notif.png)
 
 4. The following dialog informs you of the proceeding execution of the job
 required before deploying the job to the cloud.
-   
+
 ![The dialog shown upon successful deploy](success-text.png)
 
 5. The following dialog will appear when the job deployment request has been
