@@ -34,17 +34,17 @@ interface IVdkInputState {
 const DEFAULT_INPUT_WIDTH = 250;
 
 export default class VDKTextInput extends Component<IVdkTextInputProps> {
+      /**
+     * Component's state.
+     */
+       state: IVdkInputState = {
+        inputWidth: DEFAULT_INPUT_WIDTH
+      };
+
     /**
      * Reference to the input element.
      */
     private inputRef: RefObject<HTMLInputElement> = React.createRef();
-
-    /**
-     * Component's state.
-     */
-    state: IVdkInputState = {
-      inputWidth: DEFAULT_INPUT_WIDTH
-    };
 
     /**
      * Lifecycle method called after the component has mounted. It adjusts the input width based on the content.
@@ -85,10 +85,11 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
           tempSpan.style[style as any] = computedStyle;
       });
 
+      const PADDING_WIDTH = 100;
       jobData.forEach((value) => {
           tempSpan.innerHTML = value;
           document.body.appendChild(tempSpan);
-          const spanWidth = tempSpan.getBoundingClientRect().width + 100;
+          const spanWidth = tempSpan.getBoundingClientRect().width + PADDING_WIDTH;
           document.body.removeChild(tempSpan);
           maxWidth = Math.max(maxWidth, spanWidth);
       });
