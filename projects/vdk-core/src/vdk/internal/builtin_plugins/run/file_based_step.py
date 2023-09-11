@@ -83,18 +83,19 @@ class StepFuncFactory:
                 log.debug("Loading %s SUCCESS" % filename)
             except BaseException as e:
                 log.info("Loading %s FAILURE" % filename)
-                errors.log_and_rethrow(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                    log=log,
-                    what_happened="Failed loading job sources of %s" % filename,
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-                    + " Most likely importing a dependency or data job step failed, see"
-                    + " logs for details and fix the failed step (details in stacktrace).",
-                    exception=e,
-                    wrap_in_vdk_error=True,
+                log.error(
+                    "\n".join(
+                        [
+                            "Failed loading job sources of %s" % filename,
+                            errors.MSG_WHY_FROM_EXCEPTION(e),
+                            errors.MSG_CONSEQUENCE_TERMINATING_APP,
+                            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
+                            + " Most likely importing a dependency or data job step failed, see"
+                            + " logs for details and fix the failed step (details in stacktrace).",
+                        ]
+                    )
                 )
+                errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
 
             for _, func in inspect.getmembers(python_module, inspect.isfunction):
                 if func.__name__ == "run":
@@ -149,26 +150,28 @@ class StepFuncFactory:
                     whom_to_blame,
                 )
 
-                errors.log_and_rethrow(
-                    to_be_fixed_by=whom_to_blame(e, __file__, None),
-                    log=log,
-                    what_happened=f"Data Job step {step_name} completed with error.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences="I will not process the remaining steps (if any), "
-                    "and this Data Job execution will be marked as failed.",
-                    countermeasures="See exception and fix the root cause, so that the exception does "
-                    "not appear anymore.",
-                    exception=e,
-                    wrap_in_vdk_error=True,
+                to_be_fixed_by = whom_to_blame(e, __file__, None)
+                log.error(
+                    "\n".join(
+                        [
+                            f"Data Job step {step_name} completed with error.",
+                            errors.MSG_WHY_FROM_EXCEPTION(e),
+                            "I will not process the remaining steps (if any), "
+                            "and this Data Job execution will be marked as failed.",
+                            "See exception and fix the root cause, so that the exception does "
+                            "not appear anymore.",
+                        ]
+                    )
                 )
+                errors.report_and_rethrow(to_be_fixed_by, e)
         else:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=log,
-                what_happened=f"I'm trying to call method 'run' and failed.",
-                why_it_happened=f"Method is missing at least one job input parameter to be passed",
-                consequences="Current Step (python file) will fail, and as a result the whole Data Job will fail. ",
-                countermeasures="Make sure that you have specified a job input parameter in the signature of the "
-                "run method. "
-                f"Possible parameters of run function are: {list(possible_arguments.keys())}.",
+            errors.report_and_throw(
+                errors.UserCodeError(
+                    "I'm trying to call method 'run' and failed.",
+                    "Method is missing at least one job input parameter to be passed",
+                    "Current Step (python file) will fail, and as a result the whole Data Job will fail. ",
+                    "Make sure that you have specified a job input parameter in the signature of the "
+                    "run method. "
+                    f"Possible parameters of run function are: {list(possible_arguments.keys())}.",
+                )
             )

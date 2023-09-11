@@ -40,17 +40,17 @@ class CliRunImpl:
             else:
                 return None
         except Exception as e:
-            blamee = errors.ResolvableBy.USER_ERROR
-            errors.log_and_rethrow(
-                blamee,
-                logging.getLogger(__name__),
-                what_happened="Failed to validate job arguments.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                exception=e,
-                wrap_in_vdk_error=True,
+            log.error(
+                "\n".join(
+                    [
+                        "Failed to validate job arguments.",
+                        errors.MSG_WHY_FROM_EXCEPTION(e),
+                        errors.MSG_CONSEQUENCE_TERMINATING_APP,
+                        errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                    ]
+                )
             )
+            errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
 
     @staticmethod
     def __split_into_chunks(exec_steps: List, chunks: int) -> List:
@@ -161,18 +161,23 @@ class CliRunImpl:
             else:
                 log.info(f"Data Job execution summary: {execution_result}")
         except BaseException as e:
-            errors.log_and_rethrow(
+            log.error(
+                "\n".join(
+                    [
+                        "Failed executing job.",
+                        errors.MSG_WHY_FROM_EXCEPTION(e),
+                        errors.MSG_CONSEQUENCE_TERMINATING_APP,
+                        errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
+                        + " Most likely a prerequisite or plugin of one of the key VDK components failed, see"
+                        + " logs for details and ensure the prerequisite for the failed component (details in stacktrace).",
+                    ]
+                )
+            )
+            errors.report_and_rethrow(
                 job_input_error_classifier.whom_to_blame(
                     e, __file__, data_job_directory
                 ),
-                log,
-                what_happened="Failed executing job.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-                + " Most likely a prerequisite or plugin of one of the key VDK components failed, see"
-                + " logs for details and ensure the prerequisite for the failed component (details in stacktrace).",
-                exception=e,
+                e,
             )
         if execution_result.is_failed() and execution_result.get_exception_to_raise():
             raise execution_result.get_exception_to_raise()

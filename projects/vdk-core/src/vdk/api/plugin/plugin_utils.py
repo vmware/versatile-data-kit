@@ -20,26 +20,26 @@ def set_defaults_for_specific_command(
     :param defaults_dict: a key-value store where keys are the names of parameters, values are the new default values
     """
     if not isinstance(root_command, click.Group):
-        errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=log,
-            what_happened=f"Cannot set default parameters when root_command isn't of type click.Group",
-            why_it_happened=f"A plugin which attempted to set default parameters was not given a root_command object of type click.Group",
-            consequences="Cannot continue with execution",
-            countermeasures=f"Fix or uninstall buggy plugin",
+        errors.report_and_throw(
+            errors.VdkConfigurationError(
+                "Cannot set default parameters when root_command isn't of type click.Group",
+                "A plugin which attempted to set default parameters was not given a root_command object of type click.Group",
+                "Cannot continue with execution",
+                "Fix or uninstall buggy plugin",
+            )
         )
     if len(defaults_dict) == 0:
         log.debug("defaults_dict is empty, please provide default parameter values")
 
     command = root_command.get_command(None, target_command)
     if command is None:
-        errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=log,
-            what_happened=f"Cannot set default parameters for non-existing command: {target_command}",
-            why_it_happened=f"A plugin attempted to set default parameters for non-existing command: {target_command}",
-            consequences="Cannot continue with execution",
-            countermeasures=f"Fix or uninstall plugin which sets command: {target_command}",
+        errors.report_and_throw(
+            errors.VdkConfigurationError(
+                f"Cannot set default parameters for non-existing command: {target_command}",
+                f"A plugin attempted to set default parameters for non-existing command: {target_command}",
+                "Cannot continue with execution",
+                f"Fix or uninstall plugin which sets command: {target_command}",
+            )
         )
     for param in command.params:
         if param.name in defaults_dict.keys():
@@ -61,13 +61,13 @@ def set_defaults_for_all_commands(
     :param defaults_dict: a key-value store where keys are the names of parameters, values are the new default values
     """
     if not isinstance(root_command, click.Group):
-        errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=log,
-            what_happened=f"Cannot set default parameters when root_command isn't of type click.Group",
-            why_it_happened=f"A plugin which attempted to set default parameters was not given a root_command object of type click.Group",
-            consequences="Cannot continue with execution",
-            countermeasures=f"Fix or uninstall buggy plugin",
+        errors.report_and_throw(
+            errors.VdkConfigurationError(
+                "Cannot set default parameters when root_command isn't of type click.Group",
+                "A plugin which attempted to set default parameters was not given a root_command object of type click.Group",
+                "Cannot continue with execution",
+                "Fix or uninstall buggy plugin",
+            )
         )
     if len(defaults_dict) == 0:
         log.debug("defaults_dict is empty, please provide default parameter values")

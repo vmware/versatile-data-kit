@@ -11,7 +11,6 @@ from typing import List
 from typing import Optional
 
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
-from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import find_whom_to_blame_from_exception
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import ResolvableBy
@@ -92,14 +91,12 @@ class ExecutionResult:
             return step_exception
         else:
             return PlatformServiceError(
-                ErrorMessage(
-                    f"Data Job {self.data_job_name} failed",
-                    "Data Job has failed",
-                    "Failure is with unspecified reason. Seems like a bug in VDK.",
-                    "Job will not complete",
-                    "Retry the job. "
-                    "Consider opening a ticket https://github.com/vmware/versatile-data-kit/issues",
-                )
+                f"Data Job {self.data_job_name} failed",
+                "Data Job has failed",
+                "Failure is with unspecified reason. Seems like a bug in VDK.",
+                "Job will not complete",
+                "Retry the job. "
+                "Consider opening a ticket https://github.com/vmware/versatile-data-kit/issues",
             )
 
     def get_blamee(self) -> Optional[ResolvableBy]:

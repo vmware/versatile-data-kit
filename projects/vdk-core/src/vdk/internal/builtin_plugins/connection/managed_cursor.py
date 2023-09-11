@@ -111,14 +111,19 @@ class ManagedCursor(ProxyCursor):
                 # else:
                 #     blamee = errors.ResolvableBy.PLATFORM_ERROR
                 self._log.info(f"Failed query {_get_query_duration(query_start_time)}")
-                errors.log_and_rethrow(
+                self._log.error(
+                    "\n".join(
+                        [
+                            "Executing query FAILED.",
+                            errors.MSG_WHY_FROM_EXCEPTION(e),
+                            errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                        ]
+                    )
+                )
+                errors.report_and_rethrow(
                     blamee,
-                    self._log,
-                    what_happened="Executing query FAILED.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                    exception=e,
+                    e,
                 )
 
     def _decorate_operation(self, managed_operation: ManagedOperation, operation: str):
@@ -132,15 +137,17 @@ class ManagedCursor(ProxyCursor):
                     decoration_cursor=decoration_cursor
                 )
             except Exception as e:
-                errors.log_and_rethrow(
-                    errors.ResolvableBy.PLATFORM_ERROR,
-                    self._log,
-                    what_happened="Decorating query FAILED.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                    exception=e,
+                self._log.error(
+                    "\n".join(
+                        [
+                            "Decorating query FAILED.",
+                            errors.MSG_WHY_FROM_EXCEPTION(e),
+                            errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                        ]
+                    )
                 )
+                errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
 
     def _validate_operation(self, operation: str, parameters: Optional[Container]):
         if self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
@@ -150,13 +157,18 @@ class ManagedCursor(ProxyCursor):
                     operation=operation, parameters=parameters
                 )
             except Exception as e:
-                errors.log_and_rethrow(
+                self._log.error(
+                    "\n".join(
+                        [
+                            "Validating query FAILED.",
+                            errors.MSG_WHY_FROM_EXCEPTION(e),
+                            errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
+                        ]
+                    )
+                )
+                errors.report_and_rethrow(
                     errors.ResolvableBy.USER_ERROR,
-                    self._log,
-                    what_happened="Validating query FAILED.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                     exception=e,
                 )
 

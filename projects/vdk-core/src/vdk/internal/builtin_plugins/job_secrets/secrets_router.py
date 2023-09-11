@@ -86,17 +86,16 @@ class SecretsRouter(ISecretsRegistry, ISecrets):
         if secrets_type in self.__secrets_builders:
             return self.__secrets_builders.get(secrets_type)
         else:
-            errors.log_and_throw(
-                errors.ResolvableBy.CONFIG_ERROR,
-                log,
-                "",
-                f"secrets default type was configured to be {secrets_type} "
-                "no such secrets api implementation has been registered",
-                "",
-                "Check if the job has not been mis-configured - for example misspelling error. "
-                f"See config-help for help on configuration. Existing secrets types are: {list(self.__secrets_builders.keys())} "
-                "Alternatively make sure the correct plugin has been installed "
-                "providing the secrets api implementation ",
+            errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"secrets default type was configured to be {secrets_type} "
+                    "no such secrets api implementation has been registered",
+                    "",
+                    "Check if the job has not been mis-configured - for example misspelling error. "
+                    f"See config-help for help on configuration. Existing secrets types are: {list(self.__secrets_builders.keys())} "
+                    "Alternatively make sure the correct plugin has been installed "
+                    "providing the secrets api implementation ",
+                )
             )
 
     def __setup_secrets_from_factory_method(self):
@@ -112,33 +111,32 @@ class SecretsRouter(ISecretsRegistry, ISecrets):
                     list(self.__secrets_builders.keys())[0]
                 ]
             else:
-                errors.log_and_throw(
-                    errors.ResolvableBy.CONFIG_ERROR,
-                    log,
-                    "Secrets API client cannot be chosen.",  # set by handler
-                    "Too many choices for secrets client implementation.",
-                    "Secrets API functionality does not work.",  # set by handler
-                    "Configure which secrets client implementation "
-                    "to use with secrets_default_type config option. "
-                    f"See config-help for help on configuration. Existing secret types are: {list(self.__secrets_builders.keys())}",
+                errors.report_and_throw(
+                    errors.VdkConfigurationError(
+                        "Secrets API client cannot be chosen.",  # set by handler
+                        "Too many choices for secrets client implementation.",
+                        "Secrets API functionality does not work.",  # set by handler
+                        "Configure which secrets client implementation "
+                        "to use with secrets_default_type config option. "
+                        f"See config-help for help on configuration. Existing secret types are: {list(self.__secrets_builders.keys())}",
+                    )
                 )
 
             for p in self.__config.get_secrets_write_preprocess_sequence():
                 if p not in self.__secrets_builders:
-                    errors.log_and_throw(
-                        to_be_fixed_by=ResolvableBy.CONFIG_ERROR,
-                        log=log,
-                        what_happened=f"A non-valid secrets type {p} configured in "
-                        "SECRETS_WRITE_PREPROCESS_SEQUENCE.",
-                        why_it_happened=f"No ISecretsServiceClient handler for secret type {p} "
-                        "was registered in ISecretsRegistry.",
-                        consequences="The write pre-processing failed.",
-                        countermeasures=f"Either remove the non-valid secret type {p} from "
-                        "SECRETS_WRITE_PREPROCESS_SEQUENCE configuration, or"
-                        "register a corresponding ISecretsServiceClient "
-                        "implementation via set_secrets_factory_method API.",
+                    errors.report_and_throw(
+                        errors.VdkConfigurationError(
+                            f"A non-valid secrets type {p} configured in "
+                            "SECRETS_WRITE_PREPROCESS_SEQUENCE.",
+                            f"No ISecretsServiceClient handler for secret type {p} "
+                            "was registered in ISecretsRegistry.",
+                            "The write pre-processing failed.",
+                            f"Either remove the non-valid secret type {p} from "
+                            "SECRETS_WRITE_PREPROCESS_SEQUENCE configuration, or"
+                            "register a corresponding ISecretsServiceClient "
+                            "implementation via set_secrets_factory_method API.",
+                        )
                     )
-
             service_secrets = DataJobsServiceSecrets(
                 job_name=self.__job_name,
                 team_name=self.__team_name,
@@ -162,14 +160,14 @@ class SecretsRouter(ISecretsRegistry, ISecrets):
         if not countermeasures:
             countermeasures = " Check why it happened and try to resolve the issue or open a ticket to SRE team."
 
-        error_handler = lambda methodname: errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=logging.getLogger(__name__),
-            what_happened="I'm trying to call method '{}' and failed.".format(
-                methodname
-            ),
-            why_it_happened=why,
-            consequences="Current  Step will fail, and as a result the whole Data Job will fail.",
-            countermeasures=countermeasures,
-        )
+        def error_handler(methodname):
+            return errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"I'm trying to call method '{methodname}' and failed.",
+                    why,
+                    "Current  Step will fail, and as a result the whole Data Job will fail.",
+                    countermeasures,
+                )
+            )
+
         return error_handler

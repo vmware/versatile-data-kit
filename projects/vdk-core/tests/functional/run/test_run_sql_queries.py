@@ -89,6 +89,10 @@ def test_run_dbapi_connection_no_such_db_type():
 
         cli_assert_equal(1, result)
         assert "VdkConfigurationError" in result.output
+        assert (
+            "configuration variable for DB_DEFAULT_TYPE has invalid value"
+            in result.output
+        )
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})

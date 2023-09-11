@@ -86,14 +86,14 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
             self._log.debug(f"Connection to {dbtype} is missing. Will try to connect")
             conn = self.__create_connection(dbtype)
         else:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-                log=self._log,
-                what_happened=f"Provided configuration variable for {DB_DEFAULT_TYPE} has invalid value.",
-                why_it_happened=f"VDK was run with {DB_DEFAULT_TYPE}={dbtype}, however {dbtype} is invalid value for this variable.",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures=f"Provide either valid value for {DB_DEFAULT_TYPE} or install database plugin that supports this type. "
-                f"Currently possible values are {list(self._connection_builders.keys())}",
+            errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"Provided configuration variable for {DB_DEFAULT_TYPE} has invalid value.",
+                    f"VDK was run with {DB_DEFAULT_TYPE}={dbtype}, however {dbtype} is invalid value for this variable.",
+                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    f"Provide either valid value for {DB_DEFAULT_TYPE} or install database plugin that supports this type. "
+                    f"Currently possible values are {list(self._connection_builders.keys())}",
+                )
             )
         if not conn._is_connected():
             conn.connect()
@@ -121,19 +121,20 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
             if not conn._connection_hook_spec_factory:
                 conn._connection_hook_spec_factory = self._connection_hook_spec_factory
         elif conn is None:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-                log=self._log,
-                what_happened=f"Could not create new connection of db type {dbtype}.",
-                why_it_happened=f"VDK was run with {DB_DEFAULT_TYPE}={dbtype}, however no valid connection was created.",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures=f"Seems to be a bug in the plugin for dbtype {dbtype}. Make sure it's correctly installed. "
-                f"If upgraded recently consider reverting to previous version. Or use another db type. "
-                f"Currently possible values are {list(self._connection_builders.keys())}",
+            errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"Could not create new connection of db type {dbtype}.",
+                    f"VDK was run with {DB_DEFAULT_TYPE}={dbtype}, however no valid connection was created.",
+                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    f"Seems to be a bug in the plugin for dbtype {dbtype}. Make sure it's correctly installed. "
+                    f"If upgraded recently consider reverting to previous version. Or use another db type. "
+                    f"Currently possible values are {list(self._connection_builders.keys())}",
+                )
             )
         else:
             log = logging.getLogger(conn.__class__.__name__)
-            conn.close()  # we will let ManagedConnection to open it when needed.
+            # we will let ManagedConnection to open it when needed.
+            conn.close()
             wrapped_conn = WrappedConnection(
                 log,
                 self._connection_builders[dbtype],

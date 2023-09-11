@@ -81,15 +81,15 @@ def get_page_generator(data, page_size=10000):
 def validate_column_count(data: iter, column_names: iter):
     if data:
         if len(column_names) != len(data[0]):
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=log,
-                what_happened="Failed to post tabular data for ingestion.",
-                why_it_happened="The number of column names are not matching the number of values in at least on of"
-                "the rows. You provided columns: '{column_names}' and data row: "
-                "'{data_row}'".format(column_names=column_names, data_row=data[0]),
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures="Check the data and the column names you are providing, their count should match.",
+            errors.report_and_throw(
+                errors.UserCodeError(
+                    "Failed to post tabular data for ingestion.",
+                    "The number of column names are not matching the number of values in at least on of"
+                    "the rows. You provided columns: '{column_names}' and data row: "
+                    "'{data_row}'".format(column_names=column_names, data_row=data[0]),
+                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    "Check the data and the column names you are providing, their count should match.",
+                )
             )
 
 

@@ -4,7 +4,6 @@ import os
 import traceback
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from vdk.internal.builtin_plugins.run import data_job

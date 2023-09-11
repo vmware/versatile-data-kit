@@ -55,13 +55,13 @@ def _parse_log_level_module(log_level_module):
         else:
             return {}
     except Exception as e:
-        errors.log_and_throw(
-            ResolvableBy.CONFIG_ERROR,
-            logging.getLogger(__name__),
-            "Invalid logging configuration passed to LOG_LEVEL_MODULE.",
-            f"Error is: {e}. log_level_module was set to {log_level_module}.",
-            "Logging will not be initialized and exception is raised",
-            "Set correctly configuration to log_level_debug configuration in format 'module=level;module2=level2'",
+        errors.report_and_throw(
+            errors.VdkConfigurationError(
+                "Invalid logging configuration passed to LOG_LEVEL_MODULE.",
+                f"Error is: {e}. log_level_module was set to {log_level_module}.",
+                "Logging will not be initialized and exception is raised",
+                "Set correctly configuration to log_level_debug configuration in format 'module=level;module2=level2'",
+            )
         )
 
 
@@ -118,14 +118,14 @@ def configure_loggers(
     syslog_url, syslog_port, syslog_sock_type, syslog_enabled = syslog_args
 
     if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT:
-        errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=log,
-            what_happened=f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
-            why_it_happened=f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid value for this variable.",
-            consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-            countermeasures=f"Provide a valid value for {SYSLOG_SOCK_TYPE}."
-            f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+        errors.report_and_throw(
+            errors.VdkConfigurationError(
+                f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
+                f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid value for this variable.",
+                errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                f"Provide a valid value for {SYSLOG_SOCK_TYPE}."
+                f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+            )
         )
 
     _SYSLOG_HANDLER = {
@@ -279,13 +279,12 @@ class LoggingPlugin:
                 % (log_config_type, attempt_id)
             )
             errors.log_exception(
-                errors.find_whom_to_blame_from_exception(e),
-                log=logging.getLogger(__name__),
-                what_happened="Failed to initialize logging",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences="Failed to initialize data job logging."
+                logging.getLogger(__name__),
+                e,
+                "Failed to initialize logging",
+                errors.MSG_WHY_FROM_EXCEPTION(e),
+                "Failed to initialize data job logging."
                 " Will proceed with basic local logging on"
                 " DEBUG level.",
-                countermeasures="Depending on stacktrace.",
-                exception=e,
+                "Depending on stacktrace.",
             )

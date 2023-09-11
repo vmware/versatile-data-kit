@@ -89,16 +89,11 @@ class DataJobDefaultHookImplPlugin:
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
             blamee = whom_to_blame(e, __file__, context.job_directory)
             exception = e
+            errors.report(blamee, exception)
             errors.log_exception(
-                blamee,
                 log,
-                what_happened=f"Processing step {step.name} completed with error.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences="I will not process the remaining steps (if any), "
-                "and this Data Job execution will be marked as failed.",
-                countermeasures="See exception and fix the root cause, so that the exception does "
-                "not appear anymore.",
-                exception=e,
+                exception,
+                f"Processing step {step.name} completed with error.",
             )
 
         return StepResult(
@@ -125,13 +120,13 @@ class DataJobDefaultHookImplPlugin:
         step_results = []
 
         if len(steps) == 0:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=log,
-                what_happened="Data Job execution has failed.",
-                why_it_happened="Data Job has no steps.",
-                consequences="Data job execution will not continue.",
-                countermeasures="Please include at least 1 valid step in your Data Job. Also make sure you are passing the correct data job directory.",
+            errors.report_and_throw(
+                errors.UserCodeError(
+                    "Data Job execution has failed.",
+                    "Data Job has no steps.",
+                    "Data job execution will not continue.",
+                    "Please include at least 1 valid step in your Data Job. Also make sure you are passing the correct data job directory.",
+                )
             )
 
         execution_status = ExecutionStatus.SUCCESS
@@ -144,16 +139,11 @@ class DataJobDefaultHookImplPlugin:
             except BaseException as e:
                 blamee = whom_to_blame(e, __file__, context.job_directory)
                 exception = e
+                errors.report(blamee, exception)
                 errors.log_exception(
-                    blamee,
                     log,
-                    what_happened=f"Processing step {current_step.name} completed with error.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences="I will not process the remaining steps (if any), "
-                    "and this Data Job execution will be marked as failed.",
-                    countermeasures="See exception and fix the root cause, so that the exception does "
-                    "not appear anymore.",
-                    exception=e,
+                    exception,
+                    f"Processing step {current_step.name} completed with error.",
                 )
                 res = StepResult(
                     name=current_step.name,
@@ -312,16 +302,9 @@ class DataJob:
             return self._plugin_hook.run_job(context=job_context)
         except BaseException as ex:
             blamee = whom_to_blame(ex, __file__, job_context.job_directory)
+            errors.report(blamee, ex)
             errors.log_exception(
-                blamee,
-                log,
-                what_happened=f"Data Job {self._name} completed with error.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(ex),
-                consequences="I will not process the remaining steps (if any), "
-                "and this Data Job execution will be marked as failed.",
-                countermeasures="See exception and fix the root cause, so that the exception does "
-                "not appear anymore.",
-                exception=ex,
+                log, ex, f"Data Job {self._name} completed with error."
             )
             execution_result = ExecutionResult(
                 self._name,
