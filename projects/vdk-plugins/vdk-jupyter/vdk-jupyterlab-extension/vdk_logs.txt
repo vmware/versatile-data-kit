@@ -1,0 +1,83 @@
+Versatile Data Kit (VDK)
+Version: 0.3.989149860
+Build details: RELEASE_VERSION=0.3.989149860, BUILD_DATE=Fri Sep  1 13:15:59 UTC 2023, BUILD_MACHINE_INFO=Linux runner-5w-mmpfk-project-28359933-concurrent-02llhk 5.4.235-144.344.amzn2.x86_64 #1 SMP Sun Mar 12 12:50:22 UTC 2023 x86_64 GNU/Linux, GITLAB_CI_JOB_ID=4998654571, GIT_COMMIT_SHA=8878e8f14425d829b07e78a764bd796f9674ffb5, GIT_BRANCH=main
+Python version: 3.7.16 64bit (/Users/gageorgiev/envs/os-vdk-sc/bin/python3.7)
+
+Installed plugins:
+sc-config-prod (from package sc-config-prod, version 0.0.7790087)
+ipython (from package vdk-ipython, version 0.1.989008993)
+vdk-ingest-file (from package vdk-ingest-file, version 0.1.948436673)
+supercollider-vdk (from package supercollider-vdk, version 0.0.7790087)
+vdk-ingest-http (from package vdk-ingest-http, version 0.2.948436673)
+vdk-control-service-properties (from package vdk-plugin-control-cli, version 0.1.948436673)
+vdk-execution-skip (from package vdk-plugin-control-cli, version 0.1.948436673)
+vdk-plugin-control-cli (from package vdk-plugin-control-cli, version 0.1.948436673)
+dag (from package vdk-dag, version 0.1.948436673)
+vdk-postgres (from package vdk-postgres, version 0.0.802490643)
+vdk-impala (from package vdk-impala, version 0.4.975814598)
+vdk-csv (from package vdk-csv, version 0.1.948436673)
+vdk-kerberos-auth (from package vdk-kerberos-auth, version 0.3.978453155)
+notebook (from package vdk-notebook, version 0.1.987731546)
+vdk-audit (from package vdk-audit, version 0.1.664990419)
+vdk-jobs-troubleshooting (from package vdk-jobs-troubleshooting, version 0.2.959181754)
+--------------------------------------------------------------------------------
+Run job with directory /Users/gageorgiev/foss/versatile-data-kit/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/deploy-example-job
+A configuration error  occurred. The error should be resolved by Platform. Here are the details:
+  WHAT HAPPENED : Could not retrieve Kerberos TGT
+WHY IT HAPPENED : Error Name: KDC_ERR_ETYPE_NOTSUPP Detail: "KDC has no support for encryption type"
+   CONSEQUENCES : Kerberos authentication will fail, and as a result the current process will fail.
+COUNTERMEASURES : See stdout for details and fix the code, so that getting the TGT succeeds. If you have custom Kerberos settings, set through environment variables make sure they are correct.
+Traceback (most recent call last):
+  File "/Users/gageorgiev/envs/os-vdk-sc/lib/python3.7/site-packages/vdk/plugin/kerberos/minikerberos_authenticator.py", line 81, in _run_coroutine
+    loop = asyncio.get_running_loop()
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/gageorgiev/envs/os-vdk-sc/lib/python3.7/site-packages/vdk/plugin/kerberos/minikerberos_authenticator.py", line 130, in _kinit
+    self._run_coroutine(get_tgt())
+  File "/Users/gageorgiev/envs/os-vdk-sc/lib/python3.7/site-packages/vdk/plugin/kerberos/minikerberos_authenticator.py", line 98, in _run_coroutine
+    result = loop.run_until_complete(coroutine)
+  File "/usr/local/opt/python@3.7/Frameworks/Python.framework/Versions/3.7/lib/python3.7/asyncio/base_events.py", line 587, in run_until_complete
+    return future.result()
+  File "/Users/gageorgiev/envs/os-vdk-sc/lib/python3.7/site-packages/vdk/plugin/kerberos/minikerberos_authenticator.py", line 117, in get_tgt
+    await krb_client.get_TGT()
+  File "/Users/gageorgiev/envs/os-vdk-sc/lib/python3.7/site-packages/vdk/plugin/kerberos/vdk_kerberos_client.py", line 117, in get_TGT
+    raise KerberosError(rep)
+minikerberos.protocol.errors.KerberosError:  Error Name: KDC_ERR_ETYPE_NOTSUPP Detail: "KDC has no support for encryption type" 
+warning: Kerberos was enabled but we failed to authenticate (kinit) and generate TGT.The error was: A configuration error  occurred. The error should be resolved by Platform. Here are the details:
+warning:   WHAT HAPPENED : Could not retrieve Kerberos TGT
+warning: WHY IT HAPPENED : Error Name: KDC_ERR_ETYPE_NOTSUPP Detail: "KDC has no support for encryption type"
+warning:    CONSEQUENCES : Kerberos authentication will fail, and as a result the current process will fail.
+warning: COUNTERMEASURES : See stdout for details and fix the code, so that getting the TGT succeeds. If you have custom Kerberos settings, set through environment variables make sure they are correct. This means potential future operations requiring valid kerberos authentication will fail. You may need to inspect the above error and try to fix it if that happens. If no kerberos related operations are done, ignore this warning.If you prefer to fail fast (instead of this warning), enable krb_auth_fail_fast flag.See vdk config-help for more information.
+Troubleshooting utility server will start on port 8783.
+Troubleshooting utility server started.
+2023-09-11 21:37:07,259 [VDK] deploy-example-job [INFO ] vdk.plugin.control_cli_plugin. properties_plugin.py:22   initialize_job  [id:b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426-24383]- Initialize Control Service based Properties client implementation.
+2023-09-11 21:37:07,260 [VDK] deploy-example-job [INFO ] supercollider.vdk.telemetry.te  telemetry_client.py:86   __init__        [id:b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426-24383]- Initializing TelemetryClient that will be sending data to 'https://scapi-stg.vmware.com/sc/api' with instance_id_prefix='unknown-deployment-id'.
+2023-09-11 21:37:07,285 [VDK] deploy-example-job [INFO ] vdk.plugin.control_cli_plugin.    execution_skip.py:105  _skip_job_if_nec[id:b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426-24383]- Checking if job should be skipped:
+2023-09-11 21:37:07,285 [VDK] deploy-example-job [INFO ] vdk.plugin.control_cli_plugin.    execution_skip.py:107  _skip_job_if_nec[id:b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426-24383]- Job : deploy-example-job, Team : supercollider, Log config: LOCAL, execution_id: b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426
+2023-09-11 21:37:07,285 [VDK] deploy-example-job [INFO ] root                              execution_skip.py:111  _skip_job_if_nec[id:b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426-24383]- Local execution, skipping parallel execution check.
+2023-09-11 21:37:07,566 [VDK] deploy-example-job [INFO ] root                           healthcheck_server.p:61   stop            [id:b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426-24383]- Troubleshooting utility server stopped.
+2023-09-11 21:37:07,567 [VDK] deploy-example-job [INFO ] vdk.internal.builtin_plugins.r           cli_run.py:162  create_and_run_d[id:b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426-24383]- Data Job execution summary: {
+  "data_job_name": "deploy-example-job",
+  "execution_id": "b56d811c-7529-4550-9d65-c1b6d7e40282-1694457426",
+  "start_time": "2023-09-11T18:37:07.285884",
+  "end_time": "2023-09-11T18:37:07.287002",
+  "status": "success",
+  "steps_list": [
+    {
+      "name": "10_notebook_1",
+      "type": "python",
+      "start_time": "2023-09-11T18:37:07.285993",
+      "end_time": "2023-09-11T18:37:07.286103",
+      "status": "success",
+      "details": null,
+      "exception": null,
+      "blamee": null
+    }
+  ],
+  "exception": null,
+  "blamee": null
+}
+1
