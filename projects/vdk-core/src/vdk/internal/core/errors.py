@@ -329,9 +329,6 @@ def log_exception(
     Log message only if it has not been logged already.
     Does not throw it again.
     """
-    if __error_is_logged(exception):
-        return
-
     resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
     error_message = __build_message_for_end_user(
         to_be_fixed_by,
@@ -345,7 +342,6 @@ def log_exception(
         Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, exception)
     )
 
-    __set_error_is_logged(exception)
     log.exception(error_message)
 
 
@@ -358,7 +354,23 @@ def log_and_throw(
     countermeasures: str,
 ) -> None:
     """
-    Log error message and then throw it to be handled up the stack.
+    log_and_throw kept for compatibility of plugins with older version of vdk-core
+    TODO: Deprecate and eventually remove this method in favor of add_to_context_and_throw
+    """
+    add_to_context_and_throw(
+        to_be_fixed_by, what_happened, why_it_happened, consequences, countermeasures
+    )
+
+
+def add_to_context_and_throw(
+    to_be_fixed_by: ResolvableBy,
+    what_happened: str,
+    why_it_happened: str,
+    consequences: str,
+    countermeasures: str,
+) -> None:
+    """
+    Add exception to resolvable context and then throw it to be handled up the stack.
     """
 
     resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
@@ -389,9 +401,6 @@ def log_and_throw(
         resolvable_context().add(
             Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
         )
-        lines = __get_caller_stacktrace()
-        log.error(str(error_message) + "\n" + lines)
-        __set_error_is_logged(e)
         raise
 
 
@@ -406,7 +415,31 @@ def log_and_rethrow(
     wrap_in_vdk_error=False,
 ) -> None:
     """
-    Log message only if it has not been logged already. And throws it again. Use it to handle coming exceptions.
+    log_and_rethrow kept for compatibility of plugins with older version of vdk-core
+    TODO: Deprecate and eventually remove this method in favor of add_to_context_and_rethrow
+    """
+    add_to_context_and_rethrow(
+        to_be_fixed_by,
+        what_happened,
+        why_it_happened,
+        consequences,
+        countermeasures,
+        exception,
+        wrap_in_vdk_error,
+    )
+
+
+def add_to_context_and_rethrow(
+    to_be_fixed_by: ResolvableBy,
+    what_happened: str,
+    why_it_happened: str,
+    consequences: str,
+    countermeasures: str,
+    exception: BaseException,
+    wrap_in_vdk_error=False,
+) -> None:
+    """
+    Add the exception to the resolvable context and throw it again
     :param to_be_fixed_by:
     :param log:
     :param what_happened: same as ErrorMessage#what
@@ -433,10 +466,6 @@ def log_and_rethrow(
         to_be_raised_exception = __wrap_exception_if_not_already(
             to_be_fixed_by, error_message, exception
         )
-
-    if not __error_is_logged(exception):
-        log.exception(error_message)
-        __set_error_is_logged(exception)
 
     try:
         raise to_be_raised_exception from exception if wrap_in_vdk_error else exception
@@ -627,12 +656,3 @@ def __wrap_exception_if_not_already(
             "This seems like a bug. We cannot wrap exception and return original one "
         )
         return exception
-
-
-def __error_is_logged(exception: BaseException) -> bool:
-    """Check if exception has custom added attribute is_logged"""
-    return hasattr(exception, "is_logged")
-
-
-def __set_error_is_logged(exception: BaseException):
-    setattr(exception, "is_logged", True)

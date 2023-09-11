@@ -156,12 +156,10 @@ class ErrorsTest(unittest.TestCase):
             )
         )
 
-    def test_log_and_rethrow(self):
-        log = MagicMock(spec=logging.Logger)
+    def test_add_to_context_and_rethrow(self):
         with pytest.raises(IndexError):
-            errors.log_and_rethrow(
+            errors.add_to_context_and_rethrow(
                 errors.ResolvableBy.USER_ERROR,
-                log,
                 "w",
                 "w",
                 "c",
@@ -169,70 +167,30 @@ class ErrorsTest(unittest.TestCase):
                 IndexError("foo"),
                 False,
             )
-        log.exception.assert_called_once()
+        assert errors.ResolvableByActual.USER in errors.resolvable_context().resolvables
+        assert (
+            len(errors.resolvable_context().resolvables[errors.ResolvableByActual.USER])
+            is 1
+        )
 
-    def test_log_and_rethrow_and_log_once_only(self):
-        log = MagicMock(spec=logging.Logger)
-        error = IndexError("foo")
-        with pytest.raises(IndexError):
-            errors.log_and_rethrow(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "w",
-                "w",
-                "c",
-                "c",
-                error,
-                False,
-            )
-
-        with pytest.raises(IndexError):
-            errors.log_and_rethrow(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "w",
-                "w",
-                "c",
-                "c",
-                error,
-                False,
-            )
-
-        log.exception.assert_called_once()
-
-    def test_log_and_rethrow_wrap(self):
-        log = MagicMock(spec=logging.Logger)
-
-        with pytest.raises(UserCodeError):
-            errors.log_and_rethrow(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "w",
-                "w",
-                "c",
-                "c",
-                IndexError("foo"),
-                True,
-            )
-        with pytest.raises(PlatformServiceError):
-            errors.log_and_rethrow(
+    def test_add_to_context_and_throw(self):
+        with pytest.raises(errors.BaseVdkError):
+            errors.add_to_context_and_throw(
                 errors.ResolvableBy.PLATFORM_ERROR,
-                log,
                 "w",
                 "w",
                 "c",
                 "c",
-                IndexError("foo"),
-                True,
             )
-        with pytest.raises(VdkConfigurationError):
-            errors.log_and_rethrow(
-                errors.ResolvableBy.CONFIG_ERROR,
-                log,
-                "w",
-                "w",
-                "c",
-                "c",
-                IndexError("foo"),
-                True,
+        assert (
+            errors.ResolvableByActual.PLATFORM
+            in errors.resolvable_context().resolvables
+        )
+        assert (
+            len(
+                errors.resolvable_context().resolvables[
+                    errors.ResolvableByActual.PLATFORM
+                ]
             )
+            is 1
+        )

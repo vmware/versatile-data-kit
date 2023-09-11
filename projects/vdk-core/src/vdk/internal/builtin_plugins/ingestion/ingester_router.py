@@ -172,9 +172,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 payload, destination_table, method, target, collection_id
             )
         except Exception as e:
-            self._log.error(
-                "Failed to send object for ingestion." f"Exception was: {e}"
-            )
+            self._log.warn("Failed to send object for ingestion." f"Exception was: {e}")
 
     def __ingest_tabular_data(
         self,
@@ -191,9 +189,6 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 rows, column_names, destination_table, method, target, collection_id
             )
         except Exception as e:
-            self._log.error(
-                "Failed to send tabular data for ingestion." f"Exception was: {e}"
-            )
             errors.log_and_rethrow(
                 ResolvableBy.USER_ERROR,
                 self._log,
