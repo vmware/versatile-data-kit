@@ -19,13 +19,14 @@ class JobDataLoader:
     """
 
     def __init__(self, working_directory: str):
-        self._path = pathlib.Path(os.getcwd() + "/" + working_directory)
+        self._jp_path = working_directory
+        self._path = pathlib.Path(os.getcwd()).joinpath(working_directory)
         if not os.path.isdir(self._path):
             raise ValueError(f"{self._path} is not a valid directory.")
         self._config = JobConfig(self._path)
 
-    def get_job_path(self) -> str:
-        return str(self._path)
+    def get_job_jupyter_path(self) -> str:
+        return str(self._jp_path)
 
     def get_job_name(self) -> str:
         return os.path.basename(self._path)
