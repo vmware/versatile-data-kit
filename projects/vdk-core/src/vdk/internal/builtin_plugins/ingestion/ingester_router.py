@@ -235,6 +235,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
             self._cached_ingesters[method] = IngesterBase(
                 self._state.get(ExecutionStateStoreKeys.JOB_NAME),
                 self._state.get(CommonStoreKeys.OP_ID),
+                method,
                 ingester_plugin,
                 IngesterConfiguration(config=self._cfg),
                 pre_processors=initialized_pre_processors,

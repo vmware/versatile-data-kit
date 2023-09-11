@@ -43,6 +43,7 @@ def create_ingester_base(kwargs=None, config_dict=None, ingester=None) -> Ingest
     return IngesterBase(
         data_job_name="test_job",
         op_id="42a420",
+        method="test_method",
         ingester=MagicMock(spec=IIngesterPlugin) if ingester is None else ingester,
         ingest_config=IngesterConfiguration(test_config),
         **kwargs

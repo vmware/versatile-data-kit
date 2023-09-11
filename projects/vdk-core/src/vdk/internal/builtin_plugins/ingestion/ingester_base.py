@@ -6,6 +6,7 @@ import queue
 import sys
 import threading
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -28,6 +29,24 @@ from vdk.internal.core.errors import VdkConfigurationError
 log = logging.getLogger(__name__)
 
 
+@dataclass
+class PayloadObject:
+    payload_dict: dict
+    destination_table: str
+    method: str
+    target: str
+    collection_id: str
+
+
+@dataclass
+class AggregatedPayloadObject:
+    aggregated_payload: List[dict]
+    destination_table: str
+    method: str
+    target: str
+    collection_id: str
+
+
 class IngesterBase(IIngester):
     """
     Plugins can subclass this class to provide different ingestion capabilities.
@@ -44,6 +63,7 @@ class IngesterBase(IIngester):
         self,
         data_job_name: str,
         op_id: str,
+        ingester_method: str,
         ingester: IIngesterPlugin,
         ingest_config: IngesterConfiguration,
         pre_processors: Optional[List[IIngesterPlugin]] = None,
@@ -56,6 +76,10 @@ class IngesterBase(IIngester):
             Name of the data job.
         :param op_id: string
             OpId of the data job run.
+        :param ingester_method: string
+            The method name correspondign to the ingester plugin used
+        :param ingester: IIngesterPlugin
+            The instance of the Ingester plugin used.
         :param ingest_config: IngesterConfiguration
             Configuration related to the core ingestion API.
         :param pre_processors: Optional[List[IIngesterPlugin]]
@@ -68,6 +92,7 @@ class IngesterBase(IIngester):
         """
         self._data_job_name = data_job_name
         self._op_id = op_id
+        self._ingester_method = ingester_method
         self._ingester = ingester
         self._pre_processors = pre_processors
         self._post_processors = post_processors
@@ -236,8 +261,18 @@ class IngesterBase(IIngester):
             invocations belong to same collection. Defaults to "data_job_name|OpID",
             meaning all method invocations from a data job run will belong to the same collection.
         """
+        if self._ingester_method.lower() != method.lower():
+            raise RuntimeError(
+                f"The current ingester instance supports only method {self._ingester_method} "
+                f"but we are passed {method}. "
+                f"This is a regression and a bug. As countermeasure revert to older version "
+                f"and open an issue in https://github.com/vmware/versatile-data-kit/issues"
+            )
+
         self._objects_queue.put(
-            (payload_dict, destination_table, method, target, collection_id)
+            PayloadObject(
+                payload_dict, destination_table, method, target, collection_id
+            )
         )
 
     def _payload_aggregator_thread(self):
@@ -251,16 +286,10 @@ class IngesterBase(IIngester):
         current_target = None
         current_collection_id = None
         current_destination_table = None
-        method = None
+        current_method = None
         while self._closed.value == 0:
             try:
-                (
-                    payload_dict,
-                    destination_table,
-                    method,
-                    target,
-                    collection_id,
-                ) = self._objects_queue.get(
+                payload_object: PayloadObject = self._objects_queue.get(
                     timeout=self._payload_aggregator_timeout_seconds
                 )
             except queue.Empty:
@@ -272,7 +301,7 @@ class IngesterBase(IIngester):
                     aggregated_payload,
                     number_of_payloads,
                     current_destination_table,
-                    method,
+                    current_method,
                     current_target,
                     current_collection_id,
                 )
@@ -283,17 +312,20 @@ class IngesterBase(IIngester):
                 not current_target
                 and not current_collection_id
                 and not current_destination_table
+                and not current_method
             ):
-                current_target = target
-                current_collection_id = collection_id
-                current_destination_table = destination_table
+                current_target = payload_object.target
+                current_collection_id = payload_object.collection_id
+                current_destination_table = payload_object.destination_table
+                current_method = payload_object.method
 
-            # When we get a payload with different than current target/collection_id/destination_table,
+            # When we get a payload with different than current method/target/collection_id/destination_table,
             # send the current payload and start aggregating for the new one.
             if (
-                current_target != target
-                or current_collection_id != collection_id
-                or current_destination_table != destination_table
+                current_target != payload_object.target
+                or current_collection_id != payload_object.collection_id
+                or current_destination_table != payload_object.destination_table
+                or current_method != payload_object.method
             ):
                 (
                     aggregated_payload,
@@ -303,18 +335,19 @@ class IngesterBase(IIngester):
                     aggregated_payload,
                     number_of_payloads,
                     current_destination_table,
-                    method,
+                    current_method,
                     current_target,
                     current_collection_id,
                 )
-                current_target = target
-                current_collection_id = collection_id
-                current_destination_table = destination_table
+                current_method = payload_object.method
+                current_target = payload_object.target
+                current_collection_id = payload_object.collection_id
+                current_destination_table = payload_object.destination_table
 
             # We are converting to string to get correct memory size. This may
             # cause performance issues.
             # TODO: Propose a way to calculate the object's memory footprint without converting to string.
-            string_payload = str(payload_dict)
+            string_payload = str(payload_object.payload_dict)
 
             if (
                 sys.getsizeof(string_payload) + current_payload_size_in_bytes
@@ -328,11 +361,11 @@ class IngesterBase(IIngester):
                     aggregated_payload,
                     number_of_payloads,
                     current_destination_table,
-                    method,
+                    current_method,
                     current_target,
                     current_collection_id,
                 )
-            aggregated_payload.append(payload_dict)
+            aggregated_payload.append(payload_object.payload_dict)
             number_of_payloads += 1
             current_payload_size_in_bytes += sys.getsizeof(string_payload)
 
@@ -376,7 +409,7 @@ class IngesterBase(IIngester):
         if aggregated_payload:
             try:
                 self._payloads_queue.put(
-                    (
+                    AggregatedPayloadObject(
                         aggregated_payload,
                         destination_table,
                         method,
@@ -415,28 +448,22 @@ class IngesterBase(IIngester):
             try:
                 ingestion_metadata: Optional[IIngesterPlugin.IngestionMetadata] = None
                 exception: Optional[Exception] = None
-                payload_obj: Optional[List] = None
-                destination_table: Optional[str] = None
-                target: Optional[str] = None
-                collection_id: Optional[str] = None
+                payload: AggregatedPayloadObject = self._payloads_queue.get()
                 try:
-                    payload = self._payloads_queue.get()
-                    payload_obj, destination_table, _, target, collection_id = payload
-
                     # If there are any pre-processors set, pass the payload object
                     # through them.
                     if self._pre_processors:
                         payload_obj, ingestion_metadata = self._pre_process_payload(
-                            payload=payload_obj,
-                            destination_table=destination_table,
-                            target=target,
-                            collection_id=collection_id,
+                            payload=payload.aggregated_payload,
+                            destination_table=payload.destination_table,
+                            target=payload.target,
+                            collection_id=payload.collection_id,
                             metadata=ingestion_metadata,
                         )
 
                     # Verify payload after pre-processing it, since this preprocessing might be responsible for
                     # making it serializable
-                    for payload_dict in payload_obj:
+                    for payload_dict in payload.aggregated_payload:
                         self.__verify_payload_format(payload_dict=payload_dict)
 
                     if ingestion_metadata:
@@ -448,25 +475,25 @@ class IngesterBase(IIngester):
                                 updated_dynamic_params.get(
                                     IIngesterPlugin.DESTINATION_TABLE_KEY
                                 )
-                                or destination_table
+                                or payload.destination_table
                             )
                             target = (
                                 updated_dynamic_params.get(IIngesterPlugin.TARGET_KEY)
-                                or target
+                                or payload.target
                             )
                             collection_id = (
                                 updated_dynamic_params.get(
                                     IIngesterPlugin.COLLECTION_ID_KEY
                                 )
-                                or collection_id
+                                or payload.collection_id
                             )
 
                     try:
                         ingestion_metadata = self._ingester.ingest_payload(
-                            payload=payload_obj,
-                            destination_table=destination_table,
-                            target=target,
-                            collection_id=collection_id,
+                            payload=payload.aggregated_payload,
+                            destination_table=payload.destination_table,
+                            target=payload.target,
+                            collection_id=payload.collection_id,
                             metadata=ingestion_metadata,
                         )
 
@@ -505,10 +532,10 @@ class IngesterBase(IIngester):
                 # operations
                 if self._post_processors:
                     self._execute_post_process_operations(
-                        payload=payload_obj,
-                        destination_table=destination_table,
-                        target=target,
-                        collection_id=collection_id,
+                        payload=payload.aggregated_payload,
+                        destination_table=payload.destination_table,
+                        target=payload.target,
+                        collection_id=payload.collection_id,
                         metadata=ingestion_metadata,
                         exception=exception,
                     )
