@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.monitoring;
 
-import com.vmware.taurus.service.repository.JobsRepository;
+import com.vmware.taurus.service.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

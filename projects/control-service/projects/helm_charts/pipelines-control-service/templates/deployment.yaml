@@ -158,6 +158,8 @@ spec:
               value: "{{ .Values.security.authorization.webhookAuthenticationEnabled }}"
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
               value: "{{ .Values.security.oauth2.jwtIssuerUrl }}"
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URIS
+              value: "{{ .Values.security.oauth2.jwtIssuerUris }}"
             - name: AUTHORITIES_CLAIM_NAME
               value: "{{ .Values.security.authorization.authoritiesClaimName }}"
             - name: CUSTOM_CLAIM_NAME
@@ -182,6 +184,10 @@ spec:
               value: "{{ .Values.security.authorization.jwtClaimUsername }}"
             - name: DATAJOBS_DEPLOYMENT_JOB_IMAGE_PULL_POLICY
               value: "{{ .Values.dataJob.deployment.jobImagePullPolicy }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_PERSISTENCE_WRITE_TOS
+              value: "{{ .Values.dataJob.deployment.configuration.persistence.writeTos }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_PERSISTENCE_READ_DATA_SOURCE
+              value: "{{ .Values.dataJob.deployment.configuration.persistence.readDataSource }}"
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
             - name: VDK_OPTIONS_INI

@@ -431,7 +431,12 @@ security:
       jwtJwkSetUri: ""
 
       ## [ Required if security.enabled = True ]
+      ## Deprecated in favor of jwtIssuerUris.
       jwtIssuerUrl: ""
+      ## [Required if security.enabled = True]
+      ## Comma separated list of issuers to use.
+      jwtIssuerUris: ""
+
    kerberos:
       ## These values contain configuration settings for the kerberos authentication provider in control-service.
       ## The values are exposed as environment variables through the helm chart
@@ -1021,6 +1026,17 @@ dataJob:
       # If left blank, defaults to 0.
       endTimeOffsetSeconds: 0
   deployment:
+    configuration:
+      # Configuration persistence are the persisted properties that allow the seamless migration
+      # (re-deployment) of data jobs to a new K8S cluster.
+      persistence:
+        # Case sensitive CSV list of write to's sources. Default is "DB,K8S" The control service
+        # will write data job properties to all sources present in this list.
+        writeTos: "DB,K8S"
+        # Case-sensitive variable to select the truth data source for reading properties.
+        # Options are "DB" for database and "K8S" for kubernetes. The control service will read
+        # properties from the specified source.
+        readDataSource: "K8S"
     jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer

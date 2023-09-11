@@ -8,7 +8,7 @@ package com.vmware.taurus.authorization.provider;
 import com.vmware.taurus.authorization.AuthorizationInterceptor;
 import com.vmware.taurus.authorization.webhook.AuthorizationBody;
 import com.vmware.taurus.authorization.webhook.AuthorizationWebHookProvider;
-import com.vmware.taurus.service.repository.JobsRepository;
+import com.vmware.taurus.service.JobsRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
