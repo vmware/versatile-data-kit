@@ -112,7 +112,9 @@ def test_configure_logger():
 
 def test_log_plugin_exception():
     print("This")
-    with mock.patch("vdk.internal.builtin_plugins.config.log_config.configure_loggers") as mocked_log_config:
+    with mock.patch(
+        "vdk.internal.builtin_plugins.config.log_config.configure_loggers"
+    ) as mocked_log_config:
         try:
             mocked_log_config.side_effect = Exception("foo")
 
