@@ -284,8 +284,8 @@ class LoggingPlugin:
                 what_happened="Failed to initialize logging",
                 why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                 consequences="Failed to initialize data job logging."
-                             " Will proceed with basic local logging on"
-                             " DEBUG level.",
+                " Will proceed with basic local logging on"
+                " DEBUG level.",
                 countermeasures="Depending on stacktrace.",
                 exception=e,
             )
