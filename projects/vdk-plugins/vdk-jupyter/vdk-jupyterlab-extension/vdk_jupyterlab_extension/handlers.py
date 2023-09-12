@@ -32,7 +32,7 @@ class LoadJobDataHandler(APIHandler):
             self.finish(
                 json.dumps(
                     {
-                        VdkOption.PATH.value: data.get_job_path(),
+                        VdkOption.PATH.value: data.get_job_jupyter_path(),
                         VdkOption.NAME.value: data.get_job_name(),
                         VdkOption.TEAM.value: data.get_team_name(),
                     }

@@ -11,44 +11,55 @@ import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 import { StatusButton } from './StatusButton';
 import { checkIcon } from '@jupyterlab/ui-components';
 
+interface IRunJobDialogState {
+  inputWidth: number;
+}
+
 export default class RunJobDialog extends Component<IJobPathProp> {
+  state: IRunJobDialogState = {
+    inputWidth: 0
+  };
+
   /**
    * Returns a React component for rendering a run menu.
    *
    * @param props - component properties
    * @returns React component
    */
-
   constructor(props: IJobPathProp) {
-    super(props);
+      super(props);
   }
+
   /**
    * Renders a dialog for running a data job.
    *
    * @returns React element
    */
   render(): React.ReactElement {
-    return (
-      <>
-        <VDKTextInput
-          option={VdkOption.PATH}
-          value={this.props.jobPath}
-          label="Path to job directory:"
-        ></VDKTextInput>
-        <div className="jp-vdk-input-wrapper">
-          <label className="jp-vdk-label" htmlFor="arguments">
-            Arguments:
-          </label>
-          <input
-            type="text"
-            id="arguments"
-            className="jp-vdk-input"
-            placeholder='{"key": "value"}'
-            onChange={this._onArgsChange}
-          />
-        </div>
-        <ul id="argumentsUl" className="hidden"></ul>
-      </>
+      const { inputWidth } = this.state;
+      return (
+          <>
+              <VDKTextInput
+                  option={VdkOption.PATH}
+                  value={this.props.jobPath}
+                  label="Path to job directory:"
+                  onWidthComputed={(width) => this.setState({ inputWidth: width })}
+              />
+              <div className="jp-vdk-input-wrapper">
+                  <label className="jp-vdk-label" htmlFor="arguments">
+                      Arguments:
+                  </label>
+                  <input
+                      type="text"
+                      id="arguments"
+                      className="jp-vdk-input"
+                      placeholder='{"key": "value"}'
+                      onChange={this._onArgsChange}
+                      style={{ width: `${inputWidth}px` }}
+                  />
+              </div>
+              <ul id="argumentsUl" className="hidden"></ul>
+          </>
     );
   }
   /**
