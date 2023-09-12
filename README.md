@@ -309,8 +309,8 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-blue" alt="Contributing & Contracts"></a>
 </p>
 
-# Contributing
-Create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull request](https://github.com/vmware/versatile-data-kit/pulls) on GitHub to submit suggestions or changes.
+# Support and Contributing
+For Support, you can join our Slack channel, create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull request](https://github.com/vmware/versatile-data-kit/pulls) on GitHub to submit suggestions or changes. <br>
 If you are interested in contributing as a developer, visit the [contributing](https://github.com/vmware/versatile-data-kit/blob/main/CONTRIBUTING.md) page.
 
 # Contacts
