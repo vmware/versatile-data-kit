@@ -29,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -200,7 +201,7 @@ public abstract class BaseWebHookProviderTest {
 
     ReflectionTestUtils.setField(getWebHookProvider(), "authenticationEnabled", true);
     when(featureFlags.isSecurityEnabled()).thenReturn(true);
-    when(authorizationProvider.getAccessToken()).thenReturn(expectedAccessToken);
+    when(authorizationProvider.getAccessToken(anyString(), anyString())).thenReturn(expectedAccessToken);
 
     ResponseEntity re = new ResponseEntity<>("Good request", null, HttpStatus.ACCEPTED);
     when(restTemplate.exchange(
@@ -234,7 +235,7 @@ public abstract class BaseWebHookProviderTest {
 
     ReflectionTestUtils.setField(getWebHookProvider(), "authenticationEnabled", false);
     when(featureFlags.isSecurityEnabled()).thenReturn(true);
-    when(authorizationProvider.getAccessToken()).thenReturn(expectedAccessToken);
+    when(authorizationProvider.getAccessToken(anyString(), anyString())).thenReturn(expectedAccessToken);
 
     ResponseEntity re = new ResponseEntity<>("Good request", null, HttpStatus.ACCEPTED);
     when(restTemplate.exchange(

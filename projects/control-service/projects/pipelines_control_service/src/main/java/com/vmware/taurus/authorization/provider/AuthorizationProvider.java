@@ -8,21 +8,30 @@ package com.vmware.taurus.authorization.provider;
 import com.vmware.taurus.authorization.AuthorizationInterceptor;
 import com.vmware.taurus.authorization.webhook.AuthorizationBody;
 import com.vmware.taurus.authorization.webhook.AuthorizationWebHookProvider;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.exception.AuthorizationError;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.Optional;
 
 /**
  * AuthorizationProvider class used in {@link AuthorizationInterceptor} responsible for handling of
@@ -41,15 +50,13 @@ public class AuthorizationProvider {
   @Value("${datajobs.authorization.jwt.claim.username}")
   private String usernameField;
 
-  private static final String TEAM_PARAMETER_NAME = "team";
-
   private static final String JOB_NAME_PARAMETER = "name";
 
-  private final JobsRepository jobsRepository;
+  private final RestTemplate restTemplate;
 
   @Autowired
-  public AuthorizationProvider(JobsRepository jobsRepository) {
-    this.jobsRepository = jobsRepository;
+  public AuthorizationProvider(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
   }
 
   /**
@@ -87,19 +94,36 @@ public class AuthorizationProvider {
     }
   }
 
-  public String getAccessToken() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String accessToken = null;
+  public String getAccessToken(String authorizationServerEndpoint, String refreshToken) {
+    final URI cspAuthEndpoint = URI.create(authorizationServerEndpoint);
 
-    if (authentication instanceof JwtAuthenticationToken) {
-      JwtAuthenticationToken oauthToken = (JwtAuthenticationToken) authentication;
-      accessToken =
-          Optional.ofNullable(oauthToken.getToken())
-              .map(AbstractOAuth2Token::getTokenValue)
-              .orElse(null);
+    final HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
+    headers.add(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+    final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add(OAuth2ParameterNames.REFRESH_TOKEN, refreshToken);
+
+    final ResponseEntity<String> responseEntity = restTemplate.exchange(
+            cspAuthEndpoint,
+            HttpMethod.POST,
+            new HttpEntity<>(map, headers),
+            String.class);
+
+    try {
+      final JSONObject jsonResponse = new JSONObject(responseEntity.getBody());
+      if (jsonResponse.has(OAuth2ParameterNames.ACCESS_TOKEN)) {
+        return jsonResponse.getString(OAuth2ParameterNames.ACCESS_TOKEN);
+      }
+      throw new AuthorizationError("Response from Authorization Server doesn't contain needed access_token",
+              "Cannot determine whether a user is authorized to do this request",
+              "Configure the authorization webhook property or disable the feature altogether",
+              null);
+    } catch (JSONException e) {
+      throw new AuthorizationError("Unable to parse response to json while fetching access token",
+              "Cannot determine whether a user is authorized to do this request",
+              "Configure the authorization webhook property or disable the feature altogether",
+              e);
     }
-
-    return accessToken;
   }
 
   String parsePropertyFromURI(String contextPath, String fullPath, int index) {

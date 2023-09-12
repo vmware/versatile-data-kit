@@ -32,17 +32,20 @@ import org.springframework.web.client.RestTemplate;
 public class AuthorizationWebHookProvider extends WebHookService<AuthorizationBody> {
 
   public AuthorizationWebHookProvider(
-      @Value("${datajobs.authorization.webhook.endpoint}") String webHookEndpoint,
-      @Value("${datajobs.authorization.webhook.internal.errors.retries:1}") int retriesOn5xxErrors,
-      @Value("${datajobs.authorization.webhook.authentication.enabled:false}")
-          boolean authenticationEnabled,
-      RestTemplate restTemplate,
-      FeatureFlags featureFlags,
-      AuthorizationProvider authorizationProvider) {
+          @Value("${datajobs.authorization.webhook.endpoint}") String webHookEndpoint,
+          @Value("${datajobs.authorization.webhook.internal.errors.retries:1}") int retriesOn5xxErrors,
+          @Value("${datajobs.authorization.webhook.authentication.enabled:false}") boolean authenticationEnabled,
+          @Value("${datajobs.authorization.webhook.authorization.server.endpoint:''}") String authorizationServerEndpoint,
+          @Value("${datajobs.authorization.webhook.authorization.refresh.token:''}") String refreshToken,
+          RestTemplate restTemplate,
+          FeatureFlags featureFlags,
+          AuthorizationProvider authorizationProvider) {
     super(
         webHookEndpoint,
         retriesOn5xxErrors,
         authenticationEnabled,
+        authorizationServerEndpoint,
+        refreshToken,
         log,
         restTemplate,
         featureFlags,

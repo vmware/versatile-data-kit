@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.mock;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class AuthorizationProviderTest {
 
-  @Mock private JobsRepository repository;
+  @Mock private RestTemplate restTemplate;
 
   @InjectMocks private AuthorizationProvider provider;
 
@@ -43,14 +44,12 @@ public class AuthorizationProviderTest {
     ReflectionTestUtils.setField(provider, "usernameField", "username");
     JobConfig config = new JobConfig();
     config.setTeam("job-repo-example-team");
-    DataJob job = new DataJob("job-repo-example", config, DeploymentStatus.NONE);
-    Mockito.when(repository.findById(anyString())).thenReturn(java.util.Optional.of(job));
     MockitoAnnotations.initMocks(this);
   }
 
   @Test
   public void testParsePropertyFromURI() {
-    var provider = new AuthorizationProvider(repository);
+    var provider = new AuthorizationProvider(restTemplate);
     String createJob =
         provider.parsePropertyFromURI("", "/data-jobs/for-team/example-team/jobs", 5);
     String createJobSlash =
@@ -94,7 +93,7 @@ public class AuthorizationProviderTest {
 
   @Test
   public void testParseJobNameFromURIContext() {
-    var provider = new AuthorizationProvider(repository);
+    var provider = new AuthorizationProvider(restTemplate);
     String createJob =
         provider.parsePropertyFromURI("/api/v1", "/data-jobs/for-team/example-team/jobs", 5);
     String createJobSlash =

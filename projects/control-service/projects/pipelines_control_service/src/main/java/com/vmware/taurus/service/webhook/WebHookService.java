@@ -38,6 +38,10 @@ public abstract class WebHookService<T extends WebHookRequestBody> implements In
 
   private final boolean authenticationEnabled;
 
+  private final String authorizationServerEndpoint;
+
+  private final String refreshToken;
+
   private final Logger log;
 
   private final RestTemplate restTemplate;
@@ -182,7 +186,7 @@ public abstract class WebHookService<T extends WebHookRequestBody> implements In
     HttpEntity<WebHookRequestBody> request = null;
 
     if (featureFlags.isSecurityEnabled() && authenticationEnabled) {
-      String accessToken = authorizationProvider.getAccessToken();
+      String accessToken = authorizationProvider.getAccessToken(authorizationServerEndpoint, refreshToken);
 
       if (StringUtils.isNotEmpty(accessToken)) {
         HttpHeaders httpHeaders = new HttpHeaders();
