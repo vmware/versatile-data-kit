@@ -6,9 +6,6 @@
 package com.vmware.taurus.authorization.provider;
 
 import com.vmware.taurus.authorization.webhook.AuthorizationBody;
-import com.vmware.taurus.service.JobsRepository;
-import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +25,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)

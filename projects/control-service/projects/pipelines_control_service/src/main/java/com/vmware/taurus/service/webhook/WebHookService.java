@@ -186,7 +186,8 @@ public abstract class WebHookService<T extends WebHookRequestBody> implements In
     HttpEntity<WebHookRequestBody> request = null;
 
     if (featureFlags.isSecurityEnabled() && authenticationEnabled) {
-      String accessToken = authorizationProvider.getAccessToken(authorizationServerEndpoint, refreshToken);
+      String accessToken =
+          authorizationProvider.getAccessToken(authorizationServerEndpoint, refreshToken);
 
       if (StringUtils.isNotEmpty(accessToken)) {
         HttpHeaders httpHeaders = new HttpHeaders();

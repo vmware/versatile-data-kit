@@ -103,26 +103,26 @@ public class AuthorizationProvider {
     final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add(OAuth2ParameterNames.REFRESH_TOKEN, refreshToken);
 
-    final ResponseEntity<String> responseEntity = restTemplate.exchange(
-            cspAuthEndpoint,
-            HttpMethod.POST,
-            new HttpEntity<>(map, headers),
-            String.class);
+    final ResponseEntity<String> responseEntity =
+        restTemplate.exchange(
+            cspAuthEndpoint, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
 
     try {
       final JSONObject jsonResponse = new JSONObject(responseEntity.getBody());
       if (jsonResponse.has(OAuth2ParameterNames.ACCESS_TOKEN)) {
         return jsonResponse.getString(OAuth2ParameterNames.ACCESS_TOKEN);
       }
-      throw new AuthorizationError("Response from Authorization Server doesn't contain needed access_token",
-              "Cannot determine whether a user is authorized to do this request",
-              "Configure the authorization webhook property or disable the feature altogether",
-              null);
+      throw new AuthorizationError(
+          "Response from Authorization Server doesn't contain needed access_token",
+          "Cannot determine whether a user is authorized to do this request",
+          "Configure the authorization webhook property or disable the feature altogether",
+          null);
     } catch (JSONException e) {
-      throw new AuthorizationError("Unable to parse response to json while fetching access token",
-              "Cannot determine whether a user is authorized to do this request",
-              "Configure the authorization webhook property or disable the feature altogether",
-              e);
+      throw new AuthorizationError(
+          "Unable to parse response to json while fetching access token",
+          "Cannot determine whether a user is authorized to do this request",
+          "Configure the authorization webhook property or disable the feature altogether",
+          e);
     }
   }
 

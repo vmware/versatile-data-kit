@@ -28,8 +28,10 @@ public class PostDeleteWebHookProvider extends WebHookService<WebHookRequestBody
   public PostDeleteWebHookProvider(
       @Value("${datajobs.post.delete.webhook.endpoint}") String webHookEndpoint,
       @Value("${datajobs.post.delete.webhook.internal.errors.retries:-1}") int retriesOn5xxErrors,
-      @Value("${datajobs.post.delete.webhook.authentication.enabled:false}") boolean authenticationEnabled,
-      @Value("${datajobs.post.delete.webhook.authorization.server.endpoint:''}") String authorizationServerEndpoint,
+      @Value("${datajobs.post.delete.webhook.authentication.enabled:false}")
+          boolean authenticationEnabled,
+      @Value("${datajobs.post.delete.webhook.authorization.server.endpoint:''}")
+          String authorizationServerEndpoint,
       @Value("${datajobs.post.delete.webhook.authorization.refresh.token:''}") String refreshToken,
       RestTemplate restTemplate,
       FeatureFlags featureFlags,
