@@ -16,16 +16,16 @@
         <img src="https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FVDKProject" alt="twitter"/></a>
      <a href="https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q">
         <img alt="YouTube Channel Subscribers" src="https://img.shields.io/youtube/channel/subscribers/UCasf2Q7X8nF7S4VEmcTHJ0Q?style=social"></a>
-
-<!-- TODO: code coverage -->
----
-<!-- I've added the line here to have some mental space between the icons, as no one in the interviews saw the first sentence -->
 </p>
+<!-- TODO: code coverage -->
+
+---
+
+<!-- Added the line here to have some mental space between the icons, as no one in the interviews saw the first sentence -->
 <p align="center">
   <span> One framework to🧑‍💻 Develop </span> <span> ▶️ Deploy </span> <span>and 📊 Operate </span> <br>
    <span>data workflows with Python and SQL<span>
 </p>
-
 
 ---
 
@@ -57,7 +57,7 @@
     <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue" alt="Extensibility"></a>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue" alt="Contributing & Contracts"></a>
 </p>
-<h3 align="center">Introduction to the VDK SDK</h3>
+<h1>Introduction to the VDK SDK</h1>
 
 <table width="100%" >
   <tr>
@@ -97,7 +97,7 @@ vdk --help</code></pre>
     <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue" alt="Extensibility"></a>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue" alt="Contributing & Contracts"></a>
 </p>
-<h3 align="center">Data Ingestion</h3>
+<h1>Data Ingestion</h1>
 
 <table width="100%" >
   <tr>
@@ -139,7 +139,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue" alt="Contributing & Contracts"></a>
 </p>
 
-<h3 align="center">Data Transformation</h3>
+<h1>Data Transformation</h1>
 
 <table width="100%" >
   <tr>
@@ -180,7 +180,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue" alt="Contributing & Contracts"></a>
 </p>
 
-<h3 align="center">Data Job Deployment (build, deploy, release)</h3>
+<h1>Data Job Deployment (build, deploy, release)</h1>
 
 <table width="100%" >
   <tr>
@@ -226,7 +226,7 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue" alt="Contributing & Contracts"></a>
 </p>
 
-<h3 align="center">Operations and Monitoring</h3>
+<h1>Operations and Monitoring</h1>
 
 <table width="100%" >
   <tr>
@@ -263,7 +263,7 @@ vdk --help</code></pre>
     <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-blue" alt="Extensibility"></a>
     <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue" alt="Contributing & Contracts"></a>
 </p>
-<h3 align="center">Lego like extensibility</h3>
+<h1>Lego like extensibility</h1>
 
 <table width="100%" >
   <tr>
