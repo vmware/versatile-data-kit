@@ -108,7 +108,7 @@ vdk --help</code></pre>
           <li>Load data to your preferred destination (database, cloud storage).</li>
         </ul>
         <hr>
-        <p><b>Get started with ingesting data:</b></p>
+        <p><b>Ingestion examples:</b></p>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-REST-API-into-Database">Ingesting data from REST API into Database</a> </span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-DB-into-Database">Ingesting data from DB into Database</a></span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Ingesting-local-CSV-file-into-Database">Ingesting local CSV file into Database</a></span><br>
