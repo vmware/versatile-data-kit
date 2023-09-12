@@ -20,7 +20,7 @@
 <!-- TODO: code coverage -->
 ---
 <!-- I've added the line here to have some mental space between the icons, as no one in the interviews saw the first sentence -->
-</p> 
+</p>
 <p align="center">
   <span> One framework to🧑‍💻 Develop </span> <span> ▶️ Deploy </span> <span>and 📊 Operate </span> <br>
    <span>data workflows with Python and SQL<span>
