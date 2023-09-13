@@ -1,6 +1,6 @@
 # duckdb
 
-DuckDB plugin for the Versatile Data Kit (VDK), which enables users to connect to and interact with DuckDB databases. 
+DuckDB plugin for the Versatile Data Kit (VDK), which enables users to connect to and interact with DuckDB databases.
 The purpose is to simplify data extraction, transformation, and loading tasks when working with DuckDB as a data source or destination
 
 ## Usage
@@ -18,22 +18,22 @@ Run `vdk config-help` to browse all available configuration options for your VDK
 
 #### Query Execution
 
-You specify you want to use duckdb in the job config file 
+You specify you want to use duckdb in the job config file
 config.ini
 ```
 [vdk]
 db_default_type = duckdb
 ```
 
-Then you can use it 
+Then you can use it
 ```
     def run(job_input: IJobInput):
         job_input.execute_query("select 'Hi Duck!'")
 ```
 
-#### Ingestion 
+#### Ingestion
 
-This plugin allows users to ingest data to a DuckDB database, which can be preferable to inserting data manually as it automatically handles serializing, packaging and sending of the data asynchronously with configurable batching and throughput. 
+This plugin allows users to ingest data to a DuckDB database, which can be preferable to inserting data manually as it automatically handles serializing, packaging and sending of the data asynchronously with configurable batching and throughput.
 To do so, you must set the expected variables to connect to Greenplum, plus the following environment variable:
 
 export VDK_INGEST_METHOD_DEFAULT=DUCKDB
