@@ -36,6 +36,10 @@ public class AuthorizationWebHookProvider extends WebHookService<AuthorizationBo
       @Value("${datajobs.authorization.webhook.internal.errors.retries:1}") int retriesOn5xxErrors,
       @Value("${datajobs.authorization.webhook.authentication.enabled:false}")
           boolean authenticationEnabled,
+      @Value("${datajobs.authorization.webhook.authorization.server.endpoint:''}")
+          String authorizationServerEndpoint,
+      @Value("${datajobs.authorization.webhook.authorization.refresh.token:''}")
+          String refreshToken,
       RestTemplate restTemplate,
       FeatureFlags featureFlags,
       AuthorizationProvider authorizationProvider) {
@@ -43,6 +47,8 @@ public class AuthorizationWebHookProvider extends WebHookService<AuthorizationBo
         webHookEndpoint,
         retriesOn5xxErrors,
         authenticationEnabled,
+        authorizationServerEndpoint,
+        refreshToken,
         log,
         restTemplate,
         featureFlags,
