@@ -21,5 +21,4 @@ import org.springframework.stereotype.Repository;
  * <p>JobDeploymentRepositoryIT validates some aspects of the behavior
  */
 @Repository
-public interface JobDeploymentRepository extends JpaRepository<DataJobDeployment, String> {
-}
+public interface JobDeploymentRepository extends JpaRepository<DataJobDeployment, String> {}
