@@ -51,7 +51,9 @@ RUN : \
           && yum autoremove build-essential gcc glibc-devel git unzip -y;  fi \
     && echo "Installing native dependencies ..." \
     && yum install libffi-devel libstdc++ findutils openssl-c_rehash -y \
-    && echo "Refreshing CA certificates ..." \
+    && echo "Downloading AWS RDS certificate bundle..." \
+    && wget https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -O /etc/ssl/certs/global-bundle.pem \
+    && echo "Refreshing CA certificates" \
     && /usr/bin/rehash_ca_certificates.sh \
     && echo "Deleting system packages ..." \
     && yum autoremove shadow toybox openssl-c_rehash -y \
