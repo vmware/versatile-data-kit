@@ -1,3 +1,4 @@
 pytest
 pytest-httpserver
+requests-mock
 vdk-test-utils
