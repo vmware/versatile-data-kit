@@ -43,14 +43,14 @@ RUN : \
            && yum install unixodbc -y; fi \
     && if [ -f "$job_name/$requirements_file" ]; then \
           echo "Installing native dependencies ..." \
-          && yum install build-essential gcc glibc-devel git -y \
+          && yum install build-essential gcc glibc-devel git freetype2-devel libpng-devel -y \
           && echo "Installing requirements.txt ..." \
           && pip install --disable-pip-version-check -q -r "$job_name/$requirements_file"  \
           || ( echo ">requirements_failed<" && exit 1 ) \
           && echo "Removing native dependencies ..." \
-          && yum autoremove build-essential gcc glibc-devel git unzip -y;  fi \
+          && yum autoremove build-essential gcc glibc-devel git unzip freetype2-devel libpng-devel -y;  fi \
     && echo "Installing native dependencies ..." \
-    && yum install libffi-devel libstdc++ findutils openssl-c_rehash -y \
+    && yum install libstdc++ findutils openssl-c_rehash -y \
     && echo "Refreshing CA certificates ..." \
     && /usr/bin/rehash_ca_certificates.sh \
     && echo "Deleting system packages ..." \
