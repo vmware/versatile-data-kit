@@ -666,7 +666,7 @@ if __name__ == "__main__":
 Description: As a user, I want the tracking system to automatically initialize when I start a CLI execution so that I don't have to manually set it up.
 Acceptance Criteria: Progress tracking starts automatically with CLI execution.
 #### Create Child Tracker for New Steps
-escription: As a user, I want to see the progress for each specific step in my task so that I can understand how much work remains.
+Description: As a user, I want to see the progress for each specific step in my task so that I can understand how much work remains.
 Acceptance Criteria: Separate progress tracking for each step.
 #### Add SQL Query Support
 Description: As a user, I want the option to track the progress of SQL queries so that I can monitor them separately if needed.
