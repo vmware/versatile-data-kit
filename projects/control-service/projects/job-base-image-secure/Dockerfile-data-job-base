@@ -99,3 +99,8 @@ COPY --from=build /usr/local/ /usr/local/
 
 # Installs Python dependencies
 RUN yum install libffi-devel -y
+
+# Download amazon AWS RDS certificates
+RUN : \
+ && echo "Downloading AWS RDS certificate bundle..." \
+ && wget https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -O /etc/ssl/certs/global-bundle.pem
