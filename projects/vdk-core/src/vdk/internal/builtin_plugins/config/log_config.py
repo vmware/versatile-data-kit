@@ -278,12 +278,14 @@ class LoggingPlugin:
                 "Trying to send telemetry for Job attempt: %s"
                 % (log_config_type, attempt_id)
             )
-            errors.log_and_rethrow(
+            errors.log_exception(
                 errors.find_whom_to_blame_from_exception(e),
                 log=logging.getLogger(__name__),
                 what_happened="Failed to initialize logging",
                 why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences="Logging is critical VDK component. VDK will now exit.",
-                countermeasures="Depending on stacktrace",
+                consequences="Failed to initialize data job logging."
+                " Will proceed with basic local logging on"
+                " DEBUG level.",
+                countermeasures="Depending on stacktrace.",
                 exception=e,
             )
