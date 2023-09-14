@@ -97,10 +97,8 @@ FROM photon:latest
 # excluding build dependencies.
 COPY --from=build /usr/local/ /usr/local/
 
-# Installs Python dependencies
-RUN yum install libffi-devel -y
-
-# Download amazon AWS RDS certificates
+# Installs Python dependencies and downloads AWS RDS certificates
 RUN : \
+ && yum install libffi-devel -y \
  && echo "Downloading AWS RDS certificate bundle..." \
  && wget https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -O /etc/ssl/certs/global-bundle.pem
