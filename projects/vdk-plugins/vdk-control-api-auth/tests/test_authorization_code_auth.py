@@ -1,5 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+from base64 import urlsafe_b64encode
+
 import pytest
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from test_core_auth import allow_oauthlib_insecure_transport
@@ -8,6 +10,7 @@ from vdk.plugin.control_api_auth.auth_config import InMemoryCredentialsCache
 from vdk.plugin.control_api_auth.auth_exception import VDKInvalidAuthParamError
 from vdk.plugin.control_api_auth.auth_exception import VDKLoginFailedError
 from vdk.plugin.control_api_auth.authentication import Authentication
+from vdk.plugin.control_api_auth.autorization_code_auth import generate_pkce_codes
 from vdk.plugin.control_api_auth.autorization_code_auth import LoginHandler
 from vdk.plugin.control_api_auth.autorization_code_auth import RedirectAuthentication
 from vdk.plugin.control_api_auth.base_auth import BaseAuth
@@ -83,3 +86,40 @@ def test_authorization_code_no_secret(httpserver: PluginHTTPServer):
     raised_exception = exc_info.value
     assert "Unable to log in." in raised_exception.message
     assert "Specify client_id and auth_discovery_url" in raised_exception.message
+
+
+@pytest.fixture
+def mock_post_req(requests_mock):
+    url = "http://example.com/test"
+    requests_mock.post(url, json={"result": "Success"})
+
+
+def test_authorization_code_authorization_header(mock_post_req, requests_mock):
+    allow_oauthlib_insecure_transport()
+    in_mem_conf = InMemoryCredentialsCache()
+    auth = BaseAuth(in_mem_conf)
+    (
+        code_verifier,
+        _,
+        _,
+    ) = generate_pkce_codes()
+    auth_code = "someDummyAuthCode"
+    auth_base64_string = urlsafe_b64encode(bytes("test-client-id:", "utf-8"))
+    expected_authorization_header_value = f"Basic {auth_base64_string.decode('utf-8')}"
+
+    handler = LoginHandler(
+        client_id="test-client-id",
+        client_secret=None,
+        exchange_endpoint="http://example.com/test",
+        redirect_uri="127.0.0.1:31113",
+        code_verifier=code_verifier,
+        auth=auth,
+    )
+
+    handler._exchange_code_for_tokens(auth_code)
+
+    assert "Authorization" in requests_mock.last_request.headers
+    assert (
+        requests_mock.last_request.headers["Authorization"]
+        == expected_authorization_header_value
+    )
