@@ -23,6 +23,7 @@ import {
   createStatusButton,
   createStatusMenu
 } from './components/StatusButton';
+import { setupTokenCheckInterval } from './tokenUpdate';
 
 /**
  * Current working directory in Jupyter
@@ -85,6 +86,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     fileBrowser.model.pathChanged.connect(onPathChanged);
     trackVdkTags(notebookTracker, themeManager);
+    await setupTokenCheckInterval();
   }
 };
 
