@@ -7,6 +7,7 @@ package com.vmware.taurus.authorization.provider;
 
 import com.vmware.taurus.authorization.webhook.AuthorizationBody;
 import com.vmware.taurus.service.model.JobConfig;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
@@ -274,5 +276,41 @@ public class AuthorizationProviderTest {
     expectedBody.setRequestedResourceNewTeam("example team");
 
     Assertions.assertEquals(actualBody, expectedBody);
+  }
+
+  @Test
+  public void testGetAccessToken_withAuthEndpointAndRefreshToken_shouldUseObtainedAccessToken() {
+    String obtainedAccessToken = "obtainedAccessToken";
+    String receivedAccessToken = "receivedAccessToken";
+    String authorizationServerEndpoint = "authorizationServerEndpoint";
+    String refreshToken = "refreshToken";
+
+    AuthorizationProvider authorizationProvider = mock(AuthorizationProvider.class);
+    Mockito.when(authorizationProvider.obtainAccessToken(eq(authorizationServerEndpoint), eq(refreshToken))).thenReturn(obtainedAccessToken);
+    Mockito.when(authorizationProvider.getAccessTokenReceived()).thenReturn(receivedAccessToken);
+
+    Mockito.when(authorizationProvider.getAccessToken(eq(authorizationServerEndpoint), eq(refreshToken))).thenCallRealMethod();
+
+    String actualAccessToken = authorizationProvider.getAccessToken(authorizationServerEndpoint, refreshToken);
+
+    Assertions.assertEquals(obtainedAccessToken, actualAccessToken);
+  }
+
+  @Test
+  public void testGetAccessToken_withAuthEndpointAndRefreshToken_shouldUseReceivedAccessToken() {
+    String obtainedAccessToken = "obtainedAccessToken";
+    String receivedAccessToken = "receivedAccessToken";
+    String authorizationServerEndpoint = "";
+    String refreshToken = "";
+
+    AuthorizationProvider authorizationProvider = mock(AuthorizationProvider.class);
+    Mockito.when(authorizationProvider.obtainAccessToken(eq(authorizationServerEndpoint), eq(refreshToken))).thenReturn(obtainedAccessToken);
+    Mockito.when(authorizationProvider.getAccessTokenReceived()).thenReturn(receivedAccessToken);
+
+    Mockito.when(authorizationProvider.getAccessToken(eq(authorizationServerEndpoint), eq(refreshToken))).thenCallRealMethod();
+
+    String actualAccessToken = authorizationProvider.getAccessToken(authorizationServerEndpoint, refreshToken);
+
+    Assertions.assertEquals(receivedAccessToken, actualAccessToken);
   }
 }

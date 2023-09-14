@@ -20,7 +20,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
@@ -32,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 /**
  * AuthorizationProvider class used in {@link AuthorizationInterceptor} responsible for handling of
@@ -95,7 +98,15 @@ public class AuthorizationProvider {
   }
 
   public String getAccessToken(String authorizationServerEndpoint, String refreshToken) {
-    final URI cspAuthEndpoint = URI.create(authorizationServerEndpoint);
+    if (StringUtils.isNotEmpty(authorizationServerEndpoint) && StringUtils.isNotEmpty(refreshToken)) {
+      return obtainAccessToken(authorizationServerEndpoint, refreshToken);
+    } else {
+      return getAccessTokenReceived();
+    }
+  }
+
+  protected String obtainAccessToken(String authorizationServerEndpoint, String refreshToken) {
+    final URI authorizationServerEndpointURI = URI.create(authorizationServerEndpoint);
 
     final HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
@@ -104,8 +115,8 @@ public class AuthorizationProvider {
     map.add(OAuth2ParameterNames.REFRESH_TOKEN, refreshToken);
 
     final ResponseEntity<String> responseEntity =
-        restTemplate.exchange(
-            cspAuthEndpoint, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
+            restTemplate.exchange(
+                    authorizationServerEndpointURI, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
 
     try {
       final JSONObject jsonResponse = new JSONObject(responseEntity.getBody());
@@ -113,17 +124,32 @@ public class AuthorizationProvider {
         return jsonResponse.getString(OAuth2ParameterNames.ACCESS_TOKEN);
       }
       throw new AuthorizationError(
-          "Response from Authorization Server doesn't contain needed access_token",
-          "Cannot determine whether a user is authorized to do this request",
-          "Configure the authorization webhook property or disable the feature altogether",
-          null);
+              "Response from Authorization Server doesn't contain needed access_token",
+              "Cannot determine whether a user is authorized to do this request",
+              "Configure the authorization webhook property or disable the feature altogether",
+              null);
     } catch (JSONException e) {
       throw new AuthorizationError(
-          "Unable to parse response to json while fetching access token",
-          "Cannot determine whether a user is authorized to do this request",
-          "Configure the authorization webhook property or disable the feature altogether",
-          e);
+              "Unable to parse response to json while fetching access token",
+              "Cannot determine whether a user is authorized to do this request",
+              "Configure the authorization webhook property or disable the feature altogether",
+              e);
     }
+  }
+
+  protected String getAccessTokenReceived() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String accessToken = null;
+
+    if (authentication instanceof JwtAuthenticationToken) {
+      JwtAuthenticationToken oauthToken = (JwtAuthenticationToken) authentication;
+      accessToken =
+              Optional.ofNullable(oauthToken.getToken())
+                      .map(AbstractOAuth2Token::getTokenValue)
+                      .orElse(null);
+    }
+
+    return accessToken;
   }
 
   String parsePropertyFromURI(String contextPath, String fullPath, int index) {
