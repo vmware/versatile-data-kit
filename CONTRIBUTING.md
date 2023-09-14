@@ -12,7 +12,7 @@
 
 We're happy you're here!
 Contributing to an open source project is a great way to build skills, make connections, and gain experience.
-Here are the first steps to becoming a contributor: 
+Here are the first steps to becoming a contributor:
 
 1. You can connect with us on our [Slack Channel](https://github.com/vmware/versatile-data-kit#contacts) - let us know you wish to contribute and we'll get you started
 2. Check out our [good-first-issues](https://github.com/vmware/versatile-data-kit/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
