@@ -8,8 +8,20 @@
 <!-- TODO: code coverage -->
 </p>
 
-# How to Contribute
+# First Steps in Contributing
+
+We're happy you're here!
 Contributing to an open source project is a great way to build skills, make connections, and gain experience.
+Here are the first steps to becoming a contributor: 
+
+1. You can connect with us on our [Slack Channel](https://github.com/vmware/versatile-data-kit#contacts) - let us know you wish to contribute and we'll get you started
+2. Check out our [good-first-issues](https://github.com/vmware/versatile-data-kit/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+3. Try our VDK and tell us what you think by scheduling an [informal 30-minute call with us](https://outlook.office365.com/owa/calendar/VersatileDataKit1@onevmw.onmicrosoft.com/bookings/s/JFPGSXpR7kG30yukLR4fZA2)
+4. Start with [our documentation](https://github.com/vmware/versatile-data-kit/wiki) and enhance it
+5. Read a simple [step-by-step guide by GitHub](https://github.com/firstcontributions/first-contributions).
+
+
+# Ways to Contribute
 We welcome many different types of contributions that include:
 - Adding new features and proposals
 - Creating and updating documentation
@@ -26,8 +38,11 @@ VDK follows the [Code of Conduct](https://github.com/vmware/versatile-data-kit/b
 # Contributor License Agreement CLA.
 If you wish to contribute code, you must sign the [contributor license agreement](https://cla.vmware.com/cla/1/preview) (CLA). For any questions about the CLA process, please refer to our [FAQ](https://cla.vmware.com/faq) page.
 
-# Open Development
+# Pull Requests
 All contributors follow GitHub’s pull request (PR) workflow to submit changes. Before merging, all pull requests require two approvals.
+
+# Naming Your Branch
+Our branches follow the naming convention: `person/<username>/<branch-name>`
 
 # Structure of the repository
 
