@@ -88,9 +88,14 @@ def test_authorization_code_no_secret(httpserver: PluginHTTPServer):
     assert "Specify client_id and auth_discovery_url" in raised_exception.message
 
 
-def test_authorization_code_authorization_header(httpserver: PluginHTTPServer):
+@pytest.fixture
+def mock_post_req(requests_mock):
+    url = "http://example.com/test"
+    requests_mock.post(url, json={"result": "Success"})
+
+
+def test_authorization_code_authorization_header(mock_post_req, requests_mock):
     allow_oauthlib_insecure_transport()
-    httpserver.expect_request("/foo").respond_with_json(get_json_response_mock())
     in_mem_conf = InMemoryCredentialsCache()
     auth = BaseAuth(in_mem_conf)
     (
@@ -105,7 +110,7 @@ def test_authorization_code_authorization_header(httpserver: PluginHTTPServer):
     handler = LoginHandler(
         client_id="test-client-id",
         client_secret=None,
-        exchange_endpoint=httpserver.url_for("/foo"),
+        exchange_endpoint="http://example.com/test",
         redirect_uri="127.0.0.1:31113",
         code_verifier=code_verifier,
         auth=auth,
@@ -113,6 +118,8 @@ def test_authorization_code_authorization_header(httpserver: PluginHTTPServer):
 
     handler._exchange_code_for_tokens(auth_code)
 
-    assert expected_authorization_header_value == str(
-        httpserver.log[0][0].authorization
+    assert "Authorization" in requests_mock.last_request.headers
+    assert (
+        requests_mock.last_request.headers["Authorization"]
+        == expected_authorization_header_value
     )
