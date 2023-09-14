@@ -14,7 +14,7 @@ import { runningVdkOperation, updateVDKMenu } from './commandsAndMenu';
 import { FileBrowserModel, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { IChangedArgs } from '@jupyterlab/coreutils';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { trackVdkTags } from './vdkTags';
+import { toggleVDKTag, trackVdkTags } from './vdkTags';
 import { IThemeManager } from '@jupyterlab/apputils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { initVDKConfigCell } from './initVDKConfigCell';
@@ -85,6 +85,21 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     fileBrowser.model.pathChanged.connect(onPathChanged);
     trackVdkTags(notebookTracker, themeManager);
+
+    const command = 'cell:toggle-vdk-tag';
+    commands.addCommand(command, {
+      label: 'Toggle vdk Tag',
+      execute: () => {
+        toggleVDKTag(notebookTracker);
+      }
+    });
+
+    // Add keybinding for the command
+    app.commands.addKeyBinding({
+      command,
+      keys: ['V', 'v'],
+      selector: '.jp-Notebook.jp-mod-editMode'
+    });
   }
 };
 

@@ -135,3 +135,24 @@ export const trackVdkTags = (
   notebookTracker.activeCellChanged.connect(changeCells);
   themeManager.themeChanged.connect(changeCells);
 };
+
+export function toggleVDKTag(notebookTracker: INotebookTracker): void {
+  // Get the active notebook and cell
+  const notebook = notebookTracker.currentWidget;
+  const cell = notebook?.content.activeCell;
+
+  if (cell) {
+    const tags = cell.model.metadata.get('tags') as string[] | null;
+    if (tags) {
+      const index = tags.indexOf('vdk');
+      if (index === -1) {
+        tags.push('vdk');
+      } else {
+        tags.splice(index, 1);
+      }
+      cell.model.metadata.set('tags', tags);
+    } else {
+      cell.model.metadata.set('tags', ['vdk']);
+    }
+  }
+}
