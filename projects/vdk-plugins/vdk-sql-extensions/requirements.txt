@@ -1,0 +1,7 @@
+
+pytest
+sqlparse
+
+vdk-core
+vdk-sqlite
+vdk-test-utils
