@@ -469,7 +469,7 @@ The basic logging strategy will be implemented in vdk-core while other strategie
 ###### vdk-tqdm plugin
 
 For implementing CLI-based progress tracking TQDM (via vdk-tqdm plugin)
-It can provide capabilities for both Notebook (through tqdm.notebook package) and termianl (tqdm.tqdm package)
+It can provide capabilities for both Notebook (through tqdm.notebook package) and terminal (tqdm.tqdm package)
 
 In tqdm, implementing nested progress bars involves using the position and leave parameters.
 The position parameter sets which row the progress bar will appear in the console,
