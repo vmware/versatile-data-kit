@@ -8,7 +8,7 @@
 <!-- TODO: code coverage -->
 </p>
 
-# First Steps in Contributing
+# First Steps to Contributing
 
 We're happy you're here!
 Contributing to an open source project is a great way to build skills, make connections, and gain experience.
