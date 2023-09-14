@@ -411,7 +411,7 @@ The ProgressTracker would be exposed and available in JobInput interface so it c
 
 For DAG it can be used  in this way
 ```python
-current_step_progress_tracker = job_input.get_progress_tracker(
+current_step_progress_tracker = job_input.get_progress_tracker()
 
 dag_tracker = current_step_progress_tracker.create_sub_tracker()
 ```
