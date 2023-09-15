@@ -98,7 +98,8 @@ public class AuthorizationProvider {
   }
 
   public String getAccessToken(String authorizationServerEndpoint, String refreshToken) {
-    if (StringUtils.isNotEmpty(authorizationServerEndpoint) && StringUtils.isNotEmpty(refreshToken)) {
+    if (StringUtils.isNotEmpty(authorizationServerEndpoint)
+        && StringUtils.isNotEmpty(refreshToken)) {
       return obtainAccessToken(authorizationServerEndpoint, refreshToken);
     } else {
       return getAccessTokenReceived();
@@ -115,8 +116,11 @@ public class AuthorizationProvider {
     map.add(OAuth2ParameterNames.REFRESH_TOKEN, refreshToken);
 
     final ResponseEntity<String> responseEntity =
-            restTemplate.exchange(
-                    authorizationServerEndpointURI, HttpMethod.POST, new HttpEntity<>(map, headers), String.class);
+        restTemplate.exchange(
+            authorizationServerEndpointURI,
+            HttpMethod.POST,
+            new HttpEntity<>(map, headers),
+            String.class);
 
     try {
       final JSONObject jsonResponse = new JSONObject(responseEntity.getBody());
@@ -124,16 +128,16 @@ public class AuthorizationProvider {
         return jsonResponse.getString(OAuth2ParameterNames.ACCESS_TOKEN);
       }
       throw new AuthorizationError(
-              "Response from Authorization Server doesn't contain needed access_token",
-              "Cannot determine whether a user is authorized to do this request",
-              "Configure the authorization webhook property or disable the feature altogether",
-              null);
+          "Response from Authorization Server doesn't contain needed access_token",
+          "Cannot determine whether a user is authorized to do this request",
+          "Configure the authorization webhook property or disable the feature altogether",
+          null);
     } catch (JSONException e) {
       throw new AuthorizationError(
-              "Unable to parse response to json while fetching access token",
-              "Cannot determine whether a user is authorized to do this request",
-              "Configure the authorization webhook property or disable the feature altogether",
-              e);
+          "Unable to parse response to json while fetching access token",
+          "Cannot determine whether a user is authorized to do this request",
+          "Configure the authorization webhook property or disable the feature altogether",
+          e);
     }
   }
 
@@ -144,9 +148,9 @@ public class AuthorizationProvider {
     if (authentication instanceof JwtAuthenticationToken) {
       JwtAuthenticationToken oauthToken = (JwtAuthenticationToken) authentication;
       accessToken =
-              Optional.ofNullable(oauthToken.getToken())
-                      .map(AbstractOAuth2Token::getTokenValue)
-                      .orElse(null);
+          Optional.ofNullable(oauthToken.getToken())
+              .map(AbstractOAuth2Token::getTokenValue)
+              .orElse(null);
     }
 
     return accessToken;
