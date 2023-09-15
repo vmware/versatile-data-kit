@@ -39,7 +39,7 @@ project.ext {
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
             'org.apache.commons:commons-lang3'                                   : 'org.apache.commons:commons-lang3:3.13.0',
             'org.apache.commons:commons-text'                                    : 'org.apache.commons:commons-text:1.10.0',
-            'com.github.tomakehurst:wiremock'                                    : 'com.github.tomakehurst:wiremock:2.27.2',
+            'com.github.tomakehurst:wiremock'                                    : 'com.github.tomakehurst:wiremock:3.0.1',
             'com.graphql-java:graphql-java-extended-scalars'                     : 'com.graphql-java:graphql-java-extended-scalars:20.2',
             'org.springframework.retry:spring-retry'                             : 'org.springframework.retry:spring-retry:2.0.1',
             'org.apache.tika:tika-core'                                          : 'org.apache.tika:tika-core:2.8.0',
