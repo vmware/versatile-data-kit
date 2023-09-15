@@ -408,13 +408,21 @@ webHooks:
       webhookUri: ""
       internalErrorsRetries: 3
       authenticationEnabled: false
+      ## The URL of the OAuth2 authorization server's token endpoint. This endpoint is used for obtaining access tokens and refreshing tokens.
+      ## It is optional; if not specified, the Control Service will use the user access token.
       authorizationServerEndpoint: ""
+      ## The refresh token that is used to obtain a new access token from the authorizationServerEndpoint.
+      ## It is optional; if not specified, the Control Service will use the user access token.
       authorizationRefreshToken: ""
    postDelete:
       webhookUri: ""
       internalErrorsRetries: 3
       authenticationEnabled: false
+      ## The URL of the OAuth2 authorization server's token endpoint. This endpoint is used for obtaining access tokens and refreshing tokens.
+      ## It is optional; if not specified, the Control Service will use the user access token.
       authorizationServerEndpoint: ""
+      ## The refresh token that is used to obtain a new access token from the authorizationServerEndpoint.
+      ## It is optional; if not specified, the Control Service will use the user access token.
       authorizationRefreshToken: ""
 
 ### Security configuration
@@ -506,7 +514,11 @@ security:
       ## In case authenticationEnabled is set to true, the Control Service (CS) will obtain the oAuth2 access token from
       ## authorizationServerEndpoint using the authorizationRefreshToken. After that the access token will be transmitted to the WebHook API.
       webhookAuthenticationEnabled: false
+      ## The URL of the OAuth2 authorization server's token endpoint. This endpoint is used for obtaining access tokens and refreshing tokens.
+      ## It is optional; if not specified, the Control Service will use the user access token.
       webhookAuthorizationServerEndpoint: ""
+      ## The refresh token that is used to obtain a new access token from the authorizationServerEndpoint.
+      ## It is optional; if not specified, the Control Service will use the user access token.
       webhookAuthorizationRefreshToken: ""
       ## What JWT token claim (aka attribute/field) will fetch the username from.
       jwtClaimUsername: "username"
