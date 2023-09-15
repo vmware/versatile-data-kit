@@ -5,8 +5,8 @@
 
 package com.vmware.taurus;
 
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.DeploymentStatus;
