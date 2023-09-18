@@ -59,7 +59,6 @@ export async function jobRunRequest(): Promise<jobRequestResult> {
         body: JSON.stringify(getJobDataJsonObject()),
         method: 'POST'
       });
-      console.log("DATA1: " + JSON.stringify(data))
       return { message: data['message'], isSuccessful: data['message'] == '0' };
     } catch (error) {
       showError(error);

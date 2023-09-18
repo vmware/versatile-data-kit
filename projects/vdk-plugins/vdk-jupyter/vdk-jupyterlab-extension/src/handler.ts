@@ -35,8 +35,6 @@ export async function requestAPI<T>(
 
   let data: any = await response.text();
 
-  console.log("DATA2: " + data)
-
   if (data.length > 0) {
     try {
       data = JSON.parse(data);
