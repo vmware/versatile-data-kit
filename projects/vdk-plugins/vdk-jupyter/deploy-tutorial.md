@@ -14,7 +14,7 @@ and have developed the job.
 
 0. Ensure your Data Job is in a production-ready state. This means tagging all production cells as VDK cells, and untagging any
    you do not want to be ran during the Data Job execution through the side menu shown in the image.
-   
+
 ![Example of how to tag cells in Jupyter](./celltagging.png)
 
 1. Navigate to the data job directory.
