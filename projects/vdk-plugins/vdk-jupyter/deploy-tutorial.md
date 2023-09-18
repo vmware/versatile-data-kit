@@ -48,4 +48,4 @@ successful. Note that the job will require a few minutes to be fully deployed.
 ## Wrap-up
 
 You should now be familiarized with how to deploy a developed Data Job to the
-Control Service through the Jupyter UI
+Control Service through the Jupyter UI.
