@@ -1,16 +1,23 @@
-## Introduction
+Learn how to prepare and deploy a Data Job using VDK in Jupyter Notebook UI.
+Time Commitment: About 5-10 minutes.
 
-This guide will describe the step-by-step process of deploying a Data Job
-through the Jupyter UI when using VDK on Jupyter.
+## Prerequisites
+ * Installed VDK, Control Service, Jupyter instance and Jupyter extension
+ * Created and developed a VDK Data Job
 
 ## Deploying a job
 
 This page will assume you have already created a job both locally and in the cloud,
 and have developed the job.
 
-1. Navigate to the data job directory and ensure that your Data Job is production
-ready. This means tagging all production cells as VDK cells, and untagging any
-   you do not want to be ran during the Data Job execution.
+
+
+0. Ensure your Data Job is in a production-ready state. This means tagging all production cells as VDK cells, and untagging any
+   you do not want to be ran during the Data Job execution through the side menu shown in the image.
+   
+![Example of how to tag cells in Jupyter](./celltagging.png)
+
+1. Navigate to the data job directory.
 
 ![VDK dropdown menu](./vdk-menu.png)
 
@@ -37,3 +44,8 @@ deploy operation is running. Additionally, you can track the time the operation
 
 5. The following dialog will appear when the job deployment request has been
 successful. Note that the job will require a few minutes to be fully deployed.
+
+## Wrap-up
+
+You should now be familiarized with how to deploy a developed Data Job to the
+Control Service through the Jupyter UI
