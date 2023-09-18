@@ -5,7 +5,7 @@
 
 package com.vmware.taurus.service.graphql;
 
-import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobExecutionRepository;
 import com.vmware.taurus.service.execution.JobExecutionLogsUrlBuilder;
 import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.graphql.model.V2DataJob;
