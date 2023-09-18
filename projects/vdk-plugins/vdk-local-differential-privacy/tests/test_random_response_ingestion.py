@@ -54,6 +54,4 @@ def test_random_sampling_ingestion():
     # assert that there is randomness in the results, that we aren't producing the same result everytime
     assert [a["is_smoker"] for a in payload_1] != [
         a["is_smoker"] for a in payload_2
-    ] or [a["is_smoker"] for a in payload_1] != [
-        a["is_smoker"] for a in payload_3
-    ]
+    ] or [a["is_smoker"] for a in payload_1] != [a["is_smoker"] for a in payload_3]
