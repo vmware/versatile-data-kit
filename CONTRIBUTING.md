@@ -14,8 +14,8 @@ Contributing to an open source project is a great way to build skills, make conn
 Here are the first steps to becoming a contributor:
 
 1. You can connect with us on our [Slack Channel](#contact-us) - let us know you wish to contribute, and we'll get you started.
-2. Check out our [good-first-issues](https://github.com/vmware/versatile-data-kit/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
-3. Try our VDK and tell us what you think by scheduling an [informal 30-minute call with us](https://outlook.office365.com/owa/calendar/VersatileDataKit1@onevmw.onmicrosoft.com/bookings/s/JFPGSXpR7kG30yukLR4fZA2).
+2. Check out our [good first issues](https://github.com/vmware/versatile-data-kit/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+3. Try out VDK and tell us what you think by scheduling an [informal 30-minute call with us](https://outlook.office365.com/owa/calendar/VersatileDataKit1@onevmw.onmicrosoft.com/bookings/s/JFPGSXpR7kG30yukLR4fZA2).
 4. Start with [our documentation](https://github.com/vmware/versatile-data-kit/wiki) and enhance it.
 5. Read a simple [step-by-step guide by GitHub](https://github.com/firstcontributions/first-contributions).
 
@@ -60,7 +60,7 @@ See [Versatile Data Kit Coding Standard](https://github.com/vmware/versatile-dat
 All contributors follow GitHub’s pull request (PR) workflow to submit changes. Before merging, all pull requests require two approvals.
 
 
-# Naming Your Branch
+# Branch Naming Convention
 Our branches follow the naming convention: `person/<username>/<feature-name>`
 
 
@@ -83,7 +83,7 @@ To report a bug, [create a GitHub issue](https://github.com/vmware/versatile-dat
 
 
 ## Security Bugs
-If you believe you have found a security bug, [create a GitHub issue](https://github.com/vmware/versatile-data-kit/issues) and reach out to us first using any method in the [Contact Us](#contact-us) section.
+If you believe you have found a security bug, reach out to us first using any method in the [Contact Us](#contact-us) section and [create a GitHub issue](https://github.com/vmware/versatile-data-kit/issues).
 
 
 # Propose a Change
