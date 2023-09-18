@@ -314,9 +314,9 @@ For Support, you can join our Slack channel, create an [issue](https://github.co
 If you are interested in contributing as a developer, visit the [contributing](https://github.com/vmware/versatile-data-kit/blob/main/CONTRIBUTING.md) page.
 
 # Contacts
-- Message us on Slack:
-    - Joining the [CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf).
-    - Joining the [#versatile-data-kit](https://cloud-native.slack.com/archives/C033PSLKCPR) channel.
+- Message us on Slack:<br>
+    ☝️ Join the [CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf).<br>
+    ✌️ Join the [#versatile-data-kit](https://cloud-native.slack.com/archives/C033PSLKCPR) channel.
 - Join the [next Community Meeting](https://github.com/vmware/versatile-data-kit/wiki/Community-Meetings)
 - Follow us on [Twitter](https://twitter.com/VDKProject).
 - Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
