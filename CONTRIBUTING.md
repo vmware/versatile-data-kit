@@ -118,7 +118,7 @@ We follow the GitHub workflow. See [GitHub flow](https://docs.github.com/en/get-
 
 # IDE and Testing Locally
 There is no global IDE and testing setup because each plugin and project has its own development and setup guide.
-You can find these in the CONTRIBUTING.md for each project. 
+You can find these in the CONTRIBUTING.md for each project.
 
 Follow the guides on how to setup IDE, build, test, run, and release - for [vdk-core](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/CONTRIBUTING.md#local-build) and [vdk-control-cli](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-control-cli/CONTRIBUTING.md#build)
 
@@ -157,7 +157,7 @@ Before submitting your pull request, review the following:
 We prefer to maintain a straight branch history by rebasing before merging. Fast-forward merges should not create merge conflicts.
 
 # Documentation Guide
-To document your changes, follow the [Documentation Guide](https://github.com/vmware/versatile-data-kit/wiki/Documentation-Guide)  
+To document your changes, follow the [Documentation Guide](https://github.com/vmware/versatile-data-kit/wiki/Documentation-Guide)
 
 # Next Steps
 Ready to contribute? Look at the [open issues list](https://github.com/vmware/versatile-data-kit/issues) or create an issue for a suggested change.
