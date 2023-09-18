@@ -40,6 +40,7 @@ export default class CreateJobDialog extends Component<IJobFullProps> {
           option={VdkOption.PATH}
           value={this.props.jobPath}
           label="Path to job directory:"
+          tooltip="If empty, the root directory is default. For custom paths, follow: topDir/subDir/targetDir."
         ></VDKTextInput>
       </>
     );
