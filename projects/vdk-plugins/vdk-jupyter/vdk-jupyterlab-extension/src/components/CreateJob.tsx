@@ -47,6 +47,7 @@ export default class CreateJobDialog extends Component<IJobFullProps> {
 }
 
 export async function showCreateJobDialog(statusButton: StatusButton) {
+  jobData.set(VdkOption.PATH, ''); // the default jobPath is the Jupyter root
   const result = await showDialog({
     title: CREATE_JOB_BUTTON_LABEL,
     body: (

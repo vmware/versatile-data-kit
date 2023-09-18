@@ -47,6 +47,7 @@ export default class DownloadJobDialog extends Component<IJobPathProp> {
 }
 
 export async function showDownloadJobDialog(statusButton?: StatusButton) {
+  jobData.set(VdkOption.PATH, ''); // the default jobPath is the Jupyter root
   const result = await showDialog({
     title: DOWNLOAD_JOB_BUTTON_LABEL,
     body: (
