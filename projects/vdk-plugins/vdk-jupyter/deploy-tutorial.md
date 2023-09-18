@@ -31,13 +31,13 @@ and have developed the job.
    the job will be ran once before deployment. The purpose of this job execution is
    to test the job end-to-end and verify it can pass successfully before deploying
    it to the cloud.
-   
+
 ![Status dialog](./status-dialog.png)
 
 4. The previous step will generate this status dialog, informing you that the
 deploy operation is running. Additionally, you can track the time the operation
    takes by the status button in the upper right corner.
-   
+
 ![Status buttton](./timer.png)
 
 ![The dialog shown upon successful deploy](success-text.png)
