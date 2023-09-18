@@ -30,7 +30,7 @@ We welcome many different types of contributions, including:
 - Triaging issues
 - Answering questions and providing feedback
 - Helping onboard new contributors
-- Creating content - blogs, videos, etc. 
+- Creating content - blogs, videos, etc.
 
 # Code of Conduct
 VDK follows the [Code of Conduct](https://github.com/vmware/versatile-data-kit/blob/main/CODE_OF_CONDUCT.md), adapted from the [Contributor Covenant](https://www.contributor-covenant.org/). Please read the Code of Conduct guide to familiarize yourself with the expectations and responsibilities of the community.
