@@ -72,6 +72,9 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
 - MINOR version when you add functionality in a backward-compatible manner
 - PATCH version when you make backwards-compatible bug fixes
 
+# Dependencies Licencing
+
+Here you can see what licenses are dependencies of Versatile Data Kit: [Dependencies Licencing](https://github.com/vmware/versatile-data-kit/wiki/Dependencies-licensing).
 
 # Bugs
 ## Where to Find Known Issues
@@ -113,8 +116,13 @@ We follow the GitHub workflow. See [GitHub flow](https://docs.github.com/en/get-
 **Note**: Use forks only for examples and documentation contributions.
   Currently, we accept contributions from forks only for examples and documentation changes until PR [854](https://github.com/vmware/versatile-data-kit/issues/854) is fixed. Until then, please request write privileges and create a branch in the main repository.
 
-# Setting up IDE and Testing Locally
+# IDE and Testing Locally
+There is no global IDE and testing setup because each plugin and project has its own development and setup guide.
+You can find these in the CONTRIBUTING.md for each project. 
+
 Follow the guides on how to setup IDE, build, test, run, and release - for [vdk-core](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/CONTRIBUTING.md#local-build) and [vdk-control-cli](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-control-cli/CONTRIBUTING.md#build)
+
+Here you can find a guide to [Setting up GPG key for signing commits](https://github.com/vmware/versatile-data-kit/wiki/Dev-How-tos#setting-up-gpg-key-for-signing-commits)
 
 # Testing
 Follow the guide on [GitLab CI/CD](https://github.com/vmware/versatile-data-kit/wiki/Gitlab-CICD)
@@ -148,7 +156,8 @@ Before submitting your pull request, review the following:
 
 We prefer to maintain a straight branch history by rebasing before merging. Fast-forward merges should not create merge conflicts.
 
-
+# Documentation Guide
+To document your changes, follow the [Documentation Guide](https://github.com/vmware/versatile-data-kit/wiki/Documentation-Guide)  
 
 # Next Steps
 Ready to contribute? Look at the [open issues list](https://github.com/vmware/versatile-data-kit/issues) or create an issue for a suggested change.
