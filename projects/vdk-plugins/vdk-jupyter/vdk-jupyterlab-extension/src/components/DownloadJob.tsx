@@ -40,7 +40,7 @@ export default class DownloadJobDialog extends Component<IJobPathProp> {
           option={VdkOption.PATH}
           value={this.props.jobPath}
           label="Path to job directory:"
-          tooltip="If empty, the root directory is default. For custom paths, follow: topDir/subDir/targetDir."
+          tooltip="Specify the directory for the new job folder, e.g., 'x/y' with job name 'foo' becomes 'x/y/foo'. If left blank, it defaults to the Jupyter's main directory."
         ></VDKTextInput>
       </>
     );
