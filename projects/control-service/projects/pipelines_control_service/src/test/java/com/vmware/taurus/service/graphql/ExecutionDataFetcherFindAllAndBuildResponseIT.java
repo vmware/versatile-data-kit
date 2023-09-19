@@ -7,8 +7,8 @@ package com.vmware.taurus.service.graphql;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionOrder;
 import com.vmware.taurus.service.graphql.model.DataJobPage;

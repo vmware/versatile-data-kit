@@ -7,7 +7,7 @@ package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.datajobs.TestUtils;
 import com.vmware.taurus.exception.ApiConstraintError;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
 import com.vmware.taurus.service.diag.OperationContext;

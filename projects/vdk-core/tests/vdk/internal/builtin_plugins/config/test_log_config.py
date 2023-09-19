@@ -108,3 +108,29 @@ def test_configure_logger():
             configured_loggers = mock_dict_config.call_args[0][0]["loggers"]
             assert configured_loggers["a.b.c"]["level"] == "INFO"
             assert configured_loggers["foo.bar"]["level"] == "ERROR"
+
+
+def test_log_plugin_exception():
+    print("This")
+    with mock.patch(
+        "vdk.internal.builtin_plugins.config.log_config.configure_loggers"
+    ) as mocked_log_config:
+        try:
+            mocked_log_config.side_effect = Exception("foo")
+
+            log_plugin = LoggingPlugin()
+
+            # Mock configuration since we wont be needing any.
+            job_context = mock.MagicMock(spec=JobContext)
+            job_context.name = mock.MagicMock()
+            job_context.core_context = mock.MagicMock()
+            job_context.core_context.configuration = mock.MagicMock()
+            job_context.core_context.state = mock.MagicMock()
+            job_context.core_context.state.get = mock.MagicMock()
+            job_context.core_context.configuration.get_value = mock.MagicMock()
+
+            # Test except: section in initialize_job and expect no exceptions
+            log_plugin.initialize_job(job_context)
+        finally:
+            logging.getLogger().setLevel(logging.INFO)
+            logging.getLogger("vdk").setLevel(logging.INFO)
