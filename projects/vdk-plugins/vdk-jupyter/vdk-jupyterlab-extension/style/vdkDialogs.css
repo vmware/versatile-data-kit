@@ -157,6 +157,7 @@
   cursor: help;
   margin-left: 5px;
 }
+
 .icon-tooltip {
   cursor: pointer;
   color: #888;
@@ -165,11 +166,11 @@
 .tooltiptext {
   visibility: hidden;
   min-width: 200px;
-  background-color: rgb(118, 118, 118);
+  background-color: rgb(118 118 118);
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 5px;
+  padding: 5px;
   position: absolute;
   z-index: 0;
   bottom: 125%;
