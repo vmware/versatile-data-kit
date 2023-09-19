@@ -406,6 +406,10 @@ class JobController:
         config_ini.set("owner", "team", self.config.job_team)
         config_ini.set("job", "schedule_cron", "* * * * *")
         config_ini.set("job", "db_default_type", self.config.db_default_type)
+        if self.config.deploy_job_python_version:
+            config_ini.set(
+                "job", "python_version", self.config.deploy_job_python_version
+            )
         if self.config.job_notification_mail:
             config_ini.add_section("contacts")
             config_ini.set(

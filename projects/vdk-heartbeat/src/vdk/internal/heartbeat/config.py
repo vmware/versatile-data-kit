@@ -114,6 +114,12 @@ class Config:
             "VDK_HEARTBEAT_DEPLOY_JOB_VDK_VERSION", is_required=False
         )
 
+        # Deploy the job with a specific python version (optional). By default, the default python
+        # version set by the Control Service is used.
+        self.deploy_job_python_version = self.get_value(
+            "DATAJOB_DEPLOYMENT_PYTHON_VERSION", is_required=False
+        )
+
         # Job name deployed during the test
         self.job_name = self.get_value(
             "JOB_NAME", f"vdk-heartbeat-data-job-{job_suffix}"[0:45]
