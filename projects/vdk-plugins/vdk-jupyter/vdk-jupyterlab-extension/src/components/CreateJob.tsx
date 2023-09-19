@@ -40,13 +40,15 @@ export default class CreateJobDialog extends Component<IJobFullProps> {
           option={VdkOption.PATH}
           value={this.props.jobPath}
           label="Path to job directory:"
-        ></VDKTextInput>
+          tooltip="Specify the directory for the new job folder, e.g., 'x/y' with job name 'foo' becomes 'x/y/foo'. If left blank, it defaults to the Jupyter's main directory."
+          ></VDKTextInput>
       </>
     );
   }
 }
 
 export async function showCreateJobDialog(statusButton: StatusButton) {
+  jobData.set(VdkOption.PATH, ''); // the default jobPath is the Jupyter root
   const result = await showDialog({
     title: CREATE_JOB_BUTTON_LABEL,
     body: (
