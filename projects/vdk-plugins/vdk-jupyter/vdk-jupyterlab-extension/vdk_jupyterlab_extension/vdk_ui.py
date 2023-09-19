@@ -48,10 +48,7 @@ class VdkUI:
         :param arguments: the additional variables for the job run
         :return: response with status code.
         """
-        if not os.path.exists(path):
-            path = os.getcwd() + path
-            if not os.path.exists(path):
-                return {"message": f"Incorrect path! {path} does not exist!"}
+        path = expand_path(path)
         script_files = [
             x
             for x in Path(path).iterdir()
@@ -64,7 +61,7 @@ class VdkUI:
         if len(script_files) == 0:
             return {"message": f"No steps were found in {path}!"}
         with open("vdk_logs.txt", "w+") as log_file:
-            path = shlex.quote(path)
+            path = shlex.quote(str(path))
             cmd: list[str] = ["vdk", "run", f"{path}"]
             if arguments:
                 arguments = shlex.quote(arguments)
@@ -117,7 +114,7 @@ class VdkUI:
         :return: message that the job is downloaded
         """
         cmd = JobDownloadSource(RestApiUrlConfiguration.get_rest_api_url())
-        cmd.download(team, name, path)
+        cmd.download(team, name, expand_path(path))
         return f"Downloaded the job with name {name} to {path}. "
 
     @staticmethod
@@ -142,7 +139,9 @@ class VdkUI:
         except ValueError as e:
             error = str(e)
         cmd = JobCreate(rest_api_url)
-        cmd.create_job(name, team, path, cloud, True, pathlib.Path(jupyter_job_dir))
+        cmd.create_job(
+            name, team, expand_path(path), cloud, True, pathlib.Path(jupyter_job_dir)
+        )
         if cloud:
             result = f"Job with name {name} was created successfully!"
         else:
@@ -166,6 +165,7 @@ class VdkUI:
         :param reason: the reason of deployment
         :return: output string of the operation
         """
+        path = expand_path(path)
         with tempfile.TemporaryDirectory() as temp_dir:
             if not os.path.exists(path):
                 raise NotADirectoryError(
@@ -222,7 +222,7 @@ class VdkUI:
              if the specified parent directory does not exist, an empty dictionary is returned.
         """
         if not os.path.exists(pr_path):
-            pr_path = os.getcwd() + pr_path
+            pr_path = expand_path(pr_path)
             if not os.path.exists(pr_path):
                 return {"path": "", "cellIndex": ""}
         notebook_files = [
@@ -251,8 +251,8 @@ class VdkUI:
              If the specified notebook path does not exist, an empty list is returned.
         """
         if not os.path.exists(notebook_path):
-            job_notebook = os.getcwd() + notebook_path
-            if not os.path.exists(job_notebook):
+            notebook_path = expand_path(notebook_path)
+            if not os.path.exists(notebook_path):
                 return []
         with open(notebook_path) as f:
             notebook_json = json.load(f)
@@ -270,7 +270,7 @@ class VdkUI:
         :param job_dir: Path to the directory of the job to be transformed.
         :return: The processed code structure.
         """
-        job_dir = Path(job_dir)
+        job_dir = Path(expand_path(job_dir))
         archiver = DirectoryArchiver(job_dir)
         processor = ConvertJobDirectoryProcessor(job_dir)
         archiver.archive_folder()
@@ -281,3 +281,13 @@ class VdkUI:
         }
         processor.cleanup()
         return message
+
+
+def expand_path(path: str):
+    """
+    Expands the path parameter to be rooted at the file system location where Jupyter was initially ran.
+
+    :param path: path parameter provided by the user
+    :return: expanded path
+    """
+    return pathlib.Path(os.getcwd()).joinpath(path)

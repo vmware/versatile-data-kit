@@ -156,6 +156,10 @@ spec:
               value: "{{ .Values.security.authorization.webhookUri }}"
             - name: DATAJOBS_AUTHORIZATION_WEBHOOK_AUTHENTICATION_ENABLED
               value: "{{ .Values.security.authorization.webhookAuthenticationEnabled }}"
+            - name: DATAJOBS_AUTHORIZATION_WEBHOOK_AUTHORIZATION_SERVER_ENDPOINT
+              value: "{{ .Values.security.authorization.webhookAuthorizationServerEndpoint }}"
+            - name: DATAJOBS_AUTHORIZATION_WEBHOOK_AUTHORIZATION_REFRESH_TOKEN
+              value: "{{ .Values.security.authorization.webhookAuthorizationRefreshToken }}"
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
               value: "{{ .Values.security.oauth2.jwtIssuerUrl }}"
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URIS
@@ -174,16 +178,28 @@ spec:
               value: "{{ .Values.webHooks.postCreate.internalErrorsRetries }}"
             - name: DATAJOBS_POST_CREATE_WEBHOOK_AUTHENTICATION_ENABLED
               value: "{{ .Values.webHooks.postCreate.authenticationEnabled }}"
+            - name: DATAJOBS_POST_CREATE_WEBHOOK_AUTHORIZATION_SERVER_ENDPOINT
+              value: "{{ .Values.webHooks.postCreate.authorizationServerEndpoint }}"
+            - name: DATAJOBS_POST_CREATE_WEBHOOK_AUTHORIZATION_REFRESH_TOKEN
+              value: "{{ .Values.webHooks.postCreate.authorizationRefreshToken }}"
             - name: DATAJOBS_POST_DELETE_WEBHOOK_ENDPOINT
               value: "{{ .Values.webHooks.postDelete.webhookUri }}"
             - name: DATAJOBS_POST_DELETE_WEBHOOK_INTERNAL_ERRORS_RETRIES
               value: "{{ .Values.webHooks.postDelete.internalErrorsRetries }}"
             - name: DATAJOBS_POST_DELETE_WEBHOOK_AUTHENTICATION_ENABLED
               value: "{{ .Values.webHooks.postDelete.authenticationEnabled }}"
+            - name: DATAJOBS_POST_DELETE_WEBHOOK_AUTHORIZATION_SERVER_ENDPOINT
+              value: "{{ .Values.webHooks.postDelete.authorizationServerEndpoint }}"
+            - name: DATAJOBS_POST_DELETE_WEBHOOK_AUTHORIZATION_REFRESH_TOKEN
+              value: "{{ .Values.webHooks.postDelete.authorizationRefreshToken }}"
             - name: DATAJOBS_AUTHORIZATION_JWT_CLAIM_USERNAME
               value: "{{ .Values.security.authorization.jwtClaimUsername }}"
             - name: DATAJOBS_DEPLOYMENT_JOB_IMAGE_PULL_POLICY
               value: "{{ .Values.dataJob.deployment.jobImagePullPolicy }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_PERSISTENCE_WRITE_TOS
+              value: "{{ .Values.dataJob.deployment.configuration.persistence.writeTos }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_PERSISTENCE_READ_DATA_SOURCE
+              value: "{{ .Values.dataJob.deployment.configuration.persistence.readDataSource }}"
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
             - name: VDK_OPTIONS_INI

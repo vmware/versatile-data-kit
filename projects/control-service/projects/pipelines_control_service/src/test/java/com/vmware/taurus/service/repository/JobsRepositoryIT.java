@@ -117,8 +117,6 @@ public class JobsRepositoryIT {
   @Test
   void testDeleteDataJob_withAssociatedDeployment_dataJobAndDeploymentShouldBeDeleted() {
     var dataJobEntity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
-    repository.save(dataJobEntity);
-
     DataJobDeployment expectedDataJobDeployment =
         new DataJobDeployment(
             dataJobEntity.getName(),
@@ -133,7 +131,8 @@ public class JobsRepositoryIT {
             OffsetDateTime.now(),
             "user",
             true);
-    jobDeploymentRepository.save(expectedDataJobDeployment);
+    dataJobEntity.setDataJobDeployment(expectedDataJobDeployment);
+    repository.save(dataJobEntity);
 
     Assertions.assertTrue(repository.findById(dataJobEntity.getName()).isPresent());
     Assertions.assertTrue(jobDeploymentRepository.findById(dataJobEntity.getName()).isPresent());

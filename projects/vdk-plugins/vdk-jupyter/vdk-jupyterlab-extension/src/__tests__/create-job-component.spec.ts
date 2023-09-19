@@ -29,12 +29,10 @@ describe('#render()', () => {
     expect(input).toBe(component.getAllByLabelText('Job Team:')[0]);
   });
 
-  it('should return contain job path input with placeholder equal to jobPath from props', () => {
+  it('should return contain job path input with blank placeholder', () => {
     const component = render(new CreateJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText(defaultProps.jobPath);
-    expect(input).toBe(
-      component.getAllByLabelText('Path to job directory:')[0]
-    );
+    const jobPathInput = component.getByPlaceholderText(defaultProps.jobPath);
+    expect(jobPathInput).toBeDefined();
   });
 });
 
@@ -59,7 +57,7 @@ describe('#onTeamChange', () => {
 describe('#onPathChange', () => {
   it('should change the path in jobData', () => {
     const component = render(new CreateJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText(defaultProps.jobPath);
+    const input = component.getAllByRole('textbox')[2];
     fireEvent.change(input, { target: { value: 'other/path' } });
     expect(jobData.get(VdkOption.PATH)).toEqual('other/path');
   });

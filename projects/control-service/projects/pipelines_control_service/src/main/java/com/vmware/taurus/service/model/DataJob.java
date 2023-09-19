@@ -54,7 +54,9 @@ public class DataJob {
   @Column(name = "last_execution_duration")
   private Integer lastExecutionDuration;
 
-  @OneToOne @PrimaryKeyJoinColumn private DataJobDeployment dataJobDeployment;
+  @OneToOne(mappedBy = "dataJob", cascade = CascadeType.ALL, orphanRemoval = true)
+  @PrimaryKeyJoinColumn
+  private DataJobDeployment dataJobDeployment;
 
   public DataJob(String name, JobConfig jobConfig) {
     this.name = name;

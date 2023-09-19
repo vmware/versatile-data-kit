@@ -22,6 +22,9 @@ from vdk.internal.builtin_plugins.config.vdk_config import JobConfigIniPlugin
 from vdk.internal.builtin_plugins.connection.connection_plugin import (
     QueryDecoratorPlugin,
 )
+from vdk.internal.builtin_plugins.connection.query_command_plugin import (
+    QueryCommandPlugin,
+)
 from vdk.internal.builtin_plugins.debug.debug import DebugPlugins
 from vdk.internal.builtin_plugins.ingestion.ingester_configuration_plugin import (
     IngesterConfigurationPlugin,
@@ -130,6 +133,7 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     # connection plugins
     plugin_registry.add_hook_specs(ConnectionHookSpec)
     plugin_registry.load_plugin_with_hooks_impl(QueryDecoratorPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(QueryCommandPlugin())
 
 
 @hookimpl(tryfirst=True)

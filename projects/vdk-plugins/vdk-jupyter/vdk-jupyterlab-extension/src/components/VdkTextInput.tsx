@@ -1,70 +1,150 @@
-import React, { Component } from 'react';
+import React, { Component, RefObject } from 'react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
+import { FaQuestionCircle } from 'react-icons/fa';
 
 export interface IVdkTextInputProps {
   /**
-   * VdkOption to which the input is for
+   * Represents the VdkOption for which the input is created.
    */
   option: VdkOption;
   /**
-   * Value corresponding to the VdkOption
+   * The default value corresponding to the VdkOption.
    */
   value: string;
   /**
-   * Label message for the input
+   * The display label for the input.
    */
   label: string;
+  /**
+   * Callback function that is invoked when the width of the input is computed.
+   */
+  onWidthComputed?: (width: number) => void;
+  /**
+   * Optional tooltip content.
+   */
+  tooltip?: string;
 }
 
+interface IVdkInputState {
+  /**
+   * Represents the computed or default width for the input.
+   */
+  inputWidth: number;
+}
 
 /**
-   * This function is used to be sure that placeholder text is not overflowing in case of long path
-   * if the string that is given is not path it will return the same string
-   * if it is a path it will return the last directory
-   */
-const  getLastPartOfPath = (path: string): string => {
-  const pathParts = path.split(/(?=[/\\])/); // Lookahead assertion to keep delimiter
-  return pathParts[pathParts.length - 1];
-}
+ * The default width used for the input field.
+ */
+const DEFAULT_INPUT_WIDTH = 250;
 
 export default class VDKTextInput extends Component<IVdkTextInputProps> {
   /**
-   * Returns a React component for rendering a div with input and value  for VDK Option.
-   *
-   * @param props - component properties
-   * @returns React component
+   * Component's state.
    */
-  constructor(props: IVdkTextInputProps) {
-    super(props);
-  }
+  state: IVdkInputState = {
+    inputWidth: DEFAULT_INPUT_WIDTH
+  };
+
   /**
-   * Renders a div with input and value  for VDK Option.
+   * Reference to the input element.
+   */
+  private inputRef: RefObject<HTMLInputElement> = React.createRef();
+
+  /**
+   * Lifecycle method called after the component has mounted. It adjusts the input width based on the content.
+   */
+  componentDidMount(): void {
+    this.adjustInputWidth();
+  }
+
+  /**
+   * Lifecycle method called after the component updates. It adjusts the input width if the value prop has changed.
    *
-   * @returns React element
+   * @param prevProps - The previous properties before the component updated.
+   */
+  componentDidUpdate(prevProps: IVdkTextInputProps): void {
+    if (prevProps.value !== this.props.value) {
+      this.adjustInputWidth();
+    }
+  }
+
+  /**
+   * Adjusts the width of the input field based on the content from jobData.
+   *
+   * Utilizes a temporary HTML span element, styled like the input, to determine
+   * the width required to display each value in jobData without clipping.
+   * After iterating through all values, the component state's inputWidth is
+   * updated with the computed maximum width.
+   */
+  adjustInputWidth(): void {
+    const currentInput = this.inputRef.current;
+    if (!currentInput) return;
+
+    let maxWidth = DEFAULT_INPUT_WIDTH;
+
+    const tempSpan = document.createElement('span');
+    const styles = [
+      'fontFamily',
+      'fontSize',
+      'fontWeight',
+      'fontStyle',
+      'letterSpacing',
+      'textTransform'
+    ];
+    styles.forEach(style => {
+      const computedStyle = currentInput
+        ? window.getComputedStyle(currentInput).getPropertyValue(style)
+        : '';
+      tempSpan.style[style as any] = computedStyle;
+    });
+
+    const PADDING_WIDTH = 100;
+    jobData.forEach(value => {
+      tempSpan.innerHTML = value;
+      document.body.appendChild(tempSpan);
+      const spanWidth = tempSpan.getBoundingClientRect().width + PADDING_WIDTH;
+      document.body.removeChild(tempSpan);
+      maxWidth = Math.max(maxWidth, spanWidth);
+    });
+
+    this.setState({ inputWidth: maxWidth });
+  }
+
+  /**
+   * Renders a div containing a label and an input field.
+   *
+   * @returns A React element representing the input component.
    */
   render(): React.ReactElement {
     return (
-      <>
-        <div className="jp-vdk-input-wrapper">
-          <label className="jp-vdk-label" htmlFor={this.props.option}>
-            {this.props.label}
-          </label>
-          <input
-            type="text"
-            id={this.props.option}
-            className="jp-vdk-input"
-            placeholder={getLastPartOfPath(this.props.value)}
-            onChange={this.onInputChange}
-          />
-        </div>
-      </>
+      <div className="jp-vdk-input-wrapper">
+        <label className="jp-vdk-label" htmlFor={this.props.option}>
+          {this.props.label}
+          {this.props.tooltip && (
+            <span className="tooltip">
+              <FaQuestionCircle className="icon-tooltip" />
+              <span className="tooltiptext">{this.props.tooltip}</span>
+            </span>
+          )}
+        </label>
+        <input
+          ref={this.inputRef}
+          type="text"
+          id={this.props.option}
+          className="jp-vdk-input"
+          placeholder={this.props.value}
+          style={{ width: `${this.state.inputWidth}px` }}
+          onChange={this.onInputChange}
+        />
+      </div>
     );
   }
+
   /**
-   * Callback invoked upon changing the input.
+   * Callback function invoked when the input value changes. It updates the jobData with the new value.
    *
-   * @param event - event object
+   * @param event - The event object containing details about the change event.
    */
   private onInputChange = (event: any): void => {
     const nameInput = event.currentTarget as HTMLInputElement;

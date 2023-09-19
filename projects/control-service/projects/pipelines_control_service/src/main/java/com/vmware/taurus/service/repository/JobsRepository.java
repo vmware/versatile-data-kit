@@ -8,6 +8,7 @@ package com.vmware.taurus.service.repository;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.ExecutionStatus;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -33,6 +34,12 @@ import java.util.Optional;
  */
 @Repository
 public interface JobsRepository extends PagingAndSortingRepository<DataJob, String> {
+
+  @NotNull
+  @Override
+  @Query("select j from DataJob j left join fetch j.dataJobDeployment")
+  Iterable<DataJob> findAll();
+
   List<DataJob> findAllByJobConfigTeam(String team, Pageable pageable);
 
   Optional<DataJob> findDataJobByNameAndJobConfigTeam(String jobName, String teamName);

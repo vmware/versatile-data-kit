@@ -145,3 +145,26 @@ test('should create an init cell when opening a new notebook', async ({
     page.getByText(`job_input = VDK.get_initialized_job_input()`)
   ).toBeVisible();
 });
+
+test(
+  'should create a new dir, navigate to it,' +
+    'create a new job, attempt to create a job relative to' +
+    'the original dir and succeed',
+  async ({ page }) => {
+    await page.goto('');
+    await page.getByRole('button', { name: 'New Folder' }).click();
+    await page.getByRole('listitem').getByRole('textbox').fill('test-dir');
+    await page.getByRole('listitem').getByRole('textbox').press('Enter');
+    await page.getByText('test-dir').click();
+    await page.menu.open('VDK');
+    await page.locator('#jp-vdk-menu').getByText('Create').click();
+    await page.getByLabel('Local').check();
+    await page.getByLabel('Job name:').click();
+    await page.getByLabel('Job name:').fill('first-job');
+    await page.getByLabel('Job team:').click();
+    await page.getByLabel('Job team:').fill('example-team');
+    await page.getByLabel('Path to job directory:').click();
+    await page.getByLabel('Path to job directory:').fill('test-dir');
+    await page.getByRole('button', { name: 'OK' }).click();
+  }
+);

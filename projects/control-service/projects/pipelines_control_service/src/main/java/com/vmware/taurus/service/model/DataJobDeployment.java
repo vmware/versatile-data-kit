@@ -23,7 +23,9 @@ public class DataJobDeployment {
   @Column(name = "data_job_name")
   private String dataJobName;
 
-  @OneToOne(mappedBy = "dataJobDeployment")
+  @MapsId
+  @OneToOne
+  @JoinColumn(name = "data_job_name")
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private DataJob dataJob;

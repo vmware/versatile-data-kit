@@ -7,6 +7,11 @@
   display: flex;
   flex-direction: column;
   margin-top: 15px;
+  position: relative;
+}
+
+.jp-vdk-input {
+  transition: width 0.2s;
 }
 
 .hidden {
@@ -144,4 +149,38 @@
   text-align: left;
   padding: 20px;
   width: 600px;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  margin-left: 5px;
+}
+
+.icon-tooltip {
+  cursor: pointer;
+  color: #888;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  min-width: 200px;
+  background-color: rgb(118 118 118);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 0;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -120px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }
