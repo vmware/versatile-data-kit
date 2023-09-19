@@ -45,7 +45,10 @@ deploy operation is running. Additionally, you can track the time the operation
 5. The following dialog will appear when the job deployment request has been
 successful. Note that the job will require a few minutes to be fully deployed.
 
-## Wrap-up
+## What's next
 
 You should now be familiarized with how to deploy a developed Data Job to the
 Control Service through the Jupyter UI.
+
+You can explore the VDK Examples list [here](https://github.com/vmware/versatile-data-kit/wiki/Examples).
+Alternatively, 
