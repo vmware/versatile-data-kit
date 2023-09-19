@@ -16,14 +16,15 @@
         <img src="https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FVDKProject" alt="twitter"/></a>
      <a href="https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q">
         <img alt="YouTube Channel Subscribers" src="https://img.shields.io/youtube/channel/subscribers/UCasf2Q7X8nF7S4VEmcTHJ0Q?style=social"></a>
-
-<!-- TODO: code coverage -->
 </p>
+<!-- TODO: code coverage -->
 
+---
 
+<!-- Added the line here to have some mental space between the icons, as no one in the interviews saw the first sentence -->
 <p align="center">
-  <span> 🧑‍💻 Develop </span> <span> ▶️ Run </span> <span> 📊 Manage </span> <br>
-   <span>data workloads<span>
+  <span> One framework to🧑‍💻 Develop </span> <span> ▶️ Deploy </span> <span>and 📊 Operate </span> <br>
+   <span>data workflows with Python and SQL<span>
 </p>
 
 ---
@@ -48,15 +49,15 @@
 ---
 
 <p id="intro" align="center">
-    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-blue?style=plastic" alt="Intro to VDK SDK"></a>
-    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
-    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
-    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue?style=plastic" alt="Job Deployment"></a>
-    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue?style=plastic" alt="Job Operations"></a>
-    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility"></a>
-    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue?style=plastic" alt="Contributing & Contracts"></a>
+    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-blue" alt="Intro to VDK SDK"></a>
+    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue" alt="Ingestion"></a>
+    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue" alt="Transformation"></a>
+    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue" alt="Job Deployment"></a>
+    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue" alt="Job Operations"></a>
+    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue" alt="Extensibility"></a>
+    <a href="#contributing"><img src="https://img.shields.io/badge/Support%20and%20Contributing-lightblue" alt="Support and Contributing"></a>
 </p>
-<h3 align="center">Introduction to the VDK SDK</h3>
+<h1>Introduction to the VDK SDK</h1>
 
 <table width="100%" >
   <tr>
@@ -88,15 +89,15 @@ vdk --help</code></pre>
 
 <br/><br/>
 <p id="ingestion" align="center">
-    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
-    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-blue?style=plastic" alt="Ingestion"></a>
-    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
-    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue?style=plastic" alt="Job Deployment"></a>
-    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue?style=plastic" alt="Job Operations"></a>
-    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility"></a>
-    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue?style=plastic" alt="Contributing & Contracts"></a>
+    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue" alt="Intro to VDK SDK"></a>
+    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-blue" alt="Ingestion"></a>
+    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue" alt="Transformation"></a>
+    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue" alt="Job Deployment"></a>
+    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue" alt="Job Operations"></a>
+    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue" alt="Extensibility"></a>
+    <a href="#contributing"><img src="https://img.shields.io/badge/Support%20and%20Contributing-lightblue" alt="Support and Contributing"></a>
 </p>
-<h3 align="center">Data Ingestion</h3>
+<h1>Data Ingestion</h1>
 
 <table width="100%" >
   <tr>
@@ -107,7 +108,7 @@ vdk --help</code></pre>
           <li>Load data to your preferred destination (database, cloud storage).</li>
         </ul>
         <hr>
-        <p><b>Get started with ingesting data:</b></p>
+        <p><b>Ingestion examples:</b></p>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-REST-API-into-Database">Ingesting data from REST API into Database</a> </span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Ingesting-data-from-DB-into-Database">Ingesting data from DB into Database</a></span><br>
         <span>&#10145;  <a href="https://github.com/vmware/versatile-data-kit/wiki/Ingesting-local-CSV-file-into-Database">Ingesting local CSV file into Database</a></span><br>
@@ -129,16 +130,16 @@ vdk --help</code></pre>
 
 <br/><br/>
 <p id="transformation" align="center">
-    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
-    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
-    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-blue?style=plastic" alt="Transformation"></a>
-    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue?style=plastic" alt="Job Deployment"></a>
-    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue?style=plastic" alt="Job Operations"></a>
-    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility"></a>
-    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue?style=plastic" alt="Contributing & Contracts"></a>
+    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue" alt="Intro to VDK SDK"></a>
+    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue" alt="Ingestion"></a>
+    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-blue" alt="Transformation"></a>
+    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue" alt="Job Deployment"></a>
+    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue" alt="Job Operations"></a>
+    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue" alt="Extensibility"></a>
+    <a href="#contributing"><img src="https://img.shields.io/badge/Support%20and%20Contributing-lightblue" alt="Support and Contributing"></a>
 </p>
 
-<h3 align="center">Data Transformation</h3>
+<h1>Data Transformation</h1>
 
 <table width="100%" >
   <tr>
@@ -170,16 +171,16 @@ vdk --help</code></pre>
 
 <br/><br/>
 <p id="deployment" align="center">
-    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
-    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
-    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
-    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-blue?style=plastic" alt="Job Deployment"></a>
-    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue?style=plastic" alt="Job Operations"></a>
-    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility"></a>
-    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue?style=plastic" alt="Contributing & Contracts"></a>
+    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue" alt="Intro to VDK SDK"></a>
+    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue" alt="Ingestion"></a>
+    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue" alt="Transformation"></a>
+    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-blue" alt="Job Deployment"></a>
+    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue" alt="Job Operations"></a>
+    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue" alt="Extensibility"></a>
+    <a href="#contributing"><img src="https://img.shields.io/badge/Support%20and%20Contributing-lightblue" alt="Support and Contributing"></a>
 </p>
 
-<h3 align="center">Data Job Deployment (build, deploy, release)</h3>
+<h1>Data Job Deployment (build, deploy, release)</h1>
 
 <table width="100%" >
   <tr>
@@ -216,16 +217,16 @@ vdk --help</code></pre>
 
 <br/><br/>
 <p id="operations" align="center">
-    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
-    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
-    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
-    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue?style=plastic" alt="Job Deployment"></a>
-    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-blue?style=plastic" alt="Job Operations"></a>
-    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility"></a>
-    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue?style=plastic" alt="Contributing & Contracts"></a>
+    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue" alt="Intro to VDK SDK"></a>
+    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue" alt="Ingestion"></a>
+    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue" alt="Transformation"></a>
+    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue" alt="Job Deployment"></a>
+    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-blue" alt="Job Operations"></a>
+    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue" alt="Extensibility"></a>
+    <a href="#contributing"><img src="https://img.shields.io/badge/Support%20and%20Contributing-lightblue" alt="Support and Contributing"></a>
 </p>
 
-<h3 align="center">Operations and Monitoring</h3>
+<h1>Operations and Monitoring</h1>
 
 <table width="100%" >
   <tr>
@@ -254,15 +255,15 @@ vdk --help</code></pre>
 
 <br/><br/>
 <p id="plugins" align="center">
-    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
-    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
-    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
-    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue?style=plastic" alt="Job Deployment"></a>
-    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue?style=plastic" alt="Job Operations"></a>
-    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-blue?style=plastic" alt="Extensibility"></a>
-    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-lightblue?style=plastic" alt="Contributing & Contracts"></a>
+    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue" alt="Intro to VDK SDK"></a>
+    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue" alt="Ingestion"></a>
+    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue" alt="Transformation"></a>
+    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue" alt="Job Deployment"></a>
+    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue" alt="Job Operations"></a>
+    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-blue" alt="Extensibility"></a>
+    <a href="#contributing"><img src="https://img.shields.io/badge/Support%20and%20Contributing-lightblue" alt="Support and Contributing"></a>
 </p>
-<h3 align="center">Lego like extensibility</h3>
+<h1>Lego like extensibility</h1>
 
 <table width="100%" >
   <tr>
@@ -298,24 +299,24 @@ vdk --help</code></pre>
 
 
 <br/><br/>
-<p align="center">
-    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue?style=plastic" alt="Intro to VDK SDK"></a>
-    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue?style=plastic" alt="Ingestion"></a>
-    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue?style=plastic" alt="Transformation"></a>
-    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue?style=plastic" alt="Job Deployment"></a>
-    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue?style=plastic" alt="Job Operations"></a>
-    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue?style=plastic" alt="Extensibility"></a>
-    <a href="#contributing"><img src="https://img.shields.io/badge/Contributing%20&%20Contacts-blue?style=plastic" alt="Contributing & Contracts"></a>
+<p id="contributing" align="center">
+    <a href="#intro"><img src="https://img.shields.io/badge/VDK%20SDK-lightblue" alt="Intro to VDK SDK"></a>
+    <a href="#ingestion"><img src="https://img.shields.io/badge/Data%20Ingestion-lightblue" alt="Ingestion"></a>
+    <a href="#transformation"><img src="https://img.shields.io/badge/Data%20Transformation-lightblue" alt="Transformation"></a>
+    <a href="#deployment"><img src="https://img.shields.io/badge/Data%20Job%20Deployment-lightblue" alt="Job Deployment"></a>
+    <a href="#operations"><img src="https://img.shields.io/badge/Data%20Job%20Operations-lightblue" alt="Job Operations"></a>
+    <a href="#plugins"><img src="https://img.shields.io/badge/Lego%20like%20Extensibility-lightblue" alt="Extensibility"></a>
+    <a href="#contributing"><img src="https://img.shields.io/badge/Support%20and%20Contributing-blue" alt="Support and Contributing"></a>
 </p>
 
-# Contributing
-Create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull request](https://github.com/vmware/versatile-data-kit/pulls) on GitHub to submit suggestions or changes.
+# Support and Contributing
+For Support, you can join our Slack channel, create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull request](https://github.com/vmware/versatile-data-kit/pulls) on GitHub to submit suggestions or changes. <br>
 If you are interested in contributing as a developer, visit the [contributing](https://github.com/vmware/versatile-data-kit/blob/main/CONTRIBUTING.md) page.
 
 # Contacts
-- Connect on Slack by:
-    - Joining the [CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf).
-    - Joining the [#versatile-data-kit](https://cloud-native.slack.com/archives/C033PSLKCPR) channel.
+- Message us on Slack:<br>
+    ☝️ Join the [CNCF Slack workspace](https://communityinviter.com/apps/cloud-native/cncf).<br>
+    ✌️ Join the [#versatile-data-kit](https://cloud-native.slack.com/archives/C033PSLKCPR) channel.
 - Join the [next Community Meeting](https://github.com/vmware/versatile-data-kit/wiki/Community-Meetings)
 - Follow us on [Twitter](https://twitter.com/VDKProject).
 - Subscribe to the [Versatile Data Kit YouTube Channel](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q).
