@@ -66,7 +66,7 @@
     "dompurify": "2.3.8",
     "elasticlunr": "0.9.5",
     "file-saver": "2.0.5",
-    "graphql": "16.5.0",
+    "graphql": "16.8.1",
     "html-element": "2.3.1",
     "html-frontmatter": "1.6.1",
     "js-sha256": "0.9.0",
