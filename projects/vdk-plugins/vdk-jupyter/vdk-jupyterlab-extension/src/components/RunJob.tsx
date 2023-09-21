@@ -11,14 +11,8 @@ import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 import { StatusButton } from './StatusButton';
 import { checkIcon } from '@jupyterlab/ui-components';
 
-interface IRunJobDialogState {
-  inputWidth: number;
-}
 
 export default class RunJobDialog extends Component<IJobPathProp> {
-  state: IRunJobDialogState = {
-    inputWidth: 0
-  };
 
   /**
    * Returns a React component for rendering a run menu.
@@ -36,29 +30,19 @@ export default class RunJobDialog extends Component<IJobPathProp> {
    * @returns React element
    */
   render(): React.ReactElement {
-      const { inputWidth } = this.state;
       return (
           <>
               <VDKTextInput
                   option={VdkOption.PATH}
                   value={this.props.jobPath}
                   label="Path to job directory:"
-                  onWidthComputed={(width) => this.setState({ inputWidth: width })}
               />
-              <div className="jp-vdk-input-wrapper">
-                  <label className="jp-vdk-label" htmlFor="arguments">
-                      Arguments:
-                  </label>
-                  <input
-                      type="text"
-                      id="arguments"
-                      className="jp-vdk-input"
-                      placeholder='{"key": "value"}'
-                      onChange={this._onArgsChange}
-                      style={{ width: `${inputWidth}px` }}
-                  />
-              </div>
-              <ul id="argumentsUl" className="hidden"></ul>
+              <VDKTextInput
+                  option={VdkOption.ARGUMENTS}
+                  value={'{"key": "value"}'}
+                  label="Arguments:"
+                  onChange={this._onArgsChange}
+              />
           </>
     );
   }
