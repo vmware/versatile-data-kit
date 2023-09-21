@@ -19,7 +19,9 @@ from taurus_datajob_api import DataJobExecution
 from taurus_datajob_api import DataJobExecutionRequest
 from taurus_datajob_api import DataJobsExecutionApi
 from urllib3 import Retry
+from vdk.plugin.control_api_auth.auth_config import SingletonInMemoryCredentialsCache
 from vdk.plugin.control_api_auth.authentication import Authentication
+
 
 if sys.version_info >= (3, 8):
     from functools import cached_property
@@ -248,7 +250,7 @@ class VDKHook(HttpHook):
             token=self.conn.extra_dejson.get("token", None),
             authorization_url=self.conn.extra_dejson.get("auth_server", None),
             auth_type=self.conn.extra_dejson.get("auth_type", None),
-            cache_locally=False,
+            credentials_cache=SingletonInMemoryCredentialsCache(),
         )
         self.auth.authenticate()
 
