@@ -365,6 +365,11 @@ indicators. This would make sure that the primary task doesn’t get interrupted
 or slowed down due to progress bar updates. This is really relevant for
 ingestion.
 
+The way users ingest data is by using job_input.send_object_for_ingestion and job_input.send_tabular_data_for_ingestion
+And they can use it in any step in any place in any location. Those calls are asynchronous.
+That is send_xxx adds the payload to queue and returns immediately  .
+The user can call send_tabular_data_for_ingestion at any time and that would add one more payload that need to be tracked.
+
 Also as we need progress indicators in multiple places likely we need a common
 encapsulation (or abstraction) for that - in a form of a python module or plugin. The progress
 indicator should provide a notification callback mechanism or similar so it's
@@ -387,34 +392,25 @@ For more detailed understanding of the user workflows [this research documented 
 
 ##### Core Components
 
+![progress tracker presenter](progress-tracker-presenter.svg)
+
 ###### ProgressTracker
-The core component that handles tracking of the progress for operations.
-This component will be part of vdk-core and will offer foundational tracking functionalities based on the core requirements.
+
+This is a core component designed for monitoring the progress of operations.
+It will be integrated into vdk-core and will provide essential tracking features based on above technical requirements.
+The Progress Tracker supports a tree-like hierarchical structure, allowing for the initiation of multiple sub-tasks under a high-level task.
+
+Here's a breakdown illustrating how the Progress Tracker might operate during the execution of a data job with two steps:
+
+![progress-tracker-break-down.svg](progress-tracker-break-down.svg)
+
 
 ###### API Methods
 
 - create_sub_tracker(): To create a new sub-tracker for nested tasks.
-- add(n): To add n number of new iterations (items) for tracking.
-- update(n): To update the progress by n iterations.
+- add_iterations(n): To add n number of new iterations (items) for tracking.
+- update_progress(n): To update the progress by n iterations.
 
-###### Workflow
-- On CLI execution start we will create progress tracker and store it in [CoreContext](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/core/context.py).
-    - Then when a new step starts we will create child tracker to track the step.
-        - (Optionally) When SQL query starts we can create a child tracker for the SQL query.
-        - (Optionally) When A DAG job is started within a step a new subtracker is created for each dag job and is updated by it (see below )
-    - When [Ingestor](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/ingestion/ingester_base.py) is initialized we can start a child tracker to track ingestion
-        - Each time a new data is added in queue we can use tracker.add (# payloads, likely in _send method)
-            - For this new hook could be added every time a new payload is being send (ingest_send_payload hook)
-        - Each time is sent, we update progress. (we could use existing  hook : [post_ingest_process](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/plugin/plugin_input.py#L486) )
-
-The ProgressTracker would be exposed and available in JobInput interface so it can be used by DAGs .
-
-For DAG it can be used  in this way
-```python
-current_step_progress_tracker = job_input.get_progress_tracker()
-
-dag_tracker = current_step_progress_tracker.create_sub_tracker()
-```
 
 The interface expose to the user and to plugins would look like this
 ```python
@@ -423,7 +419,7 @@ class IProgressTracker:
     A class for tracking the progress of a task and its sub-tasks.
     """
 
-    def add(self, new_iterations: int):
+    def add_iterations(self, new_iterations: int):
         """
         Adds new iterations to the total count for this tracker.
 
@@ -462,9 +458,33 @@ class IProgressTracker:
         """
 ```
 
-###### ProgressStrategy
-An abstract class in vdk-core that specifies the contract for strategy implementations in different environments.
-The basic logging strategy will be implemented in vdk-core while other strategies like CLI and notebook will be implemented in separate plugins like vdk-tqdm and vdk-jupyter.
+###### ProgressPresenter
+
+The ProgressPresenter is an interface in vdk-core that serves as the blueprint for different strategies to present or display the progress of operations in various environments.
+In essence, ProgressPresenter abstracts the "presentation layer" of progress tracking, making it versatile enough to fit different contexts—whether that's basic logging to the standard output, graphical bars in a terminal, or interactive displays in a notebook environment.
+
+There would be logging presenter implemented in vdk-core (used by default) while other strategies like CLI and notebook will be implemented in separate plugins like vdk-tqdm and vdk-jupyter.
+
+###### Workflow
+![progress-tracker-sequence.svg](progress-tracker-sequence.svg)
+
+- On CLI execution start (and data job start) we will create progress tracker and store it in [CoreContext](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/core/context.py).
+    - Then when a new data job step starts we will create child tracker to track the step.
+        - (Optionally) When SQL query starts we can create a child tracker for the SQL query.
+        - When A DAG job is started within a step a new subtracker is created (tracking all dag jobs). When job completes the tracker is updated.
+    - When [Ingestor](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/ingestion/ingester_base.py) is initialized we can start a child tracker to track ingestion
+        - Each time a new data is added in queue we can use tracker.add (# payloads, likely in _send method)
+            - For this new hook could be added every time a new payload is being send (ingest_send_payload hook)
+        - Each time is sent, we update progress. (we could use existing  hook : [post_ingest_process](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/plugin/plugin_input.py#L486) )
+
+The ProgressTracker would be exposed and available in JobInput interface so it can be used by DAGs .
+
+For DAG it can be used  in this way
+```python
+current_step_progress_tracker = job_input.get_progress_tracker()
+
+dag_tracker = current_step_progress_tracker.create_sub_tracker()
+```
 
 ###### vdk-tqdm plugin
 
@@ -479,176 +499,7 @@ Since trackers are never removed we can simply count all currently created track
 
 ##### Pseudo code
 
-```python
-import time
-from typing import List, Dict
-import threading
-
-MIN_TIME_BETWEEN_PROGRESS_UPDATE_SECONDS=5
-
-class ProgressTracker:
-    """
-    A class for tracking the progress of a task and its sub-tasks.
-    """
-
-    def __init__(self, title: str, parent: 'ProgressTracker', strategy: 'ProgressStrategy'):
-        """
-        :param title: The title of the task being tracked.
-        :param parent: The parent task tracker. None if this is the root task.
-        :param strategy: The strategy to use for tracking progress.
-        """
-        self._title = title
-        self._parent = parent
-        self._children: List['ProgressTracker'] = []
-        self._metrics: Dict[str, float] = {}
-        self._progress = 0
-        self._last_update_time = 0
-        self._last_updated_progress = 0
-        self._total_iterations = 0
-        self._strategy = strategy
-        self._lock = threading.Lock()
-
-
-    def start(self):
-        self._strategy.start()
-
-    def end(self):
-        self._strategy.end()
-
-    def __enter__(self):
-        self.start()
-        return self
-
-    def __exit__(self):
-        self.end()
-
-    def add(self, new_iterations: int):
-        """
-        Adds new iterations to the total count for this tracker.
-
-        :param new_iterations: The number of new iterations to add.
-        """
-        self._total_iterations += new_iterations
-        self._strategy.adjust_total_iteration(self._total_iterations)
-        if self._parent:
-            self._parent.add(new_iterations)
-
-    def update_progress(self, iterations: int):
-        # this is not really atomic and only works because of Python GIL
-        self._progress += iterations
-        current_time = time.time()
-        if current_time - self._last_update_time > MIN_TIME_BETWEEN_PROGRESS_UPDATE_SECONDS:
-            # we have no control over update. It might be expensive call (very least lock is expensive)
-            # as update_progress can be called millions or billions of times
-            # we need some optimization here so we buffer iterations before calling update.
-            with self._lock:
-                if current_time - self._last_update_time > MIN_TIME_BETWEEN_PROGRESS_UPDATE_SECONDS:
-                    self._strategy.update(self._progress - self._last_updated_progress)
-                    self._last_updated_progress = self._progress
-                    self._last_update_time = time.time()
-
-        if self._parent:
-            # Propagate the child's updated progress to parent
-            self._parent.update_progress(iterations)
-
-    def create_sub_tracker(self, title: str, total_iterations: int) -> ProgressTracker:
-        child = ProgressTracker(title, self, total_iterations, self._strategy)
-        self._children.append(child)
-        self._total_iterations += total_iterations
-        return child
-
-    def track_metric(self, key: str, value: float):
-        """
-        The tracked metric must be cumulative since it's aggregated in the parent.
-        Non-cumulative metrics (like rate, latency, mean, median) will not provide result.
-        Example of cumulative metrics are  records processed, errors, time spent, number of requests, successful requests, failed requests.
-        """
-        self._metrics[key] = self._metrics.get(key, 0) + value
-        if self._parent:
-            self._parent.track_metric(key, value)
-
-    def get_metrics(self):
-        return self._metrics.copy()
-
-
-
-
-
-```
-
-Below could be implemented in separate plugins
-
-```python
-from abc import ABC, abstractmethod
-
-class ProgressStrategy(ABC):
-
-    @abstractmethod
-    def start(self):
-        pass
-
-    @abstractmethod
-    def end(self):
-        pass
-
-    @abstractmethod
-    def update (self, iterations: int):
-        pass
-
-    @abstractmethod
-    def adjust_total_iteration(self, total_iterations: int):
-        pass
-
-#
-# now we can implement strategies for terminal (tqdm) , notebook, cloud :
-#
-
-class NotebookProgressStrategy(ProgressStrategy):
-    pass
-
-class CloudLoggingProgressStrategy(ProgressStrategy):
-    pass
-
-# For example:
-#
-#
-from tqdm import tqdm
-
-class TqdmProgressStrategy(ProgressStrategy):
-    def __init__(self, total_iterations: int=0):
-        self._progress = tqdm(total=total_iterations)
-
-    def start(self):
-        pass
-
-    def end(self):
-        self._progress.close()
-
-    def adjust_total_iterations(self, total_iterations: int):
-        self._progress.total = total_iterations
-
-    def update(self, new_iterations: int):
-        self._progress.update(new_iterations)
-
-if __name__ == "__main__":
-    # This is just an example actually we would use factory method and not pass TqdmProgressStrategy directly
-    with ProgressTracker("Main Task", None, TqdmProgressStrategy()) as tracker:
-        tracker.add(100)
-        tracker.update(50)
-        with ProgressTracker("Ingestion Task", None, TqdmProgressStrategy()) as step_tracker:
-            # start ingesting 10 payloads
-            step_tracker.add(10)
-            # start ingesting 10 more payloads
-            step_tracker.add(10)
-
-            step_tracker.update(10)
-            step_tracker.update(10)
-            step_tracker.track_metric("success", 20)
-            step_tracker.track_metric("lost_payloads", 0)
-
-    tracker.update(50)
-```
-
+Check out sample [implementation](./progress_tracker_pseudo_code.py) of core ProgressTracker to better understand the desgin in practice
 
 
 ## Implementation stories
