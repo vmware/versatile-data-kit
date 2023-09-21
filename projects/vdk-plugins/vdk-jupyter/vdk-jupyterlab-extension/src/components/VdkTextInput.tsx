@@ -24,6 +24,10 @@ export interface IVdkTextInputProps {
    * Optional tooltip content.
    */
   tooltip?: string;
+  /**
+   * Custom change handler if provided
+   */
+   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 interface IVdkInputState {
@@ -147,6 +151,10 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
    * @param event - The event object containing details about the change event.
    */
   private onInputChange = (event: any): void => {
+    if (this.props.onChange) {
+      this.props.onChange(event);
+    }
+
     const nameInput = event.currentTarget as HTMLInputElement;
     let value = nameInput.value;
     if (!value) value = this.props.value;
