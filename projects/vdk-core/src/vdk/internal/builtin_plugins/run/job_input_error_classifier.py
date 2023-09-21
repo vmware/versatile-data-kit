@@ -31,7 +31,9 @@ def whom_to_blame(
     :return: ResolvableBy.PLATFORM_ERROR if exception was recognized as Platform Team responsibility.
              errors.ResolvableBy.USER_ERROR if exception was recognized as User Error.
     """
-    if isinstance(exception, errors.BaseVdkError):
+    if isinstance(exception, errors.BaseVdkError) or hasattr(
+        exception, "to_be_fixed_by"
+    ):
         return errors.find_whom_to_blame_from_exception(exception)
     if is_user_error(exception, data_job_path):
         return errors.ResolvableBy.USER_ERROR
@@ -61,7 +63,8 @@ def _is_exception_from_vdk_code(exception, executor_module):
         return True
 
     for call in call_list:
-        caller_module = call.split('"')[1]  # Extract module path from stacktrace call.
+        # Extract module path from stacktrace call.
+        caller_module = call.split('"')[1]
         if vdk_code_directory in caller_module and caller_module != executor_module:
             return True
         elif (

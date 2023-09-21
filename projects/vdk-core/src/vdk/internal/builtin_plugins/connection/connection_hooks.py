@@ -10,7 +10,6 @@ from vdk.internal.builtin_plugins.connection.execution_cursor import (
     ExecuteOperationResult,
 )
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
-from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import PlatformServiceError
 
 
@@ -59,12 +58,10 @@ class ConnectionHookSpecFactory:
             return cast(ConnectionHookSpec, self.__plugin_registry.hook())
         else:
             raise PlatformServiceError(
-                ErrorMessage(
-                    "Managed Cursor not initialized properly",
-                    "Cannot connect to database using vdk managed cursor",
-                    "Plugin registry is not initialized. That seems like a bug.",
-                    "Without plugin registry the connection cannot be started",
-                    "Open a vdk github issue "
-                    "and/or revert to previous version of vdk-core.",
-                )
+                "Managed Cursor not initialized properly",
+                "Cannot connect to database using vdk managed cursor",
+                "Plugin registry is not initialized. That seems like a bug.",
+                "Without plugin registry the connection cannot be started",
+                "Open a vdk github issue "
+                "and/or revert to previous version of vdk-core.",
             )

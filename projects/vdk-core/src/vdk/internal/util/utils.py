@@ -58,9 +58,10 @@ def log_plugin_load_fail(
     :param group_name
     :return:
     """
+    errors.report(user_error, exception)
     errors.log_exception(
-        user_error,
         log,
+        exception,
         f"Cannot load plugin from setuptools entrypoint for group {group_name}",
         "See exception for possible reason",
         "The CLI tool will likely abort.",
@@ -69,5 +70,4 @@ def log_plugin_load_fail(
         " list` command) and if there aren't issues. Or try to reinstall the"
         " app in a new clean environment. Try to revert to previous version of"
         " the CLI tool. If nothing works open a SRE ticket.",
-        exception,
     )

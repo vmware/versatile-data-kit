@@ -88,17 +88,16 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
         if properties_type in self.__properties_builders:
             return self.__properties_builders.get(properties_type)
         else:
-            errors.log_and_throw(
-                errors.ResolvableBy.CONFIG_ERROR,
-                log,
-                "",
-                f"properties default type was configured to be {properties_type} "
-                f"no such properties api implementation has been registered",
-                f"",
-                f"Check if the job has not been mis-configured - for example misspelling error. "
-                f"See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())} "
-                f"Alternatively make sure the correct plugin has been installed "
-                f"providing the properties api implementation ",
+            errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"properties default type was configured to be {properties_type} "
+                    f"no such properties api implementation has been registered",
+                    f"",
+                    f"Check if the job has not been mis-configured - for example misspelling error. "
+                    f"See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())} "
+                    f"Alternatively make sure the correct plugin has been installed "
+                    f"providing the properties api implementation ",
+                )
             )
 
     def __setup_properties_from_factory_method(self):
@@ -114,31 +113,31 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
                     list(self.__properties_builders.keys())[0]
                 ]
             else:
-                errors.log_and_throw(
-                    errors.ResolvableBy.CONFIG_ERROR,
-                    log,
-                    "Properties API client cannot be chosen.",  # set by handler
-                    f"Too many choices for properties client implementation.",
-                    f"Properties API functionality does not work.",  # set by handler
-                    f"Configure which properties client implementation "
-                    f"to use with properties_default_type config option. "
-                    f"See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())}",
+                errors.report_and_throw(
+                    errors.VdkConfigurationError(
+                        "Properties API client cannot be chosen.",  # set by handler
+                        f"Too many choices for properties client implementation.",
+                        f"Properties API functionality does not work.",  # set by handler
+                        f"Configure which properties client implementation "
+                        f"to use with properties_default_type config option. "
+                        f"See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())}",
+                    )
                 )
 
             for p in self.__config.get_properties_write_preprocess_sequence():
                 if p not in self.__properties_builders.keys():
-                    errors.log_and_throw(
-                        to_be_fixed_by=ResolvableBy.CONFIG_ERROR,
-                        log=log,
-                        what_happened=f"A non-valid properties type {p} configured in "
-                        "PROPERTIES_WRITE_PREPROCESS_SEQUENCE.",
-                        why_it_happened=f"No IPropertiesServiceClient handler for property type {p} "
-                        "was registered in IPropertiesRegistry.",
-                        consequences="The write pre-processing failed.",
-                        countermeasures=f"Either remove the non-valid properties type {p} from "
-                        "PROPERTIES_WRITE_PREPROCESS_SEQUENCE configuration, or"
-                        "register a corresponding IPropertiesServiceClient "
-                        "implementation via set_properties_factory_method API.",
+                    errors.report_and_throw(
+                        errors.VdkConfigurationError(
+                            f"A non-valid properties type {p} configured in "
+                            "PROPERTIES_WRITE_PREPROCESS_SEQUENCE.",
+                            f"No IPropertiesServiceClient handler for property type {p} "
+                            "was registered in IPropertiesRegistry.",
+                            "The write pre-processing failed.",
+                            f"Either remove the non-valid properties type {p} from "
+                            "PROPERTIES_WRITE_PREPROCESS_SEQUENCE configuration, or"
+                            "register a corresponding IPropertiesServiceClient "
+                            "implementation via set_properties_factory_method API.",
+                        )
                     )
 
             service_properties = DataJobsServiceProperties(
@@ -164,14 +163,14 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
         if not countermeasures:
             countermeasures = " Check why it happened and try to resolve the issue or open a ticket to SRE team."
 
-        error_handler = lambda methodname: errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=logging.getLogger(__name__),
-            what_happened="I'm trying to call method '{}' and failed.".format(
-                methodname
-            ),
-            why_it_happened=why,
-            consequences="Current  Step will fail, and as a result the whole Data Job will fail.",
-            countermeasures=countermeasures,
-        )
+        def error_handler(methodname):
+            return errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"I'm trying to call method '{methodname}' and failed.",
+                    why,
+                    "Current  Step will fail, and as a result the whole Data Job will fail.",
+                    countermeasures,
+                )
+            )
+
         return error_handler

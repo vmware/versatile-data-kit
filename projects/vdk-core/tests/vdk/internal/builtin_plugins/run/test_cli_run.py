@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import pathlib
+from json import JSONDecodeError
 from unittest.mock import MagicMock
 
 import py
@@ -13,7 +14,6 @@ from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.context import CoreContext
-from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.statestore import StateStore
 
 
@@ -94,7 +94,7 @@ def test_run_job_invalid_arguments(
     args_as_json = "arg_1=one,arg_2=2"
 
     run_impl = CliRunImpl(mock_job_factory)
-    with pytest.raises(UserCodeError):
+    with pytest.raises(JSONDecodeError):
         run_impl.create_and_run_data_job(
             context=context, data_job_directory=job_folder, arguments=args_as_json
         )

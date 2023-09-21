@@ -15,7 +15,6 @@ from typing import List
 from typing import Union
 
 from vdk.internal.core.config import convert_value_to_type_of_default_type
-from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import VdkConfigurationError
 
 
@@ -52,15 +51,13 @@ class JobConfig:
         if not os.path.isfile(self._config_file):
             if should_fail_missing_config:
                 raise VdkConfigurationError(
-                    ErrorMessage(
-                        summary="Error while loading config.ini file",
-                        what="Cannot extract job Configuration",
-                        why=f"Configuration file config.ini is missing in data job path: {data_job_path}",
-                        consequences="Cannot deploy and configure the data job without config.ini file.",
-                        countermeasures="config.ini must be in the root of the data job folder. "
-                        "Make sure the file is created "
-                        "or double check the data job path is passed correctly.",
-                    )
+                    "Error while loading config.ini file",
+                    "Cannot extract job Configuration",
+                    f"Configuration file config.ini is missing in data job path: {data_job_path}",
+                    "Cannot deploy and configure the data job without config.ini file.",
+                    "config.ini must be in the root of the data job folder. "
+                    "Make sure the file is created "
+                    "or double check the data job path is passed correctly.",
                 )
             else:
                 log.info("Missing config.ini file.")
@@ -198,15 +195,13 @@ class JobConfig:
             return value
         except ValueError:
             raise VdkConfigurationError(
-                ErrorMessage(
-                    summary="Invalid configuration property.",
-                    what=f"The configuration '{key}' property in the job's config.ini file is not valid.",
-                    why=f"The '{key}' configuration should be a positive integer, "
-                    f"but instead '{self._get_value(section, key)}' is found.",
-                    consequences="Cannot configure the data job without valid configuration.",
-                    countermeasures=f"Change the value of the '{key}' property in the job's config.ini file to "
-                    f"a positive integer and redeploy the job.",
-                )
+                "Invalid configuration property.",
+                f"The configuration '{key}' property in the job's config.ini file is not valid.",
+                f"The '{key}' configuration should be a positive integer, "
+                f"but instead '{self._get_value(section, key)}' is found.",
+                "Cannot configure the data job without valid configuration.",
+                f"Change the value of the '{key}' property in the job's config.ini file to "
+                f"a positive integer and redeploy the job.",
             )
 
     @staticmethod
@@ -225,17 +220,15 @@ class JobConfig:
         except (MissingSectionHeaderError, Exception) as e:
             log.debug(e, exc_info=True)  # Log the traceback in DEBUG mode.
             raise VdkConfigurationError(
-                ErrorMessage(
-                    summary="Error while parsing config file.",
-                    what="Cannot parse the Data Job configuration file"
-                    f" {configuration_file_path}.",
-                    why=f"Configuration file config.ini is probably corrupted. Error: {e}",
-                    consequences="Cannot deploy and configure the data job "
-                    "without "
-                    " properly set config.ini file.",
-                    countermeasures="config.ini must be UTF-8 compliant. "
-                    "Make sure the file does not contain special "
-                    "Unicode characters, or that your text editor "
-                    "has not added such characters somewhere in the file.",
-                )
+                "Error while parsing config file.",
+                "Cannot parse the Data Job configuration file"
+                f" {configuration_file_path}.",
+                f"Configuration file config.ini is probably corrupted. Error: {e}",
+                "Cannot deploy and configure the data job "
+                "without "
+                " properly set config.ini file.",
+                countermeasures="config.ini must be UTF-8 compliant. "
+                "Make sure the file does not contain special "
+                "Unicode characters, or that your text editor "
+                "has not added such characters somewhere in the file.",
             )

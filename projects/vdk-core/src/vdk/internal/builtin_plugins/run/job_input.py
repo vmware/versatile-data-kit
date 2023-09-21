@@ -25,7 +25,6 @@ from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
     SqlArgumentSubstitutor,
 )
 from vdk.internal.core.context import CoreContext
-from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import SkipRemainingStepsException
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.statestore import CommonStoreKeys
@@ -186,20 +185,16 @@ class JobInput(IJobInput):
         }
 
     def skip_remaining_steps(self) -> None:
-        error_message = ErrorMessage(
-            summary="Job/template execution was skipped.",
-            what="Job/template execution was skipped from job/template step code.",
-            why="Job/template called the job_input.skip_remaining_steps() method.",
-            consequences=(
-                "The remaining steps (if any) will not be executed and current job/template execution "
-                + "will finish. The job/template will terminate with a success status."
-            ),
-            countermeasures=(
-                "Revise job/template code and determine need for skipping. "
-                + "If cancellation behaviour no longer desired, refactor the job/template code."
-            ),
-        )
-        raise SkipRemainingStepsException(error_message)
+        error_message_lines = [
+            "Job/template execution was skipped.",
+            "Job/template execution was skipped from job/template step code.",
+            "Job/template called the job_input.skip_remaining_steps() method.",
+            "The remaining steps (if any) will not be executed and current job/template execution "
+            + "will finish. The job/template will terminate with a success status.",
+            "Revise job/template code and determine need for skipping. "
+            + "If cancellation behaviour no longer desired, refactor the job/template code.",
+        ]
+        raise SkipRemainingStepsException(*error_message_lines)
 
     def get_temporary_write_directory(self) -> pathlib.Path:
         path_string = self.__statestore.get(CommonStoreKeys.TEMPORARY_WRITE_DIRECTORY)

@@ -55,17 +55,17 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
             if result.get_exception_to_raise():
                 raise result.get_exception_to_raise()
             else:
-                errors.log_and_throw(
-                    errors.ResolvableBy.PLATFORM_ERROR,
-                    logging.getLogger(__name__),
-                    f"Template `{name}` failed.",
-                    f"No exception is reported. This is not expected. "
-                    f"Execution steps of templates were {result.steps_list}",
-                    "We will raise an exception now. Likely the job will fail.",
-                    f"Check out the error and fix the template invocation "
-                    f"or fix the template by installing the correct plugin."
-                    f" Or open an issue on the support team or "
-                    f"Versatile Data Kit or the plugin provider of the template",
+                errors.report_and_throw(
+                    errors.PlatformServiceError(
+                        f"Template `{name}` failed.",
+                        f"No exception is reported. This is not expected. "
+                        f"Execution steps of templates were {result.steps_list}",
+                        "We will raise an exception now. Likely the job will fail.",
+                        f"Check out the error and fix the template invocation "
+                        f"or fix the template by installing the correct plugin."
+                        f" Or open an issue on the support team or "
+                        f"Versatile Data Kit or the plugin provider of the template",
+                    )
                 )
         return result
 
@@ -73,13 +73,13 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         if name in self._registered_templates:
             return self._registered_templates[name]
         else:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=logging.getLogger(__file__),
-                what_happened=f"No registered template with name: {name}.",
-                why_it_happened="Template with that name has not been registered",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures="Make sure you have not misspelled the name of the template "
-                "or the plugin(s) providing the template is installed. "
-                f"Current list of templated is: {list(self._registered_templates.keys())}",
+            errors.report_and_throw(
+                errors.UserCodeError(
+                    f"No registered template with name: {name}.",
+                    "Template with that name has not been registered",
+                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    "Make sure you have not misspelled the name of the template "
+                    "or the plugin(s) providing the template is installed. "
+                    f"Current list of templated is: {list(self._registered_templates.keys())}",
+                )
             )

@@ -13,25 +13,132 @@ from __future__ import annotations
 import enum
 import logging
 import re
-import sys
-import traceback
 from collections import defaultdict
 from enum import Enum
 from logging import Logger
-from types import TracebackType
-from typing import cast
 
 log = logging.getLogger(__name__)
-MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE = (
-    "I'm rethrowing this exception to my caller to process."
-    "Most likely this will result in failure of current Data Job."
-)
-MSG_CONSEQUENCE_TERMINATING_APP = (
-    "The provided Data Job will not be executed. Terminating application."
-)
-MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION = (
-    "See contents of the exception and fix the problem that causes it."
-)
+
+# ERROR TYPES
+
+
+class BaseVdkError(Exception):
+    def __init__(
+        self,
+        vdk_resolvable_actual: ResolvableByActual = None,
+        vdk_type: ResolvableBy = None,
+        *error_message_lines: str,
+    ):
+        """
+        :param vdk_resolvable_actual: who whould resolve the error (User or Platform Team)
+        :param vdk_type: the vdk error type, e.g. Platform, User or Config error
+        :param *error_message_lines: optional, the error message lines used to build the error representation
+        """
+
+        # Check if error message or dict was passed
+        # for compatibility with vdk plugins
+        error_message = ""
+        if error_message_lines and isinstance(error_message_lines[0], ErrorMessage):
+            message = error_message_lines[0]
+            error_message += message.summary
+            error_message += message.what
+            error_message += message.why
+            error_message += message.consequences
+            error_message += message.countermeasures
+        elif error_message_lines and isinstance(error_message_lines[0], dict):
+            message = error_message_lines[0]
+            error_message += "\n".join(message.values())
+        else:
+            for line in error_message_lines:
+                error_message += line
+                error_message += "\n"
+        super().__init__(error_message)
+        self._vdk_resolvable_actual = vdk_resolvable_actual
+        self._vdk_type = vdk_type
+        self._prettify_message(str(error_message))
+
+    def __str__(self):
+        return self._pretty_message
+
+    def __repr__(self):
+        return self._pretty_message
+
+    def _prettify_message(self, message):
+        """
+        :param message: the error message string that should be prettified
+
+        Creates a box with a header and body around the error message.
+        The header contains the error class name, the error type and
+        who should resolve the error. The body contains the actual error
+        message. The box length is determined by the header lenght. Lines
+        in the body that are longer than the header are wrapped on the
+        first space before the max length cutoff.
+
+        Example:
+
+            +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            +   VdkConfigurationError: An error of type Configuration error occurred. Error should be fixed by Platform   +
+            +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            +  Provided configuration variable for DB_DEFAULT_TYPE has invalid value.                                     +
+            +  VDK was run with DB_DEFAULT_TYPE=sqlite, however sqlite is invalid value for this variable.                +
+            +  I'm rethrowing this exception to my caller to process.Most likely this will result in failure of           +
+            +  current Data Job.                                                                                          +
+            +  Provide either valid value for DB_DEFAULT_TYPE or install database plugin that supports this type.         +
+            +  Currently possible values are []                                                                           +
+            +                                                                                                             +
+            +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        """
+        box_char = "+"
+        header = f"{self.__class__.__name__}: An error of type {self._vdk_type} occurred. Error should be fixed by {self._vdk_resolvable_actual}"
+        lines = message.split("\n")
+        max_len = len(header)
+        # Wrap the message lines
+        wrapped_lines = []
+        for line in lines:
+            # Find the nearest space if a line is
+            # longer than the header and wrap around it
+            # Do this until the remainder of the line is shorter
+            # than the header
+            if len(line) > max_len:
+                l = line
+                while len(l) > max_len:
+                    br = max_len
+                    while l[br] != " " and br > 0:
+                        br -= 1
+                    if br == 0:
+                        br = max_len
+                    wrapped_lines.append(l[: br + 1])
+                    l = l[br + 1 :]
+                wrapped_lines.append(l)
+            else:
+                wrapped_lines.append(line)
+        # build th header
+        header = box_char + header.center(max_len + 6) + box_char
+        # build the lines with the box char
+        lines = [
+            box_char + "  " + s.ljust(max_len + 4) + box_char for s in wrapped_lines
+        ]
+        # build the box sides
+        side = (max_len + 8) * box_char
+        self._pretty_message = "\n".join(
+            ["\n" + side, header, side, "\n".join(lines), side]
+        )
+
+
+class SkipRemainingStepsException(BaseVdkError):
+    """
+    An exception used to skip the remaining steps of a Data Job.
+
+    When this exception is thrown from a data job python step, all the other steps will
+    be skipped and the data job execution will exit and be marked as success.
+    """
+
+    def __init__(self, *error_message_lines: str):
+        super().__init__(None, None, *error_message_lines)
+
+
+# RESOLVABLE CONTEXT
 
 
 @enum.unique
@@ -73,10 +180,6 @@ class ResolvableByActual(str, Enum):
     USER = "User"
 
 
-# overwrite when running in kubernetes
-CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableByActual.PLATFORM
-
-
 class Resolvable:
     """
     Contains context of a resolvable error
@@ -92,7 +195,7 @@ class Resolvable:
         self,
         resolvable_by: ResolvableBy,
         resolvable_by_actual: ResolvableByActual,
-        error_message: ErrorMessage,
+        error_message: str,
         exception: BaseException,
         resolved: bool = False,
     ):
@@ -157,112 +260,7 @@ def clear_intermediate_errors():
     resolvable_context().clear()
 
 
-class BaseVdkError(Exception):
-    """For all errors risen from our "code" (vdk)
-
-    There are two child branches in exception hierarchy:
-     - Service errors
-     - Domain errors
-    """
-
-    def __init__(self, error_message: ErrorMessage):
-        """
-
-        :param error_message: required - error message describing the error
-        :param cause_exception: cause exception. Included if you want to be visualized by toString().
-                In python you specify cause using `raise X from Cause`
-                https://docs.python.org/3/tutorial/errors.html#exception-chaining
-        """
-        super().__init__(str(error_message))
-
-
-class PlatformServiceError(BaseVdkError):
-    """
-    Error caused by issue in Platform
-
-    Service error are those errors which indicate for bad condition of the service. which prevent the normal
-    completion of given request. User can do little more beyond retrying.
-    """
-
-    pass
-
-
-class DomainError(BaseVdkError):
-    """
-    Domain errors are always function of the input and the current system state.
-
-    In contrast to the service errors they occur always upon same conditions.
-    In most of the cases the client can determine what is wrong and knows how to recover.
-    """
-
-    pass
-
-
-class VdkConfigurationError(DomainError):
-    """
-    An exception in the configuration of the Data Job
-
-    If job is executed on user (local execution) premises - this is considered #RESOLVED_BY_JOB_OWNER
-    Otherwise If job is executed in "cloud" - this is considered #RESOLVED_BY_PLATFORM class of error
-    """
-
-    pass
-
-
-class UserCodeError(DomainError):
-    """Exception in user code"""
-
-    pass
-
-
-class SkipRemainingStepsException(DomainError):
-    """
-    An exception used to skip the remaining steps of a Data Job.
-
-    When this exception is thrown from a data job python step, all the other steps will
-    be skipped and the data job execution will exit and be marked as success.
-    """
-
-    pass
-
-
-class ErrorMessage:
-    """
-    Standard format for Error messages in VDK. Use it when throwing exceptions or logging error level.
-    """
-
-    def __init__(
-        self, summary: str, what: str, why: str, consequences: str, countermeasures: str
-    ):
-        self.summary = summary
-        self.what = what
-        self.why = why
-        self.consequences = consequences
-        self.countermeasures = countermeasures
-
-    def _get_template(self, replace_with: str) -> str:
-        return "{}r%15s : {}r%15s : {}r%15s : {}r%15s : {}".replace(
-            "r", replace_with
-        ) % (
-            "what happened".upper(),
-            "why it happened".upper(),
-            "consequences".upper(),
-            "countermeasures".upper(),
-        )
-
-    def _to_string(self, template: str) -> str:
-        return template.format(
-            self.summary, self.what, self.why, self.consequences, self.countermeasures
-        )
-
-    def __str__(self) -> str:
-        return self._to_string(self._get_template("\n"))
-
-    def to_html(self) -> str:
-        """
-        :return: html representaiton of the error.
-        """
-        return self._to_string(self._get_template("<br />"))
+# ERROR CLASSIFICATION
 
 
 def get_blamee_overall() -> ResolvableByActual | None:
@@ -313,210 +311,21 @@ def get_blamee_overall_user_error() -> str:
     blamee_user_errors = resolvable_context().resolvables.get(
         ResolvableByActual.USER, []
     )
-    return str(blamee_user_errors[0].error_message) if blamee_user_errors else None
-
-
-def log_exception(
-    to_be_fixed_by: ResolvableBy,
-    log: Logger,
-    what_happened: str,
-    why_it_happened: str,
-    consequences: str,
-    countermeasures: str,
-    exception: BaseException,
-) -> None:
-    """
-    Log message only if it has not been logged already.
-    Does not throw it again.
-    """
-    if __error_is_logged(exception):
-        return
-
-    resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = __build_message_for_end_user(
-        to_be_fixed_by,
-        resolvable_by_actual,
-        what_happened,
-        why_it_happened,
-        consequences,
-        countermeasures,
-    )
-    resolvable_context().add(
-        Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, exception)
-    )
-
-    __set_error_is_logged(exception)
-    log.exception(error_message)
-
-
-def log_and_throw(
-    to_be_fixed_by: ResolvableBy,
-    log: Logger,
-    what_happened: str,
-    why_it_happened: str,
-    consequences: str,
-    countermeasures: str,
-) -> None:
-    """
-    Log error message and then throw it to be handled up the stack.
-    """
-
-    resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = __build_message_for_end_user(
-        to_be_fixed_by,
-        resolvable_by_actual,
-        what_happened,
-        why_it_happened,
-        consequences,
-        countermeasures,
-    )
-
-    exception: BaseVdkError
-    if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        exception = PlatformServiceError(error_message)
-    elif ResolvableBy.USER_ERROR == to_be_fixed_by:
-        exception = UserCodeError(error_message)
-    elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
-        exception = VdkConfigurationError(error_message)
-    else:
-        raise Exception(
-            "BUG! Fix me!"
-        )  # What type is the error that caused this and whom to blame Platform or Data Jobs Developer?
-
-    try:
-        raise exception
-    except BaseVdkError as e:
-        resolvable_context().add(
-            Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
-        )
-        lines = __get_caller_stacktrace()
-        log.error(str(error_message) + "\n" + lines)
-        __set_error_is_logged(e)
-        raise
-
-
-def log_and_rethrow(
-    to_be_fixed_by: ResolvableBy,
-    log: Logger,
-    what_happened: str,
-    why_it_happened: str,
-    consequences: str,
-    countermeasures: str,
-    exception: BaseException,
-    wrap_in_vdk_error=False,
-) -> None:
-    """
-    Log message only if it has not been logged already. And throws it again. Use it to handle coming exceptions.
-    :param to_be_fixed_by:
-    :param log:
-    :param what_happened: same as ErrorMessage#what
-    :param why_it_happened: same as ErrorMessage#why
-    :param consequences: same as ErrorMessage#consequences
-    :param countermeasures: same as ErrorMessage#countermeasures
-    :param exception: the exception message to re-throw
-    :param wrap_in_vdk_error: If the exception is not wrapped by BaseVdkError
-            it will wrap it in corresponding BaseVdkError exception based on to_be_fixed_by parameter
-    """
-
-    resolvable_by_actual = __error_type_to_actual_resolver(to_be_fixed_by)
-    error_message = __build_message_for_end_user(
-        to_be_fixed_by,
-        resolvable_by_actual,
-        what_happened,
-        why_it_happened,
-        consequences,
-        countermeasures,
-    )
-
-    to_be_raised_exception = exception
-    if wrap_in_vdk_error:
-        to_be_raised_exception = __wrap_exception_if_not_already(
-            to_be_fixed_by, error_message, exception
-        )
-
-    if not __error_is_logged(exception):
-        log.exception(error_message)
-        __set_error_is_logged(exception)
-
-    try:
-        raise to_be_raised_exception from exception if wrap_in_vdk_error else exception
-    except Exception as e:
-        resolvable_context().add(
-            Resolvable(to_be_fixed_by, resolvable_by_actual, error_message, e)
-        )
-        raise
+    return str(blamee_user_errors[0].exception) if blamee_user_errors else None
 
 
 def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:
     """
     Tries to determine if it's user or platform error
     """
-    if issubclass(type(exception), UserCodeError):
-        return ResolvableBy.USER_ERROR
-    if issubclass(type(exception), VdkConfigurationError):
-        return (
-            ResolvableBy.CONFIG_ERROR
-        )  # TODO find out if this is a local or platform deployment and fix this line.
-    if issubclass(type(exception), PlatformServiceError):
-        return ResolvableBy.PLATFORM_ERROR
+    if hasattr(exception, "_vdk_type"):
+        return getattr(exception, "_vdk_type")
     return ResolvableBy.PLATFORM_ERROR
 
 
 def _get_exception_message(exception: Exception) -> str:
     """Returns the message part of an exception as string"""
     return str(exception).strip()
-
-
-class __CustomMessageExceptionDecorator:
-    """
-    Provides custom message for an exception.
-
-    Needed in order for the end-user to be better informed for the exceptional condition.
-    """
-
-    def __init__(self, exception: Exception) -> None:
-        self._exception = exception
-
-    def get_custom_message(self) -> str | None:
-        """
-        Attach custom message for end-user to exception.
-
-        :return: decorated exception message.
-        """
-        return self._decorate_exception_message(self._exception)
-
-    @staticmethod
-    def _decorate_exception_message(exception: Exception) -> str | None:
-        if exception_matches(exception, "OSError", ".*File too large.*"):
-            message = (
-                "File size limit  for Data Job has been exceeded."
-                "Optimize the disk utilization of your Data Job."
-                "For local runs this limit can be changed by 'export VDK_RESOURCE_LIMIT_DISK_MB=<new-value>'."
-                "For cloud run you can fill in a Service Request (http://go/resource-limits) for the limit to be changed."
-                "This limit does not apply to macOS and Windows execution environments."
-            )
-            return f"An exception occurred, exception message was: {message}"
-
-        if exception_matches(exception, "RuntimeError", ".*can't start new thread.*"):
-            message = (
-                "Unable to start new thread. Optimize thread usage of your Data Job."
-            )
-            return f"An exception occurred, exception message was: {message}"
-        return None
-
-
-def MSG_WHY_FROM_EXCEPTION(exception: Exception) -> str:
-    """
-    Try to figure what is the reason for the failure (why) from the exception and return as a reason.
-    """
-    custom_message = __CustomMessageExceptionDecorator(exception).get_custom_message()
-    return (
-        custom_message
-        if custom_message
-        else "An exception occurred, exception message was: {}".format(
-            _get_exception_message(exception)
-        )
-    )
 
 
 def exception_matches(
@@ -548,53 +357,6 @@ def exception_matches(
     return grp == msg
 
 
-def __build_message_for_end_user(
-    to_be_fixed_by: ResolvableBy,
-    to_be_fixed_by_actual: ResolvableByActual,
-    what_happened: str,
-    why_it_happened: str,
-    consequences: str,
-    countermeasures: str,
-) -> ErrorMessage:
-    error = ""
-    if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        error = " Platform service error "
-    elif ResolvableBy.USER_ERROR == to_be_fixed_by:
-        error = "n error in data job code "
-    elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
-        error = " configuration error "
-
-    return ErrorMessage(
-        "A{} occurred. The error should be resolved by {}. Here are the details:".format(
-            error, to_be_fixed_by_actual
-        ),
-        what_happened.strip(),
-        why_it_happened.strip(),
-        consequences.strip(),
-        countermeasures.strip(),
-    )
-
-
-def __get_caller_stacktrace(exception: BaseException = None) -> str:
-    """
-    :return: stacktrace excluding this method (hence caller stacktrace)
-    """
-    tb = (
-        exception.__traceback__
-        if exception and exception.__traceback__
-        else cast(TracebackType, sys.exc_info()[2])
-    )
-    f = tb.tb_frame.f_back
-    lst = ["Traceback (most recent call first):\n"]
-    fstack = traceback.extract_stack(f)
-    fstack.reverse()
-    lst = lst + traceback.format_list(fstack)
-    lines = ""
-    for line in lst:
-        lines = lines + line
-    return lines
-
-
 def __error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> ResolvableByActual:
     if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
         return ResolvableByActual.PLATFORM
@@ -602,37 +364,237 @@ def __error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> ResolvableB
         return ResolvableByActual.USER
     if ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
         return CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY
+    # We should never reach this
     raise Exception(
         "BUG! Fix me!"
     )  # What type is the error that caused this and whom to blame, Platform or Data Jobs Developer?
 
 
-def __wrap_exception_if_not_already(
-    to_be_fixed_by: ResolvableBy, msg: ErrorMessage, exception: BaseException
-):
-    if isinstance(exception, BaseVdkError):
-        # already wrapped
-        return exception
+# REPORTING
 
-    # TODO: how to assign cause (new_ex from old_ex) ?
-    if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        return PlatformServiceError(msg)
-    elif ResolvableBy.USER_ERROR == to_be_fixed_by:
-        return UserCodeError(msg)
-    elif ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
-        return VdkConfigurationError(msg)
-    else:
-        log.warning(
-            "Unknown to_be_fixed_by type. "
-            "This seems like a bug. We cannot wrap exception and return original one "
+
+def log_exception(log: Logger, exception: BaseException, *lines: str) -> None:
+    """
+    Log message and exception
+    """
+    message = "\n".join([s for s in lines if s])
+    log.warning(message)
+    log.exception(exception)
+
+
+def report(error_type: ResolvableBy, exception: BaseException):
+    resolvable_by_actual = __error_type_to_actual_resolver(error_type)
+    setattr(exception, "_vdk_resolvable_actual", resolvable_by_actual)
+    setattr(exception, "_vdk_type", error_type)
+    resolvable_context().add(
+        Resolvable(error_type, resolvable_by_actual, str(exception), exception)
+    )
+
+
+def report_and_throw(
+    exception: BaseVdkError,
+) -> None:
+    """
+    Add exception to resolvable context and then throw it to be handled up the stack.
+    """
+    resolvable_context().add(
+        Resolvable(
+            exception._vdk_type,
+            exception._vdk_resolvable_actual,
+            str(exception),
+            exception,
         )
-        return exception
+    )
+    raise exception
 
 
-def __error_is_logged(exception: BaseException) -> bool:
-    """Check if exception has custom added attribute is_logged"""
-    return hasattr(exception, "is_logged")
+def report_and_rethrow(error_type: ResolvableBy, exception: BaseException) -> None:
+    """
+    Add exception to resolvable context and then throw it to be handled up the stack.
+    """
+    report(error_type, exception)
+    raise exception
 
 
-def __set_error_is_logged(exception: BaseException):
-    setattr(exception, "is_logged", True)
+# CONVENIENCE
+
+# overwrite when running in kubernetes
+CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableByActual.PLATFORM
+
+MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE = (
+    "I'm rethrowing this exception to my caller to process."
+    "Most likely this will result in failure of current Data Job."
+)
+MSG_CONSEQUENCE_TERMINATING_APP = (
+    "The provided Data Job will not be executed. Terminating application."
+)
+MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION = (
+    "See contents of the exception and fix the problem that causes it."
+)
+
+
+def MSG_WHY_FROM_EXCEPTION(exception: Exception) -> str:
+    """
+    Try to figure what is the reason for the failure (why) from the exception and return as a reason.
+    """
+    if exception_matches(exception, "OSError", ".*File too large.*"):
+        message = (
+            "File size limit  for Data Job has been exceeded."
+            "Optimize the disk utilization of your Data Job."
+            "For local runs this limit can be changed by 'export VDK_RESOURCE_LIMIT_DISK_MB=<new-value>'."
+            "For cloud run you can fill in a Service Request (http://go/resource-limits) for the limit to be changed."
+            "This limit does not apply to macOS and Windows execution environments."
+        )
+        return f"An exception occurred, exception message was: {message}"
+
+    if exception_matches(exception, "RuntimeError", ".*can't start new thread.*"):
+        message = "Unable to start new thread. Optimize thread usage of your Data Job."
+        return f"An exception occurred, exception message was: {message}"
+
+    return _get_exception_message(exception)
+
+
+# COMPATIBILITY
+
+
+def log_and_throw(
+    to_be_fixed_by: ResolvableBy,
+    log: Logger,
+    what_happened: str,
+    why_it_happened: str,
+    consequences: str,
+    countermeasures: str,
+) -> None:
+    """
+    Deprecated: "Use report_and_throw and do the logging separately"
+
+    log_and_throw kept for compatibility of plugins with older version of vdk-core
+    """
+    message = [what_happened, why_it_happened, consequences, countermeasures]
+    if to_be_fixed_by == ResolvableBy.USER_ERROR:
+        report_and_throw(UserCodeError(*message))
+    if to_be_fixed_by == ResolvableBy.PLATFORM_ERROR:
+        report_and_throw(PlatformServiceError(*message))
+    if to_be_fixed_by == ResolvableBy.CONFIG_ERROR:
+        report_and_throw(VdkConfigurationError(*message))
+
+
+def log_and_rethrow(
+    to_be_fixed_by: ResolvableBy,
+    log: Logger,
+    what_happened: str,
+    why_it_happened: str,
+    consequences: str,
+    countermeasures: str,
+    exception: BaseException,
+    wrap_in_vdk_error=False,
+) -> None:
+    """
+    Deprecated: Use report_and_rethrow and do the logging separately
+
+    log_and_rethrow kept for compatibility of plugins with older version of vdk-core
+    """
+    if wrap_in_vdk_error:
+        pass
+        # wrap
+    message = [what_happened, why_it_happened, consequences, countermeasures]
+    log.error("\n".join(message))
+    report_and_rethrow(to_be_fixed_by, exception)
+
+
+class ErrorMessage:
+    """
+    Deprecated: Pass the error message lines to the vdk exception directly
+
+    Standard format for Error messages in VDK. Use it when throwing exceptions or logging error level.
+    """
+
+    def __init__(
+        self, summary: str, what: str, why: str, consequences: str, countermeasures: str
+    ):
+        self.summary = summary
+        self.what = what
+        self.why = why
+        self.consequences = consequences
+        self.countermeasures = countermeasures
+
+    def _get_template(self, replace_with: str) -> str:
+        return "{}r%15s : {}r%15s : {}r%15s : {}r%15s : {}".replace(
+            "r", replace_with
+        ) % (
+            "what happened".upper(),
+            "why it happened".upper(),
+            "consequences".upper(),
+            "countermeasures".upper(),
+        )
+
+    def _to_string(self, template: str) -> str:
+        return template.format(
+            self.summary, self.what, self.why, self.consequences, self.countermeasures
+        )
+
+    def __str__(self) -> str:
+        return self._to_string(self._get_template("\n"))
+
+    def to_html(self) -> str:
+        """
+        :return: html representaiton of the error.
+        """
+        return self._to_string(self._get_template("<br />"))
+
+
+class DomainError(BaseVdkError):
+    """
+    Deprecated: Use BaseVdkError directly or extend BaseVdkError into a domain-specific class
+    """
+
+    pass
+
+
+class PlatformServiceError(BaseVdkError):
+    """
+    Deprecated: Use BaseVdkError directly or extend BaseVdkError into a domain-specific class
+
+    Error caused by issue in Platform
+
+    Service error are those errors which indicate for bad condition of the service. which prevent the normal
+    completion of given request. User can do little more beyond retrying.
+    """
+
+    def __init__(self, *error_message_lines: str):
+        super().__init__(
+            ResolvableByActual.PLATFORM,
+            ResolvableBy.PLATFORM_ERROR,
+            *error_message_lines,
+        )
+
+
+class VdkConfigurationError(BaseVdkError):
+    """
+    Deprecated: Use BaseVdkError directly or extend BaseVdkError into a domain-specific class
+
+    An exception in the configuration of the Data Job
+
+    If job is executed on user (local execution) premises - this is considered #RESOLVED_BY_JOB_OWNER
+    Otherwise If job is executed in "cloud" - this is considered #RESOLVED_BY_PLATFORM class of error
+    """
+
+    def __init__(self, *error_message_lines: str):
+        super().__init__(
+            CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY,
+            ResolvableBy.CONFIG_ERROR,
+            *error_message_lines,
+        )
+
+
+class UserCodeError(BaseVdkError):
+    """
+    Deprecated: Use BaseVdkError directly or extend BaseVdkError into a domain-specific class
+
+    Error caused by issue in user code
+    """
+
+    def __init__(self, *error_message_lines: str):
+        super().__init__(
+            ResolvableByActual.USER, ResolvableBy.USER_ERROR, *error_message_lines
+        )
