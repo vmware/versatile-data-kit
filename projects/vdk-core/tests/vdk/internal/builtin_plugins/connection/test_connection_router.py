@@ -1,9 +1,9 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from unittest.mock import MagicMock
 
 import pytest
+import structlog
 from vdk.api.plugin.connection_hook_spec import (
     ConnectionHookSpec,
 )
@@ -29,7 +29,7 @@ def managed_connection_router():
             return mock_conn
 
     test_managed_connection = TestManagedConnection(
-        logging.getLogger(), None, mock_connection_hook_spec_factory
+        structlog.getLogger(), None, mock_connection_hook_spec_factory
     )
 
     router = ManagedConnectionRouter(conf, MagicMock(spec=ConnectionHookSpec))

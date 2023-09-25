@@ -1,6 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import smtplib
 import time
 from abc import ABC
@@ -9,12 +8,13 @@ from email.mime.text import MIMEText
 from functools import reduce
 from typing import List
 
+import structlog
 from vdk.internal.builtin_plugins.notification.notification_configuration import (
     SmtpConfiguration,
 )
 from vdk.internal.core import errors
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class LoggingSMTP(smtplib.SMTP):
@@ -76,7 +76,7 @@ class EmailNotification(INotification):
         else:
             valid_cc = ",".join(self._get_valid_cc())
             if valid_cc:
-                logging.getLogger(__name__).warning(
+                log = structlog.get_logger().warning(
                     "No valid recipient address is given"
                 )
                 email_message = self._build_message(
@@ -90,11 +90,11 @@ class EmailNotification(INotification):
                 )
                 self._send_message(email_message)
             elif (not valid_cc) and self._cc:
-                logging.getLogger(__name__).warning(
+                log = structlog.get_logger().warning(
                     "No valid recipients or CC addresses given"
                 )
             else:
-                logging.getLogger(__name__).debug("Empty list of recipients is given")
+                log = structlog.get_logger().debug("Empty list of recipients is given")
 
     def _send_message(self, msg):
         log.debug(f"Send message {msg}")
@@ -250,7 +250,7 @@ class InfraErrorEmailNotificationMessageBuilder(EmailNotificationMessageBuilder)
                 "successful job execution, you can set it up in config.ini",
             ).to_html()
         else:
-            logging.getLogger(__name__).warning(
+            log = structlog.get_logger().warning(
                 "Unknown exec_type [{}]".format(
                     exec_type if exec_type is not None else "None"
                 )

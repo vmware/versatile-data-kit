@@ -3,9 +3,9 @@
 """
 Detailed documentation of VDK provided functionalities in job_input object can be found in the user wiki
 """
-import logging
+import structlog
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 def run(job_input):

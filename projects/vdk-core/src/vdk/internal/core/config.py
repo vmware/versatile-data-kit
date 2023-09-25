@@ -2,19 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-import logging
 from collections import OrderedDict
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
+import structlog
 from vdk.internal.core.errors import VdkConfigurationError
 
 # Consider ConfigValue should be primitive type perhaps? and not just any object
 ConfigValue = Any
 ConfigKey = str
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 def convert_value_to_type_of_default_type(

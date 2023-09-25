@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import configparser
 import fileinput
-import logging
 import os
 import pathlib
 import re
@@ -14,11 +13,12 @@ from typing import Dict
 from typing import List
 from typing import Union
 
+import structlog
 from vdk.internal.core.config import convert_value_to_type_of_default_type
 from vdk.internal.core.errors import VdkConfigurationError
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class JobConfigKeys(str, Enum):

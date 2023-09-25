@@ -1,12 +1,12 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import os
 import pathlib
 import tempfile
 from os import getenv
 from typing import Optional
 
+import structlog
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config.job_config import JobConfig
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
@@ -28,7 +28,7 @@ OP_ID = "OP_ID"
 TEMPORARY_WRITE_DIRECTORY = "TEMPORARY_WRITE_DIRECTORY"
 PYTHON_VERSION = "PYTHON_VERSION"
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class CoreConfigDefinitionPlugin:

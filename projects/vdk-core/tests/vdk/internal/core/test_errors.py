@@ -1,16 +1,16 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import unittest
 from collections import defaultdict
 from unittest.mock import MagicMock
 
 import pytest
+import structlog
 from vdk.internal.core import errors
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import UserCodeError
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class ErrorsTest(unittest.TestCase):

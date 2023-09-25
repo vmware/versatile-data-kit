@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import logging
 import pprint
 import sys
 from dataclasses import dataclass
@@ -10,12 +9,13 @@ from typing import Any
 from typing import List
 from typing import Optional
 
+import structlog
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.core.errors import find_whom_to_blame_from_exception
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import ResolvableBy
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 @dataclass(frozen=True)

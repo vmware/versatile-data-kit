@@ -2,18 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 import imp
 import inspect
-import logging
 import pathlib
 import sys
 from typing import Callable
 from typing import List
 
+import structlog
 from vdk.api.job_input import IJobInput
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
 from vdk.internal.core.errors import SkipRemainingStepsException
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 TYPE_SQL = "sql"
 TYPE_PYTHON = "python"

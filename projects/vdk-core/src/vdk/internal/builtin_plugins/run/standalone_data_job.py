@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import json
-import logging
 import pathlib
 import sys
 from pathlib import Path
 from typing import cast
 
+import structlog
 from vdk.api.data_job import IStandaloneDataJob
 from vdk.api.job_input import IJobInput
 from vdk.api.plugin.core_hook_spec import CoreHookSpecs
@@ -28,7 +28,7 @@ from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import StateStore
 from vdk.internal.plugin.plugin import PluginRegistry
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class NoOpStepDataJobHookImplPlugin(DataJobDefaultHookImplPlugin):

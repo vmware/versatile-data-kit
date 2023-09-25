@@ -4,10 +4,10 @@
 Functional test aiming at verifying the end-to-end operation of the
 ingestion plugins chaining functionality
 """
-import logging
 import os
 from unittest import mock
 
+import structlog
 from click.testing import Result
 from vdk.plugin.test_utils.ingest_util_plugins import AddPayloadSizeAsColumn
 from vdk.plugin.test_utils.ingest_util_plugins import ConvertPayloadValuesToString
@@ -18,7 +18,7 @@ from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 def get_shared_result_data():

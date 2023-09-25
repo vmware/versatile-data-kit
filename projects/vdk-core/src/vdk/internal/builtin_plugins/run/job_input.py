@@ -1,11 +1,11 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import pathlib
 import textwrap
 from typing import List
 from typing import Optional
 
+import structlog
 from vdk.api.job_input import IJobArguments
 from vdk.api.job_input import IJobInput
 from vdk.api.job_input import ITemplate
@@ -95,7 +95,7 @@ class JobInput(IJobInput):
         query = sql
         sql_susbstitute_args = {}
         if not self.__properties_router.has_properties_impl():
-            logging.getLogger(__name__).info(
+            log = structlog.get_logger().info(
                 "Data Job Properties has not been initialized., "
                 "so I won't be able to provide query properties substitution capabilities from job properties."
                 "If passed job arguments will still be used"
@@ -106,7 +106,7 @@ class JobInput(IJobInput):
 
         sql_args = self.get_arguments()
         if not sql_args or type(sql_args) != dict:
-            logging.getLogger(__name__).debug(
+            log = structlog.get_logger().debug(
                 "No arguments are passed for Data Job, "
                 "so I won't be able to provide query parameter substitution capabilities with job arguments."
             )

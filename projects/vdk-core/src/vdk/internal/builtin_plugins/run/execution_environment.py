@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 import functools
 import getpass
-import logging
 import os
 import platform
 import socket
 import sys
 
-log = logging.getLogger(__name__)
+import structlog
+
+log = structlog.get_logger()
 
 
 class ExecutionEnvironment:

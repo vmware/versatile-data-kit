@@ -1,18 +1,18 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import textwrap
 from enum import Enum
 from typing import List
 
 import click
+import structlog
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.version import version
 from vdk.internal.builtin_plugins.version.new_version_check import Package
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class ConfigKey(str, Enum):

@@ -1,12 +1,12 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import Dict
 
 import click
+import structlog
 from vdk.internal.core import errors
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 def set_defaults_for_specific_command(

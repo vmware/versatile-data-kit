@@ -1,10 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import os
 from typing import List
 from typing import Tuple
 
+import structlog
 from vdk.api.plugin import hook_markers
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.api.plugin.plugin_registry import PluginException
@@ -15,7 +15,7 @@ from vdk.internal.plugin.plugin_manager import VdkPluginManager
 from vdk.internal.util.utils import log_plugin_load_fail
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class PluginRegistry(IPluginRegistry):

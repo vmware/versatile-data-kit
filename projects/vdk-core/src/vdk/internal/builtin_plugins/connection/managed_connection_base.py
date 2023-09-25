@@ -10,6 +10,7 @@ from typing import List
 from typing import Optional
 from typing import Type
 
+import structlog
 from tenacity import before_sleep_log
 from tenacity import retry
 from tenacity import retry_if_exception_type
@@ -25,7 +26,7 @@ from vdk.internal.builtin_plugins.run import job_input_error_classifier
 from vdk.internal.core import errors
 from vdk.internal.util.decorators import closing_noexcept_on_close
 
-logger = logging.getLogger(__name__)
+logger = log = structlog.get_logger()
 
 
 class ManagedConnectionBase(PEP249Connection, IManagedConnection):
@@ -38,7 +39,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
 
     def __init__(
         self,
-        log: logging.Logger = logger,
+        log=logger,
         db_con: Optional[PEP249Connection] = None,
         connection_hook_spec_factory: ConnectionHookSpecFactory = None,
     ):
@@ -48,7 +49,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
         if log:
             self._log = log
         else:
-            self._log = logging.getLogger(__name__)
+            self._log = structlog.get_logger()
         self._is_db_con_open: bool = db_con is not None
         self._db_con: Optional[PEP249Connection] = db_con
         self._connection_hook_spec_factory = connection_hook_spec_factory

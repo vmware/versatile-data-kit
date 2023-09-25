@@ -1,10 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import pathlib
 from typing import Dict
 from typing import Optional
 
+import structlog
 from vdk.api.job_input import ITemplate
 from vdk.api.plugin.plugin_input import ITemplateRegistry
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
@@ -12,7 +12,7 @@ from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class TemplatesImpl(ITemplateRegistry, ITemplate):

@@ -1,6 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
+import structlog
 
 
 class PEP249Connection:
@@ -40,7 +40,7 @@ class PEP249Cursor:
 
     def __init__(self, cursor, log):
         if not log:
-            log = logging.getLogger(__name__)
+            log = structlog.get_logger()
         self._cursor = cursor
         self._log = log
 

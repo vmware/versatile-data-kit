@@ -20,4 +20,5 @@ pytest-randomly
 pytest-sugar
 reorder-python-imports
 smtpdfix
+structlog
 vdk-sqlite

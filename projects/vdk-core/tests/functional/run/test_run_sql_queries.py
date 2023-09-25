@@ -7,6 +7,7 @@ from typing import cast
 from typing import Optional
 from unittest import mock
 
+import structlog
 from click.testing import Result
 from functional.run.util import job_path
 from vdk.api.plugin.hook_markers import hookimpl
@@ -23,7 +24,7 @@ from vdk.plugin.test_utils.util_plugins import SqLite3MemoryConnection
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 
@@ -75,8 +76,8 @@ class SyntaxErrorRecoverySqLite3MemoryDbPlugin:
 
 @mock.patch.dict(os.environ, {})
 def test_run_dbapi_connection_no_such_db_type():
-    logging.getLogger().setLevel(logging.INFO)
-    logging.getLogger("vdk").setLevel(logging.INFO)
+    structlog.getLogger().setLevel(logging.INFO)
+    structlog.getLogger("vdk").setLevel(logging.INFO)
     runner = CliEntryBasedTestRunner()
 
     with mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY}):

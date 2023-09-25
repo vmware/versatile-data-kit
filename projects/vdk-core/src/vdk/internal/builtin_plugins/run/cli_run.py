@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import logging
 import math
 import os
 import pathlib
@@ -13,6 +12,7 @@ from typing import List
 from typing import Optional
 
 import click
+import structlog
 from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.config.job_config import JobConfig
 from vdk.internal.builtin_plugins.run import job_input_error_classifier
@@ -25,7 +25,7 @@ from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import VdkConfigurationError
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class CliRunImpl:

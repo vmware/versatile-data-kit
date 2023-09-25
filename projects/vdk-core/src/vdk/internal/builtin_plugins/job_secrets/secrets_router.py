@@ -1,8 +1,8 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import Any
 
+import structlog
 from vdk.api.job_input import ISecrets
 from vdk.api.plugin.plugin_input import ISecretsFactory
 from vdk.api.plugin.plugin_input import ISecretsRegistry
@@ -24,7 +24,7 @@ from vdk.internal.core.config import Configuration
 from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.util.decorators import LogDecorator
 
-log: logging.Logger = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class SecretsRouter(ISecretsRegistry, ISecrets):

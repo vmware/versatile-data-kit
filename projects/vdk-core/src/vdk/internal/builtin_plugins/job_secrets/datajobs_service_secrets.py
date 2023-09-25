@@ -1,12 +1,12 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from copy import deepcopy
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
 
+import structlog
 from vdk.api.job_input import ISecrets
 from vdk.api.plugin.plugin_input import ISecretsServiceClient
 
@@ -14,7 +14,7 @@ from ...core.errors import report_and_throw
 from ...core.errors import UserCodeError
 from .base_secrets_impl import check_valid_secret
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 SecretValue = Union[int, float, str, list, dict, None]
 

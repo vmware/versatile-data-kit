@@ -1,9 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import Dict
 
-log = logging.getLogger(__name__)
+import structlog
+
+log = structlog.get_logger()
 
 
 class SqlArgumentSubstitutor:

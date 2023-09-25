@@ -1,9 +1,9 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import os
 
 import click
+import structlog
 from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution
 from vdk.api.plugin.hook_markers import GROUP_NAME
@@ -15,7 +15,7 @@ try:  # importlib.metadata is used in 3.8+, importlib_metadata is used in 3.7
 except ImportError as e:
     import importlib_metadata as metadata
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 # Returns the version of the package named dist_name

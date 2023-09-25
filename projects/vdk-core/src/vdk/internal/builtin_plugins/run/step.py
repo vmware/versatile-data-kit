@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-import logging
 import pathlib
 from abc import ABC
 from dataclasses import dataclass
 from typing import Callable
 
+import structlog
 from vdk.api.job_input import IJobInput
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 # The function accept Step (below class) and IJobInput and

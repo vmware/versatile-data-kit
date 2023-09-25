@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-import logging
 import pathlib
 from dataclasses import dataclass
 from datetime import datetime
 from typing import cast
 
+import structlog
 from vdk.api.job_input import IJobArguments
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
@@ -27,7 +27,7 @@ from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import SkipRemainingStepsException
 from vdk.internal.core.statestore import CommonStoreKeys
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 @dataclass

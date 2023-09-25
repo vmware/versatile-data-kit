@@ -1,6 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import types
 from datetime import timedelta
 from timeit import default_timer as timer
@@ -10,6 +9,7 @@ from typing import Collection
 from typing import Container
 from typing import Optional
 
+import structlog
 from vdk.internal.builtin_plugins.connection.connection_hooks import (
     ConnectionHookSpecFactory,
 )
@@ -32,11 +32,11 @@ class ManagedCursor(ProxyCursor):
     def __init__(
         self,
         cursor: Any,
-        log: logging.Logger = None,
+        log=None,
         connection_hook_spec_factory: ConnectionHookSpecFactory = None,
     ):
         if not log:
-            log = logging.getLogger(__name__)
+            log = structlog.get_logger()
         super().__init__(cursor, log)
         self.__connection_hook_spec = None
         if connection_hook_spec_factory:

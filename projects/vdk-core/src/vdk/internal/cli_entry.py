@@ -7,6 +7,7 @@ from typing import List
 
 import click
 import click_log
+import structlog
 from click_plugins import with_plugins
 from pkg_resources import iter_entry_points
 from vdk.api.plugin.core_hook_spec import CoreHookSpecs
@@ -20,7 +21,7 @@ from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import StateStore
 from vdk.internal.plugin.plugin import PluginRegistry
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 # TODO: perhaps we do not need click-plugins and we can use vdk_initialize hook (and cli.add_command)

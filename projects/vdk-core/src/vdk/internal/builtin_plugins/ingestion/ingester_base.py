@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import logging
 import queue
 import sys
 import threading
@@ -11,6 +10,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 
+import structlog
 from vdk.api.job_input import IIngester
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.internal.builtin_plugins.ingestion import ingester_utils
@@ -25,7 +25,7 @@ from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class IngesterBase(IIngester):

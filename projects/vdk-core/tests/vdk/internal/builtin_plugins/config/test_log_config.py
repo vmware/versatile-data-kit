@@ -6,6 +6,7 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
+import structlog
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.config import log_config
 from vdk.internal.builtin_plugins.config import vdk_config
@@ -39,8 +40,8 @@ from vdk.internal.core.statestore import StateStore
 def test_log_plugin(log_type, vdk_level, expected_vdk_level):
     try:
         with mock.patch("socket.socket.connect"):
-            logging.getLogger().setLevel(logging.DEBUG)  # root level
-            logging.getLogger("vdk").setLevel(logging.NOTSET)  # reset vdk log level
+            structlog.getLogger().setLevel(logging.DEBUG)  # root level
+            structlog.getLogger("vdk").setLevel(logging.NOTSET)  # reset vdk log level
 
             log_plugin = LoggingPlugin()
 
@@ -72,11 +73,11 @@ def test_log_plugin(log_type, vdk_level, expected_vdk_level):
             log_plugin.initialize_job(job_context)
 
             assert (
-                logging.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
+                structlog.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
             ), "internal vdk logs must be set according to configuration option LOG_LEVEL_VDK but are not"
     finally:
-        logging.getLogger().setLevel(logging.INFO)
-        logging.getLogger("vdk").setLevel(logging.INFO)
+        structlog.getLogger().setLevel(logging.INFO)
+        structlog.getLogger("vdk").setLevel(logging.INFO)
 
 
 def test_parse_log_level_module():
@@ -132,5 +133,5 @@ def test_log_plugin_exception():
             # Test except: section in initialize_job and expect no exceptions
             log_plugin.initialize_job(job_context)
         finally:
-            logging.getLogger().setLevel(logging.INFO)
-            logging.getLogger("vdk").setLevel(logging.INFO)
+            structlog.getLogger().setLevel(logging.INFO)
+            structlog.getLogger("vdk").setLevel(logging.INFO)

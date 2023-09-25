@@ -1,12 +1,12 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from copy import deepcopy
 from typing import Dict
 
+import structlog
 from vdk.api.plugin.plugin_input import ISecretsServiceClient
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class InMemSecretsServiceClient(ISecretsServiceClient):

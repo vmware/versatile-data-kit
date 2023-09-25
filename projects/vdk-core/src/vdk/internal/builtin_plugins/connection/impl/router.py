@@ -1,10 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import Callable
 from typing import Dict
 from typing import Union
 
+import structlog
 from vdk.api.plugin.plugin_input import IManagedConnectionRegistry
 from vdk.internal.builtin_plugins.config.vdk_config import DB_DEFAULT_TYPE
 from vdk.internal.builtin_plugins.connection.connection_hooks import (
@@ -20,7 +20,7 @@ from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Conn
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class ManagedConnectionRouter(IManagedConnectionRegistry):
@@ -38,7 +38,7 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
     ):
         self._cfg: Configuration = cfg
         self._connection_hook_spec_factory = connection_hook_spec_factory
-        self._log: logging.Logger = logging.getLogger(__name__)
+        self._log = structlog.get_logger()
         self._connections: Dict[str, ManagedConnectionBase] = dict()
         self._connection_builders: Dict[
             str, Callable[[], ManagedConnectionBase]
@@ -132,7 +132,7 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
                 )
             )
         else:
-            log = logging.getLogger(conn.__class__.__name__)
+            log = structlog.getLogger()
             # we will let ManagedConnection to open it when needed.
             conn.close()
             wrapped_conn = WrappedConnection(

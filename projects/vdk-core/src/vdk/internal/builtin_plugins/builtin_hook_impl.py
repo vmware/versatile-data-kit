@@ -1,12 +1,12 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import time
 import uuid
 from datetime import datetime
 from typing import List
 
 import click
+import structlog
 from vdk.api.plugin.connection_hook_spec import (
     ConnectionHookSpec,
 )
@@ -46,7 +46,7 @@ from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.internal.plugin.plugin import PluginRegistry
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class RuntimeStateInitializePlugin:

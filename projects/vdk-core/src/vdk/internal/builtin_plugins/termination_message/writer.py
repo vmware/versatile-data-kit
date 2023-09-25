@@ -1,8 +1,8 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
-import logging
 
+import structlog
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config.vdk_config import LOG_CONFIG
 from vdk.internal.builtin_plugins.termination_message import (
@@ -19,7 +19,7 @@ from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class TerminationMessageWriterPlugin:

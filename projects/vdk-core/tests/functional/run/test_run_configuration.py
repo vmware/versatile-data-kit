@@ -1,10 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import os
 from typing import Optional
 from unittest import mock
 
+import structlog
 from click.testing import Result
 from functional.run import util
 from vdk.api.plugin.hook_markers import hookimpl
@@ -53,7 +53,7 @@ def test_run_check_log_level_configured_correctly():
         @hookimpl(tryfirst=True)
         def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
             # -v may not apply to vdk packages which are controlled separately
-            logging.getLogger("other").debug(debug_log_message)
+            structlog.getLogger("other").debug(debug_log_message)
             return None  # continue with next hook impl.
 
     runner = CliEntryBasedTestRunner(DummyDebugLog())

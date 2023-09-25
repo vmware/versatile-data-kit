@@ -5,7 +5,6 @@ Ingestion Utilities
 """
 import datetime
 import itertools
-import logging
 import queue
 import threading
 import uuid
@@ -14,9 +13,10 @@ from json import JSONEncoder
 from typing import Any
 from typing import List
 
+import structlog
 from vdk.internal.core import errors
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class AtomicCounter:

@@ -1,9 +1,9 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import types
 from typing import Any
 
+import structlog
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 
 
@@ -15,7 +15,7 @@ class ProxyCursor(PEP249Cursor):
 
     """
 
-    def __init__(self, cursor: Any, log: logging.Logger = logging.getLogger(__name__)):
+    def __init__(self, cursor: Any, log=structlog.get_logger()):
         super().__init__(cursor, log)
 
     def __getattr__(self, attr):

@@ -1,16 +1,16 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import re
 from collections import OrderedDict
 from textwrap import wrap
 from typing import cast
 
 import click
+import structlog
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.core.context import CoreContext
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 CONFIG_HELP = """
 Configuring VDK is done via:

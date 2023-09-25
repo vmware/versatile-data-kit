@@ -1,10 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import Tuple
 from unittest.mock import MagicMock
 
 import pytest
+import structlog
 from vdk.internal.builtin_plugins.connection.connection_hooks import (
     ConnectionHookSpecFactory,
 )
@@ -14,7 +14,7 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 def test_new_pep249_connnection():

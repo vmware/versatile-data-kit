@@ -1,9 +1,9 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import Any
 from typing import Callable
 
+import structlog
 from vdk.internal.builtin_plugins.connection.connection_hooks import (
     ConnectionHookSpecFactory,
 )
@@ -20,7 +20,7 @@ class WrappedConnection(ManagedConnectionBase):
 
     def __init__(
         self,
-        log: logging.Logger,
+        log,
         new_connection_builder_function: Callable[[], PEP249Connection],
         connection_hook_spec_factory: ConnectionHookSpecFactory,
     ) -> None:
@@ -33,7 +33,7 @@ class WrappedConnection(ManagedConnectionBase):
         :param connection_hook_spec_factory: ConnectionHookSpecFactory
         """
         super().__init__(log, None, connection_hook_spec_factory)
-        self._log = logging.getLogger(__name__)
+        self._log = structlog.get_logger()
         self._new_connection_builder_function = new_connection_builder_function
 
     def _connect(self) -> Any:

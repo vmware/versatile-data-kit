@@ -1,8 +1,8 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import Any
 
+import structlog
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 from vdk.internal.builtin_plugins.connection.proxy_cursor import ProxyCursor
@@ -38,7 +38,7 @@ class ExecutionCursor(ProxyCursor):
         self,
         native_cursor: PEP249Cursor,
         managed_operation: ManagedOperation,
-        log=logging.getLogger(__name__),
+        log=structlog.get_logger(),
     ):
         super().__init__(native_cursor, log)
         self.__managed_operation = managed_operation

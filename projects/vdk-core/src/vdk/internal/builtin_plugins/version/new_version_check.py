@@ -4,13 +4,13 @@
 The code is adapted from: https://github.com/vuolter/autoupgrade
 """
 import http.client
-import logging
 import re
 import urllib.request
 
 import pkg_resources
+import structlog
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class Package:

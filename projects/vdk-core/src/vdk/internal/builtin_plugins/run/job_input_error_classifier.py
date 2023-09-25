@@ -4,15 +4,15 @@
 decides who is to blame, between Platform (SRE) Team and VDK Users,
 when an exception occurs while executing a Data Job step.
 """
-import logging
 import os
 import traceback
 from pathlib import Path
 from typing import Optional
 
+import structlog
 from vdk.internal.core import errors
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 def whom_to_blame(

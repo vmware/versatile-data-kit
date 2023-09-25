@@ -316,7 +316,7 @@ class NotificationTest(unittest.TestCase):
         self._assert_equal_str_without_whitespaces(expected_subject, actual_subject)
         self._assert_equal_str_without_whitespaces(expected_body, actual_body)
 
-    @patch("logging.getLogger")
+    @patch("structlog.getLogger")
     def test_build_infra_unknown_exec_type_error(self, mock_logger):
         job_name = "some-name"
         exec_type = "unknown"

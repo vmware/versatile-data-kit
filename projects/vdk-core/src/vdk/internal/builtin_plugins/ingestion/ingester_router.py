@@ -1,11 +1,11 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
 
+import structlog
 from vdk.api.job_input import IIngester
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.api.plugin.plugin_input import IIngesterRegistry
@@ -26,7 +26,7 @@ from vdk.internal.util.utils import parse_config_sequence
 
 IngesterPluginFactory = Callable[[], IIngesterPlugin]
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 class IngesterRouter(IIngesterRegistry, IIngester):
@@ -38,7 +38,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
     def __init__(self, cfg: Configuration, core_state: StateStore):
         self._cfg: Configuration = cfg
         self._state: StateStore = core_state
-        self._log: logging.Logger = logging.getLogger(__name__)
+        self._log = structlog.getLogger()
         self._cached_ingesters: Dict[str, IngesterBase] = dict()
         self._ingester_builders: Dict[str, IngesterPluginFactory] = dict()
 

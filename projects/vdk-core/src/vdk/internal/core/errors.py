@@ -11,13 +11,14 @@ It defines classes and methods for handling exceptions, and ensuring that there 
 from __future__ import annotations
 
 import enum
-import logging
 import re
 from collections import defaultdict
 from enum import Enum
 from logging import Logger
 
-log = logging.getLogger(__name__)
+import structlog
+
+log = structlog.get_logger()
 
 # ERROR TYPES
 

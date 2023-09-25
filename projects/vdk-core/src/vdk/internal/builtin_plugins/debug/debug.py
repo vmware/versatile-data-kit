@@ -1,6 +1,5 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 import os
 import sys
 from dataclasses import dataclass
@@ -11,13 +10,14 @@ from typing import List
 from typing import Optional
 
 import click
+import structlog
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import StoreKey
 from vdk.internal.plugin.plugin import PluginRegistry
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 @dataclass

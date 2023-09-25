@@ -3,8 +3,7 @@
 """
 Functional test aiming at verifying that payload is verified
 """
-import logging
-
+import structlog
 from click.testing import Result
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -12,7 +11,7 @@ from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 def test_payload_verification_none():

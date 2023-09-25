@@ -1,8 +1,8 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import logging
 from typing import List
 
+import structlog
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
 from vdk.internal.builtin_plugins.config.vdk_config import LOG_CONFIG
@@ -21,7 +21,7 @@ from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import CommonStoreKeys
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger()
 
 
 def __get_list(value: str) -> List[str]:

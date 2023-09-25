@@ -7,6 +7,7 @@ import types
 from sys import modules
 from typing import cast
 
+import structlog
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.run.job_context import JobContext
@@ -84,10 +85,10 @@ def configure_loggers(
     :param syslog_args: Arguments necessary for SysLog logging.
     """
 
-    import logging.config
+    import structlog.config
 
     if _is_already_configured():
-        log = logging.getLogger(__name__)
+        log = structlog.get_logger()
         msg = "Logging already configured. This seems like a bug. Fix me!."
         # PLugins would override loggin directly wiht logging library not through this method
         # it is probably OK for tests to configure logging twice. VDK, however, shouldn't.
@@ -267,19 +268,19 @@ class LoggingPlugin:
                 log_level_module=log_level_module,
                 syslog_args=(syslog_url, syslog_port, syslog_sock_type, syslog_enabled),
             )
-            log = logging.getLogger(__name__)
+            log = structlog.get_logger()
             log.debug(f"Initialized logging for log type {log_config_type}.")
         except Exception as e:
             # Have local logs on DEBUG level, when standard log configuration fails
             logging.basicConfig(level=logging.DEBUG)
-            log = logging.getLogger(__name__)
+            log = structlog.get_logger()
             log.warning(
                 "Logging configuration %s failed.\n"
                 "Trying to send telemetry for Job attempt: %s"
                 % (log_config_type, attempt_id)
             )
             errors.log_exception(
-                logging.getLogger(__name__),
+                log,
                 e,
                 "Failed to initialize logging",
                 errors.MSG_WHY_FROM_EXCEPTION(e),
