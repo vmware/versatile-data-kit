@@ -112,7 +112,7 @@ export async function showCreateDeploymentDialog(docManager?: IDocumentManager, 
             buttons: [Dialog.okButton()]
           });
         }
-        docManager?.open('vdk_logs.txt');  
+        docManager?.open('vdk_logs.txt');
       } else {
         const deployment = await jobRequest('deploy');
         if (deployment.isSuccessful && deployment.message) {

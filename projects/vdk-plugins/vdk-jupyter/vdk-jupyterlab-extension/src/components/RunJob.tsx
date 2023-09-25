@@ -95,9 +95,9 @@ export async function showRunJobDialog(
         ),
         buttons: [Dialog.okButton()]
       });
-      docManager?.open('vdk_logs.txt');  
+      docManager?.open('vdk_logs.txt');
     } else {
-      docManager?.open('vdk_logs.txt');  
+      docManager?.open('vdk_logs.txt');
       message = 'ERROR : ' + message;
       const errorMessage = new VdkErrorMessage(message);
       if (
@@ -115,7 +115,7 @@ export async function showRunJobDialog(
           ]
         });
       }
-    } 
+    }
   }
 }
 
