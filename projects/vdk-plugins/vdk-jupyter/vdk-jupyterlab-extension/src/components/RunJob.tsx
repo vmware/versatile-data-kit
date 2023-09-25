@@ -11,7 +11,6 @@ import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
 import { StatusButton } from './StatusButton';
 import { checkIcon } from '@jupyterlab/ui-components';
 
-
 export default class RunJobDialog extends Component<IJobPathProp> {
 
   /**
@@ -80,7 +79,9 @@ export async function showRunJobDialog(
   });
   if (result.button.accept) {
     statusButton?.show('Run', jobData.get(VdkOption.PATH)!);
+    docManager?.closeFile('vdk_logs.txt');
     let { message, isSuccessful } = await jobRunRequest();
+    docManager?.confirmClosingDocument;
     if (isSuccessful) {
       showDialog({
         title: RUN_JOB_BUTTON_LABEL,
@@ -113,6 +114,7 @@ export async function showRunJobDialog(
         });
       }
     }
+    docManager?.open('vdk_logs.txt');   
   }
 }
 
