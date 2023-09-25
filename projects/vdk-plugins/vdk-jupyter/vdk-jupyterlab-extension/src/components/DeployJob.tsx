@@ -5,7 +5,7 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
-import { CREATE_DEP_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
+import { CREATE_DEP_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL, RUN_LOG_FILE } from '../utils';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { VDKCheckbox } from './VdkCheckbox';
 import { StatusButton } from './StatusButton';
@@ -85,7 +85,7 @@ export async function showCreateDeploymentDialog(docManager?: IDocumentManager, 
     try {
       statusButton?.show('Deploy', jobData.get(VdkOption.PATH)!);
       if (runBeforeDeploy) {
-        docManager?.closeFile('vdk_logs.txt');
+        docManager?.closeFile(RUN_LOG_FILE);
         const run = await jobRunRequest();
         if (run.isSuccessful) {
           const deployment = await jobRequest('deploy');
@@ -112,7 +112,7 @@ export async function showCreateDeploymentDialog(docManager?: IDocumentManager, 
             buttons: [Dialog.okButton()]
           });
         }
-        docManager?.open('vdk_logs.txt');
+        docManager?.open(RUN_LOG_FILE);
       } else {
         const deployment = await jobRequest('deploy');
         if (deployment.isSuccessful && deployment.message) {
