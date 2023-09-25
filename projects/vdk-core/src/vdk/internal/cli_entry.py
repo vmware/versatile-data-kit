@@ -172,14 +172,43 @@ def main() -> None:
     """
     # configure basic logging , it's expected that a plugin would override and set it up properly
     click_log.basic_config(logging.getLogger())
+    # Ideas
+    # 1. create custom renderers that will put the file step in a tag, or remove the info tag
+    # 2. processor that hides vdk internals from the user (just for local)
+    # 3. bound loggers and contexts see more like they should be used in method decorators
+    #    - e.g. add the step name to context in step methods but not in other methods
+    #    - might be a bit difficult to work around this with a unified config
+    #    - we can decide not to bind and add keys on every log, but that's prone to error
+    # 4. Global configuration vs. per-job configuration
+    #    - structlog should be configured on app start somehow
+    #    - users should also be able to re-configure it per job using config.ini (not much of a problem, since configuration is available everywhere)
 
-    log.debug("Setup plugin registry and call vdk_start hooks ...")
+    #    structlog.configure(
+    # processors=[
+    # structlog.contextvars.merge_contextvars,
+    # structlog.processors.add_log_level,
+    # structlog.processors.StackInfoRenderer(),
+    # structlog.dev.set_exc_info,
+    # structlog.processors.TimeStamper(),
+    # structlog.dev.ConsoleRenderer()
+    # ],
+    # wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+    # context_class=dict,
+    # logger_factory=structlog.PrintLoggerFactory(),
+    # cache_logger_on_first_use=False
+    # )
+    # structlog.configure(processors=[structlog.processors.JSONRenderer()])
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.INFO)
+    )
+    bound_log = log.bind(mykey="SOME VALUE LOUD!!!!")
+    bound_log.info("Setup plugin registry and call vdk_start hooks ...")
     plugin_registry = PluginRegistry()
     plugin_registry.add_hook_specs(InternalHookSpecs)
     try:
         plugin_registry.load_plugins_from_setuptools_entrypoints()
     except Exception as e:
-        log.warning(f"Plugin load failed{e}")
+        bound_log.warning(f"Plugin load failed{e}")
     plugin_registry.load_plugin_with_hooks_impl(CliEntry(), "cli-entry")
 
     exit_code = cast(InternalHookSpecs, plugin_registry.hook()).vdk_main(

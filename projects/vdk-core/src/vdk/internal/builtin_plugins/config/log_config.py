@@ -85,7 +85,7 @@ def configure_loggers(
     :param syslog_args: Arguments necessary for SysLog logging.
     """
 
-    import structlog.config
+    import logging.config
 
     if _is_already_configured():
         log = structlog.get_logger()

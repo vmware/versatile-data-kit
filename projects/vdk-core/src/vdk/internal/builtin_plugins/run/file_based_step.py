@@ -55,6 +55,7 @@ class StepFuncFactory:
         with open(step.file_path, encoding="utf8") as sql_file:
             sql = sql_file.read()
         job_input.execute_query(sql)
+        # log.unbind(step)
         return True
 
     @staticmethod
@@ -70,7 +71,7 @@ class StepFuncFactory:
         :return: True if there was a run(job_input) method to run, False otherwise
         :rtype: :class:`.bool`
         """
-
+        bound_log = log.bind(step=step.name)
         try:
             sys.path.insert(0, str(step.job_dir))
             filename = step.file_path.name
@@ -78,12 +79,12 @@ class StepFuncFactory:
             success = False
 
             try:
-                log.debug("Loading %s ..." % filename)
+                bound_log.debug("Loading %s ..." % filename)
                 python_module = imp.load_source(namespace, str(step.file_path))
-                log.debug("Loading %s SUCCESS" % filename)
+                bound_log.debug("Loading %s SUCCESS" % filename)
             except BaseException as e:
-                log.info("Loading %s FAILURE" % filename)
-                log.error(
+                bound_log.info("Loading %s FAILURE" % filename)
+                bound_log.error(
                     "\n".join(
                         [
                             "Failed loading job sources of %s" % filename,
@@ -100,17 +101,17 @@ class StepFuncFactory:
             for _, func in inspect.getmembers(python_module, inspect.isfunction):
                 if func.__name__ == "run":
                     try:
-                        log.info("Entering %s#run(...) ..." % filename)
+                        bound_log.info("Entering %s#run(...) ..." % filename)
                         StepFuncFactory.invoke_run_function(func, job_input, step.name)
                         success = True
                         return True
                     finally:
                         if success:
-                            log.info("Exiting  %s#run(...) SUCCESS" % filename)
+                            bound_log.info("Exiting  %s#run(...) SUCCESS" % filename)
                             errors.resolvable_context().mark_all_resolved()
                         else:
-                            log.error("Exiting  %s#run(...) FAILURE" % filename)
-            log.warn(
+                            bound_log.error("Exiting  %s#run(...) FAILURE" % filename)
+            bound_log.warn(
                 "File %s does not contain a valid run() method. Nothing to execute. Skipping %s,"
                 + " and continuing with other files (if present).",
                 filename,
@@ -122,6 +123,7 @@ class StepFuncFactory:
 
     @staticmethod
     def invoke_run_function(func: Callable, job_input: IJobInput, step_name: str):
+        bound_log = log.bind(step=step_name)
         # https://docs.python.org/3/library/inspect.html#inspect.getfullargspec
         full_arg_spec = inspect.getfullargspec(func)
         parameter_names = full_arg_spec[0]
@@ -143,7 +145,7 @@ class StepFuncFactory:
                 # the run_step() hook level. We also don't want to use the
                 # errors.log_and_rethrow() method since it will log a
                 # confusing message to the users.
-                log.debug(e)
+                bound_log.debug(e)
                 raise e
             except BaseException as e:
                 from vdk.internal.builtin_plugins.run.job_input_error_classifier import (
@@ -151,7 +153,7 @@ class StepFuncFactory:
                 )
 
                 to_be_fixed_by = whom_to_blame(e, __file__, None)
-                log.error(
+                bound_log.error(
                     "\n".join(
                         [
                             f"Data Job step {step_name} completed with error.",
