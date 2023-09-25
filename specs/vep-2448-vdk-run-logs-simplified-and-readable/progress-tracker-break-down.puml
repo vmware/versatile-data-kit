@@ -1,0 +1,10 @@
+@startwbs
++ Data Job [Process ProgressTracker]
+++ Step 1 ProgressTracker
++++ SQL Query 1 ProgressTracker
++++ SQL Query 2 ProgressTracker
++++ Template ProgressTracker
+++ Step 2 ProgressTracker
++++ DAG ProgressTracker
+++ Ingestion ProgressTracker
+@endwbs
