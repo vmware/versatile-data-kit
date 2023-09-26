@@ -31,7 +31,7 @@ downloaded it to your local file system.
 - After clicking 'Convert Job To Notebook', a dialog will appear requesting the path to the job directory.
 - If you are in the data job directory, this will be autofilled, and you can skip this step.
 - Otherwise, populate the input with the relative Jupyter path to the job directory,
-- following this pattern: `parent/child/job`.
+  following this pattern: `parent/child/job`.
 - After filling the requested, click OK to continue.
 
   ![VDK Convert dialog](images/convert_dialog.png)
@@ -81,3 +81,6 @@ it will be saved in an archive within the parent directory of the job.
 You should now be acquainted with the process of converting a job consisting of .sql and .py steps into a job consisting of notebook steps through the Jupyter UI.
 
 Explore further with the [VDK Examples list](https://github.com/vmware/versatile-data-kit/wiki/Examples).
+
+If you're curious about the mechanics of the job conversion process, check
+[VDK Jupyter Integration Convert Job Operation](https://github.com/vmware/versatile-data-kit/wiki/VDK-Jupyter-Integration-Convert-Job-Operation).
