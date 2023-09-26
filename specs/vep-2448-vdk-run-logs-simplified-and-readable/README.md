@@ -365,10 +365,141 @@ indicators. This would make sure that the primary task doesn’t get interrupted
 or slowed down due to progress bar updates. This is really relevant for
 ingestion.
 
+The way users ingest data is by using job_input.send_object_for_ingestion and job_input.send_tabular_data_for_ingestion
+And they can use it in any step in any place in any location. Those calls are asynchronous.
+That is send_xxx adds the payload to queue and returns immediately  .
+The user can call send_tabular_data_for_ingestion at any time and that would add one more payload that need to be tracked.
+
 Also as we need progress indicators in multiple places likely we need a common
-encapsulation for that - in a form of a python module or plugin. The progress
+encapsulation (or abstraction) for that - in a form of a python module or plugin. The progress
 indicator should provide a notification callback mechanism or similar so it's
 integratable with Notebook
+
+For more detailed understanding of the user workflows [this research documented is recommended](https://github.com/vmware/versatile-data-kit/wiki/Research:-Progress-Indicators)
+
+#### Technical Requirements
+
+* The progress abstraction should support multi step operations. Different steps are started and ended multiple times one after another in a job.
+* The abstraction should support hierarchical operations. A Step can start other long running operations (e.g a DAG sub-jobs)
+* The abstraction should support operations running concurrently (that is multiple tasks are started and keep progressing concurrently - in the same thread).
+  For example, this requirement comes primarily because of DAGs. Multiple sub-jobs started in a DAG can run concurrently (no multi-threading needed here though)
+* The abstraction should support operations running in background threads. When you send data for ingestion, that data is processed in background while the job continue with other operations. The progress track can be updated from multiple threads as they ingest data
+* The abstraction should allow for the total to change. E.g when we are ingesting data the total number of objects being ingested is changed as user adds new and new ones.
+* Performance overhead should be minimal as this may be called millions of times (e.g for each ingested row in a payload)
+* (Optional) The abstraction can be extended to collect metrics  about the state of operations running by the framework (bandwidth, duration, failed requests, etc).
+  This is currently used by vdk-core ingestion logic.
+
+
+##### Core Components
+
+![progress tracker presenter](progress-tracker-presenter.svg)
+
+###### ProgressTracker
+
+This is a core component designed for monitoring the progress of operations.
+It will be integrated into vdk-core and will provide essential tracking features based on above technical requirements.
+The Progress Tracker supports a tree-like hierarchical structure, allowing for the initiation of multiple sub-tasks under a high-level task.
+
+Here's a breakdown illustrating how the Progress Tracker might operate during the execution of a data job with two steps:
+
+![progress-tracker-break-down.svg](progress-tracker-break-down.svg)
+
+
+###### API Methods
+
+- create_sub_tracker(): To create a new sub-tracker for nested tasks.
+- add_iterations(n): To add n number of new iterations (items) for tracking.
+- update_progress(n): To update the progress by n iterations.
+
+
+The interface expose to the user and to plugins would look like this
+```python
+class IProgressTracker:
+    """
+    A class for tracking the progress of a task and its sub-tasks.
+    """
+
+    def add_iterations(self, new_iterations: int):
+        """
+        Adds new iterations to the total count for this tracker.
+
+        :param new_iterations: The number of new iterations to add.
+        """
+
+
+    def update_progress(self, iterations: int = 1):
+        """
+        Update progress with how many iteration have we completed.
+        Generally only childless trackers should be directly updated.
+        Parent trackers are automatically updated by their children.
+        """
+
+    def create_sub_tracker(self, title: str, total_iterations: int) -> ProgressTracker:
+        """
+        Create a new child tracker. The child tracker will point to its parent.
+        So any iterations added to the child tracker are automatically tracked by the parent as well.
+        And will update the parent automatically with any progress.
+        Any tracked metric is propagated to the parent as well
+        """
+
+    def track_metric(self, key: str, value: float):
+        """
+        The tracked metric must be cumulative since it's aggregated in the parent.
+        Non-cumulative metrics (like rate, latency, mean, median) will not provide result.
+        Example of cumulative metrics are  records processed, errors, time spent, number of requests, successful requests, failed requests.
+        """
+        self._metrics[key] = self._metrics.get(key, 0) + value
+        if self._parent:
+            self._parent.track_metric(key, value)
+
+    def get_metrics(self) -> Dict[str, int]:
+        """
+        Return dictionary with currently collected metrics about what is being tracked.
+        """
+```
+
+###### ProgressPresenter
+
+The ProgressPresenter is an interface in vdk-core that serves as the blueprint for different strategies to present or display the progress of operations in various environments.
+In essence, ProgressPresenter abstracts the "presentation layer" of progress tracking, making it versatile enough to fit different contexts—whether that's basic logging to the standard output, graphical bars in a terminal, or interactive displays in a notebook environment.
+
+There would be logging presenter implemented in vdk-core (used by default) while other strategies like CLI and notebook will be implemented in separate plugins like vdk-tqdm and vdk-jupyter.
+
+###### Workflow
+![progress-tracker-sequence.svg](progress-tracker-sequence.svg)
+
+- On CLI execution start (and data job start) we will create progress tracker and store it in [CoreContext](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/core/context.py).
+    - Then when a new data job step starts we will create child tracker to track the step.
+        - (Optionally) When SQL query starts we can create a child tracker for the SQL query.
+        - When A DAG job is started within a step a new subtracker is created (tracking all dag jobs). When job completes the tracker is updated.
+    - When [Ingestor](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/ingestion/ingester_base.py) is initialized we can start a child tracker to track ingestion
+        - Each time a new data is added in queue we can use tracker.add (# payloads, likely in _send method)
+            - For this new hook could be added every time a new payload is being send (ingest_send_payload hook)
+        - Each time is sent, we update progress. (we could use existing  hook : [post_ingest_process](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/plugin/plugin_input.py#L486) )
+
+The ProgressTracker would be exposed and available in JobInput interface so it can be used by DAGs .
+
+For DAG it can be used  in this way
+```python
+current_step_progress_tracker = job_input.get_progress_tracker()
+
+dag_tracker = current_step_progress_tracker.create_sub_tracker()
+```
+
+###### vdk-tqdm plugin
+
+For implementing CLI-based progress tracking TQDM (via vdk-tqdm plugin)
+It can provide capabilities for both Notebook (through tqdm.notebook package) and terminal (tqdm.tqdm package)
+
+In tqdm, implementing nested progress bars involves using the position and leave parameters.
+The position parameter sets which row the progress bar will appear in the console,
+while leave controls whether the progress bar stays visible after completion.
+
+Since trackers are never removed we can simply count all currently created trackers to set a position.
+
+##### Pseudo code
+
+Check out sample [implementation](./progress_tracker_pseudo_code.py) of core ProgressTracker to better understand the desgin in practice
 
 
 ## Implementation stories
@@ -381,6 +512,36 @@ integratable with Notebook
 
 ### [Progress Indicators](https://github.com/vmware/versatile-data-kit/milestone/17)
 
+
+#### Implement ProgressTracker in vdk-core
+Description: As a user, I want the tracking system to automatically initialize when I start a CLI execution so that I don't have to manually set it up.
+Acceptance Criteria: Progress tracking starts automatically with CLI execution.
+#### Create Child Tracker for New Steps
+Description: As a user, I want to see the progress for each specific step in my task so that I can understand how much work remains.
+Acceptance Criteria: Separate progress tracking for each step.
+#### Add SQL Query Support
+Description: As a user, I want the option to track the progress of SQL queries so that I can monitor them separately if needed.
+Acceptance Criteria: Progress tracking for SQL queries.
+#### Track DAG Job Progress
+Description: As a user, I want to monitor the progress of each sub-job in a DAG so that I can understand the status of my complex tasks.
+Acceptance Criteria: Sub-task tracking for each DAG job.
+#### Ingestion Tracker
+Description: As a user, I want to know the progress of data ingestion so I can be aware of how much data has been processed.
+Acceptance Criteria: Tracking of data ingestion progress
+#### Implement Basic Logging Strategy
+Description: As a user, I want to see progerss info logged in logs on some interval  so that I can debug or monitor basic activities easily. This would be used in Cloud deployment
+Acceptance Criteria: Basic logging is visible and clear.
+#### CLI Progress with TQDM Plugin
+Description: As a user, I want a specialized, visually pleasing CLI interface for tracking progress using the TQDM library, so that my CLI experience is enhanced.
+Acceptance Criteria: Progress tracking in the CLI utilizes the TQDM library through a separate vdk-tqdm plugin and offers an interactive interface.
+#### TQDM Support in Notebooks
+Description: As a user working in Jupyter Notebooks, I want the tracking system to also leverage the TQDM library, so that I can have a consistent, visually pleasing progress bar in notebooks.
+Acceptance Criteria: TQDM is utilized for tracking progress in Jupyter Notebooks, integrated through the vdk-tqdm plugin
+#### Configurable Tracking Strategy and configureable tracker
+Description: As a user, I want to be able to configure which strategy to use for progress tracking (notebook, terminal, log, etc.) and specify what components I want to track (job, steps, queries, etc.), so that I can tailor the tracking to my specific needs.
+Acceptance Criteria: Configuration options for specifying tracking strategy and components are available and operational.
+
+
 ### [Documentation](https://github.com/vmware/versatile-data-kit/milestone/18)
 
 ### [Promotional Materials](https://github.com/vmware/versatile-data-kit/milestone/19)
@@ -391,3 +552,24 @@ integratable with Notebook
 Optionally, describe what alternatives has been considered.
 Keep it short - if needed link to more detailed research document.
 -->
+### Progress trackers 3th party libraries research
+
+For python there are multiple progress bars (e.g https://datagy.io/python-progress-bars/)
+
+TQDM is chosen for its support for jupyter notebooks, lower performance overhead and high popularity.
+
+| Feature                        | TQDM     | Alive-Progress | Progressbar2 | Notes                                                                                                                                   |
+|:-------------------------------|:---------|:---------------|:-------------|:----------------------------------------------------------------------------------------------------------------------------------------|
+| Ease of Use                    | High     | High           | Moderate     | TQDM and Alive-Progress have intuitive APIs. Progressbar2 requires more boilerplate code.                                               |
+| Customization                  | Moderate | High           | High         | Alive-Progress and Progressbar2 offer more customization options for visualization.                                                     |
+| Built-in Themes/Styles         | Yes      | Yes            | No           | TQDM has fewer styles.                                                                                                                  |
+| Performance Overhead           | Low      | Moderate       | Moderate     | TQDM is designed for minimal overhead, which is beneficial for tasks that require frequent updates.                                     |
+| Real-time Updates              | Yes      | Yes            | Yes          | All provide real-time updates                                                                                                           |
+| Concurrency Support            | Limited  | No             | Limited      | None of the libraries excel in multi-threading or async support. TQDM and Progressbar2 offer some limited capabilities (async support). |
+| Interactive Mode (Notebook)    | Yes      | No             | No           | TQDM stands out for its Jupyter Notebook integration.                                                                                   |
+| Nested Progress Bars           | Yes      | Yes            | No           | TQDM and Alive-Progress support hierarchical progress tracking.                                                                         |
+| Dynamic Total Updates          | Yes      | Yes            | Yes          | All allow for changing the total count dynamically.                                                                                     |
+| Time Estimations               | Yes      | Yes            | Yes          | All offer time estimation for completion.                                                                                               |
+| Progress Bar Custom Text       | Yes      | Yes            | Yes          | All support custom text.                                                                                                                |
+| Logging Compatibility          | Yes      | Limited        | Yes          | TQDM and Progressbar2 can easily integrate with standard Python logging.                                                                |
+| Community Support / Popularity | High     | Moderate       | Moderate     | TQDM is the most widely used and has a large community for support.                                                                     |
