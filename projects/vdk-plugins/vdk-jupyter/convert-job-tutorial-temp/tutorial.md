@@ -7,7 +7,7 @@ Time Commitment: About 5-10 minutes.
 
 ## Data Job Conversion Guide
 
-This guide presumes that you have already initialized a job either locally or in the cloud and have subsequently 
+This guide presumes that you have already initialized a job either locally or in the cloud and have subsequently
 downloaded it to your local file system.
 
 ### 0. [Optional] Get Familiar With Your Data Job
@@ -30,7 +30,7 @@ downloaded it to your local file system.
 ### 3. Specify the Job Directory Path
 - After clicking 'Convert Job To Notebook', a dialog will appear requesting the path to the job directory.
 - If you are in the data job directory, this will be autofilled, and you can skip this step.
-- Otherwise, populate the input with the relative Jupyter path to the job directory, 
+- Otherwise, populate the input with the relative Jupyter path to the job directory,
 - following this pattern: `parent/child/job`.
 - After filling the requested, click OK to continue.
 
@@ -55,7 +55,7 @@ downloaded it to your local file system.
 
   ![VDK Result Data Job Directory](images/result_job_dir.png)
 
-- The notebook will feature a Guide explaining the transformations applied to your Data Job. 
+- The notebook will feature a Guide explaining the transformations applied to your Data Job.
 - Ensure you familiarize yourself with it. It will be located at the top of the notebook.
 - After familiarizing yourself with it, you have the option to delete it.
 
