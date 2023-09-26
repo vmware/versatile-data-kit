@@ -7,10 +7,9 @@ import { getNotebookInfo, jobRunRequest } from '../serverRequests';
 import { IJobPathProp, showErrorDialog } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
-import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
+import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL, RUN_LOG_FILE } from '../utils';
 import { StatusButton } from './StatusButton';
 import { checkIcon } from '@jupyterlab/ui-components';
-
 
 export default class RunJobDialog extends Component<IJobPathProp> {
 
@@ -80,7 +79,9 @@ export async function showRunJobDialog(
   });
   if (result.button.accept) {
     statusButton?.show('Run', jobData.get(VdkOption.PATH)!);
+    docManager?.closeFile(RUN_LOG_FILE);
     let { message, isSuccessful } = await jobRunRequest();
+    docManager?.confirmClosingDocument;
     if (isSuccessful) {
       showDialog({
         title: RUN_JOB_BUTTON_LABEL,
@@ -94,7 +95,9 @@ export async function showRunJobDialog(
         ),
         buttons: [Dialog.okButton()]
       });
+      docManager?.open(RUN_LOG_FILE);
     } else {
+      docManager?.open(RUN_LOG_FILE);
       message = 'ERROR : ' + message;
       const errorMessage = new VdkErrorMessage(message);
       if (
@@ -115,6 +118,7 @@ export async function showRunJobDialog(
     }
   }
 }
+
 
 export const findFailingCellId = (message: String): string => {
   const regex = /cell_id:([0-9a-fA-F-]+)/;
