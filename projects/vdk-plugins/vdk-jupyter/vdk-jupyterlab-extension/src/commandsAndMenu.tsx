@@ -82,7 +82,8 @@ export function updateVDKMenu(
     'Deploy',
     'Create deployment of a VDK job',
     showCreateDeploymentDialog,
-    statusButton
+    statusButton,
+    docManager
   );
 }
 

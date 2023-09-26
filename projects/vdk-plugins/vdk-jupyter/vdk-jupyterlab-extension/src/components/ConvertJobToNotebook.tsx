@@ -327,6 +327,9 @@ export const populateNotebook = async (notebookTracker: INotebookTracker) => {
           addCodeCell([cellProps.source], {
             tags: ['vdk']
           });
+          addCodeCell(['run(job_input)'], {
+            tags: ['vdk']
+          });
         }
       }
 
