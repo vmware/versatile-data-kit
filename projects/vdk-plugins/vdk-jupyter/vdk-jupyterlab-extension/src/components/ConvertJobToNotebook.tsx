@@ -250,7 +250,7 @@ export const populateNotebook = async (notebookTracker: INotebookTracker) => {
         '*  *This is a notebook transformed from a directory style data job located in ' +
           jobData.get(VdkOption.PATH) +
           '.*\n',
-        '*  *If you are not familiar with notebook data jobs make sure to check the **Getting Started**(TODO: add link) page.*\n',
+        '*  *If you are not familiar with notebook data jobs make sure to check the [Getting Started](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-jupyter/getting-started.ipynb) page.*\n',
         '*  *You can find an archive of the **original job** at ' +
           jobData.get(VdkOption.PATH)!.split(/[/\\]/).slice(0, -1).join('/') +
           '.*'
