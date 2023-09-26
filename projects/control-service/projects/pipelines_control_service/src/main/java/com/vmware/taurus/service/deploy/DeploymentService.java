@@ -195,7 +195,7 @@ public class DeploymentService {
 
           saveDeployment(dataJob, jobDeployment);
 
-          deploymentProgress.completed(dataJob.getJobConfig(), jobDeployment, sendNotification);
+          deploymentProgress.completed(dataJob, sendNotification);
         }
       }
     } catch (ApiException e) {
@@ -252,8 +252,7 @@ public class DeploymentService {
                 + "SRE team may investigate by looking at the logs or in kubernetes.");
     log.error(message.toString(), e);
     deploymentProgress.failed(
-        dataJob.getJobConfig(),
-        jobDeployment,
+        dataJob,
         DeploymentStatus.PLATFORM_ERROR,
         NotificationContent.getPlatformErrorBody(),
         sendNotification);

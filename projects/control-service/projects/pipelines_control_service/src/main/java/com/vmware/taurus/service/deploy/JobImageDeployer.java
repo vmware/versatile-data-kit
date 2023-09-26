@@ -140,12 +140,7 @@ public class JobImageDeployer {
                     "Please fix the job's configuration");
             log.error(msg);
           }
-          deploymentProgress.failed(
-              dataJob.getJobConfig(),
-              jobDeployment,
-              DeploymentStatus.USER_ERROR,
-              msg,
-              sendNotification);
+          deploymentProgress.failed(dataJob, DeploymentStatus.USER_ERROR, msg, sendNotification);
           return false;
         } catch (Exception ignored) {
           log.debug("Failed to parse ApiException body, re-throwing it.: ", ignored);
