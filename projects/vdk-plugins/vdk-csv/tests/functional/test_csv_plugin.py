@@ -6,6 +6,7 @@ from sqlite3 import OperationalError
 from unittest import mock
 
 from click.testing import Result
+from vdk.internal.core.errors import ResolvableByActual
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.csv import csv_plugin
 from vdk.plugin.sqlite import sqlite_plugin
@@ -150,32 +151,32 @@ def test_export_csv_with_already_existing_file(tmpdir):
             cli_assert_equal(1, result)
 
 
-# def test_csv_export_with_nonexistent_table(tmpdir):
-#     db_dir = str(tmpdir) + "vdk-sqlite.db"
-#     with mock.patch.dict(
-#         os.environ,
-#         {
-#             "VDK_DB_DEFAULT_TYPE": "SQLITE",
-#             "VDK_SQLITE_FILE": db_dir,
-#         },
-#     ):
-#         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
-#         drop_table(runner, "test_table")
-#         result = runner.invoke(
-#             [
-#                 "export-csv",
-#                 "--query",
-#                 "SELECT * FROM test_table",
-#                 "--file",
-#                 "result3.csv",
-#             ]
-#         )
-#         assert isinstance(result.exception, OperationalError)
-#         assert hasattr(result.exception, "_vdk_resolvable_actual")
-#         assert (
-#             getattr(result.exception, "_vdk_resolvable_actual")
-#             == ResolvableByActual.PLATFORM
-#         )
+def test_csv_export_with_nonexistent_table(tmpdir):
+    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_DB_DEFAULT_TYPE": "SQLITE",
+            "VDK_SQLITE_FILE": db_dir,
+        },
+    ):
+        runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
+        drop_table(runner, "test_table")
+        result = runner.invoke(
+            [
+                "export-csv",
+                "--query",
+                "SELECT * FROM test_table",
+                "--file",
+                "result3.csv",
+            ]
+        )
+        assert isinstance(result.exception, OperationalError)
+        assert hasattr(result.exception, "_vdk_resolvable_actual")
+        assert (
+            getattr(result.exception, "_vdk_resolvable_actual")
+            == ResolvableByActual.PLATFORM
+        )
 
 
 def test_csv_export_with_no_data(tmpdir):
