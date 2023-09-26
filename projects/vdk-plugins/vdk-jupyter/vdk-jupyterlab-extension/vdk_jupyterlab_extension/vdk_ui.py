@@ -60,7 +60,7 @@ class VdkUI:
         ]
         if len(script_files) == 0:
             return {"message": f"No steps were found in {path}!"}
-        with open("vdk_logs.txt", "w+") as log_file:
+        with open("vdk_run.log", "w+") as log_file:
             path = shlex.quote(str(path))
             cmd: list[str] = ["vdk", "run", f"{path}"]
             if arguments:
