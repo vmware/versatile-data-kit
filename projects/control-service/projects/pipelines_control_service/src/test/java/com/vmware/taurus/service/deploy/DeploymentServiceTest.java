@@ -308,7 +308,8 @@ public class DeploymentServiceTest {
             any(),
             any());
     verify(deploymentMonitor)
-        .recordDeploymentStatus(jobDeployment.getDataJobName(), DeploymentStatus.PLATFORM_ERROR, null);
+        .recordDeploymentStatus(
+            jobDeployment.getDataJobName(), DeploymentStatus.PLATFORM_ERROR, null);
     verify(dataJobNotification).notifyJobDeployError(eq(testDataJob.getJobConfig()), any(), any());
   }
 

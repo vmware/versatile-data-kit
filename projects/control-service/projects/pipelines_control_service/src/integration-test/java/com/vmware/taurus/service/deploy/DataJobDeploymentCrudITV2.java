@@ -33,8 +33,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
 
-import javax.xml.crypto.Data;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -55,14 +53,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     classes = ControlplaneApplication.class)
 public class DataJobDeploymentCrudITV2 extends BaseIT {
 
-  @Autowired
-  private JobsRepository jobsRepository;
+  @Autowired private JobsRepository jobsRepository;
 
-  @Autowired
-  private DataJobsSynchronizer dataJobsSynchronizer;
+  @Autowired private DataJobsSynchronizer dataJobsSynchronizer;
 
-  @Autowired
-  private DeploymentService deploymentService;
+  @Autowired private DeploymentService deploymentService;
 
   @TestConfiguration
   static class TaskExecutorConfig {
@@ -110,7 +105,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
 
     DataJob dataJob = createDataJobDeployment(testJobVersionSha);
 
-    Optional<JobDeploymentStatus> jobDeploymentStatusOptional = deploymentService.readDeployment(testJobName);
+    Optional<JobDeploymentStatus> jobDeploymentStatusOptional =
+        deploymentService.readDeployment(testJobName);
     Assertions.assertFalse(jobDeploymentStatusOptional.isPresent());
 
     // Deploys data job for the very first time
@@ -132,7 +128,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
   }
 
   private String verifyDeploymentStatus(boolean enabled) {
-    Optional<JobDeploymentStatus> deploymentStatusOptional = deploymentService.readDeployment(testJobName);
+    Optional<JobDeploymentStatus> deploymentStatusOptional =
+        deploymentService.readDeployment(testJobName);
     Assertions.assertTrue(deploymentStatusOptional.isPresent());
     Assertions.assertEquals(enabled, deploymentStatusOptional.get().getEnabled());
 
@@ -142,55 +139,55 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
   @AfterEach
   public void cleanUp() throws Exception {
     ResultActions perform =
-            mockMvc.perform(
-                    delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, testJobName))
-                            .with(user(TEST_USERNAME))
-                            .contentType(MediaType.APPLICATION_JSON));
+        mockMvc.perform(
+            delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, testJobName))
+                .with(user(TEST_USERNAME))
+                .contentType(MediaType.APPLICATION_JSON));
     if (perform.andReturn().getResponse().getStatus() != 200) {
       throw new Exception(
-              "status is "
-                      + perform.andReturn().getResponse().getStatus()
-                      + "\nbody is"
-                      + perform.andReturn().getResponse().getContentAsString());
+          "status is "
+              + perform.andReturn().getResponse().getStatus()
+              + "\nbody is"
+              + perform.andReturn().getResponse().getContentAsString());
     }
 
     // Finally, delete the K8s jobs to avoid them messing up subsequent runs of the same test
     dataJobsKubernetesService.listJobs().stream()
-            .filter(jobName -> jobName.startsWith(testJobName))
-            .forEach(
-                    s -> {
-                      try {
-                        dataJobsKubernetesService.deleteJob(s);
-                      } catch (ApiException e) {
-                        e.printStackTrace();
-                      }
-                    });
+        .filter(jobName -> jobName.startsWith(testJobName))
+        .forEach(
+            s -> {
+              try {
+                dataJobsKubernetesService.deleteJob(s);
+              } catch (ApiException e) {
+                e.printStackTrace();
+              }
+            });
   }
 
   private DataJobVersion uploadDataJob() throws Exception {
     // Take the job zip as byte array
     byte[] jobZipBinary =
-            IOUtils.toByteArray(
-                    getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
+        IOUtils.toByteArray(
+            getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
     // Execute job upload with proper user
     var jobUploadResult =
-            mockMvc
-                    .perform(
-                            post(String.format(
-                                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
-                                    .with(user("user"))
-                                    .content(jobZipBinary)
-                                    .contentType(MediaType.APPLICATION_OCTET_STREAM))
-                    .andReturn()
-                    .getResponse();
+        mockMvc
+            .perform(
+                post(String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                    .with(user("user"))
+                    .content(jobZipBinary)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM))
+            .andReturn()
+            .getResponse();
 
     if (jobUploadResult.getStatus() != 200) {
       throw new Exception(
-              "status is "
-                      + jobUploadResult.getStatus()
-                      + "\nbody is "
-                      + jobUploadResult.getContentAsString());
+          "status is "
+              + jobUploadResult.getStatus()
+              + "\nbody is "
+              + jobUploadResult.getContentAsString());
     }
 
     return new ObjectMapper().readValue(jobUploadResult.getContentAsString(), DataJobVersion.class);

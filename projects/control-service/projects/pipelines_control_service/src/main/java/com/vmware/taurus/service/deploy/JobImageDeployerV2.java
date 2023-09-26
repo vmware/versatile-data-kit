@@ -14,7 +14,6 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
 import io.kubernetes.client.openapi.ApiException;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -77,7 +76,6 @@ public class JobImageDeployerV2 {
    * @param sendNotification if it is true the method will send a notification to the end user.
    * @param lastDeployedBy the name of the user that last deployed the data job
    * @param dataJobDeploymentNames list of actual data job deployment names returned by Kubernetes.
-   *
    * @return true if it is successful and false if not.
    */
   public boolean scheduleJob(
@@ -98,41 +96,38 @@ public class JobImageDeployerV2 {
     }
   }
 
-  private boolean catchApiException(DataJob dataJob, Boolean sendNotification, ApiException apiException) {
+  private boolean catchApiException(
+      DataJob dataJob, Boolean sendNotification, ApiException apiException) {
     if (apiException.getCode() == HttpStatus.UNPROCESSABLE_ENTITY.value()) {
       try {
         Gson gson = new Gson();
         String msg =
-                NotificationContent.getErrorBody(
-                        "Tried to deploy a data job",
-                        "There has been an error in the configuration of your data job.",
-                        "Your new/updated job was not deployed. Your job will run its latest successfully"
-                                + " deployed version (if any) as scheduled.",
-                        "Please fix the job's configuration");
+            NotificationContent.getErrorBody(
+                "Tried to deploy a data job",
+                "There has been an error in the configuration of your data job.",
+                "Your new/updated job was not deployed. Your job will run its latest successfully"
+                    + " deployed version (if any) as scheduled.",
+                "Please fix the job's configuration");
         Map<Object, Object> error = gson.fromJson(apiException.getResponseBody(), HashMap.class);
         if (error != null) {
           log.error(
-                  "Failed to schedule job due to Kubernetes client error (422). Generally input"
-                          + " validation should be done earlier. If this exception happens, most likely"
-                          + " we need to do some better input validation at client library. We are"
-                          + " assuming all k8s client error when creating cron job can be only customer"
-                          + " misconfiguration sending notification and reporting as user error",
-                  apiException);
+              "Failed to schedule job due to Kubernetes client error (422). Generally input"
+                  + " validation should be done earlier. If this exception happens, most likely"
+                  + " we need to do some better input validation at client library. We are"
+                  + " assuming all k8s client error when creating cron job can be only customer"
+                  + " misconfiguration sending notification and reporting as user error",
+              apiException);
           msg =
-                  NotificationContent.getErrorBody(
-                          "Tried to deploy a data job",
-                          "There has been an error in the configuration of your data job : "
-                                  + error.get("message"),
-                          "Your new/updated job was not deployed. Your job will run its latest"
-                                  + " successfully deployed version (if any) as scheduled.",
-                          "Please fix the job's configuration");
+              NotificationContent.getErrorBody(
+                  "Tried to deploy a data job",
+                  "There has been an error in the configuration of your data job : "
+                      + error.get("message"),
+                  "Your new/updated job was not deployed. Your job will run its latest"
+                      + " successfully deployed version (if any) as scheduled.",
+                  "Please fix the job's configuration");
           log.error(msg);
         }
-        deploymentProgress.failed(
-                dataJob,
-                DeploymentStatus.USER_ERROR,
-                msg,
-                sendNotification);
+        deploymentProgress.failed(dataJob, DeploymentStatus.USER_ERROR, msg, sendNotification);
         return false;
       } catch (Exception ignored) {
         log.debug("Failed to parse ApiException body: ", ignored);
@@ -168,16 +163,22 @@ public class JobImageDeployerV2 {
    * @param dataJob The data job
    * @param jobDeployment Deployment configuration
    */
-  private void updateCronJob(DataJob dataJob, JobDeployment jobDeployment, String lastDeployedBy, Set<String> dataJobDeploymentNames)
+  private void updateCronJob(
+      DataJob dataJob,
+      JobDeployment jobDeployment,
+      String lastDeployedBy,
+      Set<String> dataJobDeploymentNames)
       throws ApiException {
     log.debug("Deploy cron job for data job {}", dataJob);
 
     String jobName = dataJob.getName();
     String dataJobDeploymentName = getCronJobName(jobName);
-    KubernetesService.CronJob cronJob = getCronJob(dataJobDeploymentName, dataJob, jobDeployment, lastDeployedBy);
+    KubernetesService.CronJob cronJob =
+        getCronJob(dataJobDeploymentName, dataJob, jobDeployment, lastDeployedBy);
 
     // TODO [miroslavi] store sha in annotation???
-    String cronJobSha = dataJobsKubernetesService.getCronJobSha512(cronJob, JobAnnotation.DEPLOYED_DATE);
+    String cronJobSha =
+        dataJobsKubernetesService.getCronJobSha512(cronJob, JobAnnotation.DEPLOYED_DATE);
 
     if (dataJobDeploymentNames.contains(dataJobDeploymentName)) {
       if (!cronJobSha.equals(dataJob.getDataJobDeployment().getDeploymentVersionSha())) {
@@ -274,89 +275,106 @@ public class JobImageDeployerV2 {
   }
 
   // TODO migrate to new Data Job deployment
-  private KubernetesService.CronJob getCronJob(String dataJobDeploymentName, DataJob dataJob, JobDeployment jobDeployment, String lastDeployedBy) {
+  private KubernetesService.CronJob getCronJob(
+      String dataJobDeploymentName,
+      DataJob dataJob,
+      JobDeployment jobDeployment,
+      String lastDeployedBy) {
     // Schedule defaults to Feb 30 (i.e. never) if no schedule has been given.
     String schedule =
-            StringUtils.isEmpty(dataJob.getJobConfig().getSchedule())
-                    ? "0 0 30 2 *"
-                    : dataJob.getJobConfig().getSchedule();
+        StringUtils.isEmpty(dataJob.getJobConfig().getSchedule())
+            ? "0 0 30 2 *"
+            : dataJob.getJobConfig().getSchedule();
 
     var jobName = dataJob.getName();
     var volume = KubernetesService.volume(VOLUME_NAME);
     var volumeMount = KubernetesService.volumeMount(VOLUME_NAME, VOLUME_MOUNT_PATH, false);
     var ephemeralVolume = KubernetesService.volume(EPHEMERAL_VOLUME_NAME);
     var ephemeralVolumeMount =
-            KubernetesService.volumeMount(EPHEMERAL_VOLUME_NAME, EPHEMERAL_VOLUME_MOUNT_PATH, false);
+        KubernetesService.volumeMount(EPHEMERAL_VOLUME_NAME, EPHEMERAL_VOLUME_MOUNT_PATH, false);
     var jobContainerEnvVars = getJobContainerEnvVars(jobName, dataJob.getJobConfig());
 
     String jobKeytabKubernetesSecretName =
-            JobCredentialsService.getJobKeytabKubernetesSecretName(jobName);
+        JobCredentialsService.getJobKeytabKubernetesSecretName(jobName);
     var secretVolume =
-            KubernetesService.volume(jobKeytabKubernetesSecretName, jobKeytabKubernetesSecretName);
+        KubernetesService.volume(jobKeytabKubernetesSecretName, jobKeytabKubernetesSecretName);
     var secretVolumeMount =
-            KubernetesService.volumeMount(jobKeytabKubernetesSecretName, KEYTAB_FOLDER, true);
+        KubernetesService.volumeMount(jobKeytabKubernetesSecretName, KEYTAB_FOLDER, true);
 
     var jobCommand = jobCommandProvider.getJobCommand(jobName);
     DataJobResources resources = jobDeployment.getResources();
-    String cpuRequest = resources.getCpuRequest() != null && resources.getCpuRequest() > 0 ? String.valueOf(resources.getCpuRequest()) : defaultConfigurations.dataJobRequests().getCpu();
-    String cpuLimit = resources.getCpuLimit() != null && resources.getCpuLimit() > 0 ? String.valueOf(resources.getCpuLimit()) : defaultConfigurations.dataJobLimits().getCpu();
-    String memoryRequest = resources.getMemoryRequest() != null && resources.getMemoryRequest() > 0 ? resources.getMemoryRequest() + "Mi" : defaultConfigurations.dataJobRequests().getMemory();
-    String memoryLimit = resources.getMemoryLimit() != null && resources.getMemoryLimit() > 0 ? resources.getMemoryLimit() + "Mi" : defaultConfigurations.dataJobLimits().getMemory();
+    String cpuRequest =
+        resources.getCpuRequest() != null && resources.getCpuRequest() > 0
+            ? String.valueOf(resources.getCpuRequest())
+            : defaultConfigurations.dataJobRequests().getCpu();
+    String cpuLimit =
+        resources.getCpuLimit() != null && resources.getCpuLimit() > 0
+            ? String.valueOf(resources.getCpuLimit())
+            : defaultConfigurations.dataJobLimits().getCpu();
+    String memoryRequest =
+        resources.getMemoryRequest() != null && resources.getMemoryRequest() > 0
+            ? resources.getMemoryRequest() + "Mi"
+            : defaultConfigurations.dataJobRequests().getMemory();
+    String memoryLimit =
+        resources.getMemoryLimit() != null && resources.getMemoryLimit() > 0
+            ? resources.getMemoryLimit() + "Mi"
+            : defaultConfigurations.dataJobLimits().getMemory();
 
     // The job name is used as the container name. This is something that we rely on later,
     // when watching for pod modifications in DataJobStatusMonitor.watchPods
     var jobContainer =
-            KubernetesService.container(
-                    jobName,
-                    jobDeployment.getImageName(),
-                    false,
-                    readOnlyRootFilesystem,
-                    jobContainerEnvVars,
-                    List.of(),
-                    List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
-                    jobImagePullPolicy,
-                    new KubernetesService.Resources(cpuRequest, memoryRequest),
-                    new KubernetesService.Resources(cpuLimit, memoryLimit),
-                    null,
-                    jobCommand);
+        KubernetesService.container(
+            jobName,
+            jobDeployment.getImageName(),
+            false,
+            readOnlyRootFilesystem,
+            jobContainerEnvVars,
+            List.of(),
+            List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
+            jobImagePullPolicy,
+            new KubernetesService.Resources(cpuRequest, memoryRequest),
+            new KubernetesService.Resources(cpuLimit, memoryLimit),
+            null,
+            jobCommand);
     var vdkCommand =
-            List.of(
-                    "/bin/bash",
-                    "-c",
-                    "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
-                            + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
+        List.of(
+            "/bin/bash",
+            "-c",
+            "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
+                + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
     var jobVdkImage = supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     var jobInitContainer =
-            KubernetesService.container(
-                    "vdk",
-                    jobVdkImage,
-                    false,
-                    readOnlyRootFilesystem,
-                    Map.of(),
-                    List.of(),
-                    List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
-                    jobImagePullPolicy,
-                    kubernetesResources.dataJobInitContainerRequests(),
-                    kubernetesResources.dataJobInitContainerLimits(),
-                    null,
-                    vdkCommand);
+        KubernetesService.container(
+            "vdk",
+            jobVdkImage,
+            false,
+            readOnlyRootFilesystem,
+            Map.of(),
+            List.of(),
+            List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
+            jobImagePullPolicy,
+            kubernetesResources.dataJobInitContainerRequests(),
+            kubernetesResources.dataJobInitContainerLimits(),
+            null,
+            vdkCommand);
 
     var jobLabels = getJobLabels(dataJob, jobDeployment);
     var jobAnnotations =
-            getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
-    boolean enabled = (dataJob.getEnabled() == null || dataJob.getEnabled()) && jobDeployment.getEnabled();
+        getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
+    boolean enabled =
+        (dataJob.getEnabled() == null || dataJob.getEnabled()) && jobDeployment.getEnabled();
 
     return KubernetesService.CronJob.builder()
-            .name(dataJobDeploymentName)
-            .image(jobDeployment.getImageName())
-            .schedule(schedule)
-            .enable(enabled)
-            .jobContainer(jobContainer)
-            .initContainer(jobInitContainer)
-            .volumes(Arrays.asList(volume, secretVolume, ephemeralVolume))
-            .jobAnnotations(jobAnnotations)
-            .jobLabels(jobLabels)
-            .imagePullSecret(List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret))
-            .build();
+        .name(dataJobDeploymentName)
+        .image(jobDeployment.getImageName())
+        .schedule(schedule)
+        .enable(enabled)
+        .jobContainer(jobContainer)
+        .initContainer(jobInitContainer)
+        .volumes(Arrays.asList(volume, secretVolume, ephemeralVolume))
+        .jobAnnotations(jobAnnotations)
+        .jobLabels(jobLabels)
+        .imagePullSecret(List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret))
+        .build();
   }
 }

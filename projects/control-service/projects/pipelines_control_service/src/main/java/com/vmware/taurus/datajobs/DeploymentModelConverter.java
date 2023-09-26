@@ -38,7 +38,7 @@ public class DeploymentModelConverter {
   }
 
   public static JobDeployment toJobDeployment(
-          String teamName, String jobName, DataJobDeployment jobDeploymentStatus) {
+      String teamName, String jobName, DataJobDeployment jobDeploymentStatus) {
     JobDeployment deployment = new JobDeployment();
     deployment.setDataJobTeam(teamName);
     deployment.setDataJobName(jobName);

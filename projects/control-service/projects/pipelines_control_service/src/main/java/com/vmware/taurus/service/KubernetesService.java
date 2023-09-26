@@ -1658,15 +1658,15 @@ public abstract class KubernetesService {
   }
 
   protected V1beta1CronJob v1beta1CronJobFromTemplate(
-          String name,
-          String schedule,
-          boolean suspend,
-          V1Container jobContainer,
-          V1Container initContainer,
-          List<V1Volume> volumes,
-          Map<String, String> jobAnnotations,
-          Map<String, String> jobLabels,
-          List<String> imagePullSecrets) {
+      String name,
+      String schedule,
+      boolean suspend,
+      V1Container jobContainer,
+      V1Container initContainer,
+      List<V1Volume> volumes,
+      Map<String, String> jobAnnotations,
+      Map<String, String> jobLabels,
+      List<String> imagePullSecrets) {
     V1beta1CronJob cronjob = loadV1beta1CronjobTemplate();
     v1beta1checkForMissingEntries(cronjob);
     cronjob.getMetadata().setName(name);
@@ -1712,15 +1712,15 @@ public abstract class KubernetesService {
   }
 
   protected V1CronJob v1CronJobFromTemplate(
-          String name,
-          String schedule,
-          boolean suspend,
-          V1Container jobContainer,
-          V1Container initContainer,
-          List<V1Volume> volumes,
-          Map<String, String> jobAnnotations,
-          Map<String, String> jobLabels,
-          List<String> imagePullSecrets) {
+      String name,
+      String schedule,
+      boolean suspend,
+      V1Container jobContainer,
+      V1Container initContainer,
+      List<V1Volume> volumes,
+      Map<String, String> jobAnnotations,
+      Map<String, String> jobLabels,
+      List<String> imagePullSecrets) {
     V1CronJob cronjob = loadV1CronjobTemplate();
     v1checkForMissingEntries(cronjob);
     cronjob.getMetadata().setName(name);

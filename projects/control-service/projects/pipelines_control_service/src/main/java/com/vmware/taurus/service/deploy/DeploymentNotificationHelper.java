@@ -45,10 +45,7 @@ public class DeploymentNotificationHelper {
                 jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha()));
 
         deploymentProgress.failed(
-            dataJob,
-            DeploymentStatus.USER_ERROR,
-            userErrorMessage,
-            sendNotification);
+            dataJob, DeploymentStatus.USER_ERROR, userErrorMessage, sendNotification);
       } else {
         if (logs.contains("error resolving source context: reference not found")) {
           log.error(

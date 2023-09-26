@@ -57,7 +57,17 @@ public class DataJobsKubernetesService extends KubernetesService {
   }
 
   public void createCronJob(KubernetesService.CronJob cronJob) throws ApiException {
-    createCronJob(cronJob.getName(), cronJob.getImage(), cronJob.getSchedule(), cronJob.isEnable(), cronJob.getJobContainer(), cronJob.getInitContainer(), cronJob.getVolumes(), cronJob.getJobAnnotations(), cronJob.getJobLabels(), cronJob.getImagePullSecret());
+    createCronJob(
+        cronJob.getName(),
+        cronJob.getImage(),
+        cronJob.getSchedule(),
+        cronJob.isEnable(),
+        cronJob.getJobContainer(),
+        cronJob.getInitContainer(),
+        cronJob.getVolumes(),
+        cronJob.getJobAnnotations(),
+        cronJob.getJobLabels(),
+        cronJob.getImagePullSecret());
   }
 
   public void createCronJob(
@@ -99,7 +109,8 @@ public class DataJobsKubernetesService extends KubernetesService {
     }
   }
 
-  public String getCronJobSha512(KubernetesService.CronJob cronJob, JobAnnotation excludeAnnotation) {
+  public String getCronJobSha512(
+      KubernetesService.CronJob cronJob, JobAnnotation excludeAnnotation) {
     String cronJobString = null;
     Map<String, String> jobAnnotations = cronJob.getJobAnnotations();
 
@@ -109,18 +120,48 @@ public class DataJobsKubernetesService extends KubernetesService {
     }
 
     if (getK8sSupportsV1CronJob()) {
-      cronJobString = v1CronJobFromTemplate(
-                      cronJob.getName(), cronJob.getSchedule(), !cronJob.isEnable(), cronJob.getJobContainer(), cronJob.getInitContainer(), cronJob.getVolumes(), jobAnnotations, cronJob.getJobLabels(), cronJob.getImagePullSecret()).toString();
+      cronJobString =
+          v1CronJobFromTemplate(
+                  cronJob.getName(),
+                  cronJob.getSchedule(),
+                  !cronJob.isEnable(),
+                  cronJob.getJobContainer(),
+                  cronJob.getInitContainer(),
+                  cronJob.getVolumes(),
+                  jobAnnotations,
+                  cronJob.getJobLabels(),
+                  cronJob.getImagePullSecret())
+              .toString();
     } else {
-      cronJobString = v1beta1CronJobFromTemplate(
-              cronJob.getName(), cronJob.getSchedule(), !cronJob.isEnable(), cronJob.getJobContainer(), cronJob.getInitContainer(), cronJob.getVolumes(), jobAnnotations, cronJob.getJobLabels(), cronJob.getImagePullSecret()).toString();
+      cronJobString =
+          v1beta1CronJobFromTemplate(
+                  cronJob.getName(),
+                  cronJob.getSchedule(),
+                  !cronJob.isEnable(),
+                  cronJob.getJobContainer(),
+                  cronJob.getInitContainer(),
+                  cronJob.getVolumes(),
+                  jobAnnotations,
+                  cronJob.getJobLabels(),
+                  cronJob.getImagePullSecret())
+              .toString();
     }
 
     return DigestUtils.sha1Hex(cronJobString);
   }
 
   public void updateCronJob(KubernetesService.CronJob cronJob) throws ApiException {
-    updateCronJob(cronJob.getName(), cronJob.getImage(), cronJob.getSchedule(), cronJob.isEnable(), cronJob.getJobContainer(), cronJob.getInitContainer(), cronJob.getVolumes(), cronJob.getJobAnnotations(), cronJob.getJobLabels(), cronJob.getImagePullSecret());
+    updateCronJob(
+        cronJob.getName(),
+        cronJob.getImage(),
+        cronJob.getSchedule(),
+        cronJob.isEnable(),
+        cronJob.getJobContainer(),
+        cronJob.getInitContainer(),
+        cronJob.getVolumes(),
+        cronJob.getJobAnnotations(),
+        cronJob.getJobLabels(),
+        cronJob.getImagePullSecret());
   }
 
   public void updateCronJob(

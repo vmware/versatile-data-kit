@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.exception.*;
 import com.vmware.taurus.service.model.*;
@@ -41,28 +40,29 @@ public class DeploymentServiceV2 {
 
   /**
    * Updates or creates a Kubernetes CronJob based on the provided configuration.
-   * <p>
-   * This method takes a CronJob configuration and checks if a CronJob with the same name
-   * already exists in the Kubernetes cluster. If the CronJob exists, it will be updated
-   * with the new configuration; otherwise, a new CronJob will be created. The method ensures
-   * that the CronJob in the cluster matches the desired state specified in the configuration.
    *
-   * @param dataJob   The data job to update or create.
+   * <p>This method takes a CronJob configuration and checks if a CronJob with the same name already
+   * exists in the Kubernetes cluster. If the CronJob exists, it will be updated with the new
+   * configuration; otherwise, a new CronJob will be created. The method ensures that the CronJob in
+   * the cluster matches the desired state specified in the configuration.
+   *
+   * @param dataJob The data job to update or create.
    * @param sendNotification if it is true the method will send a notification to the end user.
    * @param dataJobDeploymentNames list of actual data job deployment names returned by Kubernetes.
    */
   public void updateDeployment(
-          DataJob dataJob,
-          Boolean sendNotification,
-          Set<String> dataJobDeploymentNames) {
+      DataJob dataJob, Boolean sendNotification, Set<String> dataJobDeploymentNames) {
     DataJobDeployment dataJobDeployment = dataJob.getDataJobDeployment();
 
     if (dataJobDeployment == null) {
-      log.debug("Skipping the data job [job_name={}] deployment due to the missing deployment data", dataJob.getName());
+      log.debug(
+          "Skipping the data job [job_name={}] deployment due to the missing deployment data",
+          dataJob.getName());
       return;
     }
 
-    JobDeployment jobDeployment = DeploymentModelConverter.toJobDeployment(
+    JobDeployment jobDeployment =
+        DeploymentModelConverter.toJobDeployment(
             dataJob.getJobConfig().getTeam(), dataJob.getName(), dataJobDeployment);
 
     try {
@@ -74,22 +74,26 @@ public class DeploymentServiceV2 {
       }
 
       String imageName =
-              dockerRegistryService.dataJobImage(
-                      jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha());
+          dockerRegistryService.dataJobImage(
+              jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha());
       jobDeployment.setImageName(imageName);
 
       if (jobImageBuilder.buildImage(imageName, dataJob, jobDeployment, sendNotification)) {
         log.info(
-                "Image {} has been built. Will now schedule job {} for execution",
-                imageName,
-                dataJob.getName());
+            "Image {} has been built. Will now schedule job {} for execution",
+            imageName,
+            dataJob.getName());
         jobDeployment.setImageName(imageName);
         if (jobImageDeployer.scheduleJob(
-                dataJob, jobDeployment, sendNotification, dataJobDeployment.getLastDeployedBy(), dataJobDeploymentNames)) {
+            dataJob,
+            jobDeployment,
+            sendNotification,
+            dataJobDeployment.getLastDeployedBy(),
+            dataJobDeploymentNames)) {
           log.info(
-                  String.format(
-                          "Successfully updated job: %s with version: %s",
-                          jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha()));
+              String.format(
+                  "Successfully updated job: %s with version: %s",
+                  jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha()));
 
           saveDeployment(dataJob, jobDeployment);
 

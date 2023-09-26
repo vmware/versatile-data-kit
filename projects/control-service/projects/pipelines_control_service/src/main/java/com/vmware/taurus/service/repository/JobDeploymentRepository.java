@@ -27,12 +27,12 @@ import javax.transaction.Transactional;
  */
 @Repository
 public interface JobDeploymentRepository extends JpaRepository<DataJobDeployment, String> {
-    @Transactional
-    @Modifying(clearAutomatically = true)
-    @Query(
-            "update DataJobDeployment d set d.deploymentVersionSha = :deploymentVersionSha where d.dataJobName ="
-                    + " :dataJobName")
-    int updateDataJobDeploymentDeploymentVersionShaByDataJobName(
-            @Param(value = "dataJobName") String dataJobName,
-            @Param(value = "deploymentVersionSha") String deploymentVersionSha);
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  @Query(
+      "update DataJobDeployment d set d.deploymentVersionSha = :deploymentVersionSha where"
+          + " d.dataJobName = :dataJobName")
+  int updateDataJobDeploymentDeploymentVersionShaByDataJobName(
+      @Param(value = "dataJobName") String dataJobName,
+      @Param(value = "deploymentVersionSha") String deploymentVersionSha);
 }
