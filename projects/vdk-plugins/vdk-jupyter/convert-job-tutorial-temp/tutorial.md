@@ -6,17 +6,27 @@ Time Commitment: About 5-10 minutes.
 
 Before you start with the conversion, please ensure you have the following:
 
-* **Installed Software and Services:**
-  - VDK: Ensure that the Versatile Data Kit is installed and properly configured.
-  - [Control Service](https://github.com/vmware/versatile-data-kit/wiki/Interfaces#control-service:~:text=Parameterized%20SQL-,Control%20Service,-Job%20Lifecycle%20API): Essential for orchestrating the execution of Data Jobs.
-  - Jupyter instance: Needed to access Jupyter Notebooks.
-  - [vdk-jupyterlab-extension](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/README.md): This extension integrates VDK with JupyterLab.
-  - [vdk-notebook](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-notebook/README.md): Allows the execution of VDK jobs with notebooks.
-  - [vdk-ipython](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-ipython/README.md): Loads VDK functionalities into IPython environments, allowing enhanced interaction.
-* **Developed Data Job:**
-  - Ensure that you have created and developed a VDK Data Job ready for conversion.
+<details>
+  <summary>Installed Software and Services</summary>
+
+- **VDK:** Ensure that the Versatile Data Kit is installed and properly configured.
+- **[Control Service](https://github.com/vmware/versatile-data-kit/wiki/Interfaces#control-service:~:text=Parameterized%20SQL-,Control%20Service,-Job%20Lifecycle%20API):** Essential for orchestrating the execution of Data Jobs.
+- **Jupyter instance:** Needed to access Jupyter Notebooks.
+- **[vdk-jupyterlab-extension](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/README.md):** This extension integrates VDK with JupyterLab.
+- **[vdk-notebook](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-notebook/README.md):** Allows the execution of VDK jobs with notebooks.
+- **[vdk-ipython](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-ipython/README.md):** Loads VDK functionalities into IPython environments, allowing enhanced interaction.
+
+</details>
+
+<details>
+  <summary>Developed Data Job</summary>
+
+- Ensure that you have created and developed a VDK Data Job ready for conversion.
+
+</details>
 
 Make sure to have all prerequisites in place to avoid any disruptions during the conversion process.
+
 
 
 ## Data Job Conversion Guide
