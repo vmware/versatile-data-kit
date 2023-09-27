@@ -113,7 +113,7 @@ This guide presumes that you have already initialized a job either locally or in
 
 ### Wrap-up:
 
-Congratulations! 
+Congratulations!
 You've successfully converted a VDK Data Job to a Jupyter Notebook format.
 This conversion not only modernizes your Data Job but also makes it more interactive,
 thereby facilitating easier debugging and collaboration.
