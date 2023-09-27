@@ -132,4 +132,3 @@ You should now be acquainted with the process of converting a job consisting of 
 Explore further with the [VDK Examples list](https://github.com/vmware/versatile-data-kit/wiki/Examples).
 
 If you're curious about the mechanics of the job conversion process, check [VDK Jupyter Integration Convert Job Operation](https://github.com/vmware/versatile-data-kit/wiki/VDK-Jupyter-Integration-Convert-Job-Operation).
-
