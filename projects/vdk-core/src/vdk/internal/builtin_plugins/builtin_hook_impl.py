@@ -36,6 +36,7 @@ from vdk.internal.builtin_plugins.job_secrets.secrets_api_plugin import (
     SecretsApiPlugin,
 )
 from vdk.internal.builtin_plugins.notification.notification import NotificationPlugin
+from vdk.internal.builtin_plugins.run.summary_output import JobRunSummaryOutputPlugin
 from vdk.internal.builtin_plugins.termination_message.writer import (
     TerminationMessageWriterPlugin,
 )
@@ -130,6 +131,7 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     plugin_registry.add_hook_specs(JobRunHookSpecs)
     plugin_registry.load_plugin_with_hooks_impl(JobConfigIniPlugin())
     plugin_registry.load_plugin_with_hooks_impl(TerminationMessageWriterPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(JobRunSummaryOutputPlugin())
     # connection plugins
     plugin_registry.add_hook_specs(ConnectionHookSpec)
     plugin_registry.load_plugin_with_hooks_impl(QueryDecoratorPlugin())
