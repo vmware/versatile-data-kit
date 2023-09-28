@@ -19,3 +19,4 @@ export const ERROR_DIALOG_CLASS = 'vdk-error-dialog';
 export const LOGIN2_INPUT_CLASS = 'jp-vdk-login2-input';
 export const LOGIN2_BUTTON_CLASS = 'jp-vdk-login2-button';
 export const LOGIN2_DIALOG_CLASS = 'jp-vdk-login2-dialog-container';
+export const RUN_LOG_FILE = 'vdk_run.log';

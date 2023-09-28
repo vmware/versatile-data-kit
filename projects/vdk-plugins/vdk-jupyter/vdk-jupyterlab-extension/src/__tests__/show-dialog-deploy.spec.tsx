@@ -48,7 +48,7 @@ describe('showCreateDeploymentDialog', () => {
     it('should show a dialog with the Create Deployment title and \
         a DeployJobDialog component as its body', async () => {
 
-      await showCreateDeploymentDialog(mockStatusButton);
+      await showCreateDeploymentDialog(undefined, mockStatusButton);
 
       // Expect the first showDialog function to have been called with the correct parameters
       expect(showDialog).toHaveBeenCalledWith({
@@ -74,20 +74,20 @@ describe('showCreateDeploymentDialog', () => {
 
     it('should not call jobRunRequest when reason is empty', async () => {
       jobData.set(VdkOption.DEPLOYMENT_REASON, '');
-      await showCreateDeploymentDialog(mockStatusButton);
+      await showCreateDeploymentDialog(undefined, mockStatusButton);
       expect(jobRunRequest).not.toHaveBeenCalled();
     });
 
     it('should handle failures in jobRunRequest', async () => {
       (jobRunRequest as jest.Mock).mockRejectedValueOnce(new Error('Failed to run job'));
 
-      await showCreateDeploymentDialog(mockStatusButton);
+      await showCreateDeploymentDialog(undefined, mockStatusButton);
 
       expect(showDialog).toHaveBeenCalledWith(expect.objectContaining({title: RUN_JOB_BUTTON_LABEL} ) );
     });
 
     it('should show a Status Dialog when operations start', async () => {
-        await showCreateDeploymentDialog(mockStatusButton);
+        await showCreateDeploymentDialog(undefined, mockStatusButton);
 
         expect(mockStatusButton.show).toHaveBeenCalled();
     });

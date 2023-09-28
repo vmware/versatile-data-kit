@@ -6,9 +6,7 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
-import com.vmware.taurus.service.model.DeploymentStatus;
-import com.vmware.taurus.service.model.JobConfig;
-import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.monitoring.DeploymentMonitor;
 import com.vmware.taurus.service.notification.DataJobNotification;
 import lombok.RequiredArgsConstructor;
@@ -32,25 +30,32 @@ public class DeploymentProgress {
   void started(JobConfig jobConfig, JobDeployment jobDeployment) {}
 
   /**
-   * Data Job Deployment has completed successfully.
+   * Data Job Deployment has started.
    *
    * @param jobConfig the job configuration
    * @param jobDeployment the job deployment configuration
    */
   @Measurable(includeArg = 1, argName = "deployment")
-  void completed(JobConfig jobConfig, JobDeployment jobDeployment, boolean sendNotification) {
+  void started(JobConfig jobConfig, DataJobDeployment jobDeployment) {}
+
+  /**
+   * Data Job Deployment has completed successfully.
+   *
+   * @param dataJob the job
+   */
+  @Measurable(includeArg = 1, argName = "deployment")
+  void completed(DataJob dataJob, boolean sendNotification) {
     deploymentMonitor.recordDeploymentStatus(
-        jobDeployment.getDataJobName(), DeploymentStatus.SUCCESS);
+        dataJob.getName(), DeploymentStatus.SUCCESS, dataJob.getDataJobDeployment());
     if (sendNotification) {
-      dataJobNotification.notifyJobDeploySuccess(jobConfig);
+      dataJobNotification.notifyJobDeploySuccess(dataJob.getJobConfig());
     }
   }
 
   /**
    * Data Job Deployment has failed.
    *
-   * @param jobConfig the job configuration
-   * @param jobDeployment the job deployment configuration
+   * @param dataJob the job
    * @param status Deployment status - user or platform error
    * @param message the error message that will be sent as notificaiton
    * @param sendNotification if true will sent notification to user
@@ -58,15 +63,12 @@ public class DeploymentProgress {
   @Measurable(includeArg = 1, argName = "deployment")
   @Measurable(includeArg = 2, argName = "status")
   @Measurable(includeArg = 3, argName = "message")
-  void failed(
-      JobConfig jobConfig,
-      JobDeployment jobDeployment,
-      DeploymentStatus status,
-      String message,
-      boolean sendNotification) {
-    deploymentMonitor.recordDeploymentStatus(jobDeployment.getDataJobName(), status);
+  void failed(DataJob dataJob, DeploymentStatus status, String message, boolean sendNotification) {
+    deploymentMonitor.recordDeploymentStatus(
+        dataJob.getName(), status, dataJob.getDataJobDeployment());
     if (sendNotification) {
-      dataJobNotification.notifyJobDeployError(jobConfig, "Failed to deploy the job.", message);
+      dataJobNotification.notifyJobDeployError(
+          dataJob.getJobConfig(), "Failed to deploy the job.", message);
     }
   }
 
@@ -78,7 +80,7 @@ public class DeploymentProgress {
    */
   @Measurable(includeArg = 0, argName = "job_name")
   public void deleted(String dataJobName) {
-    deploymentMonitor.recordDeploymentStatus(dataJobName, DeploymentStatus.SUCCESS);
+    deploymentMonitor.recordDeploymentStatus(dataJobName, DeploymentStatus.SUCCESS, null);
   }
 
   @Measurable(includeArg = 1, argName = "deployment")
