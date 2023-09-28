@@ -20,23 +20,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
-@SpringBootTest(
-    classes = ControlplaneApplication.class)
+@SpringBootTest(classes = ControlplaneApplication.class)
 public class DataJobsControllerDeploymentIT {
 
-  @Autowired
-  JobDeploymentRepository jobDeploymentRepository;
-  @Autowired
-  DataJobsController dataJobsController;
-  @Autowired
-  JobsRepository jobsRepository;
+  @Autowired JobDeploymentRepository jobDeploymentRepository;
+  @Autowired DataJobsController dataJobsController;
+  @Autowired JobsRepository jobsRepository;
 
-  @MockBean
-  JobCredentialsService jobCredentialsService;
-  @MockBean
-  DeploymentService deploymentService;
-  @MockBean
-  GitWrapper gitWrapper;
+  @MockBean JobCredentialsService jobCredentialsService;
+  @MockBean DeploymentService deploymentService;
+  @MockBean GitWrapper gitWrapper;
 
   private final String TEST_JOB_NAME = "foo-job";
   private final String TEST_TEAM_NAME = "bar-team";
@@ -50,8 +43,7 @@ public class DataJobsControllerDeploymentIT {
   @WithMockUser
   public void testWriteToDB_fromDataJobCreate() {
     var job = TestUtils.getDataJob(TEST_TEAM_NAME, TEST_JOB_NAME);
-    dataJobsController.dataJobCreate(TEST_TEAM_NAME,
-        job, TEST_JOB_NAME);
+    dataJobsController.dataJobCreate(TEST_TEAM_NAME, job, TEST_JOB_NAME);
     var deploymentEntity = jobDeploymentRepository.findById(TEST_JOB_NAME);
     Assertions.assertEquals(TEST_JOB_NAME, deploymentEntity.get().getDataJobName());
   }
@@ -60,8 +52,7 @@ public class DataJobsControllerDeploymentIT {
   @WithMockUser
   public void testDelete_fromDataJobDelete() {
     var job = TestUtils.getDataJob(TEST_TEAM_NAME, TEST_JOB_NAME);
-    dataJobsController.dataJobCreate(TEST_TEAM_NAME,
-        job, TEST_JOB_NAME);
+    dataJobsController.dataJobCreate(TEST_TEAM_NAME, job, TEST_JOB_NAME);
     dataJobsController.dataJobDelete(TEST_TEAM_NAME, TEST_JOB_NAME);
     Assertions.assertTrue(jobDeploymentRepository.findAll().size() == 0);
   }
@@ -70,8 +61,7 @@ public class DataJobsControllerDeploymentIT {
   @WithMockUser
   public void testUpdate_fromUpdateTeam() {
     var job = TestUtils.getDataJob(TEST_TEAM_NAME, TEST_JOB_NAME);
-    dataJobsController.dataJobCreate(TEST_TEAM_NAME,
-        job, TEST_JOB_NAME);
+    dataJobsController.dataJobCreate(TEST_TEAM_NAME, job, TEST_JOB_NAME);
 
     var updatedDelpoyment = jobsRepository.findById(TEST_JOB_NAME).get().getDataJobDeployment();
     updatedDelpoyment.setGitCommitSha("TEST");
@@ -80,15 +70,13 @@ public class DataJobsControllerDeploymentIT {
     dataJobsController.dataJobTeamUpdate(TEST_TEAM_NAME, "new-team", TEST_JOB_NAME);
     var retrievedDeployment = jobDeploymentRepository.findById(TEST_JOB_NAME).get();
     Assertions.assertEquals("TEST", retrievedDeployment.getGitCommitSha());
-
   }
 
   @Test
   @WithMockUser
   public void testUpdate_formDataJobUpdate() {
     var job = TestUtils.getDataJob(TEST_TEAM_NAME, TEST_JOB_NAME);
-    dataJobsController.dataJobCreate(TEST_TEAM_NAME,
-        job, TEST_JOB_NAME);
+    dataJobsController.dataJobCreate(TEST_TEAM_NAME, job, TEST_JOB_NAME);
 
     var updatedJob = jobsRepository.findById(TEST_JOB_NAME).get();
     updatedJob.setLatestJobDeploymentStatus(DeploymentStatus.PLATFORM_ERROR);
@@ -98,11 +86,10 @@ public class DataJobsControllerDeploymentIT {
     updatedDelpoyment.setGitCommitSha("TEST");
     jobDeploymentRepository.save(updatedDelpoyment);
 
-    dataJobsController.dataJobUpdate(TEST_TEAM_NAME, TEST_JOB_NAME, ToApiModelConverter.toDataJob(updatedJob));
+    dataJobsController.dataJobUpdate(
+        TEST_TEAM_NAME, TEST_JOB_NAME, ToApiModelConverter.toDataJob(updatedJob));
 
     var retrievedDeployment = jobDeploymentRepository.findById(TEST_JOB_NAME).get();
     Assertions.assertEquals("TEST", retrievedDeployment.getGitCommitSha());
-
   }
-
 }
