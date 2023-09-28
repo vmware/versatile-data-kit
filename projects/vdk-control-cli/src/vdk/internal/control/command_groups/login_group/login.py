@@ -120,7 +120,6 @@ def login(
                 auth_discovery_url=oauth2_discovery_url,
                 authorization_url=oauth2_exchange_url,
                 auth_type=auth_type,
-                cache_locally=True,
             )
             auth.authenticate()
             click.echo("Login Successful")
@@ -149,7 +148,6 @@ def login(
                 authorization_url=api_token_authorization_url,
                 token=api_token,
                 auth_type=auth_type,
-                cache_locally=True,
             )
             try:
                 apikey_auth.authenticate()
