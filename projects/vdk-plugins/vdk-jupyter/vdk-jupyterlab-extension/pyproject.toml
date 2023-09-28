@@ -27,7 +27,9 @@ dependencies = [
     "jupyterlab==3.6.3",
     "traitlets==5.9.0",
     "vdk-control-cli",
-    "vdk-core"
+    "vdk-core",
+    "vdk-notebook",
+    "vdk-ipython"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
@@ -43,8 +45,6 @@ test = [
 ]
 # Opinionated dependecies added by VDK dev team that we think make jupyterlab easier and better for users.
 opinionated = [
-    "vdk-notebook",
-    "vdk-ipython"
     "jupyterlab_execute_time",
     "lckr-jupyterlab-variableinspector",
     "ipyaggrid",
