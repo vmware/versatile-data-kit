@@ -140,6 +140,8 @@ public class JobsService {
    */
   public boolean updateJob(DataJob jobInfo) {
     if (jobsRepository.existsById(jobInfo.getName())) {
+      var job = jobsRepository.findById(jobInfo.getName()).get();
+      jobInfo.setDataJobDeployment(job.getDataJobDeployment());
       dataJobMetrics.updateInfoGauges(jobsRepository.save(jobInfo));
       return true;
     }

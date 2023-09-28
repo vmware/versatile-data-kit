@@ -18,6 +18,9 @@ import com.vmware.taurus.service.credentials.JobCredentialsService;
 import com.vmware.taurus.service.upload.JobUpload;
 import graphql.GraphQLError;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.net.URI;
+import java.util.List;
+import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -31,10 +34,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriBuilder;
-
-import java.net.URI;
-import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * REST controller for operations on data jobs
@@ -97,6 +96,7 @@ public class DataJobsController implements DataJobsApi {
     }
 
     var apiJob = ToModelApiConverter.toDataJob(dataJob);
+    apiJob.setDataJobDeployment(generateDeploymentInfo(apiJob));
     var operationResult = jobsService.createJob(apiJob);
     if (webHookResultExists(operationResult)) {
       propagateWebHookResult("Create", operationResult);
@@ -217,6 +217,14 @@ public class DataJobsController implements DataJobsApi {
     var dataJobQueryResponse = ToApiModelConverter.toDataJobPage(executionResult);
 
     return buildGraphQLResponseEntity(dataJobQueryResponse);
+  }
+
+  private com.vmware.taurus.service.model.DataJobDeployment generateDeploymentInfo(
+      com.vmware.taurus.service.model.DataJob dataJob) {
+    var jobDeployment = new com.vmware.taurus.service.model.DataJobDeployment();
+    jobDeployment.setDataJobName(dataJob.getName());
+    jobDeployment.setDataJob(dataJob);
+    return jobDeployment;
   }
 
   private boolean webHookResultExists(JobOperationResult operationResult) {
