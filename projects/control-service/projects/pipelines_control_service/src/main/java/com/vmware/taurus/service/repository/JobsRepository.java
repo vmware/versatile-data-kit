@@ -35,11 +35,6 @@ import java.util.Optional;
 @Repository
 public interface JobsRepository extends PagingAndSortingRepository<DataJob, String> {
 
-  @NotNull
-  @Override
-  @Query("select j from DataJob j left join fetch j.dataJobDeployment")
-  Iterable<DataJob> findAll();
-
   List<DataJob> findAllByJobConfigTeam(String team, Pageable pageable);
 
   Optional<DataJob> findDataJobByNameAndJobConfigTeam(String jobName, String teamName);

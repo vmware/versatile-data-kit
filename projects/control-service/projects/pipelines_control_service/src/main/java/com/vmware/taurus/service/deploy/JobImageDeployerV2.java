@@ -6,7 +6,7 @@
 package com.vmware.taurus.service.deploy;
 
 import com.google.gson.Gson;
-import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
@@ -71,32 +71,33 @@ public class JobImageDeployerV2 {
   /**
    * Schedules for execution a data job at kubernetes cluster.
    *
-   * @param dataJob the data job to be updated or created.
-   * @param jobDeployment the deployment information necessary to execute the deployment.
-   * @param sendNotification if it is true the method will send a notification to the end user.
-   * @param lastDeployedBy the name of the user that last deployed the data job
-   * @param dataJobDeploymentNames list of actual data job deployment names returned by Kubernetes.
+   * @param dataJob the data job to be deployed.
+   * @param desiredDataJobDeployment the desired data job deployment to be deployed.
+   * @param actualDataJobDeployment the actual data job deployment has been deployed.
+   * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in Kubernetes.
+   * @param jobImageName the data job docker image name.
+   *
    * @return true if it is successful and false if not.
    */
-  public boolean scheduleJob(
+  public ActualDataJobDeployment scheduleJob(
       DataJob dataJob,
-      JobDeployment jobDeployment,
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      ActualDataJobDeployment actualDataJobDeployment,
       Boolean sendNotification,
-      String lastDeployedBy,
-      Set<String> dataJobDeploymentNames) {
-    Validate.notNull(jobDeployment, "jobDeployment should not be null");
-    Validate.notNull(jobDeployment.getImageName(), "Image name is expected in jobDeployment");
+      boolean isJobDeploymentPresentInKubernetes,
+      String jobImageName) {
+    Validate.notNull(desiredDataJobDeployment, "desiredDataJobDeployment should not be null");
+    Validate.notNull(jobImageName, "Image name is expected in jobDeployment");
     log.info("Update cron job for data job {}", dataJob.getName());
 
     try {
-      updateCronJob(dataJob, jobDeployment, lastDeployedBy, dataJobDeploymentNames);
-      return true;
+      return updateCronJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isJobDeploymentPresentInKubernetes, jobImageName);
     } catch (ApiException e) {
       return catchApiException(dataJob, sendNotification, e);
     }
   }
 
-  private boolean catchApiException(
+  private ActualDataJobDeployment catchApiException(
       DataJob dataJob, Boolean sendNotification, ApiException apiException) {
     if (apiException.getCode() == HttpStatus.UNPROCESSABLE_ENTITY.value()) {
       try {
@@ -128,7 +129,7 @@ public class JobImageDeployerV2 {
           log.error(msg);
         }
         deploymentProgress.failed(dataJob, DeploymentStatus.USER_ERROR, msg, sendNotification);
-        return false;
+        return null;
       } catch (Exception ignored) {
         log.debug("Failed to parse ApiException body: ", ignored);
       }
@@ -160,35 +161,44 @@ public class JobImageDeployerV2 {
    * the vdk container. This is in order for the initContainer (vdk) primitive to copy it from there
    * into the shared folder to be used by the container which runs the job.
    *
-   * @param dataJob The data job
-   * @param jobDeployment Deployment configuration
+   * @param dataJob the data job to be deployed.
+   * @param desiredDataJobDeployment the desired data job deployment to be deployed.
+   * @param actualDataJobDeployment the actual data job deployment has been deployed.
+   * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in Kubernetes.
+   * @param jobImageName the data job docker image name.
    */
-  private void updateCronJob(
+  private ActualDataJobDeployment updateCronJob(
       DataJob dataJob,
-      JobDeployment jobDeployment,
-      String lastDeployedBy,
-      Set<String> dataJobDeploymentNames)
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      ActualDataJobDeployment actualDataJobDeployment,
+      boolean isJobDeploymentPresentInKubernetes,
+      String jobImageName)
       throws ApiException {
     log.debug("Deploy cron job for data job {}", dataJob);
 
     String jobName = dataJob.getName();
-    String dataJobDeploymentName = getCronJobName(jobName);
-    KubernetesService.CronJob cronJob =
-        getCronJob(dataJobDeploymentName, dataJob, jobDeployment, lastDeployedBy);
+    String desiredDataJobDeploymentName = getCronJobName(jobName);
+    OffsetDateTime lastDeployedDate = OffsetDateTime.now();
+    KubernetesService.CronJob desiredCronJob =
+        getCronJob(desiredDataJobDeploymentName, dataJob, desiredDataJobDeployment, lastDeployedDate, jobImageName);
 
     // TODO [miroslavi] store sha in annotation???
-    String cronJobSha =
-        dataJobsKubernetesService.getCronJobSha512(cronJob, JobAnnotation.DEPLOYED_DATE);
+    String desiredDeploymentVersionSha =
+        dataJobsKubernetesService.getCronJobSha512(desiredCronJob, JobAnnotation.DEPLOYED_DATE);
 
-    if (dataJobDeploymentNames.contains(dataJobDeploymentName)) {
-      if (!cronJobSha.equals(dataJob.getDataJobDeployment().getDeploymentVersionSha())) {
-        dataJobsKubernetesService.updateCronJob(cronJob);
+    ActualDataJobDeployment actualJobDeployment = null;
+
+    if (isJobDeploymentPresentInKubernetes && actualDataJobDeployment != null) {
+      if (!desiredDeploymentVersionSha.equals(actualDataJobDeployment.getDeploymentVersionSha())) {
+        dataJobsKubernetesService.updateCronJob(desiredCronJob);
+        actualJobDeployment = DeploymentModelConverter.toActualJobDeployment(desiredDataJobDeployment, desiredDeploymentVersionSha, lastDeployedDate);
       }
     } else {
-      dataJobsKubernetesService.createCronJob(cronJob);
+      dataJobsKubernetesService.createCronJob(desiredCronJob);
+      actualJobDeployment = DeploymentModelConverter.toActualJobDeployment(desiredDataJobDeployment, desiredDeploymentVersionSha, lastDeployedDate);
     }
 
-    dataJob.getDataJobDeployment().setDeploymentVersionSha(cronJobSha);
+    return actualJobDeployment;
   }
 
   /**
@@ -228,7 +238,7 @@ public class JobImageDeployerV2 {
     return envVars;
   }
 
-  private Map<String, String> getJobLabels(DataJob dataJob, JobDeployment jobDeployment) {
+  private Map<String, String> getJobLabels(DataJob dataJob, DesiredDataJobDeployment jobDeployment) {
     Map<String, String> jobPodLabels = new HashMap<>();
     // This label provides means during watching to select only Kubernetes jobs which represent data
     // jobs.
@@ -241,17 +251,17 @@ public class JobImageDeployerV2 {
   }
 
   private Map<String, String> getJobAnnotations(
-      DataJob dataJob, String deployedBy, String pythonVersion) {
+      String schedule, String deployedBy, OffsetDateTime lastDeployedDate, String pythonVersion) {
     Map<String, String> jobPodAnnotations = new HashMap<>();
-    jobPodAnnotations.put(JobAnnotation.SCHEDULE.getValue(), dataJob.getJobConfig().getSchedule());
+    jobPodAnnotations.put(JobAnnotation.SCHEDULE.getValue(), schedule);
     jobPodAnnotations.put(JobAnnotation.EXECUTION_TYPE.getValue(), "scheduled");
     jobPodAnnotations.put(JobAnnotation.DEPLOYED_BY.getValue(), deployedBy);
-    jobPodAnnotations.put(JobAnnotation.DEPLOYED_DATE.getValue(), OffsetDateTime.now().toString());
+    jobPodAnnotations.put(JobAnnotation.DEPLOYED_DATE.getValue(), lastDeployedDate.toString());
     jobPodAnnotations.put(
         JobAnnotation.STARTED_BY.getValue(), "scheduled/runtime"); // TODO are those valid?
     jobPodAnnotations.put(
         JobAnnotation.UNSCHEDULED.getValue(),
-        (StringUtils.isEmpty(dataJob.getJobConfig().getSchedule()) ? "true" : "false"));
+        (StringUtils.isEmpty(schedule) ? "true" : "false"));
     jobPodAnnotations.put(JobAnnotation.PYTHON_VERSION.getValue(), pythonVersion);
     return jobPodAnnotations;
   }
@@ -278,13 +288,14 @@ public class JobImageDeployerV2 {
   private KubernetesService.CronJob getCronJob(
       String dataJobDeploymentName,
       DataJob dataJob,
-      JobDeployment jobDeployment,
-      String lastDeployedBy) {
+      DesiredDataJobDeployment jobDeployment,
+      OffsetDateTime lastDeployedDate,
+      String jobImageName) {
     // Schedule defaults to Feb 30 (i.e. never) if no schedule has been given.
     String schedule =
-        StringUtils.isEmpty(dataJob.getJobConfig().getSchedule())
+        StringUtils.isEmpty(jobDeployment.getSchedule())
             ? "0 0 30 2 *"
-            : dataJob.getJobConfig().getSchedule();
+            : jobDeployment.getSchedule();
 
     var jobName = dataJob.getName();
     var volume = KubernetesService.volume(VOLUME_NAME);
@@ -302,30 +313,37 @@ public class JobImageDeployerV2 {
         KubernetesService.volumeMount(jobKeytabKubernetesSecretName, KEYTAB_FOLDER, true);
 
     var jobCommand = jobCommandProvider.getJobCommand(jobName);
-    DataJobResources resources = jobDeployment.getResources();
-    String cpuRequest =
-        resources.getCpuRequest() != null && resources.getCpuRequest() > 0
-            ? String.valueOf(resources.getCpuRequest())
-            : defaultConfigurations.dataJobRequests().getCpu();
-    String cpuLimit =
-        resources.getCpuLimit() != null && resources.getCpuLimit() > 0
-            ? String.valueOf(resources.getCpuLimit())
-            : defaultConfigurations.dataJobLimits().getCpu();
-    String memoryRequest =
-        resources.getMemoryRequest() != null && resources.getMemoryRequest() > 0
-            ? resources.getMemoryRequest() + "Mi"
-            : defaultConfigurations.dataJobRequests().getMemory();
-    String memoryLimit =
-        resources.getMemoryLimit() != null && resources.getMemoryLimit() > 0
-            ? resources.getMemoryLimit() + "Mi"
-            : defaultConfigurations.dataJobLimits().getMemory();
+
+    String cpuRequest = Optional.ofNullable(jobDeployment.getResources())
+            .map(DataJobDeploymentResources::getCpuRequestCores)
+            .filter(cpuRequestCores -> cpuRequestCores > 0)
+            .map(String::valueOf)
+            .orElse(defaultConfigurations.dataJobRequests().getCpu());
+
+    String cpuLimit = Optional.ofNullable(jobDeployment.getResources())
+            .map(DataJobDeploymentResources::getCpuLimitCores)
+            .filter(cpuLimitCores -> cpuLimitCores > 0)
+            .map(String::valueOf)
+            .orElse(defaultConfigurations.dataJobLimits().getCpu());
+
+    String memoryRequest = Optional.ofNullable(jobDeployment.getResources())
+            .map(DataJobDeploymentResources::getMemoryRequestMi)
+            .filter(memoryRequestMi -> memoryRequestMi > 0)
+            .map(memoryRequestMi -> memoryRequestMi + "Mi")
+            .orElse(defaultConfigurations.dataJobRequests().getMemory());
+
+    String memoryLimit = Optional.ofNullable(jobDeployment.getResources())
+            .map(DataJobDeploymentResources::getMemoryLimitMi)
+            .filter(memoryLimitMi -> memoryLimitMi > 0)
+            .map(memoryLimitMi -> memoryLimitMi + "Mi")
+            .orElse(defaultConfigurations.dataJobLimits().getMemory());
 
     // The job name is used as the container name. This is something that we rely on later,
     // when watching for pod modifications in DataJobStatusMonitor.watchPods
     var jobContainer =
         KubernetesService.container(
             jobName,
-            jobDeployment.getImageName(),
+            jobImageName,
             false,
             readOnlyRootFilesystem,
             jobContainerEnvVars,
@@ -360,13 +378,12 @@ public class JobImageDeployerV2 {
 
     var jobLabels = getJobLabels(dataJob, jobDeployment);
     var jobAnnotations =
-        getJobAnnotations(dataJob, lastDeployedBy, jobDeployment.getPythonVersion());
-    boolean enabled =
-        (dataJob.getEnabled() == null || dataJob.getEnabled()) && jobDeployment.getEnabled();
+        getJobAnnotations(jobDeployment.getSchedule(), jobDeployment.getLastDeployedBy(), lastDeployedDate, jobDeployment.getPythonVersion());
+    boolean enabled = jobDeployment.getEnabled();
 
     return KubernetesService.CronJob.builder()
         .name(dataJobDeploymentName)
-        .image(jobDeployment.getImageName())
+        .image(jobImageName)
         .schedule(schedule)
         .enable(enabled)
         .jobContainer(jobContainer)
