@@ -67,11 +67,17 @@ class VdkUI:
                 arguments = shlex.quote(arguments)
                 cmd.append("--arguments")
                 cmd.append(f"{arguments}")
+
+            # We add the PYTHONUNBUFFERED env variable to ensure print statements inside user jobs are correctly
+            # interspersed in between the rest of the job logs instead of being placed at the end
+            env = os.environ.copy()
+            env["PYTHONUNBUFFERED"] = "x"
+
             process = subprocess.Popen(
                 cmd,
                 stdout=log_file,
                 stderr=log_file,
-                env=os.environ.copy(),
+                env=env,
                 shell=False,
             )
             process.wait()
