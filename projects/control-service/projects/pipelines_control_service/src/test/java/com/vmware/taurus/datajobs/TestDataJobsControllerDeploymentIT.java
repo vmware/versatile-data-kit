@@ -21,7 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
-public class DataJobsControllerDeploymentIT {
+public class TestDataJobsControllerDeploymentIT {
 
   @Autowired JobDeploymentRepository jobDeploymentRepository;
   @Autowired DataJobsController dataJobsController;
