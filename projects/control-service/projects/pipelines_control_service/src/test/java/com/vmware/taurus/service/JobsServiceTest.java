@@ -8,11 +8,13 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.datajobs.webhook.PostCreateWebHookProvider;
 import com.vmware.taurus.datajobs.webhook.PostDeleteWebHookProvider;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.monitoring.DataJobMetrics;
+import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
 import org.junit.jupiter.api.Test;
@@ -79,6 +81,8 @@ public class JobsServiceTest {
         mock(WebHookRequestBodyProvider.class),
         mock(PostCreateWebHookProvider.class),
         mock(PostDeleteWebHookProvider.class),
-        mock(DataJobMetrics.class));
+        mock(DataJobMetrics.class),
+        mock(DesiredJobDeploymentRepository.class),
+        mock(DataJobDeploymentPropertiesConfig.class));
   }
 }

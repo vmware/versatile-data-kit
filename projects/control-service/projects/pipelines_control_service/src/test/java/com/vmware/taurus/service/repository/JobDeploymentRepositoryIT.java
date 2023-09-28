@@ -7,8 +7,8 @@ package com.vmware.taurus.service.repository;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DataJobDeployment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class JobDeploymentRepositoryIT {
 
   @Autowired private JobsRepository jobsRepository;
 
-  @Autowired private JobDeploymentRepository jobDeploymentRepository;
+  @Autowired private ActualJobDeploymentRepository jobDeploymentRepository;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -39,7 +39,7 @@ public class JobDeploymentRepositoryIT {
 
   @Test
   public void testDelete_deploymentShouldBeDeleted() {
-    DataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
+    ActualDataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
 
     var actualDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
@@ -51,9 +51,10 @@ public class JobDeploymentRepositoryIT {
     Assertions.assertTrue(dataJobOptional.isPresent());
 
     DataJob dataJob = dataJobOptional.get();
-    dataJob.setDataJobDeployment(null);
-    jobsRepository.save(dataJob);
+    //dataJob.setActualDataJobDeployment(null);
+    jobDeploymentRepository.deleteById(expectedDataJobDeployment.getDataJobName());
 
+    Assertions.assertTrue(jobsRepository.findById(expectedDataJobDeployment.getDataJobName()).isPresent());
     var deletedDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertFalse(deletedDataJobDeployment.isPresent());
@@ -61,7 +62,7 @@ public class JobDeploymentRepositoryIT {
 
   @Test
   public void testUpdate_deploymentShouldBeUpdated() {
-    DataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
+    ActualDataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
 
     var createdDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
@@ -77,14 +78,13 @@ public class JobDeploymentRepositoryIT {
     Assertions.assertEquals(expectedDataJobDeployment, updatedDataJobDeployment.get());
   }
 
-  private DataJobDeployment createDataJobDeployment() {
+  private ActualDataJobDeployment createDataJobDeployment() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-    DataJobDeployment expectedDataJobDeployment =
-        new DataJobDeployment(
+    ActualDataJobDeployment expectedDataJobDeployment =
+        new ActualDataJobDeployment(
             actualDataJob.getName(),
             actualDataJob,
-            "sha",
             "3.9-secure",
             "commit",
             1F,
@@ -93,9 +93,10 @@ public class JobDeploymentRepositoryIT {
             1,
             OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
             "user",
-            true);
-    actualDataJob.setDataJobDeployment(expectedDataJobDeployment);
-    jobsRepository.save(actualDataJob);
+            true,
+                "sha");
+    //actualDataJob.setActualDataJobDeployment(expectedDataJobDeployment);
+    jobDeploymentRepository.save(expectedDataJobDeployment);
 
     var createdDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());

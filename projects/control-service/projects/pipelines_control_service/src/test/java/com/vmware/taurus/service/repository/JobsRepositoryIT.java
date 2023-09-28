@@ -22,7 +22,7 @@ public class JobsRepositoryIT {
 
   @Autowired private JobsRepository repository;
 
-  @Autowired private JobDeploymentRepository jobDeploymentRepository;
+  @Autowired private ActualJobDeploymentRepository jobDeploymentRepository;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -117,23 +117,24 @@ public class JobsRepositoryIT {
   @Test
   void testDeleteDataJob_withAssociatedDeployment_dataJobAndDeploymentShouldBeDeleted() {
     var dataJobEntity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
-    DataJobDeployment expectedDataJobDeployment =
-        new DataJobDeployment(
-            dataJobEntity.getName(),
-            dataJobEntity,
-            "sha",
-            "3.9-secure",
-            "git_commit_sha",
-            1F,
-            1F,
-            1,
-            1,
-            OffsetDateTime.now(),
-            "user",
-            true);
-    dataJobEntity.setDataJobDeployment(expectedDataJobDeployment);
-    repository.save(dataJobEntity);
 
+    //dataJobEntity.setActualDataJobDeployment(expectedDataJobDeployment);
+    DataJob save = repository.save(dataJobEntity);
+    ActualDataJobDeployment expectedDataJobDeployment =
+            new ActualDataJobDeployment(
+                    save.getName(),
+                    save,
+                    "3.9-secure",
+                    "git_commit_sha",
+                    1F,
+                    1F,
+                    1,
+                    1,
+                    OffsetDateTime.now(),
+                    "user",
+                    true,
+                    "sha");
+    jobDeploymentRepository.save(expectedDataJobDeployment);
     Assertions.assertTrue(repository.findById(dataJobEntity.getName()).isPresent());
     Assertions.assertTrue(jobDeploymentRepository.findById(dataJobEntity.getName()).isPresent());
 
