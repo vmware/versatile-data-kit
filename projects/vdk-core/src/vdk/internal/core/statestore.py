@@ -70,6 +70,21 @@ class CommonStoreKeys:
     VDK_VERSION: StoreKey[str] = ImmutableStoreKey[str]("vdk.vdk_version")
 
     """
+    Execution status flag, e.g. success/failure/skip
+    """
+    EXECUTION_STATUS: StoreKey[str] = StoreKey[str]("vdk.execution_status")
+    """
+
+    The full data job execution result
+    """
+    EXECUTION_RESULT: StoreKey[str] = StoreKey[str]("vdk.execution_result")
+
+    """
+    Results for each executed step
+    """
+    STEP_RESULTS: StoreKey[str] = StoreKey[str]("vdk.step_results")
+
+    """
     Write data job directory, to be used if job needs to write files to local
     storage during cloud execution (since writing to any directory might be
     restricted on a deployment basis:

@@ -97,7 +97,13 @@ class OpenLineagePlugin:
         out: HookCallResult
         out = yield
         if self.__client:
-            result: ExecutionResult = out.get_result()
+            result: ExecutionResult
+            if out.excinfo:
+                result = context.core_context.state.get(
+                    CommonStoreKeys.EXECUTION_RESULT
+                )
+            else:
+                result = out.get_result()
             self.__execution_id = context.core_context.state.get(
                 CommonStoreKeys.EXECUTION_ID
             )

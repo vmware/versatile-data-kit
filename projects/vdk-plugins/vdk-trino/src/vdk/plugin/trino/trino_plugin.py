@@ -21,6 +21,7 @@ from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
+from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.internal.core.statestore import ImmutableStoreKey
 from vdk.internal.core.statestore import StoreKey
 from vdk.plugin.trino import trino_config
@@ -95,12 +96,15 @@ def initialize_job(context: JobContext) -> None:
 def run_step(context: JobContext, step: Step) -> None:
     out: HookCallResult
     out = yield
+    step_result: StepResult
     if out.excinfo:
         exc_type, exc_value, exc_traceback = out.excinfo
         if isinstance(exc_value, TrinoUserError):
             raise UserCodeError(ErrorMessage()) from exc_value
-    if out.get_result():
-        step_result: StepResult = out.get_result()
+        step_result = context.core_context.state.get(CommonStoreKeys.STEP_RESULTS)[-1]
+    else:
+        step_result = out.get_result()
+    if step_result:
         if isinstance(step_result.exception, requests.exceptions.ConnectionError):
             raise VdkConfigurationError(
                 ErrorMessage(

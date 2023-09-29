@@ -10,6 +10,7 @@ from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStore
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.run.step import Step
+from vdk.internal.core.statestore import CommonStoreKeys
 
 
 class ExecutionTrackingPlugin:
@@ -40,8 +41,11 @@ class ExecutionTrackingPlugin:
         """
         out: HookCallResult
         out = yield
-
-        result: ExecutionResult = out.get_result()
+        result: ExecutionResult
+        if out.excinfo:
+            result = context.core_context.state.get(CommonStoreKeys.EXECUTION_RESULT)
+        else:
+            result = out.get_result()
         state = context.core_context.state
         state.set(ExecutionStateStoreKeys.EXECUTION_RESULT, result)
 
@@ -52,10 +56,14 @@ class ExecutionTrackingPlugin:
         state.get(ExecutionStateStoreKeys.STEPS_STARTED).append(step.name)
         out: HookCallResult
         out = yield
+
+        result: StepResult
         if out.excinfo:
             state.get(ExecutionStateStoreKeys.STEPS_FAILED).append(step.name)
+            result = context.core_context.state.get(CommonStoreKeys.STEP_RESULTS)[-1]
+        else:
+            result = out.get_result()
 
-        result: StepResult = out.get_result()  # will throw if there was an exception
         if result.status == ExecutionStatus.SUCCESS:
             state.get(ExecutionStateStoreKeys.STEPS_SUCCEEDED).append(step.name)
         elif result.status == ExecutionStatus.ERROR:

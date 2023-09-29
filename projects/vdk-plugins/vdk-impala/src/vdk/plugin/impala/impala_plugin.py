@@ -12,11 +12,13 @@ from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
+from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
@@ -115,7 +117,13 @@ class ImpalaPlugin:
         out: HookCallResult
         out = yield
 
-        exception = out.get_result().exception
+        result: StepResult
+        if out.excinfo:
+            result = context.core_context.state.get(CommonStoreKeys.STEP_RESULTS)[-1]
+        else:
+            result = out.get_result()
+
+        exception = result.exception
         if exception:
             exception = (
                 exception.__cause__

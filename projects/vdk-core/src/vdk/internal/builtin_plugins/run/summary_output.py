@@ -15,6 +15,7 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.statestore import CommonStoreKeys
 
 log = logging.getLogger(__name__)
 
@@ -87,7 +88,13 @@ class JobRunSummaryOutputPlugin:
     def run_job(self, context: JobContext) -> None:
         out: HookCallResult
         out = yield
-
+        execution_result: ExecutionResult
+        if out.excinfo:
+            execution_result = context.core_context.state.get(
+                CommonStoreKeys.EXECUTION_RESULT
+            )
+        else:
+            execution_result = out.get_result()
         output_path = context.core_context.configuration.get_value(
             JOB_RUN_SUMMARY_FILE_PATH
         )
@@ -95,7 +102,7 @@ class JobRunSummaryOutputPlugin:
             log.debug(
                 f"Summary output path is {output_path}. Will save job run summary there."
             )
-            summary_infos = self._collect_job_summary(out.get_result())
+            summary_infos = self._collect_job_summary(execution_result)
             self._write_summary_to_file(summary_infos, output_path)
 
     @staticmethod
