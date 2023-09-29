@@ -9,7 +9,7 @@ import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
-import com.vmware.taurus.service.model.DesiredDataJobDeployment;
+import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.notification.NotificationContent;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +27,7 @@ public class DeploymentNotificationHelper {
   public void verifyBuilderResult(
       String builderJobName,
       DataJob dataJob,
-      DesiredDataJobDeployment jobDeployment,
+      JobDeployment jobDeployment,
       KubernetesService.JobStatusCondition condition,
       String logs,
       Boolean sendNotification) {
@@ -76,7 +76,7 @@ public class DeploymentNotificationHelper {
     }
   }
 
-  private String getUserErrorMessage(String logs, DesiredDataJobDeployment jobDeployment) {
+  private String getUserErrorMessage(String logs, JobDeployment jobDeployment) {
     String requirementsError = getRequirementsError(logs);
     if (StringUtils.isNotBlank(requirementsError)) {
       return NotificationContent.getErrorBody(
@@ -94,7 +94,7 @@ public class DeploymentNotificationHelper {
     return null;
   }
 
-  private String getDataJobNotFoundError(String logs, DesiredDataJobDeployment jobDeployment) {
+  private String getDataJobNotFoundError(String logs, JobDeployment jobDeployment) {
     String error = null;
 
     if (StringUtils.isNotBlank(logs)

@@ -5,39 +5,46 @@
 
 package com.vmware.taurus.service.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@MappedSuperclass
-public abstract class BaseDataJobDeployment {
+@Entity
+public class DataJobDeployment {
 
   @Id
   @Column(name = "data_job_name")
   private String dataJobName;
 
   @MapsId
-  @OneToOne(cascade = CascadeType.MERGE)
+  @OneToOne
   @JoinColumn(name = "data_job_name")
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private DataJob dataJob;
 
+  private String deploymentVersionSha;
+
   private String pythonVersion;
 
   private String gitCommitSha;
 
-  private String schedule;
+  private Float resourcesCpuRequest;
 
-  @Embedded
-  private DataJobDeploymentResources resources;
+  private Float resourcesCpuLimit;
+
+  private Integer resourcesMemoryRequest;
+
+  private Integer resourcesMemoryLimit;
+
+  private OffsetDateTime lastDeployedDate;
 
   private String lastDeployedBy;
 

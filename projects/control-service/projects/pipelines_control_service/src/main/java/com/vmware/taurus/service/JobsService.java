@@ -11,9 +11,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.google.common.collect.Lists;
-import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
-import com.vmware.taurus.service.model.DesiredDataJobDeployment;
-import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +32,6 @@ import com.vmware.taurus.service.monitoring.DataJobMetrics;
 import com.vmware.taurus.service.webhook.WebHookRequestBody;
 import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
 import com.vmware.taurus.service.webhook.WebHookResult;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * CRUD and other management operations on Versatile Data Kit across all systems which the pipelines
@@ -57,8 +53,6 @@ public class JobsService {
   private final PostCreateWebHookProvider postCreateWebHookProvider;
   private final PostDeleteWebHookProvider postDeleteWebHookProvider;
   private final DataJobMetrics dataJobMetrics;
-  private final DesiredJobDeploymentRepository desiredJobDeploymentRepository;
-  private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
   public JobOperationResult deleteJob(String name) {
     if (!jobsRepository.existsById(name)) {
@@ -144,18 +138,9 @@ public class JobsService {
    * @param jobInfo
    * @return if the job existed
    */
-  @Transactional
   public boolean updateJob(DataJob jobInfo) {
     if (jobsRepository.existsById(jobInfo.getName())) {
       dataJobMetrics.updateInfoGauges(jobsRepository.save(jobInfo));
-
-      if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
-        desiredJobDeploymentRepository.findById(jobInfo.getName()).ifPresent(desiredDataJobDeployment -> {
-          desiredDataJobDeployment.setEnabled(jobInfo.getEnabled());
-          desiredJobDeploymentRepository.save(desiredDataJobDeployment);
-        });
-      }
-
       return true;
     }
     return false;

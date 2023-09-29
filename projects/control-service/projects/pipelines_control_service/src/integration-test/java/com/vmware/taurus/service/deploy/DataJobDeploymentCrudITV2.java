@@ -9,12 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
-import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DesiredDataJobDeployment;
+import com.vmware.taurus.service.model.DataJobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
-import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
-import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import io.kubernetes.client.openapi.ApiException;
 import org.apache.commons.io.IOUtils;
@@ -36,13 +33,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,10 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DataJobDeploymentCrudITV2 extends BaseIT {
 
   @Autowired private JobsRepository jobsRepository;
-
-  @Autowired private DesiredJobDeploymentRepository desiredJobDeploymentRepository;
-
-  @Autowired private ActualJobDeploymentRepository actualJobDeploymentRepository;
 
   @Autowired private DataJobsSynchronizer dataJobsSynchronizer;
 
@@ -110,56 +103,37 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     String testJobVersionSha = testDataJobVersion.getVersionSha();
     Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
 
-    boolean jobEnabled = false;
-    DesiredDataJobDeployment desiredDataJobDeployment = createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
+    DataJob dataJob = createDataJobDeployment(testJobVersionSha);
 
-    // Checks if the deployment exist
     Optional<JobDeploymentStatus> jobDeploymentStatusOptional =
         deploymentService.readDeployment(testJobName);
     Assertions.assertFalse(jobDeploymentStatusOptional.isPresent());
-    Assertions.assertFalse(actualJobDeploymentRepository.findById(testJobName).isPresent());
-    DataJob dataJob = jobsRepository.findById(testJobName).get();
 
     // Deploys data job for the very first time
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, null, false);
-    ActualDataJobDeployment actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
-    String deploymentVersionShaInitial = actualDataJobDeployment.getDeploymentVersionSha();
-    OffsetDateTime lastDeployedDateInitial = actualDataJobDeployment.getLastDeployedDate();
-    Assertions.assertNotNull(deploymentVersionShaInitial);
+    Set<String> dataJobDeploymentNames = Set.of(JobImageDeployer.getCronJobName(testJobName));
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, Collections.emptySet());
+    String lastDeployedDateInitial = verifyDeploymentStatus(false);
     Assertions.assertNotNull(lastDeployedDateInitial);
 
     // Tries to redeploy job without any changes
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
-    actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
-    String deploymentVersionShaShouldNotBeChanged = actualDataJobDeployment.getDeploymentVersionSha();
-    OffsetDateTime lastDeployedDateShouldNotBeChanged = actualDataJobDeployment.getLastDeployedDate();
-    Assertions.assertEquals(deploymentVersionShaInitial, deploymentVersionShaShouldNotBeChanged);
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, dataJobDeploymentNames);
+    String lastDeployedDateShouldNotBeChanged = verifyDeploymentStatus(false);
     Assertions.assertEquals(lastDeployedDateInitial, lastDeployedDateShouldNotBeChanged);
 
     // Tries to redeploy job with changes
-    jobEnabled = true;
-    desiredDataJobDeployment = updateDataJobDeployment(jobEnabled);
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
-    actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
-    String deploymentVersionShaShouldBeChanged = actualDataJobDeployment.getDeploymentVersionSha();
-    OffsetDateTime lastDeployedDateShouldBeChanged = actualDataJobDeployment.getLastDeployedDate();
+    dataJob = updateDataJobDeployment();
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, dataJobDeploymentNames);
+    String lastDeployedDateShouldBeChanged = verifyDeploymentStatus(true);
     Assertions.assertNotEquals(lastDeployedDateInitial, lastDeployedDateShouldBeChanged);
-    Assertions.assertNotEquals(deploymentVersionShaShouldNotBeChanged, deploymentVersionShaShouldBeChanged);
   }
 
-  private ActualDataJobDeployment verifyDeploymentStatus(boolean enabled) {
+  private String verifyDeploymentStatus(boolean enabled) {
     Optional<JobDeploymentStatus> deploymentStatusOptional =
         deploymentService.readDeployment(testJobName);
     Assertions.assertTrue(deploymentStatusOptional.isPresent());
     Assertions.assertEquals(enabled, deploymentStatusOptional.get().getEnabled());
 
-    Optional<ActualDataJobDeployment> actualDataJobDeploymentOptional = actualJobDeploymentRepository.findById(testJobName);
-    Assertions.assertTrue(actualDataJobDeploymentOptional.isPresent());
-
-    ActualDataJobDeployment actualDataJobDeployment = actualDataJobDeploymentOptional.get();
-    Assertions.assertEquals(enabled, actualDataJobDeployment.getEnabled());
-
-    return actualDataJobDeployment;
+    return deploymentStatusOptional.get().getLastDeployedDate();
   }
 
   @AfterEach
@@ -219,24 +193,27 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     return new ObjectMapper().readValue(jobUploadResult.getContentAsString(), DataJobVersion.class);
   }
 
-  private DesiredDataJobDeployment createDesiredDataJobDeployment(String testJobVersionSha, boolean enabled) {
+  private DataJob createDataJobDeployment(String testJobVersionSha) {
     Optional<DataJob> dataJobOptional = jobsRepository.findById(testJobName);
-    DataJob dataJob = dataJobOptional.get();
 
-    DesiredDataJobDeployment dataJobDeployment = new DesiredDataJobDeployment();
-    dataJobDeployment.setEnabled(enabled);
+    DataJob dataJob = dataJobOptional.get();
+    DataJobDeployment dataJobDeployment = new DataJobDeployment();
+    dataJobDeployment.setEnabled(false);
     dataJobDeployment.setDataJobName(dataJob.getName());
     dataJobDeployment.setGitCommitSha(testJobVersionSha);
     dataJobDeployment.setDataJob(dataJob);
+    dataJob.setDataJobDeployment(dataJobDeployment);
 
-    return desiredJobDeploymentRepository.save(dataJobDeployment);
+    return jobsRepository.save(dataJob);
   }
 
-  private DesiredDataJobDeployment updateDataJobDeployment(boolean enabled) {
-    Optional<DesiredDataJobDeployment> desiredDataJobDeploymentOptional = desiredJobDeploymentRepository.findById(testJobName);
-    DesiredDataJobDeployment desiredDataJobDeployment = desiredDataJobDeploymentOptional.get();
-    desiredDataJobDeployment.setEnabled(enabled);
+  private DataJob updateDataJobDeployment() {
+    Optional<DataJob> dataJobOptional = jobsRepository.findById(testJobName);
+    Assertions.assertTrue(dataJobOptional.isPresent());
 
-    return desiredJobDeploymentRepository.save(desiredDataJobDeployment);
+    DataJob dataJob = dataJobOptional.get();
+    dataJob.getDataJobDeployment().setEnabled(true);
+    dataJob.setEnabled(true);
+    return jobsRepository.save(dataJob);
   }
 }

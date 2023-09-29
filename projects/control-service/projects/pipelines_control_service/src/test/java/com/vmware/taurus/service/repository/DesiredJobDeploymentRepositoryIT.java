@@ -8,28 +8,27 @@ package com.vmware.taurus.service.repository;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.RepositoryUtil;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DataJobDeployment;
+import com.vmware.taurus.service.model.DataJobDeploymentResources;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 /** Integration tests of the setup of Spring Data repository for data job deployments */
 @SpringBootTest(classes = ControlplaneApplication.class)
-public class JobDeploymentRepositoryIT {
+public class DesiredJobDeploymentRepositoryIT {
 
   @Autowired private JobsRepository jobsRepository;
 
-  @Autowired private JobDeploymentRepository jobDeploymentRepository;
+  @Autowired private DesiredJobDeploymentRepository jobDeploymentRepository;
 
   @BeforeEach
   public void setUp() throws Exception {
-    jobsRepository.deleteAll();
+    jobDeploymentRepository.deleteAll();
   }
 
   @Test
@@ -39,7 +38,7 @@ public class JobDeploymentRepositoryIT {
 
   @Test
   public void testDelete_deploymentShouldBeDeleted() {
-    DataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
+    DesiredDataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
 
     var actualDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
@@ -50,10 +49,9 @@ public class JobDeploymentRepositoryIT {
         jobsRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertTrue(dataJobOptional.isPresent());
 
-    DataJob dataJob = dataJobOptional.get();
-    dataJob.setDataJobDeployment(null);
-    jobsRepository.save(dataJob);
+    jobDeploymentRepository.deleteById(expectedDataJobDeployment.getDataJobName());
 
+    Assertions.assertTrue(jobsRepository.findById(expectedDataJobDeployment.getDataJobName()).isPresent());
     var deletedDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertFalse(deletedDataJobDeployment.isPresent());
@@ -61,7 +59,7 @@ public class JobDeploymentRepositoryIT {
 
   @Test
   public void testUpdate_deploymentShouldBeUpdated() {
-    DataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
+    DesiredDataJobDeployment expectedDataJobDeployment = createDataJobDeployment();
 
     var createdDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
@@ -77,25 +75,25 @@ public class JobDeploymentRepositoryIT {
     Assertions.assertEquals(expectedDataJobDeployment, updatedDataJobDeployment.get());
   }
 
-  private DataJobDeployment createDataJobDeployment() {
+  private DesiredDataJobDeployment createDataJobDeployment() {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-    DataJobDeployment expectedDataJobDeployment =
-        new DataJobDeployment(
-            actualDataJob.getName(),
-            actualDataJob,
-            "sha",
-            "3.9-secure",
-            "commit",
-            1F,
-            1F,
-            1,
-            1,
-            OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
-            "user",
-            true);
-    actualDataJob.setDataJobDeployment(expectedDataJobDeployment);
-    jobsRepository.save(actualDataJob);
+    DesiredDataJobDeployment expectedDataJobDeployment = new DesiredDataJobDeployment();
+    expectedDataJobDeployment.setDataJobName(actualDataJob.getName());
+    expectedDataJobDeployment.setDataJob(actualDataJob);
+    expectedDataJobDeployment.setPythonVersion("3.9-secure");
+    expectedDataJobDeployment.setGitCommitSha("commit");
+
+    DataJobDeploymentResources expectedResources = new DataJobDeploymentResources();
+    expectedResources.setCpuLimitCores(1F);
+    expectedResources.setCpuRequestCores(1F);
+    expectedResources.setMemoryLimitMi(1);
+    expectedResources.setMemoryRequestMi(1);
+    expectedDataJobDeployment.setResources(expectedResources);
+
+    expectedDataJobDeployment.setLastDeployedBy("user");
+    expectedDataJobDeployment.setEnabled(true);
+    jobDeploymentRepository.save(expectedDataJobDeployment);
 
     var createdDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());

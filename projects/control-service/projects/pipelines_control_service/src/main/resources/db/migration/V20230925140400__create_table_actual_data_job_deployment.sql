@@ -1,6 +1,7 @@
-create table desired_data_job_deployment
+create table actual_data_job_deployment
 (
     data_job_name               varchar not null primary key references data_job (name) on delete cascade,
+    deployment_version_sha      varchar,
     git_commit_sha              varchar,
     python_version              varchar,
     schedule                    varchar,
@@ -8,6 +9,7 @@ create table desired_data_job_deployment
     resources_cpu_limit_cores   float,
     resources_memory_request_mi int,
     resources_memory_limit_mi   int,
+    last_deployed_date          timestamp,
     last_deployed_by            varchar,
     enabled                     boolean
 )

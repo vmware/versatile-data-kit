@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.exception.*;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
@@ -14,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * CRUD operations for Versatile Data Kit deployments on kubernetes.
@@ -42,69 +46,82 @@ public class DeploymentServiceV2 {
    * configuration; otherwise, a new CronJob will be created. The method ensures that the CronJob in
    * the cluster matches the desired state specified in the configuration.
    *
-   * @param dataJob the data job to be deployed.
-   * @param desiredJobDeployment the desired data job deployment to be deployed.
-   * @param actualJobDeployment the actual data job deployment has been deployed.
-   * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in Kubernetes.
+   * @param dataJob The data job to update or create.
    * @param sendNotification if it is true the method will send a notification to the end user.
+   * @param dataJobDeploymentNames list of actual data job deployment names returned by Kubernetes.
    */
   public void updateDeployment(
-          DataJob dataJob,
-          DesiredDataJobDeployment desiredJobDeployment,
-          ActualDataJobDeployment actualJobDeployment,
-          boolean isJobDeploymentPresentInKubernetes,
-          Boolean sendNotification) {
-    if (desiredJobDeployment == null) {
+      DataJob dataJob, Boolean sendNotification, Set<String> dataJobDeploymentNames) {
+    DataJobDeployment dataJobDeployment = dataJob.getDataJobDeployment();
+
+    if (dataJobDeployment == null) {
       log.debug(
           "Skipping the data job [job_name={}] deployment due to the missing deployment data",
           dataJob.getName());
       return;
     }
 
-    try {
-      log.info("Starting deployment of job {}", desiredJobDeployment.getDataJobName());
-      deploymentProgress.started(dataJob.getJobConfig(), desiredJobDeployment);
+    JobDeployment jobDeployment =
+        DeploymentModelConverter.toJobDeployment(
+            dataJob.getJobConfig().getTeam(), dataJob.getName(), dataJobDeployment);
 
-      if (desiredJobDeployment.getPythonVersion() == null) {
-        desiredJobDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
+    try {
+      log.info("Starting deployment of job {}", jobDeployment.getDataJobName());
+      deploymentProgress.started(dataJob.getJobConfig(), jobDeployment);
+
+      if (jobDeployment.getPythonVersion() == null) {
+        jobDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
       }
 
       String imageName =
           dockerRegistryService.dataJobImage(
-              desiredJobDeployment.getDataJobName(), desiredJobDeployment.getGitCommitSha());
+              jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha());
+      jobDeployment.setImageName(imageName);
 
-      if (jobImageBuilder.buildImage(imageName, dataJob, desiredJobDeployment, sendNotification)) {
+      if (jobImageBuilder.buildImage(imageName, dataJob, jobDeployment, sendNotification)) {
         log.info(
             "Image {} has been built. Will now schedule job {} for execution",
             imageName,
             dataJob.getName());
-
-        ActualDataJobDeployment actualJobDeploymentResult = jobImageDeployer.scheduleJob(
-                dataJob,
-                desiredJobDeployment,
-                actualJobDeployment,
-                sendNotification,
-                isJobDeploymentPresentInKubernetes,
-                imageName);
-
-        if (actualJobDeploymentResult != null) {
+        jobDeployment.setImageName(imageName);
+        if (jobImageDeployer.scheduleJob(
+            dataJob,
+            jobDeployment,
+            sendNotification,
+            dataJobDeployment.getLastDeployedBy(),
+            dataJobDeploymentNames)) {
           log.info(
               String.format(
                   "Successfully updated job: %s with version: %s",
-                  desiredJobDeployment.getDataJobName(), desiredJobDeployment.getGitCommitSha()));
+                  jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha()));
 
-          deploymentProgress.completed(dataJob, actualJobDeploymentResult, sendNotification);
+          saveDeployment(dataJob, jobDeployment);
+
+          deploymentProgress.completed(dataJob, sendNotification);
         }
       }
     } catch (ApiException e) {
-      handleException(dataJob, desiredJobDeployment, sendNotification, new KubernetesException("", e));
+      handleException(dataJob, jobDeployment, sendNotification, new KubernetesException("", e));
     } catch (Exception e) {
-      handleException(dataJob, desiredJobDeployment, sendNotification, e);
+      handleException(dataJob, jobDeployment, sendNotification, e);
+    }
+  }
+
+  private void saveDeployment(DataJob dataJob, JobDeployment jobDeployment) {
+    // Currently, store only 'enabled' in the database
+    if (!Objects.equals(dataJob.getEnabled(), jobDeployment.getEnabled())) {
+      dataJob.setEnabled(jobDeployment.getEnabled());
+      jobsRepository.save(dataJob);
+
+      log.info(
+          "The deployment of the data job {} has been {}",
+          dataJob.getName(),
+          Boolean.TRUE.equals(dataJob.getEnabled()) ? "ENABLED" : "DISABLED");
     }
   }
 
   private void handleException(
-      DataJob dataJob, DesiredDataJobDeployment jobDeployment, Boolean sendNotification, Throwable e) {
+      DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification, Throwable e) {
     ErrorMessage message =
         new ErrorMessage(
             String.format(

@@ -5,9 +5,12 @@
 
 package com.vmware.taurus.service.model;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
 import java.time.OffsetDateTime;
 
 @Getter
@@ -20,14 +23,4 @@ public class ActualDataJobDeployment extends BaseDataJobDeployment {
   private String deploymentVersionSha;
 
   private OffsetDateTime lastDeployedDate;
-
-  public ActualDataJobDeployment() {
-    super();
-  }
-
-  public ActualDataJobDeployment(String dataJobName, DataJob dataJob, String pythonVersion, String gitCommitSha, Float resourcesCpuRequest, Float resourcesCpuLimit, Integer resourcesMemoryRequest, Integer resourcesMemoryLimit, OffsetDateTime lastDeployedDate, String lastDeployedBy, Boolean enabled, String deploymentVersionSha) {
-    super(dataJobName, dataJob, pythonVersion, gitCommitSha, resourcesCpuRequest, resourcesCpuLimit, resourcesMemoryRequest, resourcesMemoryLimit, lastDeployedBy, enabled);
-    this.deploymentVersionSha = deploymentVersionSha;
-    this.lastDeployedDate = lastDeployedDate;
-  }
 }

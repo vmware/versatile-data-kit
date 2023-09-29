@@ -7,7 +7,10 @@ package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.model.*;
+import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.JobConfig;
+import com.vmware.taurus.service.model.JobDeployment;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.vmware.taurus.service.notification.NotificationContent;
@@ -45,7 +48,7 @@ public class DeploymentNotificationHelperTest {
     testDataJob.setName(TEST_JOB_NAME);
     testDataJob.setJobConfig(jobConfig);
 
-    DesiredDataJobDeployment testJobDeployment = new DesiredDataJobDeployment();
+    JobDeployment testJobDeployment = new JobDeployment();
     testJobDeployment.setDataJobName(TEST_JOB_NAME);
     testJobDeployment.setGitCommitSha("test-git-commit-sha");
 
