@@ -25,6 +25,7 @@ stages:
   - release
   - release_image
   - end
+  - coverity-scan
 
 build-check-prerequisites:
   stage: build
@@ -51,3 +52,28 @@ notify_failure:
       when: never
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_failure
+
+#Coverity Scan for versatile-data-kit repository
+coverity-scan:
+  stage: coverity-scan
+  image: maven:3.6.3-jdk-11
+  script:
+    - wget https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_SCAN_TOKEN&project=$COVERITY_SCAN_PROJECT_NAME" -O /tmp/coverity_tool.tgz
+    - tar xf /tmp/coverity_tool.tgz
+    - cov-analysis-linux64-*/bin/cov-configure --python
+    - cov-analysis-linux64-*/bin/cov-build --dir cov-int --no-command --fs-capture-search projects/vdk-plugins
+    - cov-analysis-linux64-*/bin/cov-build --dir cov-int --no-command --fs-capture-search projects/vdk-core
+    - cov-analysis-linux64-*/bin/cov-build --dir cov-int --no-command --fs-capture-search projects/vdk-control-cli
+    - cov-analysis-linux64-*/bin/cov-build --dir cov-int --no-command --fs-capture-search projects/control-service
+    - tar czf cov-int.tar.gz cov-int
+    - curl
+      --form token=$COVERITY_SCAN_TOKEN
+      --form email=$COVERITY_SCAN_EMAIL
+      --form file=@cov-int.tar.gz
+      --form description="Coverity scan for vdk"
+      https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $IS_COVERITY_SCAN_SCHEDULE == "true"
+  only:
+    refs:
+      - main
