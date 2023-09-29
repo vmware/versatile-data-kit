@@ -1,9 +1,13 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import ast
 import glob
+import logging
 import os
 import re
 import shutil
+
+log = logging.getLogger()
 
 
 def validate_dir(dir_path):
@@ -65,19 +69,33 @@ class ConvertJobDirectoryProcessor:
 
         for file in all_files:
             if file.endswith(".sql"):
-                with open(file) as f:
-                    content = f.read()
-                self._code_structure.append(f'job_input.execute_query("""{content}""")')
-                self._removed_files.append(os.path.basename(file))
-                os.remove(file)
+                self._process_sql_files(file)
             elif file.endswith(".py"):
-                with open(file) as f:
-                    content = f.read()
+                self._process_python_files(file)
 
-                if re.search(r"def run\(job_input", content):
-                    self._code_structure.append(content)
-                    self._removed_files.append(os.path.basename(file))
-                    os.remove(file)
+    @staticmethod
+    def _has_run_function(file: str, content: str) -> bool:
+        tree = ast.parse(content, file)
+        for node in ast.iter_child_nodes(tree):
+            if isinstance(node, ast.FunctionDef):
+                if node.name == "run":
+                    return True
+        return False
+
+    def _process_python_files(self, file):
+        with open(file) as f:
+            content = f.read()
+        if self._has_run_function(file, content):
+            self._code_structure.append(content)
+            self._removed_files.append(os.path.basename(file))
+            os.remove(file)
+
+    def _process_sql_files(self, file):
+        with open(file) as f:
+            content = f.read()
+        self._code_structure.append(f'job_input.execute_query("""{content}""")')
+        self._removed_files.append(os.path.basename(file))
+        os.remove(file)
 
     def cleanup(self):
         for file_name in self._removed_files:
