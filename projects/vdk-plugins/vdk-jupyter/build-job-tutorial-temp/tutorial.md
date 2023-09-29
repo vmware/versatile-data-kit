@@ -30,14 +30,10 @@ Make sure to have all prerequisites in place to avoid any disruptions during the
 
 ### 1. Specify Job Properties
 
-- **Initiate Creation Process:** Click 'Create' to open a dialog box.
-- **Input Job Details:** Fill in the job name and job team as appropriate.
-- **Specify Job Path:**
-    - If no path is specified, the job will be created in the root directory.
-    - To specify a path, input the relative Jupyter path to the job directory, using the `parent/child/job` pattern.
-- **Submit:** Once all details are filled in, click 'OK' to continue.
-    - The creation works both locally and in the cloud (if available).
-    - Without cloud integration, the job will only be created locally.
+- Click 'Create' to open a dialog box.
+- Fill in the job name and job team as appropriate.
+- Specify Job Path by inputting the relative Jupyter path to the job directory, using the `parent/child/job` pattern. If no path is specified, the job will be created in the root directory.
+- Once all details are filled in, click 'OK' to continue. The job will be created both locally and in the cloud (if available).
 
 ![VDK Create Dialog](images/create-dialog.png)
 
