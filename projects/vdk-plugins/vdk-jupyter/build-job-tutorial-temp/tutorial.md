@@ -36,7 +36,7 @@ Make sure to have all prerequisites in place to avoid any disruptions during the
     - If no path is specified, the job will be created in the root directory.
     - To specify a path, input the relative Jupyter path to the job directory, using the `parent/child/job` pattern.
 - **Submit:** Once all details are filled in, click 'OK' to continue.
-    - The creation works both locally and in the cloud (if available). 
+    - The creation works both locally and in the cloud (if available).
     - Without cloud integration, the job will only be created locally.
 
 ![VDK Create Dialog](images/create-dialog.png)
@@ -64,7 +64,7 @@ Ensure that you configure the database properties in the `config.ini` file if th
 
 ### Step 0: Explore the Auto-Created Sample Data Job
 
-Familiarize yourself with the sample Data Job, focusing on its structure and components. 
+Familiarize yourself with the sample Data Job, focusing on its structure and components.
 First read the included README.md and then open the included `.ipynb` notebook file to view detailed information and instructions.
 
 <details>
@@ -91,7 +91,7 @@ To learn more about it, type `help(job_input)` in a Python cell.
 
 #### SQL Cells
 SQL-only cells can be created by starting the cell with `%%vdksql` magic. Properties and arguments within SQL cells are automatically replaced, for example `{db}`.
-  
+
 ```ipython
 %%vdksql
 select * from {db}.sales
@@ -210,7 +210,7 @@ Upon completion of all the steps, your notebook should resemble the following:
 Once you've written the code, let's look at it and see which steps are really needed to do the job.
 
 The `df.head()` cell and the last select statement are not needed for our job.
-What we want is to get the data, change it, and put it in - this is done by the rest of the code we have. 
+What we want is to get the data, change it, and put it in - this is done by the rest of the code we have.
 So, we’ll tag those important cells with VDK and leave the `df.head()` cell and the last select statement untagged.
 
 ![Data Job Tagged Version](images/tagged-cells-job.png)
@@ -268,7 +268,7 @@ Keep experimenting and refining your skills!
 
 ## What's Next?
 
-You are now familiar with the process of building and creating a data job consisting of notebook steps using the Jupyter UI. 
+You are now familiar with the process of building and creating a data job consisting of notebook steps using the Jupyter UI.
 It’s exciting to see how various .sql and .py steps can be seamlessly integrated into notebook steps, enabling a versatile and interactive development experience.
 
 Explore further with the [VDK Examples list](https://github.com/vmware/versatile-data-kit/wiki/Examples).
