@@ -1,5 +1,4 @@
-# Learn How to Convert a VDK Job with .sql and .py Steps into a Job with Notebook Steps using VDK Jupyter Notebook UI
-
+# Learn How to Create and Build a Data Job through the Jupyter UI
 Time Commitment: About 25-30 minutes.
 
 ## Prerequisites
