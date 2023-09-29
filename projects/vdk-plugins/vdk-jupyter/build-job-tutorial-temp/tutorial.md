@@ -253,6 +253,11 @@ Now that we know which code VDK needs to run, let’s actually run the job.
 
 ![VDK Run result]()
 
+- To view detailed logs of the VDK run, refer to the `vdk-run.log` file. This file will open automatically, providing insights into the run process.
+- You can find this log file in the root Jupyter directory.
+
+![VDK Run Result Logs]()
+
 ## Wrap-up:
 Congratulations!
 You’ve now successfully developed your first Data Job!
@@ -262,9 +267,7 @@ Keep experimenting and refining your skills!
 
 ## What's Next?
 
-You should now be acquainted with the process of converting a job consisting of .sql and .py steps into a job consisting of notebook steps through the Jupyter UI.
+You are now familiar with the process of building and creating a data job consisting of notebook steps using the Jupyter UI. 
+It’s exciting to see how various .sql and .py steps can be seamlessly integrated into notebook steps, enabling a versatile and interactive development experience.
 
 Explore further with the [VDK Examples list](https://github.com/vmware/versatile-data-kit/wiki/Examples).
-
-If you're curious about the mechanics of the job conversion process, check [VDK Jupyter Integration Convert Job Operation](https://github.com/vmware/versatile-data-kit/wiki/VDK-Jupyter-Integration-Convert-Job-Operation).
-
