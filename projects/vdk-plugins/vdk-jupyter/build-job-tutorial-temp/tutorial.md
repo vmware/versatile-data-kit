@@ -59,7 +59,7 @@ Make sure to have all prerequisites in place to avoid any disruptions during the
 ## Data Job Build Guide
 
 This guide provides a general framework, and the provided example may not work with a specific database.
-Adapt the queries to align with the database you are utilizing.
+Adapt the queries to align with the database you are using.
 Ensure that you configure the database properties in the `config.ini` file if they haven’t been set up already.
 
 ### Step 0: Explore the Auto-Created Sample Data Job
