@@ -70,7 +70,7 @@ First read the included README.md and then open the included `.ipynb` notebook f
 <details>
   <summary><b>Explore Sample Data Job Structure</b></summary>
 
-- Upon entering the file, observe cells containing sample information and instructional docstrings.
+- Upon opening the file, observe cells containing sample information and instructional docstrings.
 - **Configuration Cell:** Identify and run the configuration cell for VDK IPython as instructed, allowing VDK interaction within the notebook.
 - **VDK Cells Examples:** Note two provided VDK cells illustrating basic usage and functionality.
 
