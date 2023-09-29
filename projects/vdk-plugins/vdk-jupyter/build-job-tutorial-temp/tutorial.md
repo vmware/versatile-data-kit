@@ -43,7 +43,7 @@ Make sure to have all prerequisites in place to avoid any disruptions during the
 
 ### 2. Await Operation Status Update
 
-- Stay tuned for a status update on the job creation operation.
+- Wait for a status update on the job creation operation.
 
 ![VDK Creation Status](images/create-status-update.png)
 
