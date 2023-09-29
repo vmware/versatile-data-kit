@@ -5,13 +5,9 @@
 
 package com.vmware.taurus.service.model;
 
-import com.vmware.taurus.service.model.converter.ExecutionStatusConverter;
-import com.vmware.taurus.service.model.converter.ExecutionTerminationStatusConverter;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.OffsetDateTime;
-import java.util.Set;
 
 @Getter
 @Setter

@@ -21,5 +21,5 @@ import org.springframework.stereotype.Repository;
  * <p>JobDeploymentRepositoryIT validates some aspects of the behavior
  */
 @Repository
-public interface ActualJobDeploymentRepository extends JpaRepository<ActualDataJobDeployment, String> {
-}
+public interface ActualJobDeploymentRepository
+    extends JpaRepository<ActualDataJobDeployment, String> {}

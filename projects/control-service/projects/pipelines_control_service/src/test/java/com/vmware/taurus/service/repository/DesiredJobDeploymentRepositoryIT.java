@@ -51,7 +51,8 @@ public class DesiredJobDeploymentRepositoryIT {
 
     jobDeploymentRepository.deleteById(expectedDataJobDeployment.getDataJobName());
 
-    Assertions.assertTrue(jobsRepository.findById(expectedDataJobDeployment.getDataJobName()).isPresent());
+    Assertions.assertTrue(
+        jobsRepository.findById(expectedDataJobDeployment.getDataJobName()).isPresent());
     var deletedDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertFalse(deletedDataJobDeployment.isPresent());

@@ -36,8 +36,7 @@ public abstract class BaseDataJobDeployment {
 
   private String schedule;
 
-  @Embedded
-  private DataJobDeploymentResources resources;
+  @Embedded private DataJobDeploymentResources resources;
 
   private String lastDeployedBy;
 

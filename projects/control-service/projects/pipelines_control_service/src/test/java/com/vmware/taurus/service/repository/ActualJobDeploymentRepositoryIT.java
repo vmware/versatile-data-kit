@@ -53,7 +53,8 @@ public class ActualJobDeploymentRepositoryIT {
 
     jobDeploymentRepository.deleteById(expectedDataJobDeployment.getDataJobName());
 
-    Assertions.assertTrue(jobsRepository.findById(expectedDataJobDeployment.getDataJobName()).isPresent());
+    Assertions.assertTrue(
+        jobsRepository.findById(expectedDataJobDeployment.getDataJobName()).isPresent());
     var deletedDataJobDeployment =
         jobDeploymentRepository.findById(expectedDataJobDeployment.getDataJobName());
     Assertions.assertFalse(deletedDataJobDeployment.isPresent());
@@ -93,7 +94,8 @@ public class ActualJobDeploymentRepositoryIT {
     expectedResources.setMemoryRequestMi(1);
     expectedDataJobDeployment.setResources(expectedResources);
 
-    expectedDataJobDeployment.setLastDeployedDate(OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
+    expectedDataJobDeployment.setLastDeployedDate(
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
     expectedDataJobDeployment.setLastDeployedBy("user");
     expectedDataJobDeployment.setEnabled(true);
     expectedDataJobDeployment.setDeploymentVersionSha("sha");
