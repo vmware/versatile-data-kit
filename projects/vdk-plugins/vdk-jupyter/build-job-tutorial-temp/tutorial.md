@@ -26,7 +26,7 @@ Make sure to have all prerequisites in place to avoid any disruptions during the
 
 - Select 'Create' option from the `VDK` section in the menu at the top.
 
-![VDK Create menu]()
+![VDK Create menu](images/create-menu.png)
 
 ### 1. Specify Job Properties
 
@@ -39,19 +39,19 @@ Make sure to have all prerequisites in place to avoid any disruptions during the
     - The creation works both locally and in the cloud (if available). 
     - Without cloud integration, the job will only be created locally.
 
-![VDK Create Dialog]()
+![VDK Create Dialog](images/create-dialog.png)
 
 ### 2. Await Operation Status Update
 
 - Stay tuned for a status update on the job creation operation.
 
-![VDK Creation Status]()
+![VDK Creation Status](images/create-status-update.png)
 
 ### 3. Successful Creation
 
 - Once the creation operation is complete, a dialog box will inform you of the operation's result.
 
-![VDK Result Dialog]()
+![VDK Result Dialog](images/create-success.png)
 
 - Navigate to the data job directory to view your newly created job.
 
@@ -74,7 +74,7 @@ First read the included README.md and then open the included `.ipynb` notebook f
 - **Configuration Cell:** Identify and run the configuration cell for VDK IPython as instructed, allowing VDK interaction within the notebook.
 - **VDK Cells Examples:** Note two provided VDK cells illustrating basic usage and functionality.
 
-  ![VDK Create Sample Job]()
+  ![VDK Create Sample Job](images/sample-notebook-file.png)
 
 </details>
 
@@ -114,7 +114,7 @@ Cells can be tagged with "vdk". While this tag does not impact the development p
 #### Sample Job Overview
 In the sample job, there are two VDK cells, with the remaining ones being untagged.
 
-![VDK Cells Sample Job]()
+![VDK Cells Sample Job](images/sample-notebook-file.png)
 
 </details>
 
@@ -200,7 +200,7 @@ select * from nps_data
 
 Upon completion of all the steps, your notebook should resemble the following:
 
-![Data Job First version]()
+![Data Job First version](images/untagged-cells-job.png)
 
 </details>
 
@@ -213,7 +213,7 @@ The `df.head()` cell and the last select statement are not needed for our job.
 What we want is to get the data, change it, and put it in - this is done by the rest of the code we have. 
 So, we’ll tag those important cells with VDK and leave the `df.head()` cell and the last select statement untagged.
 
-![Data Job Tagged Version]()
+![Data Job Tagged Version](images/tagged-cells-job.png)
 
 <details>
   <summary><b>Why do we tag cells?</b></summary>
@@ -232,31 +232,32 @@ Now that we know which code VDK needs to run, let’s actually run the job.
 
 - Navigate to the menu bar at the top and select the Run option from the VDK section.
 
-![VDK Run Menu]()
+![VDK Run Menu](images/run-menu.png)
 
 - Fill the inputs in the dialog box (we will only fill the job path since we will not be running with arguments)
 - The operation by default works with your current working directory, so if you are located in your data job u might omit filling the path input.
 - Otherwise, to specify a path, input the relative Jupyter path to the job directory, using the `parent/child/job` pattern.
 
-![VDK Run Dialog]()
+![VDK Run Dialog](images/run-dialog.png)
 
 - After you are done with filling the information, click the "Ok" button.
 - You will get a dialog with the status of the operation.
 
-![Status dialog]()
+![Status dialog](images/run-status-dialog.png)
 
 - Additionally, you can track the time the operation takes by the status button in the upper right corner.
 
-![Status button]()
+<img src="images/vdk-status-button.png" alt="Status Button" width="170px" height="130px"/>
+
 
 - After the operation is ready, you will get a dialog showing the result of the operation.
 
-![VDK Run result]()
+![VDK Run result](images/run-result-dialog.png)
 
 - To view detailed logs of the VDK run, refer to the `vdk-run.log` file. This file will open automatically, providing insights into the run process.
 - You can find this log file in the root Jupyter directory.
 
-![VDK Run Result Logs]()
+![VDK Run Result Logs](images/vdk-run-logs.png)
 
 ## Wrap-up:
 Congratulations!
