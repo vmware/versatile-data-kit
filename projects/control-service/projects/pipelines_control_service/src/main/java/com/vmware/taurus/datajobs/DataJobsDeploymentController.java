@@ -139,7 +139,8 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
             sendNotification,
             operationContext.getUser(),
             operationContext.getOpId());
-        deploymentServiceV2.updateDbDeployment(job.get(), jobDeployment, operationContext.getUser());
+        deploymentServiceV2.updateDbDeployment(
+            job.get(), jobDeployment, operationContext.getUser());
         return ResponseEntity.accepted().build();
       }
     }

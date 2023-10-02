@@ -60,8 +60,8 @@ public class DeploymentServiceV2 {
     if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
       var oldDeployment = dataJob.getDataJobDeployment();
       if (oldDeployment != null) {
-        var mergedDeployment = DeploymentModelConverterV2.mergeDeployments(oldDeployment,
-            jobDeployment);
+        var mergedDeployment =
+            DeploymentModelConverterV2.mergeDeployments(oldDeployment, jobDeployment);
         dataJob.setDataJobDeployment(mergedDeployment);
         jobsRepository.save(dataJob);
       } else {
@@ -74,7 +74,8 @@ public class DeploymentServiceV2 {
    * Create or update a deployment in the database. If the deployment already exists, behaves like
    * patch
    */
-  public void updateDbDeployment(DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
+  public void updateDbDeployment(
+      DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
     if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
       var oldDeployment = dataJob.getDataJobDeployment();
       if (oldDeployment != null) {

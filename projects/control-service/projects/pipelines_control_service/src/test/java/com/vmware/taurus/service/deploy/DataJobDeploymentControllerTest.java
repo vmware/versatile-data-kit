@@ -28,15 +28,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class DataJobDeploymentControllerTest {
 
-  @Autowired
-  JobDeploymentRepository jobDeploymentRepository;
-  @Autowired
-  JobsRepository jobsRepository;
-  @Autowired
-  DataJobsDeploymentController dataJobsDeploymentController;
+  @Autowired JobDeploymentRepository jobDeploymentRepository;
+  @Autowired JobsRepository jobsRepository;
+  @Autowired DataJobsDeploymentController dataJobsDeploymentController;
 
-  @MockBean
-  DeploymentService deploymentService;
+  @MockBean DeploymentService deploymentService;
 
   @Test
   @WithMockUser
@@ -45,9 +41,11 @@ public class DataJobDeploymentControllerTest {
     jobsRepository.save(dataJob);
     var deployment = TestUtils.getDataJobDeployment(null, null);
 
-    Assertions.assertThrows(DataJobDeploymentNotFoundException.class,
-        () -> dataJobsDeploymentController.deploymentPatch("teamName", "jobName", "deploymentId",
-            deployment));
+    Assertions.assertThrows(
+        DataJobDeploymentNotFoundException.class,
+        () ->
+            dataJobsDeploymentController.deploymentPatch(
+                "teamName", "jobName", "deploymentId", deployment));
   }
 
   @Test
@@ -85,19 +83,20 @@ public class DataJobDeploymentControllerTest {
   }
 
   private DataJobDeployment getJobDeployment(DataJob dataJob) {
-    var deployment = new DataJobDeployment(
-        dataJob.getName(),
-        dataJob,
-        "sha",
-        "3.9-secure",
-        "commit",
-        1F,
-        1F,
-        1,
-        1,
-        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
-        "user",
-        true);
+    var deployment =
+        new DataJobDeployment(
+            dataJob.getName(),
+            dataJob,
+            "sha",
+            "3.9-secure",
+            "commit",
+            1F,
+            1F,
+            1,
+            1,
+            OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
+            "user",
+            true);
     return deployment;
   }
 }
