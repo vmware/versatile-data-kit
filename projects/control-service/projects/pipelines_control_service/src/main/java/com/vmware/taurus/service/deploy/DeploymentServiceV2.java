@@ -5,23 +5,30 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.exception.*;
+import com.vmware.taurus.datajobs.webhook.DeploymentModelConverterV2;
+import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
+import com.vmware.taurus.exception.ErrorMessage;
+import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.WriteTo;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.*;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
+import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.notification.NotificationContent;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import io.kubernetes.client.openapi.ApiException;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * CRUD operations for Versatile Data Kit deployments on kubernetes.
@@ -43,6 +50,44 @@ public class DeploymentServiceV2 {
   private final DesiredJobDeploymentRepository desiredJobDeploymentRepository;
   private final ActualJobDeploymentRepository actualJobDeploymentRepository;
   private final DataJobsKubernetesService dataJobsKubernetesService;
+  private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+
+  /**
+   * This method updates an existing job deployment in the database. Only fields present in the job
+   * deployment are updated, other fields are not overridden.
+   */
+  public void patchDeployment(DataJob dataJob, JobDeployment jobDeployment) {
+    if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
+      var oldDeployment = dataJob.getDataJobDeployment();
+      if (oldDeployment != null) {
+        var mergedDeployment = DeploymentModelConverterV2.mergeDeployments(oldDeployment,
+            jobDeployment);
+        dataJob.setDataJobDeployment(mergedDeployment);
+        jobsRepository.save(dataJob);
+      } else {
+        throw new DataJobDeploymentNotFoundException(dataJob.getName());
+      }
+    }
+  }
+
+  /**
+   * Create or update a deployment in the database. If the deployment already exists, behaves like
+   * patch
+   */
+  public void updateDbDeployment(DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
+    if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
+      var oldDeployment = dataJob.getDataJobDeployment();
+      if (oldDeployment != null) {
+        patchDeployment(dataJob, jobDeployment);
+        return;
+      } else {
+        var newDeployment = DeploymentModelConverterV2.toJobDeployment(userDeployer, jobDeployment);
+        dataJob.setDataJobDeployment(newDeployment);
+        newDeployment.setDataJob(dataJob);
+        jobsRepository.save(dataJob);
+      }
+    }
+  }
 
   /**
    * Updates or creates a Kubernetes CronJob based on the provided configuration.

@@ -12,6 +12,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,6 +52,8 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
 
   @Autowired private OperationContext operationContext;
 
+  @Autowired private DeploymentServiceV2 deploymentServiceV2;
+
   @Override
   public ResponseEntity<Void> deploymentDelete(
       String teamName, String jobName, String deploymentId) {
@@ -77,6 +80,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
         var jobDeployment =
             ToModelApiConverter.toJobDeployment(teamName, jobName, dataJobDeployment);
         deploymentService.patchDeployment(job.get(), jobDeployment);
+        deploymentServiceV2.patchDeployment(job.get(), jobDeployment);
         return ResponseEntity.accepted().build();
       }
     }
@@ -135,7 +139,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
             sendNotification,
             operationContext.getUser(),
             operationContext.getOpId());
-
+        deploymentServiceV2.updateDbDeployment(job.get(), jobDeployment, operationContext.getUser());
         return ResponseEntity.accepted().build();
       }
     }
