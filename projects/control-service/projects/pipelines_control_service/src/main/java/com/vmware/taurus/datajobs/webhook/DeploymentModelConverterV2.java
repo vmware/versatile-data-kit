@@ -10,7 +10,9 @@ import com.vmware.taurus.service.model.JobDeployment;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/** Utility functions that convert between different model or DTO classes */
+/**
+ * Utility functions that convert between different model or DTO classes
+ */
 @Service
 @AllArgsConstructor
 public class DeploymentModelConverterV2 {
@@ -39,10 +41,10 @@ public class DeploymentModelConverterV2 {
       DataJobDeployment oldDeployment, JobDeployment newDeployment) {
     if (!oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
         || !oldDeployment
-            .getDataJob()
-            .getJobConfig()
-            .getTeam()
-            .equals(newDeployment.getDataJobTeam())) {
+        .getDataJob()
+        .getJobConfig()
+        .getTeam()
+        .equals(newDeployment.getDataJobTeam())) {
       throw new IllegalArgumentException(
           "Cannot merge 2 deployments if team or job name is different."
               + oldDeployment
@@ -66,24 +68,7 @@ public class DeploymentModelConverterV2 {
             ? newDeployment.getPythonVersion()
             : oldDeployment.getPythonVersion());
 
-    if (newDeployment.getResources() != null) {
-      mergedDeployment.setResourcesCpuRequest(
-          newDeployment.getResources().getCpuRequest() != null
-              ? newDeployment.getResources().getCpuRequest()
-              : oldDeployment.getResourcesCpuRequest());
-      mergedDeployment.setResourcesCpuLimit(
-          newDeployment.getResources().getCpuLimit() != null
-              ? newDeployment.getResources().getCpuLimit()
-              : oldDeployment.getResourcesCpuLimit());
-      mergedDeployment.setResourcesMemoryRequest(
-          newDeployment.getResources().getMemoryRequest() != null
-              ? newDeployment.getResources().getMemoryRequest()
-              : oldDeployment.getResourcesMemoryRequest());
-      mergedDeployment.setResourcesMemoryLimit(
-          newDeployment.getResources().getMemoryLimit() != null
-              ? newDeployment.getResources().getMemoryLimit()
-              : oldDeployment.getResourcesMemoryLimit());
-    }
+    mergeDeploymentResources(mergedDeployment, newDeployment, oldDeployment);
 
     mergedDeployment.setLastDeployedBy(
         oldDeployment.getLastDeployedBy()); // not present in newDeployment entity
@@ -96,5 +81,29 @@ public class DeploymentModelConverterV2 {
             : oldDeployment.getEnabled());
 
     return mergedDeployment;
+  }
+
+  private static void mergeDeploymentResources(DataJobDeployment mergedDeployment,
+      JobDeployment newDeployment, DataJobDeployment oldDeployment) {
+    if (newDeployment.getResources() == null) {
+      return;
+    }
+    mergedDeployment.setResourcesCpuRequest(
+        newDeployment.getResources().getCpuRequest() != null
+            ? newDeployment.getResources().getCpuRequest()
+            : oldDeployment.getResourcesCpuRequest());
+    mergedDeployment.setResourcesCpuLimit(
+        newDeployment.getResources().getCpuLimit() != null
+            ? newDeployment.getResources().getCpuLimit()
+            : oldDeployment.getResourcesCpuLimit());
+    mergedDeployment.setResourcesMemoryRequest(
+        newDeployment.getResources().getMemoryRequest() != null
+            ? newDeployment.getResources().getMemoryRequest()
+            : oldDeployment.getResourcesMemoryRequest());
+    mergedDeployment.setResourcesMemoryLimit(
+        newDeployment.getResources().getMemoryLimit() != null
+            ? newDeployment.getResources().getMemoryLimit()
+            : oldDeployment.getResourcesMemoryLimit());
+
   }
 }
