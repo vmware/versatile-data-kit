@@ -17,7 +17,7 @@ Before you start with the creation, please ensure you have the following:
 
 </details>
 
-If you don’t know how to create jobs, please check out the [Creation Guide](create_tutorial.md). 
+If you don’t know how to create jobs, please check out the [Creation Guide](create_tutorial.md).
 We’ll be working with the sample job that’s created automatically.
 
 ## Data Job Build Guide

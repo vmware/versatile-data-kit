@@ -51,7 +51,7 @@ Before you start with the build, please ensure you have the following:
 
 ## Wrap-up:
 Well done!
-You've successfully navigated through the process and created your first Data Job using Jupyter! 
+You've successfully navigated through the process and created your first Data Job using Jupyter!
 This is a significant step in your journey with the Versatile Data Kit, and we hope it was insightful.
 
 ## What's Next?
