@@ -81,7 +81,7 @@ public class DataJobsSynchronizer {
     if (desiredDataJobDeployment != null) {
       boolean sendNotification =
           true; // TODO [miroslavi] sends notification only when the deployment is initiated by the
-                // user.
+      // user.
       deploymentService.updateDeployment(
           dataJob,
           desiredDataJobDeployment,
