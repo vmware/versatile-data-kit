@@ -5,10 +5,11 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
-import { CREATE_DEP_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL } from '../utils';
+import { CREATE_DEP_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL, RUN_LOG_FILE } from '../utils';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { VDKCheckbox } from './VdkCheckbox';
 import { StatusButton } from './StatusButton';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
@@ -53,7 +54,7 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
   }
 }
 
-export async function showCreateDeploymentDialog(statusButton: StatusButton) {
+export async function showCreateDeploymentDialog(docManager?: IDocumentManager, statusButton?: StatusButton) {
   let runBeforeDeploy = true;
 
   const result = await showDialog({
@@ -82,8 +83,9 @@ export async function showCreateDeploymentDialog(statusButton: StatusButton) {
     (await checkIfVdkOptionDataIsDefined(VdkOption.DEPLOYMENT_REASON))
   ) {
     try {
-      statusButton.show('Deploy', jobData.get(VdkOption.PATH)!);
+      statusButton?.show('Deploy', jobData.get(VdkOption.PATH)!);
       if (runBeforeDeploy) {
+        docManager?.closeFile(RUN_LOG_FILE);
         const run = await jobRunRequest();
         if (run.isSuccessful) {
           const deployment = await jobRequest('deploy');
@@ -110,6 +112,7 @@ export async function showCreateDeploymentDialog(statusButton: StatusButton) {
             buttons: [Dialog.okButton()]
           });
         }
+        docManager?.open(RUN_LOG_FILE);
       } else {
         const deployment = await jobRequest('deploy');
         if (deployment.isSuccessful && deployment.message) {

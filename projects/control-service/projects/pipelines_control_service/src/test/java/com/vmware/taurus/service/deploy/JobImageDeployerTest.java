@@ -139,7 +139,7 @@ public class JobImageDeployerTest {
 
     jobImageDeployer.scheduleJob(testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME);
     verify(deploymentProgress)
-        .failed(any(), any(), eq(DeploymentStatus.USER_ERROR), anyString(), anyBoolean());
+        .failed(any(), eq(DeploymentStatus.USER_ERROR), anyString(), anyBoolean());
   }
 
   /** Test that the job container name is the same as the data job name. */

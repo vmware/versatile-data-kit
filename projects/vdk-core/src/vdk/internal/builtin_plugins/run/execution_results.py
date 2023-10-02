@@ -79,6 +79,19 @@ class ExecutionResult:
         """
         return self.get_exception_to_raise()
 
+    @staticmethod
+    def _get_root_cause_exception(exception: BaseException) -> BaseException:
+        root_exception = exception
+        while root_exception.__cause__ is not None:
+            root_exception = root_exception.__cause__
+        return root_exception
+
+    def get_details(self):
+        exception = self.get_exception_to_raise()
+        if exception:
+            exception = self._get_root_cause_exception(exception)
+        return str(exception)
+
     def get_exception_to_raise(self):
         """
         Returns main exception to be used as a failure reason for the data job.
@@ -105,7 +118,7 @@ class ExecutionResult:
         exception = self.get_exception_to_raise()
 
         step_raising_exception = next(
-            filter(lambda s: s.exception == exception, self.steps_list)
+            filter(lambda s: s.exception == exception, self.steps_list), None
         )
         if step_raising_exception:
             return step_raising_exception.blamee

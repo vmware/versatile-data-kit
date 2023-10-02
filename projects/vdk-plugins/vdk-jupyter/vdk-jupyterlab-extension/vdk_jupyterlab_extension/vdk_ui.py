@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from vdk.internal.builtin_plugins.run.summary_output import JobSummaryParser
 from vdk.internal.control.command_groups.job.create import JobCreate
 from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
@@ -60,43 +61,44 @@ class VdkUI:
         ]
         if len(script_files) == 0:
             return {"message": f"No steps were found in {path}!"}
-        with open("vdk_logs.txt", "w+") as log_file:
-            path = shlex.quote(str(path))
-            cmd: list[str] = ["vdk", "run", f"{path}"]
-            if arguments:
-                arguments = shlex.quote(arguments)
-                cmd.append("--arguments")
-                cmd.append(f"{arguments}")
+        with open("vdk_run.log", "w+") as log_file:
+            cmd = VdkUI.__prepare_vdk_run_command(arguments, path)
+            with tempfile.NamedTemporaryFile(
+                prefix="jupyter-run-summary-", mode="w+"
+            ) as summary_output_file:
+                environ_copy = os.environ.copy()
+                environ_copy["JOB_RUN_SUMMARY_FILE_PATH"] = summary_output_file.name
+                # We add the PYTHONUNBUFFERED env variable to ensure print statements inside user jobs are correctly
+                # interspersed in between the rest of the job logs instead of being placed at the end
+                environ_copy["PYTHONUNBUFFERED"] = "x"
 
-            # We add the PYTHONUNBUFFERED env variable to ensure print statements inside user jobs are correctly
-            # interspersed in between the rest of the job logs instead of being placed at the end
-            env = os.environ.copy()
-            env["PYTHONUNBUFFERED"] = "x"
+                try:
+                    process = subprocess.Popen(
+                        cmd,
+                        stdout=log_file,
+                        stderr=log_file,
+                        env=environ_copy,
+                        shell=False,
+                    )
+                    process.wait()
+                    if process.returncode != 0:
+                        content = pathlib.Path(summary_output_file.name).read_text()
+                        job_summary = JobSummaryParser.from_json(content)
+                        return {"message": job_summary.details}
+                    else:
+                        return {"message": process.returncode}
+                except Exception as e:
+                    return {"message": f"Unhandled exception: {e}"}
 
-            process = subprocess.Popen(
-                cmd,
-                stdout=log_file,
-                stderr=log_file,
-                env=env,
-                shell=False,
-            )
-            process.wait()
-            if process.returncode != 0:
-                job_name = (
-                    os.path.basename(path[:-1])
-                    if path.endswith("/")
-                    else os.path.basename(path)
-                )
-                error_file = os.path.join(
-                    os.path.dirname(path), f".{job_name}_error.json"
-                )
-                if os.path.exists(error_file):
-                    with open(error_file) as file:
-                        # the json is generated in vdk-notebook plugin
-                        # you can see /vdk-notebook/src/vdk/notebook-plugin.py
-                        error = json.load(file)
-                        return {"message": error["details"]}
-            return {"message": process.returncode}
+    @staticmethod
+    def __prepare_vdk_run_command(arguments, path):
+        path = shlex.quote(str(path))
+        cmd: list[str] = ["vdk", "run", f"{path}"]
+        if arguments:
+            arguments = shlex.quote(arguments)
+            cmd.append("--arguments")
+            cmd.append(f"{arguments}")
+        return cmd
 
     @staticmethod
     def delete_job(name: str, team: str) -> str:

@@ -226,8 +226,9 @@ class TestDAG:
             self.env_vars,
         ):
             assert isinstance(result.exception, error)
+            # only the request that fetches the job info should be present
             # no other request should be tried as the DAG fails
-            assert len(self.httpserver.log) == 0
+            assert len(self.httpserver.log) == 1
 
     def test_dag(self):
         dag = "dag"
@@ -427,7 +428,7 @@ class TestDAG:
             self.httpserver.stop()
 
     def _test_dag_validation(self, dag_name):
-        self._set_up()
+        self._set_up(dag_name=dag_name)
         with mock.patch.dict(
             os.environ,
             self.env_vars,

@@ -37,25 +37,31 @@ class BaseVdkError(Exception):
 
         # Check if error message or dict was passed
         # for compatibility with vdk plugins
-        error_message = ""
+        self._line_delimiter = " "
+        self._header = f"{self.__class__.__name__}: An error of type {vdk_type} occurred. Error should be fixed by {vdk_resolvable_actual}"
+        error_message = self._header + self._line_delimiter
         if error_message_lines and isinstance(error_message_lines[0], ErrorMessage):
             message = error_message_lines[0]
-            error_message += message.summary
-            error_message += message.what
-            error_message += message.why
-            error_message += message.consequences
-            error_message += message.countermeasures
+            error_message += self._line_delimiter.join(
+                [
+                    message.summary,
+                    message.what,
+                    message.why,
+                    message.consequences,
+                    message.countermeasures,
+                ]
+            )
         elif error_message_lines and isinstance(error_message_lines[0], dict):
             message = error_message_lines[0]
-            error_message += "\n".join(message.values())
+            error_message += self._line_delimiter.join(message.values())
         else:
-            for line in error_message_lines:
-                error_message += line
-                error_message += "\n"
+            error_message += self._line_delimiter.join(error_message_lines)
         super().__init__(error_message)
         self._vdk_resolvable_actual = vdk_resolvable_actual
         self._vdk_type = vdk_type
-        self._prettify_message(str(error_message))
+        self._pretty_message = error_message
+        # TODO: Enable this for local runs only
+        # self._prettify_message(str(error_message))
 
     def __str__(self):
         return self._pretty_message
@@ -90,9 +96,8 @@ class BaseVdkError(Exception):
 
         """
         box_char = "+"
-        header = f"{self.__class__.__name__}: An error of type {self._vdk_type} occurred. Error should be fixed by {self._vdk_resolvable_actual}"
-        lines = message.split("\n")
-        max_len = len(header)
+        lines = message.split(self._line_delimiter)
+        max_len = len(self._header)
         # Wrap the message lines
         wrapped_lines = []
         for line in lines:
@@ -114,7 +119,7 @@ class BaseVdkError(Exception):
             else:
                 wrapped_lines.append(line)
         # build th header
-        header = box_char + header.center(max_len + 6) + box_char
+        self._header = box_char + self._header.center(max_len + 6) + box_char
         # build the lines with the box char
         lines = [
             box_char + "  " + s.ljust(max_len + 4) + box_char for s in wrapped_lines
@@ -122,7 +127,7 @@ class BaseVdkError(Exception):
         # build the box sides
         side = (max_len + 8) * box_char
         self._pretty_message = "\n".join(
-            ["\n" + side, header, side, "\n".join(lines), side]
+            ["\n" + side, self._header, side, "\n".join(lines), side]
         )
 
 

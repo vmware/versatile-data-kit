@@ -249,5 +249,5 @@ class RemoteDataJob:
             return self.auth.read_access_token()
 
     def _login(self) -> None:
-        self.auth = Authentication(cache_locally=True)
+        self.auth = Authentication()
         # self.auth.authenticate()

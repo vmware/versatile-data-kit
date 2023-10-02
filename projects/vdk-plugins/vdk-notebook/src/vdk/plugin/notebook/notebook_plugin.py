@@ -26,25 +26,6 @@ class NotebookPlugin:
             for file_path in notebook_files:
                 Notebook.register_notebook_steps(file_path, context)
 
-    @hookimpl(hookwrapper=True)
-    def run_job(self, context: JobContext) -> None:
-        out: HookCallResult
-        out = yield
-        result: ExecutionResult = out.get_result()
-        step_results = result.steps_list
-        for step_result in step_results:
-            if step_result.status == ExecutionStatus.ERROR:
-                error_info = {
-                    "step_name": step_result.name,
-                    "blamee": step_result.blamee.value.__str__(),
-                    "details": step_result.details,
-                }
-                output_path = (
-                    context.job_directory.parent / f".{result.data_job_name}_error.json"
-                )
-                with open(output_path, "w") as outfile:
-                    outfile.write(json.dumps(error_info))
-
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry):

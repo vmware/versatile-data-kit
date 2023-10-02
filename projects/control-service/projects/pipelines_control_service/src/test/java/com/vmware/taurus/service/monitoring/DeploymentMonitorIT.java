@@ -38,7 +38,7 @@ public class DeploymentMonitorIT {
     var entity = new DataJob("data-job", config, DeploymentStatus.NONE);
     jobsRepository.save(entity);
 
-    deploymentMonitor.recordDeploymentStatus("data-job", DeploymentStatus.SUCCESS);
+    deploymentMonitor.recordDeploymentStatus("data-job", DeploymentStatus.SUCCESS, null);
 
     var gauges = meterRegistry.find(DeploymentMonitor.GAUGE_METRIC_NAME).gauges();
     var summaries = meterRegistry.find(DeploymentMonitor.SUMMARY_METRIC_NAME).summaries();
@@ -55,7 +55,7 @@ public class DeploymentMonitorIT {
   @Order(2)
   public void testUpdateDeploymentStatusExistingJob() {
 
-    deploymentMonitor.recordDeploymentStatus("data-job", DeploymentStatus.PLATFORM_ERROR);
+    deploymentMonitor.recordDeploymentStatus("data-job", DeploymentStatus.PLATFORM_ERROR, null);
 
     var gauges = meterRegistry.find(DeploymentMonitor.GAUGE_METRIC_NAME).gauges();
     var summaries = meterRegistry.find(DeploymentMonitor.SUMMARY_METRIC_NAME).summaries();
@@ -73,7 +73,7 @@ public class DeploymentMonitorIT {
   @Order(3)
   public void testJobNameNull() {
 
-    deploymentMonitor.recordDeploymentStatus(null, DeploymentStatus.PLATFORM_ERROR);
+    deploymentMonitor.recordDeploymentStatus(null, DeploymentStatus.PLATFORM_ERROR, null);
 
     var gauges = meterRegistry.find(DeploymentMonitor.GAUGE_METRIC_NAME).gauges();
     var summaries = meterRegistry.find(DeploymentMonitor.SUMMARY_METRIC_NAME).summaries();
@@ -91,7 +91,7 @@ public class DeploymentMonitorIT {
   @Order(4)
   public void testJobNameEmpty() {
 
-    deploymentMonitor.recordDeploymentStatus("", DeploymentStatus.PLATFORM_ERROR);
+    deploymentMonitor.recordDeploymentStatus("", DeploymentStatus.PLATFORM_ERROR, null);
 
     var gauges = meterRegistry.find(DeploymentMonitor.GAUGE_METRIC_NAME).gauges();
     var summaries = meterRegistry.find(DeploymentMonitor.SUMMARY_METRIC_NAME).summaries();
@@ -109,7 +109,8 @@ public class DeploymentMonitorIT {
   @Order(5)
   public void testNonExistingJob() {
 
-    deploymentMonitor.recordDeploymentStatus("data-job-missing", DeploymentStatus.PLATFORM_ERROR);
+    deploymentMonitor.recordDeploymentStatus(
+        "data-job-missing", DeploymentStatus.PLATFORM_ERROR, null);
 
     var gauges = meterRegistry.find(DeploymentMonitor.GAUGE_METRIC_NAME).gauges();
     var summaries = meterRegistry.find(DeploymentMonitor.SUMMARY_METRIC_NAME).summaries();

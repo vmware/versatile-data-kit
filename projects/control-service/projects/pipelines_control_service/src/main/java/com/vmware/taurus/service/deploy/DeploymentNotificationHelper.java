@@ -17,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @RequiredArgsConstructor
 public class DeploymentNotificationHelper {
@@ -32,8 +30,7 @@ public class DeploymentNotificationHelper {
       JobDeployment jobDeployment,
       KubernetesService.JobStatusCondition condition,
       String logs,
-      Boolean sendNotification)
-      throws IOException {
+      Boolean sendNotification) {
 
     if (condition.isSuccess()) {
       log.info("Builder job {} finished successfully", builderJobName);
@@ -48,11 +45,7 @@ public class DeploymentNotificationHelper {
                 jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha()));
 
         deploymentProgress.failed(
-            dataJob.getJobConfig(),
-            jobDeployment,
-            DeploymentStatus.USER_ERROR,
-            userErrorMessage,
-            sendNotification);
+            dataJob, DeploymentStatus.USER_ERROR, userErrorMessage, sendNotification);
       } else {
         if (logs.contains("error resolving source context: reference not found")) {
           log.error(
@@ -75,8 +68,7 @@ public class DeploymentNotificationHelper {
                     + logs);
         log.warn(message.toString());
         deploymentProgress.failed(
-            dataJob.getJobConfig(),
-            jobDeployment,
+            dataJob,
             DeploymentStatus.PLATFORM_ERROR,
             NotificationContent.getPlatformErrorBody(),
             sendNotification);
@@ -84,7 +76,7 @@ public class DeploymentNotificationHelper {
     }
   }
 
-  private String getUserErrorMessage(String logs, JobDeployment jobDeployment) throws IOException {
+  private String getUserErrorMessage(String logs, JobDeployment jobDeployment) {
     String requirementsError = getRequirementsError(logs);
     if (StringUtils.isNotBlank(requirementsError)) {
       return NotificationContent.getErrorBody(
@@ -123,7 +115,7 @@ public class DeploymentNotificationHelper {
 
   // Currently, the only way to differentiate between infra and user error
   // when building a data job is by parsing the logs of the builder job.
-  private String getRequirementsError(String logs) throws IOException {
+  private String getRequirementsError(String logs) {
     String requirements_error = null;
 
     if (StringUtils.isNotBlank(logs) && logs.contains(">requirements_failed<")) {
