@@ -25,7 +25,7 @@ RUN : \
      && echo "Validating base image is python based ..." \
      && python -V \
      && echo "Creating necessary users and set home directory to /job ..." \
-     && yum install shadow -y \
+     && yum install shadow freetype2 libpng -y \
      && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user \
      && chown -R $UID:$GID /job \
      && echo "Removing execute permissions for files within the Data job directory, but not for the directories themselves ..." \
@@ -48,7 +48,8 @@ RUN : \
           && pip install --disable-pip-version-check -q -r "$job_name/$requirements_file"  \
           || ( echo ">requirements_failed<" && exit 1 ) \
           && echo "Removing native dependencies ..." \
-          && yum autoremove build-essential gcc glibc-devel git unzip freetype2-devel libpng-devel -y;  fi \
+          && yum autoremove build-essential gcc glibc-devel git unzip -y \
+          && yum remove freetype2-devel libpng-devel -y;  fi \
     && echo "Installing native dependencies ..." \
     && yum install libstdc++ findutils openssl-c_rehash -y \
     && echo "Refreshing CA certificates ..." \
