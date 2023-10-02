@@ -7,6 +7,8 @@ import time
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.core import errors
 
+MEMORY_LIMIT_PATTERN = r"Limit=(\d+\.\d+)\s*([KMGTP]B)"
+
 
 class ImpalaErrorHandler:
     def __init__(self, log=None, num_retries=5, backoff_seconds=30):
@@ -107,6 +109,7 @@ class ImpalaErrorHandler:
             or self._handle_metadata_exception_with_invalidate_and_retry(
                 exception, recovery_cursor
             )
+            or self._handle_memory_error(exception, recovery_cursor)
             or self._handle_impala_network_error(exception, recovery_cursor)
         )
 
@@ -441,3 +444,78 @@ class ImpalaErrorHandler:
             classname_with_package=".*OperationalError.*",
             exception_message_matcher_regex=".*admission for timeout ms in pool.*",
         )
+
+    def _handle_memory_error(self, exception, recovery_cursor):
+        if errors.exception_matches(
+            exception,
+            classname_with_package="impala.error.OperationalError",
+            exception_message_matcher_regex=".*Memory limit exceeded:.*",
+        ):
+            # We are going to try to increase the memory limits and see if the query passes
+            # But we won't do anything if the sql statement itself sets a memory limit
+            self._log.info(
+                "Query failed with memory error. We are going to increase the memory limit."
+                f"Error was: {exception.__class__}: {str(exception)}"
+            )
+            if (
+                "set memory_limit="
+                in str(
+                    recovery_cursor.get_managed_operation().get_operation_parameters_tuple()
+                ).lower()
+            ):
+                self._log.info(
+                    "The SQL statement you are trying to execute contains a set memory_limit option "
+                    "so we are not going to handle the memory error."
+                )
+                return False
+
+            # Incrementally increase the memory limit and as a last resort try to set the memory to an extreme value
+            if recovery_cursor.get_retries() > 3:
+                #  We won't be able to handle this error by increasing limits
+                return False
+            if recovery_cursor.get_retries() > 2:
+                # An extreme case but let's try it as a last resort
+                recovery_cursor.execute("set memory_limit=512GB;")
+            elif recovery_cursor.get_retries() > 1:
+                self._update_memory_limit(exception, recovery_cursor, 2.0)
+            elif recovery_cursor.get_retries() > 0:
+                self._update_memory_limit(exception, recovery_cursor, 1.5)
+            else:
+                self._update_memory_limit(exception, recovery_cursor, 1.2)
+            # retry the query
+            recovery_cursor.retry_operation()
+            return True
+        else:
+            return False
+
+    def _update_memory_limit(self, exception, recovery_cursor, multiplier):
+        new_memory_limit = self._get_new_memory_limit(
+            exception=exception, multiplier=multiplier
+        )
+        if new_memory_limit:
+            self._log.info(
+                f"Setting memory limit to {new_memory_limit} bytes and retrying SQL statement."
+            )
+            recovery_cursor.execute(f"set mem_limit={new_memory_limit};")
+        else:
+            self._log.warning(
+                f"Unable to determine current memory limit for statement."
+            )
+
+    @staticmethod
+    def _convert_to_bytes(value: str, unit: str):
+        units = {"KB": 1024, "MB": 1024**2, "GB": 1024**3, "TB": 1024**4}
+        return int(float(value) * units.get(unit, 1))
+
+    def _get_new_memory_limit(self, exception, multiplier: float):
+        memory_limit_match = re.search(MEMORY_LIMIT_PATTERN, str(exception))
+
+        if memory_limit_match:
+            memory_limit_value = memory_limit_match.group(1)
+            memory_limit_unit = memory_limit_match.group(2)
+            current_memory_limit = self._convert_to_bytes(
+                memory_limit_value, memory_limit_unit
+            )
+            return int(current_memory_limit * multiplier)
+        else:
+            return None
