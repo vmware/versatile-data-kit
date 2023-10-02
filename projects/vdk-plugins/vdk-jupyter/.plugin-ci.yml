@@ -66,6 +66,7 @@ integration-tests-vdk-jupyterlab-extension:
     - echo "Running Integration Tests..."
     - npm ci
     - cd ./ui-tests
+    - npm install @playwright/test
     - npx playwright install --with-deps
     - npx playwright test
   artifacts:
