@@ -64,11 +64,10 @@ integration-tests-vdk-jupyterlab-extension:
   stage: pre_release_test
   script:
     - echo "Running Integration Tests..."
-    - npm ci
-    - jlpm build
     - cd ./ui-tests
-    - jlpm playwright install
-    - jlpm playwright test
+    - npm ci
+    - npx playwright install --with-deps
+    - npx playwright test
   artifacts:
     when: always
     reports:
