@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.repository;
 
+import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -36,4 +37,12 @@ public interface DesiredJobDeploymentRepository
           + " :dataJobName")
   int updateDesiredDataJobDeploymentEnabledByDataJobName(
       @Param(value = "dataJobName") String dataJobName, @Param(value = "enabled") Boolean enabled);
+
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  @Query(
+          "update DesiredDataJobDeployment d set d.status = :status where d.dataJobName ="
+                  + " :dataJobName")
+  int updateDesiredDataJobDeploymentStatusByDataJobName(
+          @Param(value = "dataJobName") String dataJobName, @Param(value = "status") DeploymentStatus status);
 }

@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.exception.*;
+import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
@@ -58,6 +59,7 @@ public class DeploymentServiceV2 {
    *     Kubernetes.
    * @param sendNotification if it is true the method will send a notification to the end user.
    */
+  @Measurable(includeArg = 0, argName = "data_job")
   public void updateDeployment(
       DataJob dataJob,
       DesiredDataJobDeployment desiredJobDeployment,
@@ -68,6 +70,15 @@ public class DeploymentServiceV2 {
       log.warn(
           "Skipping the data job [job_name={}] deployment due to the missing deployment data",
           dataJob.getName());
+      return;
+    }
+
+    if (DeploymentStatus.USER_ERROR.equals(desiredJobDeployment.getStatus()) ||
+            DeploymentStatus.PLATFORM_ERROR.equals(desiredJobDeployment.getStatus())) {
+      log.debug(
+          "Skipping the data job [job_name={}] deployment due to the previously failed deployment [status={}]",
+          dataJob.getName(),
+          desiredJobDeployment.getStatus());
       return;
     }
 
