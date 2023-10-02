@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 import pytest
 from vdk.internal.core import errors
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
@@ -693,20 +694,16 @@ class TestTemplateRegression(unittest.TestCase):
         ):
             res = self._run_job(template_name, template_args)
             assert expected_why_it_happened_msg in res.output
-            errors.log_and_throw.assert_called_once_with(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=ANY,
-                what_happened="Data loading has failed.",
-                why_it_happened=(
+            errors.report_and_throw.assert_called_once_with(
+                UserCodeError(
+                    "Data loading has failed.",  # FIXME: this is too specific
                     f"You are trying to load data into a table {table_name} with an unsupported format. "
                     f"Currently only Parquet table format is supported."
-                ),
-                consequences="Data load will be aborted.",
-                countermeasures=(
+                    "Data load will be aborted.",  # FIXME: this is too specific
                     "Make sure that the destination table is stored as parquet: "
                     "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
                     "#parquet_ddl"
-                ),
+                )
             )
 
     def test_insert(self) -> None:
