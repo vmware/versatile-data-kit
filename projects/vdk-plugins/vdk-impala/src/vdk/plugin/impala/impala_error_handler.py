@@ -498,9 +498,7 @@ class ImpalaErrorHandler:
             )
             recovery_cursor.execute(f"set mem_limit={new_memory_limit};")
         else:
-            self._log.warning(
-                f"Unable to determine current memory limit for statement."
-            )
+            self._log.warning("Unable to determine current memory limit for statement.")
 
     @staticmethod
     def _convert_to_bytes(value: str, unit: str):
