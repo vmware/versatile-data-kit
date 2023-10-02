@@ -54,15 +54,16 @@ public class DeploymentServiceV2 {
    * @param dataJob the data job to be deployed.
    * @param desiredJobDeployment the desired data job deployment to be deployed.
    * @param actualJobDeployment the actual data job deployment has been deployed.
-   * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in Kubernetes.
+   * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in
+   *     Kubernetes.
    * @param sendNotification if it is true the method will send a notification to the end user.
    */
   public void updateDeployment(
-          DataJob dataJob,
-          DesiredDataJobDeployment desiredJobDeployment,
-          ActualDataJobDeployment actualJobDeployment,
-          boolean isJobDeploymentPresentInKubernetes,
-          Boolean sendNotification) {
+      DataJob dataJob,
+      DesiredDataJobDeployment desiredJobDeployment,
+      ActualDataJobDeployment actualJobDeployment,
+      boolean isJobDeploymentPresentInKubernetes,
+      Boolean sendNotification) {
     if (desiredJobDeployment == null) {
       log.warn(
           "Skipping the data job [job_name={}] deployment due to the missing deployment data",
@@ -88,7 +89,8 @@ public class DeploymentServiceV2 {
             imageName,
             dataJob.getName());
 
-        ActualDataJobDeployment actualJobDeploymentResult = jobImageDeployer.scheduleJob(
+        ActualDataJobDeployment actualJobDeploymentResult =
+            jobImageDeployer.scheduleJob(
                 dataJob,
                 desiredJobDeployment,
                 actualJobDeployment,
@@ -106,26 +108,26 @@ public class DeploymentServiceV2 {
         }
       }
     } catch (ApiException e) {
-      handleException(dataJob, desiredJobDeployment, sendNotification, new KubernetesException("", e));
+      handleException(
+          dataJob, desiredJobDeployment, sendNotification, new KubernetesException("", e));
     } catch (Exception e) {
       handleException(dataJob, desiredJobDeployment, sendNotification, e);
     }
   }
 
   public void updateDeploymentEnabledStatus(String dataJobName, Boolean enabledStatus) {
-    desiredJobDeploymentRepository.updateDesiredDataJobDeploymentEnabledByDataJobName(dataJobName, enabledStatus);
+    desiredJobDeploymentRepository.updateDesiredDataJobDeploymentEnabledByDataJobName(
+        dataJobName, enabledStatus);
   }
 
   public Map<String, DesiredDataJobDeployment> findAllDesiredDataJobDeployments() {
-    return desiredJobDeploymentRepository.findAll()
-                    .stream()
-                    .collect(Collectors.toMap(DesiredDataJobDeployment::getDataJobName, Function.identity()));
+    return desiredJobDeploymentRepository.findAll().stream()
+        .collect(Collectors.toMap(DesiredDataJobDeployment::getDataJobName, Function.identity()));
   }
 
   public Map<String, ActualDataJobDeployment> findAllActualDataJobDeployments() {
-    return actualJobDeploymentRepository.findAll()
-            .stream()
-            .collect(Collectors.toMap(ActualDataJobDeployment::getDataJobName, Function.identity()));
+    return actualJobDeploymentRepository.findAll().stream()
+        .collect(Collectors.toMap(ActualDataJobDeployment::getDataJobName, Function.identity()));
   }
 
   public Set<String> findAllActualDeploymentNamesFromKubernetes() throws ApiException {
@@ -133,7 +135,10 @@ public class DeploymentServiceV2 {
   }
 
   private void handleException(
-      DataJob dataJob, DesiredDataJobDeployment jobDeployment, Boolean sendNotification, Throwable e) {
+      DataJob dataJob,
+      DesiredDataJobDeployment jobDeployment,
+      Boolean sendNotification,
+      Throwable e) {
     ErrorMessage message =
         new ErrorMessage(
             String.format(

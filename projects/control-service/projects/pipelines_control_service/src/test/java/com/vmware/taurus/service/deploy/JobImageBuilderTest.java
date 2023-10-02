@@ -23,7 +23,6 @@ import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobConfig;
-import com.vmware.taurus.service.model.JobDeployment;
 import io.kubernetes.client.openapi.ApiException;
 import java.io.IOException;
 import java.util.Collections;

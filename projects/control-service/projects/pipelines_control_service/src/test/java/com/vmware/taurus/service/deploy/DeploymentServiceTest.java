@@ -154,14 +154,23 @@ public class DeploymentServiceTest {
 
     when(dockerRegistryService.dataJobImage(TEST_JOB_NAME, "test-commit"))
         .thenReturn(TEST_JOB_IMAGE_NAME);
-    when(jobImageBuilder.buildImage(TEST_JOB_IMAGE_NAME, testDataJob, DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment), true))
+    when(jobImageBuilder.buildImage(
+            TEST_JOB_IMAGE_NAME,
+            testDataJob,
+            DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            true))
         .thenReturn(true);
 
     deploymentService.updateDeployment(
         testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME, OP_ID);
 
     verify(dockerRegistryService).dataJobImage(TEST_JOB_NAME, "test-commit");
-    verify(jobImageBuilder).buildImage(TEST_JOB_IMAGE_NAME, testDataJob, DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment), true);
+    verify(jobImageBuilder)
+        .buildImage(
+            TEST_JOB_IMAGE_NAME,
+            testDataJob,
+            DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            true);
     verify(kubernetesService)
         .createCronJob(
             eq(TEST_CRONJOB_NAME),
@@ -194,7 +203,11 @@ public class DeploymentServiceTest {
 
     when(dockerRegistryService.dataJobImage(TEST_JOB_NAME, "test-commit"))
         .thenReturn(TEST_JOB_IMAGE_NAME);
-    when(jobImageBuilder.buildImage(TEST_JOB_IMAGE_NAME, testDataJob, DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment), true))
+    when(jobImageBuilder.buildImage(
+            TEST_JOB_IMAGE_NAME,
+            testDataJob,
+            DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            true))
         .thenReturn(true);
     when(kubernetesService.listCronJobs()).thenReturn(Set.of(TEST_CRONJOB_NAME));
 
@@ -202,7 +215,12 @@ public class DeploymentServiceTest {
         testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME, OP_ID);
 
     verify(dockerRegistryService).dataJobImage(TEST_JOB_NAME, "test-commit");
-    verify(jobImageBuilder).buildImage(TEST_JOB_IMAGE_NAME, testDataJob, DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment), true);
+    verify(jobImageBuilder)
+        .buildImage(
+            TEST_JOB_IMAGE_NAME,
+            testDataJob,
+            DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            true);
     verify(kubernetesService)
         .updateCronJob(
             eq(TEST_CRONJOB_NAME),
@@ -232,14 +250,23 @@ public class DeploymentServiceTest {
 
     when(dockerRegistryService.dataJobImage(TEST_JOB_NAME, "test-commit"))
         .thenReturn(TEST_JOB_IMAGE_NAME);
-    when(jobImageBuilder.buildImage(TEST_JOB_IMAGE_NAME, testDataJob, DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment), true))
+    when(jobImageBuilder.buildImage(
+            TEST_JOB_IMAGE_NAME,
+            testDataJob,
+            DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            true))
         .thenReturn(false);
 
     deploymentService.updateDeployment(
         testDataJob, jobDeployment, true, TEST_PRINCIPAL_NAME, OP_ID);
 
     verify(dockerRegistryService).dataJobImage(TEST_JOB_NAME, "test-commit");
-    verify(jobImageBuilder).buildImage(TEST_JOB_IMAGE_NAME, testDataJob, DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment), true);
+    verify(jobImageBuilder)
+        .buildImage(
+            TEST_JOB_IMAGE_NAME,
+            testDataJob,
+            DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            true);
     verify(kubernetesService, never())
         .updateCronJob(
             anyString(),

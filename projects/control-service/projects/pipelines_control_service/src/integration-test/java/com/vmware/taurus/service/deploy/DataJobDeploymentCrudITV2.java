@@ -111,7 +111,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
 
     boolean jobEnabled = false;
-    DesiredDataJobDeployment desiredDataJobDeployment = createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
+    DesiredDataJobDeployment desiredDataJobDeployment =
+        createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
 
     // Checks if the deployment exist
     Optional<JobDeploymentStatus> jobDeploymentStatusOptional =
@@ -129,22 +130,27 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     Assertions.assertNotNull(lastDeployedDateInitial);
 
     // Tries to redeploy job without any changes
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
+    dataJobsSynchronizer.synchronizeDataJob(
+        dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
     actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
-    String deploymentVersionShaShouldNotBeChanged = actualDataJobDeployment.getDeploymentVersionSha();
-    OffsetDateTime lastDeployedDateShouldNotBeChanged = actualDataJobDeployment.getLastDeployedDate();
+    String deploymentVersionShaShouldNotBeChanged =
+        actualDataJobDeployment.getDeploymentVersionSha();
+    OffsetDateTime lastDeployedDateShouldNotBeChanged =
+        actualDataJobDeployment.getLastDeployedDate();
     Assertions.assertEquals(deploymentVersionShaInitial, deploymentVersionShaShouldNotBeChanged);
     Assertions.assertEquals(lastDeployedDateInitial, lastDeployedDateShouldNotBeChanged);
 
     // Tries to redeploy job with changes
     jobEnabled = true;
     desiredDataJobDeployment = updateDataJobDeployment(jobEnabled);
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
+    dataJobsSynchronizer.synchronizeDataJob(
+        dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
     actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
     String deploymentVersionShaShouldBeChanged = actualDataJobDeployment.getDeploymentVersionSha();
     OffsetDateTime lastDeployedDateShouldBeChanged = actualDataJobDeployment.getLastDeployedDate();
     Assertions.assertNotEquals(lastDeployedDateInitial, lastDeployedDateShouldBeChanged);
-    Assertions.assertNotEquals(deploymentVersionShaShouldNotBeChanged, deploymentVersionShaShouldBeChanged);
+    Assertions.assertNotEquals(
+        deploymentVersionShaShouldNotBeChanged, deploymentVersionShaShouldBeChanged);
   }
 
   private ActualDataJobDeployment verifyDeploymentStatus(boolean enabled) {
@@ -153,7 +159,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     Assertions.assertTrue(deploymentStatusOptional.isPresent());
     Assertions.assertEquals(enabled, deploymentStatusOptional.get().getEnabled());
 
-    Optional<ActualDataJobDeployment> actualDataJobDeploymentOptional = actualJobDeploymentRepository.findById(testJobName);
+    Optional<ActualDataJobDeployment> actualDataJobDeploymentOptional =
+        actualJobDeploymentRepository.findById(testJobName);
     Assertions.assertTrue(actualDataJobDeploymentOptional.isPresent());
 
     ActualDataJobDeployment actualDataJobDeployment = actualDataJobDeploymentOptional.get();
@@ -219,7 +226,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     return new ObjectMapper().readValue(jobUploadResult.getContentAsString(), DataJobVersion.class);
   }
 
-  private DesiredDataJobDeployment createDesiredDataJobDeployment(String testJobVersionSha, boolean enabled) {
+  private DesiredDataJobDeployment createDesiredDataJobDeployment(
+      String testJobVersionSha, boolean enabled) {
     Optional<DataJob> dataJobOptional = jobsRepository.findById(testJobName);
     DataJob dataJob = dataJobOptional.get();
 
@@ -233,7 +241,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
   }
 
   private DesiredDataJobDeployment updateDataJobDeployment(boolean enabled) {
-    Optional<DesiredDataJobDeployment> desiredDataJobDeploymentOptional = desiredJobDeploymentRepository.findById(testJobName);
+    Optional<DesiredDataJobDeployment> desiredDataJobDeploymentOptional =
+        desiredJobDeploymentRepository.findById(testJobName);
     DesiredDataJobDeployment desiredDataJobDeployment = desiredDataJobDeploymentOptional.get();
     desiredDataJobDeployment.setEnabled(enabled);
 

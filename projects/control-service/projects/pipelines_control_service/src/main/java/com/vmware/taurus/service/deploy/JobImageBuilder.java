@@ -121,7 +121,10 @@ public class JobImageBuilder {
    * @throws InterruptedException
    */
   public boolean buildImage(
-          String imageName, DataJob dataJob, DesiredDataJobDeployment jobDeployment, Boolean sendNotification)
+      String imageName,
+      DataJob dataJob,
+      DesiredDataJobDeployment jobDeployment,
+      Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
     // TODO: refactor and hide AWS details behind DockerRegistryService?
     var credentials = awsCredentialsService.createTemporaryCredentials();
@@ -269,7 +272,8 @@ public class JobImageBuilder {
     }
   }
 
-  private Map<String, String> getBuildParameters(DataJob dataJob, DesiredDataJobDeployment jobDeployment) {
+  private Map<String, String> getBuildParameters(
+      DataJob dataJob, DesiredDataJobDeployment jobDeployment) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
     String pythonVersion = jobDeployment.getPythonVersion();

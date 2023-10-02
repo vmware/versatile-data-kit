@@ -50,37 +50,44 @@ public class DataJobsSynchronizer {
     ThreadPoolTaskExecutor taskExecutor = initializeTaskExecutor();
     Iterable<DataJob> dataJobsFromDB = jobsService.findAllDataJobs();
 
-    Set<String> dataJobDeploymentNamesFromKubernetes = deploymentService.findAllActualDeploymentNamesFromKubernetes();
+    Set<String> dataJobDeploymentNamesFromKubernetes =
+        deploymentService.findAllActualDeploymentNamesFromKubernetes();
 
     Map<String, DesiredDataJobDeployment> desiredDataJobDeploymentsFromDBMap =
-            deploymentService.findAllDesiredDataJobDeployments();
+        deploymentService.findAllDesiredDataJobDeployments();
 
     Map<String, ActualDataJobDeployment> actualDataJobDeploymentsFromDBMap =
-            deploymentService.findAllActualDataJobDeployments();
+        deploymentService.findAllActualDataJobDeployments();
 
-    dataJobsFromDB.forEach(dataJob -> taskExecutor.execute(() ->
-            synchronizeDataJob(
-                    dataJob,
-                    desiredDataJobDeploymentsFromDBMap.get(dataJob.getName()),
-                    actualDataJobDeploymentsFromDBMap.get(dataJob.getName()),
-                    dataJobDeploymentNamesFromKubernetes.contains(dataJob.getName()))));
+    dataJobsFromDB.forEach(
+        dataJob ->
+            taskExecutor.execute(
+                () ->
+                    synchronizeDataJob(
+                        dataJob,
+                        desiredDataJobDeploymentsFromDBMap.get(dataJob.getName()),
+                        actualDataJobDeploymentsFromDBMap.get(dataJob.getName()),
+                        dataJobDeploymentNamesFromKubernetes.contains(dataJob.getName()))));
 
     taskExecutor.shutdown();
   }
 
   // Default for testing purposes
-  void synchronizeDataJob(DataJob dataJob,
-                          DesiredDataJobDeployment desiredDataJobDeployment,
-                          ActualDataJobDeployment actualDataJobDeployment,
-                          boolean isDeploymentPresentInKubernetes) {
+  void synchronizeDataJob(
+      DataJob dataJob,
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      ActualDataJobDeployment actualDataJobDeployment,
+      boolean isDeploymentPresentInKubernetes) {
     if (desiredDataJobDeployment != null) {
-      boolean sendNotification = true; // TODO [miroslavi] sends notification only when the deployment is initiated by the user.
+      boolean sendNotification =
+          true; // TODO [miroslavi] sends notification only when the deployment is initiated by the
+                // user.
       deploymentService.updateDeployment(
-              dataJob,
-              desiredDataJobDeployment,
-              actualDataJobDeployment,
-              isDeploymentPresentInKubernetes,
-              sendNotification);
+          dataJob,
+          desiredDataJobDeployment,
+          actualDataJobDeployment,
+          isDeploymentPresentInKubernetes,
+          sendNotification);
     }
   }
 

@@ -29,9 +29,11 @@ import javax.transaction.Transactional;
 public interface DesiredJobDeploymentRepository
     extends JpaRepository<DesiredDataJobDeployment, String> {
 
-    @Transactional
-    @Modifying(clearAutomatically = true)
-    @Query("update DesiredDataJobDeployment d set d.enabled = :enabled where d.dataJobName = :dataJobName")
-    int updateDesiredDataJobDeploymentEnabledByDataJobName(
-            @Param(value = "dataJobName") String dataJobName, @Param(value = "enabled") Boolean enabled);
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  @Query(
+      "update DesiredDataJobDeployment d set d.enabled = :enabled where d.dataJobName ="
+          + " :dataJobName")
+  int updateDesiredDataJobDeploymentEnabledByDataJobName(
+      @Param(value = "dataJobName") String dataJobName, @Param(value = "enabled") Boolean enabled);
 }

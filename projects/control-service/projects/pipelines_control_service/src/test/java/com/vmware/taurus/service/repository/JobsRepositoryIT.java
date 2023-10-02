@@ -134,7 +134,7 @@ public class JobsRepositoryIT {
     expectedDataJobDeployment.setResources(expectedResources);
 
     expectedDataJobDeployment.setLastDeployedDate(
-            OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
     expectedDataJobDeployment.setLastDeployedBy("user");
     expectedDataJobDeployment.setEnabled(true);
     expectedDataJobDeployment.setDeploymentVersionSha("sha");

@@ -148,7 +148,9 @@ public class JobsService {
     if (jobsRepository.existsById(jobInfo.getName())) {
       dataJobMetrics.updateInfoGauges(jobsRepository.save(jobInfo));
 
-      if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+      if (dataJobDeploymentPropertiesConfig
+          .getWriteTos()
+          .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
         deploymentServiceV2.updateDeploymentEnabledStatus(jobInfo.getName(), jobInfo.getEnabled());
       }
 

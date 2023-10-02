@@ -38,7 +38,8 @@ public class DeploymentModelConverter {
     return deployment;
   }
 
-  public static DesiredDataJobDeployment toDesiredDataJobDeployment(JobDeployment jobDeploymentStatus) {
+  public static DesiredDataJobDeployment toDesiredDataJobDeployment(
+      JobDeployment jobDeploymentStatus) {
     DesiredDataJobDeployment deployment = new DesiredDataJobDeployment();
     deployment.setDataJobName(jobDeploymentStatus.getDataJobName());
     deployment.setEnabled(jobDeploymentStatus.getEnabled());
@@ -46,7 +47,8 @@ public class DeploymentModelConverter {
     DataJobResources dataJobResources = jobDeploymentStatus.getResources();
 
     if (dataJobResources != null) {
-      DataJobDeploymentResources deploymentResources = toDataJooDeploymentResources(
+      DataJobDeploymentResources deploymentResources =
+          toDataJooDeploymentResources(
               dataJobResources.getCpuRequest(),
               dataJobResources.getCpuLimit(),
               dataJobResources.getMemoryRequest(),
@@ -61,16 +63,21 @@ public class DeploymentModelConverter {
     return deployment;
   }
 
-  public static ActualDataJobDeployment toActualJobDeployment(DesiredDataJobDeployment desiredDataJobDeployment, String deploymentVersionSha, OffsetDateTime lastDeployedDate) {
+  public static ActualDataJobDeployment toActualJobDeployment(
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      String deploymentVersionSha,
+      OffsetDateTime lastDeployedDate) {
     ActualDataJobDeployment deployment = new ActualDataJobDeployment();
     deployment.setDataJobName(desiredDataJobDeployment.getDataJobName());
     deployment.setDataJob(desiredDataJobDeployment.getDataJob());
     deployment.setEnabled(desiredDataJobDeployment.getEnabled());
 
-    DataJobDeploymentResources desiredDataJobDeploymentResources = desiredDataJobDeployment.getResources();
+    DataJobDeploymentResources desiredDataJobDeploymentResources =
+        desiredDataJobDeployment.getResources();
 
     if (desiredDataJobDeploymentResources != null) {
-      DataJobDeploymentResources deploymentResources = toDataJooDeploymentResources(
+      DataJobDeploymentResources deploymentResources =
+          toDataJooDeploymentResources(
               desiredDataJobDeploymentResources.getCpuRequestCores(),
               desiredDataJobDeploymentResources.getCpuLimitCores(),
               desiredDataJobDeploymentResources.getMemoryRequestMi(),
@@ -167,13 +174,14 @@ public class DeploymentModelConverter {
     return mergedDeployment;
   }
 
-  private static DataJobDeploymentResources toDataJooDeploymentResources(Float cpuRequestCores, Float cpuLimitCores, Integer memoryRequestMi, Integer memoryLimitMi) {
-      DataJobDeploymentResources deploymentResources = new DataJobDeploymentResources();
-      deploymentResources.setCpuRequestCores(cpuRequestCores);
-      deploymentResources.setCpuLimitCores(cpuLimitCores);
-      deploymentResources.setMemoryRequestMi(memoryRequestMi);
-      deploymentResources.setMemoryLimitMi(memoryLimitMi);
+  private static DataJobDeploymentResources toDataJooDeploymentResources(
+      Float cpuRequestCores, Float cpuLimitCores, Integer memoryRequestMi, Integer memoryLimitMi) {
+    DataJobDeploymentResources deploymentResources = new DataJobDeploymentResources();
+    deploymentResources.setCpuRequestCores(cpuRequestCores);
+    deploymentResources.setCpuLimitCores(cpuLimitCores);
+    deploymentResources.setMemoryRequestMi(memoryRequestMi);
+    deploymentResources.setMemoryLimitMi(memoryLimitMi);
 
-      return deploymentResources;
+    return deploymentResources;
   }
 }
