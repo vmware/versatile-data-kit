@@ -1,9 +1,9 @@
-# Learn How to Create and Build a Data Job through the Jupyter UI
+# Learn How to Build a Data Job through the Jupyter UI
 Time Commitment: About 25-30 minutes.
 
 ## Prerequisites
 
-Before you start with the conversion, please ensure you have the following:
+Before you start with the creation, please ensure you have the following:
 
 <details>
   <summary><b>Installed Software and Services</b></summary>
@@ -17,39 +17,8 @@ Before you start with the conversion, please ensure you have the following:
 
 </details>
 
-Make sure to have all prerequisites in place to avoid any disruptions during the data job creation and build process.
-
-## Data Job Creation Guide
-
-### 0. Locate the 'Create' Option
-
-- Select 'Create' option from the `VDK` section in the menu at the top.
-
-![VDK Create menu](images/create-menu.png)
-
-### 1. Specify Job Properties
-
-- Click 'Create' to open a dialog box.
-- Fill in the job name and job team as appropriate.
-- Specify Job Path by inputting the relative Jupyter path to the job directory, using the `parent/child/job` pattern. If no path is specified, the job will be created in the root directory.
-- Once all details are filled in, click 'OK' to continue. The job will be created both locally and in the cloud (if available).
-
-![VDK Create Dialog](images/create-dialog.png)
-
-### 2. Await Operation Status Update
-
-- Wait for a status update on the job creation operation.
-
-![VDK Creation Status](images/create-status-update.png)
-
-### 3. Successful Creation
-
-- Once the creation operation is complete, a dialog box will inform you of the operation's result.
-
-![VDK Result Dialog](images/create-success.png)
-
-- Navigate to the data job directory to view your newly created job.
-
+If you don’t know how to create jobs, please check out the [Creation Guide](create_tutorial.md). 
+We’ll be working with the sample job that’s created automatically.
 
 ## Data Job Build Guide
 
