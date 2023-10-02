@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 import pyarrow
 from vdk.internal.core import errors
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala import impala_error_classifier
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 
@@ -20,16 +21,14 @@ class ImpalaHelper:
             return self._db_connection.execute_query(f"DESCRIBE formatted {table_name}")
         except Exception as e:
             if impala_error_classifier._is_authorization_error(e):
-                errors.log_and_throw(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                    log=self._log,
-                    what_happened=f"Data loading into table {table_name} has failed.",
-                    why_it_happened=(
+                errors.report_and_throw(
+                    UserCodeError(
+                        f"Data loading into table {table_name} has failed.",
                         f"You are trying to load data into a table which you do not have access to or it does not "
-                        f"exist: {table_name}."
-                    ),
-                    consequences="Data load will be aborted.",
-                    countermeasures="Make sure that the destination table exists and you have access to it.",
+                        f"exist: {table_name}.",
+                        "Data load will be aborted.",
+                        "Make sure that the destination table exists and you have access to it."
+                    )
                 )
             else:
                 raise e
@@ -93,30 +92,26 @@ class ImpalaHelper:
                 if "parquet" in value:  # table is stored as parquet
                     return
                 else:  # table is not stored as parquet
-                    errors.log_and_throw(
-                        to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                        log=self._log,
-                        what_happened="Data loading has failed.",  # FIXME: this is too specific
-                        why_it_happened=(
+                    errors.report_and_throw(
+                        UserCodeError(
+                            "Data loading has failed.",  # FIXME: this is too specific
                             f"You are trying to load data into a table {table_name} with an unsupported format. "
                             f"Currently only Parquet table format is supported."
-                        ),
-                        consequences="Data load will be aborted.",  # FIXME: this is too specific
-                        countermeasures=(
+                            "Data load will be aborted.",  # FIXME: this is too specific
                             "Make sure that the destination table is stored as parquet: "
                             "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
                             "#parquet_ddl"
-                        ),
-                    )
+                            ),
+                        )
         # TODO once there is more robust loading implemented the below error can be removed. We can try to load even if
         # we cannot determine the table storage type
-        errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.PLATFORM_ERROR,
-            log=self._log,
-            what_happened="Cannot determine the target table file format, which is needed to load data into it.",
-            why_it_happened="There's a bug in VDK code.",
-            consequences="Application will exit.",
-            countermeasures="Report this bug to versatile data kit team.",
+        errors.report_and_throw(
+            errors.PlatformServiceError(
+                "Cannot determine the target table file format, which is needed to load data into it.",
+                "There's a bug in VDK code.",
+                "Application will exit.",
+                "Report this bug to Versatile Data Kit team.",
+            )
         )
 
     def generate_parquet_schema_from_table_schema(self, table_columns):
