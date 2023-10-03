@@ -7,7 +7,7 @@ from vdk.internal.core import errors
 
 MEMORY_LIMIT_PATTERN = r"Limit=(\d+\.\d+)\s*([KMGTP]B)"
 UNITS = {"KB": 1024, "MB": 1024**2, "GB": 1024**3, "TB": 1024**4}
-MULTIPLIER = [1.2, 1.5, 2.0, 512]
+MULTIPLIER = [1.2, 1.5, 2.0]
 
 
 class ImpalaMemoryErrorHandler:
