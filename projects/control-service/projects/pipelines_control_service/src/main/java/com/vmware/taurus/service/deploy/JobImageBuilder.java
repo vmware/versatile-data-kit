@@ -12,7 +12,7 @@ import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import io.kubernetes.client.openapi.ApiException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -121,7 +121,10 @@ public class JobImageBuilder {
    * @throws InterruptedException
    */
   public boolean buildImage(
-      String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
+      String imageName,
+      DataJob dataJob,
+      DesiredDataJobDeployment jobDeployment,
+      Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
     // TODO: refactor and hide AWS details behind DockerRegistryService?
     var credentials = awsCredentialsService.createTemporaryCredentials();
@@ -269,7 +272,8 @@ public class JobImageBuilder {
     }
   }
 
-  private Map<String, String> getBuildParameters(DataJob dataJob, JobDeployment jobDeployment) {
+  private Map<String, String> getBuildParameters(
+      DataJob dataJob, DesiredDataJobDeployment jobDeployment) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
     String pythonVersion = jobDeployment.getPythonVersion();

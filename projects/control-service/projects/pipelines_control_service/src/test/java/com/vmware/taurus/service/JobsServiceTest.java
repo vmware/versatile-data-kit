@@ -8,7 +8,9 @@ package com.vmware.taurus.service;
 import com.vmware.taurus.datajobs.webhook.PostCreateWebHookProvider;
 import com.vmware.taurus.datajobs.webhook.PostDeleteWebHookProvider;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
 import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.JobConfig;
@@ -79,6 +81,8 @@ public class JobsServiceTest {
         mock(WebHookRequestBodyProvider.class),
         mock(PostCreateWebHookProvider.class),
         mock(PostDeleteWebHookProvider.class),
-        mock(DataJobMetrics.class));
+        mock(DataJobMetrics.class),
+        mock(DeploymentServiceV2.class),
+        mock(DataJobDeploymentPropertiesConfig.class));
   }
 }
