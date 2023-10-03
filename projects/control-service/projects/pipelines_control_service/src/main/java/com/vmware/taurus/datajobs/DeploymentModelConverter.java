@@ -6,15 +6,14 @@
 package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJobDeploymentResources;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
-import com.vmware.taurus.service.model.ActualDataJobDeployment;
+import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.OffsetDateTime;
 
 /** Utility functions that convert between different model or DTO classes */
 @Service
@@ -183,4 +182,92 @@ public class DeploymentModelConverter {
 
     return deploymentResources;
   }
+
+  public static DesiredDataJobDeployment toJobDeployment(
+      String userDeployer, JobDeployment jobDeployment) {
+    var newDeployment = new DesiredDataJobDeployment();
+    newDeployment.setDataJobName(jobDeployment.getDataJobName());
+    newDeployment.setPythonVersion(jobDeployment.getPythonVersion());
+    newDeployment.setGitCommitSha(jobDeployment.getGitCommitSha());
+
+    if (jobDeployment.getResources() != null) {
+      var resources = new DataJobDeploymentResources();
+      resources.setCpuRequestCores(jobDeployment.getResources().getCpuRequest());
+      resources.setCpuLimitCores(jobDeployment.getResources().getCpuLimit());
+      resources.setMemoryRequestMi(jobDeployment.getResources().getMemoryRequest());
+      resources.setMemoryLimitMi(jobDeployment.getResources().getMemoryLimit());
+      newDeployment.setResources(resources);
+    }
+    newDeployment.setLastDeployedBy(userDeployer);
+    newDeployment.setEnabled(jobDeployment.getEnabled());
+    return newDeployment;
+  }
+
+  public static DesiredDataJobDeployment mergeDeployments(
+      ActualDataJobDeployment oldDeployment, JobDeployment newDeployment) {
+    if (!oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
+        || !oldDeployment
+        .getDataJob()
+        .getJobConfig()
+        .getTeam()
+        .equals(newDeployment.getDataJobTeam())) {
+      throw new IllegalArgumentException(
+          "Cannot merge 2 deployments if team or job name is different."
+              + oldDeployment
+              + " vs "
+              + newDeployment);
+    }
+
+    DesiredDataJobDeployment mergedDeployment = new DesiredDataJobDeployment();
+
+    mergedDeployment.setDataJobName(newDeployment.getDataJobName());
+    mergedDeployment.setDataJob(oldDeployment.getDataJob());
+
+    mergedDeployment.setGitCommitSha(
+        (newDeployment.getGitCommitSha() != null
+            ? newDeployment.getGitCommitSha()
+            : oldDeployment.getGitCommitSha()));
+    mergedDeployment.setPythonVersion(
+        newDeployment.getPythonVersion() != null
+            ? newDeployment.getPythonVersion()
+            : oldDeployment.getPythonVersion());
+
+    mergeDeploymentResources(mergedDeployment, newDeployment, oldDeployment);
+
+    mergedDeployment.setLastDeployedBy(
+        oldDeployment.getLastDeployedBy()); // not present in newDeployment entity
+
+    mergedDeployment.setEnabled(
+        newDeployment.getEnabled() != null
+            ? newDeployment.getEnabled()
+            : oldDeployment.getEnabled());
+
+    return mergedDeployment;
+  }
+
+  private static void mergeDeploymentResources(DesiredDataJobDeployment mergedDeployment,
+      JobDeployment newDeployment, ActualDataJobDeployment oldDeployment) {
+    if (newDeployment.getResources() == null) {
+      return;
+    }
+    DataJobDeploymentResources resources = new DataJobDeploymentResources();
+    resources.setCpuRequestCores(
+        newDeployment.getResources().getCpuRequest() != null
+            ? newDeployment.getResources().getCpuRequest()
+            : oldDeployment.getResources().getCpuRequestCores());
+    resources.setCpuLimitCores(
+        newDeployment.getResources().getCpuLimit() != null
+            ? newDeployment.getResources().getCpuLimit()
+            : oldDeployment.getResources().getCpuLimitCores());
+    resources.setMemoryRequestMi(
+        newDeployment.getResources().getMemoryRequest() != null
+            ? newDeployment.getResources().getMemoryRequest()
+            : oldDeployment.getResources().getMemoryRequestMi());
+    resources.setMemoryLimitMi(
+        newDeployment.getResources().getMemoryLimit() != null
+            ? newDeployment.getResources().getMemoryLimit()
+            : oldDeployment.getResources().getMemoryLimitMi());
+    mergedDeployment.setResources(resources);
+  }
+
 }

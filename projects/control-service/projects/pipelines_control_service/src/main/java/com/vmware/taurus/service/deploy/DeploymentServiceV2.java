@@ -5,11 +5,10 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.datajobs.webhook.DeploymentModelConverterV2;
+import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
 import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.exception.KubernetesException;
-import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.WriteTo;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
@@ -40,6 +39,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class DeploymentServiceV2 {
+
   private static final Logger log = LoggerFactory.getLogger(DeploymentServiceV2.class);
 
   private final DockerRegistryService dockerRegistryService;
@@ -50,24 +50,19 @@ public class DeploymentServiceV2 {
   private final DesiredJobDeploymentRepository desiredJobDeploymentRepository;
   private final ActualJobDeploymentRepository actualJobDeploymentRepository;
   private final DataJobsKubernetesService dataJobsKubernetesService;
-  private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
   /**
    * This method updates an existing job deployment in the database. Only fields present in the job
    * deployment are updated, other fields are not overridden.
    */
   public void patchDeployment(DataJob dataJob, JobDeployment jobDeployment) {
-    if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
-      var oldDeployment = dataJob.getDataJobDeployment();
-      if (oldDeployment != null) {
-        var mergedDeployment =
-            DeploymentModelConverterV2.mergeDeployments(oldDeployment, jobDeployment);
-        dataJob.setDataJobDeployment(mergedDeployment);
-        jobsRepository.save(dataJob);
-      } else {
-        throw new DataJobDeploymentNotFoundException(dataJob.getName());
-      }
-    }
+    actualJobDeploymentRepository.findById(dataJob.getName()).ifPresentOrElse(oldDeployment -> {
+      var mergedDeployment =
+          DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+      desiredJobDeploymentRepository.save(mergedDeployment);
+    }, () -> {
+      throw new DataJobDeploymentNotFoundException(dataJob.getName());
+    });
   }
 
   /**
@@ -76,28 +71,15 @@ public class DeploymentServiceV2 {
    */
   public void updateDbDeployment(
       DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
-    if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
-      var oldDeployment = dataJob.getDataJobDeployment();
-      if (oldDeployment != null) {
-        patchDeployment(dataJob, jobDeployment);
-        return;
-      } else {
-        var newDeployment = DeploymentModelConverterV2.toJobDeployment(userDeployer, jobDeployment);
-        dataJob.setDataJobDeployment(newDeployment);
-        newDeployment.setDataJob(dataJob);
-        jobsRepository.save(dataJob);
-      }
-    }
+    actualJobDeploymentRepository.findById(dataJob.getName()).ifPresentOrElse(oldDeployment -> {
+      patchDeployment(dataJob, jobDeployment);
+    }, () -> {
+      var newDeployment = DeploymentModelConverter.toJobDeployment(userDeployer, jobDeployment);
+      desiredJobDeploymentRepository.save(newDeployment);
+    });
   }
 
-  /**
-   * Updates or creates a Kubernetes CronJob based on the provided configuration.
-   *
-   * <p>This method takes a CronJob configuration and checks if a CronJob with the same name already
-   * exists in the Kubernetes cluster. If the CronJob exists, it will be updated with the new
-   * configuration; otherwise, a new CronJob will be created. The method ensures that the CronJob in
-   * the cluster matches the desired state specified in the configuration.
-   *
+   /**
    * @param dataJob the data job to be deployed.
    * @param desiredJobDeployment the desired data job deployment to be deployed.
    * @param actualJobDeployment the actual data job deployment has been deployed.

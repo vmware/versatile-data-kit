@@ -11,6 +11,8 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.service.JobsService;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.WriteTo;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.diag.OperationContext;
@@ -54,6 +56,8 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
 
   @Autowired private DeploymentServiceV2 deploymentServiceV2;
 
+  @Autowired private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+
   @Override
   public ResponseEntity<Void> deploymentDelete(
       String teamName, String jobName, String deploymentId) {
@@ -80,7 +84,9 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
         var jobDeployment =
             ToModelApiConverter.toJobDeployment(teamName, jobName, dataJobDeployment);
         deploymentService.patchDeployment(job.get(), jobDeployment);
-        deploymentServiceV2.patchDeployment(job.get(), jobDeployment);
+        if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
+          deploymentServiceV2.patchDeployment(job.get(), jobDeployment);
+        }
         return ResponseEntity.accepted().build();
       }
     }
@@ -139,8 +145,10 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
             sendNotification,
             operationContext.getUser(),
             operationContext.getOpId());
-        deploymentServiceV2.updateDbDeployment(
-            job.get(), jobDeployment, operationContext.getUser());
+        if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
+          deploymentServiceV2.updateDbDeployment(
+              job.get(), jobDeployment, operationContext.getUser());
+        }
         return ResponseEntity.accepted().build();
       }
     }
