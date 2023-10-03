@@ -15,6 +15,9 @@ from urllib3.util.retry import Retry
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
+from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.errors import VdkConfigurationError
 
 log = logging.getLogger(__name__)
 IngestionResult = NewType("IngestionResult", Dict)
@@ -140,17 +143,17 @@ class IngestOverHttp(IIngesterPlugin):
     @staticmethod
     def __verify_target(target):
         if not target:
-            errors.log_and_throw(
-                errors.ResolvableBy.CONFIG_ERROR,
-                log,
-                what_happened="Cannot send payload for ingestion over http.",
-                why_it_happened="target has not been provided to the plugin. "
-                "Most likely it has been mis-configured",
-                consequences="Will not be able to send the payloads and will throw exception."
-                "Likely the job would fail",
-                countermeasures="Make sure you have set correct target - "
-                "either as VDK_INGEST_TARGET_DEFAULT configuration variable "
-                "or passed target to send_**for_ingestion APIs",
+            errors.report_and_throw(
+                VdkConfigurationError(
+                    "Cannot send payload for ingestion over http.",
+                    "Target has not been provided to the plugin. "
+                    "Most likely it has been mis-configured",
+                    "Will not be able to send the payloads and will throw exception."
+                    "Likely the job would fail",
+                    "Make sure you have set correct target - "
+                    "either as VDK_INGEST_TARGET_DEFAULT configuration variable "
+                    "or passed target to send_**for_ingestion APIs",
+                )
             )
 
     @staticmethod
@@ -159,14 +162,15 @@ class IngestOverHttp(IIngesterPlugin):
             # TODO: Move all ingestion formatting logic to a separate plugin.
             if not ("@table" in obj):
                 if not destination_table:
-                    errors.log_and_throw(
-                        errors.ResolvableBy.USER_ERROR,
-                        log,
-                        "Corrupt payload",
-                        """destination_table argument is empty, or @table key is
-                        missing from payload.""",
-                        "Payload would not be ingested, and data job may fail.",
-                        "Re-send payload by including @table key/value pair, or pass a destination_table parameter to the ingestion method called.",
+                    errors.report_and_throw(
+                        UserCodeError(
+                            "Corrupt payload",
+                            """destination_table argument is empty, or @table key is
+                            missing from payload.""",
+                            "Payload would not be ingested, and data job may fail.",
+                            "Re-send payload by including @table key/value pair, or pass a destination_table "
+                            "parameter to the ingestion method called.",
+                        )
                     )
                 else:
                     obj["@table"] = destination_table
@@ -194,22 +198,22 @@ class IngestOverHttp(IIngesterPlugin):
                 verify=self._verify,
             )
             if 400 <= req.status_code < 500:
-                errors.log_and_throw(
-                    errors.ResolvableBy.USER_ERROR,
-                    log,
-                    "Failed to sent payload",
-                    f"HTTP Client error. status is {req.status_code} and message was : {req.text}",
-                    "Will not be able to send the payload for ingestion",
-                    "Fix the error and try again ",
+                errors.report_and_throw(
+                    UserCodeError(
+                        "Failed to sent payload",
+                        f"HTTP Client error. status is {req.status_code} and message was : {req.text}",
+                        "Will not be able to send the payload for ingestion",
+                        "Fix the error and try again ",
+                    )
                 )
             if req.status_code >= 500:
-                errors.log_and_throw(
-                    errors.ResolvableBy.PLATFORM_ERROR,
-                    log,
-                    "Failed to sent payload",
-                    f"HTTP Server error. status is {req.status_code} and message was : {req.text}",
-                    "Will not be able to send the payload for ingestion",
-                    "Re-try the operation again. If error persist contact support team. ",
+                errors.report_and_throw(
+                    PlatformServiceError(
+                        "Failed to sent payload",
+                        f"HTTP Server error. status is {req.status_code} and message was : {req.text}",
+                        "Will not be able to send the payload for ingestion",
+                        "Re-try the operation again. If error persist contact support team. ",
+                    )
                 )
             log.debug(
                 "Payload was ingested. Request Details: "
