@@ -55,10 +55,11 @@ public class DeploymentServiceV2 {
    * This method updates an existing job deployment in the database. Only fields present in the job
    * deployment are updated, other fields are not overridden.
    */
-  public void patchDeployment(DataJob dataJob, JobDeployment jobDeployment) {
+  public void patchDesiredDbDeployment(DataJob dataJob, JobDeployment jobDeployment) {
     actualJobDeploymentRepository.findById(dataJob.getName()).ifPresentOrElse(oldDeployment -> {
       var mergedDeployment =
           DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+      mergedDeployment.setDataJob(dataJob);
       desiredJobDeploymentRepository.save(mergedDeployment);
     }, () -> {
       throw new DataJobDeploymentNotFoundException(dataJob.getName());
@@ -69,14 +70,14 @@ public class DeploymentServiceV2 {
    * Create or update a deployment in the database. If the deployment already exists, behaves like
    * patch
    */
-  public void updateDbDeployment(
+  public void updateDesiredDbDeployment(
       DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
-    actualJobDeploymentRepository.findById(dataJob.getName()).ifPresentOrElse(oldDeployment -> {
-      patchDeployment(dataJob, jobDeployment);
-    }, () -> {
-      var newDeployment = DeploymentModelConverter.toJobDeployment(userDeployer, jobDeployment);
-      desiredJobDeploymentRepository.save(newDeployment);
-    });
+    actualJobDeploymentRepository.findById(dataJob.getName())
+        .ifPresentOrElse(oldDeployment -> patchDesiredDbDeployment(dataJob, jobDeployment), () -> {
+          var newDeployment = DeploymentModelConverter.toJobDeployment(userDeployer, jobDeployment);
+          newDeployment.setDataJob(dataJob);
+          desiredJobDeploymentRepository.save(newDeployment);
+        });
   }
 
    /**

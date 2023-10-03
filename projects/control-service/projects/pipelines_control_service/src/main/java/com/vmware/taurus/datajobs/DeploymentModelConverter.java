@@ -269,5 +269,4 @@ public class DeploymentModelConverter {
             : oldDeployment.getResources().getMemoryLimitMi());
     mergedDeployment.setResources(resources);
   }
-
 }
