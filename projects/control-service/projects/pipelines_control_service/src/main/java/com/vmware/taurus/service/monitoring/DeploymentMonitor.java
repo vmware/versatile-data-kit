@@ -8,6 +8,7 @@ package com.vmware.taurus.service.monitoring;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
+import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Gauge;
@@ -37,16 +38,20 @@ public class DeploymentMonitor {
 
   private final ActualJobDeploymentRepository actualJobDeploymentRepository;
 
+  private final DesiredJobDeploymentRepository desiredJobDeploymentRepository;
+
   private final Map<String, Integer> currentStatuses = new ConcurrentHashMap<>();
 
   @Autowired
   public DeploymentMonitor(
       MeterRegistry meterRegistry,
       JobsRepository jobsRepository,
-      ActualJobDeploymentRepository actualJobDeploymentRepository) {
+      ActualJobDeploymentRepository actualJobDeploymentRepository,
+      DesiredJobDeploymentRepository desiredJobDeploymentRepository) {
     this.meterRegistry = meterRegistry;
     this.jobsRepository = jobsRepository;
     this.actualJobDeploymentRepository = actualJobDeploymentRepository;
+    this.desiredJobDeploymentRepository = desiredJobDeploymentRepository;
   }
 
   /**
@@ -97,12 +102,13 @@ public class DeploymentMonitor {
       ActualDataJobDeployment actualDataJobDeployment) {
     if (jobsRepository.updateDataJobLatestJobDeploymentStatusByName(dataJobName, deploymentStatus)
         > 0) {
-      switch (deploymentStatus) {
-        case SUCCESS:
-          if (actualDataJobDeployment != null) {
-            actualJobDeploymentRepository.save(actualDataJobDeployment);
-          }
+
+      if (DeploymentStatus.SUCCESS.equals(deploymentStatus) && actualDataJobDeployment != null) {
+        actualJobDeploymentRepository.save(actualDataJobDeployment);
       }
+
+      desiredJobDeploymentRepository.updateDesiredDataJobDeploymentStatusByDataJobName(
+          dataJobName, deploymentStatus);
       return true;
     }
     log.debug("Data job: {} was deleted or hasn't been created", dataJobName);

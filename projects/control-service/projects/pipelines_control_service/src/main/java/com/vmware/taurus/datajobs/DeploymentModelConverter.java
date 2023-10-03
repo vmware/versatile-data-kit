@@ -38,13 +38,12 @@ public class DeploymentModelConverter {
     return deployment;
   }
 
-  public static DesiredDataJobDeployment toDesiredDataJobDeployment(
-      JobDeployment jobDeploymentStatus) {
+  public static DesiredDataJobDeployment toDesiredDataJobDeployment(JobDeployment jobDeployment) {
     DesiredDataJobDeployment deployment = new DesiredDataJobDeployment();
-    deployment.setDataJobName(jobDeploymentStatus.getDataJobName());
-    deployment.setEnabled(jobDeploymentStatus.getEnabled());
+    deployment.setDataJobName(jobDeployment.getDataJobName());
+    deployment.setEnabled(jobDeployment.getEnabled());
 
-    DataJobResources dataJobResources = jobDeploymentStatus.getResources();
+    DataJobResources dataJobResources = jobDeployment.getResources();
 
     if (dataJobResources != null) {
       DataJobDeploymentResources deploymentResources =
@@ -57,8 +56,8 @@ public class DeploymentModelConverter {
       deployment.setResources(deploymentResources);
     }
 
-    deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
-    deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
+    deployment.setGitCommitSha(jobDeployment.getGitCommitSha());
+    deployment.setPythonVersion(jobDeployment.getPythonVersion());
 
     return deployment;
   }

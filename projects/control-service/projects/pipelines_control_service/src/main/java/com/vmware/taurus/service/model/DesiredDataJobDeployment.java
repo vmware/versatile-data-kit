@@ -17,4 +17,7 @@ import javax.persistence.Entity;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 @Entity
-public class DesiredDataJobDeployment extends BaseDataJobDeployment {}
+public class DesiredDataJobDeployment extends BaseDataJobDeployment {
+
+  private DeploymentStatus status;
+}
