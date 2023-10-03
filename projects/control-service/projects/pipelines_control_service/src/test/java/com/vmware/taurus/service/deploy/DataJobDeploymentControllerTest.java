@@ -83,24 +83,6 @@ public class DataJobDeploymentControllerTest {
     jobsRepository.deleteAll();
   }
 
-  private DesiredDataJobDeployment getDesiredJobDeployment(DataJob dataJob) {
-    var deployment = new DesiredDataJobDeployment();
-    deployment.setDataJob(dataJob);
-    deployment.setDataJobName(dataJob.getName());
-    deployment.setPythonVersion("3.9-secure");
-    deployment.setEnabled(true);
-    deployment.setLastDeployedBy("user");
-    deployment.setSchedule("sched");
-    var resources = new DataJobDeploymentResources();
-    resources.setMemoryLimitMi(1);
-    resources.setMemoryRequestMi(1);
-    resources.setCpuLimitCores(1f);
-    resources.setCpuRequestCores(1f);
-    deployment.setResources(resources);
-    deployment.setGitCommitSha("desiredSha");
-    return deployment;
-  }
-
   private ActualDataJobDeployment getActualJobDeployment(DataJob dataJob) {
     var deployment = new ActualDataJobDeployment();
     deployment.setGitCommitSha("actualSha");
