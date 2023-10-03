@@ -60,9 +60,9 @@ class ImpalaErrorHandler:
                     "Review the contents of the exception.",
                     "The queries will not be executed.",
                     "Optimise the executed queries. Alternatively, make sure that "
-                    "the data job is not running too many queries in parallel."
-                    )
+                    "the data job is not running too many queries in parallel.",
                 )
+            )
 
         is_handled = False
         # try to handle multiple failed to open file errors in one query for different tables

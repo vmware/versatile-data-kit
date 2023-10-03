@@ -27,7 +27,7 @@ class ImpalaHelper:
                         f"You are trying to load data into a table which you do not have access to or it does not "
                         f"exist: {table_name}.",
                         "Data load will be aborted.",
-                        "Make sure that the destination table exists and you have access to it."
+                        "Make sure that the destination table exists and you have access to it.",
                     )
                 )
             else:
@@ -100,9 +100,9 @@ class ImpalaHelper:
                             "Data load will be aborted.",  # FIXME: this is too specific
                             "Make sure that the destination table is stored as parquet: "
                             "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
-                            "#parquet_ddl"
-                            ),
-                        )
+                            "#parquet_ddl",
+                        ),
+                    )
         # TODO once there is more robust loading implemented the below error can be removed. We can try to load even if
         # we cannot determine the table storage type
         errors.report_and_throw(

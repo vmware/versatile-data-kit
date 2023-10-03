@@ -702,7 +702,7 @@ class TestTemplateRegression(unittest.TestCase):
                     "Data load will be aborted.",  # FIXME: this is too specific
                     "Make sure that the destination table is stored as parquet: "
                     "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
-                    "#parquet_ddl"
+                    "#parquet_ddl",
                 )
             )
 
