@@ -59,9 +59,6 @@ coverity-scan:
   stage: coverity-scan
   image: maven:3.6.3-jdk-11
   script:
-    - echo "COVERITY_SCAN_TOKEN:" $COVERITY_SCAN_TOKEN
-    - echo "COVERITY_SCAN_PROJECT_NAME:" $COVERITY_SCAN_PROJECT_NAME
-    - curl -o /tmp/coverity_tool.tgz -X POST -d "token=$COVERITY_SCAN_TOKEN&project=$COVERITY_SCAN_PROJECT_NAME" https://scan.coverity.com/download/linux64
     - wget https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_SCAN_TOKEN&project=$COVERITY_SCAN_PROJECT_NAME" -O /tmp/coverity_tool.tgz
     - tar xf /tmp/coverity_tool.tgz
     - cov-analysis-linux64-*/bin/cov-configure --python
@@ -77,5 +74,5 @@ coverity-scan:
       --form description="Coverity scan for vdk"
       https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
   rules:
-    - if: $CI_COMMIT_BRANCH == "person/skailasam/vdk-coverity" #Mark it as main before merging
+    - if: $CI_COMMIT_BRANCH == "main" #Mark it as main before merging
     - if: $CI_PIPELINE_SOURCE == "schedule" && $IS_COVERITY_SCAN_SCHEDULE == "true"
