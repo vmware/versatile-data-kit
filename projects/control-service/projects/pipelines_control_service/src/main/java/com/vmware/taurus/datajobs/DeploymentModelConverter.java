@@ -38,8 +38,7 @@ public class DeploymentModelConverter {
     return deployment;
   }
 
-  public static DesiredDataJobDeployment toDesiredDataJobDeployment(
-      JobDeployment jobDeployment) {
+  public static DesiredDataJobDeployment toDesiredDataJobDeployment(JobDeployment jobDeployment) {
     DesiredDataJobDeployment deployment = new DesiredDataJobDeployment();
     deployment.setDataJobName(jobDeployment.getDataJobName());
     deployment.setEnabled(jobDeployment.getEnabled());

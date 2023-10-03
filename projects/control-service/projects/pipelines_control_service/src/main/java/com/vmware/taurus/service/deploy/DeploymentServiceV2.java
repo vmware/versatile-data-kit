@@ -73,10 +73,11 @@ public class DeploymentServiceV2 {
       return;
     }
 
-    if (DeploymentStatus.USER_ERROR.equals(desiredJobDeployment.getStatus()) ||
-            DeploymentStatus.PLATFORM_ERROR.equals(desiredJobDeployment.getStatus())) {
+    if (DeploymentStatus.USER_ERROR.equals(desiredJobDeployment.getStatus())
+        || DeploymentStatus.PLATFORM_ERROR.equals(desiredJobDeployment.getStatus())) {
       log.debug(
-          "Skipping the data job [job_name={}] deployment due to the previously failed deployment [status={}]",
+          "Skipping the data job [job_name={}] deployment due to the previously failed deployment"
+              + " [status={}]",
           dataJob.getName(),
           desiredJobDeployment.getStatus());
       return;

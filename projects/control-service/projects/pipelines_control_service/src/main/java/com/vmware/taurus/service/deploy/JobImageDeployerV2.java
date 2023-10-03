@@ -77,9 +77,8 @@ public class JobImageDeployerV2 {
    * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in
    *     Kubernetes.
    * @param jobImageName the data job docker image name.
-   *
-   * @return {@link ActualDataJobDeployment} an actual data job deployment if the data job is successfully deployed
-   * and null in case of an error.
+   * @return {@link ActualDataJobDeployment} an actual data job deployment if the data job is
+   *     successfully deployed and null in case of an error.
    */
   public ActualDataJobDeployment scheduleJob(
       DataJob dataJob,
@@ -174,9 +173,8 @@ public class JobImageDeployerV2 {
    * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in
    *     Kubernetes.
    * @param jobImageName the data job docker image name.
-   *
-   * @return {@link ActualDataJobDeployment} an actual data job deployment if the data job is successfully deployed
-   * and null in case of an error.
+   * @return {@link ActualDataJobDeployment} an actual data job deployment if the data job is
+   *     successfully deployed and null in case of an error.
    */
   private ActualDataJobDeployment updateCronJob(
       DataJob dataJob,
@@ -205,7 +203,9 @@ public class JobImageDeployerV2 {
     ActualDataJobDeployment actualJobDeployment = null;
 
     if (isJobDeploymentPresentInKubernetes) {
-      if (actualDataJobDeployment == null || !desiredDeploymentVersionSha.equals(actualDataJobDeployment.getDeploymentVersionSha())) {
+      if (actualDataJobDeployment == null
+          || !desiredDeploymentVersionSha.equals(
+              actualDataJobDeployment.getDeploymentVersionSha())) {
         dataJobsKubernetesService.updateCronJob(desiredCronJob);
         actualJobDeployment =
             DeploymentModelConverter.toActualJobDeployment(

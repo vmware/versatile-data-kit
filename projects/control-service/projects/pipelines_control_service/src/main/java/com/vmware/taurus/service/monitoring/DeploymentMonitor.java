@@ -100,13 +100,15 @@ public class DeploymentMonitor {
       final String dataJobName,
       final DeploymentStatus deploymentStatus,
       ActualDataJobDeployment actualDataJobDeployment) {
-    if (jobsRepository.updateDataJobLatestJobDeploymentStatusByName(dataJobName, deploymentStatus) > 0) {
+    if (jobsRepository.updateDataJobLatestJobDeploymentStatusByName(dataJobName, deploymentStatus)
+        > 0) {
 
       if (DeploymentStatus.SUCCESS.equals(deploymentStatus) && actualDataJobDeployment != null) {
         actualJobDeploymentRepository.save(actualDataJobDeployment);
       }
 
-      desiredJobDeploymentRepository.updateDesiredDataJobDeploymentStatusByDataJobName(dataJobName, deploymentStatus);
+      desiredJobDeploymentRepository.updateDesiredDataJobDeploymentStatusByDataJobName(
+          dataJobName, deploymentStatus);
       return true;
     }
     log.debug("Data job: {} was deleted or hasn't been created", dataJobName);

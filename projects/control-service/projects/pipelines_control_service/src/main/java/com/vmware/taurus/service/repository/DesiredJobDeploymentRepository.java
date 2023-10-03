@@ -41,8 +41,9 @@ public interface DesiredJobDeploymentRepository
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query(
-          "update DesiredDataJobDeployment d set d.status = :status where d.dataJobName ="
-                  + " :dataJobName")
+      "update DesiredDataJobDeployment d set d.status = :status where d.dataJobName ="
+          + " :dataJobName")
   int updateDesiredDataJobDeploymentStatusByDataJobName(
-          @Param(value = "dataJobName") String dataJobName, @Param(value = "status") DeploymentStatus status);
+      @Param(value = "dataJobName") String dataJobName,
+      @Param(value = "status") DeploymentStatus status);
 }

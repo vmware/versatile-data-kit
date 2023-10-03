@@ -19,5 +19,5 @@ import javax.persistence.Entity;
 @Entity
 public class DesiredDataJobDeployment extends BaseDataJobDeployment {
 
-    private DeploymentStatus status;
+  private DeploymentStatus status;
 }
