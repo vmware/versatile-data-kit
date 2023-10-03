@@ -29,17 +29,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class DataJobDeploymentControllerTest {
 
-  @Autowired
-  JobsRepository jobsRepository;
-  @Autowired
-  DataJobsDeploymentController dataJobsDeploymentController;
-  @Autowired
-  DesiredJobDeploymentRepository desiredJobDeploymentRepository;
-  @Autowired
-  ActualJobDeploymentRepository actualJobDeploymentRepository;
+  @Autowired JobsRepository jobsRepository;
+  @Autowired DataJobsDeploymentController dataJobsDeploymentController;
+  @Autowired DesiredJobDeploymentRepository desiredJobDeploymentRepository;
+  @Autowired ActualJobDeploymentRepository actualJobDeploymentRepository;
 
-  @MockBean
-  DeploymentService deploymentService;
+  @MockBean DeploymentService deploymentService;
 
   @Test
   @WithMockUser

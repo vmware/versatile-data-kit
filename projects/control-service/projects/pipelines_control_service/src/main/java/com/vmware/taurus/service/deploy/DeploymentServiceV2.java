@@ -56,14 +56,18 @@ public class DeploymentServiceV2 {
    * deployment are updated, other fields are not overridden.
    */
   public void patchDesiredDbDeployment(DataJob dataJob, JobDeployment jobDeployment) {
-    actualJobDeploymentRepository.findById(dataJob.getName()).ifPresentOrElse(oldDeployment -> {
-      var mergedDeployment =
-          DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
-      mergedDeployment.setDataJob(dataJob);
-      desiredJobDeploymentRepository.save(mergedDeployment);
-    }, () -> {
-      throw new DataJobDeploymentNotFoundException(dataJob.getName());
-    });
+    actualJobDeploymentRepository
+        .findById(dataJob.getName())
+        .ifPresentOrElse(
+            oldDeployment -> {
+              var mergedDeployment =
+                  DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+              mergedDeployment.setDataJob(dataJob);
+              desiredJobDeploymentRepository.save(mergedDeployment);
+            },
+            () -> {
+              throw new DataJobDeploymentNotFoundException(dataJob.getName());
+            });
   }
 
   /**
@@ -72,15 +76,19 @@ public class DeploymentServiceV2 {
    */
   public void updateDesiredDbDeployment(
       DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
-    actualJobDeploymentRepository.findById(dataJob.getName())
-        .ifPresentOrElse(oldDeployment -> patchDesiredDbDeployment(dataJob, jobDeployment), () -> {
-          var newDeployment = DeploymentModelConverter.toJobDeployment(userDeployer, jobDeployment);
-          newDeployment.setDataJob(dataJob);
-          desiredJobDeploymentRepository.save(newDeployment);
-        });
+    actualJobDeploymentRepository
+        .findById(dataJob.getName())
+        .ifPresentOrElse(
+            oldDeployment -> patchDesiredDbDeployment(dataJob, jobDeployment),
+            () -> {
+              var newDeployment =
+                  DeploymentModelConverter.toJobDeployment(userDeployer, jobDeployment);
+              newDeployment.setDataJob(dataJob);
+              desiredJobDeploymentRepository.save(newDeployment);
+            });
   }
 
-   /**
+  /**
    * @param dataJob the data job to be deployed.
    * @param desiredJobDeployment the desired data job deployment to be deployed.
    * @param actualJobDeployment the actual data job deployment has been deployed.
