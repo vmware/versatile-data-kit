@@ -21,7 +21,7 @@ class ImpalaHelper:
             return self._db_connection.execute_query(f"DESCRIBE formatted {table_name}")
         except Exception as e:
             if impala_error_classifier._is_authorization_error(e):
-                errors.report_and_throw(
+                errors.report_and_rethrow(
                     UserCodeError(
                         f"Data loading into table {table_name} has failed.",
                         f"You are trying to load data into a table which you do not have access to or it does not "
