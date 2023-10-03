@@ -25,8 +25,7 @@ class ImpalaHelper:
                     UserCodeError(
                         f"Data loading into table {table_name} has failed.",
                         f"You are trying to load data into a table which you do not have access to or it does not "
-                        f"exist: {table_name}.",
-                        "Data load will be aborted.",
+                        f"exist: {table_name}. Data load will be aborted.",
                         "Make sure that the destination table exists and you have access to it.",
                     )
                 )
@@ -97,7 +96,7 @@ class ImpalaHelper:
                             "Data loading has failed.",  # FIXME: this is too specific
                             f"You are trying to load data into a table {table_name} with an unsupported format. "
                             f"Currently only Parquet table format is supported."
-                            "Data load will be aborted.",  # FIXME: this is too specific
+                            f"Data load will be aborted.",  # FIXME: this is too specific
                             "Make sure that the destination table is stored as parquet: "
                             "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
                             "#parquet_ddl",

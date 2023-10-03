@@ -686,6 +686,14 @@ class TestTemplateRegression(unittest.TestCase):
             f"clause. Please change the table definition accordingly and re-create the table."
         )
 
+        expected_error = UserCodeError(
+            "Data loading has failed.",
+            f"You are trying to load data into a table {table_name} with an unsupported format. "
+            f"Currently only Parquet table format is supported.\nData load will be aborted.",
+            "Make sure that the destination table is stored as parquet: "
+            "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html#parquet_ddl",
+        )
+
         def just_throw(*_, **kwargs):
             raise Exception(expected_why_it_happened_msg)
 
@@ -695,17 +703,7 @@ class TestTemplateRegression(unittest.TestCase):
         ):
             res = self._run_job(template_name, template_args)
             assert expected_why_it_happened_msg in res.output
-            errors.report_and_rethrow.assert_called_once_with(
-                UserCodeError(
-                    "Data loading has failed.",  # FIXME: this is too specific
-                    f"You are trying to load data into a table {table_name} with an unsupported format. "
-                    f"Currently only Parquet table format is supported. "
-                    "Data load will be aborted.",  # FIXME: this is too specific
-                    "Make sure that the destination table is stored as parquet: "
-                    "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
-                    "#parquet_ddl",
-                )
-            )
+            errors.report_and_throw.assert_called_once_with(expected_error)
 
     def test_insert(self) -> None:
         test_schema = "vdkprototypes"
