@@ -1,9 +1,9 @@
-# Learn How to Build a Data Job through the Jupyter UI
+# Learn How to Develop a Data Job through the Jupyter UI
 Time Commitment: About 25-30 minutes.
 
 ## Prerequisites
 
-Before you start with the creation, please ensure you have the following:
+Before you start with the development, please ensure you have the following:
 
 <details>
   <summary><b>Installed Software and Services</b></summary>
@@ -20,7 +20,7 @@ Before you start with the creation, please ensure you have the following:
 If you don’t know how to create jobs, please check out the [Creation Guide](create_tutorial.md).
 We’ll be working with the sample job that’s created automatically.
 
-## Data Job Build Guide
+## Data Job Development Guide
 
 This guide provides a general framework, and the provided example may not work with a specific database.
 Adapt the queries to align with the database you are using.
@@ -232,7 +232,7 @@ Keep experimenting and refining your skills!
 
 ## What's Next?
 
-You are now familiar with the process of building and creating a data job consisting of notebook steps using the Jupyter UI.
+You are now familiar with the process of developing and creating a data job consisting of notebook steps using the Jupyter UI.
 It’s exciting to see how various .sql and .py steps can be seamlessly integrated into notebook steps, enabling a versatile and interactive development experience.
 
 Explore further with the [VDK Examples list](https://github.com/vmware/versatile-data-kit/wiki/Examples).
