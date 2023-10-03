@@ -24,6 +24,80 @@ log = logging.getLogger(__name__)
 # ERROR TYPES
 
 
+def plain_vdk_error_formatter(ex: BaseVdkError):
+    """
+    Joins every line of the exception message using space as delimiter.
+    This includes the header.
+
+    Example (lines wrapped for convenience):
+
+        vdk.internal.core.errors.VdkConfigurationError: VdkConfigurationError: An error of resolvable type ResolvableByActual.PLATFORM occurred
+        Provided configuration variable for DB_DEFAULT_TYPE has invalid value. VDK was run with DB_DEFAULT_TYPE=sqlite, however sqlite is invalid value for this variable.
+        I'm rethrowing this exception to my caller to process.Most likely this will result in failure of current Data Job. Provide either valid value for DB_DEFAULT_TYPE or
+        install database plugin that supports this type. Currently possible values are []
+    """
+    ex._lines[0] = ex._lines[0] + "\n"
+    ex._pretty_message = " ".join(ex._lines)
+
+
+def pretty_vdk_error_formatter(ex: BaseVdkError):
+    """
+    Creates a box with a header and body around the error message.
+    The header contains the error class name, the error type and
+    who should resolve the error. The body contains the actual error
+    message. The box length is determined by the header lenght. Lines
+    in the body that are longer than the header are wrapped on the
+    first space before the max length cutoff.
+
+    Example:
+
+        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        +   VdkConfigurationError: An error of type Configuration error occurred. Error should be fixed by Platform   +
+        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        +  Provided configuration variable for DB_DEFAULT_TYPE has invalid value.                                     +
+        +  VDK was run with DB_DEFAULT_TYPE=sqlite, however sqlite is invalid value for this variable.                +
+        +  I'm rethrowing this exception to my caller to process.Most likely this will result in failure of           +
+        +  current Data Job.                                                                                          +
+        +  Provide either valid value for DB_DEFAULT_TYPE or install database plugin that supports this type.         +
+        +  Currently possible values are []                                                                           +
+        +                                                                                                             +
+        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    """
+    box_char = "+"
+    lines = ex._lines
+    header = lines[0]
+    max_len = len(header)
+    # Wrap the message lines
+    wrapped_lines = []
+    for i in range(1, len(lines)):
+        line = lines[i]
+        # Find the nearest space if a line is
+        # longer than the header and wrap around it
+        # Do this until the remainder of the line is shorter
+        # than the header
+        if len(line) > max_len:
+            l = line
+            while len(l) > max_len:
+                br = max_len
+                while l[br] != " " and br > 0:
+                    br -= 1
+                if br == 0:
+                    br = max_len
+                wrapped_lines.append(l[: br + 1])
+                l = l[br + 1 :]
+            wrapped_lines.append(l)
+        else:
+            wrapped_lines.append(line)
+    # build th header
+    header = box_char + header.center(max_len + 6) + box_char
+    # build the lines with the box char
+    lines = [box_char + "  " + s.ljust(max_len + 4) + box_char for s in wrapped_lines]
+    # build the box sides
+    side = (max_len + 8) * box_char
+    ex._pretty_message = "\n".join(["\n" + side, header, side, "\n".join(lines), side])
+
+
 class BaseVdkError(Exception):
     def __init__(
         self,
@@ -39,12 +113,12 @@ class BaseVdkError(Exception):
 
         # Check if error message or dict was passed
         # for compatibility with vdk plugins
-        self._line_delimiter = " "
-        self._header = f"{self.__class__.__name__}: Error of resolvable type {resolvable_by} occurred."
-        error_message = self._header + self._line_delimiter
+        self._lines = []
+        header = f"{self.__class__.__name__}: An error of resolvable type {vdk_resolvable_actual} occurred"
+        self._lines.append(header)
         if error_message_lines and isinstance(error_message_lines[0], ErrorMessage):
             message = error_message_lines[0]
-            error_message += self._line_delimiter.join(
+            self._lines.extend(
                 [
                     message.summary,
                     message.what,
@@ -55,15 +129,14 @@ class BaseVdkError(Exception):
             )
         elif error_message_lines and isinstance(error_message_lines[0], dict):
             message = error_message_lines[0]
-            error_message += self._line_delimiter.join(message.values())
+            self._lines.extend(message.values())
         else:
-            error_message += self._line_delimiter.join(error_message_lines)
-        super().__init__(error_message)
+            self._lines.extend(error_message_lines)
+        super().__init__(str(self._lines))
+
         self._vdk_resolvable_by = resolvable_by
         self._vdk_resolvable_actual = vdk_resolvable_actual
-        self._pretty_message = error_message
-        # TODO: Enable this for local runs only
-        # self._prettify_message(str(error_message))
+        self._pretty_message = " ".join(self._lines)
 
     def __str__(self):
         return self._pretty_message
@@ -71,66 +144,8 @@ class BaseVdkError(Exception):
     def __repr__(self):
         return self._pretty_message
 
-    def _prettify_message(self, message):
-        """
-        :param message: the error message string that should be prettified
-
-        Creates a box with a header and body around the error message.
-        The header contains the error class name, the error type and
-        who should resolve the error. The body contains the actual error
-        message. The box length is determined by the header lenght. Lines
-        in the body that are longer than the header are wrapped on the
-        first space before the max length cutoff.
-
-        Example:
-
-            +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            +   VdkConfigurationError: An error of type Configuration error occurred. Error should be fixed by Platform   +
-            +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            +  Provided configuration variable for DB_DEFAULT_TYPE has invalid value.                                     +
-            +  VDK was run with DB_DEFAULT_TYPE=sqlite, however sqlite is invalid value for this variable.                +
-            +  I'm rethrowing this exception to my caller to process.Most likely this will result in failure of           +
-            +  current Data Job.                                                                                          +
-            +  Provide either valid value for DB_DEFAULT_TYPE or install database plugin that supports this type.         +
-            +  Currently possible values are []                                                                           +
-            +                                                                                                             +
-            +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-        """
-        box_char = "+"
-        lines = message.split(self._line_delimiter)
-        max_len = len(self._header)
-        # Wrap the message lines
-        wrapped_lines = []
-        for line in lines:
-            # Find the nearest space if a line is
-            # longer than the header and wrap around it
-            # Do this until the remainder of the line is shorter
-            # than the header
-            if len(line) > max_len:
-                l = line
-                while len(l) > max_len:
-                    br = max_len
-                    while l[br] != " " and br > 0:
-                        br -= 1
-                    if br == 0:
-                        br = max_len
-                    wrapped_lines.append(l[: br + 1])
-                    l = l[br + 1 :]
-                wrapped_lines.append(l)
-            else:
-                wrapped_lines.append(line)
-        # build th header
-        self._header = box_char + self._header.center(max_len + 6) + box_char
-        # build the lines with the box char
-        lines = [
-            box_char + "  " + s.ljust(max_len + 4) + box_char for s in wrapped_lines
-        ]
-        # build the box sides
-        side = (max_len + 8) * box_char
-        self._pretty_message = "\n".join(
-            ["\n" + side, self._header, side, "\n".join(lines), side]
-        )
+    def _format(self, formatter):
+        formatter(self)
 
 
 class SkipRemainingStepsException(BaseVdkError):
