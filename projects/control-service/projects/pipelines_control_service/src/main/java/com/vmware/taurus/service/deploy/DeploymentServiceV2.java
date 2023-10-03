@@ -63,6 +63,7 @@ public class DeploymentServiceV2 {
               var mergedDeployment =
                   DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
               mergedDeployment.setDataJob(dataJob);
+              mergedDeployment.setStatus(DeploymentStatus.NONE);
               desiredJobDeploymentRepository.save(mergedDeployment);
             },
             () -> {
@@ -83,6 +84,7 @@ public class DeploymentServiceV2 {
             () -> {
               var newDeployment =
                   DeploymentModelConverter.toJobDeployment(userDeployer, jobDeployment);
+              newDeployment.setStatus(DeploymentStatus.NONE);
               newDeployment.setDataJob(dataJob);
               desiredJobDeploymentRepository.save(newDeployment);
             });
