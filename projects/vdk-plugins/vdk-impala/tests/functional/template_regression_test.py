@@ -687,11 +687,13 @@ class TestTemplateRegression(unittest.TestCase):
         )
 
         expected_error = UserCodeError(
-            "Data loading has failed.",
+            "Data loading has failed.",  # FIXME: this is too specific
             f"You are trying to load data into a table {table_name} with an unsupported format. "
-            f"Currently only Parquet table format is supported.\nData load will be aborted.",
+            f"Currently only Parquet table format is supported."
+            f"Data load will be aborted.",  # FIXME: this is too specific
             "Make sure that the destination table is stored as parquet: "
-            "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html#parquet_ddl",
+            "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
+            "#parquet_ddl",
         )
 
         def just_throw(*_, **kwargs):
