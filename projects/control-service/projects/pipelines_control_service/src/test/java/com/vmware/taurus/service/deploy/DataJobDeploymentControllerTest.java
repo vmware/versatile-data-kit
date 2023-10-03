@@ -54,7 +54,6 @@ public class DataJobDeploymentControllerTest {
   @WithMockUser
   public void testDeploymentPatch_expectDeploymentMerge() {
     var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
-    var deployment = getDesiredJobDeployment(dataJob);
     jobsRepository.save(dataJob);
     var existingDeployment = getActualJobDeployment(dataJob);
     actualJobDeploymentRepository.save(existingDeployment);
