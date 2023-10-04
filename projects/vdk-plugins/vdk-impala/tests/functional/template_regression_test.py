@@ -636,19 +636,23 @@ class TestTemplateRegression(unittest.TestCase):
         def just_rethrow(*_, **kwargs):
             raise Exception(expected_error_regex)
 
-        with patch.object(errors, "log_and_rethrow") as patched_log_and_rethrow:
-            patched_log_and_rethrow.side_effect = just_rethrow
+        with patch.object(errors, "report_and_rethrow") as patched_report_and_rethrow:
+            patched_report_and_rethrow.side_effect = just_rethrow
             result = self._run_job(template_name, template_args)
             assert expected_error_regex in result.output, result.output
-            assert errors.log_and_rethrow.call_args[1]["what_happened"], result.output
+            assert errors.report_and_rethrow.call_args[1][
+                "what_happened"
+            ], result.output
             assert (
                 f"{num_exp_errors} validation error"
-                in errors.log_and_rethrow.call_args[1]["why_it_happened"]
+                in errors.report_and_rethrow.call_args[1]["why_it_happened"]
                 or f"{num_exp_errors}\\ validation\\ error"
-                in errors.log_and_rethrow.call_args[1]["why_it_happened"]
+                in errors.report_and_rethrow.call_args[1]["why_it_happened"]
             ), result.output
-            assert errors.log_and_rethrow.call_args[1]["consequences"], result.output
-            assert errors.log_and_rethrow.call_args[1]["countermeasures"], result.output
+            assert errors.report_and_rethrow.call_args[1]["consequences"], result.output
+            assert errors.report_and_rethrow.call_args[1][
+                "countermeasures"
+            ], result.output
 
     def _run_template_with_bad_target_schema(
         self, template_name: str, template_args: dict

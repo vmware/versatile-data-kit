@@ -227,13 +227,4 @@ class IngestOverHttp(IIngesterPlugin):
                 }
             )
         except Exception as e:
-            errors.log_and_rethrow(
-                errors.ResolvableBy.PLATFORM_ERROR,
-                log,
-                "Failed to sent payload",
-                "Unknown error. Error message was : " + str(e),
-                "Will not be able to send the payload for ingestion",
-                "See error message for help ",
-                e,
-                wrap_in_vdk_error=True,
-            )
+            errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)

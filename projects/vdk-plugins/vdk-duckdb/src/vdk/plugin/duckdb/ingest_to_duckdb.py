@@ -12,6 +12,7 @@ from typing import Tuple
 import duckdb
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
+from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
 from vdk.plugin.duckdb.duckdb_connection import DuckDBConnection
@@ -77,16 +78,7 @@ class IngestToDuckDB(IIngesterPlugin):
                 cur.execute(query, obj)
                 log.debug(f"{obj} ingested.")
             except Exception as e:
-                errors.log_and_rethrow(
-                    errors.ResolvableBy.PLATFORM_ERROR,
-                    log,
-                    "Failed to sent payload",
-                    "Unknown error. Error message was : " + str(e),
-                    "Will not be able to send the payload for ingestion",
-                    "See error message for help ",
-                    e,
-                    wrap_in_vdk_error=True,
-                )
+                errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
 
     def __check_destination_table_exists(
         self, destination_table: str, cur: duckdb.cursor

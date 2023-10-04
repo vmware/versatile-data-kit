@@ -95,30 +95,9 @@ class IngestToSQLite(IIngesterPlugin):
                 log.debug("Payload was ingested.")
             except Exception as e:
                 if isinstance(e, ProgrammingError):
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.USER_ERROR,
-                        log,
-                        "Failed to sent payload",
-                        f"""
-                        An issue with the SQL query occured. The error message
-                        was: {str(e)}
-                        """,
-                        "Will not be able to send the payload for ingestion",
-                        "See error message for help ",
-                        e,
-                        wrap_in_vdk_error=True,
-                    )
+                    errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
                 else:
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.PLATFORM_ERROR,
-                        log,
-                        "Failed to sent payload",
-                        "Unknown error. Error message was : " + str(e),
-                        "Will not be able to send the payload for ingestion",
-                        "See error message for help ",
-                        e,
-                        wrap_in_vdk_error=True,
-                    )
+                    errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
 
     def __check_destination_table_exists(
         self, destination_table: str, cur: Cursor
