@@ -60,38 +60,28 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Use the method and target provided by customer, or load the default ones
-        # if set. `method` and `target` provided when the method is called take
-        # precedence over the ones set with environment variables.
-        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
-        method = method.lower() if method is not None else None
-        target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
+        method, target = self.__get_correct_method_and_target(method, target)
         self._log.info(
             "Sending object for ingestion with "
             f"method: {method} and target: {target}"
         )
 
-        if method in self._cached_ingesters.keys():
-            ingester = self._cached_ingesters.get(method)
-            self.__ingest_object(
-                ingester=ingester,
-                payload=payload,
-                destination_table=destination_table,
-                method=method,
-                target=target,
-                collection_id=collection_id,
-            )
+        ingester = self.__get_ingester(method)
 
+        self.__ingest_object(
+            ingester=ingester,
+            payload=payload,
+            destination_table=destination_table,
+            method=method,
+            target=target,
+            collection_id=collection_id,
+        )
+
+    def __get_ingester(self, method: str) -> IngesterBase:
+        if method in self._cached_ingesters.keys():
+            return self._cached_ingesters.get(method)
         elif method in self._ingester_builders.keys():
-            ingester = self.__initialize_ingester(method=method)
-            self.__ingest_object(
-                ingester=ingester,
-                payload=payload,
-                destination_table=destination_table,
-                method=method,
-                target=target,
-                collection_id=collection_id,
-            )
+            return self.__initialize_ingester(method=method)
         else:
             errors.report_and_throw(
                 VdkConfigurationError(
@@ -112,50 +102,32 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Use the method and target provided by customer, or load the
-        # default ones, if set. `method` and `target` provided when the
-        # method is called take precedence over the ones set with
-        # environment variables.
-        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
-        target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
+        method, target = self.__get_correct_method_and_target(method, target)
         self._log.info(
             "Sending tabular data for ingestion with "
             f"method: {method} and target: {target}"
         )
 
-        if method in self._cached_ingesters.keys():
-            ingester = self._cached_ingesters.get(method)
-            self.__ingest_tabular_data(
-                ingester=ingester,
-                rows=rows,
-                column_names=column_names,
-                destination_table=destination_table,
-                method=method,
-                target=target,
-                collection_id=collection_id,
-            )
+        ingester = self.__get_ingester(method)
+        self.__ingest_tabular_data(
+            ingester=ingester,
+            rows=rows,
+            column_names=column_names,
+            destination_table=destination_table,
+            method=method,
+            target=target,
+            collection_id=collection_id,
+        )
 
-        elif method in self._ingester_builders.keys():
-            ingester = self.__initialize_ingester(method=method)
-            self.__ingest_tabular_data(
-                ingester=ingester,
-                rows=rows,
-                column_names=column_names,
-                destination_table=destination_table,
-                method=method,
-                target=target,
-                collection_id=collection_id,
-            )
-        else:
-            errors.report_and_throw(
-                VdkConfigurationError(
-                    f"Provided method, {method}, has invalid value.",
-                    f"VDK was run with method={method}, however {method} is not part of the available ingestion mechanisms.",
-                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                    "Provide either valid value for method, or install ingestion plugin that supports this type. ",
-                    f"Currently possible values are {list(self._ingester_builders.keys())}",
-                )
-            )
+    def __get_correct_method_and_target(self, method, target):
+        # Use the method and target provided by customer, or load the
+        # default ones, if set. `method` and `target` provided when the
+        # method is called take precedence over the ones set with
+        # environment variables.
+        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
+        method = method.lower() if method is not None else None
+        target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
+        return method, target
 
     def __ingest_object(
         self,
