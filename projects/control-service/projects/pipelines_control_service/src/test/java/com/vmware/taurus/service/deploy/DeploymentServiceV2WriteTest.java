@@ -25,14 +25,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class DeploymentServiceV2WriteTest {
 
-  @Autowired
-  JobsRepository jobsRepository;
-  @Autowired
-  ActualJobDeploymentRepository actualJobDeploymentRepository;
-  @Autowired
-  DesiredJobDeploymentRepository desiredJobDeploymentRepository;
-  @Autowired
-  DeploymentServiceV2 deploymentServiceV2;
+  @Autowired JobsRepository jobsRepository;
+  @Autowired ActualJobDeploymentRepository actualJobDeploymentRepository;
+  @Autowired DesiredJobDeploymentRepository desiredJobDeploymentRepository;
+  @Autowired DeploymentServiceV2 deploymentServiceV2;
 
   @Test
   public void testUpdateDesiredDeployment_expectNewDeployment() {
@@ -67,21 +63,25 @@ public class DeploymentServiceV2WriteTest {
     jobsRepository.deleteAll();
   }
 
-  private void compareSavedDeploymentWithTestDeployment(JobDeployment testDeployment,
-      DesiredDataJobDeployment savedDeployment, String userDeployer) {
+  private void compareSavedDeploymentWithTestDeployment(
+      JobDeployment testDeployment, DesiredDataJobDeployment savedDeployment, String userDeployer) {
     Assertions.assertEquals(testDeployment.getDataJobName(), savedDeployment.getDataJobName());
     Assertions.assertEquals(DeploymentStatus.NONE, savedDeployment.getStatus());
     Assertions.assertEquals(testDeployment.getEnabled(), savedDeployment.getEnabled());
     Assertions.assertEquals(testDeployment.getGitCommitSha(), savedDeployment.getGitCommitSha());
     Assertions.assertEquals(testDeployment.getPythonVersion(), savedDeployment.getPythonVersion());
     Assertions.assertEquals(testDeployment.getSchedule(), savedDeployment.getSchedule());
-    Assertions.assertEquals(testDeployment.getResources().getCpuLimit(),
+    Assertions.assertEquals(
+        testDeployment.getResources().getCpuLimit(),
         savedDeployment.getResources().getCpuLimitCores());
-    Assertions.assertEquals(testDeployment.getResources().getCpuRequest(),
+    Assertions.assertEquals(
+        testDeployment.getResources().getCpuRequest(),
         savedDeployment.getResources().getCpuRequestCores());
-    Assertions.assertEquals(testDeployment.getResources().getMemoryLimit(),
+    Assertions.assertEquals(
+        testDeployment.getResources().getMemoryLimit(),
         savedDeployment.getResources().getMemoryLimitMi());
-    Assertions.assertEquals(testDeployment.getResources().getMemoryRequest(),
+    Assertions.assertEquals(
+        testDeployment.getResources().getMemoryRequest(),
         savedDeployment.getResources().getMemoryRequestMi());
     Assertions.assertEquals(userDeployer, savedDeployment.getLastDeployedBy());
   }

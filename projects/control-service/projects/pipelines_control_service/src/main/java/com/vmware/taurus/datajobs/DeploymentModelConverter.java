@@ -234,8 +234,10 @@ public class DeploymentModelConverter {
             : oldDeployment.getPythonVersion());
     mergedDeployment.setLastDeployedBy(
         userDeployer != null ? userDeployer : oldDeployment.getLastDeployedBy());
-    mergedDeployment.setSchedule(newDeployment.getSchedule() != null ? newDeployment.getSchedule()
-        : oldDeployment.getSchedule());
+    mergedDeployment.setSchedule(
+        newDeployment.getSchedule() != null
+            ? newDeployment.getSchedule()
+            : oldDeployment.getSchedule());
 
     mergeDeploymentResources(mergedDeployment, newDeployment, oldDeployment);
 
