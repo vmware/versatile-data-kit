@@ -202,12 +202,6 @@ public class DeploymentModelConverter {
     return newDeployment;
   }
 
-  private static DesiredDataJobDeployment createDesiredDeployment() {
-    DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
-
-    return desiredDataJobDeployment;
-  }
-
   public static DesiredDataJobDeployment mergeDeployments(
       ActualDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
     if (oldDeployment.getDataJobName() == null
