@@ -6,7 +6,6 @@ from sqlite3 import OperationalError
 from unittest import mock
 
 from click.testing import Result
-from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import ResolvableByActual
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.csv import csv_plugin
