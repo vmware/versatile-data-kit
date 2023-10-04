@@ -54,16 +54,19 @@ public class DeploymentServiceV2 {
   /**
    * This method updates an existing job deployment in the database. Only fields present in the job
    * deployment are updated, other fields are not overridden.
+   *
    * @param dataJob the data job to which the deployment is associated
    * @param jobDeployment the deployment to patch with
    */
-  public void patchDesiredDbDeployment(DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
+  public void patchDesiredDbDeployment(
+      DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
     actualJobDeploymentRepository
         .findById(dataJob.getName())
         .ifPresentOrElse(
             oldDeployment -> {
               var mergedDeployment =
-                  DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment, userDeployer);
+                  DeploymentModelConverter.mergeDeployments(
+                      oldDeployment, jobDeployment, userDeployer);
               saveNewDesiredDeployment(mergedDeployment, dataJob);
             },
             () -> {
@@ -74,6 +77,7 @@ public class DeploymentServiceV2 {
   /**
    * Create or update a deployment in the database. If the deployment already exists, behaves like
    * patch
+   *
    * @param dataJob The data job to which the deployment is associated.
    * @param jobDeployment the new deployment.
    * @param userDeployer the user.

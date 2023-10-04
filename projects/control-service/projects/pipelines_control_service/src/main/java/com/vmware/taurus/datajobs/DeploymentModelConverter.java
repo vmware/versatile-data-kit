@@ -202,7 +202,7 @@ public class DeploymentModelConverter {
     return newDeployment;
   }
 
-  private static DesiredDataJobDeployment createDesiredDeployment(){
+  private static DesiredDataJobDeployment createDesiredDeployment() {
     DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
 
     return desiredDataJobDeployment;
@@ -210,13 +210,14 @@ public class DeploymentModelConverter {
 
   public static DesiredDataJobDeployment mergeDeployments(
       ActualDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
-    if (oldDeployment.getDataJobName() == null || newDeployment.getDataJobName() == null ||
-        !oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
+    if (oldDeployment.getDataJobName() == null
+        || newDeployment.getDataJobName() == null
+        || !oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
         || !oldDeployment
-        .getDataJob()
-        .getJobConfig()
-        .getTeam()
-        .equals(newDeployment.getDataJobTeam())) {
+            .getDataJob()
+            .getJobConfig()
+            .getTeam()
+            .equals(newDeployment.getDataJobTeam())) {
       throw new IllegalArgumentException(
           "Cannot merge 2 deployments if team or job name is different."
               + oldDeployment
@@ -237,9 +238,7 @@ public class DeploymentModelConverter {
             ? newDeployment.getPythonVersion()
             : oldDeployment.getPythonVersion());
     mergedDeployment.setLastDeployedBy(
-        userDeployer != null
-            ? userDeployer
-            : oldDeployment.getLastDeployedBy());
+        userDeployer != null ? userDeployer : oldDeployment.getLastDeployedBy());
 
     mergeDeploymentResources(mergedDeployment, newDeployment, oldDeployment);
 
