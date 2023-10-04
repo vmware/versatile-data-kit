@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from vdk.api.job_input import IJobInput
 from vdk.internal.builtin_plugins.run.job_input import JobInput
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 from vdk.plugin.impala.impala_helper import ImpalaHelper
 
 log = getLogger(__name__)
@@ -57,4 +58,4 @@ class TemplateArgumentsValidator:
         try:
             return self.TemplateParams(**args).dict()
         except ValidationError as error:
-            errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, error)
+            errors.report_and_rethrow(ResolvableBy.USER_ERROR, error)
