@@ -12,7 +12,6 @@ from typing import Tuple
 import duckdb
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
-from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
