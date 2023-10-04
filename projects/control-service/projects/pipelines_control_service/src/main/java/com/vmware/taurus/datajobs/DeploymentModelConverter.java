@@ -189,7 +189,6 @@ public class DeploymentModelConverter {
     newDeployment.setDataJobName(jobDeployment.getDataJobName());
     newDeployment.setPythonVersion(jobDeployment.getPythonVersion());
     newDeployment.setGitCommitSha(jobDeployment.getGitCommitSha());
-
     if (jobDeployment.getResources() != null) {
       var resources = new DataJobDeploymentResources();
       resources.setCpuRequestCores(jobDeployment.getResources().getCpuRequest());
@@ -203,14 +202,21 @@ public class DeploymentModelConverter {
     return newDeployment;
   }
 
+  private static DesiredDataJobDeployment createDesiredDeployment(){
+    DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
+
+    return desiredDataJobDeployment;
+  }
+
   public static DesiredDataJobDeployment mergeDeployments(
-      ActualDataJobDeployment oldDeployment, JobDeployment newDeployment) {
-    if (!oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
+      ActualDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
+    if (oldDeployment.getDataJobName() == null || newDeployment.getDataJobName() == null ||
+        !oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
         || !oldDeployment
-            .getDataJob()
-            .getJobConfig()
-            .getTeam()
-            .equals(newDeployment.getDataJobTeam())) {
+        .getDataJob()
+        .getJobConfig()
+        .getTeam()
+        .equals(newDeployment.getDataJobTeam())) {
       throw new IllegalArgumentException(
           "Cannot merge 2 deployments if team or job name is different."
               + oldDeployment
@@ -219,7 +225,6 @@ public class DeploymentModelConverter {
     }
 
     DesiredDataJobDeployment mergedDeployment = new DesiredDataJobDeployment();
-
     mergedDeployment.setDataJobName(newDeployment.getDataJobName());
     mergedDeployment.setDataJob(oldDeployment.getDataJob());
 
@@ -231,11 +236,15 @@ public class DeploymentModelConverter {
         newDeployment.getPythonVersion() != null
             ? newDeployment.getPythonVersion()
             : oldDeployment.getPythonVersion());
+    mergedDeployment.setLastDeployedBy(
+        userDeployer != null
+            ? userDeployer
+            : oldDeployment.getLastDeployedBy());
 
     mergeDeploymentResources(mergedDeployment, newDeployment, oldDeployment);
 
-    mergedDeployment.setLastDeployedBy(
-        oldDeployment.getLastDeployedBy()); // not present in newDeployment entity
+    // value not present in newDeployment entity
+    mergedDeployment.setSchedule(oldDeployment.getSchedule());
 
     mergedDeployment.setEnabled(
         newDeployment.getEnabled() != null

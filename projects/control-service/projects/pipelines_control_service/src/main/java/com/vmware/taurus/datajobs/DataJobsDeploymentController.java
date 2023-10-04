@@ -85,7 +85,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
             ToModelApiConverter.toJobDeployment(teamName, jobName, dataJobDeployment);
         deploymentService.patchDeployment(job.get(), jobDeployment);
         if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
-          deploymentServiceV2.patchDesiredDbDeployment(job.get(), jobDeployment);
+          deploymentServiceV2.patchDesiredDbDeployment(job.get(), jobDeployment, operationContext.getUser());
         }
         return ResponseEntity.accepted().build();
       }

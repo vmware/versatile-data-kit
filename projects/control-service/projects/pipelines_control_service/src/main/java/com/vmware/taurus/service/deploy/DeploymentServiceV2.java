@@ -54,17 +54,17 @@ public class DeploymentServiceV2 {
   /**
    * This method updates an existing job deployment in the database. Only fields present in the job
    * deployment are updated, other fields are not overridden.
+   * @param dataJob the data job to which the deployment is associated
+   * @param jobDeployment the deployment to patch with
    */
-  public void patchDesiredDbDeployment(DataJob dataJob, JobDeployment jobDeployment) {
+  public void patchDesiredDbDeployment(DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
     actualJobDeploymentRepository
         .findById(dataJob.getName())
         .ifPresentOrElse(
             oldDeployment -> {
               var mergedDeployment =
-                  DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
-              mergedDeployment.setDataJob(dataJob);
-              mergedDeployment.setStatus(DeploymentStatus.NONE);
-              desiredJobDeploymentRepository.save(mergedDeployment);
+                  DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment, userDeployer);
+              saveNewDesiredDeployment(mergedDeployment, dataJob);
             },
             () -> {
               throw new DataJobDeploymentNotFoundException(dataJob.getName());
@@ -74,23 +74,37 @@ public class DeploymentServiceV2 {
   /**
    * Create or update a deployment in the database. If the deployment already exists, behaves like
    * patch
+   * @param dataJob The data job to which the deployment is associated.
+   * @param jobDeployment the new deployment.
+   * @param userDeployer the user.
    */
   public void updateDesiredDbDeployment(
       DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
     actualJobDeploymentRepository
         .findById(dataJob.getName())
         .ifPresentOrElse(
-            oldDeployment -> patchDesiredDbDeployment(dataJob, jobDeployment),
+            oldDeployment -> patchDesiredDbDeployment(dataJob, jobDeployment, userDeployer),
             () -> {
               var newDeployment =
                   DeploymentModelConverter.toJobDeployment(userDeployer, jobDeployment);
-              newDeployment.setStatus(DeploymentStatus.NONE);
-              newDeployment.setDataJob(dataJob);
-              desiredJobDeploymentRepository.save(newDeployment);
+              saveNewDesiredDeployment(newDeployment, dataJob);
             });
   }
 
+  private void saveNewDesiredDeployment(DesiredDataJobDeployment deployment, DataJob dataJob) {
+    deployment.setStatus(DeploymentStatus.NONE);
+    deployment.setDataJob(dataJob);
+    desiredJobDeploymentRepository.save(deployment);
+  }
+
   /**
+   * Updates or creates a Kubernetes CronJob based on the provided configuration.
+   *
+   * <p>This method takes a CronJob configuration and checks if a CronJob with the same name already
+   * exists in the Kubernetes cluster. If the CronJob exists, it will be updated with the new
+   * configuration; otherwise, a new CronJob will be created. The method ensures that the CronJob in
+   * the cluster matches the desired state specified in the configuration.
+   *
    * @param dataJob the data job to be deployed.
    * @param desiredJobDeployment the desired data job deployment to be deployed.
    * @param actualJobDeployment the actual data job deployment has been deployed.
