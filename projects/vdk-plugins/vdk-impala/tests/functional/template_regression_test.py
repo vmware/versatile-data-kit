@@ -12,7 +12,6 @@ from unittest.mock import patch
 
 import pytest
 from vdk.internal.core import errors
-from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
@@ -636,23 +635,19 @@ class TestTemplateRegression(unittest.TestCase):
         def just_rethrow(*_, **kwargs):
             raise Exception(expected_error_regex)
 
-        with patch.object(errors, "report_and_rethrow") as patched_report_and_rethrow:
-            patched_report_and_rethrow.side_effect = just_rethrow
+        with patch.object(errors, "log_and_rethrow") as patched_log_and_rethrow:
+            patched_log_and_rethrow.side_effect = just_rethrow
             result = self._run_job(template_name, template_args)
             assert expected_error_regex in result.output, result.output
-            assert errors.report_and_rethrow.call_args[1][
-                "what_happened"
-            ], result.output
+            assert errors.log_and_rethrow.call_args[1]["what_happened"], result.output
             assert (
                 f"{num_exp_errors} validation error"
-                in errors.report_and_rethrow.call_args[1]["why_it_happened"]
+                in errors.log_and_rethrow.call_args[1]["why_it_happened"]
                 or f"{num_exp_errors}\\ validation\\ error"
-                in errors.report_and_rethrow.call_args[1]["why_it_happened"]
+                in errors.log_and_rethrow.call_args[1]["why_it_happened"]
             ), result.output
-            assert errors.report_and_rethrow.call_args[1]["consequences"], result.output
-            assert errors.report_and_rethrow.call_args[1][
-                "countermeasures"
-            ], result.output
+            assert errors.log_and_rethrow.call_args[1]["consequences"], result.output
+            assert errors.log_and_rethrow.call_args[1]["countermeasures"], result.output
 
     def _run_template_with_bad_target_schema(
         self, template_name: str, template_args: dict
@@ -690,28 +685,29 @@ class TestTemplateRegression(unittest.TestCase):
             f"clause. Please change the table definition accordingly and re-create the table."
         )
 
-        expected_error = UserCodeError(
-            "Data loading has failed.",  # FIXME: this is too specific
-            f"You are trying to load data into a table {table_name} with an unsupported format. "
-            f"Currently only Parquet table format is supported."
-            f"Data load will be aborted.",  # FIXME: this is too specific
-            "Make sure that the destination table is stored as parquet: "
-            "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
-            "#parquet_ddl",
-        )
-
         def just_throw(*_, **kwargs):
             raise Exception(expected_why_it_happened_msg)
 
         with patch(
-            "vdk.internal.core.errors.report_and_throw",
-            MagicMock(side_effect=just_throw),
+            "vdk.internal.core.errors.log_and_throw", MagicMock(side_effect=just_throw)
         ):
             res = self._run_job(template_name, template_args)
             assert expected_why_it_happened_msg in res.output
-            actual_args, actual_kwargs = errors.report_and_throw.call_args
-            actual_message = actual_args[0]
-            assert str(actual_message) == expected_error.__str__()
+            errors.log_and_throw.assert_called_once_with(
+                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                log=ANY,
+                what_happened="Data loading has failed.",
+                why_it_happened=(
+                    f"You are trying to load data into a table {table_name} with an unsupported format. "
+                    f"Currently only Parquet table format is supported."
+                ),
+                consequences="Data load will be aborted.",
+                countermeasures=(
+                    "Make sure that the destination table is stored as parquet: "
+                    "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
+                    "#parquet_ddl"
+                ),
+            )
 
     def test_insert(self) -> None:
         test_schema = "vdkprototypes"

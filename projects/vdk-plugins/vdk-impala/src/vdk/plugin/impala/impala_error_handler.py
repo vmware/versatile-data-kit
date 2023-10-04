@@ -6,7 +6,6 @@ import time
 
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.core import errors
-from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala.impala_memory_error_handler import ImpalaMemoryErrorHandler
 
 MEMORY_LIMIT_PATTERN = r"Limit=(\d+\.\d+)\s*([KMGTP]B)"
@@ -58,14 +57,16 @@ class ImpalaErrorHandler:
             return False
 
         if self._is_pool_error(caught_exception):
-            errors.report_and_throw(
-                UserCodeError(
-                    "An Impala Pool Error occurred: " + str(caught_exception),
-                    "Review the contents of the exception.",
-                    "The queries will not be executed.",
+            errors.log_and_throw(
+                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                log=self._log,
+                what_happened="An Impala Pool Error occurred: " + str(caught_exception),
+                why_it_happened="Review the contents of the exception.",
+                consequences="The queries will not be executed.",
+                countermeasures=(
                     "Optimise the executed queries. Alternatively, make sure that "
-                    "the data job is not running too many queries in parallel.",
-                )
+                    "the data job is not running too many queries in parallel."
+                ),
             )
 
         is_handled = False
