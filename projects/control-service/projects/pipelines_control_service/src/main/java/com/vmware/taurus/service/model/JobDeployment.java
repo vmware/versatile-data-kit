@@ -29,6 +29,8 @@ public class JobDeployment {
 
   private String cronJobName;
 
+  private String schedule;
+
   /**
    * When disabled, the DataJob will still be deployed but it will never be executed. When enabled,
    * the DataJob will be executed according to its {@link JobConfig#getSchedule()}

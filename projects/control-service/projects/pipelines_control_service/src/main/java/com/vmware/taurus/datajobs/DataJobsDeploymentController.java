@@ -79,7 +79,6 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId not implemented
       Optional<com.vmware.taurus.service.model.DataJob> job = jobsService.getByName(jobName);
-
       if (job.isPresent()) {
         var jobDeployment =
             ToModelApiConverter.toJobDeployment(teamName, jobName, dataJobDeployment);

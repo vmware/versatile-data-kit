@@ -199,6 +199,7 @@ public class DeploymentModelConverter {
     }
     newDeployment.setLastDeployedBy(userDeployer);
     newDeployment.setEnabled(jobDeployment.getEnabled());
+    newDeployment.setSchedule(jobDeployment.getSchedule());
     return newDeployment;
   }
 
@@ -233,11 +234,10 @@ public class DeploymentModelConverter {
             : oldDeployment.getPythonVersion());
     mergedDeployment.setLastDeployedBy(
         userDeployer != null ? userDeployer : oldDeployment.getLastDeployedBy());
+    mergedDeployment.setSchedule(newDeployment.getSchedule() != null ? newDeployment.getSchedule()
+        : oldDeployment.getSchedule());
 
     mergeDeploymentResources(mergedDeployment, newDeployment, oldDeployment);
-
-    // value not present in newDeployment entity
-    mergedDeployment.setSchedule(oldDeployment.getSchedule());
 
     mergedDeployment.setEnabled(
         newDeployment.getEnabled() != null
