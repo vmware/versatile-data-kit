@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 import pytest
 from vdk.internal.core import errors
-from vdk.internal.core.errors import UserCodeError
+from vdk.internal.core.errors import UserCodeError, Resolvable, ResolvableBy
 from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
@@ -633,26 +633,17 @@ class TestTemplateRegression(unittest.TestCase):
             f"for {template_name} template"
         )
 
+        test_exception = Exception(expected_error_regex)
+
         def just_rethrow(*_, **kwargs):
-            raise Exception(expected_error_regex)
+            raise test_exception
 
         with patch.object(errors, "report_and_rethrow") as patched_report_and_rethrow:
             patched_report_and_rethrow.side_effect = just_rethrow
             result = self._run_job(template_name, template_args)
             assert expected_error_regex in result.output, result.output
-            assert errors.report_and_rethrow.call_args[1][
-                "what_happened"
-            ], result.output
-            assert (
-                f"{num_exp_errors} validation error"
-                in errors.report_and_rethrow.call_args[1]["why_it_happened"]
-                or f"{num_exp_errors}\\ validation\\ error"
-                in errors.report_and_rethrow.call_args[1]["why_it_happened"]
-            ), result.output
-            assert errors.report_and_rethrow.call_args[1]["consequences"], result.output
-            assert errors.report_and_rethrow.call_args[1][
-                "countermeasures"
-            ], result.output
+            actual_args, actual_kwargs = errors.report_and_rethrow.call_args
+            assert str(actual_args) == str((ResolvableBy.USER_ERROR, test_exception))
 
     def _run_template_with_bad_target_schema(
         self, template_name: str, template_args: dict
