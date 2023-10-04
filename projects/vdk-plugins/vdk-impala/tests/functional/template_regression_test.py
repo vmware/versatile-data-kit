@@ -705,7 +705,9 @@ class TestTemplateRegression(unittest.TestCase):
         ):
             res = self._run_job(template_name, template_args)
             assert expected_why_it_happened_msg in res.output
-            errors.report_and_throw.assert_called_once_with(expected_error)
+            actual_args, actual_kwargs = errors.report_and_throw.call_args
+            actual_message = actual_args[0]
+            assert str(actual_message) == expected_error.__str__()
 
     def test_insert(self) -> None:
         test_schema = "vdkprototypes"
