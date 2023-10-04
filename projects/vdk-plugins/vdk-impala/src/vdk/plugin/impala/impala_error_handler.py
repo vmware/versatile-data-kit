@@ -7,6 +7,9 @@ import time
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.core import errors
 from vdk.internal.core.errors import UserCodeError
+from vdk.plugin.impala.impala_memory_error_handler import ImpalaMemoryErrorHandler
+
+MEMORY_LIMIT_PATTERN = r"Limit=(\d+\.\d+)\s*([KMGTP]B)"
 
 
 class ImpalaErrorHandler:
@@ -23,6 +26,7 @@ class ImpalaErrorHandler:
 
         self._num_retries = num_retries
         self._backoff_seconds = backoff_seconds
+        self._memory_error_handler = ImpalaMemoryErrorHandler(log=log)
 
     def handle_error(
         self, caught_exception: Exception, recovery_cursor: RecoveryCursor
@@ -104,6 +108,9 @@ class ImpalaErrorHandler:
                 exception, recovery_cursor
             )
             or self._handle_metadata_exception_with_invalidate_and_retry(
+                exception, recovery_cursor
+            )
+            or self._memory_error_handler.handle_memory_error(
                 exception, recovery_cursor
             )
             or self._handle_impala_network_error(exception, recovery_cursor)

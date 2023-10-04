@@ -5,17 +5,16 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.JobsService;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DataJobDeployment_;
-import com.vmware.taurus.service.model.DataJob_;
-import com.vmware.taurus.service.repository.JobsRepository;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import io.kubernetes.client.openapi.ApiException;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Sort;
+import lombok.AllArgsConstructor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,23 +28,13 @@ import java.util.Set;
  * <p>Usage: - Create an instance of this class and call the `synchronizeDataJobs` method to
  * initiate the synchronization process.
  */
+@AllArgsConstructor
 @Component
 public class DataJobsSynchronizer {
 
-  private final JobsRepository jobsRepository;
+  private final JobsService jobsService;
 
   private final DeploymentServiceV2 deploymentService;
-
-  private final DataJobsKubernetesService dataJobsKubernetesService;
-
-  public DataJobsSynchronizer(
-      JobsRepository jobsRepository,
-      DeploymentServiceV2 deploymentService,
-      DataJobsKubernetesService dataJobsKubernetesService) {
-    this.jobsRepository = jobsRepository;
-    this.deploymentService = deploymentService;
-    this.dataJobsKubernetesService = dataJobsKubernetesService;
-  }
 
   /**
    * Synchronizes Kubernetes CronJobs from the database to ensure that the cluster's state matches
@@ -59,25 +48,46 @@ public class DataJobsSynchronizer {
    */
   public void synchronizeDataJobs() throws ApiException {
     ThreadPoolTaskExecutor taskExecutor = initializeTaskExecutor();
-    Set<String> cronJobs = dataJobsKubernetesService.listCronJobs();
+    Iterable<DataJob> dataJobsFromDB = jobsService.findAllDataJobs();
 
-    jobsRepository
-        .findAll(
-            Sort.by(
-                Sort.Direction.ASC,
-                DataJob_.DATA_JOB_DEPLOYMENT + "." + DataJobDeployment_.DEPLOYMENT_VERSION_SHA))
-        .forEach(dataJob -> taskExecutor.execute(() -> synchronizeDataJob(dataJob, cronJobs)));
+    Set<String> dataJobDeploymentNamesFromKubernetes =
+        deploymentService.findAllActualDeploymentNamesFromKubernetes();
+
+    Map<String, DesiredDataJobDeployment> desiredDataJobDeploymentsFromDBMap =
+        deploymentService.findAllDesiredDataJobDeployments();
+
+    Map<String, ActualDataJobDeployment> actualDataJobDeploymentsFromDBMap =
+        deploymentService.findAllActualDataJobDeployments();
+
+    dataJobsFromDB.forEach(
+        dataJob ->
+            taskExecutor.execute(
+                () ->
+                    synchronizeDataJob(
+                        dataJob,
+                        desiredDataJobDeploymentsFromDBMap.get(dataJob.getName()),
+                        actualDataJobDeploymentsFromDBMap.get(dataJob.getName()),
+                        dataJobDeploymentNamesFromKubernetes.contains(dataJob.getName()))));
 
     taskExecutor.shutdown();
   }
 
   // Default for testing purposes
-  void synchronizeDataJob(DataJob dataJob, Set<String> cronJobs) {
-    if (dataJob.getDataJobDeployment() != null) {
-      // Sends notification only when the deployment is initiated by the user.
+  void synchronizeDataJob(
+      DataJob dataJob,
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      ActualDataJobDeployment actualDataJobDeployment,
+      boolean isDeploymentPresentInKubernetes) {
+    if (desiredDataJobDeployment != null) {
       boolean sendNotification =
-          StringUtils.isEmpty(dataJob.getDataJobDeployment().getDeploymentVersionSha());
-      deploymentService.updateDeployment(dataJob, sendNotification, cronJobs);
+          true; // TODO [miroslavi] sends notification only when the deployment is initiated by the
+      // user.
+      deploymentService.updateDeployment(
+          dataJob,
+          desiredDataJobDeployment,
+          actualDataJobDeployment,
+          isDeploymentPresentInKubernetes,
+          sendNotification);
     }
   }
 

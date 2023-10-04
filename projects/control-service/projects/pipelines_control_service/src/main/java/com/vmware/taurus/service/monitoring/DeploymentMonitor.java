@@ -5,9 +5,10 @@
 
 package com.vmware.taurus.service.monitoring;
 
-import com.vmware.taurus.service.model.DataJobDeployment;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DeploymentStatus;
-import com.vmware.taurus.service.repository.JobDeploymentRepository;
+import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
+import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Gauge;
@@ -35,7 +36,9 @@ public class DeploymentMonitor {
 
   private final JobsRepository jobsRepository;
 
-  private final JobDeploymentRepository jobDeploymentRepository;
+  private final ActualJobDeploymentRepository actualJobDeploymentRepository;
+
+  private final DesiredJobDeploymentRepository desiredJobDeploymentRepository;
 
   private final Map<String, Integer> currentStatuses = new ConcurrentHashMap<>();
 
@@ -43,10 +46,12 @@ public class DeploymentMonitor {
   public DeploymentMonitor(
       MeterRegistry meterRegistry,
       JobsRepository jobsRepository,
-      JobDeploymentRepository jobDeploymentRepository) {
+      ActualJobDeploymentRepository actualJobDeploymentRepository,
+      DesiredJobDeploymentRepository desiredJobDeploymentRepository) {
     this.meterRegistry = meterRegistry;
     this.jobsRepository = jobsRepository;
-    this.jobDeploymentRepository = jobDeploymentRepository;
+    this.actualJobDeploymentRepository = actualJobDeploymentRepository;
+    this.desiredJobDeploymentRepository = desiredJobDeploymentRepository;
   }
 
   /**
@@ -72,9 +77,11 @@ public class DeploymentMonitor {
    * @param deploymentStatus
    */
   public void recordDeploymentStatus(
-      String dataJobName, DeploymentStatus deploymentStatus, DataJobDeployment dataJobDeployment) {
+      String dataJobName,
+      DeploymentStatus deploymentStatus,
+      ActualDataJobDeployment actualDataJobDeployment) {
     if (StringUtils.isNotBlank(dataJobName)) {
-      boolean jobExists = saveDataJobStatus(dataJobName, deploymentStatus, dataJobDeployment);
+      boolean jobExists = saveDataJobStatus(dataJobName, deploymentStatus, actualDataJobDeployment);
       if (jobExists || currentStatuses.containsKey(dataJobName)) {
         // TODO: Add tag for data job mode
         DistributionSummary.builder(SUMMARY_METRIC_NAME)
@@ -92,16 +99,16 @@ public class DeploymentMonitor {
   private boolean saveDataJobStatus(
       final String dataJobName,
       final DeploymentStatus deploymentStatus,
-      DataJobDeployment dataJobDeployment) {
+      ActualDataJobDeployment actualDataJobDeployment) {
     if (jobsRepository.updateDataJobLatestJobDeploymentStatusByName(dataJobName, deploymentStatus)
         > 0) {
-      switch (deploymentStatus) {
-        case SUCCESS:
-          if (dataJobDeployment != null) {
-            jobDeploymentRepository.updateDataJobDeploymentDeploymentVersionShaByDataJobName(
-                dataJobName, dataJobDeployment.getDeploymentVersionSha());
-          }
+
+      if (DeploymentStatus.SUCCESS.equals(deploymentStatus) && actualDataJobDeployment != null) {
+        actualJobDeploymentRepository.save(actualDataJobDeployment);
       }
+
+      desiredJobDeploymentRepository.updateDesiredDataJobDeploymentStatusByDataJobName(
+          dataJobName, deploymentStatus);
       return true;
     }
     log.debug("Data job: {} was deleted or hasn't been created", dataJobName);

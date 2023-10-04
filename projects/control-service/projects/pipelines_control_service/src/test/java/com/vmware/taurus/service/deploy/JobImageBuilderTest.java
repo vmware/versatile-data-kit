@@ -21,8 +21,8 @@ import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.credentials.AWSCredentialsService.AWSCredentialsDTO;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobConfig;
-import com.vmware.taurus.service.model.JobDeployment;
 import io.kubernetes.client.openapi.ApiException;
 import java.io.IOException;
 import java.util.Collections;
@@ -93,7 +93,7 @@ public class JobImageBuilderTest {
     when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
     when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
 
-    JobDeployment jobDeployment = new JobDeployment();
+    DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
@@ -137,7 +137,7 @@ public class JobImageBuilderTest {
     when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
     when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
 
-    JobDeployment jobDeployment = new JobDeployment();
+    DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
@@ -173,7 +173,7 @@ public class JobImageBuilderTest {
     when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
         .thenReturn(true);
 
-    JobDeployment jobDeployment = new JobDeployment();
+    DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
@@ -215,7 +215,7 @@ public class JobImageBuilderTest {
     when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
     when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
 
-    JobDeployment jobDeployment = new JobDeployment();
+    DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
@@ -265,7 +265,7 @@ public class JobImageBuilderTest {
     when(supportedPythonVersions.getJobBaseImage("3.11")).thenReturn("test-base-image");
     when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
 
-    JobDeployment jobDeployment = new JobDeployment();
+    DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);
@@ -305,7 +305,7 @@ public class JobImageBuilderTest {
   public void buildImage_PythonVersionNull_shouldNotCreateCronjob()
       throws InterruptedException, ApiException, IOException {
 
-    JobDeployment jobDeployment = new JobDeployment();
+    DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
     jobDeployment.setGitCommitSha("test-commit");
     jobDeployment.setEnabled(true);

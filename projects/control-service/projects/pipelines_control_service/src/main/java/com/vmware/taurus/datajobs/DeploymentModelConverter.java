@@ -6,19 +6,20 @@
 package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
-import com.vmware.taurus.service.deploy.SupportedPythonVersions;
-import com.vmware.taurus.service.model.DataJobDeployment;
+import com.vmware.taurus.service.model.DataJobDeploymentResources;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.OffsetDateTime;
 
 /** Utility functions that convert between different model or DTO classes */
 @Service
 @AllArgsConstructor
 public class DeploymentModelConverter {
-
-  private final SupportedPythonVersions supportedPythonVersions;
 
   public static JobDeployment toJobDeployment(
       String teamName, String jobName, JobDeploymentStatus jobDeploymentStatus) {
@@ -37,22 +38,60 @@ public class DeploymentModelConverter {
     return deployment;
   }
 
-  public static JobDeployment toJobDeployment(
-      String teamName, String jobName, DataJobDeployment jobDeploymentStatus) {
-    JobDeployment deployment = new JobDeployment();
-    deployment.setDataJobTeam(teamName);
-    deployment.setDataJobName(jobName);
-    deployment.setEnabled(jobDeploymentStatus.getEnabled());
+  public static DesiredDataJobDeployment toDesiredDataJobDeployment(JobDeployment jobDeployment) {
+    DesiredDataJobDeployment deployment = new DesiredDataJobDeployment();
+    deployment.setDataJobName(jobDeployment.getDataJobName());
+    deployment.setEnabled(jobDeployment.getEnabled());
 
-    DataJobResources dataJobResources = new DataJobResources();
-    dataJobResources.setCpuLimit(jobDeploymentStatus.getResourcesCpuLimit());
-    dataJobResources.setCpuRequest(jobDeploymentStatus.getResourcesCpuRequest());
-    dataJobResources.setMemoryLimit(jobDeploymentStatus.getResourcesMemoryLimit());
-    dataJobResources.setMemoryRequest(jobDeploymentStatus.getResourcesMemoryRequest());
-    deployment.setResources(dataJobResources);
+    DataJobResources dataJobResources = jobDeployment.getResources();
 
-    deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
-    deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
+    if (dataJobResources != null) {
+      DataJobDeploymentResources deploymentResources =
+          toDataJooDeploymentResources(
+              dataJobResources.getCpuRequest(),
+              dataJobResources.getCpuLimit(),
+              dataJobResources.getMemoryRequest(),
+              dataJobResources.getMemoryLimit());
+
+      deployment.setResources(deploymentResources);
+    }
+
+    deployment.setGitCommitSha(jobDeployment.getGitCommitSha());
+    deployment.setPythonVersion(jobDeployment.getPythonVersion());
+
+    return deployment;
+  }
+
+  public static ActualDataJobDeployment toActualJobDeployment(
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      String deploymentVersionSha,
+      OffsetDateTime lastDeployedDate) {
+    ActualDataJobDeployment deployment = new ActualDataJobDeployment();
+    deployment.setDataJobName(desiredDataJobDeployment.getDataJobName());
+    deployment.setDataJob(desiredDataJobDeployment.getDataJob());
+    deployment.setEnabled(desiredDataJobDeployment.getEnabled());
+
+    DataJobDeploymentResources desiredDataJobDeploymentResources =
+        desiredDataJobDeployment.getResources();
+
+    if (desiredDataJobDeploymentResources != null) {
+      DataJobDeploymentResources deploymentResources =
+          toDataJooDeploymentResources(
+              desiredDataJobDeploymentResources.getCpuRequestCores(),
+              desiredDataJobDeploymentResources.getCpuLimitCores(),
+              desiredDataJobDeploymentResources.getMemoryRequestMi(),
+              desiredDataJobDeploymentResources.getMemoryLimitMi());
+
+      deployment.setResources(deploymentResources);
+    }
+
+    deployment.setGitCommitSha(desiredDataJobDeployment.getGitCommitSha());
+    deployment.setPythonVersion(desiredDataJobDeployment.getPythonVersion());
+    deployment.setSchedule(desiredDataJobDeployment.getSchedule());
+    deployment.setDeploymentVersionSha(deploymentVersionSha);
+
+    deployment.setLastDeployedDate(lastDeployedDate);
+    deployment.setLastDeployedBy(desiredDataJobDeployment.getLastDeployedBy());
 
     return deployment;
   }
@@ -132,5 +171,16 @@ public class DeploymentModelConverter {
             : oldDeployment.getPythonVersion());
 
     return mergedDeployment;
+  }
+
+  private static DataJobDeploymentResources toDataJooDeploymentResources(
+      Float cpuRequestCores, Float cpuLimitCores, Integer memoryRequestMi, Integer memoryLimitMi) {
+    DataJobDeploymentResources deploymentResources = new DataJobDeploymentResources();
+    deploymentResources.setCpuRequestCores(cpuRequestCores);
+    deploymentResources.setCpuLimitCores(cpuLimitCores);
+    deploymentResources.setMemoryRequestMi(memoryRequestMi);
+    deploymentResources.setMemoryLimitMi(memoryLimitMi);
+
+    return deploymentResources;
   }
 }

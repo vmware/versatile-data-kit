@@ -36,7 +36,7 @@ public class DeploymentProgress {
    * @param jobDeployment the job deployment configuration
    */
   @Measurable(includeArg = 1, argName = "deployment")
-  void started(JobConfig jobConfig, DataJobDeployment jobDeployment) {}
+  void started(JobConfig jobConfig, DesiredDataJobDeployment jobDeployment) {}
 
   /**
    * Data Job Deployment has completed successfully.
@@ -45,8 +45,22 @@ public class DeploymentProgress {
    */
   @Measurable(includeArg = 1, argName = "deployment")
   void completed(DataJob dataJob, boolean sendNotification) {
+    deploymentMonitor.recordDeploymentStatus(dataJob.getName(), DeploymentStatus.SUCCESS, null);
+    if (sendNotification) {
+      dataJobNotification.notifyJobDeploySuccess(dataJob.getJobConfig());
+    }
+  }
+
+  /**
+   * Data Job Deployment has completed successfully.
+   *
+   * @param dataJob the job
+   */
+  @Measurable(includeArg = 1, argName = "deployment")
+  void completed(
+      DataJob dataJob, ActualDataJobDeployment actualDataJobDeployment, boolean sendNotification) {
     deploymentMonitor.recordDeploymentStatus(
-        dataJob.getName(), DeploymentStatus.SUCCESS, dataJob.getDataJobDeployment());
+        dataJob.getName(), DeploymentStatus.SUCCESS, actualDataJobDeployment);
     if (sendNotification) {
       dataJobNotification.notifyJobDeploySuccess(dataJob.getJobConfig());
     }
@@ -64,8 +78,7 @@ public class DeploymentProgress {
   @Measurable(includeArg = 2, argName = "status")
   @Measurable(includeArg = 3, argName = "message")
   void failed(DataJob dataJob, DeploymentStatus status, String message, boolean sendNotification) {
-    deploymentMonitor.recordDeploymentStatus(
-        dataJob.getName(), status, dataJob.getDataJobDeployment());
+    deploymentMonitor.recordDeploymentStatus(dataJob.getName(), status, null);
     if (sendNotification) {
       dataJobNotification.notifyJobDeployError(
           dataJob.getJobConfig(), "Failed to deploy the job.", message);

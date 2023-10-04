@@ -93,7 +93,7 @@ class X:
     def test_get_code_structure(self):
         self.processor.process_files()
         expected_code_structure = [
-            f'job_input.execute_query("""{self.sql_content}""")',
+            f"%%vdksql\n{self.sql_content}",
             self.py_content_run,
             self.py_content_run_multiline,
             self.py_content_run_spaces,

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.vmware.taurus.datajobs.DeploymentModelConverter.toDesiredDataJobDeployment;
+
 /**
  * CRUD operations for Versatile Data Kit deployments on kubernetes.
  *
@@ -180,7 +182,8 @@ public class DeploymentService {
           dockerRegistryService.dataJobImage(
               jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha());
 
-      if (jobImageBuilder.buildImage(imageName, dataJob, jobDeployment, sendNotification)) {
+      if (jobImageBuilder.buildImage(
+          imageName, dataJob, toDesiredDataJobDeployment(jobDeployment), sendNotification)) {
         log.info(
             "Image {} has been built. Will now schedule job {} for execution",
             imageName,

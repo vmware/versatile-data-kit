@@ -93,7 +93,7 @@ class ConvertJobDirectoryProcessor:
     def _process_sql_files(self, file):
         with open(file) as f:
             content = f.read()
-        self._code_structure.append(f'job_input.execute_query("""{content}""")')
+        self._code_structure.append(f"%%vdksql\n{content}")
         self._removed_files.append(os.path.basename(file))
         os.remove(file)
 

@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 /** Integration tests of the setup of Spring Data repository for data jobs */
 @SpringBootTest(classes = ControlplaneApplication.class)
@@ -22,7 +23,7 @@ public class JobsRepositoryIT {
 
   @Autowired private JobsRepository repository;
 
-  @Autowired private JobDeploymentRepository jobDeploymentRepository;
+  @Autowired private ActualJobDeploymentRepository jobDeploymentRepository;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -117,23 +118,28 @@ public class JobsRepositoryIT {
   @Test
   void testDeleteDataJob_withAssociatedDeployment_dataJobAndDeploymentShouldBeDeleted() {
     var dataJobEntity = new DataJob("hello", new JobConfig(), DeploymentStatus.NONE);
-    DataJobDeployment expectedDataJobDeployment =
-        new DataJobDeployment(
-            dataJobEntity.getName(),
-            dataJobEntity,
-            "sha",
-            "3.9-secure",
-            "git_commit_sha",
-            1F,
-            1F,
-            1,
-            1,
-            OffsetDateTime.now(),
-            "user",
-            true);
-    dataJobEntity.setDataJobDeployment(expectedDataJobDeployment);
-    repository.save(dataJobEntity);
+    DataJob dataJob = repository.save(dataJobEntity);
 
+    ActualDataJobDeployment expectedDataJobDeployment = new ActualDataJobDeployment();
+    expectedDataJobDeployment.setDataJobName(dataJob.getName());
+    expectedDataJobDeployment.setDataJob(dataJob);
+    expectedDataJobDeployment.setPythonVersion("3.9-secure");
+    expectedDataJobDeployment.setGitCommitSha("commit");
+
+    DataJobDeploymentResources expectedResources = new DataJobDeploymentResources();
+    expectedResources.setCpuLimitCores(1F);
+    expectedResources.setCpuRequestCores(1F);
+    expectedResources.setMemoryLimitMi(1);
+    expectedResources.setMemoryRequestMi(1);
+    expectedDataJobDeployment.setResources(expectedResources);
+
+    expectedDataJobDeployment.setLastDeployedDate(
+        OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS));
+    expectedDataJobDeployment.setLastDeployedBy("user");
+    expectedDataJobDeployment.setEnabled(true);
+    expectedDataJobDeployment.setDeploymentVersionSha("sha");
+
+    jobDeploymentRepository.save(expectedDataJobDeployment);
     Assertions.assertTrue(repository.findById(dataJobEntity.getName()).isPresent());
     Assertions.assertTrue(jobDeploymentRepository.findById(dataJobEntity.getName()).isPresent());
 

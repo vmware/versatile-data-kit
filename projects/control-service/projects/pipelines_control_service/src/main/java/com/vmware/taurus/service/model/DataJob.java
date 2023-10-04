@@ -54,10 +54,6 @@ public class DataJob {
   @Column(name = "last_execution_duration")
   private Integer lastExecutionDuration;
 
-  @OneToOne(mappedBy = "dataJob", cascade = CascadeType.ALL, orphanRemoval = true)
-  @PrimaryKeyJoinColumn
-  private DataJobDeployment dataJobDeployment;
-
   public DataJob(String name, JobConfig jobConfig) {
     this.name = name;
     this.jobConfig = jobConfig;
@@ -66,7 +62,7 @@ public class DataJob {
   }
 
   public DataJob(String name, JobConfig jobConfig, DeploymentStatus deploymentStatus) {
-    this(name, jobConfig, deploymentStatus, null, null, null, true, null, null, null, null);
+    this(name, jobConfig, deploymentStatus, null, null, null, true, null, null, null);
   }
 
   public DataJob(
@@ -83,7 +79,6 @@ public class DataJob {
         latestJobExecutionId,
         null,
         true,
-        null,
         null,
         null,
         null);
