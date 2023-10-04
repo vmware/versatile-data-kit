@@ -9,6 +9,7 @@ import threading
 from minikerberos.common.creds import KerberosCredential
 from minikerberos.common.target import KerberosTarget
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 from vdk.plugin.kerberos.base_authenticator import BaseAuthenticator
 from vdk.plugin.kerberos.vdk_kerberos_client import VdkAioKerberosClient
 
@@ -136,4 +137,4 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
                 f"and stored to file: {self._ccache_file}"
             )
         except Exception as e:
-            errors.report_and_rethrow(errors.ResolvableBy.CONFIG_ERROR, e)
+            errors.report_and_rethrow(ResolvableBy.CONFIG_ERROR, e)

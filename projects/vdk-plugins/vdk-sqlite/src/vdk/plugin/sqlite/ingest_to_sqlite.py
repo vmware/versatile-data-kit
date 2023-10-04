@@ -14,6 +14,7 @@ from typing import Tuple
 
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
 from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
@@ -95,7 +96,7 @@ class IngestToSQLite(IIngesterPlugin):
                 log.debug("Payload was ingested.")
             except Exception as e:
                 if isinstance(e, ProgrammingError):
-                    errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
+                    errors.report_and_rethrow(ResolvableBy.USER_ERROR, e)
                 else:
                     errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
 

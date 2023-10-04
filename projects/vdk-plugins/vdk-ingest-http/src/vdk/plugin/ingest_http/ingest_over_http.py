@@ -16,6 +16,7 @@ from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 
@@ -227,4 +228,4 @@ class IngestOverHttp(IIngesterPlugin):
                 }
             )
         except Exception as e:
-            errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
+            errors.report_and_rethrow(ResolvableBy.PLATFORM_ERROR, e)

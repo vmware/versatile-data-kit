@@ -13,6 +13,7 @@ import duckdb
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
 from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
 from vdk.plugin.duckdb.duckdb_connection import DuckDBConnection
@@ -78,7 +79,7 @@ class IngestToDuckDB(IIngesterPlugin):
                 cur.execute(query, obj)
                 log.debug(f"{obj} ingested.")
             except Exception as e:
-                errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
+                errors.report_and_rethrow(ResolvableBy.PLATFORM_ERROR, e)
 
     def __check_destination_table_exists(
         self, destination_table: str, cur: duckdb.cursor

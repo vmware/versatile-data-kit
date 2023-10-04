@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 import pytest
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
@@ -694,7 +695,7 @@ class TestTemplateRegression(unittest.TestCase):
             res = self._run_job(template_name, template_args)
             assert expected_why_it_happened_msg in res.output
             errors.log_and_throw.assert_called_once_with(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                to_be_fixed_by=ResolvableBy.USER_ERROR,
                 log=ANY,
                 what_happened="Data loading has failed.",
                 why_it_happened=(
