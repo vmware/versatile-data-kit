@@ -19,6 +19,7 @@ from logging import Logger
 
 log = logging.getLogger(__name__)
 
+
 # ERROR TYPES
 
 
@@ -26,19 +27,19 @@ class BaseVdkError(Exception):
     def __init__(
         self,
         vdk_resolvable_actual: ResolvableByActual = None,
-        vdk_type: ResolvableBy = None,
+        resolvable_by: ResolvableBy = None,
         *error_message_lines: str,
     ):
         """
-        :param vdk_resolvable_actual: who whould resolve the error (User or Platform Team)
-        :param vdk_type: the vdk error type, e.g. Platform, User or Config error
+        :param vdk_resolvable_actual: who should resolve the error (User or Platform Team)
+        :param resolvable_by: the vdk error type, e.g. Platform, User or Config error
         :param *error_message_lines: optional, the error message lines used to build the error representation
         """
 
         # Check if error message or dict was passed
         # for compatibility with vdk plugins
         self._line_delimiter = " "
-        self._header = f"{self.__class__.__name__}: An error of type {vdk_type} occurred. Error should be fixed by {vdk_resolvable_actual}"
+        self._header = f"{self.__class__.__name__}: Error of resolvable type {resolvable_by} occurred."
         error_message = self._header + self._line_delimiter
         if error_message_lines and isinstance(error_message_lines[0], ErrorMessage):
             message = error_message_lines[0]
@@ -57,8 +58,8 @@ class BaseVdkError(Exception):
         else:
             error_message += self._line_delimiter.join(error_message_lines)
         super().__init__(error_message)
+        self._vdk_resolvable_by = resolvable_by
         self._vdk_resolvable_actual = vdk_resolvable_actual
-        self._vdk_type = vdk_type
         self._pretty_message = error_message
         # TODO: Enable this for local runs only
         # self._prettify_message(str(error_message))
@@ -265,6 +266,30 @@ def clear_intermediate_errors():
     resolvable_context().clear()
 
 
+def set_exception_resolvable_by(exception: BaseException, resolvable_by: ResolvableBy):
+    setattr(exception, "_vdk_resolvable_by", resolvable_by)
+    setattr(
+        exception,
+        "_vdk_resolvable_actual",
+        __error_type_to_actual_resolver(resolvable_by),
+    )
+
+
+def get_exception_resolvable_by(exception: BaseException):
+    if hasattr(exception, "_vdk_resolvable_by"):
+        return getattr(exception, "_vdk_resolvable_by")
+    else:
+        return None
+
+
+def get_exception_resolvable_by_actual(exception: BaseException):
+    resolvable_by = get_exception_resolvable_by(exception)
+    if resolvable_by:
+        return __error_type_to_actual_resolver(resolvable_by)
+    else:
+        return None
+
+
 # ERROR CLASSIFICATION
 
 
@@ -323,8 +348,8 @@ def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:
     """
     Tries to determine if it's user or platform error
     """
-    if hasattr(exception, "_vdk_type"):
-        return getattr(exception, "_vdk_type")
+    if get_exception_resolvable_by(exception):
+        return get_exception_resolvable_by(exception)
     return ResolvableBy.PLATFORM_ERROR
 
 
@@ -388,29 +413,37 @@ def log_exception(log: Logger, exception: BaseException, *lines: str) -> None:
 
 
 def report(error_type: ResolvableBy, exception: BaseException):
-    resolvable_by_actual = __error_type_to_actual_resolver(error_type)
-    setattr(exception, "_vdk_resolvable_actual", resolvable_by_actual)
-    setattr(exception, "_vdk_type", error_type)
+    set_exception_resolvable_by(exception, error_type)
     resolvable_context().add(
-        Resolvable(error_type, resolvable_by_actual, str(exception), exception)
+        Resolvable(
+            error_type,
+            get_exception_resolvable_by_actual(exception),
+            str(exception),
+            exception,
+        )
     )
 
 
 def report_and_throw(
     exception: BaseVdkError,
+    resolvable_by: ResolvableBy = None,
+    cause: BaseException = None,
 ) -> None:
     """
     Add exception to resolvable context and then throw it to be handled up the stack.
     """
+    if resolvable_by:
+        set_exception_resolvable_by(exception, resolvable_by)
+
     resolvable_context().add(
         Resolvable(
-            exception._vdk_type,
-            exception._vdk_resolvable_actual,
+            get_exception_resolvable_by(exception),
+            get_exception_resolvable_by_actual(exception),
             str(exception),
             exception,
         )
     )
-    raise exception
+    raise exception from cause
 
 
 def report_and_rethrow(error_type: ResolvableBy, exception: BaseException) -> None:
