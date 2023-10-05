@@ -94,7 +94,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
             )
         else:
             errors.report_and_throw(
-                UserCodeError(
+                VdkConfigurationError(
                     "Provided method, {method}, has invalid value.",
                     "VDK was run with method={method}, however {method} is not part of the available ingestion mechanisms.",
                     errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
@@ -148,7 +148,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
             )
         else:
             errors.report_and_throw(
-                UserCodeError(
+                VdkConfigurationError(
                     f"Provided method, {method}, has invalid value.",
                     f"VDK was run with method={method}, however {method} is not part of the available ingestion mechanisms.",
                     errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,

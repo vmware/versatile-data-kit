@@ -10,6 +10,7 @@ from typing import List
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.notebook.cell import Cell
 from vdk.plugin.notebook.notebook_based_step import NotebookCellStep
 from vdk.plugin.notebook.notebook_based_step import NotebookStepFuncFactory
@@ -87,14 +88,12 @@ class Notebook:
             context.step_builder._StepBuilder__steps.sort(key=lambda step: step.name)
             log.debug(f"{len(notebook_steps)} " f"cells with vdk tag were detected!")
         except json.JSONDecodeError as e:
-            errors.log_and_rethrow(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=log,
-                what_happened=f"Failed to read the {file_path.name} file.",
-                why_it_happened=f"The provided {file_path.name} cannot be loaded into json format and "
-                f"cannot be read as a Jupyter notebook",
-                consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                countermeasures=f"Check the {file_path.name} format again",
-                exception=e,
-                wrap_in_vdk_error=True,
+            errors.report_and_throw(
+                UserCodeError(
+                    f"Failed to read the {file_path.name} file.",
+                    f"The provided {file_path.name} cannot be loaded into json format and "
+                    f"cannot be read as a Jupyter notebook",
+                    errors.MSG_CONSEQUENCE_TERMINATING_APP,
+                    f"Check the {file_path.name} format again",
+                )
             )

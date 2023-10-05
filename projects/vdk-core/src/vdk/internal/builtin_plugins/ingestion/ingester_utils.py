@@ -13,7 +13,9 @@ from decimal import Decimal
 from json import JSONEncoder
 from typing import Any
 from typing import List
+from typing import Optional
 
+from vdk.internal.builtin_plugins.ingestion.exception import PayloadIngestionException
 from vdk.internal.core import errors
 
 log = logging.getLogger(__name__)
@@ -78,17 +80,22 @@ def get_page_generator(data, page_size=10000):
             yield page
 
 
-def validate_column_count(data: iter, column_names: iter):
+def validate_column_count(
+    data: iter, column_names: iter, destination_table: str, target: str
+):
     if data:
         if len(column_names) != len(data[0]):
             errors.report_and_throw(
-                errors.UserCodeError(
-                    "Failed to post tabular data for ingestion.",
+                PayloadIngestionException(
+                    message=f"Failed to post tabular data for ingestion "
+                    f"for table {destination_table} and target {target}."
                     "The number of column names are not matching the number of values in at least on of"
-                    "the rows. You provided columns: '{column_names}' and data row: "
-                    "'{data_row}'".format(column_names=column_names, data_row=data[0]),
-                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                    "Check the data and the column names you are providing, their count should match.",
+                    f"the rows. You provided columns: '{column_names}' and data row: "
+                    f"'{data[0]}'"
+                    + "Check the data and the column names you are providing, their count should match.",
+                    payload_id=get_payload_id_for_debugging(data[0]),
+                    destination_table=destination_table,
+                    target=target,
                 )
             )
 
@@ -148,3 +155,10 @@ def is_iterable(obj: Any) -> bool:
         return True
     except TypeError:
         return False
+
+
+def get_payload_id_for_debugging(payload_dict: dict) -> Optional[str]:
+    if isinstance(payload_dict, dict):
+        payload_id = payload_dict.get("@id", payload_dict.get("id", ""))[0:20]
+        return str(payload_id)
+    return None

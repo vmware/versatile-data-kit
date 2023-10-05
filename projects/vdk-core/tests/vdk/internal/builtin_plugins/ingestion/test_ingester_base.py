@@ -6,6 +6,10 @@ from unittest.mock import MagicMock
 
 import pytest
 from vdk.api.plugin.plugin_input import IIngesterPlugin
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    InvalidArgumentsIngestionException,
+)
+from vdk.internal.builtin_plugins.ingestion.exception import PayloadIngestionException
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IngesterBase
 from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
     IngesterConfiguration,
@@ -135,7 +139,7 @@ def test_send_tabular_data_for_ingestion():
         metadata=metadata,
     )
 
-    with pytest.raises(errors.UserCodeError) as exc_info:
+    with pytest.raises(InvalidArgumentsIngestionException) as exc_info:
         ingester_base.send_tabular_data_for_ingestion(
             rows=None,
             column_names=test_columns,
@@ -143,17 +147,21 @@ def test_send_tabular_data_for_ingestion():
             method=shared_test_values.get("method"),
             target=shared_test_values.get("target"),
         )
-    assert exc_info.type == errors.UserCodeError
+    assert exc_info.type == InvalidArgumentsIngestionException
+    assert exc_info.value.param_name == "rows"
 
-    with pytest.raises(errors.UserCodeError) as exc_info:
+    with pytest.raises(PayloadIngestionException) as exc_info:
         ingester_base.send_tabular_data_for_ingestion(
-            rows=None,
+            rows=converted_row,
             column_names={"wrong_test_columns"},
             destination_table=shared_test_values.get("destination_table1"),
             method=shared_test_values.get("method"),
             target=None,
         )
-    assert exc_info.type == errors.UserCodeError
+    assert exc_info.type == PayloadIngestionException
+    assert exc_info.value.destination_table == shared_test_values.get(
+        "destination_table1"
+    )
 
 
 def test_plugin_ingest_payload():
