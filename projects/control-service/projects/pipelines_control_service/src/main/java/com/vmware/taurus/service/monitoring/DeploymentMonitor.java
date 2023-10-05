@@ -107,8 +107,9 @@ public class DeploymentMonitor {
         actualJobDeploymentRepository.save(actualDataJobDeployment);
       }
 
-      desiredJobDeploymentRepository.updateDesiredDataJobDeploymentStatusAndUserInitiatedByDataJobName(
-          dataJobName, deploymentStatus, false);
+      desiredJobDeploymentRepository
+          .updateDesiredDataJobDeploymentStatusAndUserInitiatedByDataJobName(
+              dataJobName, deploymentStatus, false);
       return true;
     }
     log.debug("Data job: {} was deleted or hasn't been created", dataJobName);
