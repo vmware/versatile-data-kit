@@ -1,5 +1,7 @@
-# RESOLVABLE CONTEXT
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 
+# RESOLVABLE CONTEXT
 from __future__ import annotations
 
 import enum
@@ -11,6 +13,7 @@ log = logging.getLogger(__name__)
 
 
 # RESOLVABLE CONTEXT
+
 
 @enum.unique
 class ResolvableBy(str, Enum):

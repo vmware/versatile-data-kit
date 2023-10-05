@@ -172,6 +172,7 @@ def exception_matches(
     grp = match.group()
     return grp == msg
 
+
 # REPORTING
 
 
