@@ -1,11 +1,11 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import importlib.machinery
-import types
 import inspect
 import logging
 import pathlib
 import sys
+import types
 from typing import Callable
 from typing import List
 
@@ -80,7 +80,9 @@ class StepFuncFactory:
 
             try:
                 log.debug("Loading %s ..." % filename)
-                loader = importlib.machinery.SourceFileLoader(namespace, str(step.file_path))
+                loader = importlib.machinery.SourceFileLoader(
+                    namespace, str(step.file_path)
+                )
                 python_module = types.ModuleType(loader)
                 loader.exec_module(python_module)
                 log.debug("Loading %s SUCCESS" % filename)
