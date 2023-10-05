@@ -12,6 +12,7 @@ from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
+from vdk.internal.core.errors import UserCodeError
 
 log = logging.getLogger(__name__)
 
@@ -97,34 +98,32 @@ class NotebookStepFuncFactory:
                 success = True
             except SyntaxError as e:
                 log.info("Loading %s FAILURE" % step.name)
-                errors.log_and_rethrow(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                    log=log,
-                    what_happened=f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
-                    f" from {step.file_path.name}",
-                    why_it_happened=f"{e.__class__.__name__} at line {e.lineno} of {step.name}"
-                    f": {e.args[0]}",
-                    consequences=f"Current Step {step.name} from {step.file_path}"
-                    f"will fail, and as a result the whole Data Job will fail. ",
-                    countermeasures=f"Please, check the {step.file_path.name} file again for syntax errors",
-                    exception=e,
-                    wrap_in_vdk_error=True,
+                errors.report_and_throw(
+                    UserCodeError(
+                        f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
+                        f" from {step.file_path.name}",
+                        f"{e.__class__.__name__} at line {e.lineno} of {step.name}"
+                        f": {e.args[0]}",
+                        f"Current Step {step.name} from {step.file_path}"
+                        "will fail, and as a result the whole Data Job will fail. ",
+                        f"Please, check the {step.file_path.name} file again for syntax errors",
+                        f"{e}",
+                    )
                 )
             except Exception as e:
                 cl, exc, tb = sys.exc_info()
                 line_number = traceback.extract_tb(tb)[-1][1]
-                errors.log_and_rethrow(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                    log=log,
-                    what_happened=f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
-                    f" from {step.file_path.name}",
-                    why_it_happened=f"{e.__class__.__name__} at line {line_number} of {step.name}"
-                    f": {e.args[0]}",
-                    consequences=f"Current Step {step.name} from {step.file_path}"
-                    f"will fail, and as a result the whole Data Job will fail. ",
-                    countermeasures=f"Please, check the {step.file_path.name} file again for errors",
-                    exception=e,
-                    wrap_in_vdk_error=True,
+                errors.report_and_throw(
+                    UserCodeError(
+                        f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
+                        f" from {step.file_path.name}",
+                        f"{e.__class__.__name__} at line {line_number} of {step.name}"
+                        f": {e.args[0]}",
+                        f"Current Step {step.name} from {step.file_path}"
+                        "will fail, and as a result the whole Data Job will fail. ",
+                        f"Please, check the {step.file_path.name} file again for errors",
+                        f"{e}",
+                    )
                 )
             return success
         finally:

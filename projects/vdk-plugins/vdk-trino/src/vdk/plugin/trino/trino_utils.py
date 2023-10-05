@@ -5,6 +5,8 @@ import logging
 from trino.exceptions import TrinoUserError
 from vdk.api.job_input import IJobInput
 from vdk.internal.core import errors
+from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.trino import trino_config
 
 log = logging.getLogger(__name__)
@@ -81,13 +83,13 @@ class TrinoTemplateQueries:
                 """
             )
         else:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=log,
-                what_happened="Cannot move data to target",
-                why_it_happened=f"Strategy for moving data to target table is not defined: {strategy}",
-                consequences="Current Step (python file) will fail, and as a result the whole Data Job will fail.",
-                countermeasures="Provide valid value for TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY.",
+            errors.report_and_throw(
+                UserCodeError(
+                    "Cannot move data to target",
+                    f"Strategy for moving data to target table is not defined: {strategy}",
+                    "Current Step (python file) will fail, and as a result the whole Data Job will fail.",
+                    "Provide valid value for TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY.",
+                )
             )
 
     def drop_table(self, db: str, table_name: str):
@@ -122,27 +124,27 @@ class TrinoTemplateQueries:
                         f"""Successfully recovered {db}.{target_name} from {db}.{backup_name}"""
                     )
                 except Exception as e:
-                    errors.log_and_throw(
-                        to_be_fixed_by=errors.ResolvableBy.PLATFORM_ERROR,
-                        log=log,
-                        what_happened=f"""Target table is unexistent and recovering it from backup table failed with "
+                    errors.report_and_throw(
+                        PlatformServiceError(
+                            f"""Target table is nonexistent and recovering it from backup table failed with "
                                       "exception: {e}""",
-                        why_it_happened=f"""One of the previous job retries failed after dropping "
+                            f"""One of the previous job retries failed after dropping "
                         "{db}.{target_name} and before moving data to it.""",
-                        consequences="Current Step (python file) will fail, and as a result the whole Data Job will fail.",
-                        countermeasures=f"""You could try to recover {db}.{target_name} from"
+                            "Current Step (python file) will fail, and as a result the whole Data Job will fail.",
+                            f"""You could try to recover {db}.{target_name} from"
                                         "{db}.{backup_name} by hand and then rerun the job.""",
+                        )
                     )
 
             # if there is no target and no backup, the user provided invalid target table
             else:
-                errors.log_and_throw(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                    log=log,
-                    what_happened="Cannot find target table",
-                    why_it_happened=f"Template is called for unexistent target table: {db}.{target_table}",
-                    consequences="Current Step (python file) will fail, and as a result the whole Data Job will fail.",
-                    countermeasures="Provide valid target table arguments.",
+                errors.report_and_throw(
+                    UserCodeError(
+                        "Cannot find target table",
+                        f"Template is called for nonexistent target table: {db}.{target_name}",
+                        "Current Step (python file) will fail, and as a result the whole Data Job will fail.",
+                        "Provide valid target table arguments.",
+                    )
                 )
 
     def perform_safe_move_data_to_table_step(
@@ -186,15 +188,14 @@ class TrinoTemplateQueries:
                 self.drop_table(from_db, from_table_name)
                 raise
             else:
-                errors.log_and_throw(
-                    to_be_fixed_by=errors.ResolvableBy.PLATFORM_ERROR,
-                    log=log,
-                    what_happened=f"""Recovering target from backup table failed. "
+                errors.report_and_throw(
+                    PlatformServiceError(
+                        f"""Recovering target from backup table failed. "
                         "Table {to_db}.{to_table_name} is lost!""",
-                    why_it_happened=f"""Step with moving data from source to target table failed, so recovery from "
+                        f"""Step with moving data from source to target table failed, so recovery from "
                                                 "backup was initiated, but it also failed with error: {e}""",
-                    consequences="Current Step (python file) will fail, and as a result the whole Data Job will fail.",
-                    countermeasures=f"""Please, try the steps bellow in the following order:\n"
+                        "Current Step (python file) will fail, and as a result the whole Data Job will fail.",
+                        f"""Please, try the steps bellow in the following order:\n"
                         "1. Try to rerun the data job OR\n"
                         "2. First try to recover {to_db}.{to_table_name} from"
                         "{to_db}.{backup_table_name} by manually executing:\n"
@@ -202,6 +203,7 @@ class TrinoTemplateQueries:
                         "INSERT INTO {to_db}.{to_table_name} SELECT * FROM {to_db}.{backup_table_name}\n"
                         "Then try to rerun the data job OR\n"
                         "3. Report the issue to support team.""",
+                    )
                 )
         if result is not None:
             log.debug("Target table was successfully created, and we can drop backup")

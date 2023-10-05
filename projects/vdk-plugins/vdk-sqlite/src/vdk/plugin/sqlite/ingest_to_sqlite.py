@@ -14,6 +14,8 @@ from typing import Tuple
 
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
 from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
 
@@ -55,16 +57,14 @@ class IngestToSQLite(IIngesterPlugin):
         """
         target = target or self.conf.get_sqlite_file()
         if not target:
-            errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "Failed to proceed with ingestion",
-                "Target was not supplied as a parameter",
-                "Will not proceed with ingestion",
-                (
+            errors.report_and_throw(
+                UserCodeError(
+                    "Failed to proceed with ingestion",
+                    "Target was not supplied as a parameter",
+                    "Will not proceed with ingestion",
                     "Set target either through the target parameter in send_object_for_ingestion,"
-                    "or through either of the VDK_INGEST_TARGET_DEFAULT or VDK_SQLITE_FILE environment variables"
-                ),
+                    "or through either of the VDK_INGEST_TARGET_DEFAULT or VDK_SQLITE_FILE environment variables",
+                )
             )
         if not payload:
             log.debug(
@@ -96,44 +96,26 @@ class IngestToSQLite(IIngesterPlugin):
                 log.debug("Payload was ingested.")
             except Exception as e:
                 if isinstance(e, ProgrammingError):
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.USER_ERROR,
-                        log,
-                        "Failed to sent payload",
-                        f"""
-                        An issue with the SQL query occured. The error message
-                        was: {str(e)}
-                        """,
-                        "Will not be able to send the payload for ingestion",
-                        "See error message for help ",
-                        e,
-                        wrap_in_vdk_error=True,
+                    log.warning(
+                        "Failed to sent payload. An issue with the SQL query occurred."
                     )
+                    errors.report_and_rethrow(ResolvableBy.USER_ERROR, e)
                 else:
-                    errors.log_and_rethrow(
-                        errors.ResolvableBy.PLATFORM_ERROR,
-                        log,
-                        "Failed to sent payload",
-                        "Unknown error. Error message was : " + str(e),
-                        "Will not be able to send the payload for ingestion",
-                        "See error message for help ",
-                        e,
-                        wrap_in_vdk_error=True,
-                    )
+                    errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
 
     def __check_destination_table_exists(
         self, destination_table: str, cur: Cursor
     ) -> None:
         columns = self.__table_columns(cur, destination_table)
         if not columns:  # check table with no columns does not exists
-            errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                what_happened="Cannot send payload for ingestion to SQLite database.",
-                why_it_happened="destination_table does not exist in the target database.",
-                consequences="Will not be able to send the payloads and will throw exception."
-                "Likely the job would fail",
-                countermeasures="Make sure the destination_table exists in the target SQLite database.",
+            errors.report_and_throw(
+                UserCodeError(
+                    "Cannot send payload for ingestion to SQLite database.",
+                    "destination_table does not exist in the target database.",
+                    "Will not be able to send the payloads and will throw exception."
+                    "Likely the job would fail",
+                    "Make sure the destination_table exists in the target SQLite database.",
+                )
             )
 
     def __table_columns(
@@ -165,18 +147,18 @@ class IngestToSQLite(IIngesterPlugin):
         # verify that the payload header and table column names match
         for obj in payload:
             if collections.Counter(fields) != collections.Counter(obj.keys()):
-                errors.log_and_throw(
-                    errors.ResolvableBy.USER_ERROR,
-                    log,
-                    "Failed to sent payload",
-                    f"""
+                errors.report_and_throw(
+                    UserCodeError(
+                        "Failed to sent payload",
+                        f"""
                     One or more column names in the input data did NOT
                     match corresponding column names in the database.
                        Input Table Columns: {list(obj.keys())}
                     Database Table Columns: {fields}
                     """,
-                    "Will not be able to send the payload for ingestion",
-                    "See error message for help ",
+                        "Will not be able to send the payload for ingestion",
+                        "See error message for help ",
+                    )
                 )
 
         # the query fstring evaluates to 'INSERT INTO dest_table (val1, val2, val3) VALUES (?, ?, ?)'
