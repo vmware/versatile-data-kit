@@ -8,6 +8,7 @@ from typing import Optional
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.errors import VdkConfigurationError
 
 KRB_AUTH = "KRB_AUTH"
 KEYTAB_FOLDER = "KEYTAB_FOLDER"
@@ -51,15 +52,15 @@ class KerberosPluginConfiguration:
         keytab_folder = self.keytab_folder()
         keytab_filename = self.keytab_filename()
         if not keytab_filename:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-                log=logging.getLogger(__name__),
-                what_happened="Cannot find keytab file location.",
-                why_it_happened="Keytab filename cannot be inferred from configuration.",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures="Provide configuration variables KEYTAB_FILENAME KEYTAB_FOLDER. "
-                "During vdk run they are automatically inferred from data job location "
-                "but for other commands they need to be explicitly set.",
+            errors.report_and_throw(
+                VdkConfigurationError(
+                    "Cannot find keytab file location.",
+                    "Keytab filename cannot be inferred from configuration.",
+                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                    "Provide configuration variables KEYTAB_FILENAME KEYTAB_FOLDER. "
+                    "During vdk run they are automatically inferred from data job location "
+                    "but for other commands they need to be explicitly set.",
+                )
             )
         if keytab_folder:
             return os.path.join(keytab_folder, keytab_filename)
