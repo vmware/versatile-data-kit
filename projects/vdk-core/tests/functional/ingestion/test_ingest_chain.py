@@ -12,6 +12,7 @@ from click.testing import Result
 from vdk.plugin.test_utils.ingest_util_plugins import AddPayloadSizeAsColumn
 from vdk.plugin.test_utils.ingest_util_plugins import ConvertPayloadValuesToString
 from vdk.plugin.test_utils.ingest_util_plugins import DummyIngestionPlugin
+from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -112,7 +113,7 @@ def test_chained_ingest_no_method_passed():
     )
 
     cli_assert_equal(1, result)
-    assert "User Error" in result.stdout
+    cli_assert("VdkConfigurationError" in result.stdout, result)
 
 
 # INGEST_PAYLOAD_PREPROCESS_SEQUENCE=A,B and VDK_INGEST_METHOD_DEFAULT=C
