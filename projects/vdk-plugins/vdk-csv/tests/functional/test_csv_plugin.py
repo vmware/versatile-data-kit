@@ -171,7 +171,6 @@ def test_csv_export_with_nonexistent_table(tmpdir):
                 "result3.csv",
             ]
         )
-        print(result.exception)
         assert isinstance(result.exception, OperationalError)
         assert hasattr(result.exception, "_vdk_resolvable_actual")
         assert (
