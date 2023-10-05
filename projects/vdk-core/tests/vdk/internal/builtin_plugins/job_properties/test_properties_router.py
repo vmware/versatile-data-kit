@@ -5,10 +5,15 @@ from unittest.mock import MagicMock
 import pytest
 from vdk.api.plugin.plugin_input import IPropertiesServiceClient
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
+from vdk.internal.builtin_plugins.job_properties.exception import (
+    WritePreProcessPropertiesException,
+)
 from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
 )
+from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 
@@ -157,8 +162,12 @@ def test_preprocessing_sequence_error():
     router.set_properties_factory_method("foo", lambda: foo_mock_client)
     router.set_properties_factory_method("bar", lambda: bar_mock_client)
 
-    with pytest.raises(UserCodeError):
+    with pytest.raises(WritePreProcessPropertiesException) as exc_info:
         router.set_all_properties({"a": "b"})
+        assert (
+            errors.get_exception_resolvable_by(exc_info.value)
+            == ResolvableBy.USER_ERROR
+        )
 
 
 def test_preprocessing_sequence_misconfigured():
