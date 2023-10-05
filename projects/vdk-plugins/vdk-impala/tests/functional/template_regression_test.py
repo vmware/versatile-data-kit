@@ -12,7 +12,8 @@ from unittest.mock import patch
 
 import pytest
 from vdk.internal.core import errors
-from vdk.internal.core.errors import UserCodeError, Resolvable, ResolvableBy
+from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
