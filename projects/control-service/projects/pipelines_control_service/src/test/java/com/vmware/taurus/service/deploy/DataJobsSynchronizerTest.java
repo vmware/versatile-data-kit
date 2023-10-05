@@ -18,40 +18,40 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Collections;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-        classes = ServiceApp.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = ServiceApp.class)
 public class DataJobsSynchronizerTest {
 
-    @Autowired
-    private DataJobsSynchronizer dataJobsSynchronizer;
+  @Autowired private DataJobsSynchronizer dataJobsSynchronizer;
 
-    @MockBean
-    private DeploymentServiceV2 deploymentService;
+  @MockBean private DeploymentServiceV2 deploymentService;
 
-    @Test
-    void synchronizeDataJobs_loadDeploymentNamesFromKubernetesReturnsValue_shouldFinishSynchronization() throws ApiException {
-        Mockito.when(deploymentService.findAllActualDeploymentNamesFromKubernetes()).thenReturn(Collections.emptySet());
+  @Test
+  void
+      synchronizeDataJobs_loadDeploymentNamesFromKubernetesReturnsValue_shouldFinishSynchronization()
+          throws ApiException {
+    Mockito.when(deploymentService.findAllActualDeploymentNamesFromKubernetes())
+        .thenReturn(Collections.emptySet());
 
-        dataJobsSynchronizer.synchronizeDataJobs();
+    dataJobsSynchronizer.synchronizeDataJobs();
 
-        Mockito.verify(deploymentService, Mockito.times(1))
-                .findAllActualDeploymentNamesFromKubernetes();
+    Mockito.verify(deploymentService, Mockito.times(1))
+        .findAllActualDeploymentNamesFromKubernetes();
 
-        Mockito.verify(deploymentService, Mockito.times(1))
-                .findAllActualDataJobDeployments();
-    }
+    Mockito.verify(deploymentService, Mockito.times(1)).findAllActualDataJobDeployments();
+  }
 
-    @Test
-    void synchronizeDataJobs_loadDeploymentNamesFromKubernetesThrowsApiException_shouldSkipSynchronization() throws ApiException {
-        Mockito.when(deploymentService.findAllActualDeploymentNamesFromKubernetes()).thenThrow(new ApiException());
+  @Test
+  void
+      synchronizeDataJobs_loadDeploymentNamesFromKubernetesThrowsApiException_shouldSkipSynchronization()
+          throws ApiException {
+    Mockito.when(deploymentService.findAllActualDeploymentNamesFromKubernetes())
+        .thenThrow(new ApiException());
 
-        dataJobsSynchronizer.synchronizeDataJobs();
+    dataJobsSynchronizer.synchronizeDataJobs();
 
-        Mockito.verify(deploymentService, Mockito.times(1))
-                .findAllActualDeploymentNamesFromKubernetes();
+    Mockito.verify(deploymentService, Mockito.times(1))
+        .findAllActualDeploymentNamesFromKubernetes();
 
-        Mockito.verify(deploymentService, Mockito.times(0))
-                .findAllActualDataJobDeployments();
-    }
+    Mockito.verify(deploymentService, Mockito.times(0)).findAllActualDataJobDeployments();
+  }
 }

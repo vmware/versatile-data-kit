@@ -53,9 +53,13 @@ public class DataJobsSynchronizer {
 
     Set<String> dataJobDeploymentNamesFromKubernetes;
     try {
-      dataJobDeploymentNamesFromKubernetes = deploymentService.findAllActualDeploymentNamesFromKubernetes();
+      dataJobDeploymentNamesFromKubernetes =
+          deploymentService.findAllActualDeploymentNamesFromKubernetes();
     } catch (ApiException e) {
-      log.error("Skipping data job deployment synchronization because deployment names cannot be loaded from Kubernetes.", new KubernetesException("Cannot load cron jobs", e));
+      log.error(
+          "Skipping data job deployment synchronization because deployment names cannot be loaded"
+              + " from Kubernetes.",
+          new KubernetesException("Cannot load cron jobs", e));
       return;
     }
 
