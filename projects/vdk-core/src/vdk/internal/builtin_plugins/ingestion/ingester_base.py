@@ -39,10 +39,7 @@ from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
 from vdk.internal.builtin_plugins.ingestion.ingester_utils import AtomicCounter
 from vdk.internal.builtin_plugins.ingestion.ingester_utils import DecimalJsonEncoder
 from vdk.internal.core import errors
-from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import ResolvableBy
-from vdk.internal.core.errors import UserCodeError
-from vdk.internal.core.errors import VdkConfigurationError
 
 log = logging.getLogger(__name__)
 
