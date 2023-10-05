@@ -137,4 +137,5 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
                 f"and stored to file: {self._ccache_file}"
             )
         except Exception as e:
+            log.warning("Could not retrieve Kerberos TGT")
             errors.report_and_rethrow(ResolvableBy.CONFIG_ERROR, e)
