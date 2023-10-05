@@ -96,6 +96,9 @@ class IngestToSQLite(IIngesterPlugin):
                 log.debug("Payload was ingested.")
             except Exception as e:
                 if isinstance(e, ProgrammingError):
+                    log.warning(
+                        "Failed to sent payload. An issue with the SQL query occurred."
+                    )
                     errors.report_and_rethrow(ResolvableBy.USER_ERROR, e)
                 else:
                     errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
