@@ -22,7 +22,7 @@ class BaseAuthenticator(ABC):
         if not os.path.isfile(keytab_pathname):
             f = os.path.abspath(keytab_pathname)
             errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+                to_be_fixed_by=errors.ErrorType.CONFIG_ERROR,
                 log=log,
                 what_happened=f"Cannot locate keytab file {keytab_pathname}.",
                 why_it_happened=f"Keytab file at {f} does not exist",

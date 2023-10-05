@@ -21,7 +21,7 @@ class ImpalaHelper:
         except Exception as e:
             if impala_error_classifier._is_authorization_error(e):
                 errors.log_and_throw(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                    to_be_fixed_by=errors.ErrorType.USER_ERROR,
                     log=self._log,
                     what_happened=f"Data loading into table {table_name} has failed.",
                     why_it_happened=(
@@ -94,7 +94,7 @@ class ImpalaHelper:
                     return
                 else:  # table is not stored as parquet
                     errors.log_and_throw(
-                        to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                        to_be_fixed_by=errors.ErrorType.USER_ERROR,
                         log=self._log,
                         what_happened="Data loading has failed.",  # FIXME: this is too specific
                         why_it_happened=(
@@ -111,7 +111,7 @@ class ImpalaHelper:
         # TODO once there is more robust loading implemented the below error can be removed. We can try to load even if
         # we cannot determine the table storage type
         errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.PLATFORM_ERROR,
+            to_be_fixed_by=errors.ErrorType.PLATFORM_ERROR,
             log=self._log,
             what_happened="Cannot determine the target table file format, which is needed to load data into it.",
             why_it_happened="There's a bug in VDK code.",

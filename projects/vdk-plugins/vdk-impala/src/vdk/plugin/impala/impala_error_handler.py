@@ -58,7 +58,7 @@ class ImpalaErrorHandler:
 
         if self._is_pool_error(caught_exception):
             errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                to_be_fixed_by=errors.ErrorType.USER_ERROR,
                 log=self._log,
                 what_happened="An Impala Pool Error occurred: " + str(caught_exception),
                 why_it_happened="Review the contents of the exception.",

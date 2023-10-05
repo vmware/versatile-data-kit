@@ -144,9 +144,9 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                     )
                 else:
                     if job_input_error_classifier.is_user_error(e):
-                        blamee = errors.ResolvableBy.USER_ERROR
+                        blamee = errors.ErrorType.USER_ERROR
                     else:
-                        blamee = errors.ResolvableBy.PLATFORM_ERROR
+                        blamee = errors.ErrorType.PLATFORM_ERROR
                     self._log.error(
                         "\n".join(
                             [

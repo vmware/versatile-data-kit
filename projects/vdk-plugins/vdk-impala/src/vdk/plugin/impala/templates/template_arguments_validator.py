@@ -58,7 +58,7 @@ class TemplateArgumentsValidator:
             return self.TemplateParams(**args).dict()
         except ValidationError as error:
             errors.log_and_rethrow(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                to_be_fixed_by=errors.ErrorType.USER_ERROR,
                 log=log,
                 what_happened="Template execution in Data Job finished with error",
                 why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(error),

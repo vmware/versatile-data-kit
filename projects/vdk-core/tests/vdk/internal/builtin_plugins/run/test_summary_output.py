@@ -8,7 +8,7 @@ from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.run.summary_output import JobSummary
 from vdk.internal.builtin_plugins.run.summary_output import JobSummaryParser
 from vdk.internal.builtin_plugins.run.summary_output import StepSummary
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 
 # Test data
 step1 = StepSummary(
@@ -17,13 +17,13 @@ step1 = StepSummary(
 step2 = StepSummary(
     name="step2",
     status=ExecutionStatus.ERROR,
-    blamee=ResolvableBy.USER_ERROR,
+    blamee=ErrorType.USER_ERROR,
     details="details2",
 )
 step3 = StepSummary(
     name="step3",
     status=ExecutionStatus.ERROR,
-    blamee=ResolvableBy.PLATFORM_ERROR,
+    blamee=ErrorType.PLATFORM_ERROR,
     details="details3",
 )
 job_summary = JobSummary(

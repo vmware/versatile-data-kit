@@ -21,7 +21,7 @@ from vdk.internal.builtin_plugins.job_secrets.secretsnotavailable import (
 )
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 from vdk.internal.util.decorators import LogDecorator
 
 log: logging.Logger = logging.getLogger(__name__)

@@ -136,14 +136,14 @@ class ErrorClassifierTest(unittest.TestCase):
     def test_vdk_user_code_error(self):
         exception = errors.UserCodeError("User error")
         self.assertEqual(
-            errors.ResolvableBy.USER_ERROR,
+            errors.ErrorType.USER_ERROR,
             whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
     def test_vdk_platform_service_error(self):
         exception = errors.PlatformServiceError("Platform error")
         self.assertEqual(
-            errors.ResolvableBy.PLATFORM_ERROR,
+            errors.ErrorType.PLATFORM_ERROR,
             whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
@@ -153,7 +153,7 @@ class ErrorClassifierTest(unittest.TestCase):
         mock_is_user_error.return_value = True
         exception = Exception("User Error")
         self.assertEqual(
-            errors.ResolvableBy.USER_ERROR,
+            errors.ErrorType.USER_ERROR,
             whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
@@ -165,7 +165,7 @@ class ErrorClassifierTest(unittest.TestCase):
         mock_is_user_error.return_value = False
         mock_traceback_format_tb.return_value = self.USER_ERROR_STACKTRACE
         self.assertEqual(
-            errors.ResolvableBy.USER_ERROR,
+            errors.ErrorType.USER_ERROR,
             whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
@@ -177,7 +177,7 @@ class ErrorClassifierTest(unittest.TestCase):
 
         mock_traceback_format_tb.return_value = self.GENERIC_USER_ERROR_STACKTRACE
         self.assertEqual(
-            errors.ResolvableBy.USER_ERROR,
+            errors.ErrorType.USER_ERROR,
             whom_to_blame(exception, self.EXECUTOR_MODULE, data_job_path),
         )
 
@@ -189,7 +189,7 @@ class ErrorClassifierTest(unittest.TestCase):
     #
     #        mock_traceback_format_tb.return_value = self.USER_ERROR_USER_PROVIDED_ITERATOR
     #        self.assertEqual(
-    #            errors.ResolvableBy.USER_ERROR,
+    #            errors.ErrorType.USER_ERROR,
     #            whom_to_blame(exception, self.EXECUTOR_MODULE),
     #        )
 
@@ -201,7 +201,7 @@ class ErrorClassifierTest(unittest.TestCase):
     #
     #        mock_traceback_format_tb.return_value = self.USER_ERROR_USER_PROVIDED_ITERATOR_EXTERNAL_LIBRARY
     #        self.assertEqual(
-    #            errors.ResolvableBy.USER_ERROR,
+    #            errors.ErrorType.USER_ERROR,
     #            whom_to_blame(exception, self.EXECUTOR_MODULE),
     #        )
 
@@ -213,7 +213,7 @@ class ErrorClassifierTest(unittest.TestCase):
 
         mock_traceback_format_tb.return_value = self.GENERIC_USER_ERROR_STACKTRACE
         self.assertEqual(
-            errors.ResolvableBy.PLATFORM_ERROR,
+            errors.ErrorType.PLATFORM_ERROR,
             whom_to_blame(exception, self.EXECUTOR_MODULE, data_job_path),
         )
 
@@ -224,7 +224,7 @@ class ErrorClassifierTest(unittest.TestCase):
         print(self.EXECUTOR_MODULE)
         mock_traceback_format_tb.return_value = self.PLATFORM_ERROR_EXTERNAL_LIBRARY
         self.assertEqual(
-            errors.ResolvableBy.PLATFORM_ERROR,
+            errors.ErrorType.PLATFORM_ERROR,
             whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 
@@ -238,7 +238,7 @@ class ErrorClassifierTest(unittest.TestCase):
         mock_is_user_error.return_value = False
         mock_traceback_format_tb.return_value = self.PLATFORM_ERROR_STACKTRACE
         self.assertEqual(
-            errors.ResolvableBy.PLATFORM_ERROR,
+            errors.ErrorType.PLATFORM_ERROR,
             whom_to_blame(exception, self.EXECUTOR_MODULE),
         )
 

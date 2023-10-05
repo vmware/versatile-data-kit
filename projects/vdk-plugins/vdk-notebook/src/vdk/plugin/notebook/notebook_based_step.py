@@ -98,7 +98,7 @@ class NotebookStepFuncFactory:
             except SyntaxError as e:
                 log.info("Loading %s FAILURE" % step.name)
                 errors.log_and_rethrow(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                    to_be_fixed_by=errors.ErrorType.USER_ERROR,
                     log=log,
                     what_happened=f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
                     f" from {step.file_path.name}",
@@ -114,7 +114,7 @@ class NotebookStepFuncFactory:
                 cl, exc, tb = sys.exc_info()
                 line_number = traceback.extract_tb(tb)[-1][1]
                 errors.log_and_rethrow(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                    to_be_fixed_by=errors.ErrorType.USER_ERROR,
                     log=log,
                     what_happened=f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
                     f" from {step.file_path.name}",

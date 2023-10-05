@@ -694,7 +694,7 @@ class TestTemplateRegression(unittest.TestCase):
             res = self._run_job(template_name, template_args)
             assert expected_why_it_happened_msg in res.output
             errors.log_and_throw.assert_called_once_with(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                to_be_fixed_by=errors.ErrorType.USER_ERROR,
                 log=ANY,
                 what_happened="Data loading has failed.",
                 why_it_happened=(

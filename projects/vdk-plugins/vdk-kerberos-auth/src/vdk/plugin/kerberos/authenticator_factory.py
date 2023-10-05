@@ -40,7 +40,7 @@ class KerberosAuthenticatorFactory:
             return None
 
         errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+            to_be_fixed_by=errors.ErrorType.CONFIG_ERROR,
             log=log,
             what_happened="Provided environment variable VDK_KRB_AUTH has invalid value.",
             why_it_happened=f"VDK was run with environment variable VDK_KRB_AUTH={authentication_type}, "

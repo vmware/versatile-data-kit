@@ -13,7 +13,7 @@ from typing import Optional
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.core.errors import find_whom_to_blame_from_exception
 from vdk.internal.core.errors import PlatformServiceError
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class StepResult:
     # Exception if thrown
     exception: Optional[BaseException] = None
     # who is responsible for resolving the error
-    blamee: Optional[ResolvableBy] = None
+    blamee: Optional[ErrorType] = None
 
 
 class ExecutionResult:
@@ -56,7 +56,7 @@ class ExecutionResult:
         status: ExecutionStatus,
         steps_list: List[StepResult],
         exception: Optional[BaseException],
-        blamee: Optional[ResolvableBy],
+        blamee: Optional[ErrorType],
     ):
         self.data_job_name = data_job_name
         self.execution_id = execution_id
@@ -112,7 +112,7 @@ class ExecutionResult:
                 "Consider opening a ticket https://github.com/vmware/versatile-data-kit/issues",
             )
 
-    def get_blamee(self) -> Optional[ResolvableBy]:
+    def get_blamee(self) -> Optional[ErrorType]:
         if self.blamee:
             return self.blamee
         exception = self.get_exception_to_raise()

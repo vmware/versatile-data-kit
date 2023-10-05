@@ -10,7 +10,7 @@ from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.api.plugin.plugin_registry import PluginException
 from vdk.api.plugin.plugin_registry import PluginHookRelay
 from vdk.internal.core.errors import ErrorMessage
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 from vdk.internal.plugin.plugin_manager import VdkPluginManager
 from vdk.internal.util.utils import log_plugin_load_fail
 
@@ -55,10 +55,10 @@ class PluginRegistry(IPluginRegistry):
         try:
             self.__plugin_manager.load_setuptools_entrypoints(self.__group_name)
         except ImportError as e:
-            log_plugin_load_fail(ResolvableBy.USER_ERROR, log, e, self.__group_name)
+            log_plugin_load_fail(ErrorType.USER_ERROR, log, e, self.__group_name)
             raise PluginException from e
         except Exception as e:
-            log_plugin_load_fail(ResolvableBy.PLATFORM_ERROR, log, e, self.__group_name)
+            log_plugin_load_fail(ErrorType.PLATFORM_ERROR, log, e, self.__group_name)
             raise PluginException from e
 
         plugins = self.__plugin_manager.list_name_plugin()

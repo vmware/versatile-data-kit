@@ -12,7 +12,7 @@ from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 from vdk.internal.core.statestore import CommonStoreKeys
 
 SYSLOG_URL = "SYSLOG_URL"

@@ -88,7 +88,7 @@ class Notebook:
             log.debug(f"{len(notebook_steps)} " f"cells with vdk tag were detected!")
         except json.JSONDecodeError as e:
             errors.log_and_rethrow(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                to_be_fixed_by=errors.ErrorType.USER_ERROR,
                 log=log,
                 what_happened=f"Failed to read the {file_path.name} file.",
                 why_it_happened=f"The provided {file_path.name} cannot be loaded into json format and "

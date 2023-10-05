@@ -95,7 +95,7 @@ class StepFuncFactory:
                         ]
                     )
                 )
-                errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
+                errors.report_and_rethrow(errors.ErrorType.USER_ERROR, e)
 
             for _, func in inspect.getmembers(python_module, inspect.isfunction):
                 if func.__name__ == "run":

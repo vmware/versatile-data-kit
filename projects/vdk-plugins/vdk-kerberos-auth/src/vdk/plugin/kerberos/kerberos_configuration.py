@@ -52,7 +52,7 @@ class KerberosPluginConfiguration:
         keytab_filename = self.keytab_filename()
         if not keytab_filename:
             errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+                to_be_fixed_by=errors.ErrorType.CONFIG_ERROR,
                 log=logging.getLogger(__name__),
                 what_happened="Cannot find keytab file location.",
                 why_it_happened="Keytab filename cannot be inferred from configuration.",

@@ -50,7 +50,7 @@ class CliRunImpl:
                     ]
                 )
             )
-            errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
+            errors.report_and_rethrow(errors.ErrorType.USER_ERROR, e)
 
     @staticmethod
     def __split_into_chunks(exec_steps: List, chunks: int) -> List:

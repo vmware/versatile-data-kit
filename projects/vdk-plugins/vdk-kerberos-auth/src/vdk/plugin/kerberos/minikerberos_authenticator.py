@@ -137,7 +137,7 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
             )
         except Exception as e:
             errors.log_and_rethrow(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+                to_be_fixed_by=errors.ErrorType.CONFIG_ERROR,
                 log=log,
                 what_happened="Could not retrieve Kerberos TGT",
                 why_it_happened=str(e),

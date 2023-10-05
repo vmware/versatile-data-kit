@@ -40,7 +40,7 @@ from vdk.internal.builtin_plugins.ingestion.ingester_utils import AtomicCounter
 from vdk.internal.builtin_plugins.ingestion.ingester_utils import DecimalJsonEncoder
 from vdk.internal.core import errors
 from vdk.internal.core.errors import PlatformServiceError
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 
@@ -166,7 +166,7 @@ class IngesterBase(IIngester):
                     param_constraint="non empty at least one of them",
                     actual_value="",
                 ),
-                resolvable_by=ResolvableBy.USER_ERROR,
+                resolvable_by=ErrorType.USER_ERROR,
             )
 
         if not isinstance(column_names, Iterable):
@@ -176,7 +176,7 @@ class IngesterBase(IIngester):
                     param_constraint="iterable or list or array type",
                     actual_value=str(type(column_names)),
                 ),
-                resolvable_by=ResolvableBy.USER_ERROR,
+                resolvable_by=ErrorType.USER_ERROR,
             )
 
         if not ingester_utils.is_iterable(rows):
@@ -186,7 +186,7 @@ class IngesterBase(IIngester):
                     param_constraint="iterable type",
                     actual_value=str(type(rows)),
                 ),
-                resolvable_by=ResolvableBy.USER_ERROR,
+                resolvable_by=ErrorType.USER_ERROR,
             )
 
         log.debug(
@@ -601,7 +601,7 @@ class IngesterBase(IIngester):
                     "is aligned with the requirements, "
                     "and that the pre-process plugins are "
                     "configured correctly.",
-                    resolvable_by=ResolvableBy.USER_ERROR,
+                    resolvable_by=ErrorType.USER_ERROR,
                 ) from e
 
         return payload, metadata
@@ -639,24 +639,24 @@ class IngesterBase(IIngester):
                     "is aligned with the requirements, "
                     "and that the post-process plugins are "
                     "configured correctly.",
-                    resolvable_by=ResolvableBy.USER_ERROR,
+                    resolvable_by=ErrorType.USER_ERROR,
                 ) from e
 
     def __handle_results(self):
         final_resolvable_by = None
-        if self._plugin_errors.get(ResolvableBy.USER_ERROR, AtomicCounter(0)).value > 0:
-            final_resolvable_by = ResolvableBy.USER_ERROR
+        if self._plugin_errors.get(ErrorType.USER_ERROR, AtomicCounter(0)).value > 0:
+            final_resolvable_by = ErrorType.USER_ERROR
         elif (
-            self._plugin_errors.get(ResolvableBy.CONFIG_ERROR, AtomicCounter(0)).value
+            self._plugin_errors.get(ErrorType.CONFIG_ERROR, AtomicCounter(0)).value
             > 0
         ):
-            final_resolvable_by = ResolvableBy.CONFIG_ERROR
+            final_resolvable_by = ErrorType.CONFIG_ERROR
         elif (
-            self._plugin_errors.get(ResolvableBy.PLATFORM_ERROR, AtomicCounter(0)).value
+            self._plugin_errors.get(ErrorType.PLATFORM_ERROR, AtomicCounter(0)).value
             > 0
             or self._fail_count.value > 0
         ):
-            final_resolvable_by = ResolvableBy.PLATFORM_ERROR
+            final_resolvable_by = ErrorType.PLATFORM_ERROR
 
         if final_resolvable_by:
             raise IngestionException(
@@ -669,14 +669,14 @@ class IngesterBase(IIngester):
 
     def __verify_payload_format(self, payload_dict: dict):
         if not payload_dict:
-            raise EmptyPayloadIngestionException(resolvable_by=ResolvableBy.USER_ERROR)
+            raise EmptyPayloadIngestionException(resolvable_by=ErrorType.USER_ERROR)
 
         elif not isinstance(payload_dict, dict):
             raise InvalidPayloadTypeIngestionException(
                 payload_id=ingester_utils.get_payload_id_for_debugging(payload_dict),
                 expected_type="dict",
                 actual_type=str(type(payload_dict)),
-                resolvable_by=ResolvableBy.USER_ERROR,
+                resolvable_by=ErrorType.USER_ERROR,
             )
 
         # Check if payload dict is valid json
@@ -690,6 +690,6 @@ class IngesterBase(IIngester):
                         payload_dict
                     ),
                     original_exception=e,
-                    resolvable_by=ResolvableBy.USER_ERROR,
+                    resolvable_by=ErrorType.USER_ERROR,
                 )
             )

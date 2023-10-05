@@ -107,9 +107,9 @@ class ManagedCursor(ProxyCursor):
             except Exception as e:
                 # todo: error classification
                 # if job_input_error_classifier.is_user_error(e):
-                blamee = errors.ResolvableBy.USER_ERROR
+                blamee = errors.ErrorType.USER_ERROR
                 # else:
-                #     blamee = errors.ResolvableBy.PLATFORM_ERROR
+                #     blamee = errors.ErrorType.PLATFORM_ERROR
                 self._log.info(f"Failed query {_get_query_duration(query_start_time)}")
                 self._log.error(
                     "\n".join(
@@ -147,7 +147,7 @@ class ManagedCursor(ProxyCursor):
                         ]
                     )
                 )
-                errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
+                errors.report_and_rethrow(errors.ErrorType.PLATFORM_ERROR, e)
 
     def _validate_operation(self, operation: str, parameters: Optional[Container]):
         if self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
@@ -168,7 +168,7 @@ class ManagedCursor(ProxyCursor):
                     )
                 )
                 errors.report_and_rethrow(
-                    errors.ResolvableBy.USER_ERROR,
+                    errors.ErrorType.USER_ERROR,
                     exception=e,
                 )
 

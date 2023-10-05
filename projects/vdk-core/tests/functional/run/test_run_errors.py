@@ -15,7 +15,7 @@ from vdk.api.plugin.plugin_input import ISecretsServiceClient
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
-from vdk.internal.core.errors import ResolvableByActual
+from vdk.internal.core.errors import ResolvableBy
 from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -58,8 +58,8 @@ def test_run_user_error(tmp_termination_msg_file):
     cli_assert_equal(1, result)
     assert _get_job_status(tmp_termination_msg_file) == "User error"
 
-    assert errors.get_blamee_overall() == ResolvableByActual.USER
-    actual_error = errors.resolvable_context().resolvables.get(ResolvableByActual.USER)[
+    assert errors.get_blamee_overall() == ResolvableBy.USER
+    actual_error = errors.resolvable_context().resolvables.get(ResolvableBy.USER)[
         0
     ]
     assert actual_error.resolved is False
@@ -99,9 +99,9 @@ def test_run_init_fails(tmp_termination_msg_file: pathlib.Path):
     cli_assert_equal(1, result)
     assert _get_job_status(tmp_termination_msg_file) == "Platform error"
 
-    assert errors.get_blamee_overall() == ResolvableByActual.PLATFORM
+    assert errors.get_blamee_overall() == ResolvableBy.PLATFORM
     actual_error = errors.resolvable_context().resolvables.get(
-        ResolvableByActual.PLATFORM
+        ResolvableBy.PLATFORM
     )[0]
     assert actual_error.resolved is False
 

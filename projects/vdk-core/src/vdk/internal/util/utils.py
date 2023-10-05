@@ -8,7 +8,7 @@ from typing import Optional
 
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 
 
 def class_fqname(py_object: Any) -> str:
@@ -46,7 +46,7 @@ def parse_config_sequence(
 
 
 def log_plugin_load_fail(
-    user_error: ResolvableBy, log: Logger, exception: Exception, group_name
+    user_error: ErrorType, log: Logger, exception: Exception, group_name
 ):
     """
     Logs errors during plugin load. Calls the errors.log_exception() method

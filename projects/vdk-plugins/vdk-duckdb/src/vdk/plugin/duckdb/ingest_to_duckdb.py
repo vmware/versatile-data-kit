@@ -40,7 +40,7 @@ class IngestToDuckDB(IIngesterPlugin):
         target = target or self.conf.get_duckdb_file()
         if not target:
             errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
+                errors.ErrorType.USER_ERROR,
                 log,
                 "Failed to proceed with ingestion.",
                 "Target was not supplied as a parameter.",
@@ -77,7 +77,7 @@ class IngestToDuckDB(IIngesterPlugin):
                 log.debug(f"{obj} ingested.")
             except Exception as e:
                 errors.log_and_rethrow(
-                    errors.ResolvableBy.PLATFORM_ERROR,
+                    errors.ErrorType.PLATFORM_ERROR,
                     log,
                     "Failed to sent payload",
                     "Unknown error. Error message was : " + str(e),
@@ -92,7 +92,7 @@ class IngestToDuckDB(IIngesterPlugin):
     ) -> None:
         if not self._check_if_table_exists(destination_table, cur):
             errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
+                errors.ErrorType.USER_ERROR,
                 log,
                 "Cannot send payload for ingestion to DuckDB database.",
                 "destination_table does not exist in the target database.",
@@ -131,7 +131,7 @@ class IngestToDuckDB(IIngesterPlugin):
         for obj in payload:
             if collections.Counter(fields) != collections.Counter(obj.keys()):
                 errors.log_and_throw(
-                    errors.ResolvableBy.USER_ERROR,
+                    errors.ErrorType.USER_ERROR,
                     log,
                     "Failed to sent payload",
                     f"""

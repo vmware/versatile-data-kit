@@ -78,7 +78,7 @@ class KinitGSSAPIAuthenticator(BaseAuthenticator):
         )
         if exitcode != 0:
             errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
+                to_be_fixed_by=errors.ErrorType.CONFIG_ERROR,
                 log=log,
                 what_happened="Could not execute kinit",
                 why_it_happened=f"kinit returned exitcode {str(exitcode)}",

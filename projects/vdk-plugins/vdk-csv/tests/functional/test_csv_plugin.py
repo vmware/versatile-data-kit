@@ -6,7 +6,7 @@ from sqlite3 import OperationalError
 from unittest import mock
 
 from click.testing import Result
-from vdk.internal.core.errors import ResolvableByActual
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.csv import csv_plugin
 from vdk.plugin.sqlite import sqlite_plugin
@@ -175,7 +175,7 @@ def test_csv_export_with_nonexistent_table(tmpdir):
         assert hasattr(result.exception, "_vdk_resolvable_actual")
         assert (
             getattr(result.exception, "_vdk_resolvable_actual")
-            == ResolvableByActual.PLATFORM
+            == ResolvableBy.PLATFORM
         )
 
 

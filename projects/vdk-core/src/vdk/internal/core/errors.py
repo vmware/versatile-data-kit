@@ -26,8 +26,8 @@ log = logging.getLogger(__name__)
 class BaseVdkError(Exception):
     def __init__(
         self,
-        vdk_resolvable_actual: ResolvableByActual = None,
-        resolvable_by: ResolvableBy = None,
+        vdk_resolvable_actual: ResolvableBy = None,
+        resolvable_by: ErrorType = None,
         *error_message_lines: str,
     ):
         """
@@ -148,7 +148,7 @@ class SkipRemainingStepsException(BaseVdkError):
 
 
 @enum.unique
-class ResolvableBy(str, Enum):
+class ErrorType(str, Enum):
     """
     Type of errors being thrown by VDK during execution of some command.
 
@@ -165,7 +165,7 @@ class ResolvableBy(str, Enum):
 
 
 @enum.unique
-class ResolvableByActual(str, Enum):
+class ResolvableBy(str, Enum):
     """
     Who is responsible for resolving/fixing the error.
 
@@ -199,8 +199,8 @@ class Resolvable:
 
     def __init__(
         self,
-        resolvable_by: ResolvableBy,
-        resolvable_by_actual: ResolvableByActual,
+        resolvable_by: ErrorType,
+        resolvable_by_actual: ResolvableBy,
         error_message: str,
         exception: BaseException,
         resolved: bool = False,
@@ -219,7 +219,7 @@ class ResolvableContext:
     """
 
     # The key is 'blamee' (i.e. responsible for the error fixing) and the value is a list of corresponding Resolvables
-    resolvables: dict[ResolvableByActual, list[Resolvable]]
+    resolvables: dict[ResolvableBy, list[Resolvable]]
     _instance = None
 
     def __new__(cls):
@@ -266,7 +266,7 @@ def clear_intermediate_errors():
     resolvable_context().clear()
 
 
-def set_exception_resolvable_by(exception: BaseException, resolvable_by: ResolvableBy):
+def set_exception_resolvable_by(exception: BaseException, resolvable_by: ErrorType):
     setattr(exception, "_vdk_resolvable_by", resolvable_by)
     setattr(
         exception,
@@ -293,17 +293,17 @@ def get_exception_resolvable_by_actual(exception: BaseException):
 # ERROR CLASSIFICATION
 
 
-def get_blamee_overall() -> ResolvableByActual | None:
+def get_blamee_overall() -> ResolvableBy | None:
     """
     Finds who is responsible for fixing the error/s.
 
     Returns:
 
     None - if there were no errors
-    ResolvableByActual.PLATFORM - if during the run there were only Platfrom exceptions
-    ResolvableByActual.USER - if during the run there was at least one job owner exceptions
+    ResolvableBy.PLATFORM - if during the run there were only Platfrom exceptions
+    ResolvableBy.USER - if during the run there was at least one job owner exceptions
 
-    The reason it is set to ResolvableByActual.USER if there is at least one job owner is:
+    The reason it is set to ResolvableBy.USER if there is at least one job owner is:
     VDK defaults the error to be resolved by Platform team  until it can determine for certain that it's an issue in the job code.
     There might be multiple components logging error (for example in exception propagation), and if at least one component says error is in the job code,
     then we set to be resolved by data job owner.
@@ -320,11 +320,11 @@ def get_blamee_overall() -> ResolvableByActual | None:
         ]
         return resolvable_by_actual if filtered else None
 
-    if ResolvableByActual.USER in resolvable_context().resolvables:
-        return filter(ResolvableByActual.USER)
+    if ResolvableBy.USER in resolvable_context().resolvables:
+        return filter(ResolvableBy.USER)
 
-    if ResolvableByActual.PLATFORM in resolvable_context().resolvables:
-        return filter(ResolvableByActual.PLATFORM)
+    if ResolvableBy.PLATFORM in resolvable_context().resolvables:
+        return filter(ResolvableBy.PLATFORM)
 
 
 def get_blamee_overall_user_error() -> str:
@@ -336,21 +336,21 @@ def get_blamee_overall_user_error() -> str:
        An ErrorMessage instance to string
     """
     blamee = get_blamee_overall()
-    if blamee is None or blamee != ResolvableByActual.USER:
+    if blamee is None or blamee != ResolvableBy.USER:
         return ""
     blamee_user_errors = resolvable_context().resolvables.get(
-        ResolvableByActual.USER, []
+        ResolvableBy.USER, []
     )
     return str(blamee_user_errors[0].exception) if blamee_user_errors else None
 
 
-def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:
+def find_whom_to_blame_from_exception(exception: Exception) -> ErrorType:
     """
     Tries to determine if it's user or platform error
     """
     if get_exception_resolvable_by(exception):
         return get_exception_resolvable_by(exception)
-    return ResolvableBy.PLATFORM_ERROR
+    return ErrorType.PLATFORM_ERROR
 
 
 def _get_exception_message(exception: Exception) -> str:
@@ -387,12 +387,12 @@ def exception_matches(
     return grp == msg
 
 
-def __error_type_to_actual_resolver(to_be_fixed_by: ResolvableBy) -> ResolvableByActual:
-    if ResolvableBy.PLATFORM_ERROR == to_be_fixed_by:
-        return ResolvableByActual.PLATFORM
-    if ResolvableBy.USER_ERROR == to_be_fixed_by:
-        return ResolvableByActual.USER
-    if ResolvableBy.CONFIG_ERROR == to_be_fixed_by:
+def __error_type_to_actual_resolver(to_be_fixed_by: ErrorType) -> ResolvableBy:
+    if ErrorType.PLATFORM_ERROR == to_be_fixed_by:
+        return ResolvableBy.PLATFORM
+    if ErrorType.USER_ERROR == to_be_fixed_by:
+        return ResolvableBy.USER
+    if ErrorType.CONFIG_ERROR == to_be_fixed_by:
         return CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY
     # We should never reach this
     raise Exception(
@@ -412,7 +412,7 @@ def log_exception(log: Logger, exception: BaseException, *lines: str) -> None:
     log.exception(exception)
 
 
-def report(error_type: ResolvableBy, exception: BaseException):
+def report(error_type: ErrorType, exception: BaseException):
     set_exception_resolvable_by(exception, error_type)
     resolvable_context().add(
         Resolvable(
@@ -426,7 +426,7 @@ def report(error_type: ResolvableBy, exception: BaseException):
 
 def report_and_throw(
     exception: BaseVdkError,
-    resolvable_by: ResolvableBy = None,
+    resolvable_by: ErrorType = None,
     cause: BaseException = None,
 ) -> None:
     """
@@ -446,7 +446,7 @@ def report_and_throw(
     raise exception from cause
 
 
-def report_and_rethrow(error_type: ResolvableBy, exception: BaseException) -> None:
+def report_and_rethrow(error_type: ErrorType, exception: BaseException) -> None:
     """
     Add exception to resolvable context and then throw it to be handled up the stack.
     """
@@ -457,7 +457,7 @@ def report_and_rethrow(error_type: ResolvableBy, exception: BaseException) -> No
 # CONVENIENCE
 
 # overwrite when running in kubernetes
-CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableByActual.PLATFORM
+CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY = ResolvableBy.PLATFORM
 
 MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE = (
     "I'm rethrowing this exception to my caller to process."
@@ -496,7 +496,7 @@ def MSG_WHY_FROM_EXCEPTION(exception: Exception) -> str:
 
 
 def log_and_throw(
-    to_be_fixed_by: ResolvableBy,
+    to_be_fixed_by: ErrorType,
     log: Logger,
     what_happened: str,
     why_it_happened: str,
@@ -509,16 +509,16 @@ def log_and_throw(
     log_and_throw kept for compatibility of plugins with older version of vdk-core
     """
     message = [what_happened, why_it_happened, consequences, countermeasures]
-    if to_be_fixed_by == ResolvableBy.USER_ERROR:
+    if to_be_fixed_by == ErrorType.USER_ERROR:
         report_and_throw(UserCodeError(*message))
-    if to_be_fixed_by == ResolvableBy.PLATFORM_ERROR:
+    if to_be_fixed_by == ErrorType.PLATFORM_ERROR:
         report_and_throw(PlatformServiceError(*message))
-    if to_be_fixed_by == ResolvableBy.CONFIG_ERROR:
+    if to_be_fixed_by == ErrorType.CONFIG_ERROR:
         report_and_throw(VdkConfigurationError(*message))
 
 
 def log_and_rethrow(
-    to_be_fixed_by: ResolvableBy,
+    to_be_fixed_by: ErrorType,
     log: Logger,
     what_happened: str,
     why_it_happened: str,
@@ -601,8 +601,8 @@ class PlatformServiceError(BaseVdkError):
 
     def __init__(self, *error_message_lines: str):
         super().__init__(
-            ResolvableByActual.PLATFORM,
-            ResolvableBy.PLATFORM_ERROR,
+            ResolvableBy.PLATFORM,
+            ErrorType.PLATFORM_ERROR,
             *error_message_lines,
         )
 
@@ -620,7 +620,7 @@ class VdkConfigurationError(BaseVdkError):
     def __init__(self, *error_message_lines: str):
         super().__init__(
             CONFIGURATION_ERRORS_ARE_TO_BE_RESOLVED_BY,
-            ResolvableBy.CONFIG_ERROR,
+            ErrorType.CONFIG_ERROR,
             *error_message_lines,
         )
 
@@ -634,5 +634,5 @@ class UserCodeError(BaseVdkError):
 
     def __init__(self, *error_message_lines: str):
         super().__init__(
-            ResolvableByActual.USER, ResolvableBy.USER_ERROR, *error_message_lines
+            ResolvableBy.USER, ErrorType.USER_ERROR, *error_message_lines
         )

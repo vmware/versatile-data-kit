@@ -19,7 +19,7 @@ def whom_to_blame(
     exception,
     executor_module: Optional[str] = None,
     data_job_path: Optional[Path] = None,
-) -> errors.ResolvableBy:
+) -> errors.ErrorType:
     """
     :param exception: Exception object that has led to Data Job failure.
     :param executor_module: name of module that executes User Code.
@@ -28,23 +28,23 @@ def whom_to_blame(
                 Otherwise the logic below will not work.
                  If the name of the module is not known, set to None
     :param data_job_path: path object of the data job directory.
-    :return: ResolvableBy.PLATFORM_ERROR if exception was recognized as Platform Team responsibility.
-             errors.ResolvableBy.USER_ERROR if exception was recognized as User Error.
+    :return: ErrorType.PLATFORM_ERROR if exception was recognized as Platform Team responsibility.
+             errors.ErrorType.USER_ERROR if exception was recognized as User Error.
     """
     if isinstance(exception, errors.BaseVdkError) or hasattr(
         exception, "to_be_fixed_by"
     ):
         return errors.find_whom_to_blame_from_exception(exception)
     if is_user_error(exception, data_job_path):
-        return errors.ResolvableBy.USER_ERROR
+        return errors.ErrorType.USER_ERROR
     if _is_exception_from_vdk_code(
         exception, executor_module
     ):  # We want to avoid blaming users for errors raised from VDK code
         return (
-            errors.ResolvableBy.PLATFORM_ERROR
+            errors.ErrorType.PLATFORM_ERROR
         )  # Because we can't be 100% sure if they are user errors
     else:
-        return errors.ResolvableBy.USER_ERROR
+        return errors.ErrorType.USER_ERROR
 
 
 def _is_exception_from_vdk_code(exception, executor_module):

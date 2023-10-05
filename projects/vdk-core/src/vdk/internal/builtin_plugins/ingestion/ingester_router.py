@@ -17,7 +17,7 @@ from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStore
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.errors import PlatformServiceError
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import CommonStoreKeys
@@ -198,7 +198,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                     ]
                 )
             )
-            errors.report_and_rethrow(ResolvableBy.USER_ERROR, e)
+            errors.report_and_rethrow(ErrorType.USER_ERROR, e)
 
     def __initialize_ingester(self, method) -> IngesterBase:
         ingester_plugin = None

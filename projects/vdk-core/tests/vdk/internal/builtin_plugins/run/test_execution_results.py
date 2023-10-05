@@ -7,7 +7,7 @@ from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.core import errors
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 
 
 class NonJsonSerializable:
@@ -76,7 +76,7 @@ def _prepare_execution_result(error, step_error, blamee=None):
         ExecutionStatus.ERROR,
         "foo",
         step_error,
-        errors.ResolvableBy.USER_ERROR,
+        errors.ErrorType.USER_ERROR,
     )
     result = ExecutionResult(
         "job-name",
@@ -101,7 +101,7 @@ def test_serialization_non_serializable():
         ExecutionStatus.ERROR,
         "details",
         exception,
-        ResolvableBy.USER_ERROR,
+        ErrorType.USER_ERROR,
     )
     result = ExecutionResult(
         "job-name",
@@ -111,7 +111,7 @@ def test_serialization_non_serializable():
         ExecutionStatus.ERROR,
         [step_result],
         exception,
-        ResolvableBy.USER_ERROR,
+        ErrorType.USER_ERROR,
     )
 
     result_as_string = result.__repr__()
@@ -129,7 +129,7 @@ def test_serialization_circular_reference():
         ExecutionStatus.ERROR,
         "details",
         exception,
-        ResolvableBy.USER_ERROR,
+        ErrorType.USER_ERROR,
     )
     result = ExecutionResult(
         "job-name",
@@ -139,7 +139,7 @@ def test_serialization_circular_reference():
         ExecutionStatus.ERROR,
         [step_result],
         exception,
-        ResolvableBy.USER_ERROR,
+        ErrorType.USER_ERROR,
     )
 
     result_as_string = result.__repr__()

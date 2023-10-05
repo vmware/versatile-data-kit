@@ -4,7 +4,7 @@ from typing import Any
 from typing import Optional
 
 from vdk.internal.core.errors import BaseVdkError
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 
 
 class IngestionException(BaseVdkError):
@@ -13,7 +13,7 @@ class IngestionException(BaseVdkError):
     This is intended to catch general exceptions that do not fit into more specific categories.
     """
 
-    def __init__(self, message: str, resolvable_by: Optional[ResolvableBy] = None):
+    def __init__(self, message: str, resolvable_by: Optional[ErrorType] = None):
         super().__init__(None, resolvable_by, message)
 
 
@@ -28,7 +28,7 @@ class PayloadIngestionException(IngestionException):
         message: str,
         destination_table: str = "",
         target: str = "",
-        resolvable_by: Optional[ResolvableBy] = None,
+        resolvable_by: Optional[ErrorType] = None,
     ):
         """
         :param payload_id: ID of the payload. This is a way for user to find out which payload failed to ingest.
@@ -50,7 +50,7 @@ class EmptyPayloadIngestionException(PayloadIngestionException):
     def __init__(
         self,
         message: Optional[str] = None,
-        resolvable_by: Optional[ResolvableBy] = None,
+        resolvable_by: Optional[ErrorType] = None,
     ):
         if not message:
             message = "Payload given to ingestion method should not be empty."
@@ -68,7 +68,7 @@ class InvalidPayloadTypeIngestionException(PayloadIngestionException):
         expected_type: str,
         actual_type: str,
         message: Optional[str] = None,
-        resolvable_by: Optional[ResolvableBy] = None,
+        resolvable_by: Optional[ErrorType] = None,
     ):
         """
         :param expected_type: The expected type for the payload
@@ -93,7 +93,7 @@ class JsonSerializationIngestionException(PayloadIngestionException):
         payload_id: str,
         original_exception: Exception,
         message: str = "",
-        resolvable_by: Optional[ResolvableBy] = None,
+        resolvable_by: Optional[ErrorType] = None,
     ):
         """
         :param original_exception: The original exception triggering this error
@@ -118,7 +118,7 @@ class InvalidArgumentsIngestionException(IngestionException):
         param_constraint: str,
         actual_value: Any,
         message: str = "",
-        resolvable_by: ResolvableBy = None,
+        resolvable_by: ErrorType = None,
     ):
         """
         :param param_name: The name of the parameter that caused the exception.
@@ -147,7 +147,7 @@ class PreProcessPayloadIngestionException(PayloadIngestionException):
         destination_table: str,
         target: str,
         message: str,
-        resolvable_by: ResolvableBy = None,
+        resolvable_by: ErrorType = None,
     ):
         super().__init__(
             message=message,
@@ -170,7 +170,7 @@ class PostProcessPayloadIngestionException(PayloadIngestionException):
         destination_table: str,
         target: str,
         message: str,
-        resolvable_by: ResolvableBy = None,
+        resolvable_by: ErrorType = None,
     ):
         super().__init__(
             message=message,

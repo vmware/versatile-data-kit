@@ -56,7 +56,7 @@ class IngestToSQLite(IIngesterPlugin):
         target = target or self.conf.get_sqlite_file()
         if not target:
             errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
+                errors.ErrorType.USER_ERROR,
                 log,
                 "Failed to proceed with ingestion",
                 "Target was not supplied as a parameter",
@@ -97,7 +97,7 @@ class IngestToSQLite(IIngesterPlugin):
             except Exception as e:
                 if isinstance(e, ProgrammingError):
                     errors.log_and_rethrow(
-                        errors.ResolvableBy.USER_ERROR,
+                        errors.ErrorType.USER_ERROR,
                         log,
                         "Failed to sent payload",
                         f"""
@@ -111,7 +111,7 @@ class IngestToSQLite(IIngesterPlugin):
                     )
                 else:
                     errors.log_and_rethrow(
-                        errors.ResolvableBy.PLATFORM_ERROR,
+                        errors.ErrorType.PLATFORM_ERROR,
                         log,
                         "Failed to sent payload",
                         "Unknown error. Error message was : " + str(e),
@@ -127,7 +127,7 @@ class IngestToSQLite(IIngesterPlugin):
         columns = self.__table_columns(cur, destination_table)
         if not columns:  # check table with no columns does not exists
             errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
+                errors.ErrorType.USER_ERROR,
                 log,
                 what_happened="Cannot send payload for ingestion to SQLite database.",
                 why_it_happened="destination_table does not exist in the target database.",
@@ -166,7 +166,7 @@ class IngestToSQLite(IIngesterPlugin):
         for obj in payload:
             if collections.Counter(fields) != collections.Counter(obj.keys()):
                 errors.log_and_throw(
-                    errors.ResolvableBy.USER_ERROR,
+                    errors.ErrorType.USER_ERROR,
                     log,
                     "Failed to sent payload",
                     f"""

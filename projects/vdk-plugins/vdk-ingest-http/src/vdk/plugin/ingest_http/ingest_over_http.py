@@ -141,7 +141,7 @@ class IngestOverHttp(IIngesterPlugin):
     def __verify_target(target):
         if not target:
             errors.log_and_throw(
-                errors.ResolvableBy.CONFIG_ERROR,
+                errors.ErrorType.CONFIG_ERROR,
                 log,
                 what_happened="Cannot send payload for ingestion over http.",
                 why_it_happened="target has not been provided to the plugin. "
@@ -160,7 +160,7 @@ class IngestOverHttp(IIngesterPlugin):
             if not ("@table" in obj):
                 if not destination_table:
                     errors.log_and_throw(
-                        errors.ResolvableBy.USER_ERROR,
+                        errors.ErrorType.USER_ERROR,
                         log,
                         "Corrupt payload",
                         """destination_table argument is empty, or @table key is
@@ -195,7 +195,7 @@ class IngestOverHttp(IIngesterPlugin):
             )
             if 400 <= req.status_code < 500:
                 errors.log_and_throw(
-                    errors.ResolvableBy.USER_ERROR,
+                    errors.ErrorType.USER_ERROR,
                     log,
                     "Failed to sent payload",
                     f"HTTP Client error. status is {req.status_code} and message was : {req.text}",
@@ -204,7 +204,7 @@ class IngestOverHttp(IIngesterPlugin):
                 )
             if req.status_code >= 500:
                 errors.log_and_throw(
-                    errors.ResolvableBy.PLATFORM_ERROR,
+                    errors.ErrorType.PLATFORM_ERROR,
                     log,
                     "Failed to sent payload",
                     f"HTTP Server error. status is {req.status_code} and message was : {req.text}",
@@ -224,7 +224,7 @@ class IngestOverHttp(IIngesterPlugin):
             )
         except Exception as e:
             errors.log_and_rethrow(
-                errors.ResolvableBy.PLATFORM_ERROR,
+                errors.ErrorType.PLATFORM_ERROR,
                 log,
                 "Failed to sent payload",
                 "Unknown error. Error message was : " + str(e),

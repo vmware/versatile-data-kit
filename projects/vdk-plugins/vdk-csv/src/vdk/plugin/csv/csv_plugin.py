@@ -124,7 +124,7 @@ vdk export-csv -q  "SELECT * FROM test_table" -f User/Documents/csv/result1.csv
 def export_csv(ctx: click.Context, query: str, file: str):
     if os.path.exists(file):
         errors.log_and_throw(
-            errors.ResolvableBy.USER_ERROR,
+            errors.ErrorType.USER_ERROR,
             log,
             "Cannot create the result csv file.",
             f"""{file} already exists. """,

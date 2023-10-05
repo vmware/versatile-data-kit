@@ -75,7 +75,7 @@ class SnowflakeConnection(ManagedConnectionBase):
                     schema=self._schema,
                 )
         except (errors.BaseVdkError, ProgrammingError, Exception) as e:
-            blamee = errors.ResolvableBy.CONFIG_ERROR
+            blamee = errors.ErrorType.CONFIG_ERROR
             errors.log_and_rethrow(
                 blamee,
                 log,

@@ -82,7 +82,7 @@ class TrinoTemplateQueries:
             )
         else:
             errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                to_be_fixed_by=errors.ErrorType.USER_ERROR,
                 log=log,
                 what_happened="Cannot move data to target",
                 why_it_happened=f"Strategy for moving data to target table is not defined: {strategy}",
@@ -123,7 +123,7 @@ class TrinoTemplateQueries:
                     )
                 except Exception as e:
                     errors.log_and_throw(
-                        to_be_fixed_by=errors.ResolvableBy.PLATFORM_ERROR,
+                        to_be_fixed_by=errors.ErrorType.PLATFORM_ERROR,
                         log=log,
                         what_happened=f"""Target table is unexistent and recovering it from backup table failed with "
                                       "exception: {e}""",
@@ -137,7 +137,7 @@ class TrinoTemplateQueries:
             # if there is no target and no backup, the user provided invalid target table
             else:
                 errors.log_and_throw(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                    to_be_fixed_by=errors.ErrorType.USER_ERROR,
                     log=log,
                     what_happened="Cannot find target table",
                     why_it_happened=f"Template is called for unexistent target table: {db}.{target_table}",
@@ -187,7 +187,7 @@ class TrinoTemplateQueries:
                 raise
             else:
                 errors.log_and_throw(
-                    to_be_fixed_by=errors.ResolvableBy.PLATFORM_ERROR,
+                    to_be_fixed_by=errors.ErrorType.PLATFORM_ERROR,
                     log=log,
                     what_happened=f"""Recovering target from backup table failed. "
                         "Table {to_db}.{to_table_name} is lost!""",

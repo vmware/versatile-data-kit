@@ -14,7 +14,7 @@ from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.core.config import ConfigurationBuilder
-from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ErrorType
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ JOB_RUN_SUMMARY_FILE_PATH = "JOB_RUN_SUMMARY_FILE_PATH"
 class StepSummary:
     name: str
     status: ExecutionStatus | None
-    blamee: ResolvableBy | None
+    blamee: ErrorType | None
     details: str | None
 
 
@@ -33,7 +33,7 @@ class StepSummary:
 class JobSummary:
     steps: list[StepSummary]
     status: ExecutionStatus | None
-    blamee: ResolvableBy | None
+    blamee: ErrorType | None
     details: str | None
 
 
@@ -56,8 +56,8 @@ class JobSummaryParser:
         return ExecutionStatus(data) if data else None
 
     @staticmethod
-    def __to_blamee(data: str | None) -> ResolvableBy:
-        return ResolvableBy(data) if data else None
+    def __to_blamee(data: str | None) -> ErrorType:
+        return ErrorType(data) if data else None
 
     @staticmethod
     def from_json(job_summary_sring: str) -> JobSummary:

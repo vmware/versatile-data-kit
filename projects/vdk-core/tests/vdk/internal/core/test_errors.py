@@ -36,7 +36,7 @@ class ErrorsTest(unittest.TestCase):
         try:
             raise Exception()
         except Exception as e:
-            errors.report(errors.ResolvableBy.PLATFORM_ERROR, e)
+            errors.report(errors.ErrorType.PLATFORM_ERROR, e)
             errors.log_exception(
                 log,
                 e,
@@ -46,14 +46,14 @@ class ErrorsTest(unittest.TestCase):
                 "Think! SRE",
             )
         self.assertEqual(
-            errors.get_blamee_overall(), errors.ResolvableByActual.PLATFORM, "Platform"
+            errors.get_blamee_overall(), errors.ResolvableBy.PLATFORM, "Platform"
         )
 
     def test_get_blamee_overall_owner(self):
         try:
             raise Exception()
         except Exception as e:
-            errors.report(errors.ResolvableBy.USER_ERROR, e)
+            errors.report(errors.ErrorType.USER_ERROR, e)
             errors.log_exception(
                 log,
                 e,
@@ -63,14 +63,14 @@ class ErrorsTest(unittest.TestCase):
                 "Think! Owner",
             )
         self.assertEqual(
-            errors.get_blamee_overall(), errors.ResolvableByActual.USER, "User"
+            errors.get_blamee_overall(), errors.ResolvableBy.USER, "User"
         )
 
     def test_get_blamee_overall_both(self):
         try:
             raise Exception()
         except Exception as e:
-            errors.report(errors.ResolvableBy.PLATFORM_ERROR, e)
+            errors.report(errors.ErrorType.PLATFORM_ERROR, e)
             errors.log_exception(
                 log,
                 e,
@@ -82,7 +82,7 @@ class ErrorsTest(unittest.TestCase):
         try:
             raise Exception()
         except Exception as e:
-            errors.report(errors.ResolvableBy.USER_ERROR, e)
+            errors.report(errors.ErrorType.USER_ERROR, e)
             errors.log_exception(
                 log,
                 e,
@@ -92,13 +92,13 @@ class ErrorsTest(unittest.TestCase):
                 "Think! Owner",
             )
         self.assertEqual(
-            errors.get_blamee_overall(), errors.ResolvableByActual.USER, "User"
+            errors.get_blamee_overall(), errors.ResolvableBy.USER, "User"
         )
 
     def test_throws_correct_type(self):
         with self.assertRaises(PlatformServiceError) as context:
             errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.PLATFORM_ERROR,
+                to_be_fixed_by=errors.ErrorType.PLATFORM_ERROR,
                 log=log,
                 what_happened="(WHAT)",
                 why_it_happened="(WHY)",
@@ -109,7 +109,7 @@ class ErrorsTest(unittest.TestCase):
 
         with self.assertRaises(UserCodeError) as context:
             errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
+                to_be_fixed_by=errors.ErrorType.USER_ERROR,
                 log=log,
                 what_happened="(WHAT)",
                 why_it_happened="(WHY)",
@@ -159,12 +159,12 @@ class ErrorsTest(unittest.TestCase):
     def test_report_and_rethrow(self):
         with pytest.raises(IndexError):
             errors.report_and_rethrow(
-                errors.ResolvableBy.USER_ERROR,
+                errors.ErrorType.USER_ERROR,
                 exception=IndexError("foo"),
             )
-        assert errors.ResolvableByActual.USER in errors.resolvable_context().resolvables
+        assert errors.ResolvableBy.USER in errors.resolvable_context().resolvables
         assert (
-            len(errors.resolvable_context().resolvables[errors.ResolvableByActual.USER])
+            len(errors.resolvable_context().resolvables[errors.ResolvableBy.USER])
             is 1
         )
 
@@ -172,13 +172,13 @@ class ErrorsTest(unittest.TestCase):
         with pytest.raises(errors.PlatformServiceError):
             errors.report_and_throw(PlatformServiceError("My super awesome message"))
         assert (
-            errors.ResolvableByActual.PLATFORM
+            errors.ResolvableBy.PLATFORM
             in errors.resolvable_context().resolvables
         )
         assert (
             len(
                 errors.resolvable_context().resolvables[
-                    errors.ResolvableByActual.PLATFORM
+                    errors.ResolvableBy.PLATFORM
                 ]
             )
             is 1
