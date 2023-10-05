@@ -6,6 +6,7 @@ Functional test aiming at verifying that payload is verified
 import logging
 
 from click.testing import Result
+from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -31,7 +32,10 @@ def test_payload_verification_none():
     )
 
     cli_assert_equal(1, result)
-    assert "Payload given to ingestion method should not be empty." in result.stdout
+    cli_assert(
+        "Payload given to ingestion method should not be empty." in result.stdout,
+        result,
+    )
 
 
 def test_payload_verification_bad_type():
@@ -50,10 +54,7 @@ def test_payload_verification_bad_type():
     )
 
     cli_assert_equal(1, result)
-    assert (
-        "Payload given to ingestion method should be a dictionary, but it is not"
-        in result.stdout
-    )
+    cli_assert("InvalidPayloadTypeIngestionException" in result.stdout, result)
 
 
 def test_payload_verification_unserializable():
@@ -72,4 +73,4 @@ def test_payload_verification_unserializable():
     )
 
     cli_assert_equal(1, result)
-    assert "JSON Serialization Error. Payload is not json serializable" in result.stdout
+    cli_assert("Payload is not json serializable" in result.stdout, result)

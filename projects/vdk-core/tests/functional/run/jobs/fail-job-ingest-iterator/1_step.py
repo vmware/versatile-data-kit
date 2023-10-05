@@ -28,5 +28,5 @@ def run(job_input: IJobInput):
 
 def ingest_some_data(job_input):
     job_input.send_tabular_data_for_ingestion(
-        rows=BrokenIterator(), column_names=["a", "b"]
+        rows=BrokenIterator(), column_names=["a", "b"], method="memory"
     )
