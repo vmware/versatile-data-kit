@@ -11,8 +11,11 @@ import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import io.kubernetes.client.openapi.ApiException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -31,13 +34,18 @@ import java.util.Set;
  * initiate the synchronization process.
  */
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class DataJobsSynchronizer {
 
   private final JobsService jobsService;
 
   private final DeploymentServiceV2 deploymentService;
+
+  private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+
+  @Value("${datajobs.deployment.configuration.synchronization.task.enabled:false}")
+  private boolean synchronizationEnabled;
 
   /**
    * Synchronizes Kubernetes CronJobs from the database to ensure that the cluster's state matches
@@ -47,7 +55,23 @@ public class DataJobsSynchronizer {
    * of Kubernetes CronJobs in the cluster, and takes the necessary actions to synchronize them.
    * This can include creating new CronJobs, updating existing CronJobs, etc.
    */
+  @Scheduled(
+          fixedDelayString = "${datajobs.deployment.configuration.synchronization.task.interval:1000}",
+          initialDelayString = "${datajobs.deployment.configuration.synchronization.task.initial.delay:10000}")
+  @SchedulerLock(name = "synchronizeDataJobsTask")
   public void synchronizeDataJobs() {
+    if (!synchronizationEnabled) {
+      log.debug("Skipping the synchronization of data job deployments since it is disabled.");
+      return;
+    }
+
+    if (!dataJobDeploymentPropertiesConfig
+            .getWriteTos()
+            .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+      log.debug("Skipping data job deployments' synchronization due to the disabled writes to the database.");
+      return;
+    }
+
     ThreadPoolTaskExecutor taskExecutor = initializeTaskExecutor();
     Iterable<DataJob> dataJobsFromDB = jobsService.findAllDataJobs();
 
