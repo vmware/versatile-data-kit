@@ -4,6 +4,7 @@ import logging
 from typing import Optional
 
 from vdk.internal.core import errors
+from vdk.internal.core.errors import VdkConfigurationError
 from vdk.plugin.kerberos.base_authenticator import BaseAuthenticator
 from vdk.plugin.kerberos.kerberos_configuration import KerberosPluginConfiguration
 from vdk.plugin.kerberos.kinit_authenticator import KinitGSSAPIAuthenticator
@@ -39,12 +40,12 @@ class KerberosAuthenticatorFactory:
             log.debug("No Kerberos authentication specified")
             return None
 
-        errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=log,
-            what_happened="Provided environment variable VDK_KRB_AUTH has invalid value.",
-            why_it_happened=f"VDK was run with environment variable VDK_KRB_AUTH={authentication_type}, "
-            f"however '{authentication_type}' is invalid value for this variable.",
-            consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-            countermeasures="Provide either 'minikerberos' or 'kinit' for environment variable VDK_KRB_AUTH.",
+        errors.report_and_throw(
+            VdkConfigurationError(
+                "Provided environment variable VDK_KRB_AUTH has invalid value.",
+                f"VDK was run with environment variable VDK_KRB_AUTH={authentication_type}, "
+                f"however '{authentication_type}' is invalid value for this variable.",
+                errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
+                "Provide either 'minikerberos' or 'kinit' for environment variable VDK_KRB_AUTH.",
+            )
         )

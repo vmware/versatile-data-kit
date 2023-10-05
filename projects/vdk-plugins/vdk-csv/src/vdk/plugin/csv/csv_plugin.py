@@ -12,6 +12,7 @@ from click import Context
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.cli_run import run
 from vdk.internal.core import errors
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.csv.csv_export_job import csv_export_step
 from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
 
@@ -123,13 +124,13 @@ vdk export-csv -q  "SELECT * FROM test_table" -f User/Documents/csv/result1.csv
 @click.pass_context
 def export_csv(ctx: click.Context, query: str, file: str):
     if os.path.exists(file):
-        errors.log_and_throw(
-            errors.ResolvableBy.USER_ERROR,
-            log,
-            "Cannot create the result csv file.",
-            f"""{file} already exists. """,
-            "Will not proceed with exporting",
-            "Use another name or choose another location for the file",
+        errors.report_and_throw(
+            UserCodeError(
+                "Cannot create the result csv file.",
+                f"""{file} already exists. """,
+                "Will not proceed with exporting",
+                "Use another name or choose another location for the file",
+            )
         )
     args = dict(query=query, fullpath=file)
     ctx.invoke(

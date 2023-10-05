@@ -12,6 +12,8 @@ from typing import Tuple
 import duckdb
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
 from vdk.plugin.duckdb.duckdb_connection import DuckDBConnection
 
@@ -39,13 +41,13 @@ class IngestToDuckDB(IIngesterPlugin):
         """
         target = target or self.conf.get_duckdb_file()
         if not target:
-            errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "Failed to proceed with ingestion.",
-                "Target was not supplied as a parameter.",
-                "Will not proceed with ingestion.",
-                "Set the correct target parameter.",
+            errors.report_and_throw(
+                UserCodeError(
+                    "Failed to proceed with ingestion.",
+                    "Target was not supplied as a parameter.",
+                    "Will not proceed with ingestion.",
+                    "Set the correct target parameter.",
+                )
             )
         if not payload:
             log.debug(
@@ -76,29 +78,20 @@ class IngestToDuckDB(IIngesterPlugin):
                 cur.execute(query, obj)
                 log.debug(f"{obj} ingested.")
             except Exception as e:
-                errors.log_and_rethrow(
-                    errors.ResolvableBy.PLATFORM_ERROR,
-                    log,
-                    "Failed to sent payload",
-                    "Unknown error. Error message was : " + str(e),
-                    "Will not be able to send the payload for ingestion",
-                    "See error message for help ",
-                    e,
-                    wrap_in_vdk_error=True,
-                )
+                errors.report_and_rethrow(ResolvableBy.PLATFORM_ERROR, e)
 
     def __check_destination_table_exists(
         self, destination_table: str, cur: duckdb.cursor
     ) -> None:
         if not self._check_if_table_exists(destination_table, cur):
-            errors.log_and_throw(
-                errors.ResolvableBy.USER_ERROR,
-                log,
-                "Cannot send payload for ingestion to DuckDB database.",
-                "destination_table does not exist in the target database.",
-                "Will not be able to send the payloads and will throw exception."
-                "Likely the job would fail",
-                "Make sure the destination_table exists in the target DuckDB database.",
+            errors.report_and_throw(
+                UserCodeError(
+                    "Cannot send payload for ingestion to DuckDB database.",
+                    "destination_table does not exist in the target database.",
+                    "Will not be able to send the payloads and will throw exception."
+                    "Likely the job would fail",
+                    "Make sure the destination_table exists in the target DuckDB database.",
+                )
             )
 
     @staticmethod
@@ -130,18 +123,18 @@ class IngestToDuckDB(IIngesterPlugin):
 
         for obj in payload:
             if collections.Counter(fields) != collections.Counter(obj.keys()):
-                errors.log_and_throw(
-                    errors.ResolvableBy.USER_ERROR,
-                    log,
-                    "Failed to sent payload",
-                    f"""
-                    One or more column names in the input data did NOT
-                    match corresponding column names in the database.
-                       Input Table Columns: {list(obj.keys())}
-                    Database Table Columns: {fields}
-                    """,
-                    "Will not be able to send the payload for ingestion",
-                    "See error message for help ",
+                errors.report_and_throw(
+                    UserCodeError(
+                        "Failed to sent payload",
+                        f"""
+                                    One or more column names in the input data did NOT
+                                    match corresponding column names in the database.
+                                    Input Table Columns: {list(obj.keys())}
+                                    Database Table Columns: {fields}
+                                    """,
+                        "Will not be able to send the payload for ingestion",
+                        "See error message for help ",
+                    )
                 )
 
     def __create_table_if_not_exists(
