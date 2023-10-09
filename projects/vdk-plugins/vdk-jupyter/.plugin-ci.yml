@@ -15,7 +15,9 @@
     - pip install -U pip setuptools pre-commit
     - apk --no-cache add npm libffi-dev curl musl-dev
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.72.0
-    - apk add gcc python3-dev
+    - export PATH="$HOME/.cargo/bin:$PATH"
+    - rustc --version
+    - cargo --version
     - pip install jupyter
   retry: !reference [.retry, retry_options]
   rules:
