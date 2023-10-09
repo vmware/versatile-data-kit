@@ -13,7 +13,7 @@
   before_script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - pip install -U pip setuptools pre-commit
-    - apk --no-cache add npm libffi-dev curl musl-dev
+    - apk --no-cache add npm libffi-dev curl musl-dev gcc
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.72.0
     - export PATH="$HOME/.cargo/bin:$PATH"
     - rustc --version
