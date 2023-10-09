@@ -155,5 +155,8 @@
         "jlpm clean:all"
       ]
     }
-  }
+  },
+  "workspaces": [
+    "vdk-jupyterlab-extension-ui-tests"
+  ]
 }
