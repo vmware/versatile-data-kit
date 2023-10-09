@@ -57,15 +57,13 @@ public class DeploymentServiceV2 {
    * @param actualJobDeployment the actual data job deployment has been deployed.
    * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in
    *     Kubernetes.
-   * @param sendNotification if it is true the method will send a notification to the end user.
    */
   @Measurable(includeArg = 0, argName = "data_job")
   public void updateDeployment(
       DataJob dataJob,
       DesiredDataJobDeployment desiredJobDeployment,
       ActualDataJobDeployment actualJobDeployment,
-      boolean isJobDeploymentPresentInKubernetes,
-      Boolean sendNotification) {
+      boolean isJobDeploymentPresentInKubernetes) {
     if (desiredJobDeployment == null) {
       log.warn(
           "Skipping the data job [job_name={}] deployment due to the missing deployment data",
@@ -82,6 +80,9 @@ public class DeploymentServiceV2 {
           desiredJobDeployment.getStatus());
       return;
     }
+
+    // Sends notification only when the deployment is initiated by the user.
+    boolean sendNotification = Boolean.TRUE.equals(desiredJobDeployment.getUserInitiated());
 
     try {
       log.info("Starting deployment of job {}", desiredJobDeployment.getDataJobName());

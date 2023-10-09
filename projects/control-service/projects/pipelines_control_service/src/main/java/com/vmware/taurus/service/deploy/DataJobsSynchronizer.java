@@ -91,15 +91,11 @@ public class DataJobsSynchronizer {
       ActualDataJobDeployment actualDataJobDeployment,
       boolean isDeploymentPresentInKubernetes) {
     if (desiredDataJobDeployment != null) {
-      boolean sendNotification =
-          true; // TODO [miroslavi] sends notification only when the deployment is initiated by the
-      // user.
       deploymentService.updateDeployment(
           dataJob,
           desiredDataJobDeployment,
           actualDataJobDeployment,
-          isDeploymentPresentInKubernetes,
-          sendNotification);
+          isDeploymentPresentInKubernetes);
     }
   }
 
