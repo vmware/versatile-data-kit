@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Getter
@@ -17,4 +18,10 @@ import javax.persistence.Entity;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 @Entity
-public class DesiredDataJobDeployment extends BaseDataJobDeployment {}
+public class DesiredDataJobDeployment extends BaseDataJobDeployment {
+
+  private DeploymentStatus status;
+
+  @Column(name = "is_user_initiated")
+  private Boolean userInitiated;
+}

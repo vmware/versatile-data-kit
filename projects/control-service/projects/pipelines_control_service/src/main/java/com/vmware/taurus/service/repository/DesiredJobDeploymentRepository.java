@@ -5,9 +5,15 @@
 
 package com.vmware.taurus.service.repository;
 
+import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import javax.transaction.Transactional;
 
 /**
  * Spring Data / JPA Repository for DesiredDataJobDeployment objects and their members
@@ -22,4 +28,23 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface DesiredJobDeploymentRepository
-    extends JpaRepository<DesiredDataJobDeployment, String> {}
+    extends JpaRepository<DesiredDataJobDeployment, String> {
+
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  @Query(
+      "update DesiredDataJobDeployment d set d.enabled = :enabled where d.dataJobName ="
+          + " :dataJobName")
+  int updateDesiredDataJobDeploymentEnabledByDataJobName(
+      @Param(value = "dataJobName") String dataJobName, @Param(value = "enabled") Boolean enabled);
+
+  @Transactional
+  @Modifying(clearAutomatically = true)
+  @Query(
+      "update DesiredDataJobDeployment d set d.status = :status, d.userInitiated = :userInitiated"
+          + " where d.dataJobName = :dataJobName")
+  int updateDesiredDataJobDeploymentStatusAndUserInitiatedByDataJobName(
+      @Param(value = "dataJobName") String dataJobName,
+      @Param(value = "status") DeploymentStatus status,
+      @Param(value = "userInitiated") Boolean userInitiatedDeployment);
+}

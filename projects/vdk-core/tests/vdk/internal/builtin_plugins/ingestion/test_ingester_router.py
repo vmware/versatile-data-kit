@@ -46,7 +46,7 @@ def test_router_send_object_for_ingestion_no_default_method(
 ):
     router = create_ingester_router({})
 
-    with pytest.raises(UserCodeError):
+    with pytest.raises(VdkConfigurationError):
         router.send_object_for_ingestion({"a": "b"})
 
     mock_ingester_base.return_value.send_object_for_ingestion.assert_not_called()
@@ -70,7 +70,7 @@ def test_router_send_tabular_data_for_ingestion_no_default_method(
 ):
     router = create_ingester_router({})
 
-    with pytest.raises(UserCodeError):
+    with pytest.raises(VdkConfigurationError):
         router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
 
     mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_not_called()

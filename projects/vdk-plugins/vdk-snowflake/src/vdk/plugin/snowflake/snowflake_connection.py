@@ -15,6 +15,7 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
 )
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 
 log = logging.getLogger(__name__)
 
@@ -75,16 +76,9 @@ class SnowflakeConnection(ManagedConnectionBase):
                     schema=self._schema,
                 )
         except (errors.BaseVdkError, ProgrammingError, Exception) as e:
-            blamee = errors.ResolvableBy.CONFIG_ERROR
-            errors.log_and_rethrow(
-                blamee,
-                log,
-                what_happened="Connecting to Snowflake FAILED.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                exception=e,
-            )
+            blamee = ResolvableBy.CONFIG_ERROR
+            log.warning("Connecting to Snowflake FAILED.")
+            errors.report_and_rethrow(blamee, e)
 
     def execute_query(self, query) -> List[List[Any]]:
         try:

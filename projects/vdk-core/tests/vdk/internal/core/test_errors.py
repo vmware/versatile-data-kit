@@ -14,6 +14,9 @@ log = logging.getLogger(__name__)
 
 
 class ErrorsTest(unittest.TestCase):
+    def setUp(self) -> None:
+        errors.resolvable_context().clear()
+
     def tearDown(self):
         errors.resolvable_context().clear()
 
@@ -118,8 +121,8 @@ class ErrorsTest(unittest.TestCase):
     def test_exception_matcher_empty_exception(self):
         self.assertTrue(
             errors.exception_matches(
-                e=errors.BaseVdkError(""),
-                classname_with_package=f"{errors.__name__}.BaseVdkError",
+                e=AttributeError(""),
+                classname_with_package=f"AttributeError",
                 exception_message_matcher_regex=".*",
             )
         )
@@ -127,8 +130,8 @@ class ErrorsTest(unittest.TestCase):
     def test_exception_matcher_exception_with_text(self):
         self.assertTrue(
             errors.exception_matches(
-                e=errors.BaseVdkError("Some.text.that/should?match!regex"),
-                classname_with_package=f"{errors.__name__}.BaseVdkError",
+                e=errors.VdkConfigurationError("Some.text.that/should?match!regex"),
+                classname_with_package=f"{errors.__name__}.VdkConfigurationError",
                 exception_message_matcher_regex=r".*\..*\..*\/.*\?.*!regex.*",
             )
         )
@@ -136,7 +139,7 @@ class ErrorsTest(unittest.TestCase):
     def test_exception_matcher_exception_with_wrong_class(self):
         self.assertFalse(
             errors.exception_matches(
-                e=errors.BaseVdkError("Doesn't matter what the text is"),
+                e=errors.VdkConfigurationError("Doesn't matter what the text is"),
                 classname_with_package="wrong.class.package",
                 exception_message_matcher_regex="^.*$",
             )
@@ -145,8 +148,10 @@ class ErrorsTest(unittest.TestCase):
     def test_exception_matche_exception_with_not_matching_message(self):
         self.assertFalse(
             errors.exception_matches(
-                e=errors.BaseVdkError("This string doesn't contain question mark"),
-                classname_with_package=f"{errors.__name__}.DomainError",
+                e=errors.VdkConfigurationError(
+                    "This string doesn't contain question mark"
+                ),
+                classname_with_package=f"{errors.__name__}.VdkConfigurationError",
                 exception_message_matcher_regex=r"^.*\?.*$",
             )
         )

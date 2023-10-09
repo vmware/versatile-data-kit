@@ -14,16 +14,32 @@ from typing import Tuple
 from vdk.api.job_input import IIngester
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.internal.builtin_plugins.ingestion import ingester_utils
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    EmptyPayloadIngestionException,
+)
+from vdk.internal.builtin_plugins.ingestion.exception import IngestionException
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    InvalidArgumentsIngestionException,
+)
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    InvalidPayloadTypeIngestionException,
+)
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    JsonSerializationIngestionException,
+)
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    PostProcessPayloadIngestionException,
+)
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    PreProcessPayloadIngestionException,
+)
 from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
     IngesterConfiguration,
 )
 from vdk.internal.builtin_plugins.ingestion.ingester_utils import AtomicCounter
 from vdk.internal.builtin_plugins.ingestion.ingester_utils import DecimalJsonEncoder
 from vdk.internal.core import errors
-from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import ResolvableBy
-from vdk.internal.core.errors import UserCodeError
-from vdk.internal.core.errors import VdkConfigurationError
 
 log = logging.getLogger(__name__)
 
@@ -142,36 +158,35 @@ class IngesterBase(IIngester):
         """
         if len(column_names) == 0 and destination_table is None:
             errors.report_and_throw(
-                UserCodeError(
-                    "Failed to ingest tabular data",
-                    "Either column names or destination table must be specified."
-                    "Without at least one of those we cannot determine how data should be ingested and we abort.",
-                    "The data will not be ingested and the current call will fail with an exception.",
-                    "Pass column names or destination table as argument.",
-                )
-            )
-
-        if not ingester_utils.is_iterable(rows):
-            errors.report_and_throw(
-                UserCodeError(
-                    "Cannot ingest tabular data",
-                    f"The rows argument must be an iterable but it was type: {type(rows)}",
-                    "The data will not be ingested and current call will fail with an exception.",
-                    "Make sure rows is proper iterator object ",
-                )
+                exception=InvalidArgumentsIngestionException(
+                    param_name="column_names or destination_table",
+                    param_constraint="non empty at least one of them",
+                    actual_value="",
+                ),
+                resolvable_by=ResolvableBy.USER_ERROR,
             )
 
         if not isinstance(column_names, Iterable):
             errors.report_and_throw(
-                UserCodeError(
-                    "Cannot ingest tabular data",
-                    f"The column_names argument must be a List (or iterable) but it was: {type(rows)}",
-                    "The data will not be ingested and current call will fail with an exception.",
-                    "Make sure column_names is proper List object ",
-                )
+                exception=InvalidArgumentsIngestionException(
+                    param_name="column_names",
+                    param_constraint="iterable or list or array type",
+                    actual_value=str(type(column_names)),
+                ),
+                resolvable_by=ResolvableBy.USER_ERROR,
             )
 
-        log.info(
+        if not ingester_utils.is_iterable(rows):
+            errors.report_and_throw(
+                exception=InvalidArgumentsIngestionException(
+                    param_name="rows",
+                    param_constraint="iterable type",
+                    actual_value=str(type(rows)),
+                ),
+                resolvable_by=ResolvableBy.USER_ERROR,
+            )
+
+        log.debug(
             "Posting for ingestion data for table {table} with columns {columns} against endpoint {endpoint}".format(
                 table=destination_table, columns=column_names, endpoint=target
             )
@@ -181,10 +196,13 @@ class IngesterBase(IIngester):
             collection_id = "{data_job_name}|{execution_id}".format(
                 data_job_name=self._data_job_name, execution_id=self._op_id
             )
+            log.debug(f"Automatically generate collection id: {collection_id}")
 
         # fetch data in chunks to prevent running out of memory
         for page_number, page in enumerate(ingester_utils.get_page_generator(rows)):
-            ingester_utils.validate_column_count(page, column_names)
+            ingester_utils.validate_column_count(
+                page, column_names, destination_table, target
+            )
             converted_rows = ingester_utils.convert_table(page, column_names)
             log.debug(
                 "Posting page {number} with {size} rows for ingestion.".format(
@@ -461,32 +479,15 @@ class IngesterBase(IIngester):
                                 or collection_id
                             )
 
-                    try:
-                        ingestion_metadata = self._ingester.ingest_payload(
-                            payload=payload_obj,
-                            destination_table=destination_table,
-                            target=target,
-                            collection_id=collection_id,
-                            metadata=ingestion_metadata,
-                        )
+                    ingestion_metadata = self._ingester.ingest_payload(
+                        payload=payload_obj,
+                        destination_table=destination_table,
+                        target=target,
+                        collection_id=collection_id,
+                        metadata=ingestion_metadata,
+                    )
 
-                        self._success_count.increment()
-                    except VdkConfigurationError:
-                        # TODO: logging for every error might be too much
-                        # There could be million of uploads and millions of error logs would be hard to use.
-                        # But until we have a way to aggregate the errors and show
-                        # the most relevant errors it's better to make sure we do not hide an issue
-                        # and be verbose.
-                        log.exception(
-                            "A configuration error occurred while ingesting data."
-                        )
-                        raise
-                    except UserCodeError:
-                        log.exception("An user error occurred while ingesting data.")
-                        raise
-                    except Exception:
-                        log.exception("A platform error occurred while ingesting data.")
-                        raise
+                    self._success_count.increment()
 
                 except Exception as e:
                     self._fail_count.increment()
@@ -512,12 +513,9 @@ class IngesterBase(IIngester):
                         metadata=ingestion_metadata,
                         exception=exception,
                     )
-            except VdkConfigurationError:
-                self._plugin_errors[VdkConfigurationError].increment()
-            except UserCodeError:
-                self._plugin_errors[UserCodeError].increment()
-            except Exception:
-                self._plugin_errors[PlatformServiceError].increment()
+            except Exception as e:
+                resolvable_by = errors.get_exception_resolvable_by(e)
+                self._plugin_errors[resolvable_by].increment()
 
     def _start_workers(self):
         """
@@ -588,18 +586,21 @@ class IngesterBase(IIngester):
                     metadata=metadata,
                 )
             except Exception as e:
-                errors.report_and_throw(
-                    UserCodeError(
-                        "Failed to pre-process the data.",
-                        f"User Error occurred. Exception was: {e}",
-                        "Execution of the data job will fail, "
-                        "in order to prevent data corruption.",
-                        "Check if the data sent for ingestion "
-                        "is aligned with the requirements, "
-                        "and that the pre-process plugins are "
-                        "configured correctly.",
-                    )
-                )
+                raise PreProcessPayloadIngestionException(
+                    payload_id="",
+                    destination_table=destination_table,
+                    target=target,
+                    message="Failed to pre-process the data."
+                    f"User Error occurred. Exception was: {e}"
+                    "Execution of the data job will fail, "
+                    "in order to prevent data corruption."
+                    "Check if the data sent for ingestion "
+                    "is aligned with the requirements, "
+                    "and that the pre-process plugins are "
+                    "configured correctly.",
+                    resolvable_by=ResolvableBy.USER_ERROR,
+                ) from e
+
         return payload, metadata
 
     def _execute_post_process_operations(
@@ -622,64 +623,57 @@ class IngesterBase(IIngester):
                     exception=exception,
                 )
             except Exception as e:
-                errors.report_and_throw(
-                    UserCodeError(
-                        "Could not complete post-ingestion process.",
-                        f"User Error occurred. Exception was: {e}",
-                        "Execution of the data job will fail, "
-                        "in order to prevent data corruption.",
-                        "Check if the data sent for "
-                        "post-processing "
-                        "is aligned with the requirements, "
-                        "and that the post-process plugins are "
-                        "configured correctly.",
-                    )
-                )
+                raise PostProcessPayloadIngestionException(
+                    payload_id="",
+                    destination_table=destination_table,
+                    target=target,
+                    message="Could not complete post-ingestion process."
+                    f"Exception was: {e}"
+                    "Execution of the data job will fail, "
+                    "in order to prevent data corruption."
+                    "Check if the data sent for "
+                    "post-processing "
+                    "is aligned with the requirements, "
+                    "and that the post-process plugins are "
+                    "configured correctly.",
+                    resolvable_by=ResolvableBy.USER_ERROR,
+                ) from e
 
     def __handle_results(self):
-        if self._plugin_errors.get(UserCodeError, AtomicCounter(0)).value > 0:
-            errors.report_and_throw(
-                UserCodeError(
-                    "Failed to post all data for ingestion successfully.",
-                    "Some data will not be ingested.",
-                    "Ensure data you are sending is aligned with the requirements",
-                    "User error occurred. See warning logs for more details. ",
-                )
-            )
-        if self._plugin_errors.get(VdkConfigurationError, AtomicCounter(0)).value > 0:
-            errors.report_and_throw(
-                VdkConfigurationError(
-                    "Failed to post all data for ingestion successfully.",
-                    "Some data will not be ingested.",
-                    "Ensure job is properly configured. "
-                    "For example make sure that target and method specified are correct",
-                )
-            )
-        if (
-            self._plugin_errors.get(PlatformServiceError, AtomicCounter(0)).value > 0
+        final_resolvable_by = None
+        if self._plugin_errors.get(ResolvableBy.USER_ERROR, AtomicCounter(0)).value > 0:
+            final_resolvable_by = ResolvableBy.USER_ERROR
+        elif (
+            self._plugin_errors.get(ResolvableBy.CONFIG_ERROR, AtomicCounter(0)).value
+            > 0
+        ):
+            final_resolvable_by = ResolvableBy.CONFIG_ERROR
+        elif (
+            self._plugin_errors.get(ResolvableBy.PLATFORM_ERROR, AtomicCounter(0)).value
+            > 0
             or self._fail_count.value > 0
         ):
-            errors.report_and_throw(
-                PlatformServiceError(
-                    "Failed to post all data for ingestion successfully.",
-                    "Some data will not be ingested.",
-                    "There has been temporary failure. ",
-                    "You can retry the data job again. ",
-                    "If error persist inspect logs and check ingest plugin documentation.",
-                )
+            final_resolvable_by = ResolvableBy.PLATFORM_ERROR
+
+        if final_resolvable_by:
+            raise IngestionException(
+                message="Failed to post all data for ingestion successfully. "
+                "Some data will not be ingested."
+                "Check all logs carefully, there should be warnings or errors related to ingestion "
+                "indicating the root cause.",
+                resolvable_by=final_resolvable_by,
             )
 
-    @staticmethod
-    def __verify_payload_format(payload_dict: dict):
+    def __verify_payload_format(self, payload_dict: dict):
         if not payload_dict:
-            raise errors.UserCodeError(
-                "Payload given to " "ingestion method should " "not be empty."
-            )
+            raise EmptyPayloadIngestionException(resolvable_by=ResolvableBy.USER_ERROR)
 
         elif not isinstance(payload_dict, dict):
-            raise errors.UserCodeError(
-                "Payload given to ingestion method should be a "
-                "dictionary, but it is not."
+            raise InvalidPayloadTypeIngestionException(
+                payload_id=ingester_utils.get_payload_id_for_debugging(payload_dict),
+                expected_type="dict",
+                actual_type=str(type(payload_dict)),
+                resolvable_by=ResolvableBy.USER_ERROR,
             )
 
         # Check if payload dict is valid json
@@ -688,10 +682,11 @@ class IngesterBase(IIngester):
             json.dumps(payload_dict, cls=DecimalJsonEncoder)
         except (TypeError, OverflowError, Exception) as e:
             errors.report_and_throw(
-                UserCodeError(
-                    "Failed to send payload. JSON Serialization Error. Payload is not json serializable",
-                    "JSON Serialization Error. Payload is not json serializable",
-                    "Payload may be only partially ingested, or not ingested at all.",
-                    f"See error message for help: {str(e)}",
+                JsonSerializationIngestionException(
+                    payload_id=ingester_utils.get_payload_id_for_debugging(
+                        payload_dict
+                    ),
+                    original_exception=e,
+                    resolvable_by=ResolvableBy.USER_ERROR,
                 )
             )

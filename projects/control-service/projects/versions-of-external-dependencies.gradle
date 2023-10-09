@@ -14,12 +14,12 @@ project.ext {
             'org.junit.jupiter:junit-jupiter-engine'                             : 'org.junit.jupiter:junit-jupiter-engine:5.9.3',
             'org.junit.platform:junit-platform-suite-api'                        : 'org.junit.platform:junit-platform-suite-api:1.10.0',
             'com.mmnaseri.utils:spring-data-mock'                                : 'com.mmnaseri.utils:spring-data-mock:2.2.0',
-            'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:5.4.0',
+            'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:5.6.0',
             'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.14.5',
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.15.2',
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2',
             'org.json:json'                                                      : 'org.json:json:20230618',
-            'commons-io:commons-io'                                              : 'commons-io:commons-io:2.13.0',
+            'commons-io:commons-io'                                              : 'commons-io:commons-io:2.14.0',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.33',
             'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r',
             'org.zeroturnaround:zt-exec'                                         : 'org.zeroturnaround:zt-exec:1.12',
@@ -33,7 +33,7 @@ project.ext {
             'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:5.6.0',
             'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.8.0',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.18.3',
-            'org.testcontainers:vault'                                           : 'org.testcontainers:vault:1.18.3',
+            'org.testcontainers:vault'                                           : 'org.testcontainers:vault:1.19.1',
             'org.testcontainers:junit-jupiter'                                   : 'org.testcontainers:junit-jupiter:1.19.0',
             'org.mock-server:mockserver-netty'                                   : 'org.mock-server:mockserver-netty:5.15.0', //5.11.2
             'org.awaitility:awaitility'                                          : 'org.awaitility:awaitility:4.2.0',
@@ -56,7 +56,7 @@ project.ext {
             'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.14',
             'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.14',
             'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.11.1',
-            'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.5.0',
+            'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.6.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.24.0',
             'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.15.Final'
 
