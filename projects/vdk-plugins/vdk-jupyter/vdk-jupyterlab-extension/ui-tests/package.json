@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "@jupyterlab/galata": "^4.3.0"
+  },
+  "dependencies": {
+    "vdk-jupyterlab-extension-ui-tests": "file:"
   }
 }
