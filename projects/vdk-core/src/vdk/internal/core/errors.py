@@ -141,6 +141,7 @@ class SkipRemainingStepsException(BaseVdkError):
 
 # REPORTING
 
+
 def log_exception(log: Logger, exception: BaseException, *lines: str) -> None:
     """
     Log message and exception
