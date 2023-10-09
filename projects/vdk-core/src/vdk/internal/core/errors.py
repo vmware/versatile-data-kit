@@ -16,7 +16,8 @@ import re
 from collections import defaultdict
 from enum import Enum
 from logging import Logger
-from error_classifiers import *
+
+from vdk.internal.core.error_classifiers import * 
 
 log = logging.getLogger(__name__)
 
