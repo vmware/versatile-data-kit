@@ -13,7 +13,8 @@
   before_script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - pip install -U pip setuptools pre-commit
-    - apk --no-cache add npm rust cargo libffi-dev
+    - apk --no-cache add npm libffi-dev curl
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.72.0
     - pip install jupyter
   retry: !reference [.retry, retry_options]
   rules:
