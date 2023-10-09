@@ -7,9 +7,11 @@ package com.vmware.taurus.service.threads;
 
 import com.vmware.taurus.service.monitoring.DataJobMonitorSync;
 import com.vmware.taurus.service.monitoring.DeploymentMonitorSync;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 /**
@@ -21,6 +23,18 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableAsync
 @Configuration
 public class ThreadPoolConf {
+
+  @Value("${datajobs.deployment.configuration.synchronization.task.corePoolSize}")
+  private int synchronizationTaskCorePoolSize;
+
+  @Value("${datajobs.deployment.configuration.synchronization.task.maxPoolSize}")
+  private int synchronizationTaskMaxPoolSize;
+
+  @Value("${datajobs.deployment.configuration.synchronization.task.queueCapacity}")
+  private int synchronizationTaskQueueCapacity;
+
+  @Value("${datajobs.deployment.configuration.synchronization.task.keepAliveSeconds}")
+  private int synchronizationTaskKeepAliveSeconds;
 
   /**
    * This method configures the max number of scheduled threads which for now is one as we only use
@@ -37,5 +51,19 @@ public class ThreadPoolConf {
     taskScheduler.setThreadNamePrefix("thread-");
     taskScheduler.initialize();
     return taskScheduler;
+  }
+
+  @Bean(name = "dataJobsSynchronizerTaskExecutor")
+  public ThreadPoolTaskExecutor dataJobsSynchronizerTaskExecutor() {
+    ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+    taskExecutor.setCorePoolSize(synchronizationTaskCorePoolSize);
+    taskExecutor.setMaxPoolSize(synchronizationTaskMaxPoolSize);
+    taskExecutor.setQueueCapacity(synchronizationTaskQueueCapacity);
+    taskExecutor.setAllowCoreThreadTimeOut(true);
+    taskExecutor.setKeepAliveSeconds(synchronizationTaskKeepAliveSeconds);
+    taskExecutor.setWaitForTasksToCompleteOnShutdown(true);
+    taskExecutor.initialize();
+
+    return taskExecutor;
   }
 }

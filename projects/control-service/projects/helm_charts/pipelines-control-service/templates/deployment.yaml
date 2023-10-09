@@ -202,10 +202,10 @@ spec:
               value: "{{ .Values.dataJob.deployment.configuration.persistence.readDataSource }}"
             - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_ENABLED
               value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.enabled }}"
-            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_INTERVAL
-              value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.interval }}"
-            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_INITIAL_DELAY
-              value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.initialDelay }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_INTERVAL_MS
+              value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.intervalMs }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_INITIAL_DELAY_MS
+              value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.initialDelayMs }}"
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
             - name: VDK_OPTIONS_INI

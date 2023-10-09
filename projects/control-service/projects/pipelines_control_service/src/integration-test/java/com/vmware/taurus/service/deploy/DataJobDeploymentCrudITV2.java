@@ -38,8 +38,10 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -50,6 +52,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(
     properties = {
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+      "datajobs.deployment.configuration.synchronization.task.enabled=true",
+      "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000"
+      // Setting this value to 1000000 effectively disables the scheduled execution of DataJobsSynchronizer.synchronizeDataJobs().
+      // This is necessary because the test scenario relies on manually triggering the process.
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -103,7 +109,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
   }
 
   @Test
-  public void testDataJobDeploymentCrud() throws Exception {
+  public void testSynchronizeDataJob() throws Exception {
     DataJobVersion testDataJobVersion = uploadDataJob();
     Assertions.assertNotNull(testDataJobVersion);
 
@@ -151,6 +157,41 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     Assertions.assertNotEquals(lastDeployedDateInitial, lastDeployedDateShouldBeChanged);
     Assertions.assertNotEquals(
         deploymentVersionShaShouldNotBeChanged, deploymentVersionShaShouldBeChanged);
+  }
+
+  @Test
+  public void testSynchronizeDataJobs() throws Exception {
+    DataJobVersion testDataJobVersion = uploadDataJob();
+    Assertions.assertNotNull(testDataJobVersion);
+
+    String testJobVersionSha = testDataJobVersion.getVersionSha();
+    Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
+
+    boolean jobEnabled = false;
+    createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
+
+    // Checks if the deployment exist
+    Optional<JobDeploymentStatus> jobDeploymentStatusOptional =
+            deploymentService.readDeployment(testJobName);
+    Assertions.assertFalse(jobDeploymentStatusOptional.isPresent());
+    Assertions.assertFalse(actualJobDeploymentRepository.findById(testJobName).isPresent());
+
+    // Deploys data job for the very first time
+    dataJobsSynchronizer.synchronizeDataJobs();
+
+    // Wait for the job deployment to complete, polling every 15 seconds
+    // See: https://github.com/awaitility/awaitility/wiki/Usage
+    await()
+            .atMost(10, TimeUnit.MINUTES)
+            .with()
+            .pollInterval(15, TimeUnit.SECONDS)
+            .until(() -> actualJobDeploymentRepository.findById(testJobName).isPresent());
+
+    ActualDataJobDeployment actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
+    String deploymentVersionShaInitial = actualDataJobDeployment.getDeploymentVersionSha();
+    OffsetDateTime lastDeployedDateInitial = actualDataJobDeployment.getLastDeployedDate();
+    Assertions.assertNotNull(deploymentVersionShaInitial);
+    Assertions.assertNotNull(lastDeployedDateInitial);
   }
 
   private ActualDataJobDeployment verifyDeploymentStatus(boolean enabled) {
