@@ -56,8 +56,9 @@ public class DataJobsSynchronizer {
    * This can include creating new CronJobs, updating existing CronJobs, etc.
    */
   @Scheduled(
-          fixedDelayString = "${datajobs.deployment.configuration.synchronization.task.interval:1000}",
-          initialDelayString = "${datajobs.deployment.configuration.synchronization.task.initial.delay:10000}")
+      fixedDelayString = "${datajobs.deployment.configuration.synchronization.task.interval:1000}",
+      initialDelayString =
+          "${datajobs.deployment.configuration.synchronization.task.initial.delay:10000}")
   @SchedulerLock(name = "synchronizeDataJobsTask")
   public void synchronizeDataJobs() {
     if (!synchronizationEnabled) {
@@ -66,9 +67,11 @@ public class DataJobsSynchronizer {
     }
 
     if (!dataJobDeploymentPropertiesConfig
-            .getWriteTos()
-            .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
-      log.debug("Skipping data job deployments' synchronization due to the disabled writes to the database.");
+        .getWriteTos()
+        .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+      log.debug(
+          "Skipping data job deployments' synchronization due to the disabled writes to the"
+              + " database.");
       return;
     }
 

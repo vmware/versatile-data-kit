@@ -65,48 +65,46 @@ public class DataJobsSynchronizerTest {
 
   @Test
   void synchronizeDataJobs_synchronizationEnabledFalseAndWriteToDbTrue_shouldSkipSynchronization()
-          throws ApiException {
+      throws ApiException {
     initSynchronizationProcessConfig(false, true);
 
     dataJobsSynchronizer.synchronizeDataJobs();
 
     Mockito.verify(deploymentService, Mockito.times(0))
-            .findAllActualDeploymentNamesFromKubernetes();
+        .findAllActualDeploymentNamesFromKubernetes();
   }
 
   @Test
   void synchronizeDataJobs_synchronizationEnabledFalseAndWriteToDbFalse_shouldSkipSynchronization()
-          throws ApiException {
+      throws ApiException {
     initSynchronizationProcessConfig(false, false);
 
     dataJobsSynchronizer.synchronizeDataJobs();
 
     Mockito.verify(deploymentService, Mockito.times(0))
-            .findAllActualDeploymentNamesFromKubernetes();
+        .findAllActualDeploymentNamesFromKubernetes();
   }
 
   @Test
-  void
-  synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbTrue_shouldFinishSynchronization()
-          throws ApiException {
+  void synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbTrue_shouldFinishSynchronization()
+      throws ApiException {
     initSynchronizationProcessConfig(true, true);
 
     dataJobsSynchronizer.synchronizeDataJobs();
 
     Mockito.verify(deploymentService, Mockito.times(1))
-            .findAllActualDeploymentNamesFromKubernetes();
+        .findAllActualDeploymentNamesFromKubernetes();
   }
 
   @Test
-  void
-  synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbFalse_shouldSkipSynchronization()
-          throws ApiException {
+  void synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbFalse_shouldSkipSynchronization()
+      throws ApiException {
     initSynchronizationProcessConfig(true, false);
 
     dataJobsSynchronizer.synchronizeDataJobs();
 
     Mockito.verify(deploymentService, Mockito.times(0))
-            .findAllActualDeploymentNamesFromKubernetes();
+        .findAllActualDeploymentNamesFromKubernetes();
   }
 
   void enableSynchronizationProcess() {
@@ -114,7 +112,12 @@ public class DataJobsSynchronizerTest {
   }
 
   void initSynchronizationProcessConfig(boolean synchronizationEnabled, boolean writeToDB) {
-    ReflectionTestUtils.setField(dataJobsSynchronizer, "synchronizationEnabled", synchronizationEnabled);
-    Mockito.when(dataJobDeploymentPropertiesConfig.getWriteTos()).thenReturn(writeToDB ? Set.of(DataJobDeploymentPropertiesConfig.WriteTo.DB) : Collections.emptySet());
+    ReflectionTestUtils.setField(
+        dataJobsSynchronizer, "synchronizationEnabled", synchronizationEnabled);
+    Mockito.when(dataJobDeploymentPropertiesConfig.getWriteTos())
+        .thenReturn(
+            writeToDB
+                ? Set.of(DataJobDeploymentPropertiesConfig.WriteTo.DB)
+                : Collections.emptySet());
   }
 }
