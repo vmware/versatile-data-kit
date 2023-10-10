@@ -98,6 +98,7 @@ public class DeploymentServiceV2 {
   private void saveNewDesiredDeployment(DesiredDataJobDeployment deployment, DataJob dataJob) {
     deployment.setStatus(DeploymentStatus.NONE);
     deployment.setDataJob(dataJob);
+    deployment.setUserInitiated(true);
     desiredJobDeploymentRepository.save(deployment);
   }
 
