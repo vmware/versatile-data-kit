@@ -5,12 +5,14 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import io.kubernetes.client.openapi.ApiException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,7 @@ import java.util.Set;
  * <p>Usage: - Create an instance of this class and call the `synchronizeDataJobs` method to
  * initiate the synchronization process.
  */
+@Slf4j
 @AllArgsConstructor
 @Component
 public class DataJobsSynchronizer {
@@ -43,15 +46,24 @@ public class DataJobsSynchronizer {
    * <p>This method retrieves job information from the database, compares it with the current state
    * of Kubernetes CronJobs in the cluster, and takes the necessary actions to synchronize them.
    * This can include creating new CronJobs, updating existing CronJobs, etc.
-   *
-   * @throws ApiException
    */
-  public void synchronizeDataJobs() throws ApiException {
+  public void synchronizeDataJobs() {
     ThreadPoolTaskExecutor taskExecutor = initializeTaskExecutor();
     Iterable<DataJob> dataJobsFromDB = jobsService.findAllDataJobs();
 
-    Set<String> dataJobDeploymentNamesFromKubernetes =
-        deploymentService.findAllActualDeploymentNamesFromKubernetes();
+    Set<String> dataJobDeploymentNamesFromKubernetes;
+    try {
+      dataJobDeploymentNamesFromKubernetes =
+          deploymentService.findAllActualDeploymentNamesFromKubernetes();
+    } catch (ApiException e) {
+      log.error(
+          "Skipping data job deployment synchronization because deployment names cannot be loaded"
+              + " from Kubernetes.",
+          new KubernetesException("Cannot load cron jobs", e));
+      return;
+    }
+
+    Set<String> finalDataJobDeploymentNamesFromKubernetes = dataJobDeploymentNamesFromKubernetes;
 
     Map<String, DesiredDataJobDeployment> desiredDataJobDeploymentsFromDBMap =
         deploymentService.findAllDesiredDataJobDeployments();
@@ -67,7 +79,7 @@ public class DataJobsSynchronizer {
                         dataJob,
                         desiredDataJobDeploymentsFromDBMap.get(dataJob.getName()),
                         actualDataJobDeploymentsFromDBMap.get(dataJob.getName()),
-                        dataJobDeploymentNamesFromKubernetes.contains(dataJob.getName()))));
+                        finalDataJobDeploymentNamesFromKubernetes.contains(dataJob.getName()))));
 
     taskExecutor.shutdown();
   }
@@ -79,15 +91,11 @@ public class DataJobsSynchronizer {
       ActualDataJobDeployment actualDataJobDeployment,
       boolean isDeploymentPresentInKubernetes) {
     if (desiredDataJobDeployment != null) {
-      boolean sendNotification =
-          true; // TODO [miroslavi] sends notification only when the deployment is initiated by the
-      // user.
       deploymentService.updateDeployment(
           dataJob,
           desiredDataJobDeployment,
           actualDataJobDeployment,
-          isDeploymentPresentInKubernetes,
-          sendNotification);
+          isDeploymentPresentInKubernetes);
     }
   }
 
