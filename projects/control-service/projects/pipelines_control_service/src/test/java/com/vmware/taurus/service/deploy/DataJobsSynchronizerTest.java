@@ -6,6 +6,9 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.ServiceApp;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import io.kubernetes.client.openapi.ApiException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -105,6 +108,70 @@ public class DataJobsSynchronizerTest {
 
     Mockito.verify(deploymentService, Mockito.times(0))
         .findAllActualDeploymentNamesFromKubernetes();
+  }
+
+  @Test
+  void synchronizeDataJob_desiredDeploymentNullAndActualDeploymentNull_shouldSkipSynchronization() {
+    DataJob dataJob = new DataJob();
+    dataJob.setName("test-job-name");
+    boolean isDeploymentPresentInKubernetes = false;
+    DesiredDataJobDeployment desiredDataJobDeployment = null;
+    ActualDataJobDeployment actualDataJobDeployment = null;
+
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+
+    Mockito.verify(deploymentService, Mockito.times(0))
+            .updateDeployment(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+    Mockito.verify(deploymentService, Mockito.times(0))
+            .deleteActualDeployment(dataJob.getName());
+  }
+
+  @Test
+  void synchronizeDataJob_desiredDeploymentNullAndActualDeploymentNotNull_shouldDeleteJobDeployment() {
+    DataJob dataJob = new DataJob();
+    dataJob.setName("test-job-name");
+    boolean isDeploymentPresentInKubernetes = true;
+    DesiredDataJobDeployment desiredDataJobDeployment = null;
+    ActualDataJobDeployment actualDataJobDeployment = new ActualDataJobDeployment();
+
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+
+    Mockito.verify(deploymentService, Mockito.times(0))
+            .updateDeployment(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+    Mockito.verify(deploymentService, Mockito.times(1))
+            .deleteActualDeployment(dataJob.getName());
+  }
+
+  @Test
+  void synchronizeDataJob_desiredDeploymentNotNullAndActualDeploymentNotNull_shouldUpdateJobDeployment() {
+    DataJob dataJob = new DataJob();
+    dataJob.setName("test-job-name");
+    boolean isDeploymentPresentInKubernetes = true;
+    DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
+    ActualDataJobDeployment actualDataJobDeployment = new ActualDataJobDeployment();
+
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+
+    Mockito.verify(deploymentService, Mockito.times(1))
+            .updateDeployment(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+    Mockito.verify(deploymentService, Mockito.times(0))
+            .deleteActualDeployment(dataJob.getName());
+  }
+
+  @Test
+  void synchronizeDataJob_desiredDeploymentNotNullAndActualDeploymentNull_shouldUpdateJobDeployment() {
+    DataJob dataJob = new DataJob();
+    dataJob.setName("test-job-name");
+    boolean isDeploymentPresentInKubernetes = true;
+    DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
+    ActualDataJobDeployment actualDataJobDeployment = null;
+
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+
+    Mockito.verify(deploymentService, Mockito.times(1))
+            .updateDeployment(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+    Mockito.verify(deploymentService, Mockito.times(0))
+            .deleteActualDeployment(dataJob.getName());
   }
 
   void enableSynchronizationProcess() {

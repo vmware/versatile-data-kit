@@ -59,6 +59,7 @@ public class JobsService {
   private final DeploymentServiceV2 deploymentServiceV2;
   private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
+  @Transactional
   public JobOperationResult deleteJob(String name) {
     if (!jobsRepository.existsById(name)) {
       return JobOperationResult.builder().completed(false).build();
@@ -69,7 +70,19 @@ public class JobsService {
     Optional<WebHookResult> resultHolder = postDeleteWebHookProvider.invokeWebHook(requestBody);
     if (isInvocationSuccessful(resultHolder)) {
       credentialsService.deleteJobCredentials(name);
-      deploymentService.deleteDeployment(name);
+
+      if (dataJobDeploymentPropertiesConfig
+              .getWriteTos()
+              .contains(DataJobDeploymentPropertiesConfig.WriteTo.K8S)) {
+        deploymentService.deleteDeployment(name);
+      }
+
+      if (dataJobDeploymentPropertiesConfig
+              .getWriteTos()
+              .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+        deploymentServiceV2.deleteDesiredDeployment(name);
+      }
+
       jobsRepository.deleteById(name);
       dataJobMetrics.clearGauges(name);
 

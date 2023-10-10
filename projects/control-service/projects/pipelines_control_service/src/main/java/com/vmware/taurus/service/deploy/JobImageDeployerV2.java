@@ -14,6 +14,7 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
 import io.kubernetes.client.openapi.ApiException;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -100,6 +101,17 @@ public class JobImageDeployerV2 {
           jobImageName);
     } catch (ApiException e) {
       return catchApiException(dataJob, sendNotification, e);
+    }
+  }
+
+  public void unScheduleJob(@NonNull String dataJobName) {
+    String cronJobName = getCronJobName(dataJobName);
+    try {
+      if (dataJobsKubernetesService.listCronJobs().contains(cronJobName)) {
+        dataJobsKubernetesService.deleteCronJob(cronJobName);
+      }
+    } catch (ApiException e) {
+      throw new KubernetesException("Failed to un-schedule job", e);
     }
   }
 
