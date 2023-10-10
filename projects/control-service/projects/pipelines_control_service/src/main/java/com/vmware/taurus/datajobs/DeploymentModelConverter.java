@@ -205,21 +205,7 @@ public class DeploymentModelConverter {
 
   public static DesiredDataJobDeployment mergeDeployments(
       ActualDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
-    if (oldDeployment.getDataJobName() == null
-        || newDeployment.getDataJobName() == null
-        || !oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
-        || !oldDeployment
-            .getDataJob()
-            .getJobConfig()
-            .getTeam()
-            .equals(newDeployment.getDataJobTeam())) {
-      throw new IllegalArgumentException(
-          "Cannot merge 2 deployments if team or job name is different."
-              + oldDeployment
-              + " vs "
-              + newDeployment);
-    }
-
+    checkDeploymentsCanBeMerged(oldDeployment, newDeployment);
     DesiredDataJobDeployment mergedDeployment = new DesiredDataJobDeployment();
     mergedDeployment.setDataJobName(newDeployment.getDataJobName());
     mergedDeployment.setDataJob(oldDeployment.getDataJob());
@@ -247,6 +233,27 @@ public class DeploymentModelConverter {
             : oldDeployment.getEnabled());
 
     return mergedDeployment;
+  }
+
+  private static void checkDeploymentsCanBeMerged(ActualDataJobDeployment oldDeployment,
+      JobDeployment newDeployment) {
+    if (oldDeployment.getDataJobName() == null
+        || newDeployment.getDataJobName() == null
+        || newDeployment.getDataJobTeam() == null
+        || oldDeployment.getDataJob() == null
+        || oldDeployment.getDataJob().getJobConfig() == null
+        || !oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
+        || !oldDeployment
+        .getDataJob()
+        .getJobConfig()
+        .getTeam()
+        .equals(newDeployment.getDataJobTeam())) {
+      throw new IllegalArgumentException(
+          "Cannot merge 2 deployments if team or job name is different."
+              + oldDeployment
+              + " vs "
+              + newDeployment);
+    }
   }
 
   private static void mergeDeploymentResources(
