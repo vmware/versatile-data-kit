@@ -235,8 +235,8 @@ public class DeploymentModelConverter {
     return mergedDeployment;
   }
 
-  private static void checkDeploymentsCanBeMerged(ActualDataJobDeployment oldDeployment,
-      JobDeployment newDeployment) {
+  private static void checkDeploymentsCanBeMerged(
+      ActualDataJobDeployment oldDeployment, JobDeployment newDeployment) {
     if (oldDeployment.getDataJobName() == null
         || newDeployment.getDataJobName() == null
         || newDeployment.getDataJobTeam() == null
@@ -244,10 +244,10 @@ public class DeploymentModelConverter {
         || oldDeployment.getDataJob().getJobConfig() == null
         || !oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
         || !oldDeployment
-        .getDataJob()
-        .getJobConfig()
-        .getTeam()
-        .equals(newDeployment.getDataJobTeam())) {
+            .getDataJob()
+            .getJobConfig()
+            .getTeam()
+            .equals(newDeployment.getDataJobTeam())) {
       throw new IllegalArgumentException(
           "Cannot merge 2 deployments if team or job name is different."
               + oldDeployment
