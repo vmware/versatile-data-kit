@@ -71,7 +71,9 @@ release-vdk-jupyter:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
   script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ || exit 1
-    - apk --no-cache add npm rust cargo libffi-dev
+    - apk --no-cache add npm libffi-dev curl musl-dev gcc
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.72.0
+    - export PATH="$HOME/.cargo/bin:$PATH"
     - pip install -U pip setuptools wheel twine pre-commit build hatch jupyter
     - hatch version 0.1.$VDK_PATCH_VERSION
     - python -m build
