@@ -68,10 +68,9 @@ release-vdk-jupyter:
     PLUGIN_NAME:
   image: "python:3.10-alpine"
   stage: release
-  before_script:
-    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
   script:
-    - pip install -U pip setuptools wheel twine pre-commit build hatch
+    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
+    - pip install -U pip wheel twine build hatch
     - hatch version 0.1.$VDK_PATCH_VERSION
     - python -m build
     - twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/* --verbose
