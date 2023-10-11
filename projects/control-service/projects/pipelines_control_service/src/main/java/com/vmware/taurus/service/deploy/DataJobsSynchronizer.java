@@ -19,8 +19,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * This class represents a utility for synchronizing Kubernetes CronJobs with data from a database
@@ -44,6 +48,8 @@ public class DataJobsSynchronizer {
 
   private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
+  private final ThreadPoolTaskExecutor dataJobsSynchronizerTaskExecutor;
+
   @Value("${datajobs.deployment.configuration.synchronization.task.enabled:false}")
   private boolean synchronizationEnabled;
 
@@ -56,9 +62,10 @@ public class DataJobsSynchronizer {
    * This can include creating new CronJobs, updating existing CronJobs, etc.
    */
   @Scheduled(
-      fixedDelayString = "${datajobs.deployment.configuration.synchronization.task.interval:1000}",
+      fixedDelayString =
+          "${datajobs.deployment.configuration.synchronization.task.interval.ms:1000}",
       initialDelayString =
-          "${datajobs.deployment.configuration.synchronization.task.initial.delay:10000}")
+          "${datajobs.deployment.configuration.synchronization.task.initial.delay.ms:10000}")
   @SchedulerLock(name = "synchronizeDataJobsTask")
   public void synchronizeDataJobs() {
     if (!synchronizationEnabled) {
@@ -75,10 +82,13 @@ public class DataJobsSynchronizer {
       return;
     }
 
-    ThreadPoolTaskExecutor taskExecutor = initializeTaskExecutor();
-    Iterable<DataJob> dataJobsFromDB = jobsService.findAllDataJobs();
+    log.info("Data job deployments synchronization has started.");
 
+    List<DataJob> dataJobsFromDB =
+        StreamSupport.stream(jobsService.findAllDataJobs().spliterator(), false)
+            .collect(Collectors.toList());
     Set<String> dataJobDeploymentNamesFromKubernetes;
+
     try {
       dataJobDeploymentNamesFromKubernetes =
           deploymentService.findAllActualDeploymentNamesFromKubernetes();
@@ -98,17 +108,28 @@ public class DataJobsSynchronizer {
     Map<String, ActualDataJobDeployment> actualDataJobDeploymentsFromDBMap =
         deploymentService.findAllActualDataJobDeployments();
 
+    CountDownLatch countDownLatch = new CountDownLatch(dataJobsFromDB.size());
+
     dataJobsFromDB.forEach(
         dataJob ->
-            taskExecutor.execute(
+            executeSynchronizationTask(
                 () ->
                     synchronizeDataJob(
                         dataJob,
                         desiredDataJobDeploymentsFromDBMap.get(dataJob.getName()),
                         actualDataJobDeploymentsFromDBMap.get(dataJob.getName()),
-                        finalDataJobDeploymentNamesFromKubernetes.contains(dataJob.getName()))));
+                        finalDataJobDeploymentNamesFromKubernetes.contains(dataJob.getName())),
+                countDownLatch));
 
-    taskExecutor.shutdown();
+    try {
+      log.debug(
+          "Waiting for data job deployments' synchronization to complete. This process may take"
+              + " some time...");
+      countDownLatch.await();
+      log.info("Data job deployments synchronization has successfully completed.");
+    } catch (InterruptedException e) {
+      log.error("An error occurred during the data job deployments' synchronization", e);
+    }
   }
 
   // Default for testing purposes
@@ -126,16 +147,14 @@ public class DataJobsSynchronizer {
     }
   }
 
-  private ThreadPoolTaskExecutor initializeTaskExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(5);
-    executor.setMaxPoolSize(10);
-    executor.setQueueCapacity(Integer.MAX_VALUE);
-    executor.setAllowCoreThreadTimeOut(true);
-    executor.setKeepAliveSeconds(120);
-    executor.setWaitForTasksToCompleteOnShutdown(true);
-    executor.initialize();
-
-    return executor;
+  private void executeSynchronizationTask(Runnable runnable, CountDownLatch countDownLatch) {
+    dataJobsSynchronizerTaskExecutor.execute(
+        () -> {
+          try {
+            runnable.run();
+          } finally {
+            countDownLatch.countDown();
+          }
+        });
   }
 }

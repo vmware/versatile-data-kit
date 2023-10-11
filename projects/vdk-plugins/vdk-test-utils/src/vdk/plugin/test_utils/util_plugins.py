@@ -201,8 +201,9 @@ class IngestIntoMemoryPlugin(IIngesterPlugin):
         target: Optional[str]
         collection_id: Optional[str]
 
-    def __init__(self):
+    def __init__(self, method_name="memory"):
         self.payloads: List[IngestIntoMemoryPlugin.Payload] = []
+        self.method_name = method_name
 
     def ingest_payload(
         self,
@@ -222,4 +223,4 @@ class IngestIntoMemoryPlugin(IIngesterPlugin):
     def initialize_job(self, context: JobContext) -> None:
         log.info("Initialize data job with IngestIntoMemory Plugin.")
 
-        context.ingester.add_ingester_factory_method("memory", lambda: self)
+        context.ingester.add_ingester_factory_method(self.method_name, lambda: self)
