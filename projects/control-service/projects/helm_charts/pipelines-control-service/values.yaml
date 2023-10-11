@@ -1076,11 +1076,11 @@ dataJob:
       synchronizationTask:
         enabled: false
         # The data job deployments' synchronization task interval is the time period (expressed in milliseconds)
-        # after a synchronization process has completed and before a new one is started
-        interval: 1000
+        # after a synchronization process has completed and before a new one is started.
+        intervalMs: 60000
         # The data job deployments' synchronization task  initial delay is the period (expressed in milliseconds) between control service
         # start and the first time a synchronization process is started by the control service instance
-        initialDelay: 10000
+        initialDelayMs: 10000
     jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer
