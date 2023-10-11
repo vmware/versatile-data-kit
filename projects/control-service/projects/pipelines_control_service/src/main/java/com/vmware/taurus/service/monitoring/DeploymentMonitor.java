@@ -99,9 +99,9 @@ public class DeploymentMonitor {
   }
 
   public boolean saveDataJobStatus(
-          final String dataJobName,
-          final DeploymentStatus deploymentStatus,
-          ActualDataJobDeployment actualDataJobDeployment) {
+      final String dataJobName,
+      final DeploymentStatus deploymentStatus,
+      ActualDataJobDeployment actualDataJobDeployment) {
     if (jobsRepository.updateDataJobLatestJobDeploymentStatusByName(dataJobName, deploymentStatus)
         > 0) {
 
