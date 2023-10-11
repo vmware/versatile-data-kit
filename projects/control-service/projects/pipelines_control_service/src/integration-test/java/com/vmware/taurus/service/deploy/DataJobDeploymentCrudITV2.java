@@ -54,7 +54,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
       "datajobs.deployment.configuration.synchronization.task.enabled=true",
       "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000"
-      // Setting this value to 1000000 effectively disables the scheduled execution of DataJobsSynchronizer.synchronizeDataJobs().
+      // Setting this value to 1000000 effectively disables the scheduled execution of
+      // DataJobsSynchronizer.synchronizeDataJobs().
       // This is necessary because the test scenario relies on manually triggering the process.
     })
 @SpringBootTest(
@@ -172,7 +173,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
 
     // Checks if the deployment exist
     Optional<JobDeploymentStatus> jobDeploymentStatusOptional =
-            deploymentService.readDeployment(testJobName);
+        deploymentService.readDeployment(testJobName);
     Assertions.assertFalse(jobDeploymentStatusOptional.isPresent());
     Assertions.assertFalse(actualJobDeploymentRepository.findById(testJobName).isPresent());
 
@@ -182,10 +183,10 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     // Wait for the job deployment to complete, polling every 15 seconds
     // See: https://github.com/awaitility/awaitility/wiki/Usage
     await()
-            .atMost(10, TimeUnit.MINUTES)
-            .with()
-            .pollInterval(15, TimeUnit.SECONDS)
-            .until(() -> actualJobDeploymentRepository.findById(testJobName).isPresent());
+        .atMost(10, TimeUnit.MINUTES)
+        .with()
+        .pollInterval(15, TimeUnit.SECONDS)
+        .until(() -> actualJobDeploymentRepository.findById(testJobName).isPresent());
 
     ActualDataJobDeployment actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
     String deploymentVersionShaInitial = actualDataJobDeployment.getDeploymentVersionSha();

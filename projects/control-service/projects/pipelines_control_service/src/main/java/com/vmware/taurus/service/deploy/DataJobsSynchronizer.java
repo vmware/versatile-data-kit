@@ -62,7 +62,8 @@ public class DataJobsSynchronizer {
    * This can include creating new CronJobs, updating existing CronJobs, etc.
    */
   @Scheduled(
-      fixedDelayString = "${datajobs.deployment.configuration.synchronization.task.interval.ms:1000}",
+      fixedDelayString =
+          "${datajobs.deployment.configuration.synchronization.task.interval.ms:1000}",
       initialDelayString =
           "${datajobs.deployment.configuration.synchronization.task.initial.delay.ms:10000}")
   @SchedulerLock(name = "synchronizeDataJobsTask")
@@ -111,7 +112,7 @@ public class DataJobsSynchronizer {
 
     dataJobsFromDB.forEach(
         dataJob ->
-              executeSynchronizationTask(
+            executeSynchronizationTask(
                 () ->
                     synchronizeDataJob(
                         dataJob,
@@ -121,7 +122,9 @@ public class DataJobsSynchronizer {
                 countDownLatch));
 
     try {
-      log.debug("Waiting for data job deployments' synchronization to complete. This process may take some time...");
+      log.debug(
+          "Waiting for data job deployments' synchronization to complete. This process may take"
+              + " some time...");
       countDownLatch.await();
       log.info("Data job deployments synchronization has successfully completed.");
     } catch (InterruptedException e) {
@@ -145,12 +148,13 @@ public class DataJobsSynchronizer {
   }
 
   private void executeSynchronizationTask(Runnable runnable, CountDownLatch countDownLatch) {
-    dataJobsSynchronizerTaskExecutor.execute(() -> {
-      try {
-        runnable.run();
-      } finally {
-        countDownLatch.countDown();
-      }
-    });
+    dataJobsSynchronizerTaskExecutor.execute(
+        () -> {
+          try {
+            runnable.run();
+          } finally {
+            countDownLatch.countDown();
+          }
+        });
   }
 }
