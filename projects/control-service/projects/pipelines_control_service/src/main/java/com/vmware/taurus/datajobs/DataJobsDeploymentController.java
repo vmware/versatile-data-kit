@@ -10,6 +10,7 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
 import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.exception.ExternalSystemError;
+import com.vmware.taurus.exception.ValidationException;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.diag.OperationContext;
@@ -69,6 +70,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   public ResponseEntity<Void> deploymentPatch(
       String teamName, String jobName, String deploymentId, DataJobDeployment dataJobDeployment) {
     deploymentService.validatePythonVersionIsSupported(dataJobDeployment.getPythonVersion());
+    validateJobResources(dataJobDeployment);
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId not implemented
       Optional<com.vmware.taurus.service.model.DataJob> job = jobsService.getByName(jobName);
@@ -122,6 +124,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       Boolean sendNotification,
       DataJobDeployment dataJobDeployment) {
     deploymentService.validatePythonVersionIsSupported(dataJobDeployment.getPythonVersion());
+    validateJobResources(dataJobDeployment);
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       Optional<com.vmware.taurus.service.model.DataJob> job =
           jobsService.getByName(jobName.toLowerCase());
@@ -140,5 +143,19 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       }
     }
     return ResponseEntity.notFound().build();
+  }
+
+  private void validateJobResources(DataJobDeployment dataJobDeployment) {
+    if (dataJobDeployment != null && dataJobDeployment.getResources() != null &&
+            (dataJobDeployment.getResources().getCpuRequest() != null ||
+                    dataJobDeployment.getResources().getCpuLimit() != null ||
+                    dataJobDeployment.getResources().getMemoryRequest() != null &&
+                            dataJobDeployment.getResources().getMemoryLimit() != null)) {
+      throw new ValidationException(
+                "The setting of job resources like CPU and memory is not allowed.",
+                "The setting of job resources like CPU and memory is not supported by the platform.",
+                "The deployment of the data job will not proceed.",
+                "To deploy the data job, please do not configure job resources.");
+    }
   }
 }

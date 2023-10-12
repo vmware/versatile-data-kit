@@ -5,11 +5,10 @@
 
 package com.vmware.taurus.datajobs.it;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
-import com.vmware.taurus.controlplane.model.data.DataJobMode;
-import com.vmware.taurus.controlplane.model.data.DataJobVersion;
+import com.vmware.taurus.controlplane.model.data.*;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
@@ -174,6 +173,17 @@ public class DataJobDeploymentCrudIT extends BaseIT {
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
+
+    // Execute build and deploy job with job resources
+    mockMvc
+          .perform(
+              post(String.format(
+                      "/data-jobs/for-team/%s/jobs/%s/deployments",
+                      TEST_TEAM_NAME, testJobName))
+                      .with(user("user"))
+                      .content(getDataJobDeploymentRequestBodyWithJobResources(testJobVersionSha))
+                      .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isBadRequest());
 
     String jobDeploymentName = JobImageDeployer.getCronJobName(testJobName);
     // Verify job deployment created
@@ -385,5 +395,21 @@ public class DataJobDeploymentCrudIT extends BaseIT {
                 .content(jobZipBinary)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM))
         .andExpect(status().isOk());
+  }
+
+  private String getDataJobDeploymentRequestBodyWithJobResources(String jobVersionSha) throws JsonProcessingException {
+    var jobDeployment = new com.vmware.taurus.controlplane.model.data.DataJobDeployment();
+    jobDeployment.setJobVersion(jobVersionSha);
+    jobDeployment.setMode(DataJobMode.RELEASE);
+    DataJobResources dataJobResources = new DataJobResources();
+    dataJobResources.setCpuRequest(100F);
+    dataJobResources.setCpuLimit(1000F);
+    dataJobResources.setMemoryRequest(500);
+    dataJobResources.setMemoryLimit(1000);
+    jobDeployment.setResources(dataJobResources);
+    jobDeployment.setSchedule(new DataJobSchedule());
+    jobDeployment.setId(TEST_JOB_DEPLOYMENT_ID);
+
+    return mapper.writeValueAsString(jobDeployment);
   }
 }
