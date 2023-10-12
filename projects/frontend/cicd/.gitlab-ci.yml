@@ -135,25 +135,25 @@ frontend_tag_ui_image_stable:
       changes: *frontend_data_pipelines_locations
   extends: .frontend_publish_docker_image
 
-frontend_deploy_testing_data_pipelines:
-  stage: pre_release_test
-  image: docker:23.0.1
-  script:
-    - apk --no-cache add bash openssl curl git gettext zip py-pip
-    - pip install --upgrade pip && pip install awscli
-    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
-    - export TAG=latest
-    - export FRONTEND_TAG=$(git rev-parse --short HEAD)
-    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
-  retry: !reference [.frontend_retry, retry_options]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
-      changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
-      changes: *frontend_data_pipelines_locations
+#frontend_deploy_testing_data_pipelines:
+#  stage: pre_release_test
+#  image: docker:23.0.1
+#  script:
+#    - apk --no-cache add bash openssl curl git gettext zip py-pip
+#    - pip install --upgrade pip && pip install awscli
+#    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+#    - export TAG=latest
+#    - export FRONTEND_TAG=$(git rev-parse --short HEAD)
+#    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+#    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
+#  retry: !reference [.frontend_retry, retry_options]
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+#      when: never
+#    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
+#      changes: *frontend_shared_components_locations
+#    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
+#      changes: *frontend_data_pipelines_locations
 
 #frontend_heartbeat_test:
 #  stage: pre_release_test
