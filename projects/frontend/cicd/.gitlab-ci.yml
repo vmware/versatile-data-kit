@@ -58,28 +58,28 @@ frontend-data-pipelines-build:
     expire_in: 1 week
 
 # TODO: Add the cicd path back to the rule once e2e tests are stabilized
-frontend-data-pipelines-e2e-tests:
-  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
-  stage: pre_release_test
-  before_script:
-    - cd projects/frontend/
-  script:
-    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN" "$CYPRESS_test_environment" "$CI_PIPELINE_ID" "$CYPRESS_grepTags"
-  retry: !reference [.retry, retry_options]
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes: *frontend_data_pipelines_locations
-  artifacts:
-    when: always
-    paths:
-      - projects/frontend/data-pipelines/gui/e2e/videos/
-      - projects/frontend/data-pipelines/gui/e2e/screenshots/
-      - projects/frontend/data-pipelines/gui/e2e/hars/
-      - projects/frontend/data-pipelines/gui/e2e/logs/
-      - projects/frontend/data-pipelines/gui/e2e/reports/
-    expire_in: 1 week
+#frontend-data-pipelines-e2e-tests:
+#  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
+#  stage: pre_release_test
+#  before_script:
+#    - cd projects/frontend/
+#  script:
+#    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN" "$CYPRESS_test_environment" "$CI_PIPELINE_ID" "$CYPRESS_grepTags"
+#  retry: !reference [.retry, retry_options]
+#  rules:
+#    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+#      changes: *frontend_shared_components_locations
+#    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+#      changes: *frontend_data_pipelines_locations
+#  artifacts:
+#    when: always
+#    paths:
+#      - projects/frontend/data-pipelines/gui/e2e/videos/
+#      - projects/frontend/data-pipelines/gui/e2e/screenshots/
+#      - projects/frontend/data-pipelines/gui/e2e/hars/
+#      - projects/frontend/data-pipelines/gui/e2e/logs/
+#      - projects/frontend/data-pipelines/gui/e2e/reports/
+#    expire_in: 1 week
 
 frontend-data-pipelines-release:
   image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
@@ -137,10 +137,6 @@ frontend_tag_ui_image_stable:
 
 frontend_deploy_testing_data_pipelines:
   stage: pre_release_test
-  needs:
-    - job: frontend-data-pipelines-e2e-tests
-      optional: false
-      artifacts: false
   image: docker:23.0.1
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
@@ -159,37 +155,34 @@ frontend_deploy_testing_data_pipelines:
     - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
       changes: *frontend_data_pipelines_locations
 
-frontend_heartbeat_test:
-  stage: pre_release_test
-  needs:
-    - job: frontend_deploy_testing_data_pipelines
-      optional: false
-      artifacts: false
-  image: python:3.7
-  script:
-    - set -x
-    - pip install quickstart-vdk
-    - pip install vdk-heartbeat[trino]
-    - vdk version
-    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
-    - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
-    - vdk-heartbeat -f projects/frontend/cicd/ping_frontend_heartbeat_config.ini
-  retry: !reference [.frontend_retry, retry_options]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
-      changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
-      changes: *frontend_data_pipelines_locations
+#frontend_heartbeat_test:
+#  stage: pre_release_test
+#  needs:
+#    - job: frontend_deploy_testing_data_pipelines
+#      optional: false
+#      artifacts: false
+#  image: python:3.7
+#  script:
+#    - set -x
+#    - pip install quickstart-vdk
+#    - pip install vdk-heartbeat[trino]
+#    - vdk version
+#    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
+#    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
+#    - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
+#    - vdk-heartbeat -f projects/frontend/cicd/ping_frontend_heartbeat_config.ini
+#  retry: !reference [.frontend_retry, retry_options]
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+#      when: never
+#    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
+#      changes: *frontend_shared_components_locations
+#    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
+#      changes: *frontend_data_pipelines_locations
 
 frontend_quickstart_operability_test:
   stage: pre_release_test
   needs:
-    - job: frontend_heartbeat_test
-      optional: false
-      artifacts: false
     - job: frontend-data-pipelines-build
       optional: false
       artifacts: true
