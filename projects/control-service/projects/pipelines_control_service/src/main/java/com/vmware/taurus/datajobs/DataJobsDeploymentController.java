@@ -11,7 +11,10 @@ import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.service.JobsService;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.WriteTo;
 import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,6 +54,10 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
 
   @Autowired private OperationContext operationContext;
 
+  @Autowired private DeploymentServiceV2 deploymentServiceV2;
+
+  @Autowired private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+
   @Override
   public ResponseEntity<Void> deploymentDelete(
       String teamName, String jobName, String deploymentId) {
@@ -72,11 +79,14 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId not implemented
       Optional<com.vmware.taurus.service.model.DataJob> job = jobsService.getByName(jobName);
-
       if (job.isPresent()) {
         var jobDeployment =
             ToModelApiConverter.toJobDeployment(teamName, jobName, dataJobDeployment);
         deploymentService.patchDeployment(job.get(), jobDeployment);
+        if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
+          deploymentServiceV2.patchDesiredDbDeployment(
+              job.get(), jobDeployment, operationContext.getUser());
+        }
         return ResponseEntity.accepted().build();
       }
     }
@@ -135,7 +145,10 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
             sendNotification,
             operationContext.getUser(),
             operationContext.getOpId());
-
+        if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
+          deploymentServiceV2.updateDesiredDbDeployment(
+              job.get(), jobDeployment, operationContext.getUser());
+        }
         return ResponseEntity.accepted().build();
       }
     }
