@@ -6,12 +6,12 @@ from typing import Optional
 from unittest import mock
 
 from click.testing import Result
-from functional.run import util
 from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
     INGESTER_WAIT_TO_FINISH_AFTER_EVERY_SEND,
 )
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 
 
@@ -31,7 +31,9 @@ def test_run_ingest():
     ingest_plugin = IngestIntoMemoryPlugin()
     runner = CliEntryBasedTestRunner(ingest_plugin)
 
-    result: Result = runner.invoke(["run", util.job_path("ingest-job")])
+    result: Result = runner.invoke(
+        ["run", jobs_path_from_caller_directory("ingest-job")]
+    )
 
     cli_assert_equal(0, result)
 
@@ -53,7 +55,9 @@ def test_run_ingest():
 def test_run_ingest_fails():
     runner = CliEntryBasedTestRunner(FailingIngestIntoMemoryPlugin())
 
-    result: Result = runner.invoke(["run", util.job_path("ingest-job")])
+    result: Result = runner.invoke(
+        ["run", jobs_path_from_caller_directory("ingest-job")]
+    )
 
     cli_assert_equal(1, result)
 
@@ -63,7 +67,9 @@ def test_run_ingest_wait_after_send():
     ingest_plugin = IngestIntoMemoryPlugin()
     runner = CliEntryBasedTestRunner(ingest_plugin)
 
-    result: Result = runner.invoke(["run", util.job_path("ingest-job")])
+    result: Result = runner.invoke(
+        ["run", jobs_path_from_caller_directory("ingest-job")]
+    )
 
     cli_assert_equal(0, result)
 
@@ -80,3 +86,26 @@ def test_run_ingest_wait_after_send():
     expected_rows_object = {"first": "1", "second": 2}
     assert ingest_plugin.payloads[1].payload[0] == expected_rows_object
     assert ingest_plugin.payloads[1].destination_table == "tabular_table"
+
+
+def test_ingest_multiple_methods():
+    ingest_plugin = IngestIntoMemoryPlugin("memory")
+    ingest_plugin2 = IngestIntoMemoryPlugin("memory2")
+    ingest_plugin3 = IngestIntoMemoryPlugin("memory3")
+    runner = CliEntryBasedTestRunner(ingest_plugin, ingest_plugin2, ingest_plugin3)
+
+    result: Result = runner.invoke(
+        ["run", jobs_path_from_caller_directory("test-ingest-multiple-methods-job")]
+    )
+
+    cli_assert_equal(0, result)
+
+    assert (
+        len(ingest_plugin.payloads) == 20
+    ), "expected 20 payloads for ingest method 'memory'"
+    assert (
+        len(ingest_plugin2.payloads) == 20
+    ), "expected 20 payloads for ingest method 'memory2'"
+    assert (
+        len(ingest_plugin3.payloads) == 0
+    ), "expected 0 (no) payloads for ingest method 'memory3'"

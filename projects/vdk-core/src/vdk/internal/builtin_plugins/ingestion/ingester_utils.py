@@ -15,8 +15,12 @@ from typing import Any
 from typing import List
 from typing import Optional
 
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    InvalidArgumentsIngestionException,
+)
 from vdk.internal.builtin_plugins.ingestion.exception import PayloadIngestionException
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 
 log = logging.getLogger(__name__)
 
@@ -63,21 +67,28 @@ class DecimalJsonEncoder(JSONEncoder):
         return super().default(obj)
 
 
-def get_page_generator(data, page_size=10000):
+def get_page_generator(rows, page_size=10000):
     # TODO add support for Pandas
-    try:
+    if hasattr(rows, "fetchmany"):
         while True:
-            page = data.fetchmany(page_size)
+            page = rows.fetchmany(page_size)
             if not page:
                 return
             yield page
-    except AttributeError:
-        it = iter(data)
+    elif hasattr(rows, "__iter__") or hasattr(rows, "__getitem__"):
+        it = iter(rows)
         while True:
             page = list(itertools.islice(it, page_size))
             if not page:
                 return
             yield page
+    else:
+        raise InvalidArgumentsIngestionException(
+            param_name="rows",
+            param_constraint="rows is a python iterator or database cursor",
+            actual_value=type(rows),
+            resolvable_by=ResolvableBy.USER_ERROR,
+        )
 
 
 def validate_column_count(
