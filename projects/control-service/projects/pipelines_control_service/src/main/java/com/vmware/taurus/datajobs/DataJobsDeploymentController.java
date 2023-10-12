@@ -146,16 +146,17 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   }
 
   private void validateJobResources(DataJobDeployment dataJobDeployment) {
-    if (dataJobDeployment != null && dataJobDeployment.getResources() != null &&
-            (dataJobDeployment.getResources().getCpuRequest() != null ||
-                    dataJobDeployment.getResources().getCpuLimit() != null ||
-                    dataJobDeployment.getResources().getMemoryRequest() != null &&
-                            dataJobDeployment.getResources().getMemoryLimit() != null)) {
+    if (dataJobDeployment != null
+        && dataJobDeployment.getResources() != null
+        && (dataJobDeployment.getResources().getCpuRequest() != null
+            || dataJobDeployment.getResources().getCpuLimit() != null
+            || dataJobDeployment.getResources().getMemoryRequest() != null
+                && dataJobDeployment.getResources().getMemoryLimit() != null)) {
       throw new ValidationException(
-                "The setting of job resources like CPU and memory is not allowed.",
-                "The setting of job resources like CPU and memory is not supported by the platform.",
-                "The deployment of the data job will not proceed.",
-                "To deploy the data job, please do not configure job resources.");
+          "The setting of job resources like CPU and memory is not allowed.",
+          "The setting of job resources like CPU and memory is not supported by the platform.",
+          "The deployment of the data job will not proceed.",
+          "To deploy the data job, please do not configure job resources.");
     }
   }
 }

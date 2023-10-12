@@ -176,14 +176,13 @@ public class DataJobDeploymentCrudIT extends BaseIT {
 
     // Execute build and deploy job with job resources
     mockMvc
-          .perform(
-              post(String.format(
-                      "/data-jobs/for-team/%s/jobs/%s/deployments",
-                      TEST_TEAM_NAME, testJobName))
-                      .with(user("user"))
-                      .content(getDataJobDeploymentRequestBodyWithJobResources(testJobVersionSha))
-                      .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isBadRequest());
+        .perform(
+            post(String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
+                .with(user("user"))
+                .content(getDataJobDeploymentRequestBodyWithJobResources(testJobVersionSha))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
 
     String jobDeploymentName = JobImageDeployer.getCronJobName(testJobName);
     // Verify job deployment created
@@ -397,7 +396,8 @@ public class DataJobDeploymentCrudIT extends BaseIT {
         .andExpect(status().isOk());
   }
 
-  private String getDataJobDeploymentRequestBodyWithJobResources(String jobVersionSha) throws JsonProcessingException {
+  private String getDataJobDeploymentRequestBodyWithJobResources(String jobVersionSha)
+      throws JsonProcessingException {
     var jobDeployment = new com.vmware.taurus.controlplane.model.data.DataJobDeployment();
     jobDeployment.setJobVersion(jobVersionSha);
     jobDeployment.setMode(DataJobMode.RELEASE);
