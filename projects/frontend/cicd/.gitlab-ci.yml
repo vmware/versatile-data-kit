@@ -67,9 +67,9 @@ frontend-data-pipelines-e2e-tests:
     - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN" "$CYPRESS_test_environment" "$CI_PIPELINE_ID" "$CYPRESS_grepTags"
   retry: !reference [.retry, retry_options]
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_data_pipelines_locations
   artifacts:
     when: always
@@ -154,9 +154,9 @@ frontend_deploy_testing_data_pipelines:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
       changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
       changes: *frontend_data_pipelines_locations
 
 frontend_heartbeat_test:
