@@ -86,15 +86,10 @@ class DataJobDefaultHookImplPlugin:
             )
         except Exception as e:
             status = ExecutionStatus.ERROR
-            details = errors.MSG_WHY_FROM_EXCEPTION(e)
             blamee = whom_to_blame(e, __file__, context.job_directory)
             exception = e
             errors.report(blamee, exception)
-            errors.log_exception(
-                log,
-                exception,
-                f"Processing step {step.name} completed with error.",
-            )
+            log.warning(f"Processing step {step.name} completed with error.")
 
         return StepResult(
             name=step.name,
@@ -132,6 +127,7 @@ class DataJobDefaultHookImplPlugin:
         execution_status = ExecutionStatus.SUCCESS
         for current_step in steps:
             step_start_time = datetime.utcnow()
+            res = None
             try:
                 res = context.core_context.plugin_registry.hook().run_step(
                     context=context, step=current_step
@@ -140,11 +136,7 @@ class DataJobDefaultHookImplPlugin:
                 blamee = whom_to_blame(e, __file__, context.job_directory)
                 exception = e
                 errors.report(blamee, exception)
-                errors.log_exception(
-                    log,
-                    exception,
-                    f"Processing step {current_step.name} completed with error.",
-                )
+                log.warn(f"Processing step {current_step.name} completed with error.")
                 res = StepResult(
                     name=current_step.name,
                     type=current_step.type,
@@ -160,11 +152,11 @@ class DataJobDefaultHookImplPlugin:
             # errors.clear_intermediate_errors()  # step completed successfully, so we can forget errors
             if res.status == ExecutionStatus.ERROR:
                 execution_status = ExecutionStatus.ERROR
+                exception = res.exception
                 break
             if res.status == ExecutionStatus.SKIP_REQUESTED:
                 # We keep the status as Success, but we skip all remaining steps
                 break
-
         execution_result = ExecutionResult(
             context.name,
             context.core_context.state.get(CommonStoreKeys.EXECUTION_ID),
@@ -298,25 +290,31 @@ class DataJob:
         self._plugin_hook.initialize_job(context=job_context)
 
         start_time = datetime.utcnow()
+        step_results = []
         try:
-            return self._plugin_hook.run_job(context=job_context)
+            execution_result = self._plugin_hook.run_job(context=job_context)
+            if (
+                execution_result.exception
+                and execution_result.status == ExecutionStatus.ERROR
+            ):
+                step_results = execution_result.steps_list
+                raise execution_result.exception
+            return execution_result
         except BaseException as ex:
             blamee = whom_to_blame(ex, __file__, job_context.job_directory)
             errors.report(blamee, ex)
-            errors.log_exception(
-                log, ex, f"Data Job {self._name} completed with error."
-            )
+            log.warn(f"Data Job {self._name} completed with error.")
+            log.exception(ex)
             execution_result = ExecutionResult(
                 self._name,
                 self._core_context.state.get(CommonStoreKeys.EXECUTION_ID),
                 start_time,
                 datetime.utcnow(),
                 ExecutionStatus.ERROR,
-                [],
+                step_results,
                 ex,
                 blamee,
             )
             return execution_result
-
         finally:  # TODO: we should pass execution result to finalize_job somehow ...
             self._plugin_hook.finalize_job(context=job_context)
