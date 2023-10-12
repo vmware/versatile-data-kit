@@ -40,9 +40,9 @@ frontend-data-pipelines-build:
   coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
   retry: !reference [.retry, retry_options]
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_data_pipelines_locations
   artifacts:
     when: always
@@ -179,9 +179,9 @@ frontend_heartbeat_test:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
       changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "topic/ysalambashev/fix-frontend-ui-parse-error"'
       changes: *frontend_data_pipelines_locations
 
 frontend_quickstart_operability_test:
