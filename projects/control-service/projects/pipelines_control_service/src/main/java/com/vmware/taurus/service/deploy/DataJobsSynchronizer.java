@@ -11,13 +11,20 @@ import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import io.kubernetes.client.openapi.ApiException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * This class represents a utility for synchronizing Kubernetes CronJobs with data from a database
@@ -31,13 +38,20 @@ import java.util.Set;
  * initiate the synchronization process.
  */
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class DataJobsSynchronizer {
 
   private final JobsService jobsService;
 
   private final DeploymentServiceV2 deploymentService;
+
+  private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+
+  private final ThreadPoolTaskExecutor dataJobsSynchronizerTaskExecutor;
+
+  @Value("${datajobs.deployment.configuration.synchronization.task.enabled:false}")
+  private boolean synchronizationEnabled;
 
   /**
    * Synchronizes Kubernetes CronJobs from the database to ensure that the cluster's state matches
@@ -47,11 +61,34 @@ public class DataJobsSynchronizer {
    * of Kubernetes CronJobs in the cluster, and takes the necessary actions to synchronize them.
    * This can include creating new CronJobs, updating existing CronJobs, etc.
    */
+  @Scheduled(
+      fixedDelayString =
+          "${datajobs.deployment.configuration.synchronization.task.interval.ms:1000}",
+      initialDelayString =
+          "${datajobs.deployment.configuration.synchronization.task.initial.delay.ms:10000}")
+  @SchedulerLock(name = "synchronizeDataJobsTask")
   public void synchronizeDataJobs() {
-    ThreadPoolTaskExecutor taskExecutor = initializeTaskExecutor();
-    Iterable<DataJob> dataJobsFromDB = jobsService.findAllDataJobs();
+    if (!synchronizationEnabled) {
+      log.debug("Skipping the synchronization of data job deployments since it is disabled.");
+      return;
+    }
 
+    if (!dataJobDeploymentPropertiesConfig
+        .getWriteTos()
+        .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+      log.debug(
+          "Skipping data job deployments' synchronization due to the disabled writes to the"
+              + " database.");
+      return;
+    }
+
+    log.info("Data job deployments synchronization has started.");
+
+    List<DataJob> dataJobsFromDB =
+        StreamSupport.stream(jobsService.findAllDataJobs().spliterator(), false)
+            .collect(Collectors.toList());
     Set<String> dataJobDeploymentNamesFromKubernetes;
+
     try {
       dataJobDeploymentNamesFromKubernetes =
           deploymentService.findAllActualDeploymentNamesFromKubernetes();
@@ -71,17 +108,28 @@ public class DataJobsSynchronizer {
     Map<String, ActualDataJobDeployment> actualDataJobDeploymentsFromDBMap =
         deploymentService.findAllActualDataJobDeployments();
 
+    CountDownLatch countDownLatch = new CountDownLatch(dataJobsFromDB.size());
+
     dataJobsFromDB.forEach(
         dataJob ->
-            taskExecutor.execute(
+            executeSynchronizationTask(
                 () ->
                     synchronizeDataJob(
                         dataJob,
                         desiredDataJobDeploymentsFromDBMap.get(dataJob.getName()),
                         actualDataJobDeploymentsFromDBMap.get(dataJob.getName()),
-                        finalDataJobDeploymentNamesFromKubernetes.contains(dataJob.getName()))));
+                        finalDataJobDeploymentNamesFromKubernetes.contains(dataJob.getName())),
+                countDownLatch));
 
-    taskExecutor.shutdown();
+    try {
+      log.debug(
+          "Waiting for data job deployments' synchronization to complete. This process may take"
+              + " some time...");
+      countDownLatch.await();
+      log.info("Data job deployments synchronization has successfully completed.");
+    } catch (InterruptedException e) {
+      log.error("An error occurred during the data job deployments' synchronization", e);
+    }
   }
 
   // Default for testing purposes
@@ -99,16 +147,14 @@ public class DataJobsSynchronizer {
     }
   }
 
-  private ThreadPoolTaskExecutor initializeTaskExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(5);
-    executor.setMaxPoolSize(10);
-    executor.setQueueCapacity(Integer.MAX_VALUE);
-    executor.setAllowCoreThreadTimeOut(true);
-    executor.setKeepAliveSeconds(120);
-    executor.setWaitForTasksToCompleteOnShutdown(true);
-    executor.initialize();
-
-    return executor;
+  private void executeSynchronizationTask(Runnable runnable, CountDownLatch countDownLatch) {
+    dataJobsSynchronizerTaskExecutor.execute(
+        () -> {
+          try {
+            runnable.run();
+          } finally {
+            countDownLatch.countDown();
+          }
+        });
   }
 }
