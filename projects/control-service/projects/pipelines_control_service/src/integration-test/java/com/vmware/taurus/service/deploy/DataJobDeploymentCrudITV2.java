@@ -162,8 +162,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
 
     // Deletes deployment
     desiredJobDeploymentRepository.deleteById(testJobName);
-    dataJobsSynchronizer.synchronizeDataJob(
-            dataJob, null, actualDataJobDeployment, true);
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, null, actualDataJobDeployment, true);
     Assertions.assertFalse(deploymentService.readDeployment(testJobName).isPresent());
     Assertions.assertFalse(actualJobDeploymentRepository.findById(testJobName).isPresent());
   }

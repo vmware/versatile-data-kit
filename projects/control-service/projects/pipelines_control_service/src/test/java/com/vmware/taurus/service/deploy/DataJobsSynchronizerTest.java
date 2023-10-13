@@ -118,60 +118,91 @@ public class DataJobsSynchronizerTest {
     DesiredDataJobDeployment desiredDataJobDeployment = null;
     ActualDataJobDeployment actualDataJobDeployment = null;
 
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+    dataJobsSynchronizer.synchronizeDataJob(
+        dataJob,
+        desiredDataJobDeployment,
+        actualDataJobDeployment,
+        isDeploymentPresentInKubernetes);
 
     Mockito.verify(deploymentService, Mockito.times(0))
-            .updateDeployment(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
-    Mockito.verify(deploymentService, Mockito.times(0))
-            .deleteActualDeployment(dataJob.getName());
+        .updateDeployment(
+            dataJob,
+            desiredDataJobDeployment,
+            actualDataJobDeployment,
+            isDeploymentPresentInKubernetes);
+    Mockito.verify(deploymentService, Mockito.times(0)).deleteActualDeployment(dataJob.getName());
   }
 
   @Test
-  void synchronizeDataJob_desiredDeploymentNullAndActualDeploymentNotNull_shouldDeleteJobDeployment() {
+  void
+      synchronizeDataJob_desiredDeploymentNullAndActualDeploymentNotNull_shouldDeleteJobDeployment() {
     DataJob dataJob = new DataJob();
     dataJob.setName("test-job-name");
     boolean isDeploymentPresentInKubernetes = true;
     DesiredDataJobDeployment desiredDataJobDeployment = null;
     ActualDataJobDeployment actualDataJobDeployment = new ActualDataJobDeployment();
 
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+    dataJobsSynchronizer.synchronizeDataJob(
+        dataJob,
+        desiredDataJobDeployment,
+        actualDataJobDeployment,
+        isDeploymentPresentInKubernetes);
 
     Mockito.verify(deploymentService, Mockito.times(0))
-            .updateDeployment(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
-    Mockito.verify(deploymentService, Mockito.times(1))
-            .deleteActualDeployment(dataJob.getName());
+        .updateDeployment(
+            dataJob,
+            desiredDataJobDeployment,
+            actualDataJobDeployment,
+            isDeploymentPresentInKubernetes);
+    Mockito.verify(deploymentService, Mockito.times(1)).deleteActualDeployment(dataJob.getName());
   }
 
   @Test
-  void synchronizeDataJob_desiredDeploymentNotNullAndActualDeploymentNotNull_shouldUpdateJobDeployment() {
+  void
+      synchronizeDataJob_desiredDeploymentNotNullAndActualDeploymentNotNull_shouldUpdateJobDeployment() {
     DataJob dataJob = new DataJob();
     dataJob.setName("test-job-name");
     boolean isDeploymentPresentInKubernetes = true;
     DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
     ActualDataJobDeployment actualDataJobDeployment = new ActualDataJobDeployment();
 
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+    dataJobsSynchronizer.synchronizeDataJob(
+        dataJob,
+        desiredDataJobDeployment,
+        actualDataJobDeployment,
+        isDeploymentPresentInKubernetes);
 
     Mockito.verify(deploymentService, Mockito.times(1))
-            .updateDeployment(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
-    Mockito.verify(deploymentService, Mockito.times(0))
-            .deleteActualDeployment(dataJob.getName());
+        .updateDeployment(
+            dataJob,
+            desiredDataJobDeployment,
+            actualDataJobDeployment,
+            isDeploymentPresentInKubernetes);
+    Mockito.verify(deploymentService, Mockito.times(0)).deleteActualDeployment(dataJob.getName());
   }
 
   @Test
-  void synchronizeDataJob_desiredDeploymentNotNullAndActualDeploymentNull_shouldUpdateJobDeployment() {
+  void
+      synchronizeDataJob_desiredDeploymentNotNullAndActualDeploymentNull_shouldUpdateJobDeployment() {
     DataJob dataJob = new DataJob();
     dataJob.setName("test-job-name");
     boolean isDeploymentPresentInKubernetes = true;
     DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
     ActualDataJobDeployment actualDataJobDeployment = null;
 
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
+    dataJobsSynchronizer.synchronizeDataJob(
+        dataJob,
+        desiredDataJobDeployment,
+        actualDataJobDeployment,
+        isDeploymentPresentInKubernetes);
 
     Mockito.verify(deploymentService, Mockito.times(1))
-            .updateDeployment(dataJob, desiredDataJobDeployment, actualDataJobDeployment, isDeploymentPresentInKubernetes);
-    Mockito.verify(deploymentService, Mockito.times(0))
-            .deleteActualDeployment(dataJob.getName());
+        .updateDeployment(
+            dataJob,
+            desiredDataJobDeployment,
+            actualDataJobDeployment,
+            isDeploymentPresentInKubernetes);
+    Mockito.verify(deploymentService, Mockito.times(0)).deleteActualDeployment(dataJob.getName());
   }
 
   void enableSynchronizationProcess() {

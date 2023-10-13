@@ -69,7 +69,6 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       if (jobName != null) {
         if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.K8S)) {
           deploymentService.deleteDeployment(jobName);
-
         }
 
         if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
@@ -96,7 +95,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
             ToModelApiConverter.toJobDeployment(teamName, jobName, dataJobDeployment);
 
         if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.K8S)) {
-            deploymentService.patchDeployment(job.get(), jobDeployment);
+          deploymentService.patchDeployment(job.get(), jobDeployment);
         }
 
         if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
@@ -117,9 +116,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       // TODO: deploymentId and mode not implemented
       List<DataJobDeploymentStatus> deployments = Collections.emptyList();
       Optional<JobDeploymentStatus> jobDeploymentStatus = Optional.empty();
-      if (dataJobDeploymentPropertiesConfig
-              .getReadDataSource()
-              .equals(ReadFrom.K8S)) {
+      if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
         jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase());
       }
       if (jobDeploymentStatus.isPresent()) {
@@ -137,9 +134,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       // TODO: deploymentId are not implemented.
       Optional<JobDeploymentStatus> jobDeploymentStatus = Optional.empty();
-      if (dataJobDeploymentPropertiesConfig
-              .getReadDataSource()
-              .equals(ReadFrom.K8S)) {
+      if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
         jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase());
       }
       if (jobDeploymentStatus.isPresent()) {
@@ -165,21 +160,19 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
         var jobDeployment =
             ToModelApiConverter.toJobDeployment(teamName, jobName.toLowerCase(), dataJobDeployment);
 
-        if (dataJobDeploymentPropertiesConfig
-                .getWriteTos()
-                .contains(WriteTo.K8S)) {
+        if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.K8S)) {
           // TODO: Consider using a Task-oriented API approach
           deploymentService.updateDeployment(
-                  job.get(),
-                  jobDeployment,
-                  sendNotification,
-                  operationContext.getUser(),
-                  operationContext.getOpId());
+              job.get(),
+              jobDeployment,
+              sendNotification,
+              operationContext.getUser(),
+              operationContext.getOpId());
         }
 
         if (dataJobDeploymentPropertiesConfig.getWriteTos().contains(WriteTo.DB)) {
-            deploymentServiceV2.updateDesiredDbDeployment(
-                    job.get(), jobDeployment, operationContext.getUser());
+          deploymentServiceV2.updateDesiredDbDeployment(
+              job.get(), jobDeployment, operationContext.getUser());
         }
 
         return ResponseEntity.accepted().build();

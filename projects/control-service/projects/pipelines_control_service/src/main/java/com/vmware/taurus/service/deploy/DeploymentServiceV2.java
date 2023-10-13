@@ -257,6 +257,6 @@ public class DeploymentServiceV2 {
 
   private boolean deploymentExistsOrInProgress(String dataJobName) {
     return jobImageBuilder.isBuildingJobInProgress(dataJobName)
-            || readDeployment(dataJobName).isPresent();
+        || readDeployment(dataJobName).isPresent();
   }
 }

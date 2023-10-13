@@ -72,14 +72,14 @@ public class JobsService {
       credentialsService.deleteJobCredentials(name);
 
       if (dataJobDeploymentPropertiesConfig
-              .getWriteTos()
-              .contains(DataJobDeploymentPropertiesConfig.WriteTo.K8S)) {
+          .getWriteTos()
+          .contains(DataJobDeploymentPropertiesConfig.WriteTo.K8S)) {
         deploymentService.deleteDeployment(name);
       }
 
       if (dataJobDeploymentPropertiesConfig
-              .getWriteTos()
-              .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+          .getWriteTos()
+          .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
         deploymentServiceV2.deleteDesiredDeployment(name);
       }
 
