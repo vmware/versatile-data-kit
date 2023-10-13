@@ -16,6 +16,7 @@ import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.notification.NotificationContent;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
@@ -63,7 +64,8 @@ public class DeploymentServiceV2 {
    */
   public void patchDesiredDbDeployment(
       DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
-    actualJobDeploymentRepository
+    setDeploymentSchedule(dataJob, jobDeployment);
+    desiredJobDeploymentRepository
         .findById(dataJob.getName())
         .ifPresentOrElse(
             oldDeployment -> {
@@ -87,7 +89,8 @@ public class DeploymentServiceV2 {
    */
   public void updateDesiredDbDeployment(
       DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
-    actualJobDeploymentRepository
+    setDeploymentSchedule(dataJob, jobDeployment);
+    desiredJobDeploymentRepository
         .findById(dataJob.getName())
         .ifPresentOrElse(
             oldDeployment -> patchDesiredDbDeployment(dataJob, jobDeployment, userDeployer),
@@ -255,8 +258,25 @@ public class DeploymentServiceV2 {
         sendNotification);
   }
 
-  private boolean deploymentExistsOrInProgress(String dataJobName) {
+    private boolean deploymentExistsOrInProgress(String dataJobName) {
     return jobImageBuilder.isBuildingJobInProgress(dataJobName)
         || readDeployment(dataJobName).isPresent();
-  }
+    }
+
+    /**
+     * Sets the deployment schedule if it is not passed to the API for backward compatibility,
+     * as the schedule is still passed as part of the data job.
+     *
+     * @param dataJob the data job to which the deployment is associated
+     * @param jobDeployment the deployment to patch with
+     */
+    void setDeploymentSchedule(DataJob dataJob, JobDeployment jobDeployment) {
+        if (jobDeployment.getSchedule() == null) {
+            String schedule = Optional.ofNullable(dataJob)
+                    .map(DataJob::getJobConfig)
+                    .map(JobConfig::getSchedule)
+                    .orElse(null);
+            jobDeployment.setSchedule(schedule);
+        }
+    }
 }

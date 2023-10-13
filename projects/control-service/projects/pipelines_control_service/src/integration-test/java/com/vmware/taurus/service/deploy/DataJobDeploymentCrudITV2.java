@@ -54,10 +54,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
       "datajobs.deployment.configuration.synchronization.task.enabled=true",
       "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000",
-      "datajobs.deployment.configuration.persistence.writeTos=DB"
       // Setting this value to 1000000 effectively disables the scheduled execution of
       // DataJobsSynchronizer.synchronizeDataJobs().
       // This is necessary because the test scenario relies on manually triggering the process.
+      "datajobs.deployment.configuration.persistence.writeTos=DB"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,

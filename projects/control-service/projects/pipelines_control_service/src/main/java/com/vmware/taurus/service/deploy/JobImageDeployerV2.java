@@ -419,7 +419,7 @@ public class JobImageDeployerV2 {
             jobDeployment.getLastDeployedBy(),
             lastDeployedDate,
             jobDeployment.getPythonVersion());
-    boolean enabled = jobDeployment.getEnabled();
+    boolean enabled = jobDeployment.getEnabled() == null || jobDeployment.getEnabled();
 
     return KubernetesService.CronJob.builder()
         .name(dataJobDeploymentName)

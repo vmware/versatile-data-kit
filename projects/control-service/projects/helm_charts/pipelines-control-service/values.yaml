@@ -1051,7 +1051,7 @@ dataJob:
         # Case sensitive CSV list of write to's sources. Default is "DB,K8S" The control service
         # will write data job properties to all sources present in this list.
         # See the synchronizationTask for more information.
-        writeTos: "DB,K8S"
+        writeTos: "K8S"
         # Case-sensitive variable to select the truth data source for reading properties.
         # Options are "DB" for database and "K8S" for kubernetes. The control service will read
         # properties from the specified source.

@@ -204,7 +204,7 @@ public class DeploymentModelConverter {
   }
 
   public static DesiredDataJobDeployment mergeDeployments(
-      ActualDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
+      DesiredDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
     checkDeploymentsCanBeMerged(oldDeployment, newDeployment);
     DesiredDataJobDeployment mergedDeployment = new DesiredDataJobDeployment();
     mergedDeployment.setDataJobName(newDeployment.getDataJobName());
@@ -236,7 +236,7 @@ public class DeploymentModelConverter {
   }
 
   private static void checkDeploymentsCanBeMerged(
-      ActualDataJobDeployment oldDeployment, JobDeployment newDeployment) {
+      DesiredDataJobDeployment oldDeployment, JobDeployment newDeployment) {
     if (oldDeployment.getDataJobName() == null
         || newDeployment.getDataJobName() == null
         || newDeployment.getDataJobTeam() == null
@@ -259,7 +259,7 @@ public class DeploymentModelConverter {
   private static void mergeDeploymentResources(
       DesiredDataJobDeployment mergedDeployment,
       JobDeployment newDeployment,
-      ActualDataJobDeployment oldDeployment) {
+      DesiredDataJobDeployment oldDeployment) {
     if (newDeployment.getResources() == null) {
       return;
     }
