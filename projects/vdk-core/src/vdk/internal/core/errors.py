@@ -11,6 +11,7 @@ It defines classes and methods for handling exceptions, and ensuring that there 
 from __future__ import annotations
 
 from vdk.internal.core.error_classifiers import *
+
 # Due to the expansion of this file's responsibilities over time,
 # we've decided to reorganize its contents for better maintainability.
 # The logic previously contained here has been moved to a separate module. However, to ensure backward compatibility,
