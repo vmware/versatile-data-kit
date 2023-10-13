@@ -7,11 +7,11 @@ AUDIT_HOOK_FORBIDDEN_EVENTS_LIST = "FORBIDDEN_EVENTS_LIST"
 AUDIT_HOOK_EXIT_ON_FORBIDDEN_EVENT = "EXIT_ON_FORBIDDEN_EVENT"
 AUDIT_HOOK_EXIT_CODE = "EXIT_CODE"
 AUDIT_HOOK_FORBIDDEN_EVENTS_LIST_DEFAULT = (
-    "os.system;os.chdir;os.chflags;os.chmod;os.chown;os.fork;"
+    "os.system;os.chdir;os.chflags;os.chown;os.fork;"
     "os.forkpty;os.getxattr;os.kill;os.killpg;os.link;os.listxattr;"
     "os.lockf;os.posix_spawn;os.putenv;os.removexattr;os.rmdir;"
-    "os.scandir;os.setxattr;os.spawn;os.startfile;os.symlink;"
-    "os.truncate;os.unsetenv;os.utime;pty.spawn;os.spawn;"
+    "os.setxattr;os.spawn;os.startfile;os.symlink;"
+    "os.truncate;os.unsetenv;pty.spawn;os.spawn;"
     "os.posix_spawn;subprocess.run"
 )
 
