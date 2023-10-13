@@ -9,11 +9,9 @@ import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.datajobs.TestUtils;
 import com.vmware.taurus.datajobs.ToModelApiConverter;
-import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DeploymentStatus;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
-import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -26,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class DeploymentServiceV2WriteTest {
 
   @Autowired JobsRepository jobsRepository;
-  @Autowired ActualJobDeploymentRepository actualJobDeploymentRepository;
   @Autowired DesiredJobDeploymentRepository desiredJobDeploymentRepository;
   @Autowired DeploymentServiceV2 deploymentServiceV2;
 
@@ -46,10 +43,10 @@ public class DeploymentServiceV2WriteTest {
   public void testPatchDesiredDeployment_expectMergedDeployment() {
     var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
     jobsRepository.save(dataJob);
-    var initialDeployment = new ActualDataJobDeployment();
+    var initialDeployment = new DesiredDataJobDeployment();
     initialDeployment.setDataJob(dataJob);
     initialDeployment.setDataJobName(dataJob.getName());
-    actualJobDeploymentRepository.save(initialDeployment);
+    desiredJobDeploymentRepository.save(initialDeployment);
     JobDeployment jobDeployment = generateTestDeployment();
     deploymentServiceV2.patchDesiredDbDeployment(dataJob, jobDeployment, "user");
     var savedDeployment = desiredJobDeploymentRepository.findById("jobName").get();
@@ -59,7 +56,6 @@ public class DeploymentServiceV2WriteTest {
   @AfterEach
   public void cleanup() {
     desiredJobDeploymentRepository.deleteAll();
-    actualJobDeploymentRepository.deleteAll();
     jobsRepository.deleteAll();
   }
 

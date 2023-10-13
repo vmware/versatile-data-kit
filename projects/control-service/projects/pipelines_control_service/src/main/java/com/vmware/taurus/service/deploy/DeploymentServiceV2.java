@@ -64,7 +64,7 @@ public class DeploymentServiceV2 {
    */
   public void patchDesiredDbDeployment(
       DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
-    setDeploymentSchedule(dataJob, jobDeployment);
+    populateDeploymentForBackwardCompatibility(dataJob, jobDeployment);
     desiredJobDeploymentRepository
         .findById(dataJob.getName())
         .ifPresentOrElse(
@@ -89,7 +89,7 @@ public class DeploymentServiceV2 {
    */
   public void updateDesiredDbDeployment(
       DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
-    setDeploymentSchedule(dataJob, jobDeployment);
+    populateDeploymentForBackwardCompatibility(dataJob, jobDeployment);
     desiredJobDeploymentRepository
         .findById(dataJob.getName())
         .ifPresentOrElse(
@@ -258,25 +258,44 @@ public class DeploymentServiceV2 {
         sendNotification);
   }
 
-    private boolean deploymentExistsOrInProgress(String dataJobName) {
+  private boolean deploymentExistsOrInProgress(String dataJobName) {
     return jobImageBuilder.isBuildingJobInProgress(dataJobName)
         || readDeployment(dataJobName).isPresent();
-    }
+  }
 
-    /**
-     * Sets the deployment schedule if it is not passed to the API for backward compatibility,
-     * as the schedule is still passed as part of the data job.
-     *
-     * @param dataJob the data job to which the deployment is associated
-     * @param jobDeployment the deployment to patch with
-     */
-    void setDeploymentSchedule(DataJob dataJob, JobDeployment jobDeployment) {
-        if (jobDeployment.getSchedule() == null) {
-            String schedule = Optional.ofNullable(dataJob)
-                    .map(DataJob::getJobConfig)
-                    .map(JobConfig::getSchedule)
-                    .orElse(null);
-            jobDeployment.setSchedule(schedule);
-        }
+  /**
+   * Populates the deployment's fields with legacy data to ensure backward compatibility.
+   * This method is used to maintain compatibility with older versions of the deployment process.
+   */
+  private void populateDeploymentForBackwardCompatibility(DataJob dataJob, JobDeployment jobDeployment) {
+    setDeploymentSchedule(dataJob, jobDeployment);
+    setDeploymentEnabled(jobDeployment);
+  }
+
+  /**
+   * Sets the deployment schedule if it is not passed to the API for backward compatibility, as the
+   * schedule is still passed as part of the data job.
+   *
+   * @param dataJob the data job to which the deployment is associated
+   * @param jobDeployment the deployment to patch with
+   */
+  private void setDeploymentSchedule(DataJob dataJob, JobDeployment jobDeployment) {
+    if (jobDeployment.getSchedule() == null) {
+      String schedule =
+          Optional.ofNullable(dataJob)
+              .map(DataJob::getJobConfig)
+              .map(JobConfig::getSchedule)
+              .orElse(null);
+      jobDeployment.setSchedule(schedule);
     }
+  }
+
+  /**
+   * Sets the deployment enabled flag to true if it is not passed to the API for backward compatibility.
+   *
+   * @param jobDeployment the deployment to patch with
+   */
+  private void setDeploymentEnabled(JobDeployment jobDeployment) {
+    jobDeployment.setEnabled(jobDeployment.getEnabled() == null || jobDeployment.getEnabled());
+  }
 }
