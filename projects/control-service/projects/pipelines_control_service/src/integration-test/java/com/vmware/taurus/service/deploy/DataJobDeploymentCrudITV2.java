@@ -159,6 +159,12 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     Assertions.assertNotEquals(lastDeployedDateInitial, lastDeployedDateShouldBeChanged);
     Assertions.assertNotEquals(
         deploymentVersionShaShouldNotBeChanged, deploymentVersionShaShouldBeChanged);
+
+    // Deletes deployment
+    desiredJobDeploymentRepository.deleteById(testJobName);
+    dataJobsSynchronizer.synchronizeDataJob(dataJob, null, actualDataJobDeployment, true);
+    Assertions.assertFalse(deploymentService.readDeployment(testJobName).isPresent());
+    Assertions.assertFalse(actualJobDeploymentRepository.findById(testJobName).isPresent());
   }
 
   @Test
