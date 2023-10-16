@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,6 +77,7 @@ public class DeploymentMonitor {
    * @param dataJobName
    * @param deploymentStatus
    */
+  @Transactional
   public void recordDeploymentStatus(
       String dataJobName,
       DeploymentStatus deploymentStatus,
@@ -96,7 +98,7 @@ public class DeploymentMonitor {
     }
   }
 
-  private boolean saveDataJobStatus(
+  public boolean saveDataJobStatus(
       final String dataJobName,
       final DeploymentStatus deploymentStatus,
       ActualDataJobDeployment actualDataJobDeployment) {

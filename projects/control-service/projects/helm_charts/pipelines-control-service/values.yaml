@@ -1050,11 +1050,37 @@ dataJob:
       persistence:
         # Case sensitive CSV list of write to's sources. Default is "DB,K8S" The control service
         # will write data job properties to all sources present in this list.
+        # See the synchronizationTask for more information.
         writeTos: "DB,K8S"
         # Case-sensitive variable to select the truth data source for reading properties.
         # Options are "DB" for database and "K8S" for kubernetes. The control service will read
         # properties from the specified source.
         readDataSource: "K8S"
+      # Synchronization Task Behavior:
+      # Configure the behavior of synchronization task based on the following configurations:
+
+      # Case 1: If persistence.writeTo = "DB" and synchronizationTask.enabled = true:
+      # The Deployment API will write data to the database, and the synchronization task
+      # will sync the data jobs in Kubernetes.
+
+      # Case 2: If persistence.writeTo = "DB" and synchronizationTask.enabled = false:
+      # The Deployment API will update the database, but the synchronization task will be disabled,
+      # resulting in no updates in Kubernetes.
+
+      # Case 3: If persistence.writeTo = "K8s" and synchronizationTask.enabled = true:
+      # The Deployment API will update data jobs in Kubernetes, and the synchronization task may override some of them.
+
+      # Case 4: If persistence.writeTo = "K8s" and synchronizationTask.enabled = false:
+      # The Deployment API will update data jobs in Kubernetes, but the synchronization tasks will be disabled,
+      # preventing any further synchronization with Kubernetes.
+      synchronizationTask:
+        enabled: false
+        # The data job deployments' synchronization task interval is the time period (expressed in milliseconds)
+        # after a synchronization process has completed and before a new one is started.
+        intervalMs: 60000
+        # The data job deployments' synchronization task  initial delay is the period (expressed in milliseconds) between control service
+        # start and the first time a synchronization process is started by the control service instance
+        initialDelayMs: 10000
     jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer
