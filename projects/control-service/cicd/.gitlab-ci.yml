@@ -34,6 +34,29 @@
     - apk --no-cache add openjdk17-jdk git zip curl zip py-pip
     - pip install --upgrade pip && pip install awscli
 
+control_service_publish_image:
+  extends: .images:dind:docker-push-to-vdk-repos
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache git openjdk17-jdk
+    - export TAG=$(git rev-parse --short HEAD)
+    - docker login -u $VDK_DOCKER_REGISTRY_USERNAME -p $VDK_DOCKER_REGISTRY_PASSWORD
+    - cd projects/control-service/projects
+    - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
+    - ./gradlew build -x test --info --stacktrace
+    - ./gradlew :pipelines_control_service:dockerTag --info --stacktrace -Pversion=$TAG
+    - docker_push_vdk.sh "versatiledatakit/pipelines-control-service:$TAG"
+    - docker_push_vdk.sh "versatiledatakit/pipelines-control-service:latest"
+  retry: !reference [.control_service_retry, retry_options]
+  artifacts:
+    when: always
+    reports:
+      junit: ./projects/control-serviceprojects/**/build/test-results/test/TEST-*.xml
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *control_service_code_change_locations
+
+
 # (there are docker KDC servers that can be used for demo? but it will not work with Impala ?)
 # The cockroach storage class is taken from DECC https://devhub.eng.vmware.com/console/resources/namespaces
 # Go to the namespace -> StorageClass
