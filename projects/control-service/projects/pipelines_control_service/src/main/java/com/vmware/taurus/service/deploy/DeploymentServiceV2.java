@@ -19,8 +19,10 @@ import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.notification.NotificationContent;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import io.kubernetes.client.openapi.ApiException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -50,6 +52,7 @@ public class DeploymentServiceV2 {
   private final DesiredJobDeploymentRepository desiredJobDeploymentRepository;
   private final ActualJobDeploymentRepository actualJobDeploymentRepository;
   private final DataJobsKubernetesService dataJobsKubernetesService;
+  private final JobsRepository jobsRepository;
 
   /**
    * This method updates an existing job deployment in the database. Only fields present in the job
@@ -186,6 +189,27 @@ public class DeploymentServiceV2 {
     }
   }
 
+  public void deleteDesiredDeployment(String dataJobName) {
+    if (desiredJobDeploymentRepository.existsById(dataJobName)) {
+      desiredJobDeploymentRepository.deleteById(dataJobName);
+    }
+  }
+
+  public void deleteActualDeployment(String dataJobName) {
+    if (this.deploymentExistsOrInProgress(dataJobName)) {
+      jobImageBuilder.cancelBuildingJob(dataJobName);
+      jobImageDeployer.unScheduleJob(dataJobName);
+      jobsRepository.updateDataJobEnabledByName(dataJobName, false);
+    }
+
+    actualJobDeploymentRepository.deleteById(dataJobName);
+    deploymentProgress.deleted(dataJobName);
+  }
+
+  public Optional<ActualDataJobDeployment> readDeployment(String dataJobName) {
+    return actualJobDeploymentRepository.findById(dataJobName);
+  }
+
   public void updateDeploymentEnabledStatus(String dataJobName, Boolean enabledStatus) {
     desiredJobDeploymentRepository.updateDesiredDataJobDeploymentEnabledByDataJobName(
         dataJobName, enabledStatus);
@@ -229,5 +253,10 @@ public class DeploymentServiceV2 {
         DeploymentStatus.PLATFORM_ERROR,
         NotificationContent.getPlatformErrorBody(),
         sendNotification);
+  }
+
+  private boolean deploymentExistsOrInProgress(String dataJobName) {
+    return jobImageBuilder.isBuildingJobInProgress(dataJobName)
+        || readDeployment(dataJobName).isPresent();
   }
 }

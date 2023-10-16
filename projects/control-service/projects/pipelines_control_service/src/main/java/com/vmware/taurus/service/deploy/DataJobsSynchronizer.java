@@ -144,6 +144,8 @@ public class DataJobsSynchronizer {
           desiredDataJobDeployment,
           actualDataJobDeployment,
           isDeploymentPresentInKubernetes);
+    } else if (actualDataJobDeployment != null) {
+      deploymentService.deleteActualDeployment(dataJob.getName());
     }
   }
 
