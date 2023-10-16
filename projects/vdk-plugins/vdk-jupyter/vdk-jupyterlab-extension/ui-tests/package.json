@@ -8,7 +8,7 @@
     "test": "jlpm playwright test"
   },
   "devDependencies": {
-    "@jupyterlab/galata": "^4.3.0"
+    "@jupyterlab/galata": "^4.5.6"
   },
   "dependencies": {
     "@stdlib/stats": "^0.0.13",

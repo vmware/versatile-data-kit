@@ -81,7 +81,7 @@ integration-tests-vdk-jupyterlab-extension:
     - echo "Running Integration Tests..."
    # - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension
     - npm ci
-    - npm install @playwright/test @stdlib/stats
+    - npm install @playwright/test @stdlib/stats @jupyterlab/galata
     - jlpm build
     - cd ./ui-tests
     # - jlpm playwright install
