@@ -75,13 +75,15 @@ integration-tests-vdk-jupyterlab-extension:
     - source venv/bin/activate
     - pip install -U pip setuptools pre-commit
     - apt install nodejs rustc cargo libffi-dev -y
-    - pip install jupyter
+    - pip install .
     - echo "Running Integration Tests..."
    # - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension
-    - npm install
-    - npm install @playwright/test
+    - npm ci
+    - jlpm build
+    - npm install @playwright/test @stdlib/stats
     - cd ./ui-tests
     # - jlpm playwright install
+    - npx playwright install
     - npx playwright test
   artifacts:
     when: always
