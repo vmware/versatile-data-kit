@@ -11,6 +11,7 @@
     "@jupyterlab/galata": "^4.3.0"
   },
   "dependencies": {
+    "@stdlib/stats": "^0.0.13",
     "vdk-jupyterlab-extension-ui-tests": "file:"
   }
 }
