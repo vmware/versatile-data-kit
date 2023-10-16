@@ -72,7 +72,7 @@ coverity-scan:
       --form email=$COVERITY_SCAN_EMAIL
       --form file=@cov-int.tar.gz
       --form description="Coverity scan for vdk"
-      https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
+      https://scan.coverity.com/builds?project=versatile-data-kit
   rules:
     - if: $CI_COMMIT_BRANCH == "main" #Mark it as main before merging
     - if: $CI_PIPELINE_SOURCE == "schedule" && $IS_COVERITY_SCAN_SCHEDULE == "true"
