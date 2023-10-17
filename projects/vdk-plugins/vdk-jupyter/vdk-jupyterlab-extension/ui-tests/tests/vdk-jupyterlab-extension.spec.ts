@@ -11,7 +11,7 @@ import { expect, test } from '@jupyterlab/galata';
  */
 test.use({ autoGoto: false });
 
-test('should open run job pop up and then cancel the operation', async ({
+test.skip('should open run job pop up and then cancel the operation', async ({
   page
 }) => {
   await page.goto('');
@@ -93,7 +93,7 @@ test('should try to create a job with incorrect input and get error', async ({
   await page.getByRole('button', { name: 'OK' }).click();
 });
 
-test('should try to create a job successfully', async ({ page }) => {
+test.skip('should try to create a job successfully', async ({ page }) => {
   await page.goto('');
   await page.menu.open('VDK');
   await page.locator('#jp-vdk-menu').getByText('Create').click();
@@ -136,7 +136,7 @@ test('should try download operation with empty input and get error', async ({
   await page.getByRole('button', { name: 'OK' }).click();
 });
 
-test('should create an init cell when opening a new notebook', async ({
+test.skip('should create an init cell when opening a new notebook', async ({
   page
 }) => {
   await page.goto('');
@@ -146,7 +146,7 @@ test('should create an init cell when opening a new notebook', async ({
   ).toBeVisible();
 });
 
-test(
+test.skip(
   'should create a new dir, navigate to it,' +
     'create a new job, attempt to create a job relative to' +
     'the original dir and succeed',

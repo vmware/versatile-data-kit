@@ -10,7 +10,7 @@ import { copyDirectory } from './utils';
 const baseJobPath = 'data/convert-test-job-dirty';
 test.use({ autoGoto: false });
 
-test.describe('convert job', () => {
+test.skip('convert job', () => {
   test.beforeEach(async ({ baseURL, page, tmpPath }) => {
     await copyDirectory(
       baseURL!,

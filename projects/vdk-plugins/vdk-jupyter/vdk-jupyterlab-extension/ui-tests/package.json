@@ -7,9 +7,6 @@
     "start": "jupyter lab --config jupyter_server_test_config.py",
     "test": "jlpm playwright test"
   },
-  "devDependencies": {
-    "@jupyterlab/galata": "^4.5.6"
-  },
   "dependencies": {
     "@stdlib/stats": "^0.0.13",
     "vdk-jupyterlab-extension-ui-tests": "file:"

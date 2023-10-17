@@ -75,17 +75,14 @@ integration-tests-vdk-jupyterlab-extension:
     - apt install python3.9 python3.9-venv -y
     - python3.9 -m venv venv
     - source venv/bin/activate
-    - pip install -U pip setuptools pre-commit
+    - pip install -U pip setuptools pre-commit jupyter
     - apt install nodejs rustc cargo libffi-dev -y
     - pip install .
-    - echo "Running Integration Tests..."
    # - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension
     - npm ci
-    - npm install @playwright/test @stdlib/stats @jupyterlab/galata
-    - jlpm build
+    - npm install @stdlib/stats @jupyterlab/galata # @playwright/test
     - cd ./ui-tests
-    # - jlpm playwright install
-    - npx playwright install
+    - npx playwright install --with-deps
     - npx playwright test
   artifacts:
     when: always
