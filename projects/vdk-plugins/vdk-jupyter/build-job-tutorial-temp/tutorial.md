@@ -92,7 +92,18 @@ We will be working with the following CSV dataset: [nps_data.csv](https://raw.gi
 2. **Remove the Two VDK Cells** from the sample job. Be cautious to retain the configuration cell.
 
 #### **Development Steps:**
-Our Data Job development will encompass five crucial steps. We will be adding separate cells for each step in the notebook and running each cell upon the completion of every step.
+Our Data Job development will encompass six crucial steps. We will be adding separate cells for each step in the notebook and running each cell upon the completion of every step.
+
+<details>
+  <summary><i>Step 0: Load VDK to the notebook</i></summary>
+
+Before we start, we must initialize the VDK in our notebook. 
+This prerequisite step ensures we have all the necessary configurations set for the subsequent steps.
+
+![Data Job Configuration cell](images/configuration-cell.png)
+
+
+</details>
 
 <details>
   <summary><i>Step 1: Load the Data</i></summary>
