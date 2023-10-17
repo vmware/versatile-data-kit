@@ -3,19 +3,19 @@ Time Commitment: About 5-10 minutes.
 
 ## Prerequisites
 
-Before you start with the build, please ensure you have the following:
+If you are not using an already configured environment,
+before you start with the creation, please ensure you have the following:
 
 <details>
   <summary><b>Installed Software and Services</b></summary>
 
-- **VDK:** Ensure that the Versatile Data Kit is installed and properly configured.
-- **[Control Service](https://github.com/vmware/versatile-data-kit/wiki/Interfaces#control-service:~:text=Parameterized%20SQL-,Control%20Service,-Job%20Lifecycle%20API):** Essential for orchestrating the execution of Data Jobs.
-- **Jupyter instance:** Needed to access Jupyter Notebooks.
+- **(Optional) [Control Service](https://github.com/vmware/versatile-data-kit/wiki/Interfaces#control-service:~:text=Parameterized%20SQL-,Control%20Service,-Job%20Lifecycle%20API):** Essential for orchestrating the execution of Data Jobs.
 - **[vdk-jupyterlab-extension](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/README.md):** This extension integrates VDK with JupyterLab.
 - **[vdk-notebook](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-notebook/README.md):** Allows the execution of VDK jobs with notebooks.
 - **[vdk-ipython](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-ipython/README.md):** Loads VDK functionalities into IPython environments, allowing enhanced interaction.
 
 </details>
+
 
 ## Data Job Creation Guide
 
@@ -57,6 +57,6 @@ This is a significant step in your journey with the Versatile Data Kit, and we h
 ## What's Next?
 
 If you're just starting out, don’t stop here!
-Proceed to the [Build a Job from Jupyter Guide](tutorial.md) to continue developing your newly created job!
+Proceed to [Develop a Job from Jupyter Guide](tutorial.md) to continue developing your newly created job!
 
 Explore further with the [VDK Examples list](https://github.com/vmware/versatile-data-kit/wiki/Examples).
