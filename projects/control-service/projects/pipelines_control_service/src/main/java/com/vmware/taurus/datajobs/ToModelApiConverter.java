@@ -6,8 +6,12 @@
 package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.data.DataJobConfig;
+import com.vmware.taurus.controlplane.model.data.DataJobContacts;
 import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
+import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
 import com.vmware.taurus.service.model.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,6 +64,48 @@ public class ToModelApiConverter {
       config.setGenerateKeytab(modelConfig.getGenerateKeytab());
     }
     return new DataJob(modelJob.getJobName(), config);
+  }
+
+  public static DataJobDeploymentStatus toJobDeploymentStatus(
+      ActualDataJobDeployment actualDataJobDeployment, DataJob job) {
+    var deploymentStatus = new DataJobDeploymentStatus();
+    deploymentStatus.setJobVersion(actualDataJobDeployment.getDeploymentVersionSha());
+    deploymentStatus.setPythonVersion(actualDataJobDeployment.getPythonVersion());
+    deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
+    deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
+    deploymentStatus.setContacts(getContactsFromJob(job));
+    deploymentStatus.setSchedule(
+        new DataJobSchedule().scheduleCron(actualDataJobDeployment.getSchedule()));
+    deploymentStatus.setResources(getResourcesFromDeployment(actualDataJobDeployment));
+    deploymentStatus.setLastDeployedDate(
+        actualDataJobDeployment.getLastDeployedDate() == null ? null
+            : actualDataJobDeployment.getLastDeployedDate().toString());
+    deploymentStatus.setLastDeployedBy(actualDataJobDeployment.getLastDeployedBy());
+    return deploymentStatus;
+  }
+
+  private static DataJobContacts getContactsFromJob(DataJob job) {
+    DataJobContacts contacts = new DataJobContacts();
+    if (job.getJobConfig() != null) {
+      var config = job.getJobConfig();
+      contacts.setNotifiedOnJobDeploy(config.getNotifiedOnJobDeploy());
+      contacts.setNotifiedOnJobFailurePlatformError(config.getNotifiedOnJobFailurePlatformError());
+      contacts.setNotifiedOnJobSuccess(config.getNotifiedOnJobSuccess());
+      contacts.setNotifiedOnJobFailureUserError(config.getNotifiedOnJobFailureUserError());
+    }
+    return contacts;
+  }
+
+  private static DataJobResources getResourcesFromDeployment(ActualDataJobDeployment deployment){
+    DataJobResources resources = new DataJobResources();
+    var deploymentResources = deployment.getResources();
+    if(deploymentResources != null) {
+      resources.setCpuRequest(deploymentResources.getCpuRequestCores());
+      resources.setCpuLimit(deploymentResources.getCpuLimitCores());
+      resources.setMemoryRequest(deploymentResources.getMemoryRequestMi());
+      resources.setMemoryLimit(deploymentResources.getMemoryLimitMi());
+    }
+    return resources;
   }
 
   public static ExecutionType toExecutionType(DataJobExecution.TypeEnum type) {
