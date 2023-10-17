@@ -97,7 +97,7 @@ Our Data Job development will encompass six crucial steps. We will be adding sep
 <details>
   <summary><i>Step 0: Load VDK to the notebook</i></summary>
 
-Before we start, we must initialize the VDK in our notebook. 
+Before we start, we must initialize the VDK in our notebook.
 This prerequisite step ensures we have all the necessary configurations set for the subsequent steps.
 
 ![Data Job Configuration cell](images/configuration-cell.png)
