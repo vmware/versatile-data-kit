@@ -6,12 +6,8 @@
 package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.data.DataJobConfig;
-import com.vmware.taurus.controlplane.model.data.DataJobContacts;
 import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
-import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
-import com.vmware.taurus.controlplane.model.data.DataJobResources;
-import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
 import com.vmware.taurus.service.model.*;
 import lombok.extern.slf4j.Slf4j;
 

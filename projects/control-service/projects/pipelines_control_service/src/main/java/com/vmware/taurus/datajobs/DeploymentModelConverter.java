@@ -329,5 +329,4 @@ public class DeploymentModelConverter {
     }
     return resources;
   }
-
 }

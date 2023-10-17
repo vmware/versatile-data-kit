@@ -156,8 +156,9 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
     var jobDeploymentOptional = deploymentServiceV2.readDeployment(dataJobName);
     var jobOptional = jobsService.getByName(dataJobName);
     if (jobDeploymentOptional.isPresent()) {
-      var deploymentResponse = DeploymentModelConverter.toJobDeploymentStatus(
-          jobDeploymentOptional.get(), jobOptional.get());
+      var deploymentResponse =
+          DeploymentModelConverter.toJobDeploymentStatus(
+              jobDeploymentOptional.get(), jobOptional.get());
       return ResponseEntity.ok(deploymentResponse);
     }
     return ResponseEntity.notFound().build();
