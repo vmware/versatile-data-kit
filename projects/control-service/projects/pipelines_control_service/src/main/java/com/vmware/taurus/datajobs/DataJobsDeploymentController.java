@@ -153,7 +153,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
 
   private ResponseEntity<DataJobDeploymentStatus> readFromDB(String dataJobName) {
     var jobOptional = deploymentServiceV2.readDeploymentFromDB(dataJobName);
-    if(jobOptional.isPresent()){
+    if (jobOptional.isPresent()) {
       return ResponseEntity.ok(jobOptional.get());
     }
     return ResponseEntity.notFound().build();
