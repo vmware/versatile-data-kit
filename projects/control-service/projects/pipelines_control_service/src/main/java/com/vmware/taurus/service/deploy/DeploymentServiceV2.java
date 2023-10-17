@@ -109,6 +109,7 @@ public class DeploymentServiceV2 {
 
   /**
    * Reads a data job deployment from the databse.
+   *
    * @param dataJobName the job name
    * @return empty optional or the job deployment
    */
@@ -116,8 +117,8 @@ public class DeploymentServiceV2 {
     DataJob job;
     ActualDataJobDeployment dbDeployment;
 
-    if (jobsRepository.findById(dataJobName).isPresent() && actualJobDeploymentRepository.findById(
-        dataJobName).isPresent()) {
+    if (jobsRepository.findById(dataJobName).isPresent()
+        && actualJobDeploymentRepository.findById(dataJobName).isPresent()) {
       job = jobsRepository.findById(dataJobName).get();
       dbDeployment = actualJobDeploymentRepository.findById(dataJobName).get();
       var deployment = ToModelApiConverter.toJobDeploymentStatus(dbDeployment, job);

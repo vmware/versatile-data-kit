@@ -25,17 +25,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(classes = ControlplaneApplication.class)
-@TestPropertySource(properties = {
-    "datajobs.deployment.configuration.persistence.readDataSource=DB"
-})
+@TestPropertySource(
+    properties = {"datajobs.deployment.configuration.persistence.readDataSource=DB"})
 public class DataJobDeploymentControllerReadTest {
 
-  @Autowired
-  JobsRepository jobsRepository;
-  @Autowired
-  DataJobsDeploymentController dataJobsDeploymentController;
-  @Autowired
-  ActualJobDeploymentRepository actualJobDeploymentRepository;
+  @Autowired JobsRepository jobsRepository;
+  @Autowired DataJobsDeploymentController dataJobsDeploymentController;
+  @Autowired ActualJobDeploymentRepository actualJobDeploymentRepository;
 
   @WithMockUser
   @Test
@@ -59,8 +55,8 @@ public class DataJobDeploymentControllerReadTest {
   public void testReadJob_asList_expectResponse() {
     var job = createTestJob("test-job", "team");
     createActualJobDeployment(job);
-    var retrievedDeploymentList = dataJobsDeploymentController.deploymentList("team", "test-job",
-        "", DataJobMode.RELEASE);
+    var retrievedDeploymentList =
+        dataJobsDeploymentController.deploymentList("team", "test-job", "", DataJobMode.RELEASE);
     Assertions.assertEquals(200, retrievedDeploymentList.getStatusCodeValue());
     Assertions.assertEquals("test-job", retrievedDeploymentList.getBody().get(0).getId());
   }
@@ -68,8 +64,8 @@ public class DataJobDeploymentControllerReadTest {
   @WithMockUser
   @Test
   public void testReadJob_asList_expectNoResponse() {
-    var retrievedDeploymentList = dataJobsDeploymentController.deploymentList("team", "test-job",
-        "", DataJobMode.RELEASE);
+    var retrievedDeploymentList =
+        dataJobsDeploymentController.deploymentList("team", "test-job", "", DataJobMode.RELEASE);
     Assertions.assertEquals(404, retrievedDeploymentList.getStatusCodeValue());
   }
 

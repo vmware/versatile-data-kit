@@ -78,7 +78,8 @@ public class ToModelApiConverter {
         new DataJobSchedule().scheduleCron(actualDataJobDeployment.getSchedule()));
     deploymentStatus.setResources(getResourcesFromDeployment(actualDataJobDeployment));
     deploymentStatus.setLastDeployedDate(
-        actualDataJobDeployment.getLastDeployedDate() == null ? null
+        actualDataJobDeployment.getLastDeployedDate() == null
+            ? null
             : actualDataJobDeployment.getLastDeployedDate().toString());
     deploymentStatus.setLastDeployedBy(actualDataJobDeployment.getLastDeployedBy());
     return deploymentStatus;
@@ -96,10 +97,10 @@ public class ToModelApiConverter {
     return contacts;
   }
 
-  private static DataJobResources getResourcesFromDeployment(ActualDataJobDeployment deployment){
+  private static DataJobResources getResourcesFromDeployment(ActualDataJobDeployment deployment) {
     DataJobResources resources = new DataJobResources();
     var deploymentResources = deployment.getResources();
-    if(deploymentResources != null) {
+    if (deploymentResources != null) {
       resources.setCpuRequest(deploymentResources.getCpuRequestCores());
       resources.setCpuLimit(deploymentResources.getCpuLimitCores());
       resources.setMemoryRequest(deploymentResources.getMemoryRequestMi());

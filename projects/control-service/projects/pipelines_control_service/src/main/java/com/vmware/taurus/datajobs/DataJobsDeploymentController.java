@@ -109,7 +109,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   @Override
   public ResponseEntity<List<DataJobDeploymentStatus>> deploymentList(
       String teamName, String jobName, String deploymentId, DataJobMode dataJobMode) {
-    //TODO: deploymentId and mode not implemented
+    // TODO: deploymentId and mode not implemented
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       return deploymentAsList(jobName.toLowerCase());
     }
@@ -141,7 +141,7 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
     return ResponseEntity.notFound().build();
   }
 
-  private ResponseEntity<DataJobDeploymentStatus> readFromK8S(String jobName){
+  private ResponseEntity<DataJobDeploymentStatus> readFromK8S(String jobName) {
     Optional<JobDeploymentStatus> jobDeploymentStatus =
         deploymentService.readDeployment(jobName.toLowerCase());
     if (jobDeploymentStatus.isPresent()) {
