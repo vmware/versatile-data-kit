@@ -5,9 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
-import com.vmware.taurus.datajobs.ToModelApiConverter;
 import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
 import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.exception.KubernetesException;
@@ -105,27 +103,6 @@ public class DeploymentServiceV2 {
     deployment.setDataJob(dataJob);
     deployment.setUserInitiated(true);
     desiredJobDeploymentRepository.save(deployment);
-  }
-
-  /**
-   * Reads a data job deployment from the databse.
-   *
-   * @param dataJobName the job name
-   * @return empty optional or the job deployment
-   */
-  public Optional<DataJobDeploymentStatus> readDeploymentFromDB(String dataJobName) {
-    DataJob job;
-    ActualDataJobDeployment dbDeployment;
-
-    if (jobsRepository.findById(dataJobName).isPresent()
-        && actualJobDeploymentRepository.findById(dataJobName).isPresent()) {
-      job = jobsRepository.findById(dataJobName).get();
-      dbDeployment = actualJobDeploymentRepository.findById(dataJobName).get();
-      var deployment = ToModelApiConverter.toJobDeploymentStatus(dbDeployment, job);
-      return Optional.of(deployment);
-    } else {
-      return Optional.empty();
-    }
   }
 
   /**

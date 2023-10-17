@@ -120,8 +120,10 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
     ResponseEntity<DataJobDeploymentStatus> jobDeploymentStatus;
     if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) {
       jobDeploymentStatus = readFromDB(jobName);
-    } else {
+    } else if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
       jobDeploymentStatus = readFromK8S(jobName);
+    } else {
+      jobDeploymentStatus = ResponseEntity.notFound().build();
     }
     var response = Arrays.asList(jobDeploymentStatus.getBody());
     return ResponseEntity.status(jobDeploymentStatus.getStatusCode()).body(response);
@@ -131,10 +133,9 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   public ResponseEntity<DataJobDeploymentStatus> deploymentRead(
       String teamName, String jobName, String deploymentId) {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
-
       if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) {
         return readFromDB(jobName.toLowerCase());
-      } else {
+      } else if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
         return readFromK8S(jobName.toLowerCase());
       }
     }
@@ -152,9 +153,12 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   }
 
   private ResponseEntity<DataJobDeploymentStatus> readFromDB(String dataJobName) {
-    var jobOptional = deploymentServiceV2.readDeploymentFromDB(dataJobName);
-    if (jobOptional.isPresent()) {
-      return ResponseEntity.ok(jobOptional.get());
+    var jobDeploymentOptional = deploymentServiceV2.readDeployment(dataJobName);
+    var jobOptional = jobsService.getByName(dataJobName);
+    if (jobDeploymentOptional.isPresent()) {
+      var deploymentResponse = DeploymentModelConverter.toJobDeploymentStatus(
+          jobDeploymentOptional.get(), jobOptional.get());
+      return ResponseEntity.ok(deploymentResponse);
     }
     return ResponseEntity.notFound().build();
   }

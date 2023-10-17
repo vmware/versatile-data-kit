@@ -20,7 +20,7 @@ public class ModelApiConverterTest {
   public void testToJobDeploymentStatus() {
     var job = createTestJob("name", "team");
     var deployment = createActualJobDeployment(job);
-    var status = ToModelApiConverter.toJobDeploymentStatus(deployment, job);
+    var status = DeploymentModelConverter.toJobDeploymentStatus(deployment, job);
 
     Assertions.assertEquals("test-sha", status.getJobVersion());
     Assertions.assertEquals("3.9-secure", status.getPythonVersion());
@@ -39,7 +39,7 @@ public class ModelApiConverterTest {
   public void testToJobDeploymentStatus_emptyValues_expectNoExceptions() {
     var job = new DataJob();
     var deployment = new ActualDataJobDeployment();
-    ToModelApiConverter.toJobDeploymentStatus(deployment, job);
+    DeploymentModelConverter.toJobDeploymentStatus(deployment, job);
   }
 
   private DataJob createTestJob(String jobName, String teamName) {
