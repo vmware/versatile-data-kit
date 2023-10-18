@@ -32,49 +32,49 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
   protected void beforeDeploymentDeletion() throws Exception {
     // Execute set vdk version for deployment
     mockMvc
-            .perform(
-                    patch(
-                            String.format(
-                                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                            .with(user("user"))
-                            .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
-                            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isBadRequest());
+        .perform(
+            patch(
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
 
     // Execute disable deployment again to check that the version is not overwritten
     mockMvc
-            .perform(
-                    patch(
-                            String.format(
-                                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                            .with(user("user"))
-                            .content(getDataJobDeploymentEnableRequestBody(false))
-                            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isAccepted());
+        .perform(
+            patch(
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .content(getDataJobDeploymentEnableRequestBody(false))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isAccepted());
 
     // Execute reset back vdk version for deployment
     mockMvc
-            .perform(
-                    patch(
-                            String.format(
-                                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                            .with(user("user"))
-                            .content(getDataJobDeploymentVdkVersionRequestBody(""))
-                            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isBadRequest());
+        .perform(
+            patch(
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .content(getDataJobDeploymentVdkVersionRequestBody(""))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
 
     // verify vdk version is reset correctly
     mockMvc
-            .perform(
-                    get(String.format(
-                            "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                            TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                            .with(user("user"))
-                            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.vdk_version", is("release")));
+        .perform(
+            get(String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.vdk_version", is("release")));
   }
 }

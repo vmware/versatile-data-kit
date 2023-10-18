@@ -264,10 +264,11 @@ public class DeploymentServiceV2 {
   }
 
   /**
-   * Populates the deployment's fields with legacy data to ensure backward compatibility.
-   * This method is used to maintain compatibility with older versions of the deployment process.
+   * Populates the deployment's fields with legacy data to ensure backward compatibility. This
+   * method is used to maintain compatibility with older versions of the deployment process.
    */
-  private void populateDeploymentForBackwardCompatibility(DataJob dataJob, JobDeployment jobDeployment) {
+  private void populateDeploymentForBackwardCompatibility(
+      DataJob dataJob, JobDeployment jobDeployment) {
     setDeploymentSchedule(dataJob, jobDeployment);
     setDeploymentEnabled(jobDeployment);
   }
@@ -291,7 +292,8 @@ public class DeploymentServiceV2 {
   }
 
   /**
-   * Sets the deployment enabled flag to true if it is not passed to the API for backward compatibility.
+   * Sets the deployment enabled flag to true if it is not passed to the API for backward
+   * compatibility.
    *
    * @param jobDeployment the deployment to patch with
    */

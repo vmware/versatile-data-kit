@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
 import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_WRONG_NAME;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -259,13 +258,13 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
 
     // Verify deployment disabled
     waitUntil(
-            () -> {
-              Optional<JobDeploymentStatus> deploymentOptional =
-                      dataJobsKubernetesService.readCronJob(jobDeploymentName);
-              Assertions.assertTrue(deploymentOptional.isPresent());
-              JobDeploymentStatus deployment = deploymentOptional.get();
-              return !deployment.getEnabled();
-            });
+        () -> {
+          Optional<JobDeploymentStatus> deploymentOptional =
+              dataJobsKubernetesService.readCronJob(jobDeploymentName);
+          Assertions.assertTrue(deploymentOptional.isPresent());
+          JobDeploymentStatus deployment = deploymentOptional.get();
+          return !deployment.getEnabled();
+        });
 
     beforeDeploymentDeletion();
 

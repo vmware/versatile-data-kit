@@ -5,37 +5,11 @@
 
 package com.vmware.taurus.datajobs.it;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
-import com.vmware.taurus.controlplane.model.data.DataJobMode;
-import com.vmware.taurus.controlplane.model.data.DataJobVersion;
-import com.vmware.taurus.datajobs.it.common.BaseIT;
-import com.vmware.taurus.service.deploy.JobImageDeployer;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
-import io.kubernetes.client.openapi.ApiException;
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.StringUtils;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_WRONG_NAME;
-import static org.awaitility.Awaitility.await;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -52,6 +26,5 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     classes = ControlplaneApplication.class)
 public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
   @Override
-  protected void beforeDeploymentDeletion() {
-  }
+  protected void beforeDeploymentDeletion() {}
 }
