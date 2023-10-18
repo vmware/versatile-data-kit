@@ -71,7 +71,6 @@ public class DeploymentModelConverter {
       OffsetDateTime lastDeployedDate) {
     ActualDataJobDeployment deployment = new ActualDataJobDeployment();
     deployment.setDataJobName(desiredDataJobDeployment.getDataJobName());
-    deployment.setDataJob(desiredDataJobDeployment.getDataJob());
     deployment.setEnabled(desiredDataJobDeployment.getEnabled());
 
     DataJobDeploymentResources desiredDataJobDeploymentResources =

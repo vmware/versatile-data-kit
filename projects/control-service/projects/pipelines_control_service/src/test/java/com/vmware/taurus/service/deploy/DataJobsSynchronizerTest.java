@@ -6,6 +6,7 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.ServiceApp;
+import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
@@ -34,8 +35,7 @@ public class DataJobsSynchronizerTest {
 
   @Test
   void
-      synchronizeDataJobs_loadDeploymentNamesFromKubernetesReturnsValue_shouldFinishSynchronization()
-          throws ApiException {
+      synchronizeDataJobs_loadDeploymentNamesFromKubernetesReturnsValue_shouldFinishSynchronization() {
     enableSynchronizationProcess();
 
     Mockito.when(deploymentService.findAllActualDeploymentNamesFromKubernetes())
@@ -51,12 +51,11 @@ public class DataJobsSynchronizerTest {
 
   @Test
   void
-      synchronizeDataJobs_loadDeploymentNamesFromKubernetesThrowsApiException_shouldSkipSynchronization()
-          throws ApiException {
+      synchronizeDataJobs_loadDeploymentNamesFromKubernetesThrowsApiException_shouldSkipSynchronization() {
     enableSynchronizationProcess();
 
     Mockito.when(deploymentService.findAllActualDeploymentNamesFromKubernetes())
-        .thenThrow(new ApiException());
+        .thenThrow(new KubernetesException("Test exception", new ApiException()));
 
     dataJobsSynchronizer.synchronizeDataJobs();
 
@@ -67,8 +66,7 @@ public class DataJobsSynchronizerTest {
   }
 
   @Test
-  void synchronizeDataJobs_synchronizationEnabledFalseAndWriteToDbTrue_shouldSkipSynchronization()
-      throws ApiException {
+  void synchronizeDataJobs_synchronizationEnabledFalseAndWriteToDbTrue_shouldSkipSynchronization() {
     initSynchronizationProcessConfig(false, true);
 
     dataJobsSynchronizer.synchronizeDataJobs();
@@ -78,8 +76,7 @@ public class DataJobsSynchronizerTest {
   }
 
   @Test
-  void synchronizeDataJobs_synchronizationEnabledFalseAndWriteToDbFalse_shouldSkipSynchronization()
-      throws ApiException {
+  void synchronizeDataJobs_synchronizationEnabledFalseAndWriteToDbFalse_shouldSkipSynchronization() {
     initSynchronizationProcessConfig(false, false);
 
     dataJobsSynchronizer.synchronizeDataJobs();
@@ -89,8 +86,7 @@ public class DataJobsSynchronizerTest {
   }
 
   @Test
-  void synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbTrue_shouldFinishSynchronization()
-      throws ApiException {
+  void synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbTrue_shouldFinishSynchronization() {
     initSynchronizationProcessConfig(true, true);
 
     dataJobsSynchronizer.synchronizeDataJobs();
@@ -100,8 +96,7 @@ public class DataJobsSynchronizerTest {
   }
 
   @Test
-  void synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbFalse_shouldSkipSynchronization()
-      throws ApiException {
+  void synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbFalse_shouldSkipSynchronization() {
     initSynchronizationProcessConfig(true, false);
 
     dataJobsSynchronizer.synchronizeDataJobs();
@@ -141,6 +136,7 @@ public class DataJobsSynchronizerTest {
     boolean isDeploymentPresentInKubernetes = true;
     DesiredDataJobDeployment desiredDataJobDeployment = null;
     ActualDataJobDeployment actualDataJobDeployment = new ActualDataJobDeployment();
+    actualDataJobDeployment.setDataJobName(dataJob.getName());
 
     dataJobsSynchronizer.synchronizeDataJob(
         dataJob,

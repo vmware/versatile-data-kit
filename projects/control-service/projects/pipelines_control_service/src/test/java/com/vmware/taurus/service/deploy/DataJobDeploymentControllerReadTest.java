@@ -96,7 +96,6 @@ public class DataJobDeploymentControllerReadTest {
   private ActualDataJobDeployment createActualJobDeployment(DataJob dataJob) {
     var deployment = new ActualDataJobDeployment();
     deployment.setGitCommitSha("actualSha");
-    deployment.setDataJob(dataJob);
     deployment.setDataJobName(dataJob.getName());
     deployment.setPythonVersion("3.9-secure");
     deployment.setEnabled(true);
