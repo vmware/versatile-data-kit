@@ -76,7 +76,8 @@ public class DataJobsSynchronizerTest {
   }
 
   @Test
-  void synchronizeDataJobs_synchronizationEnabledFalseAndWriteToDbFalse_shouldSkipSynchronization() {
+  void
+      synchronizeDataJobs_synchronizationEnabledFalseAndWriteToDbFalse_shouldSkipSynchronization() {
     initSynchronizationProcessConfig(false, false);
 
     dataJobsSynchronizer.synchronizeDataJobs();
@@ -86,7 +87,8 @@ public class DataJobsSynchronizerTest {
   }
 
   @Test
-  void synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbTrue_shouldFinishSynchronization() {
+  void
+      synchronizeDataJobs_synchronizationEnabledTrueAndWriteToDbTrue_shouldFinishSynchronization() {
     initSynchronizationProcessConfig(true, true);
 
     dataJobsSynchronizer.synchronizeDataJobs();

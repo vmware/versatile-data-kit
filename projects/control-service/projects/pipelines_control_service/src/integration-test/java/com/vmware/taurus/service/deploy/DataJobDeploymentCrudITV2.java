@@ -209,10 +209,10 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     // Wait for the job deployment to complete, polling every 15 seconds
     // See: https://github.com/awaitility/awaitility/wiki/Usage
     await()
-            .atMost(10, TimeUnit.MINUTES)
-            .with()
-            .pollInterval(15, TimeUnit.SECONDS)
-            .until(() -> deploymentService.readDeployment(testJobName).isEmpty());
+        .atMost(10, TimeUnit.MINUTES)
+        .with()
+        .pollInterval(15, TimeUnit.SECONDS)
+        .until(() -> deploymentService.readDeployment(testJobName).isEmpty());
   }
 
   private ActualDataJobDeployment verifyDeploymentStatus(boolean enabled) {

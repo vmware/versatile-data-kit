@@ -74,8 +74,8 @@ public class DataJobsSynchronizer {
     log.info("Data job deployments synchronization has started.");
 
     Map<String, DataJob> dataJobsFromDBMap =
-            StreamSupport.stream(jobsService.findAllDataJobs().spliterator(), false)
-                    .collect(Collectors.toMap(DataJob::getName, Function.identity()));
+        StreamSupport.stream(jobsService.findAllDataJobs().spliterator(), false)
+            .collect(Collectors.toMap(DataJob::getName, Function.identity()));
     Set<String> dataJobDeploymentNamesFromKubernetes;
 
     try {
@@ -84,7 +84,8 @@ public class DataJobsSynchronizer {
     } catch (KubernetesException e) {
       log.error(
           "Skipping data job deployment synchronization because deployment names cannot be loaded"
-              + " from Kubernetes.", e);
+              + " from Kubernetes.",
+          e);
       return;
     }
 
@@ -97,37 +98,52 @@ public class DataJobsSynchronizer {
         deploymentService.findAllActualDataJobDeployments();
 
     // Actual deployments that do not have an associated existing data jobs with them.
-    Set<String> actualDataJobDeploymentsThatShouldBeDeleted = actualDataJobDeploymentsFromDBMap.keySet()
-            .stream()
+    Set<String> actualDataJobDeploymentsThatShouldBeDeleted =
+        actualDataJobDeploymentsFromDBMap.keySet().stream()
             .filter(dataJobName -> !dataJobsFromDBMap.containsKey(dataJobName))
             .collect(Collectors.toSet());
 
-    CountDownLatch countDownLatch = new CountDownLatch(dataJobsFromDBMap.size() + actualDataJobDeploymentsThatShouldBeDeleted.size());
+    CountDownLatch countDownLatch =
+        new CountDownLatch(
+            dataJobsFromDBMap.size() + actualDataJobDeploymentsThatShouldBeDeleted.size());
 
     // Synchronizes deployments that have associated existing data jobs with them.
     // In this scenario, the deployment creation or updating has been requested.
-    synchronizeDataJobs(dataJobsFromDBMap.keySet(), dataJobsFromDBMap, desiredDataJobDeploymentsFromDBMap, actualDataJobDeploymentsFromDBMap, finalDataJobDeploymentNamesFromKubernetes, countDownLatch);
+    synchronizeDataJobs(
+        dataJobsFromDBMap.keySet(),
+        dataJobsFromDBMap,
+        desiredDataJobDeploymentsFromDBMap,
+        actualDataJobDeploymentsFromDBMap,
+        finalDataJobDeploymentNamesFromKubernetes,
+        countDownLatch);
     // Synchronizes deployments that do not have an associated existing data jobs with them.
     // In this scenario, the deployment deletion has been requested.
-    synchronizeDataJobs(actualDataJobDeploymentsThatShouldBeDeleted, dataJobsFromDBMap, desiredDataJobDeploymentsFromDBMap, actualDataJobDeploymentsFromDBMap, finalDataJobDeploymentNamesFromKubernetes, countDownLatch);
+    synchronizeDataJobs(
+        actualDataJobDeploymentsThatShouldBeDeleted,
+        dataJobsFromDBMap,
+        desiredDataJobDeploymentsFromDBMap,
+        actualDataJobDeploymentsFromDBMap,
+        finalDataJobDeploymentNamesFromKubernetes,
+        countDownLatch);
 
     waitForSynchronizationCompletion(countDownLatch);
   }
 
-  private void synchronizeDataJobs(Set<String> dataJobsToBeSynchronized,
-                           Map<String, DataJob> dataJobsFromDBMap,
-                           Map<String, DesiredDataJobDeployment> desiredDataJobDeploymentsFromDBMap,
-                           Map<String, ActualDataJobDeployment> actualDataJobDeploymentsFromDBMap,
-                           Set<String> finalDataJobDeploymentNamesFromKubernetes,
-                           CountDownLatch countDownLatch) {
-    dataJobsToBeSynchronized
-            .forEach(
-                    dataJobName ->
-                            executeDataJobSynchronizationTask(dataJobsFromDBMap.get(dataJobName),
-                                                    desiredDataJobDeploymentsFromDBMap.get(dataJobName),
-                                                    actualDataJobDeploymentsFromDBMap.get(dataJobName),
-                                                    finalDataJobDeploymentNamesFromKubernetes.contains(dataJobName),
-                                                    countDownLatch));
+  private void synchronizeDataJobs(
+      Set<String> dataJobsToBeSynchronized,
+      Map<String, DataJob> dataJobsFromDBMap,
+      Map<String, DesiredDataJobDeployment> desiredDataJobDeploymentsFromDBMap,
+      Map<String, ActualDataJobDeployment> actualDataJobDeploymentsFromDBMap,
+      Set<String> finalDataJobDeploymentNamesFromKubernetes,
+      CountDownLatch countDownLatch) {
+    dataJobsToBeSynchronized.forEach(
+        dataJobName ->
+            executeDataJobSynchronizationTask(
+                dataJobsFromDBMap.get(dataJobName),
+                desiredDataJobDeploymentsFromDBMap.get(dataJobName),
+                actualDataJobDeploymentsFromDBMap.get(dataJobName),
+                finalDataJobDeploymentNamesFromKubernetes.contains(dataJobName),
+                countDownLatch));
   }
 
   // Default for testing purposes
@@ -147,19 +163,20 @@ public class DataJobsSynchronizer {
     }
   }
 
-  private void executeDataJobSynchronizationTask(DataJob dataJob,
-                                                 DesiredDataJobDeployment desiredDataJobDeployment,
-                                                 ActualDataJobDeployment actualDataJobDeployment,
-                                                 boolean isDeploymentPresentInKubernetes,
-                                                 CountDownLatch countDownLatch) {
+  private void executeDataJobSynchronizationTask(
+      DataJob dataJob,
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      ActualDataJobDeployment actualDataJobDeployment,
+      boolean isDeploymentPresentInKubernetes,
+      CountDownLatch countDownLatch) {
     dataJobsSynchronizerTaskExecutor.execute(
         () -> {
           try {
             synchronizeDataJob(
-                    dataJob,
-                    desiredDataJobDeployment,
-                    actualDataJobDeployment,
-                    isDeploymentPresentInKubernetes);
+                dataJob,
+                desiredDataJobDeployment,
+                actualDataJobDeployment,
+                isDeploymentPresentInKubernetes);
           } finally {
             countDownLatch.countDown();
           }
@@ -175,11 +192,11 @@ public class DataJobsSynchronizer {
     }
 
     if (!dataJobDeploymentPropertiesConfig
-            .getWriteTos()
-            .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+        .getWriteTos()
+        .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
       log.debug(
-              "Skipping data job deployments' synchronization due to the disabled writes to the"
-                      + " database.");
+          "Skipping data job deployments' synchronization due to the disabled writes to the"
+              + " database.");
       valid = false;
     }
 
@@ -189,8 +206,8 @@ public class DataJobsSynchronizer {
   private void waitForSynchronizationCompletion(CountDownLatch countDownLatch) {
     try {
       log.debug(
-              "Waiting for data job deployments' synchronization to complete. This process may take"
-                      + " some time...");
+          "Waiting for data job deployments' synchronization to complete. This process may take"
+              + " some time...");
       countDownLatch.await();
       log.info("Data job deployments synchronization has successfully completed.");
     } catch (InterruptedException e) {
