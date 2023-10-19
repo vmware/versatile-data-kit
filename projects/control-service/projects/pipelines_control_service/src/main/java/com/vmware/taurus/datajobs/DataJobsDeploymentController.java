@@ -134,8 +134,8 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   public ResponseEntity<DataJobDeploymentStatus> deploymentRead(
       String teamName, String jobName, String deploymentId) {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
-      Optional<DataJobDeploymentStatus> jobDeploymentOptional = getDeploymentStatusOptional(
-          jobName);
+      Optional<DataJobDeploymentStatus> jobDeploymentOptional =
+          getDeploymentStatusOptional(jobName);
       if (jobDeploymentOptional.isPresent()) {
         return ResponseEntity.ok(jobDeploymentOptional.get());
       }
@@ -144,10 +144,10 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   }
 
   private Optional<DataJobDeploymentStatus> readFromK8S(String jobName) {
-    Optional<JobDeploymentStatus> jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase());
+    Optional<JobDeploymentStatus> jobDeploymentStatus =
+        deploymentService.readDeployment(jobName.toLowerCase());
     if (jobDeploymentStatus.isPresent()) {
-      return Optional.of(
-          ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
+      return Optional.of(ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
     }
     return Optional.empty();
   }
