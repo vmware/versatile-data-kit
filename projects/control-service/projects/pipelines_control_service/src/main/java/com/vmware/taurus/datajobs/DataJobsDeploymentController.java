@@ -21,6 +21,7 @@ import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -111,7 +112,12 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       String teamName, String jobName, String deploymentId, DataJobMode dataJobMode) {
     // TODO: deploymentId and mode not implemented
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
-      return deploymentAsList(jobName.toLowerCase());
+      var response = deploymentAsList(jobName.toLowerCase());
+      if (response.getStatusCodeValue() == 404) {
+        List<DataJobDeploymentStatus> emptyDeploymentList = Collections.emptyList();
+        return ResponseEntity.of(Optional.of(emptyDeploymentList));
+      }
+      return response;
     }
     return ResponseEntity.notFound().build();
   }
