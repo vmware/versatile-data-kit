@@ -20,7 +20,7 @@ import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -111,57 +111,57 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
       String teamName, String jobName, String deploymentId, DataJobMode dataJobMode) {
     // TODO: deploymentId and mode not implemented
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
-      return deploymentAsList(jobName.toLowerCase());
+      var responseOptional = getDeploymentStatusOptional(jobName.toLowerCase());
+      if (!responseOptional.isPresent()) {
+        return ResponseEntity.of(Optional.of(Collections.emptyList()));
+      }
+      return ResponseEntity.ok(List.of(responseOptional.get()));
     }
     return ResponseEntity.notFound().build();
   }
 
-  private ResponseEntity<List<DataJobDeploymentStatus>> deploymentAsList(String jobName) {
-    ResponseEntity<DataJobDeploymentStatus> jobDeploymentStatus;
+  private Optional<DataJobDeploymentStatus> getDeploymentStatusOptional(String jobName) {
+    Optional<DataJobDeploymentStatus> jobDeploymentStatus = Optional.empty();
     if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) {
       jobDeploymentStatus = readFromDB(jobName);
     } else if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
       jobDeploymentStatus = readFromK8S(jobName);
-    } else {
-      jobDeploymentStatus = ResponseEntity.notFound().build();
     }
-    var response = Arrays.asList(jobDeploymentStatus.getBody());
-    return ResponseEntity.status(jobDeploymentStatus.getStatusCode()).body(response);
+    return jobDeploymentStatus;
   }
 
   @Override
   public ResponseEntity<DataJobDeploymentStatus> deploymentRead(
       String teamName, String jobName, String deploymentId) {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
-      if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) {
-        return readFromDB(jobName.toLowerCase());
-      } else if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
-        return readFromK8S(jobName.toLowerCase());
+      Optional<DataJobDeploymentStatus> jobDeploymentOptional =
+          getDeploymentStatusOptional(jobName);
+      if (jobDeploymentOptional.isPresent()) {
+        return ResponseEntity.ok(jobDeploymentOptional.get());
       }
     }
     return ResponseEntity.notFound().build();
   }
 
-  private ResponseEntity<DataJobDeploymentStatus> readFromK8S(String jobName) {
+  private Optional<DataJobDeploymentStatus> readFromK8S(String jobName) {
     Optional<JobDeploymentStatus> jobDeploymentStatus =
         deploymentService.readDeployment(jobName.toLowerCase());
     if (jobDeploymentStatus.isPresent()) {
-      return ResponseEntity.ok(
-          ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
+      return Optional.of(ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
     }
-    return ResponseEntity.notFound().build();
+    return Optional.empty();
   }
 
-  private ResponseEntity<DataJobDeploymentStatus> readFromDB(String dataJobName) {
-    var jobDeploymentOptional = deploymentServiceV2.readDeployment(dataJobName);
+  private Optional<DataJobDeploymentStatus> readFromDB(String dataJobName) {
+    var jobDeploymentOptional = deploymentServiceV2.readDeployment(dataJobName.toLowerCase());
     var jobOptional = jobsService.getByName(dataJobName);
     if (jobDeploymentOptional.isPresent()) {
       var deploymentResponse =
           DeploymentModelConverter.toJobDeploymentStatus(
               jobDeploymentOptional.get(), jobOptional.get());
-      return ResponseEntity.ok(deploymentResponse);
+      return Optional.of(deploymentResponse);
     }
-    return ResponseEntity.notFound().build();
+    return Optional.empty();
   }
 
   @Override

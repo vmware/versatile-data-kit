@@ -69,6 +69,15 @@ public class DataJobDeploymentControllerReadTest {
     Assertions.assertEquals(404, retrievedDeploymentList.getStatusCodeValue());
   }
 
+  @WithMockUser
+  @Test
+  public void testReadJobWithNoDeployments_expectEmptyList() {
+    createTestJob("test-job", "team");
+    var retrievedDeploymentList =
+        dataJobsDeploymentController.deploymentList("team", "test-job", "", DataJobMode.RELEASE);
+    Assertions.assertTrue(retrievedDeploymentList.getBody().size() == 0);
+  }
+
   @AfterEach
   public void cleanup() {
     jobsRepository.deleteAll();
