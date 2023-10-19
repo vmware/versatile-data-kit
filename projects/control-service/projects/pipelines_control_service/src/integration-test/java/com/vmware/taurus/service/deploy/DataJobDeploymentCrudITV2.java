@@ -200,6 +200,19 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     OffsetDateTime lastDeployedDateInitial = actualDataJobDeployment.getLastDeployedDate();
     Assertions.assertNotNull(deploymentVersionShaInitial);
     Assertions.assertNotNull(lastDeployedDateInitial);
+
+    jobsRepository.deleteById(testJobName);
+
+    // Re-deploys data job
+    dataJobsSynchronizer.synchronizeDataJobs();
+
+    // Wait for the job deployment to complete, polling every 15 seconds
+    // See: https://github.com/awaitility/awaitility/wiki/Usage
+    await()
+        .atMost(10, TimeUnit.MINUTES)
+        .with()
+        .pollInterval(15, TimeUnit.SECONDS)
+        .until(() -> deploymentService.readDeployment(testJobName).isEmpty());
   }
 
   private ActualDataJobDeployment verifyDeploymentStatus(boolean enabled) {
@@ -225,7 +238,9 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
             delete(String.format("/data-jobs/for-team/%s/jobs/%s", TEST_TEAM_NAME, testJobName))
                 .with(user(TEST_USERNAME))
                 .contentType(MediaType.APPLICATION_JSON));
-    if (perform.andReturn().getResponse().getStatus() != 200) {
+    int responseStatus = perform.andReturn().getResponse().getStatus();
+
+    if (responseStatus != 200 && responseStatus != 404) {
       throw new Exception(
           "status is "
               + perform.andReturn().getResponse().getStatus()

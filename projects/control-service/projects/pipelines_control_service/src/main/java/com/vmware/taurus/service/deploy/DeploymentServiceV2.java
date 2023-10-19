@@ -228,8 +228,12 @@ public class DeploymentServiceV2 {
         .collect(Collectors.toMap(ActualDataJobDeployment::getDataJobName, Function.identity()));
   }
 
-  public Set<String> findAllActualDeploymentNamesFromKubernetes() throws ApiException {
-    return dataJobsKubernetesService.listCronJobs();
+  public Set<String> findAllActualDeploymentNamesFromKubernetes() throws KubernetesException {
+    try {
+      return dataJobsKubernetesService.listCronJobs();
+    } catch (ApiException e) {
+      throw new KubernetesException("Cannot load cron jobs", e);
+    }
   }
 
   private void handleException(
