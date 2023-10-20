@@ -289,7 +289,7 @@ public class DeploymentModelConverter {
   public static DataJobDeploymentStatus toJobDeploymentStatus(
       ActualDataJobDeployment actualDataJobDeployment, DataJob job) {
     var deploymentStatus = new DataJobDeploymentStatus();
-    deploymentStatus.setJobVersion(actualDataJobDeployment.getDeploymentVersionSha());
+    deploymentStatus.setJobVersion(actualDataJobDeployment.getGitCommitSha());
     deploymentStatus.setPythonVersion(actualDataJobDeployment.getPythonVersion());
     deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
     deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
