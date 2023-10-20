@@ -110,7 +110,7 @@ class StepFuncFactory:
                             errors.resolvable_context().mark_all_resolved()
                         else:
                             log.error("Exiting  %s#run(...) FAILURE" % filename)
-            log.warn(
+            log.warning(
                 "File %s does not contain a valid run() method. Nothing to execute. Skipping %s,"
                 + " and continuing with other files (if present).",
                 filename,
