@@ -22,7 +22,7 @@ public class ModelApiConverterTest {
     var deployment = createActualJobDeployment(job);
     var status = DeploymentModelConverter.toJobDeploymentStatus(deployment, job);
 
-    Assertions.assertEquals("test-sha", status.getJobVersion());
+    Assertions.assertEquals("test-commit-sha", status.getJobVersion());
     Assertions.assertEquals("3.9-secure", status.getPythonVersion());
     Assertions.assertEquals("name", status.getId());
     Assertions.assertEquals(true, status.getEnabled());
@@ -53,13 +53,13 @@ public class ModelApiConverterTest {
 
   private ActualDataJobDeployment createActualJobDeployment(DataJob dataJob) {
     var deployment = new ActualDataJobDeployment();
-    deployment.setGitCommitSha("actualSha");
+    deployment.setGitCommitSha("test-commit-sha");
     deployment.setDataJobName(dataJob.getName());
     deployment.setPythonVersion("3.9-secure");
     deployment.setEnabled(true);
     deployment.setLastDeployedBy("user");
     deployment.setSchedule("sched");
-    deployment.setDeploymentVersionSha("test-sha");
+    deployment.setDeploymentVersionSha("test-deployment-sha");
     deployment.setLastDeployedDate(OffsetDateTime.MIN);
     var resources = new DataJobDeploymentResources();
     resources.setMemoryLimitMi(1);
