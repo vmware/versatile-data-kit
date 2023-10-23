@@ -143,7 +143,8 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 payload, destination_table, method, target, collection_id
             )
         except Exception as e:
-            self._log.warn("Failed to send object for ingestion." f"Exception was: {e}")
+            errors.report(ResolvableBy.USER_ERROR, e)
+            raise
 
     def __ingest_tabular_data(
         self,
@@ -160,17 +161,8 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 rows, column_names, destination_table, method, target, collection_id
             )
         except Exception as e:
-            self._log.error(
-                "\n".join(
-                    [
-                        "Failed to send tabular data for ingestion",
-                        f"Exception was: {e}",
-                        "Data is not ingested and the method will raise an exception",
-                        "Please look the error message and try to fix the error and re-try.",
-                    ]
-                )
-            )
-            errors.report_and_rethrow(ResolvableBy.USER_ERROR, e)
+            errors.report(ResolvableBy.USER_ERROR, e)
+            raise
 
     def __initialize_ingester(self, method) -> IngesterBase:
         ingester_plugin = None

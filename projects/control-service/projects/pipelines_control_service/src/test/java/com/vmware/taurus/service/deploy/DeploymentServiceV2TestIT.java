@@ -49,11 +49,40 @@ public class DeploymentServiceV2TestIT {
     updateDeployment(DeploymentStatus.NONE, 1);
   }
 
+  @Test
+  public void
+      updateDeployment_withDesiredDeploymentUserInitiatedDeploymentTrue_shouldSendNotification()
+          throws IOException, InterruptedException, ApiException {
+    updateDeployment(DeploymentStatus.NONE, 1, true);
+
+    Mockito.verify(jobImageBuilder, Mockito.times(1))
+        .buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(true));
+  }
+
+  @Test
+  public void
+      updateDeployment_withDesiredDeploymentUserInitiatedDeploymentFalse_shouldNotSendNotification()
+          throws IOException, InterruptedException, ApiException {
+    updateDeployment(DeploymentStatus.NONE, 1, false);
+
+    Mockito.verify(jobImageBuilder, Mockito.times(1))
+        .buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(false));
+  }
+
   private void updateDeployment(
       DeploymentStatus deploymentStatus, int deploymentProgressStartedInvocations)
       throws IOException, InterruptedException, ApiException {
+    updateDeployment(deploymentStatus, deploymentProgressStartedInvocations, true);
+  }
+
+  private void updateDeployment(
+      DeploymentStatus deploymentStatus,
+      int deploymentProgressStartedInvocations,
+      boolean sendNotification)
+      throws IOException, InterruptedException, ApiException {
     DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
     desiredDataJobDeployment.setStatus(deploymentStatus);
+    desiredDataJobDeployment.setUserInitiated(sendNotification);
     DataJob dataJob = new DataJob();
     dataJob.setJobConfig(new JobConfig());
     Mockito.when(
@@ -61,7 +90,7 @@ public class DeploymentServiceV2TestIT {
         .thenReturn(false);
 
     deploymentService.updateDeployment(
-        dataJob, desiredDataJobDeployment, new ActualDataJobDeployment(), true, true);
+        dataJob, desiredDataJobDeployment, new ActualDataJobDeployment(), true);
 
     Mockito.verify(deploymentProgress, Mockito.times(deploymentProgressStartedInvocations))
         .started(dataJob.getJobConfig(), desiredDataJobDeployment);

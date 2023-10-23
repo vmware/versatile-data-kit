@@ -5,23 +5,32 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.exception.*;
+import com.vmware.taurus.datajobs.DeploymentModelConverter;
+import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
+import com.vmware.taurus.exception.ErrorMessage;
+import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
-import com.vmware.taurus.service.model.*;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
+import com.vmware.taurus.service.model.DataJob;
+import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
+import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.JobConfig;
 import com.vmware.taurus.service.notification.NotificationContent;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import io.kubernetes.client.openapi.ApiException;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * CRUD operations for Versatile Data Kit deployments on kubernetes.
@@ -33,6 +42,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class DeploymentServiceV2 {
+
   private static final Logger log = LoggerFactory.getLogger(DeploymentServiceV2.class);
 
   private final DockerRegistryService dockerRegistryService;
@@ -43,6 +53,60 @@ public class DeploymentServiceV2 {
   private final DesiredJobDeploymentRepository desiredJobDeploymentRepository;
   private final ActualJobDeploymentRepository actualJobDeploymentRepository;
   private final DataJobsKubernetesService dataJobsKubernetesService;
+  private final JobsRepository jobsRepository;
+
+  /**
+   * This method updates an existing job deployment in the database. Only fields present in the job
+   * deployment are updated, other fields are not overridden.
+   *
+   * @param dataJob the data job to which the deployment is associated
+   * @param jobDeployment the deployment to patch with
+   */
+  public void patchDesiredDbDeployment(
+      DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
+    populateDeploymentForBackwardCompatibility(dataJob, jobDeployment);
+    desiredJobDeploymentRepository
+        .findById(dataJob.getName())
+        .ifPresentOrElse(
+            oldDeployment -> {
+              var mergedDeployment =
+                  DeploymentModelConverter.mergeDeployments(
+                      oldDeployment, jobDeployment, userDeployer);
+              saveNewDesiredDeployment(mergedDeployment, dataJob);
+            },
+            () -> {
+              throw new DataJobDeploymentNotFoundException(dataJob.getName());
+            });
+  }
+
+  /**
+   * Create or update a deployment in the database. If the deployment already exists, behaves like
+   * patch
+   *
+   * @param dataJob The data job to which the deployment is associated.
+   * @param jobDeployment the new deployment.
+   * @param userDeployer the user.
+   */
+  public void updateDesiredDbDeployment(
+      DataJob dataJob, JobDeployment jobDeployment, String userDeployer) {
+    populateDeploymentForBackwardCompatibility(dataJob, jobDeployment);
+    desiredJobDeploymentRepository
+        .findById(dataJob.getName())
+        .ifPresentOrElse(
+            oldDeployment -> patchDesiredDbDeployment(dataJob, jobDeployment, userDeployer),
+            () -> {
+              var newDeployment =
+                  DeploymentModelConverter.toJobDeployment(userDeployer, jobDeployment);
+              saveNewDesiredDeployment(newDeployment, dataJob);
+            });
+  }
+
+  private void saveNewDesiredDeployment(DesiredDataJobDeployment deployment, DataJob dataJob) {
+    deployment.setStatus(DeploymentStatus.NONE);
+    deployment.setDataJob(dataJob);
+    deployment.setUserInitiated(true);
+    desiredJobDeploymentRepository.save(deployment);
+  }
 
   /**
    * Updates or creates a Kubernetes CronJob based on the provided configuration.
@@ -57,15 +121,13 @@ public class DeploymentServiceV2 {
    * @param actualJobDeployment the actual data job deployment has been deployed.
    * @param isJobDeploymentPresentInKubernetes if it is true the data job deployment is present in
    *     Kubernetes.
-   * @param sendNotification if it is true the method will send a notification to the end user.
    */
   @Measurable(includeArg = 0, argName = "data_job")
   public void updateDeployment(
       DataJob dataJob,
       DesiredDataJobDeployment desiredJobDeployment,
       ActualDataJobDeployment actualJobDeployment,
-      boolean isJobDeploymentPresentInKubernetes,
-      Boolean sendNotification) {
+      boolean isJobDeploymentPresentInKubernetes) {
     if (desiredJobDeployment == null) {
       log.warn(
           "Skipping the data job [job_name={}] deployment due to the missing deployment data",
@@ -82,6 +144,9 @@ public class DeploymentServiceV2 {
           desiredJobDeployment.getStatus());
       return;
     }
+
+    // Sends notification only when the deployment is initiated by the user.
+    boolean sendNotification = Boolean.TRUE.equals(desiredJobDeployment.getUserInitiated());
 
     try {
       log.info("Starting deployment of job {}", desiredJobDeployment.getDataJobName());
@@ -127,6 +192,27 @@ public class DeploymentServiceV2 {
     }
   }
 
+  public void deleteDesiredDeployment(String dataJobName) {
+    if (desiredJobDeploymentRepository.existsById(dataJobName)) {
+      desiredJobDeploymentRepository.deleteById(dataJobName);
+    }
+  }
+
+  public void deleteActualDeployment(String dataJobName) {
+    if (this.deploymentExistsOrInProgress(dataJobName)) {
+      jobImageBuilder.cancelBuildingJob(dataJobName);
+      jobImageDeployer.unScheduleJob(dataJobName);
+      jobsRepository.updateDataJobEnabledByName(dataJobName, false);
+    }
+
+    actualJobDeploymentRepository.deleteById(dataJobName);
+    deploymentProgress.deleted(dataJobName);
+  }
+
+  public Optional<ActualDataJobDeployment> readDeployment(String dataJobName) {
+    return actualJobDeploymentRepository.findById(dataJobName);
+  }
+
   public void updateDeploymentEnabledStatus(String dataJobName, Boolean enabledStatus) {
     desiredJobDeploymentRepository.updateDesiredDataJobDeploymentEnabledByDataJobName(
         dataJobName, enabledStatus);
@@ -142,8 +228,12 @@ public class DeploymentServiceV2 {
         .collect(Collectors.toMap(ActualDataJobDeployment::getDataJobName, Function.identity()));
   }
 
-  public Set<String> findAllActualDeploymentNamesFromKubernetes() throws ApiException {
-    return dataJobsKubernetesService.listCronJobs();
+  public Set<String> findAllActualDeploymentNamesFromKubernetes() throws KubernetesException {
+    try {
+      return dataJobsKubernetesService.listCronJobs();
+    } catch (ApiException e) {
+      throw new KubernetesException("Cannot load cron jobs", e);
+    }
   }
 
   private void handleException(
@@ -170,5 +260,48 @@ public class DeploymentServiceV2 {
         DeploymentStatus.PLATFORM_ERROR,
         NotificationContent.getPlatformErrorBody(),
         sendNotification);
+  }
+
+  private boolean deploymentExistsOrInProgress(String dataJobName) {
+    return jobImageBuilder.isBuildingJobInProgress(dataJobName)
+        || readDeployment(dataJobName).isPresent();
+  }
+
+  /**
+   * Populates the deployment's fields with legacy data to ensure backward compatibility. This
+   * method is used to maintain compatibility with older versions of the deployment process.
+   */
+  private void populateDeploymentForBackwardCompatibility(
+      DataJob dataJob, JobDeployment jobDeployment) {
+    setDeploymentSchedule(dataJob, jobDeployment);
+    setDeploymentEnabled(jobDeployment);
+  }
+
+  /**
+   * Sets the deployment schedule if it is not passed to the API for backward compatibility, as the
+   * schedule is still passed as part of the data job.
+   *
+   * @param dataJob the data job to which the deployment is associated
+   * @param jobDeployment the deployment to patch with
+   */
+  private void setDeploymentSchedule(DataJob dataJob, JobDeployment jobDeployment) {
+    if (jobDeployment.getSchedule() == null) {
+      String schedule =
+          Optional.ofNullable(dataJob)
+              .map(DataJob::getJobConfig)
+              .map(JobConfig::getSchedule)
+              .orElse(null);
+      jobDeployment.setSchedule(schedule);
+    }
+  }
+
+  /**
+   * Sets the deployment enabled flag to true if it is not passed to the API for backward
+   * compatibility.
+   *
+   * @param jobDeployment the deployment to patch with
+   */
+  private void setDeploymentEnabled(JobDeployment jobDeployment) {
+    jobDeployment.setEnabled(jobDeployment.getEnabled() == null || jobDeployment.getEnabled());
   }
 }

@@ -83,7 +83,6 @@ public class ActualJobDeploymentRepositoryIT {
 
     ActualDataJobDeployment expectedDataJobDeployment = new ActualDataJobDeployment();
     expectedDataJobDeployment.setDataJobName(actualDataJob.getName());
-    expectedDataJobDeployment.setDataJob(actualDataJob);
     expectedDataJobDeployment.setPythonVersion("3.9-secure");
     expectedDataJobDeployment.setGitCommitSha("commit");
 

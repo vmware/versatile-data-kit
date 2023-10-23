@@ -5,16 +5,19 @@
 
 package com.vmware.taurus.datajobs;
 
+import com.vmware.taurus.controlplane.model.data.DataJobContacts;
+import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
+import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobDeploymentResources;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
-import com.vmware.taurus.service.model.ActualDataJobDeployment;
+import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.OffsetDateTime;
 
 /** Utility functions that convert between different model or DTO classes */
 @Service
@@ -68,7 +71,6 @@ public class DeploymentModelConverter {
       OffsetDateTime lastDeployedDate) {
     ActualDataJobDeployment deployment = new ActualDataJobDeployment();
     deployment.setDataJobName(desiredDataJobDeployment.getDataJobName());
-    deployment.setDataJob(desiredDataJobDeployment.getDataJob());
     deployment.setEnabled(desiredDataJobDeployment.getEnabled());
 
     DataJobDeploymentResources desiredDataJobDeploymentResources =
@@ -182,5 +184,148 @@ public class DeploymentModelConverter {
     deploymentResources.setMemoryLimitMi(memoryLimitMi);
 
     return deploymentResources;
+  }
+
+  public static DesiredDataJobDeployment toJobDeployment(
+      String userDeployer, JobDeployment jobDeployment) {
+    var newDeployment = new DesiredDataJobDeployment();
+    newDeployment.setDataJobName(jobDeployment.getDataJobName());
+    newDeployment.setPythonVersion(jobDeployment.getPythonVersion());
+    newDeployment.setGitCommitSha(jobDeployment.getGitCommitSha());
+    if (jobDeployment.getResources() != null) {
+      var resources = new DataJobDeploymentResources();
+      resources.setCpuRequestCores(jobDeployment.getResources().getCpuRequest());
+      resources.setCpuLimitCores(jobDeployment.getResources().getCpuLimit());
+      resources.setMemoryRequestMi(jobDeployment.getResources().getMemoryRequest());
+      resources.setMemoryLimitMi(jobDeployment.getResources().getMemoryLimit());
+      newDeployment.setResources(resources);
+    }
+    newDeployment.setLastDeployedBy(userDeployer);
+    newDeployment.setEnabled(jobDeployment.getEnabled());
+    newDeployment.setSchedule(jobDeployment.getSchedule());
+    return newDeployment;
+  }
+
+  public static DesiredDataJobDeployment mergeDeployments(
+      DesiredDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
+    checkDeploymentsCanBeMerged(oldDeployment, newDeployment);
+    DesiredDataJobDeployment mergedDeployment = new DesiredDataJobDeployment();
+    mergedDeployment.setDataJobName(newDeployment.getDataJobName());
+    mergedDeployment.setDataJob(oldDeployment.getDataJob());
+
+    mergedDeployment.setGitCommitSha(
+        (newDeployment.getGitCommitSha() != null
+            ? newDeployment.getGitCommitSha()
+            : oldDeployment.getGitCommitSha()));
+    mergedDeployment.setPythonVersion(
+        newDeployment.getPythonVersion() != null
+            ? newDeployment.getPythonVersion()
+            : oldDeployment.getPythonVersion());
+    mergedDeployment.setLastDeployedBy(
+        userDeployer != null ? userDeployer : oldDeployment.getLastDeployedBy());
+    mergedDeployment.setSchedule(
+        newDeployment.getSchedule() != null
+            ? newDeployment.getSchedule()
+            : oldDeployment.getSchedule());
+
+    mergeDeploymentResources(mergedDeployment, newDeployment, oldDeployment);
+
+    mergedDeployment.setEnabled(
+        newDeployment.getEnabled() != null
+            ? newDeployment.getEnabled()
+            : oldDeployment.getEnabled());
+
+    return mergedDeployment;
+  }
+
+  private static void checkDeploymentsCanBeMerged(
+      DesiredDataJobDeployment oldDeployment, JobDeployment newDeployment) {
+    if (oldDeployment.getDataJobName() == null
+        || newDeployment.getDataJobName() == null
+        || newDeployment.getDataJobTeam() == null
+        || oldDeployment.getDataJob() == null
+        || oldDeployment.getDataJob().getJobConfig() == null
+        || !oldDeployment.getDataJobName().equals(newDeployment.getDataJobName())
+        || !oldDeployment
+            .getDataJob()
+            .getJobConfig()
+            .getTeam()
+            .equals(newDeployment.getDataJobTeam())) {
+      throw new IllegalArgumentException(
+          "Cannot merge 2 deployments if team or job name is different."
+              + oldDeployment
+              + " vs "
+              + newDeployment);
+    }
+  }
+
+  private static void mergeDeploymentResources(
+      DesiredDataJobDeployment mergedDeployment,
+      JobDeployment newDeployment,
+      DesiredDataJobDeployment oldDeployment) {
+    if (newDeployment.getResources() == null) {
+      return;
+    }
+    DataJobDeploymentResources resources = new DataJobDeploymentResources();
+    resources.setCpuRequestCores(
+        newDeployment.getResources().getCpuRequest() != null
+            ? newDeployment.getResources().getCpuRequest()
+            : oldDeployment.getResources().getCpuRequestCores());
+    resources.setCpuLimitCores(
+        newDeployment.getResources().getCpuLimit() != null
+            ? newDeployment.getResources().getCpuLimit()
+            : oldDeployment.getResources().getCpuLimitCores());
+    resources.setMemoryRequestMi(
+        newDeployment.getResources().getMemoryRequest() != null
+            ? newDeployment.getResources().getMemoryRequest()
+            : oldDeployment.getResources().getMemoryRequestMi());
+    resources.setMemoryLimitMi(
+        newDeployment.getResources().getMemoryLimit() != null
+            ? newDeployment.getResources().getMemoryLimit()
+            : oldDeployment.getResources().getMemoryLimitMi());
+    mergedDeployment.setResources(resources);
+  }
+
+  public static DataJobDeploymentStatus toJobDeploymentStatus(
+      ActualDataJobDeployment actualDataJobDeployment, DataJob job) {
+    var deploymentStatus = new DataJobDeploymentStatus();
+    deploymentStatus.setJobVersion(actualDataJobDeployment.getGitCommitSha());
+    deploymentStatus.setPythonVersion(actualDataJobDeployment.getPythonVersion());
+    deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
+    deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
+    deploymentStatus.setContacts(getContactsFromJob(job));
+    deploymentStatus.setSchedule(
+        new DataJobSchedule().scheduleCron(actualDataJobDeployment.getSchedule()));
+    deploymentStatus.setResources(getResourcesFromDeployment(actualDataJobDeployment));
+    deploymentStatus.setLastDeployedDate(
+        actualDataJobDeployment.getLastDeployedDate() == null
+            ? null
+            : actualDataJobDeployment.getLastDeployedDate().toString());
+    deploymentStatus.setLastDeployedBy(actualDataJobDeployment.getLastDeployedBy());
+    return deploymentStatus;
+  }
+
+  private static DataJobContacts getContactsFromJob(DataJob job) {
+    DataJobContacts contacts = new DataJobContacts();
+    if (job.getJobConfig() != null) {
+      var config = job.getJobConfig();
+      contacts.setNotifiedOnJobDeploy(config.getNotifiedOnJobDeploy());
+      contacts.setNotifiedOnJobFailurePlatformError(config.getNotifiedOnJobFailurePlatformError());
+      contacts.setNotifiedOnJobSuccess(config.getNotifiedOnJobSuccess());
+      contacts.setNotifiedOnJobFailureUserError(config.getNotifiedOnJobFailureUserError());
+    }
+    return contacts;
+  }
+
+  private static DataJobResources getResourcesFromDeployment(ActualDataJobDeployment deployment) {
+    DataJobResources resources = new DataJobResources();
+    var deploymentResources = deployment.getResources();
+    if (deploymentResources != null) {
+      resources.setCpuRequest(deploymentResources.getCpuRequestCores());
+      resources.setCpuLimit(deploymentResources.getCpuLimitCores());
+      resources.setMemoryRequest(deploymentResources.getMemoryRequestMi());
+      resources.setMemoryLimit(deploymentResources.getMemoryLimitMi());
+    }
+    return resources;
   }
 }

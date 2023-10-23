@@ -141,7 +141,6 @@ class CliRunImpl:
         execution_result = None
         try:
             execution_result = job.run(args)
-
             # On some platforms, if the size of a string is too large, the
             # logging module starts throwing OSError: [Errno 40] Message too long,
             # so it is safer if we split large strings into smaller chunks.

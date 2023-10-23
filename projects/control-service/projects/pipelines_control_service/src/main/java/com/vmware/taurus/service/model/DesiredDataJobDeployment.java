@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -19,5 +19,15 @@ import javax.persistence.Entity;
 @Entity
 public class DesiredDataJobDeployment extends BaseDataJobDeployment {
 
+  @MapsId
+  @OneToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "data_job_name")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private DataJob dataJob;
+
   private DeploymentStatus status;
+
+  @Column(name = "is_user_initiated")
+  private Boolean userInitiated;
 }

@@ -5,10 +5,15 @@ from unittest.mock import MagicMock
 import pytest
 from vdk.api.plugin.plugin_input import ISecretsServiceClient
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
+from vdk.internal.builtin_plugins.job_secrets.exception import (
+    WritePreProcessSecretsException,
+)
 from vdk.internal.builtin_plugins.job_secrets.secrets_router import (
     SecretsRouter,
 )
+from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 
@@ -147,8 +152,12 @@ def test_preprocessing_sequence_error():
     router.set_secrets_factory_method("foo", lambda: foo_mock_client)
     router.set_secrets_factory_method("bar", lambda: bar_mock_client)
 
-    with pytest.raises(UserCodeError):
+    with pytest.raises(WritePreProcessSecretsException) as exc_info:
         router.set_all_secrets({"a": "b"})
+        assert (
+            errors.get_exception_resolvable_by(exc_info.value)
+            == ResolvableBy.USER_ERROR
+        )
 
 
 def test_preprocessing_sequence_misconfigured():

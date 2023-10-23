@@ -115,7 +115,7 @@ class StepFuncFactory:
                             errors.resolvable_context().mark_all_resolved()
                         else:
                             log.error("Exiting  %s#run(...) FAILURE" % filename)
-            log.warn(
+            log.warning(
                 "File %s does not contain a valid run() method. Nothing to execute. Skipping %s,"
                 + " and continuing with other files (if present).",
                 filename,
@@ -156,18 +156,6 @@ class StepFuncFactory:
                 )
 
                 to_be_fixed_by = whom_to_blame(e, __file__, None)
-                log.error(
-                    "\n".join(
-                        [
-                            f"Data Job step {step_name} completed with error.",
-                            errors.MSG_WHY_FROM_EXCEPTION(e),
-                            "I will not process the remaining steps (if any), "
-                            "and this Data Job execution will be marked as failed.",
-                            "See exception and fix the root cause, so that the exception does "
-                            "not appear anymore.",
-                        ]
-                    )
-                )
                 errors.report_and_rethrow(to_be_fixed_by, e)
         else:
             errors.report_and_throw(
