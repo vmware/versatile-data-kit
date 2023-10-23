@@ -1,3 +1,6 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
 
 
@@ -28,6 +31,7 @@ class VdkBoundLogger(logging.LoggerAdapter):
     Note that these will not be automatically included in the output log and must be processed downstream by
     something like vdk-structlog.
     """
+
     def process(self, msg, kwargs):
         # merge bound extra dict with existing extra dict if any
         if "extra" in kwargs:
