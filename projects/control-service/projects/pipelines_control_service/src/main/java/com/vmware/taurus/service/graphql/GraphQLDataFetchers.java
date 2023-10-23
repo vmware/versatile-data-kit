@@ -5,9 +5,14 @@
 
 package com.vmware.taurus.service.graphql;
 
+import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
+import com.vmware.taurus.service.model.DataJobDeploymentResources;
 import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.ReadFrom;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.DataJobPage;
@@ -51,6 +56,8 @@ public class GraphQLDataFetchers {
   private final JobsRepository jobsRepository;
   private final DeploymentService deploymentService;
   private final ExecutionDataFetcher executionDataFetcher;
+  private final ActualJobDeploymentRepository actualJobDeploymentRepository;
+  private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
   public DataFetcher<Object> findAllAndBuildDataJobPage() {
     return dataFetchingEnvironment -> {
@@ -208,8 +215,7 @@ public class GraphQLDataFetchers {
   private List<V2DataJob> populateDeployments(
       List<V2DataJob> allDataJob, Map<String, DataJob> dataJobs) {
     Map<String, JobDeploymentStatus> deploymentStatuses =
-        deploymentService.readDeployments().stream()
-            .collect(Collectors.toMap(JobDeploymentStatus::getDataJobName, cronJob -> cronJob));
+            (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) ? readJobDeploymentsFromDb() : readJobDeploymentsFromK8s();
 
     allDataJob.forEach(
         dataJob -> {
@@ -226,6 +232,48 @@ public class GraphQLDataFetchers {
           }
         });
     return allDataJob;
+  }
+
+  private Map<String, JobDeploymentStatus> readJobDeploymentsFromK8s() {
+    return deploymentService.readDeployments().stream()
+            .collect(Collectors.toMap(JobDeploymentStatus::getDataJobName, cronJob -> cronJob));
+  }
+
+  private Map<String, JobDeploymentStatus> readJobDeploymentsFromDb() {
+    var deployments = StreamSupport.stream(actualJobDeploymentRepository.findAll().spliterator(), false)
+            .collect(Collectors.toMap(ActualDataJobDeployment::getDataJobName,
+                    cronjob -> cronjob));
+
+    return deployments.entrySet().stream()
+            .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> convertToJobDeploymentStatus(entry.getValue())
+            ));
+  }
+
+  private JobDeploymentStatus convertToJobDeploymentStatus(ActualDataJobDeployment deploymentStatus) {
+    JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
+    jobDeploymentStatus.setDataJobName(deploymentStatus.getDataJobName());
+    jobDeploymentStatus.setPythonVersion(deploymentStatus.getPythonVersion());
+    jobDeploymentStatus.setGitCommitSha(deploymentStatus.getGitCommitSha());
+    jobDeploymentStatus.setEnabled(deploymentStatus.getEnabled());
+    jobDeploymentStatus.setLastDeployedBy(deploymentStatus.getLastDeployedBy());
+    jobDeploymentStatus.setLastDeployedDate(deploymentStatus.getLastDeployedDate().toString());
+    jobDeploymentStatus.setResources(getDataJobResources(deploymentStatus.getResources()));
+    // The ActualDataJobDeployment does not have a mode attribute, which is required by the JobDeploymentStatus,
+    // so we need to set something in order to avoid errors.
+    jobDeploymentStatus.setMode("release");
+
+    return jobDeploymentStatus;
+  }
+
+  private DataJobResources getDataJobResources(DataJobDeploymentResources deploymentResources) {
+    DataJobResources resources = new DataJobResources();
+    resources.setCpuLimit(deploymentResources.getCpuLimitCores());
+    resources.setCpuRequest(deploymentResources.getCpuRequestCores());
+    resources.setMemoryLimit(deploymentResources.getMemoryLimitMi());
+    resources.setMemoryRequest(deploymentResources.getMemoryRequestMi());
+    return resources;
   }
 
   private static DataJobPage buildResponse(int pageSize, int count, List pageList) {
