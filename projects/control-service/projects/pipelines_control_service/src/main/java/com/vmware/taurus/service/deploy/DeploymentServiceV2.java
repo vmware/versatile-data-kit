@@ -149,7 +149,6 @@ public class DeploymentServiceV2 {
     boolean sendNotification = Boolean.TRUE.equals(desiredJobDeployment.getUserInitiated());
 
     try {
-      log.info("Starting deployment of job {}", desiredJobDeployment.getDataJobName());
       deploymentProgress.started(dataJob.getJobConfig(), desiredJobDeployment);
 
       if (desiredJobDeployment.getPythonVersion() == null) {
@@ -161,11 +160,6 @@ public class DeploymentServiceV2 {
               desiredJobDeployment.getDataJobName(), desiredJobDeployment.getGitCommitSha());
 
       if (jobImageBuilder.buildImage(imageName, dataJob, desiredJobDeployment, sendNotification)) {
-        log.info(
-            "Image {} has been built. Will now schedule job {} for execution",
-            imageName,
-            dataJob.getName());
-
         ActualDataJobDeployment actualJobDeploymentResult =
             jobImageDeployer.scheduleJob(
                 dataJob,
