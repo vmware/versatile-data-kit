@@ -8,6 +8,7 @@ package com.vmware.taurus.service.repository;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Spring Data / JPA Repository for ActualDataJobDeployment objects and their members
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Repository;
  *
  * <p>JobDeploymentRepositoryIT validates some aspects of the behavior
  */
+@Transactional
 @Repository
 public interface ActualJobDeploymentRepository
     extends JpaRepository<ActualDataJobDeployment, String> {}

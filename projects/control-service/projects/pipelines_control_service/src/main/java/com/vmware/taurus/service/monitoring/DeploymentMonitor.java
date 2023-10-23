@@ -77,7 +77,6 @@ public class DeploymentMonitor {
    * @param dataJobName
    * @param deploymentStatus
    */
-  @Transactional
   public void recordDeploymentStatus(
       String dataJobName,
       DeploymentStatus deploymentStatus,
