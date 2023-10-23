@@ -39,13 +39,18 @@ import org.junit.platform.commons.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 
-@Import({DataJobDeploymentCrudIT.TaskExecutorConfig.class})
+@Import({TestJobDeployTempCredsIT.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
       "datajobs.control.k8s.k8sSupportsV1CronJob=true",
@@ -81,6 +86,18 @@ public class TestJobDeployTempCredsIT extends BaseIT {
   private AWSCredentialsService.AWSCredentialsDTO credentialsDTO;
   private AmazonECR ecrClient;
   private String repositoryName;
+
+  @TestConfiguration
+  static class TaskExecutorConfig {
+
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      // Deployment methods are non-blocking (Async) which makes them harder to test.
+      // Making them sync for the purposes of this test.
+      return new SyncTaskExecutor();
+    }
+  }
 
   @BeforeEach
   public void setup() throws Exception {

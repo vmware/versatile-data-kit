@@ -13,12 +13,16 @@ import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.ValidationException;
 import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.ReadFrom;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.WriteTo;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
@@ -26,13 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.*;
 
 /**
  * REST controller for operations on data job deployments
@@ -112,37 +109,59 @@ public class DataJobsDeploymentController implements DataJobsDeploymentApi {
   @Override
   public ResponseEntity<List<DataJobDeploymentStatus>> deploymentList(
       String teamName, String jobName, String deploymentId, DataJobMode dataJobMode) {
+    // TODO: deploymentId and mode not implemented
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
-      // TODO: deploymentId and mode not implemented
-      List<DataJobDeploymentStatus> deployments = Collections.emptyList();
-      Optional<JobDeploymentStatus> jobDeploymentStatus = Optional.empty();
-      if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
-        jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase());
+      var responseOptional = getDeploymentStatusOptional(jobName.toLowerCase());
+      if (!responseOptional.isPresent()) {
+        return ResponseEntity.of(Optional.of(Collections.emptyList()));
       }
-      if (jobDeploymentStatus.isPresent()) {
-        deployments =
-            Arrays.asList(ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
-      }
-      return ResponseEntity.ok(deployments);
+      return ResponseEntity.ok(List.of(responseOptional.get()));
     }
     return ResponseEntity.notFound().build();
+  }
+
+  private Optional<DataJobDeploymentStatus> getDeploymentStatusOptional(String jobName) {
+    Optional<DataJobDeploymentStatus> jobDeploymentStatus = Optional.empty();
+    if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) {
+      jobDeploymentStatus = readFromDB(jobName);
+    } else if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
+      jobDeploymentStatus = readFromK8S(jobName);
+    }
+    return jobDeploymentStatus;
   }
 
   @Override
   public ResponseEntity<DataJobDeploymentStatus> deploymentRead(
       String teamName, String jobName, String deploymentId) {
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
-      // TODO: deploymentId are not implemented.
-      Optional<JobDeploymentStatus> jobDeploymentStatus = Optional.empty();
-      if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
-        jobDeploymentStatus = deploymentService.readDeployment(jobName.toLowerCase());
-      }
-      if (jobDeploymentStatus.isPresent()) {
-        return ResponseEntity.ok(
-            ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
+      Optional<DataJobDeploymentStatus> jobDeploymentOptional =
+          getDeploymentStatusOptional(jobName);
+      if (jobDeploymentOptional.isPresent()) {
+        return ResponseEntity.ok(jobDeploymentOptional.get());
       }
     }
     return ResponseEntity.notFound().build();
+  }
+
+  private Optional<DataJobDeploymentStatus> readFromK8S(String jobName) {
+    Optional<JobDeploymentStatus> jobDeploymentStatus =
+        deploymentService.readDeployment(jobName.toLowerCase());
+    if (jobDeploymentStatus.isPresent()) {
+      return Optional.of(ToApiModelConverter.toDataJobDeploymentStatus(jobDeploymentStatus.get()));
+    }
+    return Optional.empty();
+  }
+
+  private Optional<DataJobDeploymentStatus> readFromDB(String dataJobName) {
+    var jobDeploymentOptional = deploymentServiceV2.readDeployment(dataJobName.toLowerCase());
+    var jobOptional = jobsService.getByName(dataJobName);
+    if (jobDeploymentOptional.isPresent()) {
+      var deploymentResponse =
+          DeploymentModelConverter.toJobDeploymentStatus(
+              jobDeploymentOptional.get(), jobOptional.get());
+      return Optional.of(deploymentResponse);
+    }
+    return Optional.empty();
   }
 
   @Override

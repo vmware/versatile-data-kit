@@ -5,8 +5,12 @@
 
 package com.vmware.taurus.datajobs;
 
+import com.vmware.taurus.controlplane.model.data.DataJobContacts;
+import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
+import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DataJobDeploymentResources;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
@@ -67,7 +71,6 @@ public class DeploymentModelConverter {
       OffsetDateTime lastDeployedDate) {
     ActualDataJobDeployment deployment = new ActualDataJobDeployment();
     deployment.setDataJobName(desiredDataJobDeployment.getDataJobName());
-    deployment.setDataJob(desiredDataJobDeployment.getDataJob());
     deployment.setEnabled(desiredDataJobDeployment.getEnabled());
 
     DataJobDeploymentResources desiredDataJobDeploymentResources =
@@ -204,7 +207,7 @@ public class DeploymentModelConverter {
   }
 
   public static DesiredDataJobDeployment mergeDeployments(
-      ActualDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
+      DesiredDataJobDeployment oldDeployment, JobDeployment newDeployment, String userDeployer) {
     checkDeploymentsCanBeMerged(oldDeployment, newDeployment);
     DesiredDataJobDeployment mergedDeployment = new DesiredDataJobDeployment();
     mergedDeployment.setDataJobName(newDeployment.getDataJobName());
@@ -236,7 +239,7 @@ public class DeploymentModelConverter {
   }
 
   private static void checkDeploymentsCanBeMerged(
-      ActualDataJobDeployment oldDeployment, JobDeployment newDeployment) {
+      DesiredDataJobDeployment oldDeployment, JobDeployment newDeployment) {
     if (oldDeployment.getDataJobName() == null
         || newDeployment.getDataJobName() == null
         || newDeployment.getDataJobTeam() == null
@@ -259,7 +262,7 @@ public class DeploymentModelConverter {
   private static void mergeDeploymentResources(
       DesiredDataJobDeployment mergedDeployment,
       JobDeployment newDeployment,
-      ActualDataJobDeployment oldDeployment) {
+      DesiredDataJobDeployment oldDeployment) {
     if (newDeployment.getResources() == null) {
       return;
     }
@@ -281,5 +284,48 @@ public class DeploymentModelConverter {
             ? newDeployment.getResources().getMemoryLimit()
             : oldDeployment.getResources().getMemoryLimitMi());
     mergedDeployment.setResources(resources);
+  }
+
+  public static DataJobDeploymentStatus toJobDeploymentStatus(
+      ActualDataJobDeployment actualDataJobDeployment, DataJob job) {
+    var deploymentStatus = new DataJobDeploymentStatus();
+    deploymentStatus.setJobVersion(actualDataJobDeployment.getDeploymentVersionSha());
+    deploymentStatus.setPythonVersion(actualDataJobDeployment.getPythonVersion());
+    deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
+    deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
+    deploymentStatus.setContacts(getContactsFromJob(job));
+    deploymentStatus.setSchedule(
+        new DataJobSchedule().scheduleCron(actualDataJobDeployment.getSchedule()));
+    deploymentStatus.setResources(getResourcesFromDeployment(actualDataJobDeployment));
+    deploymentStatus.setLastDeployedDate(
+        actualDataJobDeployment.getLastDeployedDate() == null
+            ? null
+            : actualDataJobDeployment.getLastDeployedDate().toString());
+    deploymentStatus.setLastDeployedBy(actualDataJobDeployment.getLastDeployedBy());
+    return deploymentStatus;
+  }
+
+  private static DataJobContacts getContactsFromJob(DataJob job) {
+    DataJobContacts contacts = new DataJobContacts();
+    if (job.getJobConfig() != null) {
+      var config = job.getJobConfig();
+      contacts.setNotifiedOnJobDeploy(config.getNotifiedOnJobDeploy());
+      contacts.setNotifiedOnJobFailurePlatformError(config.getNotifiedOnJobFailurePlatformError());
+      contacts.setNotifiedOnJobSuccess(config.getNotifiedOnJobSuccess());
+      contacts.setNotifiedOnJobFailureUserError(config.getNotifiedOnJobFailureUserError());
+    }
+    return contacts;
+  }
+
+  private static DataJobResources getResourcesFromDeployment(ActualDataJobDeployment deployment) {
+    DataJobResources resources = new DataJobResources();
+    var deploymentResources = deployment.getResources();
+    if (deploymentResources != null) {
+      resources.setCpuRequest(deploymentResources.getCpuRequestCores());
+      resources.setCpuLimit(deploymentResources.getCpuLimitCores());
+      resources.setMemoryRequest(deploymentResources.getMemoryRequestMi());
+      resources.setMemoryLimit(deploymentResources.getMemoryLimitMi());
+    }
+    return resources;
   }
 }

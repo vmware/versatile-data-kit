@@ -21,6 +21,7 @@ LOG_CONFIG = "LOG_CONFIG"
 LOG_LEVEL_VDK = "LOG_LEVEL_VDK"
 LOG_LEVEL_MODULE = "LOG_LEVEL_MODULE"
 LOG_STACK_TRACE_ON_EXIT = "LOG_STACK_TRACE_ON_EXIT"
+LOG_EXCEPTION_FORMATTER = "LOG_EXCEPTION_FORMATTER"
 WORKING_DIR = "WORKING_DIR"
 ATTEMPT_ID = "ATTEMPT_ID"
 EXECUTION_ID = "EXECUTION_ID"
@@ -91,6 +92,14 @@ class CoreConfigDefinitionPlugin:
             "Controls whether the full stack trace is displayed again on exit code 1. "
             "False by default, shoud be set to true in production environments for more debug output. ",
         )
+        config_builder.add(
+            LOG_EXCEPTION_FORMATTER,
+            "pretty",
+            True,
+            "Determines the exception format. Possible values are [pretty | plain]. Default is 'pretty'"
+            "When set to pretty, it draws a box around VDK exceptions and add news lines and wrapping",
+        )
+
         config_builder.add(JOB_GITHASH, "unknown")
         config_builder.add(
             OP_ID,

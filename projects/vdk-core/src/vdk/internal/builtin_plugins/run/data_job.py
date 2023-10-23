@@ -11,6 +11,7 @@ from typing import cast
 from vdk.api.job_input import IJobArguments
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal.builtin_plugins.config.vdk_config import LOG_EXCEPTION_FORMATTER
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
@@ -24,6 +25,7 @@ from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import BaseVdkError
 from vdk.internal.core.errors import SkipRemainingStepsException
 from vdk.internal.core.statestore import CommonStoreKeys
 
@@ -136,7 +138,9 @@ class DataJobDefaultHookImplPlugin:
                 blamee = whom_to_blame(e, __file__, context.job_directory)
                 exception = e
                 errors.report(blamee, exception)
-                log.warn(f"Processing step {current_step.name} completed with error.")
+                log.warning(
+                    f"Processing step {current_step.name} completed with error."
+                )
                 res = StepResult(
                     name=current_step.name,
                     type=current_step.type,
@@ -301,9 +305,15 @@ class DataJob:
                 raise execution_result.exception
             return execution_result
         except BaseException as ex:
+            if isinstance(ex, BaseVdkError):
+                config = self._core_context.configuration
+                if config.get_value(LOG_EXCEPTION_FORMATTER) == "pretty":
+                    ex._format(errors.pretty_vdk_error_formatter)
+                else:
+                    ex._format(errors.plain_vdk_error_formatter)
             blamee = whom_to_blame(ex, __file__, job_context.job_directory)
             errors.report(blamee, ex)
-            log.warn(f"Data Job {self._name} completed with error.")
+            log.warning(f"Data Job {self._name} completed with error.")
             log.exception(ex)
             execution_result = ExecutionResult(
                 self._name,

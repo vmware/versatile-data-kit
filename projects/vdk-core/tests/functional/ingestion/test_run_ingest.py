@@ -9,6 +9,7 @@ from click.testing import Result
 from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
     INGESTER_WAIT_TO_FINISH_AFTER_EVERY_SEND,
 )
+from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -106,6 +107,31 @@ def test_ingest_multiple_methods():
     assert (
         len(ingest_plugin2.payloads) == 20
     ), "expected 20 payloads for ingest method 'memory2'"
+    assert (
+        len(ingest_plugin3.payloads) == 0
+    ), "expected 0 (no) payloads for ingest method 'memory3'"
+
+
+def test_ingest_multiple_methods_multiple_threads():
+    ingest_plugin1 = IngestIntoMemoryPlugin("memory1")
+    ingest_plugin2 = IngestIntoMemoryPlugin("memory2")
+    ingest_plugin3 = IngestIntoMemoryPlugin("memory3")
+    runner = CliEntryBasedTestRunner(ingest_plugin1, ingest_plugin2, ingest_plugin3)
+
+    result: Result = runner.invoke(
+        ["run", jobs_path_from_caller_directory("ingest-multiple-threads-job")]
+    )
+
+    cli_assert_equal(0, result)
+
+    assert (
+        sum(len(p.payload) for p in ingest_plugin1.payloads) == 200
+    ), f"expected 200 payloads for ingest method 'memory1'. Payloads: {ingest_plugin1.payloads} "
+
+    assert (
+        sum(len(p.payload) for p in ingest_plugin2.payloads) == 200
+    ), f"expected 100 payloads for ingest method 'memory2'. Payloads: {ingest_plugin2.payloads} "
+
     assert (
         len(ingest_plugin3.payloads) == 0
     ), "expected 0 (no) payloads for ingest method 'memory3'"

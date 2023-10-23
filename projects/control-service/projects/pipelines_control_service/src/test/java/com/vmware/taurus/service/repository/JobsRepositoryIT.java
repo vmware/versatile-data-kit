@@ -122,7 +122,6 @@ public class JobsRepositoryIT {
 
     ActualDataJobDeployment expectedDataJobDeployment = new ActualDataJobDeployment();
     expectedDataJobDeployment.setDataJobName(dataJob.getName());
-    expectedDataJobDeployment.setDataJob(dataJob);
     expectedDataJobDeployment.setPythonVersion("3.9-secure");
     expectedDataJobDeployment.setGitCommitSha("commit");
 

@@ -23,13 +23,6 @@ public abstract class BaseDataJobDeployment {
   @Column(name = "data_job_name")
   private String dataJobName;
 
-  @MapsId
-  @OneToOne(cascade = CascadeType.MERGE)
-  @JoinColumn(name = "data_job_name")
-  @ToString.Exclude
-  @EqualsAndHashCode.Exclude
-  private DataJob dataJob;
-
   private String pythonVersion;
 
   private String gitCommitSha;
