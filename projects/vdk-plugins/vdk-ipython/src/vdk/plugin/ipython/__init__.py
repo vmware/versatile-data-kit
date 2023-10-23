@@ -5,6 +5,7 @@ import logging
 from vdk.plugin.ipython.job import load_job
 from vdk.plugin.ipython.job import magic_load_job
 from vdk.plugin.ipython.sql import vdksql
+from vdk.plugin.ipython.vdkconfig import vdkconfig
 
 log = logging.getLogger(__name__)
 
@@ -20,3 +21,6 @@ def load_ipython_extension(ipython):
     """
     ipython.register_magic_function(magic_load_job, magic_name="reload_VDK")
     ipython.register_magic_function(vdksql, magic_kind="cell", magic_name="vdksql")
+    ipython.register_magic_function(
+        vdkconfig, magic_kind="cell", magic_name="vdkconfig"
+    )

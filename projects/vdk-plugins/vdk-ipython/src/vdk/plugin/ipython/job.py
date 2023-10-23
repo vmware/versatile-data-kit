@@ -5,15 +5,29 @@ import json
 import logging
 import os
 import pathlib
+from typing import Any
 
 from IPython import get_ipython
 from IPython.core.magic_arguments import argument
 from IPython.core.magic_arguments import magic_arguments
 from IPython.core.magic_arguments import parse_argstring
 from vdk.api.job_input import IJobInput
+from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run import standalone_data_job
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.plugin.ipython.common import VDK_CONFIG_IPYTHON_KEY
 
 log = logging.getLogger(__name__)
+
+
+class CustomIPythonBasedConfiguration:
+    def __init__(self, config: dict[str, Any]):
+        self._config = config
+
+    @hookimpl(trylast=True)
+    def vdk_configure(self, config_builder: ConfigurationBuilder):
+        for k, v in self._config.items():
+            config_builder.set_value(k, v)
 
 
 class JobControl:
@@ -37,6 +51,7 @@ class JobControl:
         name: str = None,
         arguments: str = None,
         template: str = None,
+        config: dict[str, Any] = None,
     ):
         path = pathlib.Path(path) if path else pathlib.Path(os.getcwd())
         job_args = json.loads(arguments) if arguments else None
@@ -44,6 +59,7 @@ class JobControl:
         self._path = path
         self._arguments = job_args
         self._template = template
+        self._config = config
         self.job = None
         self.job_input = None
         log.debug(
@@ -51,17 +67,25 @@ class JobControl:
             f"with arguments {self._arguments} and template {self._template}"
         )
 
+    def is_initialized(self) -> bool:
+        return self.job_input is not None
+
     def get_initialized_job_input(self) -> IJobInput:
         """
         Get initialised IJobInput object for the current job if present
             :return:  an IJobInput object
         """
+        extra_plugins = []
+        if self._config:
+            extra_plugins += [CustomIPythonBasedConfiguration(self._config)]
+
         if not self.job_input:
             self.job = standalone_data_job.StandaloneDataJob(
                 name=self._name,
                 template_name=self._template,
                 job_args=self._arguments,
                 data_job_directory=self._path,
+                extra_plugins=extra_plugins,
             )
             self.job_input = self.job.__enter__()
         return self.job_input
@@ -86,10 +110,11 @@ def load_job(
     arguments: str = None,
     template: str = None,
     log_level_vdk: str = "WARNING",
+    config: dict[str, Any] = None,
 ):
     if log_level_vdk:
         logging.getLogger("vdk").setLevel(log_level_vdk)
-    job = JobControl(path, name, arguments, template)
+    job = JobControl(path, name, arguments, template, config)
     get_ipython().push(variables={"VDK": job})
 
     def finalize_atexit():
@@ -114,4 +139,7 @@ def magic_load_job(line: str):
     """
     # TODO: add extra-plugins option
     args = parse_argstring(magic_load_job, line)
-    load_job(args.path, args.name, args.arguments, args.template, args.log_level_vdk)
+    config = get_ipython().user_ns.get(VDK_CONFIG_IPYTHON_KEY, None)
+    load_job(
+        args.path, args.name, args.arguments, args.template, args.log_level_vdk, config
+    )
