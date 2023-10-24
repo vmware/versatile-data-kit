@@ -149,6 +149,7 @@ public class DeploymentServiceV2 {
     boolean sendNotification = Boolean.TRUE.equals(desiredJobDeployment.getUserInitiated());
 
     try {
+      log.trace("Starting deployment of job {}", desiredJobDeployment.getDataJobName());
       deploymentProgress.started(dataJob.getJobConfig(), desiredJobDeployment);
 
       if (desiredJobDeployment.getPythonVersion() == null) {
