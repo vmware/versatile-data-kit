@@ -15,7 +15,7 @@ class VdkBoundLogger(logging.LoggerAdapter):
     It is intended to be instantiated using the `bind_logger` function and providing it with the current
     log object and the additional context which will be included in dictionary form.
 
-    Example use:::
+    Example use::
 
         import logging
         from vdk.internal.builtin_plugins.config.log_config import bind_logger
