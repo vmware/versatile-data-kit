@@ -160,7 +160,8 @@ public class DeploymentServiceV2 {
           dockerRegistryService.dataJobImage(
               desiredJobDeployment.getDataJobName(), desiredJobDeployment.getGitCommitSha());
 
-      if (jobImageBuilder.buildImage(imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
+      if (jobImageBuilder.buildImage(
+          imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
         ActualDataJobDeployment actualJobDeploymentResult =
             jobImageDeployer.scheduleJob(
                 dataJob,

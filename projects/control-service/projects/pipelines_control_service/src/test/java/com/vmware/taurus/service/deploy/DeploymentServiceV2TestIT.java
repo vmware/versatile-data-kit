@@ -86,7 +86,8 @@ public class DeploymentServiceV2TestIT {
     DataJob dataJob = new DataJob();
     dataJob.setJobConfig(new JobConfig());
     Mockito.when(
-            jobImageBuilder.buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            jobImageBuilder.buildImage(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(false);
 
     deploymentService.updateDeployment(

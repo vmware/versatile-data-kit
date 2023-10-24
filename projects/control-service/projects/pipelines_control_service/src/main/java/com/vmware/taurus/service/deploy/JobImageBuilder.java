@@ -154,8 +154,11 @@ public class JobImageBuilder {
     }
 
     // Rebuild the image if the Python version changes but the gitCommitSha remains the same.
-    if ((actualDataJobDeployment == null || desiredDataJobDeployment.getPythonVersion().equals(actualDataJobDeployment.getPythonVersion())) &&
-            dockerRegistryService.dataJobImageExists(imageName, credentials)) {
+    if ((actualDataJobDeployment == null
+            || desiredDataJobDeployment
+                .getPythonVersion()
+                .equals(actualDataJobDeployment.getPythonVersion()))
+        && dockerRegistryService.dataJobImageExists(imageName, credentials)) {
       log.trace("Data Job image {} already exists and nothing else to do.", imageName);
       return true;
     }
@@ -193,7 +196,8 @@ public class JobImageBuilder {
             registryPassword,
             builderAwsSessionToken);
     var envs = getBuildParameters(dataJob, desiredDataJobDeployment);
-    String builderImage = supportedPythonVersions.getBuilderImage(desiredDataJobDeployment.getPythonVersion());
+    String builderImage =
+        supportedPythonVersions.getBuilderImage(desiredDataJobDeployment.getPythonVersion());
 
     log.info(
         "Creating builder job {} for data job version {}",

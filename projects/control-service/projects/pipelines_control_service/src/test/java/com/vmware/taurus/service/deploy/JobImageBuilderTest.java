@@ -144,7 +144,8 @@ public class JobImageBuilderTest {
     jobDeployment.setEnabled(true);
     jobDeployment.setPythonVersion("3.7");
 
-    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, null, true);
+    var result =
+        jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, null, true);
 
     verify(kubernetesService, times(2)).deleteJob(TEST_BUILDER_IMAGE_NAME);
     verify(kubernetesService)
@@ -180,7 +181,8 @@ public class JobImageBuilderTest {
     jobDeployment.setEnabled(true);
     jobDeployment.setPythonVersion("3.7");
 
-    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, null, true);
+    var result =
+        jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, null, true);
 
     verify(kubernetesService, never())
         .createJob(
@@ -340,9 +342,9 @@ public class JobImageBuilderTest {
 
   @Test
   public void buildImage_imageExistsAndEqualPythonVersions_shouldSkipBuild()
-          throws InterruptedException, ApiException, IOException {
+      throws InterruptedException, ApiException, IOException {
     when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
-            .thenReturn(true);
+        .thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -353,37 +355,39 @@ public class JobImageBuilderTest {
     ActualDataJobDeployment actualDataJobDeployment = new ActualDataJobDeployment();
     actualDataJobDeployment.setPythonVersion("3.7");
 
-    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, actualDataJobDeployment, true);
+    var result =
+        jobImageBuilder.buildImage(
+            TEST_IMAGE_NAME, testDataJob, jobDeployment, actualDataJobDeployment, true);
 
     verify(kubernetesService, never())
-            .createJob(
-                    anyString(),
-                    anyString(),
-                    anyBoolean(),
-                    anyBoolean(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyLong(),
-                    anyLong(),
-                    anyLong(),
-                    anyString(),
-                    anyString());
+        .createJob(
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            anyBoolean(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            anyString(),
+            anyString());
     verify(notificationHelper, never())
-            .verifyBuilderResult(anyString(), any(), any(), any(), anyString(), anyBoolean());
+        .verifyBuilderResult(anyString(), any(), any(), any(), anyString(), anyBoolean());
     Assertions.assertTrue(result);
   }
 
   @Test
   public void buildImage_imageExistsAndDifferentPythonVersions_shouldSucceed()
-          throws InterruptedException, ApiException, IOException {
+      throws InterruptedException, ApiException, IOException {
     when(kubernetesService.listJobs()).thenReturn(Collections.emptySet());
     var builderJobResult =
-            new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
+        new KubernetesService.JobStatusCondition(true, "type", "test-reason", "test-message", 0);
     when(kubernetesService.watchJob(any(), anyInt(), any())).thenReturn(builderJobResult);
     when(supportedPythonVersions.getJobBaseImage(any())).thenReturn("python:3.7-slim");
     when(supportedPythonVersions.getBuilderImage(any())).thenReturn(TEST_BUILDER_IMAGE_NAME);
@@ -397,26 +401,28 @@ public class JobImageBuilderTest {
     ActualDataJobDeployment actualDataJobDeployment = new ActualDataJobDeployment();
     actualDataJobDeployment.setPythonVersion("3.7");
 
-    var result = jobImageBuilder.buildImage(TEST_IMAGE_NAME, testDataJob, jobDeployment, actualDataJobDeployment, true);
+    var result =
+        jobImageBuilder.buildImage(
+            TEST_IMAGE_NAME, testDataJob, jobDeployment, actualDataJobDeployment, true);
 
     verify(kubernetesService)
-            .createJob(
-                    eq(TEST_BUILDER_JOB_NAME),
-                    eq(TEST_BUILDER_IMAGE_NAME),
-                    eq(false),
-                    eq(false),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    anyLong(),
-                    anyLong(),
-                    anyLong(),
-                    any(),
-                    any());
+        .createJob(
+            eq(TEST_BUILDER_JOB_NAME),
+            eq(TEST_BUILDER_IMAGE_NAME),
+            eq(false),
+            eq(false),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            anyLong(),
+            anyLong(),
+            anyLong(),
+            any(),
+            any());
 
     verify(kubernetesService).deleteJob(TEST_BUILDER_JOB_NAME);
     Assertions.assertTrue(result);
