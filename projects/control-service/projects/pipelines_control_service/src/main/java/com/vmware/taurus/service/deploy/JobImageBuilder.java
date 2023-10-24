@@ -237,6 +237,10 @@ public class JobImageBuilder {
           builderJobName, dataJob, jobDeployment, condition, logs, sendNotification);
     } else {
       log.info("Builder job {} finished successfully. Will delete it now", builderJobName);
+      log.info(
+          "Image {} has been built. Will now schedule job {} for execution",
+          imageName,
+          dataJob.getName());
       try {
         controlKubernetesService.deleteJob(builderJobName);
       } catch (Exception e) {

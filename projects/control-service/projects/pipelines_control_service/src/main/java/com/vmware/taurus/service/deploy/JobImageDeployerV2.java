@@ -90,7 +90,6 @@ public class JobImageDeployerV2 {
       String jobImageName) {
     Validate.notNull(desiredDataJobDeployment, "desiredDataJobDeployment should not be null");
     Validate.notNull(jobImageName, "Image name is expected in jobDeployment");
-    log.info("Update cron job for data job {}", dataJob.getName());
 
     try {
       return updateCronJob(
@@ -195,8 +194,6 @@ public class JobImageDeployerV2 {
       boolean isJobDeploymentPresentInKubernetes,
       String jobImageName)
       throws ApiException {
-    log.debug("Deploy cron job for data job {}", dataJob);
-
     String jobName = dataJob.getName();
     String desiredDataJobDeploymentName = getCronJobName(jobName);
     OffsetDateTime lastDeployedDate = OffsetDateTime.now();
@@ -218,12 +215,14 @@ public class JobImageDeployerV2 {
       if (actualDataJobDeployment == null
           || !desiredDeploymentVersionSha.equals(
               actualDataJobDeployment.getDeploymentVersionSha())) {
+        log.info("Starting deployment of job {}", jobName);
         dataJobsKubernetesService.updateCronJob(desiredCronJob);
         actualJobDeployment =
             DeploymentModelConverter.toActualJobDeployment(
                 desiredDataJobDeployment, desiredDeploymentVersionSha, lastDeployedDate);
       }
     } else {
+      log.info("Starting deployment of job {}", jobName);
       dataJobsKubernetesService.createCronJob(desiredCronJob);
       actualJobDeployment =
           DeploymentModelConverter.toActualJobDeployment(
