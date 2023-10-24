@@ -59,8 +59,15 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     var deployment = desiredDataJobDeployment.get();
 
     Assertions.assertEquals(DeploymentStatus.SUCCESS, deployment.getStatus());
-    Assertions.assertEquals("15 10 * * *", deployment.getSchedule());
+    Assertions.assertEquals(TEST_JOB_SCHEDULE, deployment.getSchedule());
     Assertions.assertEquals("test-team", deployment.getDataJob().getJobConfig().getTeam());
+    Assertions.assertTrue(deployment.getEnabled());
+    Assertions.assertEquals(testJobName, deployment.getDataJobName());
+    Assertions.assertTrue(deployment.getUserInitiated());
+
+    Assertions.assertNotNull(deployment.getGitCommitSha());
+    Assertions.assertNotNull(deployment.getPythonVersion());
+    Assertions.assertNotNull(deployment.getResources());
   }
 
   private void checkActualDeployment(Optional<ActualDataJobDeployment> actualDataJobDeployment) {
@@ -69,7 +76,14 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
 
     Assertions.assertEquals("user", deployment.getLastDeployedBy());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
-    Assertions.assertTrue(deployment.getLastDeployedDate() != null);
+    Assertions.assertNotNull(deployment.getLastDeployedDate());
+    Assertions.assertTrue(deployment.getEnabled());
+    Assertions.assertEquals(testJobName, deployment.getDataJobName());
+    Assertions.assertEquals(TEST_JOB_SCHEDULE, deployment.getSchedule());
+    Assertions.assertNotNull(deployment.getPythonVersion());
+    Assertions.assertNotNull(deployment.getResources());
+    Assertions.assertEquals(1, deployment.getResources().getMemoryRequestMi());
+    Assertions.assertNotNull(deployment.getGitCommitSha());
   }
 
   private void checkDesiredDeploymentDeleted(
