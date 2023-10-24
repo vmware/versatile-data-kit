@@ -158,6 +158,7 @@ public class DeploymentServiceTest {
             TEST_JOB_IMAGE_NAME,
             testDataJob,
             DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            null,
             true))
         .thenReturn(true);
 
@@ -170,6 +171,7 @@ public class DeploymentServiceTest {
             TEST_JOB_IMAGE_NAME,
             testDataJob,
             DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            null,
             true);
     verify(kubernetesService)
         .createCronJob(
@@ -207,6 +209,7 @@ public class DeploymentServiceTest {
             TEST_JOB_IMAGE_NAME,
             testDataJob,
             DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            null,
             true))
         .thenReturn(true);
     when(kubernetesService.listCronJobs()).thenReturn(Set.of(TEST_CRONJOB_NAME));
@@ -220,6 +223,7 @@ public class DeploymentServiceTest {
             TEST_JOB_IMAGE_NAME,
             testDataJob,
             DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            null,
             true);
     verify(kubernetesService)
         .updateCronJob(
@@ -254,6 +258,7 @@ public class DeploymentServiceTest {
             TEST_JOB_IMAGE_NAME,
             testDataJob,
             DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            null,
             true))
         .thenReturn(false);
 
@@ -266,6 +271,7 @@ public class DeploymentServiceTest {
             TEST_JOB_IMAGE_NAME,
             testDataJob,
             DeploymentModelConverter.toDesiredDataJobDeployment(jobDeployment),
+            null,
             true);
     verify(kubernetesService, never())
         .updateCronJob(
