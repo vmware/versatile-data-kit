@@ -134,10 +134,10 @@ public class JobImageBuilder {
     String builderAwsSessionToken = credentials.awsSessionToken();
     String awsRegion = credentials.region();
 
-    log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
+    log.trace("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
     if (!StringUtils.isBlank(registryType)) {
       if (unsupportedRegistryType(registryType)) {
-        log.debug(
+        log.warn(
             String.format(
                 "Unsupported registry type: %s available options %s/%s",
                 registryType, REGISTRY_TYPE_ECR, REGISTRY_TYPE_GENERIC));
@@ -151,7 +151,7 @@ public class JobImageBuilder {
     }
 
     if (dockerRegistryService.dataJobImageExists(imageName, credentials)) {
-      log.debug("Data Job image {} already exists and nothing else to do.", imageName);
+      log.trace("Data Job image {} already exists and nothing else to do.", imageName);
       return true;
     }
 
