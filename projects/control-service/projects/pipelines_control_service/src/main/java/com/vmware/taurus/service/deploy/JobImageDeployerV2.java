@@ -90,6 +90,7 @@ public class JobImageDeployerV2 {
       String jobImageName) {
     Validate.notNull(desiredDataJobDeployment, "desiredDataJobDeployment should not be null");
     Validate.notNull(jobImageName, "Image name is expected in jobDeployment");
+    log.trace("Update cron job for data job {}", dataJob.getName());
 
     try {
       return updateCronJob(
