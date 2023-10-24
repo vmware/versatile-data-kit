@@ -77,4 +77,9 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.vdk_version", is("release")));
   }
+
+  @Override
+  protected void afterDeploymentDeletion() {
+    // do nothing.
+  }
 }

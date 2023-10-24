@@ -39,6 +39,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
   protected static final Object DEPLOYMENT_ID = "testing";
 
   protected abstract void beforeDeploymentDeletion() throws Exception;
+  protected abstract void afterDeploymentDeletion() throws Exception;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -302,6 +303,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
 
     // Verify deployment deleted
     waitUntil(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
+    afterDeploymentDeletion();
   }
 
   @AfterEach
