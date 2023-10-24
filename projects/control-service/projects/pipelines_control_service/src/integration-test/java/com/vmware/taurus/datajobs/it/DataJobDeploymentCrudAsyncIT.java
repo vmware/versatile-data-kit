@@ -22,22 +22,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @TestPropertySource(
     properties = {
-        "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-        "datajobs.deployment.configuration.persistence.writeTos=DB",
-        "datajobs.deployment.configuration.synchronization.task.enabled=true",
-        "datajobs.deployment.configuration.synchronization.task.interval.ms=1000",
-        "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=0"
+      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+      "datajobs.deployment.configuration.persistence.writeTos=DB",
+      "datajobs.deployment.configuration.synchronization.task.enabled=true",
+      "datajobs.deployment.configuration.synchronization.task.interval.ms=1000",
+      "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=0"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
 
-  @Autowired
-  private DesiredJobDeploymentRepository desiredJobDeploymentRepository;
-  @Autowired
-  private ActualJobDeploymentRepository actualJobDeploymentRepository;
-
+  @Autowired private DesiredJobDeploymentRepository desiredJobDeploymentRepository;
+  @Autowired private ActualJobDeploymentRepository actualJobDeploymentRepository;
 
   @Override
   protected void beforeDeploymentDeletion() {
@@ -73,14 +70,15 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertEquals("user", deployment.getLastDeployedBy());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertTrue(deployment.getLastDeployedDate() != null);
-
   }
 
-  private void checkDesiredDeploymentDeleted(Optional<DesiredDataJobDeployment> desiredDataJobDeployment){
+  private void checkDesiredDeploymentDeleted(
+      Optional<DesiredDataJobDeployment> desiredDataJobDeployment) {
     Assertions.assertFalse(desiredDataJobDeployment.isPresent());
   }
 
-  private void checkActualDeploymentDeleted(Optional<ActualDataJobDeployment> actualDataJobDeployment){
+  private void checkActualDeploymentDeleted(
+      Optional<ActualDataJobDeployment> actualDataJobDeployment) {
     Assertions.assertFalse(actualDataJobDeployment.isPresent());
   }
 }
