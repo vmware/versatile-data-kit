@@ -61,7 +61,7 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertEquals(DeploymentStatus.SUCCESS, deployment.getStatus());
     Assertions.assertEquals(TEST_JOB_SCHEDULE, deployment.getSchedule());
     Assertions.assertEquals("test-team", deployment.getDataJob().getJobConfig().getTeam());
-    Assertions.assertTrue(deployment.getEnabled());
+    Assertions.assertFalse(deployment.getEnabled());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertTrue(deployment.getUserInitiated());
 
@@ -77,7 +77,7 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertEquals("user", deployment.getLastDeployedBy());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertNotNull(deployment.getLastDeployedDate());
-    Assertions.assertTrue(deployment.getEnabled());
+    Assertions.assertFalse(deployment.getEnabled());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertEquals(TEST_JOB_SCHEDULE, deployment.getSchedule());
     Assertions.assertNotNull(deployment.getPythonVersion());
