@@ -1,8 +1,8 @@
 # Introduction
 
-Welcome to the Versatile Data Kit (VDK) Data Ingestion and Anonymization Plugin Workshop! 
+Welcome to the Versatile Data Kit (VDK) Data Ingestion and Anonymization Plugin Workshop!
 
-This workshop is designed to guide you through the process of ingesting data and creating a configurable plugin to anonymize data before ingesting it into a database. 
+This workshop is designed to guide you through the process of ingesting data and creating a configurable plugin to anonymize data before ingesting it into a database.
 Whether you're a data engineer, developer, or simply curious about data ingestion and data anonymization, this workshop offers valuable hands-on experience.
 
 # Prerequisites
