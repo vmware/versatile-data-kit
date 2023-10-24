@@ -18,13 +18,9 @@ import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import io.kubernetes.client.openapi.ApiException;
 import org.apache.commons.io.IOUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -132,8 +128,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     Assertions.assertNotNull(testDataJobVersion);
     String testJobVersionSha = testDataJobVersion.getVersionSha();
     Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
-    desiredDataJobDeployment =
-        createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
+    desiredDataJobDeployment = createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
     dataJob = jobsRepository.findById(testJobName).get();
   }
 
@@ -163,8 +158,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     dataJobsSynchronizer.synchronizeDataJob(
         dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
     actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
-    deploymentVersionShaShouldNotBeChanged =
-        actualDataJobDeployment.getDeploymentVersionSha();
+    deploymentVersionShaShouldNotBeChanged = actualDataJobDeployment.getDeploymentVersionSha();
     OffsetDateTime lastDeployedDateShouldNotBeChanged =
         actualDataJobDeployment.getLastDeployedDate();
     Assertions.assertEquals(deploymentVersionShaInitial, deploymentVersionShaShouldNotBeChanged);
