@@ -12,14 +12,14 @@ class VdkBoundLogger(logging.LoggerAdapter):
     It is intended to be instantiated using the `bind_logger` function and providing it with the current
     log object and the additional context which will be included in dictionary form.
 
-    Example use:
+    Example use:::
 
-    import logging
-    from vdk.internal.builtin_plugins.config.log_config import bind_logger
+        import logging
+        from vdk.internal.builtin_plugins.config.log_config import bind_logger
 
-    bound_logger = bind_logger(logging.getLogger(__name__), {"logger_wide_bound_key": "logger_wide_bound_value"})
-    bound.warning("From vdk_initialize", extra={"first_key": "first_value"})
-    bound.warning("Something else from vdk_initialize")
+        bound_logger = bind_logger(logging.getLogger(__name__), {"logger_wide_bound_key": "logger_wide_bound_value"})
+        bound.warning("From vdk_initialize", extra={"first_key": "first_value"})
+        bound.warning("Something else from vdk_initialize")
 
     Now, the LogRecord produced by the first log statement will have both
     "logger_wide_bound_key": "logger_wide_bound_value" and "first_key": "first_value" included in its __dict__,
@@ -28,7 +28,7 @@ class VdkBoundLogger(logging.LoggerAdapter):
     Note that these will not be automatically included in the output log and must be processed downstream by
     something like vdk-structlog.
     """
-    def process(self, msg, kwargs):
+    def process(self, msg: str, kwargs: dict):
         # merge bound extra dict with existing extra dict if any
         if "extra" in kwargs:
             kwargs["extra"] = {**self.extra, **kwargs["extra"]}
@@ -37,7 +37,7 @@ class VdkBoundLogger(logging.LoggerAdapter):
         return msg, kwargs
 
 
-def bind_logger(log, context):
+def bind_logger(log: logging.Logger, context: dict):
     """
     Instantiates a VdkBoundLogger object.
 
