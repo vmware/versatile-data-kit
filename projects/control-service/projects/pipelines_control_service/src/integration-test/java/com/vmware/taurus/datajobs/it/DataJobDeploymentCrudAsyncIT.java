@@ -59,7 +59,7 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     var deployment = desiredDataJobDeployment.get();
 
     Assertions.assertEquals(DeploymentStatus.SUCCESS, deployment.getStatus());
-    Assertions.assertEquals("5 4 * 12 *", deployment.getSchedule());
+    Assertions.assertEquals("15 10 * * *", deployment.getSchedule());
     Assertions.assertEquals("supercollider", deployment.getDataJob().getJobConfig().getTeam());
   }
 
