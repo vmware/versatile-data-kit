@@ -11,10 +11,19 @@ from jupyter_server.utils import url_path_join
 from . import VdkJupyterConfig
 from .job_data import JobDataLoader
 from .oauth2 import OAuth2Handler
+from .task_runner import TaskRunner
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
 
 log = logging.getLogger(__name__)
+task_runner = TaskRunner()
+
+
+class GetTaskStatusHandler(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        status = task_runner.get_status()
+        self.finish(json.dumps(status))
 
 
 class LoadJobDataHandler(APIHandler):
@@ -64,11 +73,27 @@ class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        run_result = VdkUI.run_job(
-            input_data[VdkOption.PATH.value],
-            input_data[VdkOption.ARGUMENTS.value],
+        task_started = task_runner.start_task(
+            "RUN",
+            lambda: VdkUI.run_job(
+                input_data[VdkOption.PATH.value],
+                input_data[VdkOption.ARGUMENTS.value],
+            ),
         )
-        self.finish(json.dumps(run_result))
+
+        if task_started:
+            # status_msg = task_runner.get_status()["message"]
+            # self.finish(json.dumps({"message": status_msg, "error": ""}))
+            self.finish(json.dumps({"message": "Task started", "error": ""}))
+        else:
+            self.finish(
+                json.dumps(
+                    {
+                        "message": "Task failed to start",
+                        "error": "Another task is already running",
+                    }
+                )
+            )
 
 
 class DeleteJobHandler(APIHandler):
@@ -103,15 +128,26 @@ class DownloadJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        try:
-            status = VdkUI.download_job(
+        task_started = task_runner.start_task(
+            "DOWNLOAD",
+            lambda: VdkUI.download_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
+            ),
+        )
+
+        if task_started:
+            self.finish(json.dumps({"message": "Task started", "error": ""}))
+        else:
+            self.finish(
+                json.dumps(
+                    {
+                        "message": "Task failed to start",
+                        "error": "Another task is already running",
+                    }
+                )
             )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class ConvertJobHandler(APIHandler):
@@ -123,11 +159,21 @@ class ConvertJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        try:
-            message = json.dumps(VdkUI.convert_job(input_data[VdkOption.PATH.value]))
-            self.finish(json.dumps({"message": f"{message}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+        task_started = task_runner.start_task(
+            "CONVERT", lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value])
+        )
+
+        if task_started:
+            self.finish(json.dumps({"message": "Task started", "error": ""}))
+        else:
+            self.finish(
+                json.dumps(
+                    {
+                        "message": "Task failed to start",
+                        "error": "Another task is already running",
+                    }
+                )
+            )
 
 
 class CreateJobHandler(APIHandler):
@@ -143,15 +189,26 @@ class CreateJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        try:
-            status = VdkUI.create_job(
+        task_started = task_runner.start_task(
+            "CREATE_JOB",
+            lambda: VdkUI.create_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
+            ),
+        )
+
+        if task_started:
+            self.finish(json.dumps({"message": "Task started", "error": ""}))
+        else:
+            self.finish(
+                json.dumps(
+                    {
+                        "message": "Task failed to start",
+                        "error": "Another task is already running",
+                    }
+                )
             )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class CreateDeploymentHandler(APIHandler):
@@ -166,16 +223,27 @@ class CreateDeploymentHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        try:
-            status = VdkUI.create_deployment(
+        task_started = task_runner.start_task(
+            "CREATE_DEPLOYMENT",
+            lambda: VdkUI.create_deployment(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
                 input_data[VdkOption.DEPLOYMENT_REASON.value],
+            ),
+        )
+
+        if task_started:
+            self.finish(json.dumps({"message": "Task started", "error": ""}))
+        else:
+            self.finish(
+                json.dumps(
+                    {
+                        "message": "Task failed to start",
+                        "error": "Another task is already running",
+                    }
+                )
             )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class GetNotebookInfoHandler(APIHandler):
@@ -217,6 +285,7 @@ def setup_handlers(web_app, vdk_config: VdkJupyterConfig):
         web_app.add_handlers(host_pattern, job_handlers)
 
     add_handler(OAuth2Handler, "login", {"vdk_config": vdk_config})
+    add_handler(GetTaskStatusHandler, "taskStatus")
     add_handler(RunJobHandler, "run")
     add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")

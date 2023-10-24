@@ -244,3 +244,28 @@ export async function getServerDirRequest(): Promise<string> {
     return '';
   }
 }
+
+export async function getTaskStatusRequest(): Promise<any> {
+  try {
+    const data = await requestAPI<any>('taskStatus', {
+      method: 'GET'
+    });
+
+    if (data) {
+      return data;
+    } else {
+      await showErrorMessage(
+        'Encountered an error while trying to get the task status. Error: status cannot be identified!',
+        [Dialog.okButton()]
+      );
+      return null;
+    }
+  } catch (error) {
+    await showErrorMessage(
+      'Encountered an error while trying to get the task status.',
+      [Dialog.okButton()]
+    );
+    console.error(error);
+    return null;
+  }
+}
