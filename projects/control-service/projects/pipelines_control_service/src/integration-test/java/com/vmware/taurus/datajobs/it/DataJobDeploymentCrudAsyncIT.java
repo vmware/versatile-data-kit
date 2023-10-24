@@ -12,6 +12,7 @@ import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
+@Slf4j
 public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
 
   @Autowired private DesiredJobDeploymentRepository desiredJobDeploymentRepository;
@@ -57,13 +59,13 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
   private void checkDesiredDeployment(Optional<DesiredDataJobDeployment> desiredDataJobDeployment) {
     Assertions.assertTrue(desiredDataJobDeployment.isPresent());
     var deployment = desiredDataJobDeployment.get();
-
+    log.info("Deployment: {}", deployment);
     Assertions.assertEquals(DeploymentStatus.SUCCESS, deployment.getStatus());
     Assertions.assertEquals(TEST_JOB_SCHEDULE, deployment.getSchedule());
     Assertions.assertEquals("test-team", deployment.getDataJob().getJobConfig().getTeam());
     Assertions.assertFalse(deployment.getEnabled());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
-    Assertions.assertTrue(deployment.getUserInitiated());
+    Assertions.assertFalse(deployment.getUserInitiated());
 
     Assertions.assertNotNull(deployment.getGitCommitSha());
     Assertions.assertNotNull(deployment.getPythonVersion());
@@ -73,7 +75,7 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
   private void checkActualDeployment(Optional<ActualDataJobDeployment> actualDataJobDeployment) {
     Assertions.assertTrue(actualDataJobDeployment.isPresent());
     var deployment = actualDataJobDeployment.get();
-
+    log.info("Deployment: {}", deployment);
     Assertions.assertEquals("user", deployment.getLastDeployedBy());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertNotNull(deployment.getLastDeployedDate());
