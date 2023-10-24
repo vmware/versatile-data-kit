@@ -11,6 +11,7 @@ import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import io.kubernetes.client.openapi.ApiException;
@@ -113,7 +114,8 @@ public class JobImageBuilder {
    *
    * @param imageName Full name of the image to build.
    * @param dataJob Information about the data job.
-   * @param jobDeployment Information about the data job deployment.
+   * @param desiredDataJobDeployment Information about the desired data job deployment.
+   * @param actualDataJobDeployment Information about the actual data job deployment.
    * @param sendNotification
    * @return True if build and push was successful. False otherwise.
    * @throws ApiException
@@ -123,7 +125,8 @@ public class JobImageBuilder {
   public boolean buildImage(
       String imageName,
       DataJob dataJob,
-      DesiredDataJobDeployment jobDeployment,
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      ActualDataJobDeployment actualDataJobDeployment,
       Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
     // TODO: refactor and hide AWS details behind DockerRegistryService?
@@ -145,17 +148,22 @@ public class JobImageBuilder {
       }
     }
 
-    if (jobDeployment.getPythonVersion() == null) {
+    if (desiredDataJobDeployment.getPythonVersion() == null) {
       log.warn("Missing pythonVersion. Data Job cannot be deployed.");
       return false;
     }
 
-    if (dockerRegistryService.dataJobImageExists(imageName, credentials)) {
+    // Rebuild the image if the Python version changes but the gitCommitSha remains the same.
+    if ((actualDataJobDeployment == null
+            || desiredDataJobDeployment
+                .getPythonVersion()
+                .equals(actualDataJobDeployment.getPythonVersion()))
+        && dockerRegistryService.dataJobImageExists(imageName, credentials)) {
       log.trace("Data Job image {} already exists and nothing else to do.", imageName);
       return true;
     }
 
-    String builderJobName = getBuilderJobName(jobDeployment.getDataJobName());
+    String builderJobName = getBuilderJobName(desiredDataJobDeployment.getDataJobName());
 
     log.debug("Check if old builder job {} exists", builderJobName);
     if (controlKubernetesService.listJobs().contains(builderJobName)) {
@@ -187,13 +195,14 @@ public class JobImageBuilder {
             registryUsername,
             registryPassword,
             builderAwsSessionToken);
-    var envs = getBuildParameters(dataJob, jobDeployment);
-    String builderImage = supportedPythonVersions.getBuilderImage(jobDeployment.getPythonVersion());
+    var envs = getBuildParameters(dataJob, desiredDataJobDeployment);
+    String builderImage =
+        supportedPythonVersions.getBuilderImage(desiredDataJobDeployment.getPythonVersion());
 
     log.info(
         "Creating builder job {} for data job version {}",
         builderJobName,
-        jobDeployment.getGitCommitSha());
+        desiredDataJobDeployment.getGitCommitSha());
     controlKubernetesService.createJob(
         builderJobName,
         builderImage,
@@ -215,7 +224,7 @@ public class JobImageBuilder {
     log.debug(
         "Waiting for builder job {} for data job version {}",
         builderJobName,
-        jobDeployment.getGitCommitSha());
+        desiredDataJobDeployment.getGitCommitSha());
 
     var condition =
         controlKubernetesService.watchJob(
@@ -234,7 +243,7 @@ public class JobImageBuilder {
     }
     if (!condition.isSuccess()) {
       notificationHelper.verifyBuilderResult(
-          builderJobName, dataJob, jobDeployment, condition, logs, sendNotification);
+          builderJobName, dataJob, desiredDataJobDeployment, condition, logs, sendNotification);
     } else {
       log.info("Builder job {} finished successfully. Will delete it now", builderJobName);
       log.info(
