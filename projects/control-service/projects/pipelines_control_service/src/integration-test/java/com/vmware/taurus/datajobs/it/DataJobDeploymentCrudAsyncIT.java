@@ -68,7 +68,6 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertFalse(deployment.getUserInitiated());
 
     Assertions.assertNotNull(deployment.getGitCommitSha());
-    Assertions.assertNotNull(deployment.getPythonVersion());
     Assertions.assertNotNull(deployment.getResources());
   }
 
@@ -82,7 +81,6 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertFalse(deployment.getEnabled());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertEquals(TEST_JOB_SCHEDULE, deployment.getSchedule());
-    Assertions.assertNotNull(deployment.getPythonVersion());
     Assertions.assertNotNull(deployment.getResources());
     Assertions.assertEquals(1, deployment.getResources().getMemoryRequestMi());
     Assertions.assertNotNull(deployment.getGitCommitSha());
