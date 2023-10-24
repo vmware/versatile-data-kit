@@ -206,6 +206,12 @@ class JobController:
             if not deployments:
                 log.info("No deployments so far. Will wait 30 seconds and try again.")
                 time.sleep(30)
+            elif deployments[0]["enabled"] != enabled:
+                log.info(
+                    "Job deployment should be disabled, but is still enabled. Will wait for 30 seconds and try again."
+                )
+                time.sleep(30)
+                deployments = None
         assert deployments, f"Job {self.config.job_name} deployment is missing"
         assert (
             deployments[0]["enabled"] == enabled
