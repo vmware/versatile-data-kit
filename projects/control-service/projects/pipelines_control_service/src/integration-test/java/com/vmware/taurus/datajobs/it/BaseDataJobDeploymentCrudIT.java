@@ -111,7 +111,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
 
     // Setup
-    String dataJobDeploymentRequestBody = getDataJobDeploymentRequestBody(testJobVersionSha);
+    String dataJobDeploymentRequestBody = getDataJobDeploymentRequestBody(testJobVersionSha, "3.9");
 
     // Execute job upload with wrong team name and user
     mockMvc
