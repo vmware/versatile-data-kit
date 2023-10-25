@@ -88,10 +88,8 @@ class StepFuncFactory:
                         [
                             "Failed loading job sources of %s" % filename,
                             errors.MSG_WHY_FROM_EXCEPTION(e),
-                            errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-                            + " Most likely importing a dependency or data job step failed, see"
-                            + " logs for details and fix the failed step (details in stacktrace).",
+                            " Most likely importing a dependency or data job step failed, see"
+                            + " logs for details and fix the failed step.",
                         ]
                     )
                 )

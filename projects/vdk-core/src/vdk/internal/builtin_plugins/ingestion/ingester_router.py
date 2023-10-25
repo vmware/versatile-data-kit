@@ -87,7 +87,6 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 VdkConfigurationError(
                     "Provided method, {method}, has invalid value.",
                     "VDK was run with method={method}, however {method} is not part of the available ingestion mechanisms.",
-                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                     f"Provide either valid value for method, or install ingestion plugin that supports this type. "
                     f"Currently possible values are {list(self._ingester_builders.keys())}",
                 )
@@ -177,7 +176,6 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 VdkConfigurationError(
                     f"Could not create new ingester plugin of type {method}.",
                     f"VDK was run with method={method}, however no valid ingester plugin was created.",
-                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                     f"Seems to be a bug in the plugin for method {method}. Make sure it's correctly installed. "
                     f"If upgraded recently consider reverting to previous version. Or use another method type.",
                 )
@@ -223,7 +221,6 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                     f"VDK was run with method={method}, however "
                     "no valid ingestion processor plugin was "
                     "created.",
-                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                     "Seems to be a bug in the plugin for method"
                     f" {method}. Make sure it's correctly "
                     f"installed. If upgraded recently, consider"
@@ -257,9 +254,6 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 f"On close some following ingest queues types reported errors:  {list(errors_list.keys())}.",
                 f"There were errors while closing ingestion. Exceptions were: {errors_list}.",
                 "Some data was partially ingested or not ingested at all.",
-                "Follow the instructions in the error messages and log warnings. "
-                "Make sure to inspect any errors or warning logs generated"
-                "Re-try the job if necessary",
             ]
 
             if any(
