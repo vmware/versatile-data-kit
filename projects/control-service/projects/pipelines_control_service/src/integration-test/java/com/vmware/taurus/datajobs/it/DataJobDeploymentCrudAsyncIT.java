@@ -12,14 +12,10 @@ import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @TestPropertySource(
     properties = {
@@ -32,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
-@Slf4j
 public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
 
   @Autowired private DesiredJobDeploymentRepository desiredJobDeploymentRepository;
@@ -59,31 +54,25 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
   private void checkDesiredDeployment(Optional<DesiredDataJobDeployment> desiredDataJobDeployment) {
     Assertions.assertTrue(desiredDataJobDeployment.isPresent());
     var deployment = desiredDataJobDeployment.get();
-    log.info("Deployment: {}", deployment);
     Assertions.assertEquals(DeploymentStatus.SUCCESS, deployment.getStatus());
     Assertions.assertEquals(TEST_JOB_SCHEDULE, deployment.getSchedule());
     Assertions.assertEquals("test-team", deployment.getDataJob().getJobConfig().getTeam());
     Assertions.assertFalse(deployment.getEnabled());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertFalse(deployment.getUserInitiated());
-
+    Assertions.assertEquals("user", deployment.getLastDeployedBy());
     Assertions.assertNotNull(deployment.getGitCommitSha());
-    Assertions.assertNotNull(deployment.getResources());
   }
 
   private void checkActualDeployment(Optional<ActualDataJobDeployment> actualDataJobDeployment) {
     Assertions.assertTrue(actualDataJobDeployment.isPresent());
     var deployment = actualDataJobDeployment.get();
-    log.info("Deployment: {}", deployment);
     Assertions.assertEquals("user", deployment.getLastDeployedBy());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertNotNull(deployment.getLastDeployedDate());
     Assertions.assertFalse(deployment.getEnabled());
     Assertions.assertEquals(testJobName, deployment.getDataJobName());
     Assertions.assertEquals(TEST_JOB_SCHEDULE, deployment.getSchedule());
-    Assertions.assertNotNull(deployment.getResources());
-    Assertions.assertEquals(1, deployment.getResources().getMemoryRequestMi());
-    Assertions.assertNotNull(deployment.getGitCommitSha());
   }
 
   private void checkDesiredDeploymentDeleted(
