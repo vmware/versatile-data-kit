@@ -88,3 +88,14 @@ def test_run_job_with_cancelled_template():
     assert "Step Cancel 3." not in result.output
 
     cli_assert_equal(0, result)
+
+
+def test_exception_propagated_to_user():
+    test_runner = CliEntryBasedTestRunner(
+        TemplatePlugin("csv-risky", pathlib.Path(util.job_path("template-csv-risky")))
+    )
+    result: Result = test_runner.invoke(
+        ["run", util.job_path("job-using-risky-templates")]
+    )
+    cli_assert_equal(0, result)
+    assert "Handling empty data error" in result.output

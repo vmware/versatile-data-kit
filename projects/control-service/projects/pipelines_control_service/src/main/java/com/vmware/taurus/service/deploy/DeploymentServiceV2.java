@@ -149,6 +149,7 @@ public class DeploymentServiceV2 {
     boolean sendNotification = Boolean.TRUE.equals(desiredJobDeployment.getUserInitiated());
 
     try {
+      log.trace("Starting deployment of job {}", desiredJobDeployment.getDataJobName());
       deploymentProgress.started(dataJob.getJobConfig(), desiredJobDeployment);
 
       if (desiredJobDeployment.getPythonVersion() == null) {
@@ -159,7 +160,8 @@ public class DeploymentServiceV2 {
           dockerRegistryService.dataJobImage(
               desiredJobDeployment.getDataJobName(), desiredJobDeployment.getGitCommitSha());
 
-      if (jobImageBuilder.buildImage(imageName, dataJob, desiredJobDeployment, sendNotification)) {
+      if (jobImageBuilder.buildImage(
+          imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
         ActualDataJobDeployment actualJobDeploymentResult =
             jobImageDeployer.scheduleJob(
                 dataJob,

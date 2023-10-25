@@ -35,11 +35,11 @@ repos:
         args: # http://www.pydocstyle.org/en/stable/error_codes.html --convention=pep257 seems too much?
           - --select=D101,D103,D300
           - --match='(?!test_).*\.py'
-  - repo: https://github.com/pre-commit/mirrors-pylint
-    rev: 'v3.0.0a5'
-    hooks:
-      - id: pylint
-        args: [ --exit-zero ]
+  #- repo: https://github.com/pre-commit/mirrors-pylint
+  #  rev: 'v3.0.0a5'
+  #  hooks:
+  #    - id: pylint
+  #      args: [ --exit-zero ]
   #-   repo: https://github.com/pre-commit/mirrors-mypy
   #    rev: v0.812
   #    hooks:
