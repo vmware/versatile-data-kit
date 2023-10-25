@@ -215,7 +215,9 @@ public class GraphQLDataFetchers {
   private List<V2DataJob> populateDeployments(
       List<V2DataJob> allDataJob, Map<String, DataJob> dataJobs) {
     Map<String, JobDeploymentStatus> deploymentStatuses =
-            (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) ? readJobDeploymentsFromDb() : readJobDeploymentsFromK8s();
+        (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB))
+            ? readJobDeploymentsFromDb()
+            : readJobDeploymentsFromK8s();
 
     allDataJob.forEach(
         dataJob -> {
@@ -236,22 +238,22 @@ public class GraphQLDataFetchers {
 
   private Map<String, JobDeploymentStatus> readJobDeploymentsFromK8s() {
     return deploymentService.readDeployments().stream()
-            .collect(Collectors.toMap(JobDeploymentStatus::getDataJobName, cronJob -> cronJob));
+        .collect(Collectors.toMap(JobDeploymentStatus::getDataJobName, cronJob -> cronJob));
   }
 
   private Map<String, JobDeploymentStatus> readJobDeploymentsFromDb() {
-    var deployments = StreamSupport.stream(actualJobDeploymentRepository.findAll().spliterator(), false)
-            .collect(Collectors.toMap(ActualDataJobDeployment::getDataJobName,
-                    cronjob -> cronjob));
+    var deployments =
+        StreamSupport.stream(actualJobDeploymentRepository.findAll().spliterator(), false)
+            .collect(Collectors.toMap(ActualDataJobDeployment::getDataJobName, cronjob -> cronjob));
 
     return deployments.entrySet().stream()
-            .collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    entry -> convertToJobDeploymentStatus(entry.getValue())
-            ));
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, entry -> convertToJobDeploymentStatus(entry.getValue())));
   }
 
-  private JobDeploymentStatus convertToJobDeploymentStatus(ActualDataJobDeployment deploymentStatus) {
+  private JobDeploymentStatus convertToJobDeploymentStatus(
+      ActualDataJobDeployment deploymentStatus) {
     JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
     jobDeploymentStatus.setDataJobName(deploymentStatus.getDataJobName());
     jobDeploymentStatus.setPythonVersion(deploymentStatus.getPythonVersion());
@@ -260,7 +262,8 @@ public class GraphQLDataFetchers {
     jobDeploymentStatus.setLastDeployedBy(deploymentStatus.getLastDeployedBy());
     jobDeploymentStatus.setLastDeployedDate(deploymentStatus.getLastDeployedDate().toString());
     jobDeploymentStatus.setResources(getDataJobResources(deploymentStatus.getResources()));
-    // The ActualDataJobDeployment does not have a mode attribute, which is required by the JobDeploymentStatus,
+    // The ActualDataJobDeployment does not have a mode attribute, which is required by the
+    // JobDeploymentStatus,
     // so we need to set something in order to avoid errors.
     jobDeploymentStatus.setMode("release");
 

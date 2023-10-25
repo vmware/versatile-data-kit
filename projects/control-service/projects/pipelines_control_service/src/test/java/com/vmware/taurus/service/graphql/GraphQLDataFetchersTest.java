@@ -81,7 +81,12 @@ class GraphQLDataFetchersTest {
         new JobFieldStrategyFactory(collectSupportedFieldStrategies());
     GraphQLDataFetchers graphQLDataFetchers =
         new GraphQLDataFetchers(
-            strategyFactory, jobsRepository, deploymentService, executionDataFetcher, actualJobDeploymentRepository, dataJobDeploymentPropertiesConfig);
+            strategyFactory,
+            jobsRepository,
+            deploymentService,
+            executionDataFetcher,
+            actualJobDeploymentRepository,
+            dataJobDeploymentPropertiesConfig);
     findDataJobs = graphQLDataFetchers.findAllAndBuildDataJobPage();
   }
 
@@ -257,7 +262,7 @@ class GraphQLDataFetchersTest {
     when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
     when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath()))
-            .thenReturn(true);
+        .thenReturn(true);
 
     DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
 
@@ -271,10 +276,10 @@ class GraphQLDataFetchersTest {
     var job4 = (V2DataJob) dataJobPage.getContent().get(3);
     assertThat(job4.getDeployments()).hasSize(1);
     assertThat(job4.getDeployments().get(0).getLastExecutionStatus())
-            .isEqualTo(DataJobExecution.StatusEnum.SUCCEEDED);
+        .isEqualTo(DataJobExecution.StatusEnum.SUCCEEDED);
     assertThat(job4.getDeployments().get(0).getLastExecutionTime())
-            .isEqualTo(OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
-    assertThat(job4.getDeployments().get(0).getLastExecutionDuration()).isEqualTo(1000);
+            .isNull();
+    assertThat(job4.getDeployments().get(0).getLastExecutionDuration()).isEqualTo(0);
     assertThat(job4.getDeployments().get(0).getJobPythonVersion()).isEqualTo("3.9-secure");
   }
 
@@ -500,12 +505,14 @@ class GraphQLDataFetchersTest {
     return status;
   }
 
-  private ActualDataJobDeployment mockSampleActualJobDeployment(String jobName, boolean enabled, String pythonVersion) {
+  private ActualDataJobDeployment mockSampleActualJobDeployment(
+      String jobName, boolean enabled, String pythonVersion) {
     ActualDataJobDeployment actualJobDeployment = new ActualDataJobDeployment();
     actualJobDeployment.setDataJobName(jobName);
     actualJobDeployment.setEnabled(enabled);
     actualJobDeployment.setPythonVersion(pythonVersion);
-    actualJobDeployment.setLastDeployedDate(OffsetDateTime.of(2023, 10, 25, 16, 30, 42, 42, ZoneOffset.UTC));
+    actualJobDeployment.setLastDeployedDate(
+        OffsetDateTime.of(2023, 10, 25, 16, 30, 42, 42, ZoneOffset.UTC));
 
     DataJobDeploymentResources resources = new DataJobDeploymentResources();
     resources.setCpuLimitCores(1f);
