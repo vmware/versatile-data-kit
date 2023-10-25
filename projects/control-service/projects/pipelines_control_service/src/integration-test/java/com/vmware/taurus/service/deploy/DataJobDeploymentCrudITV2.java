@@ -50,33 +50,28 @@ import org.springframework.test.web.servlet.ResultActions;
 @Import({DataJobDeploymentCrudITV2.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
-        "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-        "datajobs.deployment.configuration.synchronization.task.enabled=true",
-        "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000",
-        // Setting this value to 1000000 effectively disables the scheduled execution of
-        // DataJobsSynchronizer.synchronizeDataJobs().
-        // This is necessary because the test scenario relies on manually triggering the process.
-        "datajobs.deployment.configuration.persistence.writeTos=DB"
+      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+      "datajobs.deployment.configuration.synchronization.task.enabled=true",
+      "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000",
+      // Setting this value to 1000000 effectively disables the scheduled execution of
+      // DataJobsSynchronizer.synchronizeDataJobs().
+      // This is necessary because the test scenario relies on manually triggering the process.
+      "datajobs.deployment.configuration.persistence.writeTos=DB"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = ControlplaneApplication.class)
 public class DataJobDeploymentCrudITV2 extends BaseIT {
 
-  @Autowired
-  private JobsRepository jobsRepository;
+  @Autowired private JobsRepository jobsRepository;
 
-  @Autowired
-  private DesiredJobDeploymentRepository desiredJobDeploymentRepository;
+  @Autowired private DesiredJobDeploymentRepository desiredJobDeploymentRepository;
 
-  @Autowired
-  private ActualJobDeploymentRepository actualJobDeploymentRepository;
+  @Autowired private ActualJobDeploymentRepository actualJobDeploymentRepository;
 
-  @Autowired
-  private DataJobsSynchronizer dataJobsSynchronizer;
+  @Autowired private DataJobsSynchronizer dataJobsSynchronizer;
 
-  @Autowired
-  private DeploymentService deploymentService;
+  @Autowired private DeploymentService deploymentService;
 
   private boolean jobEnabled;
   private DataJob dataJob;
@@ -130,7 +125,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
   }
 
   public void checkDeploymentExists() {
-    Optional<JobDeploymentStatus> jobDeploymentStatusOptional = deploymentService.readDeployment(testJobName);
+    Optional<JobDeploymentStatus> jobDeploymentStatusOptional =
+        deploymentService.readDeployment(testJobName);
     Assertions.assertFalse(jobDeploymentStatusOptional.isPresent());
     Assertions.assertFalse(actualJobDeploymentRepository.findById(testJobName).isPresent());
   }
@@ -147,11 +143,14 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
 
   private String deployJobWithNoChanges() {
     lastDeployedDateInitial = actualDataJobDeployment.getLastDeployedDate();
-    dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
+    dataJobsSynchronizer.synchronizeDataJob(
+        dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
     String deploymentVersionShaInitial = actualDataJobDeployment.getDeploymentVersionSha();
     actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
-    String deploymentVersionShaShouldNotBeChanged = actualDataJobDeployment.getDeploymentVersionSha();
-    OffsetDateTime lastDeployedDateShouldNotBeChanged = actualDataJobDeployment.getLastDeployedDate();
+    String deploymentVersionShaShouldNotBeChanged =
+        actualDataJobDeployment.getDeploymentVersionSha();
+    OffsetDateTime lastDeployedDateShouldNotBeChanged =
+        actualDataJobDeployment.getLastDeployedDate();
     Assertions.assertEquals(deploymentVersionShaInitial, deploymentVersionShaShouldNotBeChanged);
     Assertions.assertEquals(lastDeployedDateInitial, lastDeployedDateShouldNotBeChanged);
     return deploymentVersionShaShouldNotBeChanged;
@@ -303,7 +302,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
         mockMvc
             .perform(
                 post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                     .with(user("user"))
                     .content(jobZipBinary)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM))
