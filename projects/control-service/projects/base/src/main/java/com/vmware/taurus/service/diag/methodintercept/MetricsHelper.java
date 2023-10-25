@@ -74,7 +74,7 @@ public class MetricsHelper {
       mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       result = mapper.writeValueAsString(obj);
     } catch (JsonProcessingException e) {
-      log.debug("Failed to convert object to json: {}: {}", obj.getClass(), e.getMessage());
+      log.trace("Failed to convert object to json: {}: {}", obj.getClass(), e.getMessage());
       result = "" + obj;
     }
     return result;
