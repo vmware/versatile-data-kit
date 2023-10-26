@@ -86,7 +86,7 @@ class GraphQLDataFetchersTest {
             deploymentService,
             executionDataFetcher,
             dataJobDeploymentPropertiesConfig,
-                deploymentServiceV2);
+            deploymentServiceV2);
     findDataJobs = graphQLDataFetchers.findAllAndBuildDataJobPage();
   }
 
@@ -257,7 +257,8 @@ class GraphQLDataFetchersTest {
   void testPopulateDeployments_readFromDB() throws Exception {
     when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.DB);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
-    when(deploymentServiceV2.findAllActualDataJobDeployments()).thenReturn(mockMapOfActualJobDeployments());
+    when(deploymentServiceV2.findAllActualDataJobDeployments())
+        .thenReturn(mockMapOfActualJobDeployments());
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
     when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
@@ -426,12 +427,11 @@ class GraphQLDataFetchersTest {
 
   private Map<String, ActualDataJobDeployment> mockMapOfActualJobDeployments() {
     return Map.of(
-            "sample-job-1", mockSampleActualJobDeployment("sample-job-1", true, "3.8-secure"),
-            "sample-job-2", mockSampleActualJobDeployment("sample-job-2", false, "3.8-secure"),
-            "sample-job-3", mockSampleActualJobDeployment("sample-job-3", true, "3.9-secure"),
-            "sample-job-4", mockSampleActualJobDeployment("sample-job-4", false, "3.9-secure"),
-            "sample-job-5", mockSampleActualJobDeployment("sample-job-5", true, "3.9-secure")
-    );
+        "sample-job-1", mockSampleActualJobDeployment("sample-job-1", true, "3.8-secure"),
+        "sample-job-2", mockSampleActualJobDeployment("sample-job-2", false, "3.8-secure"),
+        "sample-job-3", mockSampleActualJobDeployment("sample-job-3", true, "3.9-secure"),
+        "sample-job-4", mockSampleActualJobDeployment("sample-job-4", false, "3.9-secure"),
+        "sample-job-5", mockSampleActualJobDeployment("sample-job-5", true, "3.9-secure"));
   }
 
   private List<DataJob> mockListOfDataJobsWithLastExecution() {

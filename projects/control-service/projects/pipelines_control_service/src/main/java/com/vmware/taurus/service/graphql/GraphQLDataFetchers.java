@@ -30,13 +30,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -212,10 +206,15 @@ public class GraphQLDataFetchers {
 
   private List<V2DataJob> populateDeployments(
       List<V2DataJob> allDataJob, Map<String, DataJob> dataJobs) {
-    Map<String, JobDeploymentStatus> deploymentStatuses =
-        (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB))
-            ? readJobDeploymentsFromDb()
-            : readJobDeploymentsFromK8s();
+    Map<String, JobDeploymentStatus> deploymentStatuses;
+
+    if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) {
+      deploymentStatuses = readJobDeploymentsFromDb();
+    } else if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
+      deploymentStatuses = readJobDeploymentsFromK8s();
+    } else {
+      deploymentStatuses = Collections.emptyMap();
+    }
 
     allDataJob.forEach(
         dataJob -> {
