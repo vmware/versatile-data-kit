@@ -22,7 +22,7 @@ def test_structlog():
             ["run", jobs_path_from_caller_directory("job-with-bound-logger")]
         )
 
-        logs = result.stdout.split("\n")
+        logs = result.output.split("\n")
 
         log_with_no_bound_context = [
             x for x in logs if "Log statement with no bound context" in x
@@ -55,8 +55,8 @@ def test_structlog():
         assert "excluded_value" not in log_with_bound_and_extra_context
 
         # check the log level and job name appear in the logs (so we can compare to when we exclude them below)
-        assert "[INFO ]" in result.stdout
-        assert "job-with-bound-logger" in result.stdout
+        assert "[INFO ]" in result.output
+        assert "job-with-bound-logger" in result.output
 
     with mock.patch.dict(
         os.environ,
@@ -72,7 +72,7 @@ def test_structlog():
 
         test_log = [
             x
-            for x in result.stdout.split("\n")
+            for x in result.output.split("\n")
             if "Log statement with bound context and extra context" in x
         ][0]
 
