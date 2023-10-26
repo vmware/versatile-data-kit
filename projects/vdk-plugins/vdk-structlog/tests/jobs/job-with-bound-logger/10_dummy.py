@@ -4,7 +4,6 @@ import logging
 
 from vdk.api.job_input import IJobInput
 from vdk.internal.core.logging import bind_logger
-
 log = logging.getLogger(__name__)
 
 
