@@ -277,8 +277,7 @@ class GraphQLDataFetchersTest {
     assertThat(job4.getDeployments()).hasSize(1);
     assertThat(job4.getDeployments().get(0).getLastExecutionStatus())
         .isEqualTo(DataJobExecution.StatusEnum.SUCCEEDED);
-    assertThat(job4.getDeployments().get(0).getLastExecutionTime())
-            .isNull();
+    assertThat(job4.getDeployments().get(0).getLastExecutionTime()).isNull();
     assertThat(job4.getDeployments().get(0).getLastExecutionDuration()).isEqualTo(0);
     assertThat(job4.getDeployments().get(0).getJobPythonVersion()).isEqualTo("3.9-secure");
   }

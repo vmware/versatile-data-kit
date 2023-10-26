@@ -5,10 +5,9 @@
 
 package com.vmware.taurus.service.graphql;
 
-import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.service.model.ActualDataJobDeployment;
-import com.vmware.taurus.service.model.DataJobDeploymentResources;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
@@ -56,8 +55,8 @@ public class GraphQLDataFetchers {
   private final JobsRepository jobsRepository;
   private final DeploymentService deploymentService;
   private final ExecutionDataFetcher executionDataFetcher;
-  private final ActualJobDeploymentRepository actualJobDeploymentRepository;
   private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+  private final DeploymentServiceV2 deploymentServiceV2;
 
   public DataFetcher<Object> findAllAndBuildDataJobPage() {
     return dataFetchingEnvironment -> {
@@ -242,42 +241,13 @@ public class GraphQLDataFetchers {
   }
 
   private Map<String, JobDeploymentStatus> readJobDeploymentsFromDb() {
-    var deployments =
-        StreamSupport.stream(actualJobDeploymentRepository.findAll().spliterator(), false)
-            .collect(Collectors.toMap(ActualDataJobDeployment::getDataJobName, cronjob -> cronjob));
-
-    return deployments.entrySet().stream()
+    return deploymentServiceV2.findAllActualDataJobDeployments().entrySet().stream()
         .collect(
             Collectors.toMap(
-                Map.Entry::getKey, entry -> convertToJobDeploymentStatus(entry.getValue())));
+                Map.Entry::getKey, entry -> DeploymentModelConverter.toJobDeploymentStatus(entry.getValue())));
   }
 
-  private JobDeploymentStatus convertToJobDeploymentStatus(
-      ActualDataJobDeployment deploymentStatus) {
-    JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
-    jobDeploymentStatus.setDataJobName(deploymentStatus.getDataJobName());
-    jobDeploymentStatus.setPythonVersion(deploymentStatus.getPythonVersion());
-    jobDeploymentStatus.setGitCommitSha(deploymentStatus.getGitCommitSha());
-    jobDeploymentStatus.setEnabled(deploymentStatus.getEnabled());
-    jobDeploymentStatus.setLastDeployedBy(deploymentStatus.getLastDeployedBy());
-    jobDeploymentStatus.setLastDeployedDate(deploymentStatus.getLastDeployedDate().toString());
-    jobDeploymentStatus.setResources(getDataJobResources(deploymentStatus.getResources()));
-    // The ActualDataJobDeployment does not have a mode attribute, which is required by the
-    // JobDeploymentStatus,
-    // so we need to set something in order to avoid errors.
-    jobDeploymentStatus.setMode("release");
 
-    return jobDeploymentStatus;
-  }
-
-  private DataJobResources getDataJobResources(DataJobDeploymentResources deploymentResources) {
-    DataJobResources resources = new DataJobResources();
-    resources.setCpuLimit(deploymentResources.getCpuLimitCores());
-    resources.setCpuRequest(deploymentResources.getCpuRequestCores());
-    resources.setMemoryLimit(deploymentResources.getMemoryLimitMi());
-    resources.setMemoryRequest(deploymentResources.getMemoryRequestMi());
-    return resources;
-  }
 
   private static DataJobPage buildResponse(int pageSize, int count, List pageList) {
 
