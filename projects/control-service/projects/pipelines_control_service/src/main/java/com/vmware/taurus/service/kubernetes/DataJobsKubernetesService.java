@@ -240,7 +240,7 @@ public class DataJobsKubernetesService extends KubernetesService {
         v1BetaCronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
             .collect(Collectors.toSet());
-    log.debug("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
+    log.trace("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
     return Stream.concat(v1CronJobNames.stream(), v1BetaCronJobNames.stream())
         .collect(Collectors.toSet());
   }
