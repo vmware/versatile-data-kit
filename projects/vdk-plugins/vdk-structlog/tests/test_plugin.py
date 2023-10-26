@@ -24,6 +24,8 @@ def test_structlog():
 
         logs = result.output.split("\n")
 
+        assert logs == "testing"
+
         log_with_no_bound_context = [
             x for x in logs if "Log statement with no bound context" in x
         ][0]
