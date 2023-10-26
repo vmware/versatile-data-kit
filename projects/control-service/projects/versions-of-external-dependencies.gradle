@@ -19,7 +19,7 @@ project.ext {
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.15.2',
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2',
             'org.json:json'                                                      : 'org.json:json:20231013',
-            'commons-io:commons-io'                                              : 'commons-io:commons-io:2.14.0',
+            'commons-io:commons-io'                                              : 'commons-io:commons-io:2.15.0',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.33',
             'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r',
             'org.zeroturnaround:zt-exec'                                         : 'org.zeroturnaround:zt-exec:1.12',
