@@ -197,7 +197,8 @@ def test_run_platform_error_sql(tmp_termination_msg_file):
 
 
 def _get_job_status(tmp_termination_msg_file):
-    return json.loads(tmp_termination_msg_file.read_text())["status"]
+    result = json.loads(tmp_termination_msg_file.read_text())
+    return result["status"]
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
@@ -211,3 +212,14 @@ def test_user_error_handled(tmp_termination_msg_file):
     )
     cli_assert_equal(0, result)
     assert (json.loads(tmp_termination_msg_file.read_text())["status"]) == "Success"
+
+
+def test_error_from_pandas_user_error(tmp_termination_msg_file):
+    errors.resolvable_context().clear()
+    runner = CliEntryBasedTestRunner()
+
+    result: Result = runner.invoke(["run", util.job_path("pandas-key-error-job")])
+    cli_assert_equal(1, result)
+    assert _get_job_status(tmp_termination_msg_file) == "User error"
+    assert '"blamee": "User Error"' in result.output
+    assert '"exception_name": "KeyError"' in result.output

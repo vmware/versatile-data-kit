@@ -18,6 +18,9 @@ from enum import Enum
 
 log = logging.getLogger(__name__)
 
+ATTR_VDK_RESOLVABLE_BY = "_vdk_resolvable_by"
+ATTR_VDK_RESOLVABLE_ACTUAL = "_vdk_resolvable_actual"
+
 # RESOLVABLE CONTEXT
 
 
@@ -141,17 +144,17 @@ def clear_intermediate_errors():
 
 
 def set_exception_resolvable_by(exception: BaseException, resolvable_by: ResolvableBy):
-    setattr(exception, "_vdk_resolvable_by", resolvable_by)
+    setattr(exception, ATTR_VDK_RESOLVABLE_BY, resolvable_by)
     setattr(
         exception,
-        "_vdk_resolvable_actual",
+        ATTR_VDK_RESOLVABLE_ACTUAL,
         __error_type_to_actual_resolver(resolvable_by),
     )
 
 
 def get_exception_resolvable_by(exception: BaseException):
-    if hasattr(exception, "_vdk_resolvable_by"):
-        return getattr(exception, "_vdk_resolvable_by")
+    if hasattr(exception, ATTR_VDK_RESOLVABLE_BY):
+        return getattr(exception, ATTR_VDK_RESOLVABLE_BY)
     else:
         return None
 
