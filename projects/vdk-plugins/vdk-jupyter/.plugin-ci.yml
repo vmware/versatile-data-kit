@@ -62,7 +62,7 @@ frontend-tests-vdk-jupyterlab-extension:
       junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/frontend_tests_results.xml"
 
 integration-tests-vdk-jupyterlab-extension:
-  image: "mcr.microsoft.com/playwright:v1.34.0-jammy"
+  image: "mcr.microsoft.com/playwright:v1.39.0-jammy"
   # extends: .common-setup-vdk-jupyterlab-extension
   stage: pre_release_test
   script:
@@ -78,15 +78,15 @@ integration-tests-vdk-jupyterlab-extension:
     - pip install -U pip setuptools pre-commit jupyterlab
     - apt install nodejs rustc cargo libffi-dev -y
     - pip install .
-    - jlpm build
-    - jlpm add @stdlib/stats @jupyterlab/galata @playwright/test
+    - npm install
+    - npm install @stdlib/stats @jupyterlab/galata @playwright/test
     - pip install -U jupyterlab
 #    - jupyter labextension install @jupyterlab/galata
     - cd ./ui-tests
-    - jlpm install
+    - npm install
     - cd ..
-    - jlpm playwright install --with-deps
-    - jlpm playwright test --config ./ui-tests/playwright.config.js
+    - npx playwright install --with-deps
+    - npx playwright test --config ./ui-tests/playwright.config.js
   artifacts:
     when: always
     reports:
