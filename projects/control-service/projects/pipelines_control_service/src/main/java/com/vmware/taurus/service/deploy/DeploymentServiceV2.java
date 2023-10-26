@@ -137,7 +137,7 @@ public class DeploymentServiceV2 {
 
     if (DeploymentStatus.USER_ERROR.equals(desiredJobDeployment.getStatus())
         || DeploymentStatus.PLATFORM_ERROR.equals(desiredJobDeployment.getStatus())) {
-      log.debug(
+      log.trace(
           "Skipping the data job [job_name={}] deployment due to the previously failed deployment"
               + " [status={}]",
           dataJob.getName(),
