@@ -75,12 +75,12 @@ integration-tests-vdk-jupyterlab-extension:
     - apt install python3.9 python3.9-venv -y
     - python3.9 -m venv venv
     - source venv/bin/activate
-    - pip install -U pip setuptools pre-commit jupyterlab
+    - pip install -U pip setuptools pre-commit jupyterlab==3.6.3
     - apt install nodejs rustc cargo libffi-dev -y
     - pip install .
     - npm install
     - npm install @stdlib/stats @jupyterlab/galata @playwright/test
-    - pip install -U jupyterlab
+    - pip install -U jupyterlab==3.6.3
 #    - jupyter labextension install @jupyterlab/galata
     - cd ./ui-tests
     - npm install
