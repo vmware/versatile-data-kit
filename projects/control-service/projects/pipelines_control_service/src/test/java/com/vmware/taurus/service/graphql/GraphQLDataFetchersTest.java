@@ -8,8 +8,8 @@ package com.vmware.taurus.service.graphql;
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.ReadFrom;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.model.*;
-import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Filter;
@@ -47,7 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.time.OffsetDateTime;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -69,7 +69,7 @@ class GraphQLDataFetchersTest {
 
   @Mock private DataFetchingFieldSelectionSet dataFetchingFieldSelectionSet;
 
-  @Mock private ActualJobDeploymentRepository actualJobDeploymentRepository;
+  @Mock private DeploymentServiceV2 deploymentServiceV2;
 
   @Mock private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
@@ -85,8 +85,8 @@ class GraphQLDataFetchersTest {
             jobsRepository,
             deploymentService,
             executionDataFetcher,
-            actualJobDeploymentRepository,
-            dataJobDeploymentPropertiesConfig);
+            dataJobDeploymentPropertiesConfig,
+                deploymentServiceV2);
     findDataJobs = graphQLDataFetchers.findAllAndBuildDataJobPage();
   }
 
@@ -257,7 +257,7 @@ class GraphQLDataFetchersTest {
   void testPopulateDeployments_readFromDB() throws Exception {
     when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.DB);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
-    when(actualJobDeploymentRepository.findAll()).thenReturn(mockListOfActualJobDeployments());
+    when(deploymentServiceV2.findAllActualDataJobDeployments()).thenReturn(mockMapOfActualJobDeployments());
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
     when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
     when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
@@ -424,16 +424,14 @@ class GraphQLDataFetchersTest {
     return dataJobs;
   }
 
-  private List<ActualDataJobDeployment> mockListOfActualJobDeployments() {
-    List<ActualDataJobDeployment> actualJobDeployments = new ArrayList<>();
-
-    actualJobDeployments.add(mockSampleActualJobDeployment("sample-job-1", true, "3.8-secure"));
-    actualJobDeployments.add(mockSampleActualJobDeployment("sample-job-2", false, "3.8-secure"));
-    actualJobDeployments.add(mockSampleActualJobDeployment("sample-job-3", true, "3.9-secure"));
-    actualJobDeployments.add(mockSampleActualJobDeployment("sample-job-4", false, "3.9-secure"));
-    actualJobDeployments.add(mockSampleActualJobDeployment("sample-job-5", true, "3.9-secure"));
-
-    return actualJobDeployments;
+  private Map<String, ActualDataJobDeployment> mockMapOfActualJobDeployments() {
+    return Map.of(
+            "sample-job-1", mockSampleActualJobDeployment("sample-job-1", true, "3.8-secure"),
+            "sample-job-2", mockSampleActualJobDeployment("sample-job-2", false, "3.8-secure"),
+            "sample-job-3", mockSampleActualJobDeployment("sample-job-3", true, "3.9-secure"),
+            "sample-job-4", mockSampleActualJobDeployment("sample-job-4", false, "3.9-secure"),
+            "sample-job-5", mockSampleActualJobDeployment("sample-job-5", true, "3.9-secure")
+    );
   }
 
   private List<DataJob> mockListOfDataJobsWithLastExecution() {

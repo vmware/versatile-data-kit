@@ -318,7 +318,7 @@ public class DeploymentModelConverter {
   }
 
   public static JobDeploymentStatus toJobDeploymentStatus(
-          ActualDataJobDeployment deploymentStatus) {
+      ActualDataJobDeployment deploymentStatus) {
     JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
 
     jobDeploymentStatus.setDataJobName(deploymentStatus.getDataJobName());
@@ -327,9 +327,9 @@ public class DeploymentModelConverter {
     jobDeploymentStatus.setEnabled(deploymentStatus.getEnabled());
     jobDeploymentStatus.setLastDeployedBy(deploymentStatus.getLastDeployedBy());
     jobDeploymentStatus.setLastDeployedDate(
-            deploymentStatus.getLastDeployedDate() == null
-                    ? null
-                    : deploymentStatus.getLastDeployedDate().toString());
+        deploymentStatus.getLastDeployedDate() == null
+            ? null
+            : deploymentStatus.getLastDeployedDate().toString());
     jobDeploymentStatus.setResources(getResourcesFromDeployment(deploymentStatus));
     // The ActualDataJobDeployment does not have a mode attribute, which is required by the
     // JobDeploymentStatus,

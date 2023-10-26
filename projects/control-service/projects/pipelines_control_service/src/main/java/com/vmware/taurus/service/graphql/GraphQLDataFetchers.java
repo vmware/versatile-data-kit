@@ -9,7 +9,6 @@ import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
 import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.repository.JobsRepository;
-import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.ReadFrom;
 import com.vmware.taurus.service.deploy.DeploymentService;
@@ -244,10 +243,9 @@ public class GraphQLDataFetchers {
     return deploymentServiceV2.findAllActualDataJobDeployments().entrySet().stream()
         .collect(
             Collectors.toMap(
-                Map.Entry::getKey, entry -> DeploymentModelConverter.toJobDeploymentStatus(entry.getValue())));
+                Map.Entry::getKey,
+                entry -> DeploymentModelConverter.toJobDeploymentStatus(entry.getValue())));
   }
-
-
 
   private static DataJobPage buildResponse(int pageSize, int count, List pageList) {
 
