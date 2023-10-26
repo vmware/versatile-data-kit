@@ -24,9 +24,15 @@ def test_structlog():
 
         logs = result.stdout.split("\n")
 
-        log_with_no_bound_context = [x for x in logs if "Log statement with no bound context" in x ][0]
-        log_with_bound_context = [x for x in logs if "Log statement with bound context" in x][0]
-        log_with_bound_and_extra_context = [x for x in logs if "Log statement with bound context and extra context" in x][0]
+        log_with_no_bound_context = [
+            x for x in logs if "Log statement with no bound context" in x
+        ][0]
+        log_with_bound_context = [
+            x for x in logs if "Log statement with bound context" in x
+        ][0]
+        log_with_bound_and_extra_context = [
+            x for x in logs if "Log statement with bound context and extra context" in x
+        ][0]
 
         # check for job name in logs
         assert "job-with-bound-logger" in log_with_no_bound_context
@@ -35,7 +41,7 @@ def test_structlog():
 
         # check bound logger can bind context but that bound context does not appear in the rest of logging
         assert "bound_test_value" in log_with_bound_context
-        assert"bound_test_value" not in log_with_no_bound_context
+        assert "bound_test_value" not in log_with_no_bound_context
 
         # check extra bound context does not appear if not set in the logging_metadata config variable
         assert "extra_test_value" not in log_with_bound_context
@@ -53,10 +59,10 @@ def test_structlog():
         assert "job-with-bound-logger" in result.stdout
 
     with mock.patch.dict(
-            os.environ,
-            {
-                "VDK_LOGGING_METADATA": "timestamp,file_name,line_number,bound_test_key,extra_test_key"
-            },
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "timestamp,file_name,line_number,bound_test_key,extra_test_key"
+        },
     ):
         runner = CliEntryBasedTestRunner(structlog_plugin)
 
@@ -64,7 +70,11 @@ def test_structlog():
             ["run", jobs_path_from_caller_directory("job-with-bound-logger")]
         )
 
-        test_log = [x for x in result.stdout.split("\n") if "Log statement with bound context and extra context" in x][0]
+        test_log = [
+            x
+            for x in result.stdout.split("\n")
+            if "Log statement with bound context and extra context" in x
+        ][0]
 
         # check that log level and job name do not appear if we have not included them in logging_metadata
         assert "[INFO ]" not in test_log

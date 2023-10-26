@@ -9,11 +9,17 @@ log = logging.getLogger(__name__)
 
 
 def run(job_input: IJobInput):
-    bound_logger = bind_logger(log, {'bound_test_key': 'bound_test_value', 'excluded_bound_test_key': 'excluded_value'})
+    bound_logger = bind_logger(
+        log,
+        {
+            "bound_test_key": "bound_test_value",
+            "excluded_bound_test_key": "excluded_value",
+        },
+    )
 
     log.info("Log statement with no bound context")
     bound_logger.info("Log statement with bound context")
     bound_logger.info(
         "Log statement with bound context and extra context",
-        extra={'extra_test_key': 'extra_test_value'}
+        extra={"extra_test_key": "extra_test_value"},
     )
