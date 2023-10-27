@@ -131,7 +131,6 @@ public class DataJobsSynchronizer {
         countDownLatch);
 
     waitForSynchronizationCompletion(countDownLatch);
-    dataJobSynchronizerMonitor.countSuccessfulSynchronizerInvocation();
   }
 
   private void synchronizeDataJobs(
@@ -215,8 +214,10 @@ public class DataJobsSynchronizer {
               + " some time...");
       countDownLatch.await();
       log.info("Data job deployments synchronization has successfully completed.");
+      dataJobSynchronizerMonitor.countSuccessfulSynchronizerInvocation();
     } catch (InterruptedException e) {
       log.error("An error occurred during the data job deployments' synchronization", e);
+      dataJobSynchronizerMonitor.countSynchronizerFailures();
     }
   }
 }
