@@ -20,26 +20,22 @@ public class DataJobSynchronizerMonitor {
   public static final String DATAJOBS_FAILED_SYNCHRONIZER_INVOCATIONS_COUNTER =
       "vdk.deploy.datajob.synchronizer.failed.invocations.counter";
 
-  private final MeterRegistry meterRegistry;
   private final Counter successfulInvocationsCounter;
   private final Counter failedInvocationsCounter;
 
   @Autowired(required = true)
   public DataJobSynchronizerMonitor(MeterRegistry meterRegistry) {
-    this.meterRegistry = meterRegistry;
-
     successfulInvocationsCounter =
         Counter.builder(DATAJOBS_SUCCESSFUL_SYNCHRONIZER_INVOCATIONS_COUNTER)
             .description(
-                "Counts the number of times the synchronizeDataJobs() method is called and"
-                    + " completes.")
-            .register(this.meterRegistry);
+                "Counts the number of times the synchronizeDataJobs() method is called and completes.")
+            .register(meterRegistry);
 
     failedInvocationsCounter =
         Counter.builder(DATAJOBS_FAILED_SYNCHRONIZER_INVOCATIONS_COUNTER)
             .description(
                 "Counts the number of times the synchronizeDataJobs() method failed to finish.")
-            .register(this.meterRegistry);
+            .register(meterRegistry);
   }
 
   /**
