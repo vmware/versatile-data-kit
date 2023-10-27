@@ -31,9 +31,7 @@ def whom_to_blame(
     :return: ResolvableBy.PLATFORM_ERROR if exception was recognized as Platform Team responsibility.
              errors.ResolvableBy.USER_ERROR if exception was recognized as User Error.
     """
-    if isinstance(exception, errors.BaseVdkError) or hasattr(
-        exception, "to_be_fixed_by"
-    ):
+    if is_classified(exception):
         return errors.find_whom_to_blame_from_exception(exception)
     if is_user_error(exception, data_job_path):
         return errors.ResolvableBy.USER_ERROR
@@ -87,6 +85,12 @@ def is_user_error(
         or _is_timeout_error(received_exception)
         or _is_memory_limit_exceeded(received_exception)
         or _is_direct_user_code_error(received_exception, job_path=data_job_path)
+    )
+
+
+def is_classified(exception: BaseException):
+    return isinstance(exception, errors.BaseVdkError) or hasattr(
+        exception, errors.ATTR_VDK_RESOLVABLE_BY
     )
 
 
