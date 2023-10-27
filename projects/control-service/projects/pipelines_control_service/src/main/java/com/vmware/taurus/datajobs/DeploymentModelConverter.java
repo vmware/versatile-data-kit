@@ -317,6 +317,28 @@ public class DeploymentModelConverter {
     return contacts;
   }
 
+  public static JobDeploymentStatus toJobDeploymentStatus(
+      ActualDataJobDeployment deploymentStatus) {
+    JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
+
+    jobDeploymentStatus.setDataJobName(deploymentStatus.getDataJobName());
+    jobDeploymentStatus.setPythonVersion(deploymentStatus.getPythonVersion());
+    jobDeploymentStatus.setGitCommitSha(deploymentStatus.getGitCommitSha());
+    jobDeploymentStatus.setEnabled(deploymentStatus.getEnabled());
+    jobDeploymentStatus.setLastDeployedBy(deploymentStatus.getLastDeployedBy());
+    jobDeploymentStatus.setLastDeployedDate(
+        deploymentStatus.getLastDeployedDate() == null
+            ? null
+            : deploymentStatus.getLastDeployedDate().toString());
+    jobDeploymentStatus.setResources(getResourcesFromDeployment(deploymentStatus));
+    // The ActualDataJobDeployment does not have a mode attribute, which is required by the
+    // JobDeploymentStatus,
+    // so we need to set something in order to avoid errors.
+    jobDeploymentStatus.setMode("release");
+
+    return jobDeploymentStatus;
+  }
+
   private static DataJobResources getResourcesFromDeployment(ActualDataJobDeployment deployment) {
     DataJobResources resources = new DataJobResources();
     var deploymentResources = deployment.getResources();
