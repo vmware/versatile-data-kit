@@ -75,7 +75,7 @@ integration-tests-vdk-jupyterlab-extension:
     - apt install python3.9 python3.9-venv -y
     - python3.9 -m venv venv
     - source venv/bin/activate
-    - apt-get install gcc python3.9-dev
+    - apt-get install -y gcc python3.9-dev
     - pip install -U pip setuptools pre-commit jupyterlab==3.6.3
     - apt install nodejs rustc cargo libffi-dev -y
     - pip install .
