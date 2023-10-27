@@ -31,7 +31,8 @@ public class DataJobSynchronizerMonitor {
     successfulInvocationsCounter =
         Counter.builder(DATAJOBS_SUCCESSFUL_SYNCHRONIZER_INVOCATIONS_COUNTER)
             .description(
-                "Counts the number of times the synchronizeDataJobs() method is called and completes.")
+                "Counts the number of times the synchronizeDataJobs() method is called and"
+                    + " completes.")
             .register(this.meterRegistry);
 
     failedInvocationsCounter =

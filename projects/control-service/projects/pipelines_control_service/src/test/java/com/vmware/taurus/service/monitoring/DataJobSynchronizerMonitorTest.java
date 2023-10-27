@@ -15,12 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class DataJobSynchronizerMonitorTest {
 
-  @Autowired
-  DataJobSynchronizerMonitor dataJobSynchronizerMonitor;
+  @Autowired DataJobSynchronizerMonitor dataJobSynchronizerMonitor;
 
-  @Autowired
-  private MeterRegistry meterRegistry;
-
+  @Autowired private MeterRegistry meterRegistry;
 
   @Test
   public void testIncrementSuccessfulInvocations() {
@@ -43,5 +40,4 @@ public class DataJobSynchronizerMonitorTest {
 
     Assertions.assertEquals(1, counter.count(), 0.001);
   }
-
 }
