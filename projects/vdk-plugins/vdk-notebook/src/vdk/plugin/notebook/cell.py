@@ -17,7 +17,7 @@ class Cell:
     def __init__(self, jupyter_cell):
         self.tags = jupyter_cell["metadata"].get("tags", {})
         self.source, self.source_type = self.__extract_source_code(jupyter_cell)
-        self.id = jupyter_cell["id"]
+        self.id = jupyter_cell.get("id")
 
     @staticmethod
     def __extract_source_code(jupyter_cell):

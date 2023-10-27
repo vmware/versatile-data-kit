@@ -227,7 +227,7 @@ public abstract class KubernetesService {
 
   private V1CronJob loadV1CronjobTemplate() {
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.debug("Datajob template file location is not set. Using internal datajob template.");
+      log.trace("Datajob template file location is not set. Using internal datajob template.");
       return loadInternalV1CronjobTemplate();
     }
     V1CronJob cronjobTemplate = loadConfigurableV1CronjobTemplate();
@@ -240,7 +240,7 @@ public abstract class KubernetesService {
 
   private V1beta1CronJob loadV1beta1CronjobTemplate() {
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.debug("Datajob template file location is not set. Using internal datajob template.");
+      log.trace("Datajob template file location is not set. Using internal datajob template.");
       return loadInternalV1beta1CronjobTemplate();
     }
     V1beta1CronJob cronjobTemplate = loadConfigurableV1beta1CronjobTemplate();
@@ -278,7 +278,7 @@ public abstract class KubernetesService {
   private V1beta1CronJob loadConfigurableV1beta1CronjobTemplate() {
     // Check whether to use configurable datajob template at all.
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.debug("Datajob template file location is not set.");
+      log.trace("Datajob template file location is not set.");
       return null;
     }
 
@@ -295,7 +295,7 @@ public abstract class KubernetesService {
   private V1CronJob loadConfigurableV1CronjobTemplate() {
     // Check whether to use configurable datajob template at all.
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.debug("Datajob template file location is not set.");
+      log.trace("Datajob template file location is not set.");
       return null;
     }
 
