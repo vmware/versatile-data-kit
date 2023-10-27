@@ -43,26 +43,25 @@ class TestTemplateRegression(unittest.TestCase):
         self._run_query("CREATE DATABASE IF NOT EXISTS vdkprototypes")
         self._run_query("CREATE DATABASE IF NOT EXISTS staging_vdkprototypes")
 
-    # TODO: Uncomment after https://github.com/vmware/versatile-data-kit/pull/2840 is merged
-    # def test_load_dimension_scd1(self) -> None:
-    #     test_schema = "vdkprototypes"
-    #     source_view = "vw_dim_org"
-    #     target_table = "dw_dim_org"
+    def test_load_dimension_scd1(self) -> None:
+        test_schema = "vdkprototypes"
+        source_view = "vw_dim_org"
+        target_table = "dw_dim_org"
 
-    #     res = self._run_job(
-    #         "load_dimension_scd1_template_job",
-    #         {
-    #             "source_schema": test_schema,
-    #             "source_view": source_view,
-    #             "target_schema": test_schema,
-    #             "target_table": target_table,
-    #         },
-    #     )
-    #     cli_assert(not res.exception, res)
-    #     actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
-    #     expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
-    #     assert actual_rs.output and expected_rs.output
-    #     assert actual_rs.output == expected_rs.output
+        res = self._run_job(
+            "load_dimension_scd1_template_job",
+            {
+                "source_schema": test_schema,
+                "source_view": source_view,
+                "target_schema": test_schema,
+                "target_table": target_table,
+            },
+        )
+        cli_assert(not res.exception, res)
+        actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
+        assert actual_rs.output and expected_rs.output
+        assert actual_rs.output == expected_rs.output
 
     def test_load_dimension_scd1_partitioned(self) -> None:
         test_schema = "vdkprototypes"
@@ -91,20 +90,19 @@ class TestTemplateRegression(unittest.TestCase):
             expected, actual, f"Elements in {source_view} and {target_table} differ."
         )
 
-    # TODO: Uncomment after https://github.com/vmware/versatile-data-kit/pull/2840 is merged
-    # def test_load_dimension_scd1_parameter_validation(self) -> None:
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_dimension_scd1_template_only",
-    #         template_args={},
-    #         num_exp_errors=4,
-    #         params_class_name="SlowlyChangingDimensionTypeOverwriteParams",
-    #     )
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_dimension_scd1_template_only",
-    #         template_args={"source_view": "foo", "extra_parameter": "bar"},
-    #         num_exp_errors=3,
-    #         params_class_name="SlowlyChangingDimensionTypeOverwriteParams",
-    #     )
+    def test_load_dimension_scd1_parameter_validation(self) -> None:
+        self._run_template_with_bad_arguments(
+            template_name="load_dimension_scd1_template_only",
+            template_args={},
+            num_exp_errors=4,
+            params_class_name="SlowlyChangingDimensionTypeOverwriteParams",
+        )
+        self._run_template_with_bad_arguments(
+            template_name="load_dimension_scd1_template_only",
+            template_args={"source_view": "foo", "extra_parameter": "bar"},
+            num_exp_errors=3,
+            params_class_name="SlowlyChangingDimensionTypeOverwriteParams",
+        )
 
     def test_load_dimension_scd1_bad_target_schema(self) -> None:
         template_args = {
@@ -202,20 +200,19 @@ class TestTemplateRegression(unittest.TestCase):
             expected, actual, f"Elements in {expect_table} and {target_table} differ."
         )
 
-    # TODO: Uncomment after https://github.com/vmware/versatile-data-kit/pull/2840 is merged
-    # def test_load_dimension_scd2_parameter_validation(self) -> None:
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_dimension_scd2_template_only",
-    #         template_args={},
-    #         num_exp_errors=9,
-    #         params_class_name="SlowlyChangingDimensionType2Params",
-    #     )
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_dimension_scd2_template_only",
-    #         template_args={"source_view": "foo", "extra_parameter": "bar"},
-    #         num_exp_errors=8,
-    #         params_class_name="SlowlyChangingDimensionType2Params",
-    #     )
+    def test_load_dimension_scd2_parameter_validation(self) -> None:
+        self._run_template_with_bad_arguments(
+            template_name="load_dimension_scd2_template_only",
+            template_args={},
+            num_exp_errors=9,
+            params_class_name="SlowlyChangingDimensionType2Params",
+        )
+        self._run_template_with_bad_arguments(
+            template_name="load_dimension_scd2_template_only",
+            template_args={"source_view": "foo", "extra_parameter": "bar"},
+            num_exp_errors=8,
+            params_class_name="SlowlyChangingDimensionType2Params",
+        )
 
     def test_load_dimension_scd2_bad_target_schema(self) -> None:
         template_args = {
@@ -334,77 +331,76 @@ class TestTemplateRegression(unittest.TestCase):
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
         )
 
-    # TODO: Uncomment after https://github.com/vmware/versatile-data-kit/pull/2840 is merged
-    # def test_load_versioned_parameter_validation(self) -> None:
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_versioned_template_only",
-    #         template_args={},
-    #         num_exp_errors=7,
-    #         params_class_name="LoadVersionedParams",
-    #     )
+    def test_load_versioned_parameter_validation(self) -> None:
+        self._run_template_with_bad_arguments(
+            template_name="load_versioned_template_only",
+            template_args={},
+            num_exp_errors=7,
+            params_class_name="LoadVersionedParams",
+        )
 
-    #     good_template_args = {
-    #         "source_schema": "vdkprototypes",
-    #         "source_view": "vw_sddc_h_updates",
-    #         "target_schema": "vdkprototypes",
-    #         "target_table": "dim_sddc_h_as_textfile",
-    #         "id_column": "sddc_id",
-    #         "sk_column": "sddc_sk",
-    #         "value_columns": [
-    #             "updated_by_user_id",
-    #             "state",
-    #             "is_nsxt",
-    #             "cloud_vendor",
-    #             "version",
-    #         ],
-    #         "tracked_columns": ["updated_by_user_id", "state", "is_nsxt", "version"],
-    #         "active_from_column": "active_from",
-    #         "active_to_column": "active_to",
-    #         "active_to_max_value": "9999-12-31",
-    #         "updated_at_column": "updated_at",
-    #         "extra_parameter": "bar",
-    #     }
+        good_template_args = {
+            "source_schema": "vdkprototypes",
+            "source_view": "vw_sddc_h_updates",
+            "target_schema": "vdkprototypes",
+            "target_table": "dim_sddc_h_as_textfile",
+            "id_column": "sddc_id",
+            "sk_column": "sddc_sk",
+            "value_columns": [
+                "updated_by_user_id",
+                "state",
+                "is_nsxt",
+                "cloud_vendor",
+                "version",
+            ],
+            "tracked_columns": ["updated_by_user_id", "state", "is_nsxt", "version"],
+            "active_from_column": "active_from",
+            "active_to_column": "active_to",
+            "active_to_max_value": "9999-12-31",
+            "updated_at_column": "updated_at",
+            "extra_parameter": "bar",
+        }
 
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_versioned_template_only",
-    #         template_args={
-    #             **good_template_args,
-    #             **{
-    #                 "value_columns": [
-    #                     "updated_by_user_id",
-    #                     "state",
-    #                     "is_nsxt",
-    #                     "cloud_vendor",
-    #                 ],
-    #                 "tracked_columns": [
-    #                     "updated_by_user_id",
-    #                     "state",
-    #                     "is_nsxt",
-    #                     "version",
-    #                 ],
-    #             },
-    #         },
-    #         num_exp_errors=1,
-    #         params_class_name="LoadVersionedParams",
-    #     )
+        self._run_template_with_bad_arguments(
+            template_name="load_versioned_template_only",
+            template_args={
+                **good_template_args,
+                **{
+                    "value_columns": [
+                        "updated_by_user_id",
+                        "state",
+                        "is_nsxt",
+                        "cloud_vendor",
+                    ],
+                    "tracked_columns": [
+                        "updated_by_user_id",
+                        "state",
+                        "is_nsxt",
+                        "version",
+                    ],
+                },
+            },
+            num_exp_errors=1,
+            params_class_name="LoadVersionedParams",
+        )
 
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_versioned_template_only",
-    #         template_args={
-    #             **good_template_args,
-    #             **{
-    #                 "value_columns": [
-    #                     "updated_by_user_id",
-    #                     "state",
-    #                     "is_nsxt",
-    #                     "cloud_vendor",
-    #                 ],
-    #                 "tracked_columns": [],
-    #             },
-    #         },
-    #         num_exp_errors=1,
-    #         params_class_name="LoadVersionedParams",
-    #     )
+        self._run_template_with_bad_arguments(
+            template_name="load_versioned_template_only",
+            template_args={
+                **good_template_args,
+                **{
+                    "value_columns": [
+                        "updated_by_user_id",
+                        "state",
+                        "is_nsxt",
+                        "cloud_vendor",
+                    ],
+                    "tracked_columns": [],
+                },
+            },
+            num_exp_errors=1,
+            params_class_name="LoadVersionedParams",
+        )
 
     def test_load_versioned_bad_target_schema(self) -> None:
         template_args = {
@@ -528,20 +524,19 @@ class TestTemplateRegression(unittest.TestCase):
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
         )
 
-    # TODO: Uncomment after https://github.com/vmware/versatile-data-kit/pull/2840 is merged
-    # def test_load_fact_snapshot_parameter_validation(self) -> None:
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_fact_snapshot_template_only",
-    #         template_args={},
-    #         num_exp_errors=5,
-    #         params_class_name="FactDailySnapshotParams",
-    #     )
-    #     self._run_template_with_bad_arguments(
-    #         template_name="load_fact_snapshot_template_only",
-    #         template_args={"source_view": "foo", "target_table": None},
-    #         num_exp_errors=4,
-    #         params_class_name="FactDailySnapshotParams",
-    #     )
+    def test_load_fact_snapshot_parameter_validation(self) -> None:
+        self._run_template_with_bad_arguments(
+            template_name="load_fact_snapshot_template_only",
+            template_args={},
+            num_exp_errors=5,
+            params_class_name="FactDailySnapshotParams",
+        )
+        self._run_template_with_bad_arguments(
+            template_name="load_fact_snapshot_template_only",
+            template_args={"source_view": "foo", "target_table": None},
+            num_exp_errors=4,
+            params_class_name="FactDailySnapshotParams",
+        )
 
     def test_load_fact_snapshot_bad_target_schema(self) -> None:
         template_args = {
