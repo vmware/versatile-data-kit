@@ -8,13 +8,20 @@ from typing import Dict
 from typing import List
 from typing import Type
 
-from vdk.api.job_input import IProperties
 from vdk.plugin.data_sources import config
 from vdk.plugin.data_sources.data_source import IDataSource
 from vdk.plugin.data_sources.data_source import (
     IDataSourceConfiguration,
 )
-from vdk.plugin.data_sources.state import IDataSourceState
+
+
+def data_source(name: str, config_class: Type[IDataSourceConfiguration]):
+    def inner_decorator(data_source_class: Type[IDataSource]):
+        data_source_class.__data_source_name__ = name
+        data_source_class.__data_source__config__class__ = config_class
+        return data_source_class
+
+    return inner_decorator
 
 
 @dataclass
@@ -44,18 +51,20 @@ class DataSourceNotFoundException(Exception):
 
 class IDataSourceFactory:
     @abstractmethod
-    def register_data_source(
+    def register_data_source_class(
         self,
-        name: str,
         data_source_class: Type[IDataSource],
-        data_source_config_class: Type[IDataSourceConfiguration],
     ):
         """
         Register a data source and its associated configuration class.
 
-        :param name: The name identifier for the data source
-        :param data_source_class: The data source class that implements `IDataSource`
-        :param data_source_config_class: The configuration class that implements `IDataSourceConfiguration`
+        :param data_source_class: The data source class that implements `IDataSource` and must be decoreated with @data_source
+
+        Example::
+
+        @data_source(name="csv", config_class=CsvDataSourceConfiguration)
+        class CsvDataSource(IDataSource):
+            ...
         """
 
     @abstractmethod
@@ -93,12 +102,40 @@ class SingletonDataSourceFactory(IDataSourceFactory):
             cls._instance.__data_source_registry = {}
         return cls._instance
 
-    def register_data_source(
+    def register_data_source_class(self, data_source_class: Type[IDataSource]):
+        if not hasattr(data_source_class, "__data_source_name__") or not hasattr(
+            data_source_class, "__data_source__config__class__"
+        ):
+            raise ValueError(
+                "Invalid data_source_class."
+                "data_source_class must extend IDataSource, and be decorated with @data_source."
+            )
+
+        name = getattr(data_source_class, "__data_source_name__")
+        config_class = getattr(data_source_class, "__data_source__config__class__")
+        self.__register_data_source(name, data_source_class, config_class)
+
+    def __register_data_source(
         self,
         name: str,
         data_source_class: Type[IDataSource],
         data_source_config_class: Type[IDataSourceConfiguration],
     ):
+        if not isinstance(data_source_class, type):
+            raise ValueError(
+                "data_source_class must a class definition. Not a class instance for example."
+            )
+        if not issubclass(data_source_class, IDataSource):
+            raise ValueError("data_source_class must be a class inheriting IDataSource")
+        if not isinstance(data_source_config_class, type):
+            raise ValueError(
+                "data_source_config_class must a class definition. Not a class instance for example."
+            )
+        if not issubclass(data_source_config_class, IDataSourceConfiguration):
+            raise ValueError(
+                "data_source_config_class must be a class inheriting IDataSourceConfiguration"
+            )
+
         self.__data_source_registry[name] = DataSourceRegistryItem(
             name, data_source_class, data_source_config_class
         )
@@ -126,13 +163,3 @@ class SingletonDataSourceFactory(IDataSourceFactory):
                 name, list(self.__data_source_registry.keys())
             )
         return registry_item
-
-
-def register_data_source(name: str, config_class: Type[IDataSourceConfiguration]):
-    def inner_decorator(data_source_class: Type[IDataSource]):
-        SingletonDataSourceFactory().register_data_source(
-            name, data_source_class, config_class
-        )
-        return data_source_class
-
-    return inner_decorator
