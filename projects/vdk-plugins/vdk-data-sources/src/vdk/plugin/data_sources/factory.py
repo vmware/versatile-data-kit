@@ -42,27 +42,6 @@ class DataSourceNotFoundException(Exception):
     pass
 
 
-class IPropertiesDataSourceState(IDataSourceState):
-    """
-    A stateful data source implementation using `IProperties` to manage state.
-    """
-
-    PREFIX = ".IDataSource"
-
-    def __int__(self, data_source_name: str, properties: IProperties):
-        self.__properties = properties
-        self.__data_source_name = data_source_name
-
-    def read(self) -> Dict[str, Any]:
-        states: Dict = self.__properties.get_property(self.PREFIX, {})
-        return states.get(self.__data_source_name, {})
-
-    def write(self, state: Dict[str, Any]):
-        all_properties = self.__properties.get_all_properties()
-        all_properties.setdefault(self.PREFIX, {})[self.__data_source_name] = state
-        self.__properties.set_all_properties(all_properties)
-
-
 class IDataSourceFactory:
     @abstractmethod
     def register_data_source(
