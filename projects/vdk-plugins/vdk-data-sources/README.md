@@ -38,6 +38,37 @@ State: Contains the state of the data soruce stream as of this payload. For exam
 
 To build your own data source you can use [this data source](./src/vdk/plugin/data_sources/auto_generated.py) as an example or reference
 
+To register the source use [vdk_data_sources_register hook](./src/vdk/plugin/data_sources/hook_spec.py)
+
+Then you can use it in a data job like this:
+
+```python
+def run(job_input: IJobInput):
+    source = SourceDefinition(id="auto", name="auto-generated-data", config={})
+    destination = DestinationDefinition(id="auto-dest", method="memory")
+
+    with DataFlowInput(job_input) as flow_input:
+        flow_input.start(source, destination)
+```
+
+or in config.toml file
+```toml
+[sources.auto]
+name="auto-generated-data"
+config={}
+[destinations.auto-dest]
+method="memory"
+[[flows]]
+from="auto"
+to="auto-dest"
+```
+
+```python
+def run(job_input: IJobInput):
+    with DataFlowInput(job_input) as flow_input:
+        flow_input.start_flow(toml_parser.load_config("config.toml"))
+```
+
 ### Build and testing
 
 ```

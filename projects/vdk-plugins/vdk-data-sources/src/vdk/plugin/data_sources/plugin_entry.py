@@ -36,6 +36,9 @@ class DataSourcesPlugin:
                 )
 
 
+# TODO: add ingest.toml type of job step which would automatically execute ingestion flows declared in TOML wihtout any python code
+
+
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.add_hook_specs(DataSourcesHookSpec)

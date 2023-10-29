@@ -36,6 +36,19 @@ def test_run_ingest_data_flow_sources():
     assert len(ingest_plugin.payloads) > 0
 
 
+def test_run_ingest_data_flow_sources_toml():
+    ingest_plugin = IngestIntoMemoryPlugin()
+    runner = CliEntryBasedTestRunner(ingest_plugin, plugin_entry)
+
+    result: Result = runner.invoke(
+        ["run", jobs_path_from_caller_directory("ingest-data-flow-toml-job")]
+    )
+
+    cli_assert_equal(0, result)
+
+    assert len(ingest_plugin.payloads) > 0
+
+
 def test_run_ingest_sources_error_no_such_method():
     runner = CliEntryBasedTestRunner(plugin_entry)
 
