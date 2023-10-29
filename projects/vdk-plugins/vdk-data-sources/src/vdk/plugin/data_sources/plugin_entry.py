@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from typing import List
 
+import click
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.core.config import ConfigurationBuilder
@@ -49,3 +50,10 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.hook().vdk_data_sources_register.call_historic(
         kwargs=dict(data_source_factory=SingletonDataSourceFactory())
     )
+
+
+@hookimpl
+def vdk_command_line(root_command: click.Group):
+    from vdk.plugin.data_sources.sources_command import data_sources
+
+    root_command.add_command(data_sources)
