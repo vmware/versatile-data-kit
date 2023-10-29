@@ -4,12 +4,22 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
-from vdk.plugin.data_sources.factory import (
-    DataSourceNotFoundException,
-)
+from vdk.plugin.data_sources.data_source import IDataSource
+from vdk.plugin.data_sources.data_source import IDataSourceConfiguration
+from vdk.plugin.data_sources.factory import data_source
+from vdk.plugin.data_sources.factory import DataSourceNotFoundException
 from vdk.plugin.data_sources.factory import (
     SingletonDataSourceFactory,
 )
+
+
+class MockDataSourceConfig(Mock, IDataSourceConfiguration):
+    pass
+
+
+@data_source("mock", MockDataSourceConfig)
+class MockDataSource(Mock, IDataSource):
+    pass
 
 
 def test_register_and_list_data_source():
@@ -22,7 +32,7 @@ def test_register_and_list_data_source():
     ):
         factory = SingletonDataSourceFactory()
 
-        factory.register_data_source("test_ds", Mock(), Mock())
+        factory.register_data_source_class(MockDataSource)
 
         data_sources = factory.list()
         assert len(data_sources) == 1
@@ -41,9 +51,9 @@ def test_create_data_source():
     ):
         factory = SingletonDataSourceFactory()
 
-        factory.register_data_source("test_ds", Mock(), Mock())
+        factory.register_data_source_class(MockDataSource)
 
-        data_source_instance = factory.create_data_source("test_ds")
+        data_source_instance = factory.create_data_source("mock")
         assert data_source_instance is not None
 
 
