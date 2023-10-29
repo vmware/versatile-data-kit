@@ -7,10 +7,12 @@ import traceback
 from dataclasses import dataclass
 from queue import Queue
 from threading import Thread
+from typing import cast
 from typing import List
 from typing import Optional
 
 from vdk.api.job_input import IIngester
+from vdk.api.job_input import IJobInput
 from vdk.plugin.data_sources.data_source import DataSourceError
 from vdk.plugin.data_sources.data_source import (
     DataSourcesAggregatedException,
@@ -26,6 +28,8 @@ from vdk.plugin.data_sources.data_source import (
 from vdk.plugin.data_sources.data_source import (
     StopDataSourceStream,
 )
+from vdk.plugin.data_sources.state import DataSourceStateFactory
+from vdk.plugin.data_sources.state import PropertiesBasedDataSourceStorage
 
 log = logging.getLogger(__name__)
 
@@ -40,18 +44,22 @@ class IngestDestination:
 
 @dataclass
 class IngestQueueEntry:
+    data_source_id: str
     stream: IDataSourceStream
     destinations: List[IngestDestination]
     error_callback: Optional[IDataSourceErrorCallback] = None
 
 
 class DataSourceIngester:
-    def __init__(self, actual_ingester: IIngester):
+    def __init__(self, job_input: IJobInput):
         self.__ingestion_queue = Queue()
-        self.__actual_ingester = actual_ingester
+        self.__actual_ingester = cast(IIngester, job_input)
         self.__worker_threads = self._start_workers(8)
         self.__ingested_streams_set = set()
         self.__stored_exceptions = queue.SimpleQueue()
+        self.__state_factory = DataSourceStateFactory(
+            PropertiesBasedDataSourceStorage(job_input)
+        )
 
     def _start_workers(self, number_of_worker_threads: int) -> List[Thread]:
         threads = []
@@ -118,15 +126,6 @@ class DataSourceIngester:
             self.__stored_exceptions.put((ingest_entry.stream.name(), e))
 
     @staticmethod
-    def __generate_stream_set_key(
-        data_source: IDataSource, entry: IngestQueueEntry
-    ) -> tuple:
-        return (
-            data_source.__class__.__name__,
-            entry.stream.name(),
-        )
-
-    @staticmethod
     def _is_termination_signal(queue_item):
         return queue_item is None
 
@@ -154,6 +153,17 @@ class DataSourceIngester:
                         collection_id=destination.collection_id,
                     )
 
+            if payload.state:
+                # TODO: it would be better to update the state after the actual ingester
+                # is finished. So it might be good idea to add a callback so that when send object for ingestion
+                # finishes successfully then state is updated.
+                data_source_state = self.__state_factory.get_data_source_state(
+                    ingest_entry.data_source_id
+                )
+                data_source_state.update_stream(
+                    ingest_entry.stream.name(), payload.state
+                )
+
     @staticmethod
     def _infer_destination_table(
         ingest_entry: IngestQueueEntry, destination: IngestDestination, payload
@@ -168,25 +178,33 @@ class DataSourceIngester:
 
     def start_ingestion(
         self,
+        data_source_id: str,
         data_source: IDataSource,
-        destinations: List[IngestDestination],
+        destinations: List[IngestDestination] = None,
         error_callback: Optional[IDataSourceErrorCallback] = None,
     ):
+        if data_source_id not in self.__ingested_streams_set:
+            self.__ingested_streams_set.add(data_source_id)
+        else:
+            raise ValueError(
+                f"Data source is already in ingestion queue. "
+                f"Ingestion same data source more than once is currently not supported."
+            )
+        if not destinations:
+            destinations = [IngestDestination()]
+
+        data_source.connect(self.__state_factory.get_data_source_state(data_source_id))
+
         for stream in data_source.streams():
-            entry = IngestQueueEntry(stream, destinations, error_callback)
-            key = self.__generate_stream_set_key(data_source, entry)
-            if key not in self.__ingested_streams_set:
-                self.__ingestion_queue.put(entry)
-                self.__ingested_streams_set.add(key)
-            else:
-                log.warning(
-                    f"Data source stream combination {key} is already in ingestion queue."
-                    f"Ignoring it to prevent duplication."
-                )
+            entry = IngestQueueEntry(
+                data_source_id, stream, destinations, error_callback
+            )
+            self.__ingestion_queue.put(entry)
 
     def ingest_data_source(
         self,
-        data_source: "IDataSource",
+        data_source_id: str,
+        data_source: IDataSource,
         destination_table: Optional[str] = None,
         method: Optional[str] = None,
         target: Optional[str] = None,
@@ -194,6 +212,7 @@ class DataSourceIngester:
         error_callback: Optional[IDataSourceErrorCallback] = None,
     ):
         self.start_ingestion(
+            data_source_id,
             data_source,
             [IngestDestination(destination_table, method, target, collection_id)],
             error_callback,
