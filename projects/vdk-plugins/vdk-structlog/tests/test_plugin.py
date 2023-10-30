@@ -16,7 +16,7 @@ EXTRA_TEST_VALUE = "extra_test_value"
 EXCLUDED_BOUND_TEST_KEY = "excluded_bound_test_key"
 EXCLUDED_BOUND_TEST_VALUE = "excluded_bound_test_value"
 
-STOCK_FIELDS = ["level", "file_name", "line_number", "vdk_job_name"]
+STOCK_FIELDS = ["level", "file_name", "line_number", "vdk_job_name"]  # TODO: add timestamp once bug is resolved
 STOCK_FIELD_REPRESENTATIONS = {
     "console": {
         "level": "[INFO ]",
@@ -34,7 +34,8 @@ STOCK_FIELD_REPRESENTATIONS = {
 
 
 def test_structlog_console():
-    for log_format in ['console']:  # TODO: replace with ["console", "json"] once the issue where fields can't be excluded in JSON is fixed
+    for log_format in ['console']:  # TODO: replace with ["console", "json"] once the issue where fields
+                                    # can't be excluded in JSON is fixed
         with mock.patch.dict(
             os.environ,
             {
