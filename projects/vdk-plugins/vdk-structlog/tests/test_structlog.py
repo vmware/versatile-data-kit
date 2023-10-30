@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 from unittest import mock
+import pytest
 
 from click.testing import Result
 from vdk.plugin.structlog import structlog_plugin
@@ -33,82 +34,101 @@ STOCK_FIELD_REPRESENTATIONS = {
 }
 
 
-def test_structlog_console():
-    for log_format in [
-        "console"
-    ]:  # TODO: replace with ["console", "json"] once the issue where fields can't be excluded in JSON is fixed
-        with mock.patch.dict(
-            os.environ,
-            {
-                "VDK_LOGGING_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
-                "VDK_LOGGING_FORMAT": log_format,
-            },
-        ):
-            runner = CliEntryBasedTestRunner(structlog_plugin)
+@pytest.mark.parametrize(
+    "log_format",
+    ["console"])  # TODO: replace with ["console","json"] once the issue where fields can't be excluded in JSON is fixed
+def test_structlog_console(log_format):
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
+            "VDK_LOGGING_FORMAT": log_format,
+        },
+    ):
+        logs = _run_job_and_get_logs()
 
-            result: Result = runner.invoke(
-                [
-                    "run",
-                    "--arguments",
-                    _get_job_arguments(),
-                    jobs_path_from_caller_directory("job-with-bound-logger"),
-                ]
-            )
+        log_with_no_bound_context = _get_log_containing_s(
+            logs,
+            "Log statement with no bound context"
+        )
+        log_with_bound_context = _get_log_containing_s(
+            logs,
+            "Log statement with bound context"
+        )
+        log_with_bound_and_extra_context = _get_log_containing_s(
+            logs,
+            "Log statement with bound context and extra context"
+        )
 
-            logs = result.output.split("\n")
+        _assert_cases(
+            log_with_no_bound_context,
+            log_with_bound_context,
+            log_with_bound_and_extra_context,
+        )
 
-            log_with_no_bound_context = [
-                x for x in logs if "Log statement with no bound context" in x
-            ][0]
-            log_with_bound_context = [
-                x for x in logs if "Log statement with bound context" in x
-            ][0]
-            log_with_bound_and_extra_context = [
-                x
-                for x in logs
-                if "Log statement with bound context and extra context" in x
-            ][0]
 
-            _assert_cases(
-                log_with_no_bound_context,
-                log_with_bound_context,
-                log_with_bound_and_extra_context,
-            )
+@pytest.mark.parametrize(
+    "log_format",
+    ["console"]
+    )  # TODO: replace with ["console", "json"] once the issue where fields can't be excluded in JSON is fixed
+def test_stock_fields_removal(log_format):
+    stock_field_reps = STOCK_FIELD_REPRESENTATIONS[log_format]
 
-        stock_field_reps = STOCK_FIELD_REPRESENTATIONS[log_format]
-
-        for removed_field in STOCK_FIELDS:
-            shown_fields = [field for field in STOCK_FIELDS if field != removed_field]
-            vdk_logging_metadata = (
+    for removed_field in STOCK_FIELDS:
+        shown_fields = [field for field in STOCK_FIELDS if field != removed_field]
+        vdk_logging_metadata = (
                 ",".join(shown_fields) + ",bound_test_key,extra_test_key"
-            )
+        )
 
-            with mock.patch.dict(
+        with mock.patch.dict(
                 os.environ,
                 {
                     "VDK_LOGGING_METADATA": vdk_logging_metadata,
                     "VDK_LOGGING_FORMAT": log_format,
                 },
-            ):
-                runner = CliEntryBasedTestRunner(structlog_plugin)
+        ):
+            test_log = _get_log_containing_s(
+                _run_job_and_get_logs(),
+                "Log statement with bound context and extra context"
+            )
 
-                result: Result = runner.invoke(
-                    [
-                        "run",
-                        "--arguments",
-                        _get_job_arguments(),
-                        jobs_path_from_caller_directory("job-with-bound-logger"),
-                    ]
-                )
+            # check that the removed_field in not shown in the log
+            assert stock_field_reps[removed_field] not in test_log
 
-                test_log = [
-                    x
-                    for x in result.output.split("\n")
-                    if "Log statement with bound context and extra context" in x
-                ][0]
 
-                # check that the removed_field in not shown in the log
-                assert stock_field_reps[removed_field] not in test_log
+def _run_job_and_get_logs():
+    """
+    Runs the necessary job and returns the output logs.
+
+    :return: Job logs
+    """
+    runner = CliEntryBasedTestRunner(structlog_plugin)
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            "--arguments",
+            _get_job_arguments(),
+            jobs_path_from_caller_directory("job-with-bound-logger"),
+        ]
+    )
+
+    return result.output.split("\n")
+
+
+def _get_log_containing_s(logs, s):
+    """
+    Given a list of logs and a string, returns the first log which contains the string
+    :param logs:
+    :param s:
+    :return:
+    """
+    try:
+        necessary_log = [x for x in logs if s in x][0]
+    except IndexError as e:
+        raise Exception("Log cannot be found inside provided job logs") from e
+
+    return necessary_log
 
 
 def _assert_cases(
