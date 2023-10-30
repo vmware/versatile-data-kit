@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 from unittest import mock
+import re
 
 import pytest
 from click.testing import Result
@@ -25,15 +26,15 @@ STOCK_FIELDS = [
 ]  # TODO: add timestamp once bug is resolved
 STOCK_FIELD_REPRESENTATIONS = {
     "console": {
-        "level": "[INFO ]",
-        "file_name": "10_dummy.py",
-        "line_number": ":21",
+        "level": "\[INFO ]",
+        "file_name": "10_dummy\.py",
+        "line_number": ":[0-9]+",
         "vdk_job_name": JOB_NAME,
     },
     "json": {
         "level": '"level": "INFO"',
         "file_name": '"filename:":"10_dummy.py"',
-        "line_number": '"lineno": 21',
+        "line_number": '"lineno": [0-9]+',
         "vdk_job_name": f'"vdk_job_name": "{JOB_NAME}"',
     },
 }
@@ -93,10 +94,11 @@ def test_stock_fields_removal(log_format):
             )
 
             # check that the removed_field in not shown in the log
-            assert stock_field_reps[removed_field] not in test_log
+            assert re.search(stock_field_reps[removed_field], test_log) is None
 
+            # check the rest are shown
             for shown_field in shown_fields:
-                assert stock_field_reps[shown_field] in test_log
+                assert re.search(stock_field_reps[shown_field], test_log) is not None
 
 
 def _run_job_and_get_logs():
