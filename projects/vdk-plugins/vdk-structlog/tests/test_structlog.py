@@ -145,7 +145,7 @@ def _assert_cases(
         and (JOB_NAME in log_with_bound_and_extra_context)
     )
 
-    # check bound logger can bind context but that bound context does not appear in the rest of logging
+    # check that bound logger can bind context but that bound context does not appear in the rest of logging
     assert (BOUND_TEST_VALUE in log_with_bound_context) and (
         BOUND_TEST_VALUE not in log_with_no_bound_context
     )
