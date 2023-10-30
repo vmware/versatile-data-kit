@@ -83,8 +83,8 @@ def configure_initial_logging_before_anything():
         is run which adds more context to the logs and initializes syslog handler (if configured to do so)
     """
     log_level = "WARNING"
-    if os.environ.get("LOG_LEVEL_VDK", None):
-        log_level = os.environ.get("LOG_LEVEL_VDK")
+    if os.environ.get(LOG_LEVEL_VDK, None):
+        log_level = os.environ.get(LOG_LEVEL_VDK)
     elif os.environ.get("VDK_LOG_LEVEL_VDK", None):
         log_level = os.environ.get("VDK_LOG_LEVEL_VDK")
 
