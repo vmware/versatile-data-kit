@@ -1,6 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
 import re
 import socket
 import types
@@ -9,6 +10,7 @@ from typing import cast
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config import vdk_config
+from vdk.internal.builtin_plugins.config.vdk_config import LOG_LEVEL_VDK
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
@@ -63,6 +65,30 @@ def _parse_log_level_module(log_level_module):
                 "Set correctly configuration to log_level_debug configuration in format 'module=level;module2=level2'",
             )
         )
+
+
+def configure_initial_logging_before_anything():
+    """
+    Configure logging at the start of the app.
+    At this point we do not know what user has configured so we use some sensible approach
+    All logs would be vdk only logs. User code will not have been executed yet so we will use log_level_vdk
+    to control the level.
+    We default to WARN since in most cases users would not care about internal vdk logs.
+
+    Logging lifecycle:
+    1. This function is executed at the entry point of the app and configures default logging format and level
+    2. After vdk_initialize hook is executed and CLI command starts then `vdk --verbosity` option is taken (if set)
+        and click logging configuration takes over
+    3. When initialize_job hook (applicable for vdk run only) is executed then below configure_loggers function
+        is run which adds more context to the logs and initializes syslog handler (if configured to do so)
+    """
+    log_level = "WARNING"
+    if os.environ.get(LOG_LEVEL_VDK, None):
+        log_level = os.environ.get(LOG_LEVEL_VDK)
+    elif os.environ.get("VDK_LOG_LEVEL_VDK", None):
+        log_level = os.environ.get("VDK_LOG_LEVEL_VDK")
+
+    logging.basicConfig(format="%(message)s", level=logging.getLevelName(log_level))
 
 
 def configure_loggers(
