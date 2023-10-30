@@ -1,10 +1,10 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import json
 
 from vdk.api.job_input import IJobInput
 from vdk.internal.core.logging import bind_logger
+
 log = logging.getLogger(__name__)
 
 

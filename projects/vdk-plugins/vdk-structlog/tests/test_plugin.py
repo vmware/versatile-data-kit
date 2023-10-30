@@ -39,7 +39,7 @@ def test_structlog_console():
             os.environ,
             {
                 "VDK_LOGGING_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
-                "VDK_LOGGING_FORMAT": log_format
+                "VDK_LOGGING_FORMAT": log_format,
             },
         ):
             runner = CliEntryBasedTestRunner(structlog_plugin)
@@ -62,10 +62,16 @@ def test_structlog_console():
                 x for x in logs if "Log statement with bound context" in x
             ][0]
             log_with_bound_and_extra_context = [
-                x for x in logs if "Log statement with bound context and extra context" in x
+                x
+                for x in logs
+                if "Log statement with bound context and extra context" in x
             ][0]
 
-            _assert_cases(log_with_no_bound_context, log_with_bound_context, log_with_bound_and_extra_context)
+            _assert_cases(
+                log_with_no_bound_context,
+                log_with_bound_context,
+                log_with_bound_and_extra_context,
+            )
 
         stock_field_reps = STOCK_FIELD_REPRESENTATIONS[log_format]
 
@@ -100,27 +106,27 @@ def test_structlog_console():
                 assert stock_field_reps[removed_field] not in test_log
 
 
-def _assert_cases(log_with_no_bound_context, log_with_bound_context, log_with_bound_and_extra_context):
+def _assert_cases(
+    log_with_no_bound_context, log_with_bound_context, log_with_bound_and_extra_context
+):
     # check for job name in logs
     assert (
-            (JOB_NAME in log_with_no_bound_context) and
-            (JOB_NAME in log_with_bound_context) and
-            (JOB_NAME in log_with_bound_and_extra_context)
+        (JOB_NAME in log_with_no_bound_context)
+        and (JOB_NAME in log_with_bound_context)
+        and (JOB_NAME in log_with_bound_and_extra_context)
     )
 
     # check bound logger can bind context but that bound context does not appear in the rest of logging
-    assert (
-            (BOUND_TEST_VALUE in log_with_bound_context) and
-            (BOUND_TEST_VALUE not in log_with_no_bound_context)
+    assert (BOUND_TEST_VALUE in log_with_bound_context) and (
+        BOUND_TEST_VALUE not in log_with_no_bound_context
     )
 
     # check extra bound context does not appear if not set in the logging_metadata config variable
     assert EXTRA_TEST_VALUE not in log_with_bound_context
 
     # check for both the bound and the extra context in bound log statements which include extra context
-    assert (
-            (EXTRA_TEST_VALUE in log_with_bound_and_extra_context) and
-            (BOUND_TEST_VALUE in log_with_bound_and_extra_context)
+    assert (EXTRA_TEST_VALUE in log_with_bound_and_extra_context) and (
+        BOUND_TEST_VALUE in log_with_bound_and_extra_context
     )
 
     # check that one of the bound values does not appear in the logs since we've not configured it to appear
