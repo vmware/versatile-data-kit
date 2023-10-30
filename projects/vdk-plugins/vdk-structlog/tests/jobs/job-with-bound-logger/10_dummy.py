@@ -9,8 +9,8 @@ log = logging.getLogger(__name__)
 
 
 def run(job_input: IJobInput):
-    bound_fields = job_input.get_arguments()['bound_fields']
-    extra_fields = job_input.get_arguments()['extra_fields']
+    bound_fields = job_input.get_arguments()["bound_fields"]
+    extra_fields = job_input.get_arguments()["extra_fields"]
     bound_logger = bind_logger(
         log,
         bound_fields,
