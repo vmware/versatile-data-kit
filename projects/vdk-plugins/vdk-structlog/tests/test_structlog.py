@@ -95,6 +95,9 @@ def test_stock_fields_removal(log_format):
             # check that the removed_field in not shown in the log
             assert stock_field_reps[removed_field] not in test_log
 
+            for shown_field in shown_fields:
+                assert stock_field_reps[shown_field] in test_log
+
 
 def _run_job_and_get_logs():
     """
