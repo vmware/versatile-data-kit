@@ -40,8 +40,8 @@ STOCK_FIELD_REPRESENTATIONS = {
 
 
 @pytest.mark.parametrize(
-    "log_format",
-    ["console"])  # TODO: replace with ["console","json"] once the issue where fields can't be excluded in JSON is fixed
+    "log_format", ["console"]
+)  # TODO: replace with ["console","json"] once the issue where fields can't be excluded in JSON is fixed
 def test_structlog(log_format):
     with mock.patch.dict(
         os.environ,
@@ -89,8 +89,7 @@ def test_stock_fields_removal(log_format):
             logs = _run_job_and_get_logs()
 
             test_log = _get_log_containing_s(
-                logs,
-                "Log statement with bound context and extra context"
+                logs, "Log statement with bound context and extra context"
             )
 
             # check that the removed_field in not shown in the log

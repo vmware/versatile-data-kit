@@ -18,4 +18,6 @@ def run(job_input: IJobInput):
 
     log.info("Log statement with no bound context")
     bound_logger.info("Log statement with bound context")
-    bound_logger.info("Log statement with bound context and extra context", extra=extra_fields)
+    bound_logger.info(
+        "Log statement with bound context and extra context", extra=extra_fields
+    )
