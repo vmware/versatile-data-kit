@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 from unittest import mock
-import pytest
 
+import pytest
 from click.testing import Result
 from vdk.plugin.structlog import structlog_plugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -40,8 +40,8 @@ STOCK_FIELD_REPRESENTATIONS = {
 
 
 @pytest.mark.parametrize(
-    "log_format",
-    ["console"])  # TODO: replace with ["console","json"] once the issue where fields can't be excluded in JSON is fixed
+    "log_format", ["console"]
+)  # TODO: replace with ["console","json"] once the issue where fields can't be excluded in JSON is fixed
 def test_structlog_console(log_format):
     with mock.patch.dict(
         os.environ,
@@ -53,16 +53,13 @@ def test_structlog_console(log_format):
         logs = _run_job_and_get_logs()
 
         log_with_no_bound_context = _get_log_containing_s(
-            logs,
-            "Log statement with no bound context"
+            logs, "Log statement with no bound context"
         )
         log_with_bound_context = _get_log_containing_s(
-            logs,
-            "Log statement with bound context"
+            logs, "Log statement with bound context"
         )
         log_with_bound_and_extra_context = _get_log_containing_s(
-            logs,
-            "Log statement with bound context and extra context"
+            logs, "Log statement with bound context and extra context"
         )
 
         _assert_cases(
@@ -73,28 +70,25 @@ def test_structlog_console(log_format):
 
 
 @pytest.mark.parametrize(
-    "log_format",
-    ["console"]
-    )  # TODO: replace with ["console", "json"] once the issue where fields can't be excluded in JSON is fixed
+    "log_format", ["console"]
+)  # TODO: replace with ["console", "json"] once the issue where fields can't be excluded in JSON is fixed
 def test_stock_fields_removal(log_format):
     stock_field_reps = STOCK_FIELD_REPRESENTATIONS[log_format]
 
     for removed_field in STOCK_FIELDS:
         shown_fields = [field for field in STOCK_FIELDS if field != removed_field]
-        vdk_logging_metadata = (
-                ",".join(shown_fields) + ",bound_test_key,extra_test_key"
-        )
+        vdk_logging_metadata = ",".join(shown_fields) + ",bound_test_key,extra_test_key"
 
         with mock.patch.dict(
-                os.environ,
-                {
-                    "VDK_LOGGING_METADATA": vdk_logging_metadata,
-                    "VDK_LOGGING_FORMAT": log_format,
-                },
+            os.environ,
+            {
+                "VDK_LOGGING_METADATA": vdk_logging_metadata,
+                "VDK_LOGGING_FORMAT": log_format,
+            },
         ):
             test_log = _get_log_containing_s(
                 _run_job_and_get_logs(),
-                "Log statement with bound context and extra context"
+                "Log statement with bound context and extra context",
             )
 
             # check that the removed_field in not shown in the log
