@@ -69,11 +69,14 @@ class CoreConfigDefinitionPlugin:
         )  # {LOCAL, CLOUD, NONE} To be overridden when executing in cloud
         config_builder.add(
             LOG_LEVEL_VDK,
-            None,
+            "INFO",
             True,
             "Logging verbosity of VDK code can be controlled from here. "
             "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG. "
-            "If not set python default or one set by vdk -v LEVEL is used. ",
+            "If not set python default is used. vdk -v <LEVEL> would take precedence over this variable."
+            "LOG_LEVEL_VDK environment variable is used when the CLI is starting as initial logging level "
+            "before any configuration is loaded. "
+            "Afterwards -v <LEVEL> is considered and vdk loaded configuration.",
         )
         config_builder.add(
             LOG_LEVEL_MODULE,
