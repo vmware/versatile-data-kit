@@ -22,19 +22,21 @@ STOCK_FIELD_REPRESENTATIONS = {
         "level": "[INFO ]",
         "file_name": "10_dummy.py",
         "line_number": ":23",
-        "vdk_job_name": JOB_NAME
+        "vdk_job_name": JOB_NAME,
     },
     "json": {
         "level": '"level": "INFO"',
         "file_name": '"filename:":"10_dummy.py"',
         "line_number": '"lineno": 23',
-        "vdk_job_name": f'"vdk_job_name": "{JOB_NAME}"'
-    }
+        "vdk_job_name": f'"vdk_job_name": "{JOB_NAME}"',
+    },
 }
 
 
 def test_structlog_console():
-    for log_format in ['console']:  # TODO: replace with ["console", "json"] once the issue where fields can't be excluded in JSON is fixed
+    for log_format in [
+        "console"
+    ]:  # TODO: replace with ["console", "json"] once the issue where fields can't be excluded in JSON is fixed
         with mock.patch.dict(
             os.environ,
             {
@@ -49,7 +51,7 @@ def test_structlog_console():
                     "run",
                     "--arguments",
                     _get_job_arguments(),
-                    jobs_path_from_caller_directory("job-with-bound-logger")
+                    jobs_path_from_caller_directory("job-with-bound-logger"),
                 ]
             )
 
@@ -77,23 +79,26 @@ def test_structlog_console():
 
         for removed_field in STOCK_FIELDS:
             shown_fields = [field for field in STOCK_FIELDS if field != removed_field]
-            vdk_logging_metadata = ",".join(shown_fields) + ",bound_test_key,extra_test_key"
+            vdk_logging_metadata = (
+                ",".join(shown_fields) + ",bound_test_key,extra_test_key"
+            )
 
             with mock.patch.dict(
-                    os.environ,
-                    {
-                        "VDK_LOGGING_METADATA": vdk_logging_metadata,
-                        "VDK_LOGGING_FORMAT": log_format
-                    },
+                os.environ,
+                {
+                    "VDK_LOGGING_METADATA": vdk_logging_metadata,
+                    "VDK_LOGGING_FORMAT": log_format,
+                },
             ):
                 runner = CliEntryBasedTestRunner(structlog_plugin)
 
                 result: Result = runner.invoke(
-                    ["run",
-                     "--arguments",
-                     _get_job_arguments(),
-                     jobs_path_from_caller_directory("job-with-bound-logger")
-                     ]
+                    [
+                        "run",
+                        "--arguments",
+                        _get_job_arguments(),
+                        jobs_path_from_caller_directory("job-with-bound-logger"),
+                    ]
                 )
 
                 test_log = [
@@ -130,15 +135,13 @@ def _assert_cases(
     )
 
     # check that one of the bound values does not appear in the logs since we've not configured it to appear
-    assert (
-            (EXCLUDED_BOUND_TEST_VALUE not in log_with_bound_context) and
-            (EXCLUDED_BOUND_TEST_VALUE not in log_with_bound_and_extra_context)
+    assert (EXCLUDED_BOUND_TEST_VALUE not in log_with_bound_context) and (
+        EXCLUDED_BOUND_TEST_VALUE not in log_with_bound_and_extra_context
     )
 
     # check the log level and job name appear in the logs (so we can compare to when we exclude them below)
-    assert (
-            ("INFO" in log_with_no_bound_context) and
-            (JOB_NAME in log_with_no_bound_context)
+    assert ("INFO" in log_with_no_bound_context) and (
+        JOB_NAME in log_with_no_bound_context
     )
 
 
