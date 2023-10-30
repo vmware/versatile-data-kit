@@ -27,13 +27,13 @@ STOCK_FIELD_REPRESENTATIONS = {
     "console": {
         "level": "[INFO ]",
         "file_name": "10_dummy.py",
-        "line_number": ":23",
+        "line_number": ":21",
         "vdk_job_name": JOB_NAME,
     },
     "json": {
         "level": '"level": "INFO"',
         "file_name": '"filename:":"10_dummy.py"',
-        "line_number": '"lineno": 23',
+        "line_number": '"lineno": 21',
         "vdk_job_name": f'"vdk_job_name": "{JOB_NAME}"',
     },
 }
@@ -42,7 +42,7 @@ STOCK_FIELD_REPRESENTATIONS = {
 @pytest.mark.parametrize(
     "log_format",
     ["console"])  # TODO: replace with ["console","json"] once the issue where fields can't be excluded in JSON is fixed
-def test_structlog_console(log_format):
+def test_structlog(log_format):
     with mock.patch.dict(
         os.environ,
         {
@@ -92,8 +92,10 @@ def test_stock_fields_removal(log_format):
                     "VDK_LOGGING_FORMAT": log_format,
                 },
         ):
+            logs = _run_job_and_get_logs()
+
             test_log = _get_log_containing_s(
-                _run_job_and_get_logs(),
+                logs,
                 "Log statement with bound context and extra context"
             )
 
