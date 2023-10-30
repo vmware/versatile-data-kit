@@ -1,8 +1,8 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
-from unittest import mock
 import re
+from unittest import mock
 
 import pytest
 from click.testing import Result
@@ -26,8 +26,8 @@ STOCK_FIELDS = [
 ]  # TODO: add timestamp once bug is resolved
 STOCK_FIELD_REPRESENTATIONS = {
     "console": {
-        "level": "\[INFO ]",
-        "file_name": "10_dummy\.py",
+        "level": r"\[INFO ]",
+        "file_name": r"10_dummy\.py",
         "line_number": ":[0-9]+",
         "vdk_job_name": JOB_NAME,
     },
