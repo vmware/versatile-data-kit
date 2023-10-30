@@ -16,7 +16,12 @@ EXTRA_TEST_VALUE = "extra_test_value"
 EXCLUDED_BOUND_TEST_KEY = "excluded_bound_test_key"
 EXCLUDED_BOUND_TEST_VALUE = "excluded_bound_test_value"
 
-STOCK_FIELDS = ["level", "file_name", "line_number", "vdk_job_name"]  # TODO: add timestamp once bug is resolved
+STOCK_FIELDS = [
+    "level",
+    "file_name",
+    "line_number",
+    "vdk_job_name",
+]  # TODO: add timestamp once bug is resolved
 STOCK_FIELD_REPRESENTATIONS = {
     "console": {
         "level": "[INFO ]",
