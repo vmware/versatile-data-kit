@@ -11,8 +11,10 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
 from vdk.internal.core import errors
 from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ResolvableByActual
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert
@@ -93,11 +95,13 @@ class TestTemplateRegression(unittest.TestCase):
             template_name="load_dimension_scd1_template_only",
             template_args={},
             num_exp_errors=4,
+            params_class_name="SlowlyChangingDimensionTypeOverwriteParams",
         )
         self._run_template_with_bad_arguments(
             template_name="load_dimension_scd1_template_only",
             template_args={"source_view": "foo", "extra_parameter": "bar"},
             num_exp_errors=3,
+            params_class_name="SlowlyChangingDimensionTypeOverwriteParams",
         )
 
     def test_load_dimension_scd1_bad_target_schema(self) -> None:
@@ -201,11 +205,13 @@ class TestTemplateRegression(unittest.TestCase):
             template_name="load_dimension_scd2_template_only",
             template_args={},
             num_exp_errors=9,
+            params_class_name="SlowlyChangingDimensionType2Params",
         )
         self._run_template_with_bad_arguments(
             template_name="load_dimension_scd2_template_only",
             template_args={"source_view": "foo", "extra_parameter": "bar"},
             num_exp_errors=8,
+            params_class_name="SlowlyChangingDimensionType2Params",
         )
 
     def test_load_dimension_scd2_bad_target_schema(self) -> None:
@@ -330,6 +336,7 @@ class TestTemplateRegression(unittest.TestCase):
             template_name="load_versioned_template_only",
             template_args={},
             num_exp_errors=7,
+            params_class_name="LoadVersionedParams",
         )
 
         good_template_args = {
@@ -374,6 +381,7 @@ class TestTemplateRegression(unittest.TestCase):
                 },
             },
             num_exp_errors=1,
+            params_class_name="LoadVersionedParams",
         )
 
         self._run_template_with_bad_arguments(
@@ -391,6 +399,7 @@ class TestTemplateRegression(unittest.TestCase):
                 },
             },
             num_exp_errors=1,
+            params_class_name="LoadVersionedParams",
         )
 
     def test_load_versioned_bad_target_schema(self) -> None:
@@ -520,11 +529,13 @@ class TestTemplateRegression(unittest.TestCase):
             template_name="load_fact_snapshot_template_only",
             template_args={},
             num_exp_errors=5,
+            params_class_name="FactDailySnapshotParams",
         )
         self._run_template_with_bad_arguments(
             template_name="load_fact_snapshot_template_only",
             template_args={"source_view": "foo", "target_table": None},
             num_exp_errors=4,
+            params_class_name="FactDailySnapshotParams",
         )
 
     def test_load_fact_snapshot_bad_target_schema(self) -> None:
@@ -627,24 +638,26 @@ class TestTemplateRegression(unittest.TestCase):
         )
 
     def _run_template_with_bad_arguments(
-        self, template_name: str, template_args: dict, num_exp_errors: int
+        self,
+        template_name: str,
+        template_args: dict,
+        num_exp_errors: int,
+        params_class_name: str,
     ) -> None:
-        expected_error_regex = re.escape(
+        expected_error = (
             f'{num_exp_errors} validation {"errors" if num_exp_errors > 1 else "error"} '
-            f"for {template_name} template"
+            f"for {params_class_name}"
         )
 
-        test_exception = Exception(expected_error_regex)
-
-        def just_rethrow(*_, **kwargs):
-            raise test_exception
-
-        with patch.object(errors, "report_and_rethrow") as patched_report_and_rethrow:
-            patched_report_and_rethrow.side_effect = just_rethrow
-            result = self._run_job(template_name, template_args)
-            assert expected_error_regex in result.output, result.output
-            actual_args, actual_kwargs = errors.report_and_rethrow.call_args
-            assert str(actual_args) == str((ResolvableBy.USER_ERROR, test_exception))
+        result = self._run_job(template_name, template_args)
+        cli_assert_equal(1, result)
+        ex = result.exception
+        assert isinstance(ex, ValidationError)
+        assert hasattr(ex, "_vdk_resolvable_actual")
+        assert getattr(ex, "_vdk_resolvable_actual") == ResolvableByActual.USER
+        assert hasattr(ex, "_vdk_resolvable_by")
+        assert getattr(ex, "_vdk_resolvable_by") == ResolvableBy.USER_ERROR
+        assert expected_error in result.output
 
     def _run_template_with_bad_target_schema(
         self, template_name: str, template_args: dict
