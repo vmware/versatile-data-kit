@@ -42,11 +42,6 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     checkDeployment();
   }
 
-  @Override
-  protected void afterDeploymentDeletion() throws Exception {
-    checkDesiredDeploymentDeleted();
-  }
-
   private void checkDeployment()
       throws Exception {
 
@@ -71,18 +66,6 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertFalse(jobDeployment.getEnabled());
     Assertions.assertNotNull(jobDeployment.getResources());
     Assertions.assertNotNull(jobDeployment.getJobVersion());
-    Assertions.assertNotNull(jobDeployment.getVdkVersion());
     Assertions.assertNotNull(jobDeployment.getContacts());
-  }
-
-  private void checkDesiredDeploymentDeleted() throws Exception {
-    mockMvc
-        .perform(
-            get(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                .with(user("user"))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
   }
 }

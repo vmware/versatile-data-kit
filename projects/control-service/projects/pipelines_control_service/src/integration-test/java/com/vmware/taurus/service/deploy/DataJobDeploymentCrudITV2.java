@@ -5,14 +5,6 @@
 
 package com.vmware.taurus.service.deploy;
 
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
-import static org.awaitility.Awaitility.await;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobVersion;
@@ -25,9 +17,6 @@ import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
 import io.kubernetes.client.openapi.ApiException;
-import java.time.OffsetDateTime;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -47,16 +36,28 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.OffsetDateTime;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
+import static org.awaitility.Awaitility.await;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @Import({DataJobDeploymentCrudITV2.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
-      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-      "datajobs.deployment.configuration.synchronization.task.enabled=true",
-      "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000",
-      // Setting this value to 1000000 effectively disables the scheduled execution of
-      // DataJobsSynchronizer.synchronizeDataJobs().
-      // This is necessary because the test scenario relies on manually triggering the process.
-      "datajobs.deployment.configuration.persistence.writeTos=DB"
+        "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+        "datajobs.deployment.configuration.synchronization.task.enabled=true",
+        "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000",
+        // Setting this value to 1000000 effectively disables the scheduled execution of
+        // DataJobsSynchronizer.synchronizeDataJobs().
+        // This is necessary because the test scenario relies on manually triggering the process.
+        "datajobs.deployment.configuration.persistence.writeTos=DB"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -72,14 +73,6 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
   @Autowired private DataJobsSynchronizer dataJobsSynchronizer;
 
   @Autowired private DeploymentService deploymentService;
-
-  private boolean jobEnabled;
-  private DataJob dataJob;
-  private DesiredDataJobDeployment desiredDataJobDeployment;
-  private ActualDataJobDeployment actualDataJobDeployment;
-  private String deploymentVersionShaShouldNotBeChanged;
-  private OffsetDateTime lastDeployedDateInitial;
-  private String testJobVersionSha;
 
   @TestConfiguration
   static class TaskExecutorConfig {
@@ -117,35 +110,36 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
                                     TEST_TEAM_NAME, testJobName)))));
   }
 
-  public void uploadJob() throws Exception {
+  @Test
+  public void testSynchronizeDataJob() throws Exception {
     DataJobVersion testDataJobVersion = uploadDataJob();
     Assertions.assertNotNull(testDataJobVersion);
-    testJobVersionSha = testDataJobVersion.getVersionSha();
-    Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
-  }
 
-  public void checkDeploymentExists() {
+    String testJobVersionSha = testDataJobVersion.getVersionSha();
+    Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
+
+    boolean jobEnabled = false;
+    DesiredDataJobDeployment desiredDataJobDeployment =
+        createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
+
+    // Checks if the deployment exist
     Optional<JobDeploymentStatus> jobDeploymentStatusOptional =
         deploymentService.readDeployment(testJobName);
     Assertions.assertFalse(jobDeploymentStatusOptional.isPresent());
     Assertions.assertFalse(actualJobDeploymentRepository.findById(testJobName).isPresent());
-  }
+    DataJob dataJob = jobsRepository.findById(testJobName).get();
 
-  private ActualDataJobDeployment deployJobForFirstTime() {
+    // Deploys data job for the very first time
     dataJobsSynchronizer.synchronizeDataJob(dataJob, desiredDataJobDeployment, null, false);
     ActualDataJobDeployment actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
     String deploymentVersionShaInitial = actualDataJobDeployment.getDeploymentVersionSha();
     OffsetDateTime lastDeployedDateInitial = actualDataJobDeployment.getLastDeployedDate();
     Assertions.assertNotNull(deploymentVersionShaInitial);
     Assertions.assertNotNull(lastDeployedDateInitial);
-    return actualDataJobDeployment;
-  }
 
-  private String deployJobWithNoChanges() {
-    lastDeployedDateInitial = actualDataJobDeployment.getLastDeployedDate();
+    // Tries to redeploy job without any changes
     dataJobsSynchronizer.synchronizeDataJob(
         dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
-    String deploymentVersionShaInitial = actualDataJobDeployment.getDeploymentVersionSha();
     actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
     String deploymentVersionShaShouldNotBeChanged =
         actualDataJobDeployment.getDeploymentVersionSha();
@@ -153,10 +147,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
         actualDataJobDeployment.getLastDeployedDate();
     Assertions.assertEquals(deploymentVersionShaInitial, deploymentVersionShaShouldNotBeChanged);
     Assertions.assertEquals(lastDeployedDateInitial, lastDeployedDateShouldNotBeChanged);
-    return deploymentVersionShaShouldNotBeChanged;
-  }
 
-  private void deployJobWithChanges() {
+    // Tries to redeploy job with changes
     jobEnabled = true;
     desiredDataJobDeployment = updateDataJobDeployment(jobEnabled);
     dataJobsSynchronizer.synchronizeDataJob(
@@ -167,9 +159,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     Assertions.assertNotEquals(lastDeployedDateInitial, lastDeployedDateShouldBeChanged);
     Assertions.assertNotEquals(
         deploymentVersionShaShouldNotBeChanged, deploymentVersionShaShouldBeChanged);
-  }
 
-  private void deleteDeployment() {
+    // Deletes deployment
     desiredJobDeploymentRepository.deleteById(testJobName);
     dataJobsSynchronizer.synchronizeDataJob(dataJob, null, actualDataJobDeployment, true);
     Assertions.assertFalse(deploymentService.readDeployment(testJobName).isPresent());
@@ -177,72 +168,51 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
   }
 
   @Test
-  public void testSynchronizeDataJob() throws Exception {
-    uploadJob();
+  public void testSynchronizeDataJobs() throws Exception {
+    DataJobVersion testDataJobVersion = uploadDataJob();
+    Assertions.assertNotNull(testDataJobVersion);
 
-    jobEnabled = false;
+    String testJobVersionSha = testDataJobVersion.getVersionSha();
+    Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
 
-    desiredDataJobDeployment = createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
+    boolean jobEnabled = false;
+    createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
 
-    checkDeploymentExists();
+    // Checks if the deployment exist
+    Optional<JobDeploymentStatus> jobDeploymentStatusOptional =
+        deploymentService.readDeployment(testJobName);
+    Assertions.assertFalse(jobDeploymentStatusOptional.isPresent());
+    Assertions.assertFalse(actualJobDeploymentRepository.findById(testJobName).isPresent());
 
-    dataJob = jobsRepository.findById(testJobName).get();
+    // Deploys data job for the very first time
+    dataJobsSynchronizer.synchronizeDataJobs();
 
-    actualDataJobDeployment = deployJobForFirstTime();
-
-    deploymentVersionShaShouldNotBeChanged = deployJobWithNoChanges();
-
-    deployJobWithChanges();
-
-    deleteDeployment();
-  }
-
-  private void waitDeploymentCompletion() {
+    // Wait for the job deployment to complete, polling every 15 seconds
+    // See: https://github.com/awaitility/awaitility/wiki/Usage
     await()
         .atMost(10, TimeUnit.MINUTES)
         .with()
         .pollInterval(15, TimeUnit.SECONDS)
         .until(() -> actualJobDeploymentRepository.findById(testJobName).isPresent());
-  }
 
-  private void checkDeployment() {
     ActualDataJobDeployment actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
     String deploymentVersionShaInitial = actualDataJobDeployment.getDeploymentVersionSha();
     OffsetDateTime lastDeployedDateInitial = actualDataJobDeployment.getLastDeployedDate();
     Assertions.assertNotNull(deploymentVersionShaInitial);
     Assertions.assertNotNull(lastDeployedDateInitial);
-  }
-
-  private void waitDeploymentDeletion() {
-    await()
-        .atMost(10, TimeUnit.MINUTES)
-        .with()
-        .pollInterval(15, TimeUnit.SECONDS)
-        .until(() -> deploymentService.readDeployment(testJobName).isEmpty());
-  }
-
-  @Test
-  public void testSynchronizeDataJobs() throws Exception {
-    uploadJob();
-
-    jobEnabled = false;
-    createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
-
-    checkDeploymentExists();
-
-    // Deploys data job for the very first time
-    dataJobsSynchronizer.synchronizeDataJobs();
-
-    waitDeploymentCompletion();
-
-    checkDeployment();
 
     jobsRepository.deleteById(testJobName);
 
     // Re-deploys data job
     dataJobsSynchronizer.synchronizeDataJobs();
 
-    waitDeploymentDeletion();
+    // Wait for the job deployment to complete, polling every 15 seconds
+    // See: https://github.com/awaitility/awaitility/wiki/Usage
+    await()
+        .atMost(10, TimeUnit.MINUTES)
+        .with()
+        .pollInterval(15, TimeUnit.SECONDS)
+        .until(() -> deploymentService.readDeployment(testJobName).isEmpty());
   }
 
   private ActualDataJobDeployment verifyDeploymentStatus(boolean enabled) {
@@ -302,7 +272,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
         mockMvc
             .perform(
                 post(String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                     .with(user("user"))
                     .content(jobZipBinary)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM))

@@ -5,17 +5,38 @@
 
 package com.vmware.taurus.datajobs.it;
 
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
+import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_WRONG_NAME;
+import static org.awaitility.Awaitility.await;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vmware.taurus.controlplane.model.data.*;
+import com.vmware.taurus.controlplane.model.data.DataJobDeployment;
+import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
+import com.vmware.taurus.controlplane.model.data.DataJobMode;
+import com.vmware.taurus.controlplane.model.data.DataJobResources;
+import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
+import com.vmware.taurus.controlplane.model.data.DataJobVersion;
 import com.vmware.taurus.datajobs.it.common.BaseIT;
 import com.vmware.taurus.service.deploy.JobImageDeployer;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import io.kubernetes.client.openapi.ApiException;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -23,24 +44,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_NAME;
-import static com.vmware.taurus.datajobs.it.common.WebHookServerMockExtension.TEST_TEAM_WRONG_NAME;
-import static org.awaitility.Awaitility.await;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
   protected static final Object DEPLOYMENT_ID = "testing";
 
   protected abstract void beforeDeploymentDeletion() throws Exception;
-
-  protected abstract void afterDeploymentDeletion() throws Exception;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -67,244 +74,87 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
   }
 
   @Test
-  public void testDataJobDeploymentCrud() throws Exception {
+  @Order(1)
+  public void uploadJobWithNoUser() throws Exception {
+    mockMvc
+        .perform(
+            post(String.format(
+                "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                .content(getJobZipArray())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM))
+        .andExpect(status().isUnauthorized());
+  }
 
-    // Take the job zip as byte array
+  @Test
+  @Order(2)
+  public void uploadJobWithWrongTeamAndUser() throws Exception {
+    mockMvc
+        .perform(
+            post(String.format(
+                "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_WRONG_NAME, testJobName))
+                .with(user("user"))
+                .content(getJobZipArray())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @Order(3)
+  public void testDataJobDeploymentCrudOperations() throws Exception {
+
+    var testDataJobVersion = uploadJobWithProperUser();
+    var testJobVersionSha = getTestJobVersionSha(testDataJobVersion);
+    var dataJobDeploymentRequestBody = getDataJobDeploymentRequestBody(testJobVersionSha, "3.9");
+    String jobDeploymentName = JobImageDeployer.getCronJobName(testJobName);
+
+    buildAndDeployJobWithNoUser(dataJobDeploymentRequestBody);
+
+    buildAndDeployJob(dataJobDeploymentRequestBody);
+
+    buildAndDeployJobWrongTeam(dataJobDeploymentRequestBody);
+
+    buildAndDeployJobWithResources(testJobVersionSha);
+
+    MvcResult result = getJobDeployment();
+
+    verifyJobDeploymentResponse(result, testJobVersionSha);
+
+    executeJobDeploymentWithNoUser();
+
+    executeGetJobDeploymentWithWrongTeam();
+
+    executeDisableDeploymentNoUser();
+
+    executeDisableDeployment();
+
+    executeDisableDeploymentWrongTeam();
+
+    verifyDeploymentDisabled(jobDeploymentName);
+
+    beforeDeploymentDeletion();
+
+    deleteDeploymentNoUser();
+
+    deleteDeploymentWrongTeam();
+
+    executeDeleteDeployment(jobDeploymentName);
+  }
+
+  @Test
+  @Order(4)
+  public void testDataJobDeleteSource() throws Exception {
     byte[] jobZipBinary =
         IOUtils.toByteArray(
             getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
 
-    // Execute job upload with no user
     mockMvc
         .perform(
             post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
-                .content(jobZipBinary)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM))
-        .andExpect(status().isUnauthorized());
-
-    // Execute job upload with proper user
-    var jobUploadResult =
-        mockMvc
-            .perform(
-                post(String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
-                    .with(user("user"))
-                    .content(jobZipBinary)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM))
-            .andReturn()
-            .getResponse();
-
-    if (jobUploadResult.getStatus() != 200) {
-      throw new Exception(
-          "status is "
-              + jobUploadResult.getStatus()
-              + "\nbody is "
-              + jobUploadResult.getContentAsString());
-    }
-
-    DataJobVersion testDataJobVersion =
-        new ObjectMapper().readValue(jobUploadResult.getContentAsString(), DataJobVersion.class);
-    Assertions.assertNotNull(testDataJobVersion);
-
-    String testJobVersionSha = testDataJobVersion.getVersionSha();
-    Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
-
-    // Setup
-    String dataJobDeploymentRequestBody = getDataJobDeploymentRequestBody(testJobVersionSha, "3.9");
-
-    // Execute job upload with wrong team name and user
-    mockMvc
-        .perform(
-            post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_WRONG_NAME, testJobName))
+                "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
                 .content(jobZipBinary)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM))
-        .andExpect(status().isNotFound());
-
-    // Execute build and deploy job with no user
-    mockMvc
-        .perform(
-            post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
-                .content(dataJobDeploymentRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnauthorized());
-
-    // Execute build and deploy job
-    mockMvc
-        .perform(
-            post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
-                .with(user("user"))
-                .content(dataJobDeploymentRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
-
-    // Execute build and deploy job with wrong team
-    mockMvc
-        .perform(
-            post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments",
-                    TEST_TEAM_WRONG_NAME, testJobName))
-                .with(user("user"))
-                .content(dataJobDeploymentRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
-
-    // Execute build and deploy job with job resources
-    mockMvc
-        .perform(
-            post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
-                .with(user("user"))
-                .content(getDataJobDeploymentRequestBodyWithJobResources(testJobVersionSha))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-
-    String jobDeploymentName = JobImageDeployer.getCronJobName(testJobName);
-    // Verify job deployment created
-    waitUntil(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
-
-    Optional<JobDeploymentStatus> cronJobOptional =
-        dataJobsKubernetesService.readCronJob(jobDeploymentName);
-    Assertions.assertTrue(cronJobOptional.isPresent());
-    JobDeploymentStatus cronJob = cronJobOptional.get();
-    Assertions.assertEquals(testJobVersionSha, cronJob.getGitCommitSha());
-    Assertions.assertEquals(DataJobMode.RELEASE.toString(), cronJob.getMode());
-    Assertions.assertEquals(true, cronJob.getEnabled());
-    Assertions.assertTrue(cronJob.getImageName().endsWith(testJobVersionSha));
-    Assertions.assertEquals("user", cronJob.getLastDeployedBy());
-
-    // Execute get job deployment with no user
-    mockMvc
-        .perform(
-            get(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnauthorized());
-
-    // Execute get job deployment
-    MvcResult result =
-        mockMvc
-            .perform(
-                get(String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                    .with(user("user"))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-    // Verify response
-    DataJobDeploymentStatus jobDeployment =
-        mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
-    Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
-    Assertions.assertEquals(true, jobDeployment.getEnabled());
-    Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
-    Assertions.assertEquals(true, jobDeployment.getEnabled());
-    // by default the version is the same as the tag specified by datajobs.vdk.image
-    // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
-    Assertions.assertEquals("release", jobDeployment.getVdkVersion());
-    Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
-    // just check some valid date is returned. It would be too error-prone/brittle to verify exact
-    // time.
-    DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
-
-    // Execute get job deployment with wrong team
-    mockMvc
-        .perform(
-            get(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
-                .with(user("user"))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
-
-    // Execute disable deployment no user
-    mockMvc
-        .perform(
-            patch(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                .content(getDataJobDeploymentEnableRequestBody(false))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnauthorized());
-
-    // Execute disable deployment
-    mockMvc
-        .perform(
-            patch(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                .with(user("user"))
-                .content(getDataJobDeploymentEnableRequestBody(false))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
-
-    // Execute disable deployment with wrong team
-    mockMvc
-        .perform(
-            patch(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
-                .with(user("user"))
-                .content(getDataJobDeploymentEnableRequestBody(false))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
-
-    // Verify deployment disabled
-    waitUntil(
-        () -> {
-          Optional<JobDeploymentStatus> deploymentOptional =
-              dataJobsKubernetesService.readCronJob(jobDeploymentName);
-          Assertions.assertTrue(deploymentOptional.isPresent());
-          JobDeploymentStatus deployment = deploymentOptional.get();
-          return !deployment.getEnabled();
-        });
-
-    beforeDeploymentDeletion();
-
-    // Execute delete deployment with no user
-    mockMvc
-        .perform(
-            delete(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnauthorized());
-
-    // Execute delete deployment with wrong team
-    mockMvc
-        .perform(
-            delete(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
-                .with(user("user"))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound());
-
-    // Execute delete deployment
-    mockMvc
-        .perform(
-            delete(
-                    String.format(
-                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
-                .with(user("user"))
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
-
-    // Verify deployment deleted
-    waitUntil(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
-    afterDeploymentDeletion();
+        .andExpect(status().isOk());
   }
 
   @AfterEach
@@ -336,20 +186,235 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
             });
   }
 
-  @Test
-  public void testDataJobDeleteSource() throws Exception {
-    byte[] jobZipBinary =
-        IOUtils.toByteArray(
-            getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
+  private byte[] getJobZipArray() throws Exception {
+    return IOUtils.toByteArray(
+        getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
+  }
 
+  private DataJobVersion uploadJobWithProperUser() throws Exception {
+    var jobUploadResult =
+        mockMvc
+            .perform(
+                post(String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                    .with(user("user"))
+                    .content(getJobZipArray())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM))
+            .andReturn()
+            .getResponse();
+
+    if (jobUploadResult.getStatus() != 200) {
+      throw new Exception(
+          "status is "
+              + jobUploadResult.getStatus()
+              + "\nbody is "
+              + jobUploadResult.getContentAsString());
+    }
+
+    DataJobVersion testDataJobVersion =
+        new ObjectMapper().readValue(jobUploadResult.getContentAsString(), DataJobVersion.class);
+    Assertions.assertNotNull(testDataJobVersion);
+    return testDataJobVersion;
+  }
+
+  private String getTestJobVersionSha(DataJobVersion testDataJobVersion) {
+    String testJobVersionSha = testDataJobVersion.getVersionSha();
+    Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
+    return testJobVersionSha;
+  }
+
+  private void buildAndDeployJobWithNoUser(String dataJobDeploymentRequestBody) throws Exception {
     mockMvc
         .perform(
             post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
+                .content(dataJobDeploymentRequestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
+  }
+
+  private void buildAndDeployJob(String dataJobDeploymentRequestBody) throws Exception {
+    mockMvc
+        .perform(
+            post(String.format(
+                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
-                .content(jobZipBinary)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM))
-        .andExpect(status().isOk());
+                .content(dataJobDeploymentRequestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isAccepted());
+  }
+
+  private void buildAndDeployJobWrongTeam(String dataJobDeploymentRequestBody) throws Exception {
+    mockMvc
+        .perform(
+            post(String.format(
+                "/data-jobs/for-team/%s/jobs/%s/deployments",
+                TEST_TEAM_WRONG_NAME, testJobName))
+                .with(user("user"))
+                .content(dataJobDeploymentRequestBody)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  private void buildAndDeployJobWithResources(String testJobVersionSha) throws Exception {
+    mockMvc
+        .perform(
+            post(String.format(
+                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
+                .with(user("user"))
+                .content(getDataJobDeploymentRequestBodyWithJobResources(testJobVersionSha))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
+
+    String jobDeploymentName = JobImageDeployer.getCronJobName(testJobName);
+    // Verify job deployment created
+    waitUntil(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isPresent());
+
+    Optional<JobDeploymentStatus> cronJobOptional =
+        dataJobsKubernetesService.readCronJob(jobDeploymentName);
+    Assertions.assertTrue(cronJobOptional.isPresent());
+    JobDeploymentStatus cronJob = cronJobOptional.get();
+    Assertions.assertEquals(testJobVersionSha, cronJob.getGitCommitSha());
+    Assertions.assertEquals(DataJobMode.RELEASE.toString(), cronJob.getMode());
+    Assertions.assertEquals(true, cronJob.getEnabled());
+    Assertions.assertTrue(cronJob.getImageName().endsWith(testJobVersionSha));
+    Assertions.assertEquals("user", cronJob.getLastDeployedBy());
+  }
+
+  private void executeJobDeploymentWithNoUser() throws Exception {
+    mockMvc
+        .perform(
+            get(String.format(
+                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
+  }
+
+  private MvcResult getJobDeployment() throws Exception {
+    return mockMvc
+        .perform(
+            get(String.format(
+                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+  }
+
+  private void executeGetJobDeploymentWithWrongTeam() throws Exception {
+    mockMvc
+        .perform(
+            get(String.format(
+                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  private void executeDisableDeploymentNoUser() throws Exception {
+    mockMvc
+        .perform(
+            patch(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .content(getDataJobDeploymentEnableRequestBody(false))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
+  }
+
+  private void executeDisableDeployment() throws Exception {
+    mockMvc
+        .perform(
+            patch(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .content(getDataJobDeploymentEnableRequestBody(false))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isAccepted());
+  }
+
+  private void executeDisableDeploymentWrongTeam() throws Exception {
+    mockMvc
+        .perform(
+            patch(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .content(getDataJobDeploymentEnableRequestBody(false))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  private void verifyDeploymentDisabled(String jobDeploymentName) {
+    waitUntil(
+        () -> {
+          Optional<JobDeploymentStatus> deploymentOptional =
+              dataJobsKubernetesService.readCronJob(jobDeploymentName);
+          Assertions.assertTrue(deploymentOptional.isPresent());
+          JobDeploymentStatus deployment = deploymentOptional.get();
+          return !deployment.getEnabled();
+        });
+  }
+
+  private void deleteDeploymentNoUser() throws Exception {
+    mockMvc
+        .perform(
+            delete(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
+  }
+
+  private void deleteDeploymentWrongTeam() throws Exception {
+    mockMvc
+        .perform(
+            delete(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  private void executeDeleteDeployment(String jobDeploymentName) throws Exception {
+    mockMvc
+        .perform(
+            delete(
+                String.format(
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                .with(user("user"))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isAccepted());
+
+    // Verify deployment deleted
+    waitUntil(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
+  }
+
+  private void verifyJobDeploymentResponse(MvcResult result, String testJobVersionSha) throws Exception {
+    // Verify response
+    DataJobDeploymentStatus jobDeployment =
+        mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
+    Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
+    Assertions.assertEquals(true, jobDeployment.getEnabled());
+    Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
+    Assertions.assertEquals(true, jobDeployment.getEnabled());
+    // by default the version is the same as the tag specified by datajobs.vdk.image
+    // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
+    Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
+    // just check some valid date is returned. It would be too error-prone/brittle to verify exact
+    // time.
+    DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
   }
 
   private String getDataJobDeploymentRequestBodyWithJobResources(String jobVersionSha)

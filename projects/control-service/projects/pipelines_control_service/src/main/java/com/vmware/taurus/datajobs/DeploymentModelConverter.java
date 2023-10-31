@@ -296,7 +296,6 @@ public class DeploymentModelConverter {
     deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
     deploymentStatus.setContacts(getContactsFromJob(job));
     deploymentStatus.setMode(DataJobMode.RELEASE);
-    deploymentStatus.setVdkVersion("release");
     deploymentStatus.setSchedule(
         new DataJobSchedule().scheduleCron(actualDataJobDeployment.getSchedule()));
     deploymentStatus.setResources(getResourcesFromDeployment(actualDataJobDeployment));
