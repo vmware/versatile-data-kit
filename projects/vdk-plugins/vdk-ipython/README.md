@@ -66,6 +66,45 @@ select * from placeholder_todo
 where completed = True
 ```
 
+### Ingesting data with %%vdkingest
+
+```toml
+%%vdkingest
+
+# Data Source Configuration
+[sources.yourSourceId]
+## Data Source Name. Installed dta sources can be seen using vdk data-sources --list
+name = "<data-source-name>"
+## The singer tap we will use
+config = {
+    ## Set the configuration for the data source.
+    ## You can see what config options are supported with vdk data-sources --config <data-source-name>
+}
+
+[sources.yourSourceId_2]
+# repeat this for as many sources you want
+# ...
+
+# Data Destination Configuration.
+## Ingestion methods and targets are the same one as those accepted by send_object_for_ingestion
+## See https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py#L183
+[destinations.yourDestinationId]
+## the only required filed is method
+method = "<method-name>"
+## Optionally specify target
+## target =
+
+[destinations.yourDestinationId_2]
+# repeat this for as many destinations you want
+# ...
+
+# Data Flows from Source to Destination
+[[flows]]
+from = "yourSourceId"
+to = "yourDestinationId"
+```
+
+Complete the full self-paced tutorial at https://bit.ly/vdk-ingest
 
 ### Build and testing
 
