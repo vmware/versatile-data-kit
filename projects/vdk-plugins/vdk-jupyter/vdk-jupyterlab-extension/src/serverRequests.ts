@@ -161,7 +161,7 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
  *
  * Upon success, the server returns an object containing:
  * - message: A string that includes the 'codeStructure' and 'filenames' os the steps of the transformed job.
- * - status: A boolean indicating the operation's success. It's '' when no errors occurred during the operation.
+ * - isSuccessful: A boolean indicating the operation's success. It's '' when no errors occurred during the operation.
  *
  * Upon failure (either server-side or client-side), the function returns an object
  * with an error message and 'false' status.
