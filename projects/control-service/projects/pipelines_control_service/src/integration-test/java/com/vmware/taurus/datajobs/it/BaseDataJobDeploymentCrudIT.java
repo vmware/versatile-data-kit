@@ -115,9 +115,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
 
     buildAndDeployJobWithResources(testJobVersionSha);
 
-    MvcResult result = getJobDeployment();
-
-    verifyJobDeploymentResponse(result, testJobVersionSha);
+    verifyJobDeploymentResponse(testJobVersionSha);
 
     executeJobDeploymentWithNoUser();
 
@@ -130,6 +128,8 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     executeDisableDeploymentWrongTeam();
 
     verifyDeploymentDisabled(jobDeploymentName);
+
+    verifyDeploymentFieldsAfterDisable(testJobVersionSha);
 
     beforeDeploymentDeletion();
 
@@ -363,6 +363,18 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
         });
   }
 
+  private void verifyDeploymentFieldsAfterDisable(String testJobVersionSha) throws Exception {
+    var result = getJobDeployment();
+    DataJobDeploymentStatus jobDeployment =
+        mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
+
+    Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
+    Assertions.assertFalse(jobDeployment.getEnabled());
+    Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
+    Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
+    DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
+  }
+
   private void deleteDeploymentNoUser() throws Exception {
     mockMvc
         .perform(
@@ -401,15 +413,14 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     waitUntil(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
   }
 
-  private void verifyJobDeploymentResponse(MvcResult result, String testJobVersionSha)
+  private void verifyJobDeploymentResponse(String testJobVersionSha)
       throws Exception {
-    // Verify response
+    var result = getJobDeployment();
     DataJobDeploymentStatus jobDeployment =
         mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
     Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
-    Assertions.assertEquals(true, jobDeployment.getEnabled());
+    Assertions.assertTrue(jobDeployment.getEnabled());
     Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
-    Assertions.assertEquals(true, jobDeployment.getEnabled());
     // by default the version is the same as the tag specified by datajobs.vdk.image
     // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
     Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
