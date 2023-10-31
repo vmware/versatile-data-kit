@@ -413,8 +413,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     waitUntil(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
   }
 
-  private void verifyJobDeploymentResponse(String testJobVersionSha)
-      throws Exception {
+  private void verifyJobDeploymentResponse(String testJobVersionSha) throws Exception {
     var result = getJobDeployment();
     DataJobDeploymentStatus jobDeployment =
         mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
