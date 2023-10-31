@@ -11,10 +11,14 @@ metadata:
   annotations: {{- toYaml .Values.ingress.annotations | nindent 4 }}
 apiVersion: networking.k8s.io/v1
 spec:
+{{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+{{- end }}
   rules:
   - host: {{ .Values.ingress.host | quote }}
     http:
       paths:
+{{- if .Values.operationsUi.enabled }}
       - path: {{ .Values.ingress.path | default "/" }}
         pathType: "ImplementationSpecific"
         backend:
@@ -22,6 +26,7 @@ spec:
             name: {{ .Release.Name }}-ui
             port:
               number: 8091
+{{- end }}
       - path: {{ .Values.ingress.path | default "/data-jobs" }}
         pathType: "ImplementationSpecific"
         backend:
