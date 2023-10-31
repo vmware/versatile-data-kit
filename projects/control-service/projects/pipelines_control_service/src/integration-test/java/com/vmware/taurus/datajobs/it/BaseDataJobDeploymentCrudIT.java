@@ -79,7 +79,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                 .content(getJobZipArray())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM))
         .andExpect(status().isUnauthorized());
@@ -91,7 +91,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_WRONG_NAME, testJobName))
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_WRONG_NAME, testJobName))
                 .with(user("user"))
                 .content(getJobZipArray())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -150,7 +150,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
                 .content(jobZipBinary)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -196,7 +196,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
         mockMvc
             .perform(
                 post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                     .with(user("user"))
                     .content(getJobZipArray())
                     .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -227,7 +227,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnauthorized());
@@ -237,7 +237,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -248,8 +248,8 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments",
-                TEST_TEAM_WRONG_NAME, testJobName))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments",
+                    TEST_TEAM_WRONG_NAME, testJobName))
                 .with(user("user"))
                 .content(dataJobDeploymentRequestBody)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -260,7 +260,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             post(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
                 .with(user("user"))
                 .content(getDataJobDeploymentRequestBodyWithJobResources(testJobVersionSha))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -285,8 +285,8 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             get(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnauthorized());
   }
@@ -295,8 +295,8 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     return mockMvc
         .perform(
             get(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -307,8 +307,8 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             get(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
@@ -318,9 +318,9 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             patch(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .content(getDataJobDeploymentEnableRequestBody(false))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnauthorized());
@@ -330,9 +330,9 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             patch(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .content(getDataJobDeploymentEnableRequestBody(false))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -343,9 +343,9 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             patch(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .content(getDataJobDeploymentEnableRequestBody(false))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -367,9 +367,9 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             delete(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnauthorized());
   }
@@ -378,9 +378,9 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             delete(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_WRONG_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
@@ -390,9 +390,9 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     mockMvc
         .perform(
             delete(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isAccepted());
@@ -401,7 +401,8 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     waitUntil(() -> dataJobsKubernetesService.readCronJob(jobDeploymentName).isEmpty());
   }
 
-  private void verifyJobDeploymentResponse(MvcResult result, String testJobVersionSha) throws Exception {
+  private void verifyJobDeploymentResponse(MvcResult result, String testJobVersionSha)
+      throws Exception {
     // Verify response
     DataJobDeploymentStatus jobDeployment =
         mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);

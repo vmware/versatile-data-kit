@@ -51,13 +51,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({DataJobDeploymentCrudITV2.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
-        "datajobs.control.k8s.k8sSupportsV1CronJob=true",
-        "datajobs.deployment.configuration.synchronization.task.enabled=true",
-        "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000",
-        // Setting this value to 1000000 effectively disables the scheduled execution of
-        // DataJobsSynchronizer.synchronizeDataJobs().
-        // This is necessary because the test scenario relies on manually triggering the process.
-        "datajobs.deployment.configuration.persistence.writeTos=DB"
+      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
+      "datajobs.deployment.configuration.synchronization.task.enabled=true",
+      "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000",
+      // Setting this value to 1000000 effectively disables the scheduled execution of
+      // DataJobsSynchronizer.synchronizeDataJobs().
+      // This is necessary because the test scenario relies on manually triggering the process.
+      "datajobs.deployment.configuration.persistence.writeTos=DB"
     })
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -272,7 +272,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
         mockMvc
             .perform(
                 post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
+                        "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
                     .with(user("user"))
                     .content(jobZipBinary)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM))

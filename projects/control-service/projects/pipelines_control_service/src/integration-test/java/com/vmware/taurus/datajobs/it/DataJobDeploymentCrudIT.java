@@ -35,9 +35,9 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
     mockMvc
         .perform(
             patch(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -49,9 +49,9 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
     mockMvc
         .perform(
             patch(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .content(getDataJobDeploymentEnableRequestBody(false))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -62,8 +62,8 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
     mockMvc
         .perform(
             get(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -74,29 +74,28 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
     mockMvc
         .perform(
             patch(
-                String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    String.format(
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody(""))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
 
-  private MvcResult getDeployment() throws Exception{
-   return mockMvc
+  private MvcResult getDeployment() throws Exception {
+    return mockMvc
         .perform(
             get(String.format(
-                "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andReturn();
   }
 
-  private void checkDeployment()
-      throws Exception {
+  private void checkDeployment() throws Exception {
 
     MvcResult result = getDeployment();
 

@@ -12,12 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
-import com.vmware.taurus.service.model.ActualDataJobDeployment;
-import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
-import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
-import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -42,15 +37,14 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     checkDeployment();
   }
 
-  private void checkDeployment()
-      throws Exception {
+  private void checkDeployment() throws Exception {
 
     MvcResult result =
         mockMvc
             .perform(
                 get(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
-                    TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
+                        "/data-jobs/for-team/%s/jobs/%s/deployments/%s",
+                        TEST_TEAM_NAME, testJobName, DEPLOYMENT_ID))
                     .with(user("user"))
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
