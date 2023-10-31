@@ -115,6 +115,8 @@ ingress:
   ## we use community Nginx controller which supports SNI, thus a signle IP could terminate all connections.
   ## https://github.com/kubernetes/ingress-nginx/
   tls_secret: ""
+  ## It is used to associate an Ingress resource with a specific Ingress controller or implementation.
+  className: ""
 
 # Embedded server settings
 server:
