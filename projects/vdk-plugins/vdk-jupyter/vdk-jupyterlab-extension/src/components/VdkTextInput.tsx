@@ -27,7 +27,7 @@ export interface IVdkTextInputProps {
   /**
    * Custom change handler if provided
    */
-   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 interface IVdkInputState {
@@ -83,7 +83,9 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
    */
   adjustInputWidth(): void {
     const currentInput = this.inputRef.current;
-    if (!currentInput) return;
+    if (!currentInput) {
+      return;
+    }
 
     let maxWidth = DEFAULT_INPUT_WIDTH;
 
@@ -157,7 +159,9 @@ export default class VDKTextInput extends Component<IVdkTextInputProps> {
 
     const nameInput = event.currentTarget as HTMLInputElement;
     let value = nameInput.value;
-    if (!value) value = this.props.value;
+    if (!value) {
+      value = this.props.value;
+    }
     jobData.set(this.props.option, value);
   };
 }

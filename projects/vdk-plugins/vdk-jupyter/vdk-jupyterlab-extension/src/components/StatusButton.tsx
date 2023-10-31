@@ -19,7 +19,7 @@ export class StatusButton {
   private jobPath: string | undefined;
   private timerId: number | undefined;
   private counter: number;
-  private commands: CommandRegistry
+  private commands: CommandRegistry;
 
   constructor(commands: CommandRegistry) {
     this.buttonElement = document.createElement('button');

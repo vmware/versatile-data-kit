@@ -47,6 +47,44 @@ type jobRequestResult = {
   isSuccessful: boolean;
 };
 
+type TaskStatusResult = {
+  task_type: string;
+  status: string;
+  message: string | null;
+  error: string | null;
+};
+
+const pollForTaskCompletion = async (
+  taskId: string,
+  maxAttempts = 720,
+  interval = 60000
+): Promise<TaskStatusResult> => {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const result = await requestAPI<TaskStatusResult>('taskStatus', {
+        body: JSON.stringify({ taskId: taskId }),
+        method: 'GET'
+      });
+
+      if (
+        result.task_type === taskId &&
+        (result.status === 'completed' || result.error)
+      ) {
+        return result;
+      }
+    } catch (error) {
+      showError(error);
+    }
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+  return {
+    task_type: taskId,
+    status: 'error',
+    message: null,
+    error: 'Task timed out'
+  };
+};
+
 /**
  * Sent a POST request to the server to run a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
@@ -55,11 +93,22 @@ type jobRequestResult = {
 export async function jobRunRequest(): Promise<jobRequestResult> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<serverVdkOperationResult>('run', {
-        body: JSON.stringify(getJobDataJsonObject()),
-        method: 'POST'
-      });
-      return { message: data['message'], isSuccessful: data['message'] == '0' };
+      const initialResponse = await requestAPI<serverVdkOperationResult>(
+        'run',
+        {
+          body: JSON.stringify(getJobDataJsonObject()),
+          method: 'POST'
+        }
+      );
+      if (initialResponse.error) {
+        showError(initialResponse.error);
+        return { message: initialResponse.message, isSuccessful: false };
+      }
+      const finalResult = await pollForTaskCompletion('RUN');
+      return {
+        message: finalResult.message || '',
+        isSuccessful: !finalResult.error
+      };
     } catch (error) {
       showError(error);
       return { message: '', isSuccessful: false };
@@ -82,22 +131,22 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
     (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
   ) {
     try {
-      const data = await requestAPI<serverVdkOperationResult>(endPoint, {
-        body: JSON.stringify(getJobDataJsonObject()),
-        method: 'POST'
-      });
-      if (!data['error'])
-        return { message: data['message'], isSuccessful: true };
-      else {
-        await showErrorMessage(
-          'Encountered an error while trying the ' +
-            endPoint +
-            ' operation. Error:',
-          data['message'],
-          [Dialog.okButton()]
-        );
-        return { message: '', isSuccessful: false };
+      const initialResponse = await requestAPI<serverVdkOperationResult>(
+        endPoint,
+        {
+          body: JSON.stringify(getJobDataJsonObject()),
+          method: 'POST'
+        }
+      );
+      if (initialResponse.error) {
+        showError(initialResponse.error);
+        return { message: initialResponse.message, isSuccessful: false };
       }
+      const finalResult = await pollForTaskCompletion(endPoint.toUpperCase());
+      return {
+        message: finalResult.message || '',
+        isSuccessful: !finalResult.error
+      };
     } catch (error) {
       showError(error);
       return { message: '', isSuccessful: false };
@@ -120,29 +169,34 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
  *
  * @returns A Promise that resolves to an object containing the message from the server and the status of the operation.
  */
-export async function jobConvertToNotebookRequest(): Promise<{
-  message: string;
-  status: boolean;
-}> {
+export async function jobConvertToNotebookRequest(): Promise<jobRequestResult> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<serverVdkOperationResult>(
+      const initialResponse = await requestAPI<serverVdkOperationResult>(
         'convertJobToNotebook',
         {
           body: JSON.stringify(getJobDataJsonObject()),
           method: 'POST'
         }
       );
-      return { message: data['message'], status: data['error'] == '' };
+      if (initialResponse.error) {
+        showError(initialResponse.error);
+        return { message: initialResponse.message, isSuccessful: false };
+      }
+      const finalResult = await pollForTaskCompletion('CONVERT');
+      return {
+        message: finalResult.message || '',
+        isSuccessful: !finalResult.error
+      };
     } catch (error) {
       showError(error);
-      return { message: '', status: false };
+      return { message: '', isSuccessful: false };
     }
   } else {
     return {
       message:
         'The job path is not defined. Please define it before attempting to convert the job to a notebook.',
-      status: false
+      isSuccessful: false
     };
   }
 }
@@ -242,30 +296,5 @@ export async function getServerDirRequest(): Promise<string> {
       [Dialog.okButton()]
     );
     return '';
-  }
-}
-
-export async function getTaskStatusRequest(): Promise<any> {
-  try {
-    const data = await requestAPI<any>('taskStatus', {
-      method: 'GET'
-    });
-
-    if (data) {
-      return data;
-    } else {
-      await showErrorMessage(
-        'Encountered an error while trying to get the task status. Error: status cannot be identified!',
-        [Dialog.okButton()]
-      );
-      return null;
-    }
-  } catch (error) {
-    await showErrorMessage(
-      'Encountered an error while trying to get the task status.',
-      [Dialog.okButton()]
-    );
-    console.error(error);
-    return null;
   }
 }

@@ -7,12 +7,15 @@ import { getNotebookInfo, jobRunRequest } from '../serverRequests';
 import { IJobPathProp, showErrorDialog } from './props';
 import { VdkErrorMessage } from './VdkErrorMessage';
 import { IDocumentManager } from '@jupyterlab/docmanager';
-import { RUN_FAILED_BUTTON_LABEL, RUN_JOB_BUTTON_LABEL, RUN_LOG_FILE } from '../utils';
+import {
+  RUN_FAILED_BUTTON_LABEL,
+  RUN_JOB_BUTTON_LABEL,
+  RUN_LOG_FILE
+} from '../utils';
 import { StatusButton } from './StatusButton';
 import { checkIcon } from '@jupyterlab/ui-components';
 
 export default class RunJobDialog extends Component<IJobPathProp> {
-
   /**
    * Returns a React component for rendering a run menu.
    *
@@ -20,7 +23,7 @@ export default class RunJobDialog extends Component<IJobPathProp> {
    * @returns React component
    */
   constructor(props: IJobPathProp) {
-      super(props);
+    super(props);
   }
 
   /**
@@ -29,20 +32,20 @@ export default class RunJobDialog extends Component<IJobPathProp> {
    * @returns React element
    */
   render(): React.ReactElement {
-      return (
-          <>
-              <VDKTextInput
-                  option={VdkOption.PATH}
-                  value={this.props.jobPath}
-                  label="Path to job directory:"
-              />
-              <VDKTextInput
-                  option={VdkOption.ARGUMENTS}
-                  value={'{"key": "value"}'}
-                  label="Arguments:"
-                  onChange={this._onArgsChange}
-              />
-          </>
+    return (
+      <>
+        <VDKTextInput
+          option={VdkOption.PATH}
+          value={this.props.jobPath}
+          label="Path to job directory:"
+        />
+        <VDKTextInput
+          option={VdkOption.ARGUMENTS}
+          value={'{"key": "value"}'}
+          label="Arguments:"
+          onChange={this._onArgsChange}
+        />
+      </>
     );
   }
   /**
@@ -119,16 +122,17 @@ export async function showRunJobDialog(
   }
 }
 
-
 export const findFailingCellId = (message: String): string => {
   const regex = /cell_id:([0-9a-fA-F-]+)/;
   const match = message.match(regex);
-  if (match) return match[1];
+  if (match) {
+    return match[1];
+  }
   return '';
 };
 
 /**
- * Returns a Element that is used for numerating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
+ * Returns an Element that is used for numerating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
  * @param failingCell - parent cell of that element
  * @returns Element or undefined if the element could not be found
  */
@@ -139,8 +143,9 @@ export const getCellInputAreaPrompt = (
     'jp-Cell-inputWrapper'
   );
   for (let i = 0; i < cellInputWrappers.length; i++) {
-    const cellAreas =
-      cellInputWrappers[i].getElementsByClassName('jp-Cell-inputArea');
+    const cellAreas = cellInputWrappers[i].getElementsByClassName(
+      'jp-Cell-inputArea'
+    );
     if (cellAreas.length > 0) {
       const cellInputArea = cellAreas[0];
       const promptElements = cellInputArea.getElementsByClassName(
@@ -206,7 +211,7 @@ export const findFailingCellInNotebookCells = async (
 };
 
 /**
- * Seperate handling for notebook errors - option for the user to navigate to the failing cell when error is produced
+ * Separate handling for notebook errors - option for the user to navigate to the failing cell when error is produced
  */
 export const handleErrorsProducedByNotebookCell = async (
   message: VdkErrorMessage,
