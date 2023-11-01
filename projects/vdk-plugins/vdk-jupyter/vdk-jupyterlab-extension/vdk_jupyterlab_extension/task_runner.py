@@ -15,7 +15,7 @@ class TaskRunner:
 
     def start_task(self, task_type, task_handler):
         with self.lock:
-            if self.__task_status["status"] != "idle":
+            if self.__task_status["status"] not in ["idle", "completed"]:
                 return False
 
             self.__task_status = {

@@ -56,16 +56,17 @@ type TaskStatusResult = {
 
 const pollForTaskCompletion = async (
   taskId: string,
-  maxAttempts = 720,
-  interval = 60000
+  maxAttempts = 43200,
+  interval = 10000
 ): Promise<TaskStatusResult> => {
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const result = await requestAPI<TaskStatusResult>('taskStatus', {
-        body: JSON.stringify({ taskId: taskId }),
-        method: 'GET'
-      });
-
+      const result = await requestAPI<TaskStatusResult>(
+        `taskStatus?taskId=${taskId}`,
+        {
+          method: 'GET'
+        }
+      );
       if (
         result.task_type === taskId &&
         (result.status === 'completed' || result.error)
@@ -183,7 +184,7 @@ export async function jobConvertToNotebookRequest(): Promise<jobRequestResult> {
         showError(initialResponse.error);
         return { message: initialResponse.message, isSuccessful: false };
       }
-      const finalResult = await pollForTaskCompletion('CONVERT');
+      const finalResult = await pollForTaskCompletion('CONVERTJOBTONOTEBOOK');
       return {
         message: finalResult.message || '',
         isSuccessful: !finalResult.error

@@ -22,8 +22,26 @@ task_runner = TaskRunner()
 class GetTaskStatusHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
-        status = task_runner.get_status()
-        self.finish(json.dumps(status))
+        task_id = self.get_argument("taskId", default=None)
+
+        if not task_id:
+            self.set_status(400)
+            self.finish(json.dumps({"error": "taskId not provided."}))
+            return
+        current_status = task_runner.get_status()
+        if current_status["task_type"] != task_id:
+            self.finish(
+                json.dumps(
+                    {
+                        "status": "error",
+                        "message": f"Mismatched taskId.",
+                        "error": f"Requested status for {task_id} but currently processing {current_status['task_type']}",
+                    }
+                )
+            )
+            return
+
+        self.finish(json.dumps(current_status))
 
 
 class LoadJobDataHandler(APIHandler):
@@ -160,7 +178,8 @@ class ConvertJobHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         task_started = task_runner.start_task(
-            "CONVERT", lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value])
+            "CONVERTJOBTONOTEBOOK",
+            lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value]),
         )
 
         if task_started:
@@ -190,7 +209,7 @@ class CreateJobHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         task_started = task_runner.start_task(
-            "CREATE_JOB",
+            "CREATE",
             lambda: VdkUI.create_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
@@ -224,7 +243,7 @@ class CreateDeploymentHandler(APIHandler):
     def post(self):
         input_data = self.get_json_body()
         task_started = task_runner.start_task(
-            "CREATE_DEPLOYMENT",
+            "DEPLOY",
             lambda: VdkUI.create_deployment(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
