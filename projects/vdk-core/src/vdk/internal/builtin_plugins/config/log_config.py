@@ -61,7 +61,6 @@ def _parse_log_level_module(log_level_module):
             errors.VdkConfigurationError(
                 "Invalid logging configuration passed to LOG_LEVEL_MODULE.",
                 f"Error is: {e}. log_level_module was set to {log_level_module}.",
-                "Logging will not be initialized and exception is raised",
                 "Set correctly configuration to log_level_debug configuration in format 'module=level;module2=level2'",
             )
         )
@@ -148,7 +147,6 @@ def configure_loggers(
             errors.VdkConfigurationError(
                 f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
                 f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid value for this variable.",
-                errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                 f"Provide a valid value for {SYSLOG_SOCK_TYPE}."
                 f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
             )

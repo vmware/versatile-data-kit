@@ -97,19 +97,15 @@ class PluginRegistry(IPluginRegistry):
                     f"Failed to register plugin {name}. Most likely the plugin name has been forbidden"
                 )
         except Exception as e:
-            message = ErrorMessage(
-                summary=f"Failed to load plugin ",
-                what=f"Failed to load plugin with name  '{name}' and module/class '{module_or_class_with_hook_impls}'",
-                why="Most likely a bug in the plugin",
-                consequences="The CLI tool will likely abort.",
-                countermeasures="Re-try again. "
-                "Revert to previous stable version of the plugin or CLI "
-                "plugin (pip install vdk-plugin-name==version) "
-                "Or see what plugins are installed (use `pip list` command) and if "
-                "there are not issues. "
-                "Or try to reinstall the app in a new clean environment  ",
-            )
-            raise PluginException(message) from e
+            raise PluginException(
+                f"""Failed to load plugin
+                Failed to load plugin with name  '{name}' and module/class '{module_or_class_with_hook_impls}'
+                Troubleshooting options:
+                1. Check what plugins are installed (use `pip list` command) and see if there are any issues.
+                2. Revert to previous stable version of the plugin or CLI plugin (pip install vdk-plugin-name==version)
+                3. Reinstall the app in a new clean environment
+                """
+            ) from e
 
     def add_hook_specs(self, module_or_class_with_hookspecs: object):
         self.__plugin_manager.add_hookspecs(module_or_class_with_hookspecs)

@@ -10,6 +10,8 @@ It defines classes and methods for handling exceptions, and ensuring that there 
 """
 from __future__ import annotations
 
+from logging import Logger
+
 from vdk.internal.core.error_classifiers import *
 
 # Due to the expansion of this file's responsibilities over time,
