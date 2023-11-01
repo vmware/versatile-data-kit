@@ -7,13 +7,16 @@ import traceback
 from dataclasses import dataclass
 from queue import Queue
 from threading import Thread
+from typing import Callable
 from typing import cast
+from typing import Dict
 from typing import List
 from typing import Optional
 
 from vdk.api.job_input import IIngester
 from vdk.api.job_input import IJobInput
 from vdk.plugin.data_sources.data_source import DataSourceError
+from vdk.plugin.data_sources.data_source import DataSourcePayload
 from vdk.plugin.data_sources.data_source import (
     DataSourcesAggregatedException,
 )
@@ -40,6 +43,9 @@ class IngestDestination:
     method: Optional[str] = None
     target: Optional[str] = None
     collection_id: Optional[str] = None
+    map_function: Optional[
+        Callable[[DataSourcePayload], Optional[DataSourcePayload]]
+    ] = None
 
 
 @dataclass
@@ -145,9 +151,17 @@ class DataSourceIngester:
                         ingest_entry, destination, payload
                     )
 
+                    payload_to_sent = DataSourcePayload(
+                        payload.data, payload.metadata, payload.state, destination_table
+                    )
+                    if destination.map_function:
+                        payload_to_sent = destination.map_function(payload_to_sent)
+                        if not payload_to_sent:
+                            continue
+
                     self.__actual_ingester.send_object_for_ingestion(
-                        payload=payload.data,
-                        destination_table=destination_table,
+                        payload=payload_to_sent.data,
+                        destination_table=payload_to_sent.destination_table,
                         method=destination.method,
                         target=destination.target,
                         collection_id=destination.collection_id,

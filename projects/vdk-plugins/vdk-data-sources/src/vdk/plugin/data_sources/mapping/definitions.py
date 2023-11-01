@@ -3,10 +3,12 @@
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
 
+from vdk.plugin.data_sources.data_source import DataSourcePayload
 from vdk.plugin.data_sources.ingester import DataSourceIngester
 
 
@@ -50,10 +52,15 @@ class DataFlowMappingDefinition:
 
     :param from_source: The source definition from where data originates.
     :param to_destination: The destination definition where data will be sent.
+    :param map_function: An optional callable to transform data as it moves from source to destination.
+                It accepts a payload and returns a payload or None. Returning None means skippping the payload ingestion!
     """
 
     from_source: SourceDefinition
     to_destination: DestinationDefinition
+    map_function: Optional[
+        Callable[[DataSourcePayload], Optional[DataSourcePayload]]
+    ] = None
     # TODO add configuration for mappings tables and columns or function
 
 
