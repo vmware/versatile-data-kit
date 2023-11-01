@@ -48,7 +48,7 @@ def run(job_input: IJobInput):
     destination = DestinationDefinition(id="auto-dest", method="memory")
 
     with DataFlowInput(job_input) as flow_input:
-        flow_input.start(source, destination)
+        flow_input.start(DataFlowMappingDefinition(source, destination))
 ```
 
 or in config.toml file
@@ -66,7 +66,7 @@ to="auto-dest"
 ```python
 def run(job_input: IJobInput):
     with DataFlowInput(job_input) as flow_input:
-        flow_input.start_flow(toml_parser.load_config("config.toml"))
+        flow_input.start_flows(toml_parser.load_config("config.toml"))
 ```
 
 ### Build and testing

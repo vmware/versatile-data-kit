@@ -49,6 +49,22 @@ def test_run_ingest_data_flow_sources_toml():
     assert len(ingest_plugin.payloads) > 0
 
 
+def test_run_ingest_data_flow_with_map_function():
+    ingest_plugin = IngestIntoMemoryPlugin()
+    runner = CliEntryBasedTestRunner(ingest_plugin, plugin_entry)
+
+    result: Result = runner.invoke(
+        ["run", jobs_path_from_caller_directory("ingest-data-flow-map-func-job")]
+    )
+
+    cli_assert_equal(0, result)
+
+    assert ingest_plugin.payloads[0].payload == [
+        {"id": 1, "name": "Stream_0_Name_0", "new_column": "new_column", "stream": 0},
+        {"id": 2, "name": "Stream_0_Name_1", "new_column": "new_column", "stream": 0},
+    ]
+
+
 def test_run_ingest_sources_error_no_such_method():
     runner = CliEntryBasedTestRunner(plugin_entry)
 
