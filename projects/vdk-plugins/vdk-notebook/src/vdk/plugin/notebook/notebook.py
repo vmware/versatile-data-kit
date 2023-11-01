@@ -7,7 +7,6 @@ import pathlib
 from pathlib import Path
 from typing import List
 
-from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.core.errors import UserCodeError
