@@ -1,0 +1,22 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-singer:
+  variables:
+    PLUGIN_NAME: vdk-singer
+  extends: .build-plugin
+
+build-py37-vdk-singer:
+  extends: .build-vdk-singer
+  image: "python:3.7"
+
+build-py311-vdk-singer:
+  extends: .build-vdk-singer
+  image: "python:3.11"
+
+release-vdk-singer:
+  variables:
+    PLUGIN_NAME: vdk-singer
+  extends: .release-plugin
