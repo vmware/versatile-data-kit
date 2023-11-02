@@ -17,7 +17,11 @@ setuptools.setup(
     description="Enables Versatile Data Kit (VDK) to integrate with various data sources by providing a unified interface for data ingestion and management.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "toml"],
+    install_requires=[
+        "vdk-core",
+        "toml",
+        "vdk-control-cli",
+    ],  # vdk-control-cli is becasue of output printer
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     # This is the only vdk plugin specifc part
