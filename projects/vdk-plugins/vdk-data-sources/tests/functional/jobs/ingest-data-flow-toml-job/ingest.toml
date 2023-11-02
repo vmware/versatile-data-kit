@@ -1,0 +1,9 @@
+[sources.s1]
+name="auto-generated-data"
+
+[destinations.d1]
+method="memory"
+
+[[flows]]
+from="s1"
+to="d1"
