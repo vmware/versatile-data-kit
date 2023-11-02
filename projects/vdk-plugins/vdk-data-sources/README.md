@@ -7,6 +7,8 @@ The data-sources project is a plugin for the Versatile Data Kit (VDK). It aims t
 
 ## Usage
 
+### Installation
+
 ```
 pip install vdk-data-sources
 ```

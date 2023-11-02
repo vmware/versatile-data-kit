@@ -9,7 +9,6 @@ from typing import List
 from typing import Optional
 
 from vdk.plugin.data_sources.data_source import DataSourcePayload
-from vdk.plugin.data_sources.ingester import DataSourceIngester
 
 
 @dataclass

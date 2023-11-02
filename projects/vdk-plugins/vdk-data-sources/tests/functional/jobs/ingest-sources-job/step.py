@@ -8,7 +8,6 @@ from vdk.plugin.data_sources.factory import (
     SingletonDataSourceFactory,
 )
 from vdk.plugin.data_sources.ingester import DataSourceIngester
-from vdk.plugin.data_sources.state import DataSourceStateFactory
 
 
 def run(job_input: IJobInput):

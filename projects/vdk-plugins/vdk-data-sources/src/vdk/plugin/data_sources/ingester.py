@@ -9,7 +9,6 @@ from queue import Queue
 from threading import Thread
 from typing import Callable
 from typing import cast
-from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -61,7 +60,7 @@ class DataSourceIngester:
         self.__ingestion_queue = Queue()
         self.__actual_ingester = cast(IIngester, job_input)
         self.__worker_threads = self._start_workers(8)
-        self.__ingested_streams_set = set()
+        self.__being_ingested_streams = set()
         self.__stored_exceptions = queue.SimpleQueue()
         self.__state_factory = DataSourceStateFactory(
             PropertiesBasedDataSourceStorage(job_input)
@@ -197,8 +196,8 @@ class DataSourceIngester:
         destinations: List[IngestDestination] = None,
         error_callback: Optional[IDataSourceErrorCallback] = None,
     ):
-        if data_source_id not in self.__ingested_streams_set:
-            self.__ingested_streams_set.add(data_source_id)
+        if data_source_id not in self.__being_ingested_streams:
+            self.__being_ingested_streams.add(data_source_id)
         else:
             raise ValueError(
                 f"Data source is already in ingestion queue. "
