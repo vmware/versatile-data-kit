@@ -35,6 +35,27 @@ build-vdk-jupyterlab-extension:
     - echo "Building VDK JupyterLab Extension..."
     - npm rebuild
 
+integration-tests-vdk-jupyterlab-extension:
+  image: "mcr.microsoft.com/playwright:v1.39.0-jammy"
+  # extends: .common-setup-vdk-jupyterlab-extension
+  stage: pre_release_test
+  script:
+    - apt install software-properties-common -y
+    - add-apt-repository ppa:deadsnakes/ppa
+    - apt install python3.9 python3.9-venv -y
+    - python3.9 -m venv venv
+    - source venv/bin/activate
+    - pip install -U pip
+    - apt-get install -y gcc python3.9-dev
+    - pip install -e .
+    - npm rebuild
+    - jlpm install
+    - jlpm build:prod
+    - cd ./ui-tests
+    - jlpm install
+    - jlpm playwright install
+    - vim playwright.config.js
+    - jlpm playwright test
 
 server-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
