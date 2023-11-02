@@ -40,6 +40,7 @@ integration-tests-vdk-jupyterlab-extension:
   # extends: .common-setup-vdk-jupyterlab-extension
   stage: pre_release_test
   script:
+    - apt update
     - apt install software-properties-common -y
     - add-apt-repository ppa:deadsnakes/ppa
     - apt install python3.9 python3.9-venv -y
