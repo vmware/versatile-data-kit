@@ -420,6 +420,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     Assertions.assertEquals(testJobVersionSha, jobDeployment.getJobVersion());
     Assertions.assertTrue(jobDeployment.getEnabled());
     Assertions.assertEquals(DataJobMode.RELEASE, jobDeployment.getMode());
+    Assertions.assertEquals("3.9", jobDeployment.getPythonVersion());
     // by default the version is the same as the tag specified by datajobs.vdk.image
     // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
     Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
