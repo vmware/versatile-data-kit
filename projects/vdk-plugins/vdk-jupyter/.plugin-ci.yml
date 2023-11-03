@@ -56,7 +56,6 @@ integration-tests-vdk-jupyterlab-extension:
     - cd ./ui-tests
     - jlpm install
     - jlpm playwright install
-    - vim playwright.config.js
     - jlpm playwright test
 
 server-tests-vdk-jupyterlab-extension:
