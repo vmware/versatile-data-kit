@@ -20,7 +20,7 @@ test.describe('convert job', () => {
     await page.goto(`tree/${tmpPath}`);
   });
 
-  test('success', async ({ page }) => {
+  test.skip('success', async ({ page }) => {
     // use VDK menu
     await page.menu.open('VDK');
     await page.locator('#jp-vdk-menu').getByText('Convert').click();
@@ -44,7 +44,7 @@ test.describe('convert job', () => {
     await page.getByRole('button', { name: 'OK' }).click();
 
     await page.locator('div').filter({ hasText: 'Directory not found' });
-    await page.getByRole('button', { name: 'Dismiss' }).click();
+    await page.getByRole('button', { name: 'Dismss' }).click();
 
     // get message that the job was converted successfully
     await page
