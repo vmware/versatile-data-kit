@@ -1,0 +1,22 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-huggingface:
+  variables:
+    PLUGIN_NAME: vdk-huggingface
+  extends: .build-plugin
+
+build-py37-vdk-huggingface:
+  extends: .build-vdk-huggingface
+  image: "python:3.7"
+
+build-py311-vdk-huggingface:
+  extends: .build-vdk-huggingface
+  image: "python:3.11"
+
+release-vdk-huggingface:
+  variables:
+    PLUGIN_NAME: vdk-huggingface
+  extends: .release-plugin

@@ -45,8 +45,6 @@ class CliRunImpl:
                     [
                         "Failed to validate job arguments.",
                         errors.MSG_WHY_FROM_EXCEPTION(e),
-                        errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                        errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                     ]
                 )
             )
@@ -104,14 +102,16 @@ class CliRunImpl:
                     log.warning(
                         f"""
                         {os.linesep + (' ' * 20) + ('*' * 80)}
-                        What: Python version mismatch between local python and configure python.
-                        Why: The Python version specified in the job's config.ini file  is ({configured_python_version})
+                        Python version mismatch between local python and configure python.
+                        The Python version specified in the job's config.ini file  is ({configured_python_version})
                         while the local python version used to execute the data job is ({local_py_version}).
-                        Consequences: Developing a data job using one Python version and deploying
+
+                        Developing a data job using one Python version and deploying
                         it with a different version can result in unexpected and
                         difficult-to-troubleshoot errors like module incompatibilities, or
                         unexpected behavior during execution.
-                        Countermeasures: To resolve this issue, ensure that the Python version
+
+                        To resolve this issue, ensure that the Python version
                         specified in the python_version property of the config.ini file matches
                         the Python version of your execution environment by either editing the
                         python_version property in config.ini, or switching local environment
@@ -165,10 +165,8 @@ class CliRunImpl:
                     [
                         "Failed executing job.",
                         errors.MSG_WHY_FROM_EXCEPTION(e),
-                        errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                        errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-                        + " Most likely a prerequisite or plugin of one of the key VDK components failed, see"
-                        + " logs for details and ensure the prerequisite for the failed component (details in stacktrace).",
+                        " Most likely a prerequisite or plugin of one of the key VDK components failed, see"
+                        + " logs for details and ensure the prerequisite for the failed component.",
                     ]
                 )
             )

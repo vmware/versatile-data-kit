@@ -152,8 +152,6 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                             [
                                 "Fetching all results from query FAILED.",
                                 errors.MSG_WHY_FROM_EXCEPTION(e),
-                                errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                                errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                             ]
                         )
                     )
