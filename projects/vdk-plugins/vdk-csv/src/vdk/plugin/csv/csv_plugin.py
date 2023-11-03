@@ -16,6 +16,8 @@ from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.csv.csv_export_job import csv_export_step
 from vdk.plugin.csv.csv_ingest_job import csv_ingest_step
 
+log = logging.getLogger(__name__)
+
 
 @click.command(
     name="ingest-csv",
