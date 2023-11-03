@@ -45,7 +45,7 @@ end:
 notify_failure:
   stage: end
   script:
-    - ./cicd/notify.sh "The pipeline for the $CI_COMMIT_BRANCH branch has failed.\nPlease take the necessary steps to fix it. https://gitlab.com/vmware-analytics/versatile-data-kit/-/pipelines/$CI_PIPELINE_ID" $VDK_SLACK_NOTIFICATION_HOOK
+    - ./cicd/notify.sh "https://gitlab.com/vmware-analytics/versatile-data-kit/-/pipelines/$CI_PIPELINE_ID \nThe pipeline for the $CI_COMMIT_BRANCH branch has failed.\nPlease take the necessary steps to fix it and document the resolution\n$VDK_CI_FAILURES_PAGE" $VDK_SLACK_NOTIFICATION_HOOK
   allow_failure: true
   rules:
     - if: '$CI_COMMIT_BRANCH != "main"'
