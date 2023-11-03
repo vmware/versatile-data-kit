@@ -146,7 +146,6 @@ test('should create an init cell when opening a new notebook', async ({
   ).toBeVisible();
 });
 
-
 test(
   'should create a new dir, navigate to it,' +
     'create a new job, attempt to create a job relative to' +
