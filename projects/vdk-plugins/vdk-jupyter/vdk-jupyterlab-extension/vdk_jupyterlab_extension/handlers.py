@@ -100,8 +100,6 @@ class RunJobHandler(APIHandler):
         )
 
         if task_started:
-            # status_msg = task_runner.get_status()["message"]
-            # self.finish(json.dumps({"message": status_msg, "error": ""}))
             self.finish(json.dumps({"message": "Task started", "error": ""}))
         else:
             self.finish(

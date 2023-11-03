@@ -57,8 +57,10 @@ type TaskStatusResult = {
 const pollForTaskCompletion = async (
   taskId: string,
   maxAttempts = 43200,
-  interval = 10000
+  interval = 10000,
+  errorThreshold = 5
 ): Promise<TaskStatusResult> => {
+  let errorCounter = 0;
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const result = await requestAPI<TaskStatusResult>(
@@ -75,6 +77,15 @@ const pollForTaskCompletion = async (
       }
     } catch (error) {
       showError(error);
+      errorCounter++;
+      if (errorCounter >= errorThreshold) {
+        return {
+          task_type: taskId,
+          status: 'error',
+          message: null,
+          error: `Error threshold (${errorThreshold}) reached. Task cancelled.`
+        };
+      }
     }
     await new Promise(resolve => setTimeout(resolve, interval));
   }
