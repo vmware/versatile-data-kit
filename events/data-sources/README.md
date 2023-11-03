@@ -2,9 +2,9 @@
 
 # Introduction
 
-Welcome! 
+Welcome!
 
-In this notebook guide, we will walk you through the steps to set up a data ingestion (EL in ELT) using Versatile Data Kit (VDK). 
+In this notebook guide, we will walk you through the steps to set up a data ingestion (EL in ELT) using Versatile Data Kit (VDK).
 
 # Prerequisites
 
@@ -28,6 +28,3 @@ Ready to jump in?
 For more details, methods, and configuration options, you can refer to the official [VDK documentation](https://github.com/vmware/versatile-data-kit).
 
 **Happy Learning!**
-
-
-
