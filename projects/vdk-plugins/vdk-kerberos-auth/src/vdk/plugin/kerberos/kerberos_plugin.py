@@ -39,7 +39,6 @@ class KerberosPlugin:
                         f"The error was: {e} "
                         "This means potential future operations requiring "
                         "valid kerberos authentication will fail. "
-                        "You may need to inspect the above error and try to fix it if that happens. "
                         "If no kerberos related operations are done, ignore this warning."
                         "If you prefer to fail fast (instead of this warning), enable krb_auth_fail_fast flag."
                         "See vdk config-help for more information."

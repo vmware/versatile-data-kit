@@ -41,7 +41,7 @@ class GdpExecutionIdPlugin(IIngesterPlugin):
 
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
-        log.info("Initialize data job with GDP Execution ID Plugin.")
+        log.debug("Initialize data job with GDP Execution ID Plugin.")
         self._plugin_config = GdpExecutionIdPluginConfiguration(
             context.core_context.configuration
         )

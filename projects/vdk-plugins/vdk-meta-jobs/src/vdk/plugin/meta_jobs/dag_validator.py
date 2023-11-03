@@ -42,7 +42,7 @@ class DagValidator:
         for job in jobs:
             self._validate_job(job)
         self._check_dag_cycles(jobs)
-        log.info("Successfully validated the DAG!")
+        log.debug("Successfully validated the DAG!")
 
     def _raise_error(
         self, error_type: str, reason: str, countermeasures: str, jobs: List[str] = ""
@@ -82,7 +82,7 @@ class DagValidator:
             )
         if "arguments" in job:
             self._validate_arguments(job_name, job["arguments"])
-        log.info(f"Successfully validated job: {job_name}")
+        log.debug(f"Successfully validated job: {job_name}")
 
     def _validate_job_type(self, job: Dict):
         if not isinstance(job, dict):

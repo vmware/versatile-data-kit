@@ -11,7 +11,7 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.plugin.greenplum.greenplum_connection import GreenplumConnection
 
-_log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class IngestToGreenplum(IIngesterPlugin):
@@ -34,7 +34,7 @@ class IngestToGreenplum(IIngesterPlugin):
         See parent class doc for details
         """
 
-        _log.info(
+        log.info(
             f"Ingesting payloads to table: {destination_table} in Greenplum database; "
             f"collection_id: {collection_id}"
         )
@@ -50,7 +50,7 @@ class IngestToGreenplum(IIngesterPlugin):
             try:
                 cursor.execute(query, parameters)
                 connection.commit()
-                _log.debug("Payload was ingested.")
+                log.debug("Payload was ingested.")
             except Exception as e:
                 errors.log_and_rethrow(errors.find_whom_to_blame_from_exception(e), e)
 

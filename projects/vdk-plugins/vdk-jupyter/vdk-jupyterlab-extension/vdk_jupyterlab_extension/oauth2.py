@@ -20,16 +20,16 @@ log = logging.getLogger(__name__)
 
 class OAuth2Handler(APIHandler):
     def initialize(self, vdk_config: VdkJupyterConfig):
-        log.info(f"VDK config: {vdk_config.__dict__}")
+        log.debug(f"VDK config: {vdk_config.__dict__}")
 
         self._authorization_url = vdk_config.oauth2_authorization_url
         self._access_token_url = vdk_config.oauth2_token_url
         self._client_id = vdk_config.oauth2_client_id
         self._redirect_url = vdk_config.oauth2_redirect_url
 
-        log.info(f"Authorization URL: {self._authorization_url}")
-        log.info(f"Access Token URL: {self._access_token_url}")
-        # log.info(f"client_id: {self._client_id}")
+        log.debug(f"Authorization URL: {self._authorization_url}")
+        log.debug(f"Access Token URL: {self._access_token_url}")
+        # log.debug(f"client_id: {self._client_id}")
 
         # No client secret. We use only native app workflow with PKCE (RFC 7636)
 
@@ -61,17 +61,17 @@ class OAuth2Handler(APIHandler):
             redirect_url = self.request.full_url()
         redirect_url = self._fix_localhost(redirect_url)
 
-        log.info(f"redirect uri is {redirect_url}")
+        log.debug(f"redirect uri is {redirect_url}")
 
         if self.get_argument("code", None):
-            log.info(
+            log.debug(
                 "Authorization code received. Will generate access token using authorization code."
             )
             tokens = self._exchange_auth_code_for_access_token(redirect_url)
-            log.info(f"Got tokens data: {tokens}")  # TODO: remove this
+            log.debug(f"Got tokens data: {tokens}")  # TODO: remove this
             self._persist_tokens_data(tokens)
         else:
-            log.info(f"Authorization URL is: {self._authorization_url}")
+            log.debug(f"Authorization URL is: {self._authorization_url}")
             full_authorization_url = self._prepare_authorization_code_request_url(
                 redirect_url
             )

@@ -143,7 +143,7 @@ class ImpalaPlugin:
         if impala_error_handler.handle_error(
             recovery_cursor.get_exception(), recovery_cursor
         ):
-            logging.getLogger(__name__).info(
+            logging.getLogger(__name__).debug(
                 "Error handled successfully! Query execution has succeeded."
             )
         else:
