@@ -62,8 +62,8 @@ integration-tests-vdk-jupyterlab-extension:
         - "projects/vdk-plugins/vdk-jupyter/**/*"
   artifacts:
     when: always
-    reports:
-      junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ui-tests/playwright-report"
+    paths:
+      - "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ui-tests/playwright-report"
 
 server-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
