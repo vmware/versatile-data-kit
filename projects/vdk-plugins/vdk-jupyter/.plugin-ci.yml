@@ -43,7 +43,7 @@ integration-tests-vdk-jupyterlab-extension:
     - apt update
     - apt install software-properties-common -y
     - add-apt-repository ppa:deadsnakes/ppa
-    - apt install python3.9 python3.9-venv -y
+    - DEBIAN_FRONTEND=noninteractive apt install python3.9 python3.9-venv -y
     - python3.9 -m venv venv
     - source venv/bin/activate
     - pip install -U pip
