@@ -93,7 +93,7 @@ test('should try to create a job with incorrect input and get error', async ({
   await page.getByRole('button', { name: 'OK' }).click();
 });
 
-test.skip('should try to create a job successfully', async ({ page }) => {
+test('should try to create a job successfully', async ({ page }) => {
   await page.goto('');
   await page.menu.open('VDK');
   await page.locator('#jp-vdk-menu').getByText('Create').click();
