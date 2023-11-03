@@ -56,6 +56,10 @@ integration-tests-vdk-jupyterlab-extension:
     - jlpm install
     - jlpm playwright install
     - jlpm playwright test
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - "projects/vdk-plugins/vdk-jupyter/**/*"
   artifacts:
     when: always
     reports:
