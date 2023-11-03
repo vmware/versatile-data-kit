@@ -37,7 +37,6 @@ build-vdk-jupyterlab-extension:
 
 integration-tests-vdk-jupyterlab-extension:
   image: "mcr.microsoft.com/playwright:v1.39.0-jammy"
-  # extends: .common-setup-vdk-jupyterlab-extension
   stage: pre_release_test
   script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension
@@ -57,6 +56,10 @@ integration-tests-vdk-jupyterlab-extension:
     - jlpm install
     - jlpm playwright install
     - jlpm playwright test
+  artifacts:
+    when: always
+    reports:
+      junit: "projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/ui-tests/playwright-report"
 
 server-tests-vdk-jupyterlab-extension:
   extends: .common-setup-vdk-jupyterlab-extension
