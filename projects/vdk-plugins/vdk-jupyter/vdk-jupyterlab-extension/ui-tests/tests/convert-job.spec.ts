@@ -22,7 +22,7 @@ test.describe('convert job', () => {
   test('success', async ({ page }) => {
     // use VDK menu
     await page.menu.open('VDK');
-    await page.locator('#jp-vdk-menu').getByText('Convert').click();
+    await page.locator('#jp-vdk-menu').getByText('FAIL').click();
     await page.locator('div').filter({ hasText: 'Convert' });
 
     // fill the dialog
