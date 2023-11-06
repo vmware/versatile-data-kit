@@ -48,9 +48,21 @@ type jobRequestResult = {
 };
 
 type TaskStatusResult = {
+  /**
+   * Type of the task
+   */
   task_type: string;
+  /**
+   * Status of the task
+   */
   status: string;
+  /**
+   * Result message of the task if no errors occurred
+   */
   message: string | null;
+  /**
+   * Error message
+   */
   error: string | null;
 };
 
