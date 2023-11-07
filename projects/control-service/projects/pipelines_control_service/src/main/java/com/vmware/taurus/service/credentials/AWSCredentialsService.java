@@ -77,6 +77,7 @@ public class AWSCredentialsService {
           "",
           awsCredentialsServiceConfig.getRegion());
     }
+    credentialsProvider.refresh();
     AWSSessionCredentials serviceAccountCredentials = credentialsProvider.getCredentials();
     var accessKeyId = serviceAccountCredentials.getAWSAccessKeyId();
     var secretAccessKey = serviceAccountCredentials.getAWSSecretKey();
