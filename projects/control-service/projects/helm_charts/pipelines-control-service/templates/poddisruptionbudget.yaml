@@ -11,7 +11,7 @@ metadata:
     { { - range $key, $value := .Values.poddisruptionbudget.metadata.labels } }
     { { $key } }: { { $value | quote } }
   { { - end } }
-  name: {{ .Values.poddisruptionbudget.metadata.name }}
+  name: {{ .Release.Name }}-dep
   namespace: {{ .Release.Namespace }}
 spec:
   minAvailable: {{ .Values.poddisruptionbudget.minAvailable }}

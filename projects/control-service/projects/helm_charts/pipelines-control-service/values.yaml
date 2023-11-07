@@ -562,7 +562,6 @@ resources:
 poddisruptionbudget:
   enabled: false
   metadata:
-    name: vdk-control-service-pdb
     labels: # additional labels if needed
   minAvailable: 1
 
