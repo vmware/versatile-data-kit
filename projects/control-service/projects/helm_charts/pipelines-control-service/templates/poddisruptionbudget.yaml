@@ -8,7 +8,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   labels: { { - include "pipelines-control-service.labels" . | nindent 4 } }
-    { { - range $key, $value := .Values.alertmanager.metadata.labels } }
+    { { - range $key, $value := .Values.poddisruptionbudget.metadata.labels } }
     { { $key } }: { { $value | quote } }
   { { - end } }
   name: {{ .Values.poddisruptionbudget.metadata.name }}

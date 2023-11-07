@@ -563,6 +563,7 @@ poddisruptionbudget:
   enabled: false
   metadata:
     name: vdk-control-service-pdb
+    labels: # additional labels if needed
   minAvailable: 1
 
 ## [Required] Database configuration used by Control Plane
