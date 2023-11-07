@@ -17,3 +17,4 @@ spec:
   minAvailable: {{ .Values.poddisruptionbudget.minAvailable }}
   selector:
     matchLabels: { { - include "pipelines-control-service.selectorLabels" . | nindent 6 } }
+  {{- end }}
