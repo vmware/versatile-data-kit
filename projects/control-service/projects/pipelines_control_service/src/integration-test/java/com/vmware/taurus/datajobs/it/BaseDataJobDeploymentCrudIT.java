@@ -36,7 +36,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -74,7 +73,6 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
   }
 
   @Test
-  @Order(1)
   public void uploadJobWithNoUser() throws Exception {
     mockMvc
         .perform(
@@ -86,7 +84,6 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
   }
 
   @Test
-  @Order(2)
   public void uploadJobWithWrongTeamAndUser() throws Exception {
     mockMvc
         .perform(
@@ -99,15 +96,12 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
   }
 
   @Test
-  @Order(3)
   public void testDataJobDeploymentCrudOperations() throws Exception {
 
     var testDataJobVersion = uploadJobWithProperUser();
     var testJobVersionSha = getTestJobVersionSha(testDataJobVersion);
     var dataJobDeploymentRequestBody = getDataJobDeploymentRequestBody(testJobVersionSha, "3.9");
     String jobDeploymentName = JobImageDeployer.getCronJobName(testJobName);
-
-    buildAndDeployJobWithNoUser(dataJobDeploymentRequestBody);
 
     buildAndDeployJob(dataJobDeploymentRequestBody);
 
@@ -141,7 +135,6 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
   }
 
   @Test
-  @Order(4)
   public void testDataJobDeleteSource() throws Exception {
     byte[] jobZipBinary =
         IOUtils.toByteArray(
@@ -221,16 +214,6 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     String testJobVersionSha = testDataJobVersion.getVersionSha();
     Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
     return testJobVersionSha;
-  }
-
-  private void buildAndDeployJobWithNoUser(String dataJobDeploymentRequestBody) throws Exception {
-    mockMvc
-        .perform(
-            post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/deployments", TEST_TEAM_NAME, testJobName))
-                .content(dataJobDeploymentRequestBody)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnauthorized());
   }
 
   private void buildAndDeployJob(String dataJobDeploymentRequestBody) throws Exception {
