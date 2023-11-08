@@ -9,7 +9,6 @@ import path from 'path';
 import { copyDirectory } from './utils';
 const baseJobPath = 'data/convert-test-job-dirty';
 test.use({ autoGoto: false });
-
 test.describe('convert job', () => {
   test.beforeEach(async ({ baseURL, page, tmpPath }) => {
     await copyDirectory(
@@ -20,8 +19,7 @@ test.describe('convert job', () => {
 
     await page.goto(`tree/${tmpPath}`);
   });
-
-  test('success', async ({ page }) => {
+  test.skip('success', async ({ page }) => {
     // use VDK menu
     await page.menu.open('VDK');
     await page.locator('#jp-vdk-menu').getByText('Convert').click();

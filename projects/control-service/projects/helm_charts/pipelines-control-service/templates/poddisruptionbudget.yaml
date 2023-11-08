@@ -1,0 +1,20 @@
+{{- /*
+  Copyright 2021-2023 VMware, Inc.
+  SPDX-License-Identifier: Apache-2.0
+ */}}
+
+{{- if .Values.poddisruptionbudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  labels: { { - include "pipelines-control-service.labels" . | nindent 4 } }
+    { { - range $key, $value := .Values.poddisruptionbudget.metadata.labels } }
+    { { $key } }: { { $value | quote } }
+  { { - end } }
+  name: {{ .Release.Name }}-pdb
+  namespace: {{ .Release.Namespace }}
+spec:
+  minAvailable: {{ .Values.poddisruptionbudget.minAvailable }}
+  selector:
+    matchLabels: { { - include "pipelines-control-service.selectorLabels" . | nindent 6 } }
+  {{- end }}
