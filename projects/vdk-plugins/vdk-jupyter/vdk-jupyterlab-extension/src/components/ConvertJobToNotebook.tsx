@@ -83,11 +83,12 @@ export async function showConvertJobToNotebookDialog(
       statusButton?.show('Convert', jobData.get(VdkOption.PATH)!);
       let { message, isSuccessful } = await jobConvertToNotebookRequest();
       if (isSuccessful) {
-        const transformjobResult = JSON.parse(message);
-        notebookContent = initializeNotebookContent(
-          transformjobResult['code_structure'],
-          transformjobResult['removed_files']
-        );
+        if (typeof message !== 'string') {
+          notebookContent = initializeNotebookContent(
+            message.code_structure,
+            message.removed_files
+          );
+        }
         await createTranformedNotebook(commands, fileBrowser, notebookTracker);
         await showDialog({
           title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,

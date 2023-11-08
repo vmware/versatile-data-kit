@@ -20,6 +20,22 @@ const showError = async (error: any) => {
   );
 };
 
+interface IJobConvertToNotebookMessage {
+  code_structure: string[];
+  removed_files: string[];
+}
+
+type jobConvertToNotebookRequestResult = {
+  /**
+   * Result message of the operation, containing code_structure and removed_files or an informative string.
+   */
+  message: IJobConvertToNotebookMessage | string;
+  /**
+   * Status of the operation
+   */
+  isSuccessful: boolean;
+};
+
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -59,11 +75,11 @@ type TaskStatusResult = {
   /**
    * Result message of the task if no errors occurred
    */
-  message: string | null;
+  message: string | IJobConvertToNotebookMessage;
   /**
    * Error message
    */
-  error: string | null;
+  error: string;
 };
 
 const pollForTaskCompletion = async (
@@ -77,9 +93,7 @@ const pollForTaskCompletion = async (
     try {
       const result = await requestAPI<TaskStatusResult>(
         `taskStatus?taskId=${taskId}`,
-        {
-          method: 'GET'
-        }
+        { method: 'GET' }
       );
       if (
         result.task_type === taskId &&
@@ -94,7 +108,7 @@ const pollForTaskCompletion = async (
         return {
           task_type: taskId,
           status: 'error',
-          message: null,
+          message: '',
           error: `Error threshold (${errorThreshold}) reached. Task cancelled.`
         };
       }
@@ -104,7 +118,7 @@ const pollForTaskCompletion = async (
   return {
     task_type: taskId,
     status: 'error',
-    message: null,
+    message: '',
     error: 'Task timed out'
   };
 };
@@ -130,7 +144,7 @@ export async function jobRunRequest(): Promise<jobRequestResult> {
       }
       const finalResult = await pollForTaskCompletion('RUN');
       return {
-        message: finalResult.message || '',
+        message: finalResult.message as string,
         isSuccessful: !finalResult.error
       };
     } catch (error) {
@@ -168,7 +182,7 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
       }
       const finalResult = await pollForTaskCompletion(endPoint.toUpperCase());
       return {
-        message: finalResult.message || '',
+        message: finalResult.message as string,
         isSuccessful: !finalResult.error
       };
     } catch (error) {
@@ -193,7 +207,7 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
  *
  * @returns A Promise that resolves to an object containing the message from the server and the status of the operation.
  */
-export async function jobConvertToNotebookRequest(): Promise<jobRequestResult> {
+export async function jobConvertToNotebookRequest(): Promise<jobConvertToNotebookRequestResult> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
       const initialResponse = await requestAPI<serverVdkOperationResult>(
@@ -207,11 +221,16 @@ export async function jobConvertToNotebookRequest(): Promise<jobRequestResult> {
         showError(initialResponse.error);
         return { message: initialResponse.message, isSuccessful: false };
       }
+
       const finalResult = await pollForTaskCompletion('CONVERTJOBTONOTEBOOK');
-      return {
-        message: finalResult.message || '',
-        isSuccessful: !finalResult.error
-      };
+      if (finalResult.error) {
+        return { message: finalResult.error, isSuccessful: false };
+      } else {
+        return {
+          message: finalResult.message as IJobConvertToNotebookMessage,
+          isSuccessful: true
+        };
+      }
     } catch (error) {
       showError(error);
       return { message: '', isSuccessful: false };
