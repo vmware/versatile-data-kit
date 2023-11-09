@@ -394,7 +394,6 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     // just check some valid date is returned. It would be too error-prone/brittle to verify exact
     // time.
     DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
-    Assertions.assertEquals("15 10 * * *", jobDeployment.getSchedule().getScheduleCron());
   }
 
   private String getDataJobDeploymentRequestBodyWithJobResources(String jobVersionSha)
