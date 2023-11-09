@@ -44,21 +44,21 @@ class KinitGSSAPIAuthenticator(BaseAuthenticator):
             self._oldKRB5CCNAME = os.environ[
                 "KRB5CCNAME"
             ]  # used for deleting the env variable later
-            log.info(f"KRB5CCNAME was already set to {self._oldKRB5CCNAME}")
+            log.debug(f"KRB5CCNAME was already set to {self._oldKRB5CCNAME}")
         except KeyError:
             tmpfile = tempfile.NamedTemporaryFile(prefix="vdkkrb5cc", delete=True).name
             os.environ["KRB5CCNAME"] = "FILE:" + tmpfile
-            log.info(f"KRB5CCNAME is set to a new file {tmpfile}")
+            log.debug(f"KRB5CCNAME is set to a new file {tmpfile}")
             self._tmp_file = tmpfile
 
     def __restore_previous_os_process_kerberos_credentials_cache_configuration(self):
         if hasattr(self, "_oldKRB5CCNAME"):
             os.environ["KRB5CCNAME"] = self._oldKRB5CCNAME
-            log.info(f"KRB5CCNAME is restored to {self._oldKRB5CCNAME}")
+            log.debug(f"KRB5CCNAME is restored to {self._oldKRB5CCNAME}")
             del self._oldKRB5CCNAME
         else:
             del os.environ["KRB5CCNAME"]
-            log.info("KRB5CCNAME is now unset")
+            log.debug("KRB5CCNAME is now unset")
             try:
                 os.remove(self._tmp_file)
             except OSError:

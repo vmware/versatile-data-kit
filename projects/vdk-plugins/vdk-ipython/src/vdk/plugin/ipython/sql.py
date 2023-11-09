@@ -81,15 +81,15 @@ def prepare_result_cell_output(result_df):
     except ImportError:
         log.info(
             "ipyaggrid is not installed. "
-            "If installed result would be formatted in a interactive grid."
+            "If installed result would be formatted in an interactive grid."
         )
         return result_df
     except Exception as e:
         log.error(
             "There was an issue rendering the query result output using ipyaggrid. "
             f"Error was {str(e)} "
-            "Consider reinstall the package if needed."
-            "Fall back to default table visualization"
+            "Consider reinstalling the package if needed."
+            "Falling back to default table visualization"
         )
         return result_df
 
