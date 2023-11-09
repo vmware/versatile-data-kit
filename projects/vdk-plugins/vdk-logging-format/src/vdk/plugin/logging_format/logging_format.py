@@ -79,9 +79,15 @@ def vdk_configure(config_builder: ConfigurationBuilder):
 @hookimpl(tryfirst=True)
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     log = logging.getLogger(__name__)
-    log.warning("-------------------------------------------------------------------------")
-    log.warning("Vdk-logging-format has been deprecated; please use vdk-structlog instead.")
-    log.warning("-------------------------------------------------------------------------")
+    log.warning(
+        "-------------------------------------------------------------------------"
+    )
+    log.warning(
+        "Vdk-logging-format has been deprecated; please use vdk-structlog instead."
+    )
+    log.warning(
+        "-------------------------------------------------------------------------"
+    )
 
     logging_format = os.getenv("VDK_LOGGING_FORMAT")
     if (
