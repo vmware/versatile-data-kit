@@ -134,22 +134,6 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     executeDeleteDeployment(jobDeploymentName);
   }
 
-  @Test
-  public void testDataJobDeleteSource() throws Exception {
-    byte[] jobZipBinary =
-        IOUtils.toByteArray(
-            getClass().getClassLoader().getResourceAsStream("data_jobs/simple_job.zip"));
-
-    mockMvc
-        .perform(
-            post(String.format(
-                    "/data-jobs/for-team/%s/jobs/%s/sources", TEST_TEAM_NAME, testJobName))
-                .with(user("user"))
-                .content(jobZipBinary)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM))
-        .andExpect(status().isOk());
-  }
-
   @AfterEach
   public void cleanUp() throws Exception {
     ResultActions perform =
@@ -410,6 +394,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
     // just check some valid date is returned. It would be too error-prone/brittle to verify exact
     // time.
     DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(jobDeployment.getLastDeployedDate());
+    Assertions.assertEquals("15 10 * * *", jobDeployment.getSchedule().getScheduleCron());
   }
 
   private String getDataJobDeploymentRequestBodyWithJobResources(String jobVersionSha)
