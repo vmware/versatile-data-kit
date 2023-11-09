@@ -1,3 +1,5 @@
+# This plugin has been deprecated; please use vdk-structlog instead.
+
 This plugins allows for the configuration of the format of VDK logs.
 
 # TEXT
