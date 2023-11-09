@@ -10,7 +10,7 @@ from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 
-_log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class IngestToPostgres(IIngesterPlugin):
@@ -33,7 +33,7 @@ class IngestToPostgres(IIngesterPlugin):
         See parent class doc for details
         """
 
-        _log.info(
+        log.info(
             f"Ingesting payloads to table: {destination_table} in database; "
             f"collection_id: {collection_id}"
         )
@@ -49,7 +49,7 @@ class IngestToPostgres(IIngesterPlugin):
             try:
                 cursor.execute(query, parameters)
                 connection.commit()
-                _log.debug("Payload was ingested.")
+                log.debug("Payload was ingested.")
             except Exception as e:
                 errors.report_and_rethrow(
                     errors.find_whom_to_blame_from_exception(e), e
