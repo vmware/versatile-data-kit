@@ -45,8 +45,9 @@ class JsonFormatter(jsonlogger.JsonFormatter):
 class LtsvFormatter(Formatter):
     """
     Formats logs in the LTSV format.
-    
+
     """
+
     def format(self, record: LogRecord) -> LogRecord:
         record.message = record.getMessage()
         record.timestamp = self.formatTime(record, self.datefmt)
