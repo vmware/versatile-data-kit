@@ -9,7 +9,7 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
 
-_log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class GreenplumConnection(ManagedConnectionBase):
@@ -72,7 +72,7 @@ class GreenplumConnection(ManagedConnectionBase):
                 Using *async*=True an asynchronous connection will be created. *async_* is
                 a valid alias (for Python versions where ``async`` is a keyword).
         """
-        super().__init__(_log)
+        super().__init__(log)
 
         self._dsn = dsn
         self._connection_factory = connection_factory
@@ -87,7 +87,7 @@ class GreenplumConnection(ManagedConnectionBase):
         dsn_message_optional = ""
         if self._dsn:
             dsn_message_optional = f"dsn: {dsn}, "
-        _log.debug(
+        log.debug(
             f"Creating new Greenplum connection for {dsn_message_optional}"
             f"user: {user} to [host:port/dbname]: {host}:{port}/{dbname}"
         )

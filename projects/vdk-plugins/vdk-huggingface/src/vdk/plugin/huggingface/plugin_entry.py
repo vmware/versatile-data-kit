@@ -41,7 +41,7 @@ class HuggingfacePlugin:
         token = context.core_context.configuration.get_value(HUGGINGFACE_TOKEN)
 
         if token:
-            log.info("huggingface log in", extra={"huggingface_repo_id": repo_id})
+            log.debug("huggingface log in", extra={"huggingface_repo_id": repo_id})
             huggingface_hub.login(token)
 
         self._ingester = IngestToHuggingface(repo_id)
