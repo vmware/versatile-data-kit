@@ -93,7 +93,7 @@ test('should try to create a job with incorrect input and get error', async ({
   await page.getByRole('button', { name: 'OK' }).click();
 });
 
-test.skip('should try to create a job successfully', async ({ page }) => {
+test('should try to create a job successfully', async ({ page }) => {
   await page.goto('');
   await page.menu.open('VDK');
   await page.locator('#jp-vdk-menu').getByText('Create').click();
@@ -105,7 +105,7 @@ test.skip('should try to create a job successfully', async ({ page }) => {
   page.on('dialog', async dialog => {
     expect(dialog.type()).toContain('alert');
     expect(dialog.message()).toContain(
-      'Job with name first-job was created successfully!'
+      'Job with name first-job was created only locally'
     );
     await dialog.accept();
   });
@@ -146,7 +146,7 @@ test('should create an init cell when opening a new notebook', async ({
   ).toBeVisible();
 });
 
-test.skip(
+test(
   'should create a new dir, navigate to it,' +
     'create a new job, attempt to create a job relative to' +
     'the original dir and succeed',
@@ -158,7 +158,6 @@ test.skip(
     await page.getByText('test-dir').click();
     await page.menu.open('VDK');
     await page.locator('#jp-vdk-menu').getByText('Create').click();
-    await page.getByLabel('Local').check();
     await page.getByLabel('Job name:').click();
     await page.getByLabel('Job name:').fill('first-job');
     await page.getByLabel('Job team:').click();
