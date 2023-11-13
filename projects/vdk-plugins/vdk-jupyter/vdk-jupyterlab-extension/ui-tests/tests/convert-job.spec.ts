@@ -20,7 +20,7 @@ test.describe('convert job', () => {
     await page.goto(`tree/${tmpPath}`);
   });
 
-  test.skip('success', async ({ page }) => {
+  test('success', async ({ page }) => {
     // use VDK menu
     await page.menu.open('VDK');
     await page.locator('#jp-vdk-menu').getByText('Convert').click();
