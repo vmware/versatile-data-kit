@@ -84,7 +84,7 @@ type TaskStatusResult = {
 
 const pollForTaskCompletion = async (
   taskId: string,
-  maxAttempts = 43200,
+  maxAttempts = 4320,
   interval = 10000,
   errorThreshold = 5
 ): Promise<TaskStatusResult> => {
@@ -107,9 +107,9 @@ const pollForTaskCompletion = async (
       if (errorCounter >= errorThreshold) {
         return {
           task_type: taskId,
-          status: 'error',
+          status: 'failed',
           message: '',
-          error: `Error threshold (${errorThreshold}) reached. Task cancelled.`
+          error: `Error threshold (${errorThreshold}) reached. Task cancelled. Error: ${error}`
         };
       }
     }
@@ -117,9 +117,9 @@ const pollForTaskCompletion = async (
   }
   return {
     task_type: taskId,
-    status: 'error',
+    status: 'failed',
     message: '',
-    error: 'Task timed out'
+    error: `Task ${taskId} timed out`
   };
 };
 

@@ -82,13 +82,13 @@ export async function showConvertJobToNotebookDialog(
     if (confirmation.button.accept) {
       statusButton?.show('Convert', jobData.get(VdkOption.PATH)!);
       let { message, isSuccessful } = await jobConvertToNotebookRequest();
-      if (isSuccessful) {
-        if (typeof message !== 'string') {
-          notebookContent = initializeNotebookContent(
-            message.code_structure,
-            message.removed_files
-          );
-        }
+      // if the job request is successful, it is not expected to return string but an object with code_structure and
+      // removed_files fields which will help us to create a notebook and populate it with the content
+      if (isSuccessful && typeof message !== 'string') {
+        notebookContent = initializeNotebookContent(
+          message.code_structure,
+          message.removed_files
+        );
         await createTranformedNotebook(commands, fileBrowser, notebookTracker);
         await showDialog({
           title: CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL,

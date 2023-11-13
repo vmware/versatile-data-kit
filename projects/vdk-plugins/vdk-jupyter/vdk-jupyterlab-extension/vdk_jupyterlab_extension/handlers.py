@@ -33,7 +33,7 @@ class GetTaskStatusHandler(APIHandler):
             self.finish(
                 json.dumps(
                     {
-                        "status": "error",
+                        "status": "failed",
                         "message": f"Mismatched taskId.",
                         "error": f"Requested status for {task_id} but currently processing {current_status['task_type']}",
                     }
