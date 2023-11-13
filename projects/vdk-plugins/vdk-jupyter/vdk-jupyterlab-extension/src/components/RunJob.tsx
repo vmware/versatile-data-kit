@@ -132,7 +132,8 @@ export const findFailingCellId = (message: String): string => {
 };
 
 /**
- * Returns an Element that is used for numerating cell executions on Jupyter (text with [] if not executed and  with [1], [2] if executed)
+ * Returns an Element that is used for numerating cell executions on Jupyter
+ * (text with [] if not executed and  with [1], [2] if executed)
  * @param failingCell - parent cell of that element
  * @returns Element or undefined if the element could not be found
  */
