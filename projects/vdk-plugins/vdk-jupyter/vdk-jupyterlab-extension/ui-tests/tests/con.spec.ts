@@ -43,9 +43,6 @@ test.describe('convert job', () => {
     // Dismiss the dialog that says the operation is running in the background
     await page.getByRole('button', { name: 'OK' }).click();
 
-    await page.locator('div').filter({ hasText: 'Directory not found' });
-    await page.getByRole('button', { name: 'Dismiss' }).click();
-
     // get message that the job was converted successfully
     await page
       .locator('div')
