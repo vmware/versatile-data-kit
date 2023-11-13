@@ -19,7 +19,7 @@ test.describe('convert job', () => {
 
     await page.goto(`tree/${tmpPath}`);
   });
-
+  // This Test can fail locally because the paths are too long.
   test('success', async ({ page }) => {
     // use VDK menu
     await page.menu.open('VDK');
