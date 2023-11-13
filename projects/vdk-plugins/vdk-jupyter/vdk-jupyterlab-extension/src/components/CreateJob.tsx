@@ -6,7 +6,7 @@ import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { jobRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
 import { CREATE_JOB_BUTTON_LABEL } from '../utils';
-import {StatusButton} from "./StatusButton";
+import { StatusButton } from './StatusButton';
 
 export default class CreateJobDialog extends Component<IJobFullProps> {
   /**
@@ -41,7 +41,7 @@ export default class CreateJobDialog extends Component<IJobFullProps> {
           value={this.props.jobPath}
           label="Path to job directory:"
           tooltip="Specify the directory for the new job folder, e.g., 'x/y' with job name 'foo' becomes 'x/y/foo'. If left blank, it defaults to the Jupyter's main directory."
-          ></VDKTextInput>
+        ></VDKTextInput>
       </>
     );
   }
