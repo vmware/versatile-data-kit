@@ -84,8 +84,10 @@ type TaskStatusResult = {
 
 const pollForTaskCompletion = async (
   taskId: string,
+  // The default values of maxAttempts and interval are based on the limit of 12 hours for a job run.
+  // Polling every 10 seconds for 12 hours results in a total of 4320 polls.
   maxAttempts = 4320,
-  interval = 10000,
+  interval = 10000, // 10 seconds
   errorThreshold = 5
 ): Promise<TaskStatusResult> => {
   let errorCounter = 0;
