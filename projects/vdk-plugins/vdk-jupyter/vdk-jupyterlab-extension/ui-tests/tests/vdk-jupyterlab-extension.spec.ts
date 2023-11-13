@@ -105,7 +105,7 @@ test('should try to create a job successfully', async ({ page }) => {
   page.on('dialog', async dialog => {
     expect(dialog.type()).toContain('alert');
     expect(dialog.message()).toContain(
-      'Job with name first-job was created successfully!'
+      'Job with name first-job was created only locally'
     );
     await dialog.accept();
   });
