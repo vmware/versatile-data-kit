@@ -44,7 +44,8 @@ class JsonFormatter(jsonlogger.JsonFormatter):
 
 class LtsvFormatter(Formatter):
     """
-    Formats logs in the LTSV format.
+    Formats logs in the Labelled Tab Separated Values (LTSV) format.
+    You can read more about this format here: http://ltsv.org/
     
     """
     def format(self, record: LogRecord) -> LogRecord:
