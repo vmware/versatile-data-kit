@@ -38,7 +38,7 @@ STOCK_FIELD_REPRESENTATIONS = {
         "vdk_job_name": JOB_NAME,
     },
     "ltsv": {
-        "timestamp": r'timestamp:\d+\.\d+',
+        "timestamp": r"timestamp:\d+\.\d+",
         "level": r"level:INFO",
         "file_name": r"file_name:10_dummy\.py",
         "line_number": "line_number:[0-9]+",
