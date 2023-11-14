@@ -7,6 +7,7 @@ package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.data.DataJobContacts;
 import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
+import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
@@ -294,6 +295,7 @@ public class DeploymentModelConverter {
     deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
     deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
     deploymentStatus.setContacts(getContactsFromJob(job));
+    deploymentStatus.setMode(DataJobMode.RELEASE);
     deploymentStatus.setSchedule(
         new DataJobSchedule().scheduleCron(actualDataJobDeployment.getSchedule()));
     deploymentStatus.setResources(getResourcesFromDeployment(actualDataJobDeployment));

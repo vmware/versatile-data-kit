@@ -1,18 +1,11 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Optional
-
 from vdk.api.job_input import IJobInput
 from vdk.plugin.data_sources.factory import SingletonDataSourceFactory
 from vdk.plugin.data_sources.ingester import DataSourceIngester
 from vdk.plugin.data_sources.ingester import IngestDestination
 from vdk.plugin.data_sources.mapping.definitions import DataFlowMappingDefinition
 from vdk.plugin.data_sources.mapping.definitions import Definitions
-from vdk.plugin.data_sources.mapping.definitions import DestinationDefinition
-from vdk.plugin.data_sources.mapping.definitions import SourceDefinition
 
 
 class DataFlowInput:

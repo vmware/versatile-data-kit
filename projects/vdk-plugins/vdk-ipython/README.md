@@ -11,7 +11,7 @@ See more about magic commands: https://ipython.readthedocs.io/en/stable/interact
 
 To use the extension it must be firstly installed with pip as a python package.
 ```
-pip install vkd-ipython
+pip install vdk-ipython
 ```
 
 ## Usage
