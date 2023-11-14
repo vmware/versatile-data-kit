@@ -15,10 +15,10 @@ pip install vdk-structlog
 
 (`vdk config-help` is useful command to browse all config options of your installation of vdk)
 
-| Name             | Description                                                           | (example)  Value                                                                                                   |
-| ---------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| logging_metadata | Configure the metadata that will be output along with the log message | "timestamp, level, logger_name, file_name, line_number, function_name, vdk_job_name, vdk_step_name, vdk_step_type" |
-| logging_format   | Configure the logging output format. Available formats: json, console | "console"                                                                                                          |
+| Name             | Description                                                           | Example  Value                                                                                                     | Possible Values                                                                                                    |
+| ---------------- | --------------------------------------------------------------------- |---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| logging_metadata | Configure the metadata that will be output along with the log message | "timestamp, level, logger_name, file_name, vdk_job_name | "timestamp, level, logger_name, file_name, line_number, function_name, vdk_job_name, vdk_step_name, vdk_step_type" |
+| logging_format   | Configure the logging output format. Available formats: json, console | "console"                                               | "console", "json"                                                                                                  |
 
 ### Example: Configure metadata
 
