@@ -19,6 +19,24 @@ log = logging.getLogger(__name__)
 task_runner = TaskRunner()
 
 
+def task_start_response(task_id, task_type):
+    """
+    Helper function to generate a JSON response for a task start request.
+    :param task_id: The task ID if the task was started successfully, otherwise None.
+    :param task_type: The type of the task being started.
+    :return:
+    """
+    if task_id:
+        json.dumps({"message": f"Task {task_id} started", "error": ""})
+    else:
+        json.dumps(
+            {
+                "message": f"Task {task_type} failed to start",
+                "error": "Another task is already running",
+            }
+        )
+
+
 class GetTaskStatusHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
@@ -99,17 +117,7 @@ class RunJobHandler(APIHandler):
             ),
         )
 
-        if task_id:
-            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
-        else:
-            self.finish(
-                json.dumps(
-                    {
-                        "message": "Task RUN failed to start",
-                        "error": "Another task is already running",
-                    }
-                )
-            )
+        self.finish(task_start_response(task_id, "RUN"))
 
 
 class DownloadJobHandler(APIHandler):
@@ -133,17 +141,7 @@ class DownloadJobHandler(APIHandler):
             ),
         )
 
-        if task_id:
-            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
-        else:
-            self.finish(
-                json.dumps(
-                    {
-                        "message": "Task DOWNLOAD failed to start",
-                        "error": "Another task is already running",
-                    }
-                )
-            )
+        self.finish(task_start_response(task_id, "DOWNLOAD"))
 
 
 class ConvertJobHandler(APIHandler):
@@ -160,17 +158,7 @@ class ConvertJobHandler(APIHandler):
             lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value]),
         )
 
-        if task_id:
-            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
-        else:
-            self.finish(
-                json.dumps(
-                    {
-                        "message": "Task CONVERTJOBTONOTEBOOK failed to start",
-                        "error": "Another task is already running",
-                    }
-                )
-            )
+        self.finish(task_start_response(task_id, "CONVERTJOBTONOTEBOOK"))
 
 
 class CreateJobHandler(APIHandler):
@@ -195,17 +183,7 @@ class CreateJobHandler(APIHandler):
             ),
         )
 
-        if task_id:
-            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
-        else:
-            self.finish(
-                json.dumps(
-                    {
-                        "message": "Task CREATE failed to start",
-                        "error": "Another task is already running",
-                    }
-                )
-            )
+        self.finish(task_start_response(task_id, "CREATE"))
 
 
 class CreateDeploymentHandler(APIHandler):
@@ -230,17 +208,7 @@ class CreateDeploymentHandler(APIHandler):
             ),
         )
 
-        if task_id:
-            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
-        else:
-            self.finish(
-                json.dumps(
-                    {
-                        "message": "Task DEPLOY failed to start",
-                        "error": "Another task is already running",
-                    }
-                )
-            )
+        self.finish(task_start_response(task_id, "DEPLOY"))
 
 
 class GetNotebookInfoHandler(APIHandler):
