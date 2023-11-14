@@ -65,9 +65,9 @@ type jobRequestResult = {
 
 type TaskStatusResult = {
   /**
-   * Type of the task
+   * Unique task ID
    */
-  task_type: string;
+  task_id: string;
   /**
    * Status of the task
    */
@@ -82,15 +82,22 @@ type TaskStatusResult = {
   error: string;
 };
 
+/**
+ * Extracts the task id from the initial message returned by the server.
+ * @param message
+ */
+function extractTaskIdFromMessage(message: string): string {
+  // The messages is in the format "Task {task_id} started"
+  return message.substring(5, message.length - 8);
+}
+
 const pollForTaskCompletion = async (
   taskId: string,
   // The default values of maxAttempts and interval are based on the limit of 12 hours for a job run.
   // Polling every 10 seconds for 12 hours results in a total of 4320 polls.
   maxAttempts = 4320,
-  interval = 10000, // 10 seconds
-  errorThreshold = 5
+  interval = 10000 // 10 seconds
 ): Promise<TaskStatusResult> => {
-  let errorCounter = 0;
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const result = await requestAPI<TaskStatusResult>(
@@ -98,27 +105,24 @@ const pollForTaskCompletion = async (
         { method: 'GET' }
       );
       if (
-        result.task_type === taskId &&
+        result.task_id === taskId &&
         (result.status === 'completed' || result.error)
       ) {
         return result;
       }
     } catch (error) {
       showError(error);
-      errorCounter++;
-      if (errorCounter >= errorThreshold) {
-        return {
-          task_type: taskId,
-          status: 'failed',
-          message: '',
-          error: `Error threshold (${errorThreshold}) reached. Task cancelled. Error: ${error}`
-        };
-      }
+      return {
+        task_id: taskId,
+        status: 'failed',
+        message: '',
+        error: `An error occurred while polling for task status. Error: ${error}`
+      };
     }
     await new Promise(resolve => setTimeout(resolve, interval));
   }
   return {
-    task_type: taskId,
+    task_id: taskId,
     status: 'failed',
     message: '',
     error: `Task ${taskId} timed out`
@@ -144,7 +148,9 @@ export async function jobRunRequest(): Promise<jobRequestResult> {
         showError(initialResponse.error);
         return { message: initialResponse.message, isSuccessful: false };
       }
-      const finalResult = await pollForTaskCompletion('RUN');
+
+      const taskId = extractTaskIdFromMessage(initialResponse.message);
+      const finalResult = await pollForTaskCompletion(taskId);
       return {
         message: finalResult.message as string,
         isSuccessful: !finalResult.error
@@ -182,7 +188,9 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
         showError(initialResponse.error);
         return { message: initialResponse.message, isSuccessful: false };
       }
-      const finalResult = await pollForTaskCompletion(endPoint.toUpperCase());
+
+      const taskId = extractTaskIdFromMessage(initialResponse.message);
+      const finalResult = await pollForTaskCompletion(taskId);
       return {
         message: finalResult.message as string,
         isSuccessful: !finalResult.error
@@ -224,7 +232,8 @@ export async function jobConvertToNotebookRequest(): Promise<jobConvertToNoteboo
         return { message: initialResponse.message, isSuccessful: false };
       }
 
-      const finalResult = await pollForTaskCompletion('CONVERTJOBTONOTEBOOK');
+      const taskId = extractTaskIdFromMessage(initialResponse.message);
+      const finalResult = await pollForTaskCompletion(taskId);
       if (finalResult.error) {
         return { message: finalResult.error, isSuccessful: false };
       } else {

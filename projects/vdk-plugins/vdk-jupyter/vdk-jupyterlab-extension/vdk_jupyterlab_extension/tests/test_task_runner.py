@@ -21,10 +21,11 @@ def test_start_task(task_runner):
     task_handler = Mock(side_effect=task)
 
     task_type = "TEST"
-    assert task_runner.start_task(task_type, task_handler) is True
+    task_id = task_runner.start_task(task_type, task_handler)
+    assert task_id is not None
 
     status = task_runner.get_status()
-    assert status["task_type"] == task_type
+    assert status["task_id"] == task_id
     assert status["status"] == "running"
 
     time.sleep(0.3)
@@ -41,7 +42,8 @@ def test_task_completion(task_runner):
         side_effect=lambda: (completed_event.set(), "Task completed successfully")[1]
     )
     task_type = "TEST"
-    assert task_runner.start_task(task_type, task_handler) is True
+    task_id = task_runner.start_task(task_type, task_handler)
+    assert task_id is not None
 
     completed_event.wait(1)
     time.sleep(0.1)
@@ -54,7 +56,8 @@ def test_task_completion(task_runner):
 def test_task_error(task_runner):
     task_handler = Mock(side_effect=Exception("An error occurred"))
     task_type = "TEST"
-    assert task_runner.start_task(task_type, task_handler) is True
+    task_id = task_runner.start_task(task_type, task_handler)
+    assert task_id is not None
 
     time.sleep(0.1)
     status = task_runner.get_status()
@@ -66,7 +69,8 @@ def test_task_status_after_completion(task_runner):
     completed_event = threading.Event()
     task_handler = Mock(side_effect=lambda: completed_event.set())
     task_type = "TEST"
-    assert task_runner.start_task(task_type, task_handler) is True
+    task_id = task_runner.start_task(task_type, task_handler)
+    assert task_id is not None
 
     completed_event.wait(1)
     time.sleep(0.1)
@@ -76,5 +80,5 @@ def test_task_status_after_completion(task_runner):
         status["status"] == "completed"
     ), f"Task {task_type} did not complete before attempting to restart"
     assert (
-        task_runner.start_task(task_type, task_handler) is True
-    ), "Unable to start new task after completion"
+        task_runner.start_task(task_type, task_handler) is not None
+    ), "Unable to start a new task after completion"

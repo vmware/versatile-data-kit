@@ -29,13 +29,13 @@ class GetTaskStatusHandler(APIHandler):
             self.finish(json.dumps({"error": "taskId not provided."}))
             return
         current_status = task_runner.get_status()
-        if current_status["task_type"] != task_id:
+        if current_status["task_id"] != task_id:
             self.finish(
                 json.dumps(
                     {
                         "status": "failed",
-                        "message": f"Mismatched taskId.",
-                        "error": f"Requested status for {task_id} but currently processing {current_status['task_type']}",
+                        "message": "Mismatched taskId.",
+                        "error": f"Requested status for {task_id} but currently processing {current_status['task_id']}",
                     }
                 )
             )
@@ -91,7 +91,7 @@ class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_started = task_runner.start_task(
+        task_id = task_runner.start_task(
             "RUN",
             lambda: VdkUI.run_job(
                 input_data[VdkOption.PATH.value],
@@ -99,8 +99,8 @@ class RunJobHandler(APIHandler):
             ),
         )
 
-        if task_started:
-            self.finish(json.dumps({"message": "Task RUN started", "error": ""}))
+        if task_id:
+            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
         else:
             self.finish(
                 json.dumps(
@@ -124,7 +124,7 @@ class DownloadJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_started = task_runner.start_task(
+        task_id = task_runner.start_task(
             "DOWNLOAD",
             lambda: VdkUI.download_job(
                 input_data[VdkOption.NAME.value],
@@ -133,8 +133,8 @@ class DownloadJobHandler(APIHandler):
             ),
         )
 
-        if task_started:
-            self.finish(json.dumps({"message": "Task DOWNLOAD started", "error": ""}))
+        if task_id:
+            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
         else:
             self.finish(
                 json.dumps(
@@ -155,17 +155,13 @@ class ConvertJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_started = task_runner.start_task(
+        task_id = task_runner.start_task(
             "CONVERTJOBTONOTEBOOK",
             lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value]),
         )
 
-        if task_started:
-            self.finish(
-                json.dumps(
-                    {"message": "Task CONVERTJOBTONOTEBOOK started", "error": ""}
-                )
-            )
+        if task_id:
+            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
         else:
             self.finish(
                 json.dumps(
@@ -190,7 +186,7 @@ class CreateJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_started = task_runner.start_task(
+        task_id = task_runner.start_task(
             "CREATE",
             lambda: VdkUI.create_job(
                 input_data[VdkOption.NAME.value],
@@ -199,8 +195,8 @@ class CreateJobHandler(APIHandler):
             ),
         )
 
-        if task_started:
-            self.finish(json.dumps({"message": "Task CREATE started", "error": ""}))
+        if task_id:
+            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
         else:
             self.finish(
                 json.dumps(
@@ -224,7 +220,7 @@ class CreateDeploymentHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_started = task_runner.start_task(
+        task_id = task_runner.start_task(
             "DEPLOY",
             lambda: VdkUI.create_deployment(
                 input_data[VdkOption.NAME.value],
@@ -234,8 +230,8 @@ class CreateDeploymentHandler(APIHandler):
             ),
         )
 
-        if task_started:
-            self.finish(json.dumps({"message": "Task DEPLOY started", "error": ""}))
+        if task_id:
+            self.finish(json.dumps({"message": f"Task {task_id} started", "error": ""}))
         else:
             self.finish(
                 json.dumps(

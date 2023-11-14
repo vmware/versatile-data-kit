@@ -76,10 +76,13 @@ describe('jobRunRequest()', () => {
     };
     jobData.set(VdkOption.PATH, mockData[VdkOption.PATH]);
 
-    const taskId = 'RUN';
-    const taskInitiationResponse = { error: '', message: taskId };
+    const taskId = 'RUN-6266cd99-908c-480b-9a3e-8a30564736a4';
+    const taskInitiationResponse = {
+      error: '',
+      message: `Task ${taskId} started`
+    };
     const taskCompletionResponse = {
-      task_type: taskId,
+      task_id: taskId,
       status: 'completed',
       message: 'Operation completed successfully',
       error: null
@@ -110,8 +113,11 @@ describe('jobRunRequest()', () => {
     };
     jobData.set(VdkOption.PATH, mockData[VdkOption.PATH]);
 
-    const taskId = 'RUN';
-    const taskInitiationResponse = { error: '1', message: taskId };
+    const taskId = 'RUN-6266cd99-908c-480b-9a3e-8a30564736a4';
+    const taskInitiationResponse = {
+      error: '1',
+      message: `Task ${taskId} started`
+    };
     (requestAPI as jest.Mock).mockResolvedValueOnce(taskInitiationResponse);
 
     const result = await jobRunRequest();
@@ -142,15 +148,15 @@ describe('jobRequest()', () => {
     jobData.set(VdkOption.TEAM, mockData[VdkOption.TEAM]);
 
     const endpoint = 'CREATE';
-    const taskId = endpoint;
+    const taskId = endpoint + '-6266cd99-908c-480b-9a3e-8a30564736a4';
     const taskInitiationResponse = {
       error: '',
-      message: `${taskId} operation completed successfully`
+      message: `Task ${taskId} started`
     };
     const taskCompletionResponse = {
-      task_type: taskId,
+      task_id: taskId,
       status: 'completed',
-      message: 'Operation completed successfully',
+      message: 'Task completed successfully',
       error: null
     };
 
@@ -161,7 +167,7 @@ describe('jobRequest()', () => {
     const result = await jobRequest(endpoint);
 
     // Verify the call for initiating the task
-    expect(requestAPI).toHaveBeenCalledWith(taskId, {
+    expect(requestAPI).toHaveBeenCalledWith(endpoint, {
       body: JSON.stringify(getJobDataJsonObject()),
       method: 'POST'
     });
@@ -190,7 +196,7 @@ describe('jobRequest()', () => {
     const endpoint = 'DEPLOY';
     const serverVdkOperationResultMock = {
       error: '1',
-      message: `${endpoint} operation failed`
+      message: `${endpoint} task failed`
     };
     (requestAPI as jest.Mock).mockResolvedValueOnce(
       serverVdkOperationResultMock

@@ -1,6 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import threading
+import uuid
 
 
 class TaskRunner:
@@ -23,7 +24,7 @@ class TaskRunner:
 
     def __init__(self):
         self.__task_status = {
-            "task_type": None,
+            "task_id": None,
             "status": "idle",
             "message": None,
             "error": None,
@@ -36,22 +37,23 @@ class TaskRunner:
 
         :param task_type: A string representing the type of the task.
         :param task_handler: The function to be executed for this task.
-        :return: True if the task was successfully created, False otherwise (if another task is running).
+        :return: The unique task ID if the task was successfully created, None otherwise (if another task is running).
         """
+        task_id = f"{task_type}-{str(uuid.uuid4())}"
         with self.lock:
             if self.__task_status["status"] not in ["idle", "completed"]:
-                return False
+                return None
 
             self.__task_status = {
-                "task_type": task_type,
+                "task_id": task_id,
                 "status": "running",
-                "message": f"Task {task_type} started",
+                "message": f"Task {task_id} started",
                 "error": None,
             }
 
         thread = threading.Thread(target=self._run_task, args=(task_handler,))
         thread.start()
-        return True
+        return task_id
 
     def get_status(self):
         """
@@ -71,7 +73,7 @@ class TaskRunner:
             result = task_handler()
             with self.lock:
                 self.__task_status = {
-                    "task_type": self.__task_status["task_type"],
+                    "task_id": self.__task_status["task_id"],
                     "status": "completed",
                     "message": result,
                     "error": None,
@@ -79,7 +81,7 @@ class TaskRunner:
         except Exception as e:
             with self.lock:
                 self.__task_status = {
-                    "task_type": self.__task_status["task_type"],
+                    "task_id": self.__task_status["task_id"],
                     "status": "failed",
                     "message": None,
                     "error": str(e),
