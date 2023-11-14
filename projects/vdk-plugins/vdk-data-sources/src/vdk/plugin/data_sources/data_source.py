@@ -24,12 +24,13 @@ class IDataSourceConfiguration:
 
     Example::
 
-    @config_class(
-        name="example", description="Data source example for example purposese"
-    )
-    class ExampleDataSourceConfiguration(IDataSourceConfiguration):
-        num_records: int = config_field(
-            description="Number of records to return", default=2
+    # Configuration for StackOverflow data source to interact with its API and extract data.
+    @config_class(name="stackoverflow-api", description="Extract data from StackOverflow API")
+    class StackOverflowDataSourceConfiguration(IDataSourceConfiguration):
+        api_url: str = config_field(description="StackOverflow API URL")
+        api_key: Optional[str] = config_field(description="API key", default="")
+        api_endpoints: List[str] = config_field(
+            description="List of API endpoints", default=['answers', 'questions', 'posts']
         )
         ...
 
@@ -75,12 +76,15 @@ class IDataSourceStream:
 
     :Example::
 
-        class MyStream(IDataSourceStream):
-            def name(self):
-                return "My Stream"
+        # Implement the data extraction from StackOverflow API
+        class StackOverflowDataSourceStream(IDataSourceStream):
 
-            def read(self):
-                yield DataSourcePayload(...)
+            def __init__(self, endpoint_url: str):
+                self._endpoint_url = endpoint_url
+
+            def read(self) -> Iterator[DataSourcePayload]:
+                for item in stackoverflow_client.get(self._endpoint_url):
+                    yield DataSourcePayload(item)
 
     """
 
@@ -108,19 +112,25 @@ class IDataSource:
 
     :Example::
 
-        @data_source(name="my", config_class=MyDataSourceConfig)
-        class MyDataSource(IDataSource):
-            def configure(self, config: MyDataSourceConfig):
-                pass
+        # Let's build data source for Stack Overflow API. We will split each API endpoint data into separate stream
 
-            def connect(self, state):
-                pass
+        @data_source(name="stackoverflow-api",
+                     config_class=StackOverflowDataSourceConfiguration)
+        class StackOverflowDataSource(IDataSource):
+
+            def configure(self, config: IDataSourceConfiguration):
+                self._config = config
+
+            def connect(self, state: IDataSourceState):
+                if not self._streams:
+                    self._streams = [StackOverflowDataSourceStream(endpoint) for endpoint in self._config.api_endpoints]
+
+            def streams(self) -> List[IDataSourceStream]:
+                return self._streams
 
             def disconnect(self):
-                pass
-
-            def streams(self):
-                return [MyStream()]
+                close_all_streams(self._streams)
+                self._streams = []
 
     """
 

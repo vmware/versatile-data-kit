@@ -85,10 +85,10 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         else:
             errors.report_and_throw(
                 VdkConfigurationError(
-                    "Provided method, {method}, has invalid value.",
-                    "VDK was run with method={method}, however {method} is not part of the available ingestion mechanisms.",
+                    f"Provided method, {method}, has invalid value."
+                    f"VDK was run with method={method}, however {method} is not part of the available ingestion methods."
                     f"Provide either valid value for method, or install ingestion plugin that supports this type. "
-                    f"Currently possible values are {list(self._ingester_builders.keys())}",
+                    f"Currently possible values are {list(self._ingester_builders.keys())}"
                 )
             )
 
@@ -217,15 +217,9 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         if processor_plugin is None:
             errors.report_and_throw(
                 VdkConfigurationError(
-                    "Could not create new processor plugin of type" f" {method}.",
-                    f"VDK was run with method={method}, however "
-                    "no valid ingestion processor plugin was "
-                    "created.",
-                    "Seems to be a bug in the plugin for method"
-                    f" {method}. Make sure it's correctly "
-                    f"installed. If upgraded recently, consider"
-                    " reverting to previous version. Or use "
-                    "another method type.",
+                    "Could not create new processor plugin of method: " f"{method}.",
+                    f"Currently possible processor methods are {list(self._ingester_builders.keys())}. "
+                    "Make sure the processing configuration value are correct and the plugin is installed. ",
                 )
             )
         return processor_plugin

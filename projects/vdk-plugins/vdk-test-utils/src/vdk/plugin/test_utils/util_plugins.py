@@ -221,6 +221,6 @@ class IngestIntoMemoryPlugin(IIngesterPlugin):
 
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
-        log.info("Initialize data job with IngestIntoMemory Plugin.")
+        log.debug("Initialize data job with IngestIntoMemory Plugin.")
 
         context.ingester.add_ingester_factory_method(self.method_name, lambda: self)

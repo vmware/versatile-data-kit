@@ -18,17 +18,23 @@ EXTRA_TEST_VALUE = "extra_test_value"
 EXCLUDED_BOUND_TEST_KEY = "excluded_bound_test_key"
 EXCLUDED_BOUND_TEST_VALUE = "excluded_bound_test_value"
 
+# TODO: add vdk_step_name
+# TODO: add vdk_step_type
 STOCK_FIELDS = [
+    "timestamp",
     "level",
     "file_name",
     "line_number",
+    "function_name",
     "vdk_job_name",
-]  # TODO: add timestamp once bug is resolved
+]
 STOCK_FIELD_REPRESENTATIONS = {
     "console": {
+        "timestamp": r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}",
         "level": r"\[INFO ]",
         "file_name": r"10_dummy\.py",
-        "line_number": ":[0-9]+",
+        "line_number": r"\s:[0-9]+",
+        "function_name": "run",
         "vdk_job_name": JOB_NAME,
     },
     "ltsv": {
@@ -38,17 +44,17 @@ STOCK_FIELD_REPRESENTATIONS = {
         "vdk_job_name": f"job_name:{JOB_NAME}",
     },
     "json": {
+        "timestamp": r'"timestamp": \d+\.\d+',
         "level": '"level": "INFO"',
-        "file_name": '"filename:":"10_dummy.py"',
+        "file_name": '"filename": "10_dummy.py"',
         "line_number": '"lineno": [0-9]+',
+        "function_name": '"funcName": "run"',
         "vdk_job_name": f'"vdk_job_name": "{JOB_NAME}"',
     },
 }
 
 
-@pytest.mark.parametrize(
-    "log_format", ["console, ltsv"]
-)  # TODO: replace with ["console","ltsv", "json"] once the issue where fields can't be excluded in JSON is fixed
+@pytest.mark.parametrize("log_format", ["console, ltsv", "json"])
 def test_structlog(log_format):
     with mock.patch.dict(
         os.environ,
@@ -76,9 +82,7 @@ def test_structlog(log_format):
         )
 
 
-@pytest.mark.parametrize(
-    "log_format", ["console", "ltsv"]
-)  # TODO: replace with ["console", "ltsv", "json"] once the issue where fields can't be excluded in JSON is fixed
+@pytest.mark.parametrize("log_format", ["console", "ltsv", "json"])
 def test_stock_fields_removal(log_format):
     stock_field_reps = STOCK_FIELD_REPRESENTATIONS[log_format]
 
@@ -99,7 +103,7 @@ def test_stock_fields_removal(log_format):
                 logs, "Log statement with bound context and extra context"
             )
 
-            # check that the removed_field in not shown in the log
+            # check that the removed_field is not shown in the log
             assert re.search(stock_field_reps[removed_field], test_log) is None
 
             # check the rest are shown
