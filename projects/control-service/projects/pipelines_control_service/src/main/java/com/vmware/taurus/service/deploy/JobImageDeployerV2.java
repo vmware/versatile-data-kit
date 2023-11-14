@@ -233,7 +233,8 @@ public class JobImageDeployerV2 {
     return actualJobDeployment;
   }
 
-  private void checkDefaultDeploymentResources(DesiredDataJobDeployment desiredDataJobDeployment,
+  private void checkDefaultDeploymentResources(
+      DesiredDataJobDeployment desiredDataJobDeployment,
       ActualDataJobDeployment actualDataJobDeployment) {
 
     if (actualDataJobDeployment.getResources() == null) {
@@ -291,9 +292,12 @@ public class JobImageDeployerV2 {
   }
 
   private void handleResourcesException(ParseException e) {
-    var errorMessage = new ErrorMessage("Couldn't write default resource to database",
-        "Parsing default string value failed", "The resource won't be present in the DB",
-        "Verify the string can be parsed to a number");
+    var errorMessage =
+        new ErrorMessage(
+            "Couldn't write default resource to database",
+            "Parsing default string value failed",
+            "The resource won't be present in the DB",
+            "Verify the string can be parsed to a number");
     log.error(errorMessage.toString(), e);
   }
 
