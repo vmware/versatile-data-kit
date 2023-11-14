@@ -39,6 +39,24 @@ class JsonFormatter(jsonlogger.JsonFormatter):
             del log_record["created"]
 
 
+class LtsvFormatter(Formatter):
+    """
+    Formats logs in the Labelled Tab Separated Values (LTSV) format.
+    You can read more about this format here: http://ltsv.org/
+
+    """
+
+    def format(self, record: LogRecord) -> LogRecord:
+        record.message = record.getMessage()
+        record.timestamp = self.formatTime(record, self.datefmt)
+        record.line_number = record.lineno
+        if ("level" not in record.__dict__) or (not record.__dict__["level"]):
+            record.level = record.levelname
+
+        s = self.formatMessage(record)
+        return s
+
+
 class ConsoleFormatter(Formatter):
     """
     Console formatter. Basically the same as logging.Formatter.
@@ -102,6 +120,17 @@ class StructlogMetadataBuilder:
         out.append("- %(message)s")
         return " ".join(out)
 
+    def build_ltsv_format(self) -> str:
+        out = []
+        for key in self._metadata_keys:
+            if key in STRUCTLOG_LOGGING_METADATA_ALL:
+                out.append(key + ":" + STRUCTLOG_LOGGING_METADATA_ALL[key])
+            else:
+                out.append(key + ":" + f"%({key})s")
+        out.append("message:%(message)s")
+        ltsv_format = "\t".join(out)
+        return ltsv_format
+
 
 def create_formatter(logging_format: str, metadata_keys: str) -> [Formatter, Filter]:
     """
@@ -118,6 +147,11 @@ def create_formatter(logging_format: str, metadata_keys: str) -> [Formatter, Fil
             StructlogMetadataBuilder(metadata_keys).build_json_format()
         )
         custom_key_filter = JsonMetadataFilter(key_set)
+    elif logging_format == "ltsv":
+        formatter = LtsvFormatter(
+            fmt=StructlogMetadataBuilder(metadata_keys).build_ltsv_format()
+        )
+        custom_key_filter = ConsoleMetadataFilter(key_set)
     else:
         formatter = ConsoleFormatter(
             fmt=StructlogMetadataBuilder(metadata_keys).build_console_format()
