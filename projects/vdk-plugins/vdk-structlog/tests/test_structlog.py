@@ -38,10 +38,12 @@ STOCK_FIELD_REPRESENTATIONS = {
         "vdk_job_name": JOB_NAME,
     },
     "ltsv": {
+        "timestamp": r'timestamp:\d+\.\d+',
         "level": r"level:INFO",
         "file_name": r"file_name:10_dummy\.py",
         "line_number": "line_number:[0-9]+",
-        "vdk_job_name": f"job_name:{JOB_NAME}",
+        "function_name": "function_name:run",
+        "vdk_job_name": f"vdk_job_name:{JOB_NAME}",
     },
     "json": {
         "timestamp": r'"timestamp": \d+\.\d+',
@@ -54,7 +56,7 @@ STOCK_FIELD_REPRESENTATIONS = {
 }
 
 
-@pytest.mark.parametrize("log_format", ["console, ltsv", "json"])
+@pytest.mark.parametrize("log_format", ["console", "ltsv", "json"])
 def test_structlog(log_format):
     with mock.patch.dict(
         os.environ,
