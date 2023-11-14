@@ -24,8 +24,8 @@ STRUCTLOG_METADATA_FIELDS = {
 }
 
 JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT = {
-    "timestamp": "%(timestamp)s",
-    "level": "%(level)s",
+    "timestamp": "%(created)s",
+    "level": "%(levelname)s",
     "logger_name": "%(name)s",
     "file_name": "%(filename)s",
     "line_number": "%(lineno)s",

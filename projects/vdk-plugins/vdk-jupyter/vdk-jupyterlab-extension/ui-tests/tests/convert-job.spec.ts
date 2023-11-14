@@ -19,7 +19,8 @@ test.describe('convert job', () => {
 
     await page.goto(`tree/${tmpPath}`);
   });
-  test.skip('success', async ({ page }) => {
+  // This Test can fail locally because the paths are too long.
+  test('success', async ({ page }) => {
     // use VDK menu
     await page.menu.open('VDK');
     await page.locator('#jp-vdk-menu').getByText('Convert').click();
@@ -38,8 +39,9 @@ test.describe('convert job', () => {
       .locator('div')
       .filter({ hasText: 'Are you sure you want to convert the Data Job' });
     await page.getByRole('button', { name: 'OK' }).click();
-    await page.locator('div').filter({ hasText: 'Directory not found' });
-    await page.getByRole('button', { name: 'Dismiss' }).click();
+
+    // Dismiss the dialog that says the operation is running in the background
+    await page.getByRole('button', { name: 'OK' }).click();
 
     // get message that the job was converted successfully
     await page
