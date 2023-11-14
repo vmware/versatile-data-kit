@@ -58,7 +58,7 @@ def test_task_error(task_runner):
 
     time.sleep(0.1)
     status = task_runner.get_status()
-    assert status["status"] == "error"
+    assert status["status"] == "failed"
     assert "An error occurred" in status["error"]
 
 
