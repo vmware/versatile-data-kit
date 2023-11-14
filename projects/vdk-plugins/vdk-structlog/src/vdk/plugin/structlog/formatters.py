@@ -26,20 +26,17 @@ class JsonFormatter(jsonlogger.JsonFormatter):
         record: LogRecord,
         message_dict: Dict[str, Any],
     ) -> None:
-        super().add_fields(log_record, record, message_dict)
-
         # remove log record fields that are set to empty string
-        keys = [x for x in log_record.keys() if not log_record[x]]
+        keys = [x for x in record.__dict__.keys() if record.__dict__[x] == ""]
         for key in keys:
-            del log_record[key]
-
-        if not log_record.get("timestamp"):
-            now = record.created
-            log_record["timestamp"] = now
-        if log_record.get("level"):
-            log_record["level"] = log_record["level"].upper()
-        else:
-            log_record["level"] = record.levelname
+            del record.__dict__[key]
+        super().add_fields(log_record, record, message_dict)
+        if log_record.get("levelname"):
+            log_record["level"] = record.levelname.upper()
+            del log_record["levelname"]
+        if log_record.get("created"):
+            log_record["timestamp"] = record.created
+            del log_record["created"]
 
 
 class ConsoleFormatter(Formatter):
