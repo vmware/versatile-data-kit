@@ -54,9 +54,7 @@ STOCK_FIELD_REPRESENTATIONS = {
 }
 
 
-@pytest.mark.parametrize(
-    "log_format", ["console, ltsv", "json"]
-)
+@pytest.mark.parametrize("log_format", ["console, ltsv", "json"])
 def test_structlog(log_format):
     with mock.patch.dict(
         os.environ,
@@ -84,9 +82,7 @@ def test_structlog(log_format):
         )
 
 
-@pytest.mark.parametrize(
-    "log_format", ["console", "ltsv", "json"]
-)
+@pytest.mark.parametrize("log_format", ["console", "ltsv", "json"])
 def test_stock_fields_removal(log_format):
     stock_field_reps = STOCK_FIELD_REPRESENTATIONS[log_format]
 
