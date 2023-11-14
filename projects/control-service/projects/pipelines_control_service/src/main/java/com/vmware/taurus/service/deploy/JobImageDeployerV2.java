@@ -7,6 +7,7 @@ package com.vmware.taurus.service.deploy;
 
 import com.google.gson.Gson;
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
+import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
@@ -14,6 +15,7 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
 import io.kubernetes.client.openapi.ApiException;
+import java.text.ParseException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -205,11 +207,9 @@ public class JobImageDeployerV2 {
             desiredDataJobDeployment,
             lastDeployedDate,
             jobImageName);
-
     // TODO [miroslavi] store sha in annotation???
     String desiredDeploymentVersionSha =
         dataJobsKubernetesService.getCronJobSha512(desiredCronJob, JobAnnotation.DEPLOYED_DATE);
-
     ActualDataJobDeployment actualJobDeployment = null;
 
     if (isJobDeploymentPresentInKubernetes) {
@@ -229,8 +229,72 @@ public class JobImageDeployerV2 {
           DeploymentModelConverter.toActualJobDeployment(
               desiredDataJobDeployment, desiredDeploymentVersionSha, lastDeployedDate);
     }
-
+    checkDefaultDeploymentResources(desiredDataJobDeployment, actualJobDeployment);
     return actualJobDeployment;
+  }
+
+  private void checkDefaultDeploymentResources(DesiredDataJobDeployment desiredDataJobDeployment,
+      ActualDataJobDeployment actualDataJobDeployment) {
+
+    if (actualDataJobDeployment.getResources() == null) {
+      actualDataJobDeployment.setResources(new DataJobDeploymentResources());
+    }
+    var deploymentResources = actualDataJobDeployment.getResources();
+
+    checkDefaultMemoryLimit(deploymentResources);
+    checkDefaultMemoryRequest(deploymentResources);
+    checkDefaultCpuRequest(deploymentResources);
+    checkDefaultCpuLimit(deploymentResources);
+
+    actualDataJobDeployment.setResources(deploymentResources);
+    desiredDataJobDeployment.setResources(deploymentResources);
+  }
+
+  private void checkDefaultMemoryLimit(DataJobDeploymentResources resources) {
+    if (resources.getMemoryLimitMi() == null) {
+      try {
+        resources.setMemoryLimitMi(defaultConfigurations.getMemoryLimits());
+      } catch (ParseException e) {
+        handleResourcesException(e);
+      }
+    }
+  }
+
+  private void checkDefaultMemoryRequest(DataJobDeploymentResources resources) {
+    if (resources.getMemoryRequestMi() == null) {
+      try {
+        resources.setMemoryRequestMi(defaultConfigurations.getMemoryRequests());
+      } catch (ParseException e) {
+        handleResourcesException(e);
+      }
+    }
+  }
+
+  private void checkDefaultCpuRequest(DataJobDeploymentResources resources) {
+    if (resources.getCpuRequestCores() == null) {
+      try {
+        resources.setCpuRequestCores(defaultConfigurations.getCpuRequests());
+      } catch (ParseException e) {
+        handleResourcesException(e);
+      }
+    }
+  }
+
+  private void checkDefaultCpuLimit(DataJobDeploymentResources resources) {
+    if (resources.getCpuLimitCores() == null) {
+      try {
+        resources.setCpuLimitCores(defaultConfigurations.getCpuLimits());
+      } catch (ParseException e) {
+        handleResourcesException(e);
+      }
+    }
+  }
+
+  private void handleResourcesException(ParseException e) {
+    var errorMessage = new ErrorMessage("Couldn't write default resource to database",
+        "Parsing default string value failed", "The resource won't be present in the DB",
+        "Verify the string can be parsed to a number");
+    log.error(errorMessage.toString(), e);
   }
 
   /**
@@ -373,7 +437,6 @@ public class JobImageDeployerV2 {
             .filter(memoryLimitMi -> memoryLimitMi > 0)
             .map(memoryLimitMi -> memoryLimitMi + "Mi")
             .orElse(defaultConfigurations.dataJobLimits().getMemory());
-
     // The job name is used as the container name. This is something that we rely on later,
     // when watching for pod modifications in DataJobStatusMonitor.watchPods
     var jobContainer =
