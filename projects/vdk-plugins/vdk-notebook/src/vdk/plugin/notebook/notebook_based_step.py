@@ -13,6 +13,8 @@ from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
 from vdk.internal.core.errors import UserCodeError
+from vdk.plugin.notebook import vdk_ingest
+from vdk.plugin.notebook.vdk_ingest import TYPE_INGEST
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +76,8 @@ class NotebookStepFuncFactory:
             return NotebookStepFuncFactory.run_python_step
         elif source_type == TYPE_SQL:
             return NotebookStepFuncFactory.run_sql_step
+        elif source_type == TYPE_INGEST:
+            return vdk_ingest.run_ingest_step
         else:
             raise NotImplementedError(
                 f"Run function for source type {source_type} is not implemented."
