@@ -31,9 +31,10 @@ vdk run example-job
 ```
 
 - Each cell which has tag "vdk" is executed
-- There could be two type of VDK Cells:
+- There could be those types of VDK Cells:
   - VDK Python Cell. Those are normal Python cells tagged with "vdk"
   - VDK SQL Cell. Those are cells marked with `%%vdksql` magic and tagged with "vdk"
+  - VDK Ingest Cell. Those are celles marked with `%%vdkingest` magic.
 
 For more information and examples see [vdk-ipython](../vdk-ipython/README.md) documentation
 
