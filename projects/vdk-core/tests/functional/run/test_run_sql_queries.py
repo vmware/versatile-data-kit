@@ -26,6 +26,7 @@ from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
 log = logging.getLogger(__name__)
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
+VDK_LOG_EXECUTION_RESULT = "VDK_LOG_EXECUTION_RESULT"
 
 
 class ValidatedSqLite3MemoryDbPlugin:
@@ -79,7 +80,10 @@ def test_run_dbapi_connection_no_such_db_type():
     logging.getLogger("vdk").setLevel(logging.INFO)
     runner = CliEntryBasedTestRunner()
 
-    with mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY}):
+    with mock.patch.dict(
+        os.environ,
+        {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY, VDK_LOG_EXECUTION_RESULT: "True"},
+    ):
         result: Result = runner.invoke(
             [
                 "run",

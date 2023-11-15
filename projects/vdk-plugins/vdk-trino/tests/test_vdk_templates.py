@@ -21,6 +21,7 @@ VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
 VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY = (
     "VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
 )
+VDK_LOG_EXECUTION_RESULT = "VDK_LOG_EXECUTION_RESULT"
 
 org_move_data_to_table = TrinoTemplateQueries.move_data_to_table
 
@@ -60,6 +61,7 @@ def mock_os_environ():
             VDK_TRINO_PORT: "8080",
             VDK_TRINO_USE_SSL: "False",
             VDK_TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY: "INSERT_SELECT",
+            VDK_LOG_EXECUTION_RESULT: "True",
         },
     ):
         yield
