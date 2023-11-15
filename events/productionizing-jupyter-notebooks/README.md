@@ -13,9 +13,6 @@
 - [Feedback](#Feedback)
 - [Where to Find Us](#Where-to-Find-Us)
 
-## Presentation slides
-Open them at [productionizing-jupyter-notebooks.pdf](Explore23_productionizing_jupyter_notebooks.pdf)
-
 ## Presenter
 [Duygu Hasan](https://github.com/duyguHsnHsn) <a href='https://www.linkedin.com/in/duygu-hasan/'><img src="https://img.shields.io/badge/LinkedIn-0077B5"></a>
 
