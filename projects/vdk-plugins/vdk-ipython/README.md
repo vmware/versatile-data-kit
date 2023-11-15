@@ -102,6 +102,10 @@ method = "<method-name>"
 [[flows]]
 from = "yourSourceId"
 to = "yourDestinationId"
+
+[[flows]]
+from = "yourSourceId_2"
+to = "yourDestinationId_2"
 ```
 
 Complete the full self-paced tutorial at https://bit.ly/vdk-ingest
