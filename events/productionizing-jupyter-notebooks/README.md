@@ -1,7 +1,6 @@
 # Productionizing Jupyter Notebooks with Versatile Data Kit (VDK)
 
 ## Table of Contents
-- [Presentation slides](#Presentation-slides)
 - [Goals](#Goals)
 - [Agenda](#Agenda)
 - [Purpose](#Purpose)
@@ -41,7 +40,7 @@ All the following objectives will be executed within a Jupyter notebook:
 For detailed instructions on working with VDK, please refer to the guide from the provided [link](../../projects/vdk-plugins/vdk-jupyter/getting-started.ipynb).
 
 ## Tutorial
-### [LAUNCH TUTORIAL](https://mybinder.org/v2/gh/duyguHsnHsn/vmware-explore/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)
+### [LAUNCH TUTORIAL](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)
 
 ## Exercises
 The tutorial-job directory contains the ready-to-use code from this demo. Make sure to explore it as it will provide hands-on experience with the objectives and VDK Jupyter integration discussed in this guide.
