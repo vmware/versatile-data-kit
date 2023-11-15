@@ -5,7 +5,7 @@ import pathlib
 import setuptools
 
 
-__version__ = "0.1.0"
+__version__ = "0.2.5"
 
 setuptools.setup(
     name="vdk-ipython",
@@ -28,4 +28,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3.11",
         "Framework :: IPython",
     ],
+    extras_require={"data-sources": ["vdk-data-sources"]},
 )
