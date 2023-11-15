@@ -19,22 +19,27 @@ log = logging.getLogger(__name__)
 task_runner = TaskRunner()
 
 
-def task_start_response(task_id, task_type):
+def task_start_response_success(task_id):
+    """Helper function to generate a JSON response for a successful task start request.
+
+    :param task_id: The task ID.
+    :return: A JSON response.
     """
-    Helper function to generate a JSON response for a task start request.
-    :param task_id: The task ID if the task was started successfully, otherwise None.
+    return json.dumps({"message": f"Task {task_id} started", "error": ""})
+
+
+def task_start_response_failure(task_type):
+    """Helper function to generate a JSON response for a failing task start request.
+
     :param task_type: The type of the task being started.
-    :return:
+    :return: A JSON response.
     """
-    if task_id:
-        json.dumps({"message": f"Task {task_id} started", "error": ""})
-    else:
-        json.dumps(
-            {
-                "message": f"Task {task_type} failed to start",
-                "error": "Another task is already running",
-            }
-        )
+    return json.dumps(
+        {
+            "message": f"Task {task_type} failed to start",
+            "error": "Another task is already running",
+        }
+    )
 
 
 class GetTaskStatusHandler(APIHandler):
@@ -117,7 +122,10 @@ class RunJobHandler(APIHandler):
             ),
         )
 
-        self.finish(task_start_response(task_id, "RUN"))
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("RUN"))
 
 
 class DownloadJobHandler(APIHandler):
@@ -141,7 +149,10 @@ class DownloadJobHandler(APIHandler):
             ),
         )
 
-        self.finish(task_start_response(task_id, "DOWNLOAD"))
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("DOWNLOAD"))
 
 
 class ConvertJobHandler(APIHandler):
@@ -158,7 +169,10 @@ class ConvertJobHandler(APIHandler):
             lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value]),
         )
 
-        self.finish(task_start_response(task_id, "CONVERTJOBTONOTEBOOK"))
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("CONVERTJOBTONOTEBOOK"))
 
 
 class CreateJobHandler(APIHandler):
@@ -183,7 +197,10 @@ class CreateJobHandler(APIHandler):
             ),
         )
 
-        self.finish(task_start_response(task_id, "CREATE"))
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("CREATE"))
 
 
 class CreateDeploymentHandler(APIHandler):
@@ -208,7 +225,10 @@ class CreateDeploymentHandler(APIHandler):
             ),
         )
 
-        self.finish(task_start_response(task_id, "DEPLOY"))
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("DEPLOY"))
 
 
 class GetNotebookInfoHandler(APIHandler):
