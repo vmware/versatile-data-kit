@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
+from vdk.plugin.notebook.vdk_ingest import TYPE_INGEST
 
 
 @dataclass
@@ -25,4 +26,7 @@ class Cell:
         if lines and lines[0].strip().startswith("%%vdksql"):
             statement = "".join(lines[1:])
             return statement, TYPE_SQL
+        if lines and lines[0].strip().startswith("%%vdkingest"):
+            source = "".join(lines[1:])
+            return source, TYPE_INGEST
         return "".join(lines), TYPE_PYTHON
