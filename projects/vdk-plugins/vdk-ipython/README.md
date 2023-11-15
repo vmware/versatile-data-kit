@@ -89,7 +89,7 @@ config = {
 ## Ingestion methods and targets are the same one as those accepted by send_object_for_ingestion
 ## See https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py#L183
 [destinations.yourDestinationId]
-## the only required filed is method
+## the only required parameter is method
 method = "<method-name>"
 ## Optionally specify target
 ## target =
