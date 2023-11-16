@@ -31,7 +31,7 @@ The purpose of this scenario is to demonstrate how to operationalize Jupyter not
 ## Background
 ### Objective:
 The tutorial walks you through standard ETL process retrieve,
-clean, transform, load data in a notebook environment and addresses 
+clean, transform, load data in a notebook environment and addresses
 the challenges linked to making that notebook ready for production.
 
 
@@ -42,7 +42,7 @@ For detailed instructions on working with VDK, please refer to the guide from th
 ### **🌟🚀 [CLICK HERE TO LAUNCH THE TUTORIAL!](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)🚀🌟**
 
 The link did not work?
-Try this one out: 
+Try this one out:
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)
 
