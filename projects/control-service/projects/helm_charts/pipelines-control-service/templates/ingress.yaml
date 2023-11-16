@@ -7,6 +7,7 @@
 kind: Ingress
 metadata:
   name: {{ include "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels: {{- include "common.labels.standard" . | nindent 4 }}
   annotations: {{- toYaml .Values.ingress.annotations | nindent 4 }}
 apiVersion: networking.k8s.io/v1
@@ -15,29 +16,26 @@ spec:
   ingressClassName: {{ .Values.ingress.className }}
 {{- end }}
   rules:
-  - host: {{ .Values.ingress.host | quote }}
-    http:
-      paths:
-{{- if .Values.operationsUi.enabled }}
-      - path: {{ .Values.ingress.path | default "/" }}
-        pathType: "ImplementationSpecific"
-        backend:
-          service:
-            name: {{ .Release.Name }}-ui
-            port:
-              number: 8091
-{{- end }}
-      - path: {{ .Values.ingress.path | default "/data-jobs" }}
-        pathType: "ImplementationSpecific"
-        backend:
-          service:
-            name: {{ .Release.Name }}-svc
-            port:
-              number: {{ .Values.service.internalPort }}
-{{- if .Values.ingress.tls_secret }}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .name }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ default "/" .path | quote }}
+            pathType: "ImplementationSpecific"
+            backend:
+              service:
+                name: {{ tpl .serviceName $ }}
+                port:
+                  number: {{ .servicePort }}
+          {{- end }}
+    {{- end }}
   tls:
-    - hosts:
-      - {{ .Values.ingress.host | quote}}
-      secretName: {{ .Values.ingress.tls_secret }}
-{{- end }}
-{{- end }}
+    {{- range .Values.ingress.hosts }}
+    {{- if .tls }}
+      - hosts:
+          - {{ .name }}
+        secretName: {{ .tlsSecretName }}
+    {{- end }}
+    {{- end }}
+  {{- end -}}
