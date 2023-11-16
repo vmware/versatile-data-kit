@@ -11,7 +11,6 @@ from pathlib import Path
 
 from vdk.internal.builtin_plugins.run.summary_output import JobSummaryParser
 from vdk.internal.control.command_groups.job.create import JobCreate
-from vdk.internal.control.command_groups.job.delete import JobDelete
 from vdk.internal.control.command_groups.job.deploy_cli_impl import JobDeploy
 from vdk.internal.control.command_groups.job.download_job import JobDownloadSource
 from vdk.internal.control.utils import cli_utils
@@ -99,18 +98,6 @@ class VdkUI:
             cmd.append("--arguments")
             cmd.append(f"{arguments}")
         return cmd
-
-    @staticmethod
-    def delete_job(name: str, team: str) -> str:
-        """
-        Execute `delete job`.
-        :param name: the name of the data job that will be deleted
-        :param team: the team of the data job that will be deleted
-        :return: message that the job is deleted
-        """
-        cmd = JobDelete(RestApiUrlConfiguration.get_rest_api_url())
-        cmd.delete_job(name, team)
-        return f"Deleted the job with name {name} from {team} team. "
 
     @staticmethod
     def download_job(name: str, team: str, path: str) -> str:
