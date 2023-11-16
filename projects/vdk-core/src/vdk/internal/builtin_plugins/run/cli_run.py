@@ -17,6 +17,7 @@ from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.config.job_config import JobConfig
 from vdk.internal.builtin_plugins.run import job_input_error_classifier
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
+from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_tracking import (
     ExecutionTrackingPlugin,
 )
@@ -120,6 +121,26 @@ class CliRunImpl:
                         """
                     )
 
+    def __log_exec_result(self, execution_result: ExecutionResult) -> None:
+        # On some platforms, if the size of a string is too large, the
+        # logging module starts throwing OSError: [Errno 40] Message too long,
+        # so it is safer if we split large strings into smaller chunks.
+        string_exec_result = str(execution_result)
+        if len(string_exec_result) > 5000:
+            temp_exec_result = json.loads(string_exec_result)
+            steps = temp_exec_result.pop("steps_list")
+
+            log.info(
+                f"Data Job execution summary: {json.dumps(temp_exec_result, indent=2)}"
+            )
+
+            chunks = math.ceil(len(string_exec_result) / 5000)
+            for i in self.__split_into_chunks(exec_steps=steps, chunks=chunks):
+                log.info(f"Execution Steps: {json.dumps(i, indent=2)}")
+
+        else:
+            log.info(f"Data Job execution summary: {execution_result}")
+
     def create_and_run_data_job(
         self,
         context: CoreContext,
@@ -141,24 +162,14 @@ class CliRunImpl:
         execution_result = None
         try:
             execution_result = job.run(args)
-            # On some platforms, if the size of a string is too large, the
-            # logging module starts throwing OSError: [Errno 40] Message too long,
-            # so it is safer if we split large strings into smaller chunks.
-            string_exec_result = str(execution_result)
-            if len(string_exec_result) > 5000:
-                temp_exec_result = json.loads(string_exec_result)
-                steps = temp_exec_result.pop("steps_list")
-
-                log.info(
-                    f"Data Job execution summary: {json.dumps(temp_exec_result, indent=2)}"
-                )
-
-                chunks = math.ceil(len(string_exec_result) / 5000)
-                for i in self.__split_into_chunks(exec_steps=steps, chunks=chunks):
-                    log.info(f"Execution Steps: {json.dumps(i, indent=2)}")
-
+            if context.configuration.get_value("LOG_EXECUTION_RESULT"):
+                self.__log_exec_result(execution_result)
             else:
-                log.info(f"Data Job execution summary: {execution_result}")
+                if execution_result.is_success():
+                    log.info("Job execution result: SUCCESS")
+                if execution_result.is_failed():
+                    log.info("Job execution result: FAILED")
+
         except BaseException as e:
             log.error(
                 "\n".join(

@@ -75,6 +75,7 @@ class StructlogPlugin:
             description=(
                 f"Possible values: {STRUCTLOG_LOGGING_METADATA_ALL_KEYS}"
                 "User-defined key-value pairs added to the logger's context will be displayed after the metadata, but before the message"
+                "Keys for user-defined key-value pairs have to be added in this config option for the values to be displayed in the metadata"
             ),
         )
 
@@ -121,8 +122,8 @@ class StructlogPlugin:
 
         handler = logging.StreamHandler(sys.stderr)
         handler.setFormatter(formatter)
-        handler.addFilter(metadata_filter)
         handler.addFilter(job_name_adder)
+        handler.addFilter(metadata_filter)
 
         root_logger.addHandler(handler)
 
@@ -148,8 +149,8 @@ class StructlogPlugin:
 
         handler = logging.StreamHandler(sys.stderr)
         handler.setFormatter(formatter)
-        handler.addFilter(metadata_filter)
         handler.addFilter(job_name_adder)
+        handler.addFilter(metadata_filter)
 
         root_logger.addHandler(handler)
 
