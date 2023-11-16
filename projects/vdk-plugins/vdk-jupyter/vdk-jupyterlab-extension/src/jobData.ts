@@ -55,8 +55,9 @@ export function getJobDataJsonObject() {
 export async function checkIfVdkOptionDataIsDefined(
   option: VdkOption
 ): Promise<boolean> {
-  if (jobData.get(option)) return true;
-  else {
+  if (jobData.get(option)) {
+    return true;
+  } else {
     await showErrorMessage(
       'Encountered an error while trying to execute operation. Error:',
       'The ' + option + ' should be defined!',
