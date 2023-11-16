@@ -20,6 +20,22 @@ const showError = async (error: any) => {
   );
 };
 
+interface IJobConvertToNotebookMessage {
+  code_structure: string[];
+  removed_files: string[];
+}
+
+type jobConvertToNotebookRequestResult = {
+  /**
+   * Result message of the operation, containing code_structure and removed_files or an informative string.
+   */
+  message: IJobConvertToNotebookMessage | string;
+  /**
+   * Status of the operation
+   */
+  isSuccessful: boolean;
+};
+
 /**
  * Utility functions that are called by the dialogs.
  * They are called when a request to the server is needed to be sent.
@@ -47,6 +63,72 @@ type jobRequestResult = {
   isSuccessful: boolean;
 };
 
+type TaskStatusResult = {
+  /**
+   * Unique task ID
+   */
+  task_id: string;
+  /**
+   * Status of the task
+   */
+  status: string;
+  /**
+   * Result message of the task if no errors occurred
+   */
+  message: string | IJobConvertToNotebookMessage;
+  /**
+   * Error message
+   */
+  error: string;
+};
+
+/**
+ * Extracts the task id from the initial message returned by the server.
+ * @param message
+ */
+function extractTaskIdFromMessage(message: string): string {
+  // The messages is in the format "Task {task_id} started"
+  return message.substring(5, message.length - 8);
+}
+
+const pollForTaskCompletion = async (
+  taskId: string,
+  // The default values of maxAttempts and interval are based on the limit of 12 hours for a job run.
+  // Polling every 10 seconds for 12 hours results in a total of 4320 polls.
+  maxAttempts = 4320,
+  interval = 10000 // 10 seconds
+): Promise<TaskStatusResult> => {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const result = await requestAPI<TaskStatusResult>(
+        `taskStatus?taskId=${taskId}`,
+        { method: 'GET' }
+      );
+      if (
+        result.task_id === taskId &&
+        (result.status === 'completed' || result.error)
+      ) {
+        return result;
+      }
+    } catch (error) {
+      showError(error);
+      return {
+        task_id: taskId,
+        status: 'failed',
+        message: '',
+        error: `An error occurred while polling for task status. Error: ${error}`
+      };
+    }
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+  return {
+    task_id: taskId,
+    status: 'failed',
+    message: '',
+    error: `Task ${taskId} timed out`
+  };
+};
+
 /**
  * Sent a POST request to the server to run a data job.
  * The information about the data job is retrieved from jobData object and sent as JSON.
@@ -55,11 +137,24 @@ type jobRequestResult = {
 export async function jobRunRequest(): Promise<jobRequestResult> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<serverVdkOperationResult>('run', {
-        body: JSON.stringify(getJobDataJsonObject()),
-        method: 'POST'
-      });
-      return { message: data['message'], isSuccessful: data['message'] == '0' };
+      const initialResponse = await requestAPI<serverVdkOperationResult>(
+        'run',
+        {
+          body: JSON.stringify(getJobDataJsonObject()),
+          method: 'POST'
+        }
+      );
+      if (initialResponse.error) {
+        showError(initialResponse.error);
+        return { message: initialResponse.message, isSuccessful: false };
+      }
+
+      const taskId = extractTaskIdFromMessage(initialResponse.message);
+      const finalResult = await pollForTaskCompletion(taskId);
+      return {
+        message: finalResult.message as string,
+        isSuccessful: !finalResult.error
+      };
     } catch (error) {
       showError(error);
       return { message: '', isSuccessful: false };
@@ -82,22 +177,24 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
     (await checkIfVdkOptionDataIsDefined(VdkOption.TEAM))
   ) {
     try {
-      const data = await requestAPI<serverVdkOperationResult>(endPoint, {
-        body: JSON.stringify(getJobDataJsonObject()),
-        method: 'POST'
-      });
-      if (!data['error'])
-        return { message: data['message'], isSuccessful: true };
-      else {
-        await showErrorMessage(
-          'Encountered an error while trying the ' +
-            endPoint +
-            ' operation. Error:',
-          data['message'],
-          [Dialog.okButton()]
-        );
-        return { message: '', isSuccessful: false };
+      const initialResponse = await requestAPI<serverVdkOperationResult>(
+        endPoint,
+        {
+          body: JSON.stringify(getJobDataJsonObject()),
+          method: 'POST'
+        }
+      );
+      if (initialResponse.error) {
+        showError(initialResponse.error);
+        return { message: initialResponse.message, isSuccessful: false };
       }
+
+      const taskId = extractTaskIdFromMessage(initialResponse.message);
+      const finalResult = await pollForTaskCompletion(taskId);
+      return {
+        message: finalResult.message as string,
+        isSuccessful: !finalResult.error
+      };
     } catch (error) {
       showError(error);
       return { message: '', isSuccessful: false };
@@ -112,7 +209,7 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
  *
  * Upon success, the server returns an object containing:
  * - message: A string that includes the 'codeStructure' and 'filenames' os the steps of the transformed job.
- * - status: A boolean indicating the operation's success. It's '' when no errors occurred during the operation.
+ * - isSuccessful: A boolean indicating the operation's success. It's '' when no errors occurred during the operation.
  *
  * Upon failure (either server-side or client-side), the function returns an object
  * with an error message and 'false' status.
@@ -120,29 +217,40 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
  *
  * @returns A Promise that resolves to an object containing the message from the server and the status of the operation.
  */
-export async function jobConvertToNotebookRequest(): Promise<{
-  message: string;
-  status: boolean;
-}> {
+export async function jobConvertToNotebookRequest(): Promise<jobConvertToNotebookRequestResult> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<serverVdkOperationResult>(
+      const initialResponse = await requestAPI<serverVdkOperationResult>(
         'convertJobToNotebook',
         {
           body: JSON.stringify(getJobDataJsonObject()),
           method: 'POST'
         }
       );
-      return { message: data['message'], status: data['error'] == '' };
+      if (initialResponse.error) {
+        showError(initialResponse.error);
+        return { message: initialResponse.message, isSuccessful: false };
+      }
+
+      const taskId = extractTaskIdFromMessage(initialResponse.message);
+      const finalResult = await pollForTaskCompletion(taskId);
+      if (finalResult.error) {
+        return { message: finalResult.error, isSuccessful: false };
+      } else {
+        return {
+          message: finalResult.message as IJobConvertToNotebookMessage,
+          isSuccessful: true
+        };
+      }
     } catch (error) {
       showError(error);
-      return { message: '', status: false };
+      return { message: '', isSuccessful: false };
     }
   } else {
     return {
       message:
         'The job path is not defined. Please define it before attempting to convert the job to a notebook.',
-      status: false
+      isSuccessful: false
     };
   }
 }

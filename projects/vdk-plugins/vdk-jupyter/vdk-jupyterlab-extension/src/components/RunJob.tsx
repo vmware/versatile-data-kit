@@ -212,7 +212,7 @@ export const findFailingCellInNotebookCells = async (
 };
 
 /**
- * Seperate handling for notebook errors - option for the user to navigate to the failing cell when error is produced
+ * Separate handling for notebook errors - option for the user to navigate to the failing cell when error is produced
  */
 export const handleErrorsProducedByNotebookCell = async (
   message: VdkErrorMessage,

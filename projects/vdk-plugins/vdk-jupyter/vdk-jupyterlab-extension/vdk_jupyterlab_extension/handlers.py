@@ -11,10 +11,60 @@ from jupyter_server.utils import url_path_join
 from . import VdkJupyterConfig
 from .job_data import JobDataLoader
 from .oauth2 import OAuth2Handler
+from .task_runner import TaskRunner
 from .vdk_options.vdk_options import VdkOption
 from .vdk_ui import VdkUI
 
 log = logging.getLogger(__name__)
+task_runner = TaskRunner()
+
+
+def task_start_response_success(task_id):
+    """Helper function to generate a JSON response for a successful task start request.
+
+    :param task_id: The task ID.
+    :return: A JSON response.
+    """
+    return json.dumps({"message": f"Task {task_id} started", "error": ""})
+
+
+def task_start_response_failure(task_type):
+    """Helper function to generate a JSON response for a failing task start request.
+
+    :param task_type: The type of the task being started.
+    :return: A JSON response.
+    """
+    return json.dumps(
+        {
+            "message": f"Task {task_type} failed to start",
+            "error": "Another task is already running",
+        }
+    )
+
+
+class GetTaskStatusHandler(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        task_id = self.get_argument("taskId", default=None)
+
+        if not task_id:
+            self.set_status(400)
+            self.finish(json.dumps({"error": "taskId not provided."}))
+            return
+        current_status = task_runner.get_status()
+        if current_status["task_id"] != task_id:
+            self.finish(
+                json.dumps(
+                    {
+                        "status": "failed",
+                        "message": "Mismatched taskId.",
+                        "error": f"Requested status for {task_id} but currently processing {current_status['task_id']}",
+                    }
+                )
+            )
+            return
+
+        self.finish(json.dumps(current_status))
 
 
 class LoadJobDataHandler(APIHandler):
@@ -64,31 +114,18 @@ class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        run_result = VdkUI.run_job(
-            input_data[VdkOption.PATH.value],
-            input_data[VdkOption.ARGUMENTS.value],
+        task_id = task_runner.start_task(
+            "RUN",
+            lambda: VdkUI.run_job(
+                input_data[VdkOption.PATH.value],
+                input_data[VdkOption.ARGUMENTS.value],
+            ),
         )
-        self.finish(json.dumps(run_result))
 
-
-class DeleteJobHandler(APIHandler):
-    """
-    Class responsible for handling POST request for deleting a Data Job given its name, team and Rest API URL
-    Response: return a json formatted str including:
-        ::error field with error message if an error exists
-        ::message field with status of the Vdk operation
-    """
-
-    @tornado.web.authenticated
-    def post(self):
-        input_data = self.get_json_body()
-        try:
-            status = VdkUI.delete_job(
-                input_data[VdkOption.NAME.value], input_data[VdkOption.TEAM.value]
-            )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("RUN"))
 
 
 class DownloadJobHandler(APIHandler):
@@ -103,15 +140,19 @@ class DownloadJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        try:
-            status = VdkUI.download_job(
+        task_id = task_runner.start_task(
+            "DOWNLOAD",
+            lambda: VdkUI.download_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
-            )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+            ),
+        )
+
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("DOWNLOAD"))
 
 
 class ConvertJobHandler(APIHandler):
@@ -123,11 +164,15 @@ class ConvertJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        try:
-            message = json.dumps(VdkUI.convert_job(input_data[VdkOption.PATH.value]))
-            self.finish(json.dumps({"message": f"{message}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+        task_id = task_runner.start_task(
+            "CONVERTJOBTONOTEBOOK",
+            lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value]),
+        )
+
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("CONVERTJOBTONOTEBOOK"))
 
 
 class CreateJobHandler(APIHandler):
@@ -143,15 +188,19 @@ class CreateJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        try:
-            status = VdkUI.create_job(
+        task_id = task_runner.start_task(
+            "CREATE",
+            lambda: VdkUI.create_job(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
-            )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+            ),
+        )
+
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("CREATE"))
 
 
 class CreateDeploymentHandler(APIHandler):
@@ -166,16 +215,20 @@ class CreateDeploymentHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        try:
-            status = VdkUI.create_deployment(
+        task_id = task_runner.start_task(
+            "DEPLOY",
+            lambda: VdkUI.create_deployment(
                 input_data[VdkOption.NAME.value],
                 input_data[VdkOption.TEAM.value],
                 input_data[VdkOption.PATH.value],
                 input_data[VdkOption.DEPLOYMENT_REASON.value],
-            )
-            self.finish(json.dumps({"message": f"{status}", "error": ""}))
-        except Exception as e:
-            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
+            ),
+        )
+
+        if task_id:
+            self.finish(task_start_response_success(task_id))
+        else:
+            self.finish(task_start_response_failure("DEPLOY"))
 
 
 class GetNotebookInfoHandler(APIHandler):
@@ -217,8 +270,8 @@ def setup_handlers(web_app, vdk_config: VdkJupyterConfig):
         web_app.add_handlers(host_pattern, job_handlers)
 
     add_handler(OAuth2Handler, "login", {"vdk_config": vdk_config})
+    add_handler(GetTaskStatusHandler, "taskStatus")
     add_handler(RunJobHandler, "run")
-    add_handler(DeleteJobHandler, "delete")
     add_handler(DownloadJobHandler, "download")
     add_handler(ConvertJobHandler, "convertJobToNotebook")
     add_handler(CreateJobHandler, "create")
