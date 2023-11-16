@@ -30,35 +30,40 @@ The purpose of this scenario is to demonstrate how to operationalize Jupyter not
 
 ## Background
 ### Objective:
-All the following objectives will be executed within a Jupyter notebook:
-1. **Retrieve Data:** - Extract data from the specified URL using pandas.
-2. **Data Cleansing:**  - Eliminate records associated with 'testuser'.
-3. **Score Classification:** - Assign scores into predefined categories for clarity.
-4. **Data Ingestion:** - Use VDK job_input to ingest the organized data.
+The tutorial walks you through standard ETL process retrieve,
+clean, transform, load data in a notebook environment and addresses 
+the challenges linked to making that notebook ready for production.
+
 
 ### Versatile Data Kit Jupyter Integration
 For detailed instructions on working with VDK, please refer to the guide from the provided [link](../../projects/vdk-plugins/vdk-jupyter/getting-started.ipynb).
 
 ## Tutorial
-### [LAUNCH TUTORIAL](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)
+### **🌟🚀 [CLICK HERE TO LAUNCH THE TUTORIAL!](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)🚀🌟**
+
+The link did not work?
+Try this one out: 
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)
+
 
 ## Exercises
-The tutorial-job directory contains the ready-to-use code from this demo. Make sure to explore it as it will provide hands-on experience with the objectives and VDK Jupyter integration discussed in this guide.
+The tutorial-job directory contains the ready-to-use code. Make sure to explore it as it will provide hands-on experience with the objectives and VDK Jupyter integration discussed in this guide.
 
 ## Lessons Learned
+**Congratulations! 🎉**
+
 Throughout this scenario, you've:
 * Explored the capabilities of the VDK Jupyter integration.
 * Retrieved, cleaned, and processed data using Jupyter and VDK tools.
 * Understood the process of ingesting data through VDK within a Jupyter environment.
 * Understood the process of making notebooks ready for production with VDK.
 
-**Congratulations!**
+## Your Feedback Matters!
 
-## Feedback
-Please share your feedback :
-[Productionizing Jupyter Notebooks Survey](https://forms.office.com/pages/responsepage.aspx?id=yjiRs-48Skuk1s2D2d1i8AGV0VaygrpPnt7Tz5bBbeBUNFA5NkU3QzlNWEQyUFJCTTQwRUszWk9GUS4u)
+We continuously strive to improve and your feedback is invaluable to us. Please take a moment to complete our survey. It will only take a few minutes.
+### [**👉 Complete the Survey Here 👈**](https://forms.office.com/Pages/ResponsePage.aspx?id=yjiRs-48Skuk1s2D2d1i8AGV0VaygrpPnt7Tz5bBbeBUNFA5NkU3QzlNWEQyUFJCTTQwRUszWk9GUS4u)
 
-Give us a star if you've liked the [project](https://github.com/vmware/versatile-data-kit).
 
 ## Where to Find Us
 - [YouTube](https://www.youtube.com/channel/UCasf2Q7X8nF7S4VEmcTHJ0Q/about)
