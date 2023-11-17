@@ -1,0 +1,18 @@
+{{- /*
+    Copyright 2021-2023 VMware, Inc.
+  SPDX-License-Identifier: Apache-2.0
+    */}}
+
+{{- if .Values.datajobslimitrange.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: data-jobs-resource-quota
+  namespace: {{ template "pipelines-control-service.deploymentK8sNamespace" . }}
+spec:
+  hard:
+    limits.cpu: {{ default "100" .Values.datajobsresourcequota.limits.cpu }}
+    limits.memory: {{ default "200Gi" .Values.datajobsresourcequota.limits.memory }}
+    requests.cpu: {{ default "50" .Values.datajobsresourcequota.requests.cpu }}
+    requests.memory: {{ default "100Gi" .Values.datajobsresourcequota.requests.memory }}
+{{- end }}
