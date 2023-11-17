@@ -51,20 +51,23 @@ class GetTaskStatusHandler(APIHandler):
             self.set_status(400)
             self.finish(json.dumps({"error": "taskId not provided."}))
             return
-        current_status = task_runner.get_status()
-        if current_status["task_id"] != task_id:
-            self.finish(
-                json.dumps(
-                    {
-                        "status": "failed",
-                        "message": "Mismatched taskId.",
-                        "error": f"Requested status for {task_id} but currently processing {current_status['task_id']}",
-                    }
+        try:
+            current_status = task_runner.get_status()
+            if current_status["task_id"] != task_id:
+                self.finish(
+                    json.dumps(
+                        {
+                            "status": "failed",
+                            "message": "Mismatched taskId.",
+                            "error": f"Requested status for {task_id} but currently processing {current_status['task_id']}",
+                        }
+                    )
                 )
-            )
-            return
+                return
 
-        self.finish(json.dumps(current_status))
+            self.finish(json.dumps(current_status))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class LoadJobDataHandler(APIHandler):
@@ -114,18 +117,21 @@ class RunJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_id = task_runner.start_task(
-            "RUN",
-            lambda: VdkUI.run_job(
-                input_data[VdkOption.PATH.value],
-                input_data[VdkOption.ARGUMENTS.value],
-            ),
-        )
+        try:
+            task_id = task_runner.start_task(
+                "RUN",
+                lambda: VdkUI.run_job(
+                    input_data[VdkOption.PATH.value],
+                    input_data[VdkOption.ARGUMENTS.value],
+                ),
+            )
 
-        if task_id:
-            self.finish(task_start_response_success(task_id))
-        else:
-            self.finish(task_start_response_failure("RUN"))
+            if task_id:
+                self.finish(task_start_response_success(task_id))
+            else:
+                self.finish(task_start_response_failure("RUN"))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class DownloadJobHandler(APIHandler):
@@ -140,19 +146,22 @@ class DownloadJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_id = task_runner.start_task(
-            "DOWNLOAD",
-            lambda: VdkUI.download_job(
-                input_data[VdkOption.NAME.value],
-                input_data[VdkOption.TEAM.value],
-                input_data[VdkOption.PATH.value],
-            ),
-        )
+        try:
+            task_id = task_runner.start_task(
+                "DOWNLOAD",
+                lambda: VdkUI.download_job(
+                    input_data[VdkOption.NAME.value],
+                    input_data[VdkOption.TEAM.value],
+                    input_data[VdkOption.PATH.value],
+                ),
+            )
 
-        if task_id:
-            self.finish(task_start_response_success(task_id))
-        else:
-            self.finish(task_start_response_failure("DOWNLOAD"))
+            if task_id:
+                self.finish(task_start_response_success(task_id))
+            else:
+                self.finish(task_start_response_failure("DOWNLOAD"))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class ConvertJobHandler(APIHandler):
@@ -164,15 +173,18 @@ class ConvertJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_id = task_runner.start_task(
-            "CONVERTJOBTONOTEBOOK",
-            lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value]),
-        )
+        try:
+            task_id = task_runner.start_task(
+                "CONVERTJOBTONOTEBOOK",
+                lambda: VdkUI.convert_job(input_data[VdkOption.PATH.value]),
+            )
 
-        if task_id:
-            self.finish(task_start_response_success(task_id))
-        else:
-            self.finish(task_start_response_failure("CONVERTJOBTONOTEBOOK"))
+            if task_id:
+                self.finish(task_start_response_success(task_id))
+            else:
+                self.finish(task_start_response_failure("CONVERTJOBTONOTEBOOK"))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class CreateJobHandler(APIHandler):
@@ -188,19 +200,22 @@ class CreateJobHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_id = task_runner.start_task(
-            "CREATE",
-            lambda: VdkUI.create_job(
-                input_data[VdkOption.NAME.value],
-                input_data[VdkOption.TEAM.value],
-                input_data[VdkOption.PATH.value],
-            ),
-        )
+        try:
+            task_id = task_runner.start_task(
+                "CREATE",
+                lambda: VdkUI.create_job(
+                    input_data[VdkOption.NAME.value],
+                    input_data[VdkOption.TEAM.value],
+                    input_data[VdkOption.PATH.value],
+                ),
+            )
 
-        if task_id:
-            self.finish(task_start_response_success(task_id))
-        else:
-            self.finish(task_start_response_failure("CREATE"))
+            if task_id:
+                self.finish(task_start_response_success(task_id))
+            else:
+                self.finish(task_start_response_failure("CREATE"))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class CreateDeploymentHandler(APIHandler):
@@ -215,20 +230,23 @@ class CreateDeploymentHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
         input_data = self.get_json_body()
-        task_id = task_runner.start_task(
-            "DEPLOY",
-            lambda: VdkUI.create_deployment(
-                input_data[VdkOption.NAME.value],
-                input_data[VdkOption.TEAM.value],
-                input_data[VdkOption.PATH.value],
-                input_data[VdkOption.DEPLOYMENT_REASON.value],
-            ),
-        )
+        try:
+            task_id = task_runner.start_task(
+                "DEPLOY",
+                lambda: VdkUI.create_deployment(
+                    input_data[VdkOption.NAME.value],
+                    input_data[VdkOption.TEAM.value],
+                    input_data[VdkOption.PATH.value],
+                    input_data[VdkOption.DEPLOYMENT_REASON.value],
+                ),
+            )
 
-        if task_id:
-            self.finish(task_start_response_success(task_id))
-        else:
-            self.finish(task_start_response_failure("DEPLOY"))
+            if task_id:
+                self.finish(task_start_response_success(task_id))
+            else:
+                self.finish(task_start_response_failure("DEPLOY"))
+        except Exception as e:
+            self.finish(json.dumps({"message": f"{e}", "error": "true"}))
 
 
 class GetNotebookInfoHandler(APIHandler):
