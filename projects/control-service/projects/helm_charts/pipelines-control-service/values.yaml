@@ -569,6 +569,26 @@ poddisruptionbudget:
     labels: # additional labels if needed
   minAvailable: 1
 
+# Specify Limit Range for the data jobs namespace to limit the maximum allowed cpu and memory resources for a data job
+# see https://kubernetes.io/docs/concepts/policy/limit-range/
+datajobslimitrange:
+  enabled: false
+  max:
+    cpu: 2
+    memory: 8gi
+
+# Specify Resource Quota for the data jobs namespace to limit the maximum cpu and memory resources available to all
+# data jobs
+# see https://kubernetes.io/docs/concepts/policy/resource-quotas/
+datajobsresourcequota:
+    enabled: false
+    limits:
+      cpu: "100"
+      memory: 200Gi
+    requests:
+      cpu: "50"
+      memory: 100Gi
+
 ## [Required] Database configuration used by Control Plane
 ## Database is used to store Data Jobs metadata like name, team, description
 ## and some deploy specific configuration like execution schedule
