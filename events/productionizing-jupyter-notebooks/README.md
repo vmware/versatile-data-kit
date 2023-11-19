@@ -12,10 +12,6 @@
 - [Feedback](#Feedback)
 - [Where to Find Us](#Where-to-Find-Us)
 
-## Goals
-- Understand the challenges associated with transitioning notebooks to production.
-- Introduce the VDK solutions to address these challenges.
-
 ## Agenda
 - Discuss strategies for productionizing Jupyter Notebooks.
 - Showcase hands-on examples of these challenges in the Jupyter UI.
@@ -37,7 +33,7 @@ the challenges linked to making that notebook ready for production.
 For detailed instructions on working with VDK, please refer to the guide from the provided [link](../../projects/vdk-plugins/vdk-jupyter/getting-started.ipynb).
 
 ## Tutorial
-### **🌟🚀 [CLICK HERE TO LAUNCH THE TUTORIAL!](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)🚀🌟**
+# **🌟🚀 [CLICK HERE TO LAUNCH THE TUTORIAL!](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)🚀🌟**
 
 The link did not work?
 Try this one out:
