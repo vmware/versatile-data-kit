@@ -32,6 +32,8 @@ the challenges linked to making that notebook ready for production.
 ### Versatile Data Kit Jupyter Integration
 For detailed instructions on working with VDK, please refer to the guide from the provided [link](../../projects/vdk-plugins/vdk-jupyter/getting-started.ipynb).
 
+[CLICK HERE TO OPEN NOTEBOOK](https://colab.research.google.com/github/versatile-data-kit-demo/productionizing-jupyter-notebooks/blob/main/getting-started.ipynb)
+
 ## Tutorial
 # **🌟🚀 [CLICK HERE TO LAUNCH THE TUTORIAL!](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)🚀🌟**
 
@@ -40,6 +42,8 @@ Try this one out:
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)
 
+
+LAST BACKUP LINK: [here](https://colab.research.google.com/github/versatile-data-kit-demo/productionizing-jupyter-notebooks/blob/main/tutorial-job/10_notebook.ipynb)
 
 ## Exercises
 The tutorial-job directory contains the ready-to-use code. Make sure to explore it as it will provide hands-on experience with the objectives and VDK Jupyter integration discussed in this guide.
