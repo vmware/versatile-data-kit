@@ -77,6 +77,8 @@ def test_structlog(log_format):
             logs, "Log statement with bound context and extra context"
         )
 
+        assert _get_log_containing_s(logs, "Exiting 10_dummy.py") is None
+
         _assert_cases(
             log_with_no_bound_context,
             log_with_bound_context,
@@ -140,13 +142,11 @@ def _get_log_containing_s(logs, s):
     :param s:
     :return:
     """
-    try:
-        necessary_log = [x for x in logs if s in x][0]
-    except IndexError as e:
-        raise Exception("Log cannot be found inside provided job logs") from e
-
-    return necessary_log
-
+    necessary_log = [x for x in logs if s in x]
+    if len(necessary_log) == 0:
+        return None
+    else:
+        return necessary_log[0]
 
 def _assert_cases(
     log_with_no_bound_context, log_with_bound_context, log_with_bound_and_extra_context
