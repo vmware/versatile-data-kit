@@ -12,19 +12,13 @@
 - [Feedback](#Feedback)
 - [Where to Find Us](#Where-to-Find-Us)
 
-## Presenter
-[Duygu Hasan](https://github.com/duyguHsnHsn) <a href='https://www.linkedin.com/in/duygu-hasan/'><img src="https://img.shields.io/badge/LinkedIn-0077B5"></a>
-
-## Goals
-- Understand the challenges associated with transitioning notebooks to production.
-- Introduce the VDK solutions to address these challenges.
-
 ## Agenda
 - Discuss strategies for productionizing Jupyter Notebooks.
 - Showcase hands-on examples of these challenges in the Jupyter UI.
 
 ## Purpose
-The purpose of this scenario is to demonstrate how to operationalize Jupyter notebooks using the Versatile Data Kit (VDK) Jupyter integration. By the end of this guide, you'll understand how to:
+The purpose of this scenario is to demonstrate how to operationalize Jupyter notebooks using the Versatile Data Kit (VDK) Jupyter integration.
+By the end of this guide, you'll understand how to:
 * Create a data job with VDK within a Jupyter notebook.
 * Write a data workflow in a notebook and make it ready to be put in a production environment.
 
@@ -39,7 +33,7 @@ the challenges linked to making that notebook ready for production.
 For detailed instructions on working with VDK, please refer to the guide from the provided [link](../../projects/vdk-plugins/vdk-jupyter/getting-started.ipynb).
 
 ## Tutorial
-### **🌟🚀 [CLICK HERE TO LAUNCH THE TUTORIAL!](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)🚀🌟**
+# **🌟🚀 [CLICK HERE TO LAUNCH THE TUTORIAL!](https://mybinder.org/v2/gh/versatile-data-kit-demo/productionizing-jupyter-notebooks/HEAD?labpath=tutorial-job%2F10_notebook.ipynb)🚀🌟**
 
 The link did not work?
 Try this one out:
@@ -62,7 +56,7 @@ Throughout this scenario, you've:
 ## Your Feedback Matters!
 
 We continuously strive to improve and your feedback is invaluable to us. Please take a moment to complete our survey. It will only take a few minutes.
-### [**👉 Complete the Survey Here 👈**](https://forms.office.com/Pages/ResponsePage.aspx?id=yjiRs-48Skuk1s2D2d1i8AGV0VaygrpPnt7Tz5bBbeBUNFA5NkU3QzlNWEQyUFJCTTQwRUszWk9GUS4u)
+# [**👉 Complete the Survey Here 👈**](https://forms.office.com/Pages/ResponsePage.aspx?id=yjiRs-48Skuk1s2D2d1i8AGV0VaygrpPnt7Tz5bBbeBUNFA5NkU3QzlNWEQyUFJCTTQwRUszWk9GUS4u)
 
 
 ## Where to Find Us
