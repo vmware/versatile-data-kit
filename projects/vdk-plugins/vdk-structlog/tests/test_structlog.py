@@ -150,6 +150,7 @@ def _get_log_containing_s(logs, s):
     else:
         return necessary_log[0]
 
+
 def _assert_cases(
     log_with_no_bound_context, log_with_bound_context, log_with_bound_and_extra_context
 ):
