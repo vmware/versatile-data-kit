@@ -77,6 +77,8 @@ def test_structlog(log_format):
             logs, "Log statement with bound context and extra context"
         )
 
+        # due to the log_level_module config specified in the config.ini of the test job
+        # the 'Exiting 10_dummy.py' log should not appear in the output logs
         assert _get_log_containing_s(logs, "Exiting 10_dummy.py") is None
 
         _assert_cases(
