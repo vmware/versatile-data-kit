@@ -82,3 +82,25 @@ def test_task_status_after_completion(task_runner):
     assert (
         task_runner.start_task(task_type, task_handler) is not None
     ), "Unable to start a new task after completion"
+
+
+def test_task_status_fail_then_success(task_runner):
+    task_handler = Mock(
+        side_effect=[Exception("An error occurred"), "Task completed successfully"]
+    )
+    task_type = "TEST"
+    task_id = task_runner.start_task(task_type, task_handler)
+    assert task_id is not None
+
+    time.sleep(0.1)
+    status = task_runner.get_status()
+    assert status["status"] == "failed"
+    assert "An error occurred" in status["error"]
+
+    task_id = task_runner.start_task(task_type, task_handler)
+    assert task_id is not None
+
+    time.sleep(0.1)
+    status = task_runner.get_status()
+    assert status["status"] == "completed"
+    assert status["message"] == "Task completed successfully"
