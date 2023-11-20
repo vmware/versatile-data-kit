@@ -104,11 +104,13 @@ const pollForTaskCompletion = async (
         `taskStatus?taskId=${taskId}`,
         { method: 'GET' }
       );
-      if (
-        result.task_id === taskId &&
-        (result.status === 'completed' || result.error)
-      ) {
-        return result;
+      if (result.task_id === taskId) {
+        if (result.status !== 'running') {
+          if (result.status === 'failed') {
+            showError(result.error);
+          }
+          return result;
+        }
       }
     } catch (error) {
       showError(error);
@@ -151,10 +153,14 @@ export async function jobRunRequest(): Promise<jobRequestResult> {
 
       const taskId = extractTaskIdFromMessage(initialResponse.message);
       const finalResult = await pollForTaskCompletion(taskId);
-      return {
-        message: finalResult.message as string,
-        isSuccessful: !finalResult.error
-      };
+      if (finalResult.error) {
+        return { message: finalResult.error, isSuccessful: false };
+      } else {
+        return {
+          message: finalResult.message as string,
+          isSuccessful: true
+        };
+      }
     } catch (error) {
       showError(error);
       return { message: '', isSuccessful: false };
@@ -191,10 +197,14 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
 
       const taskId = extractTaskIdFromMessage(initialResponse.message);
       const finalResult = await pollForTaskCompletion(taskId);
-      return {
-        message: finalResult.message as string,
-        isSuccessful: !finalResult.error
-      };
+      if (finalResult.error) {
+        return { message: finalResult.error, isSuccessful: false };
+      } else {
+        return {
+          message: finalResult.message as string,
+          isSuccessful: true
+        };
+      }
     } catch (error) {
       showError(error);
       return { message: '', isSuccessful: false };

@@ -41,7 +41,7 @@ class TaskRunner:
         """
         task_id = f"{task_type}-{str(uuid.uuid4())}"
         with self.lock:
-            if self.__task_status["status"] not in ["idle", "completed"]:
+            if self.__task_status["status"] not in ["idle", "completed", "failed"]:
                 return None
 
             self.__task_status = {
@@ -51,9 +51,9 @@ class TaskRunner:
                 "error": None,
             }
 
-        thread = threading.Thread(target=self._run_task, args=(task_handler,))
-        thread.start()
-        return task_id
+            thread = threading.Thread(target=self._run_task, args=(task_handler,))
+            thread.start()
+            return task_id
 
     def get_status(self):
         """
