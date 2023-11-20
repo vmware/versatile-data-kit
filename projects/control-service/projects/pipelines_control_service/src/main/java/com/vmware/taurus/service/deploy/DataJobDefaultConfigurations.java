@@ -43,22 +43,12 @@ public class DataJobDefaultConfigurations {
   }
 
   public int getMemoryRequests() throws ParseException {
-    var memoryRequest = NumberFormat.getInstance().parse(memoryRequests).intValue();
-    return getMemoryInMi(memoryRequests, memoryRequest);
+    var memoryAmount = NumberFormat.getInstance().parse(memoryRequests).intValue();
+    return K8SMemoryConversionUtils.getMemoryInMi(memoryRequests, memoryAmount);
   }
 
   public int getMemoryLimits() throws ParseException {
-    var memoryLimit = NumberFormat.getInstance().parse(memoryLimits).intValue();
-    return getMemoryInMi(memoryLimits, memoryLimit);
-  }
-
-  private int getMemoryInMi(String memory, int amount) {
-    if (memory.endsWith("Gi")) {
-      return amount * 1024;
-    }
-    if (memory.endsWith("G")) {
-      return amount * 1000;
-    }
-    return amount;
+    var memoryAmount = NumberFormat.getInstance().parse(memoryLimits).intValue();
+    return K8SMemoryConversionUtils.getMemoryInMi(memoryLimits, memoryAmount);
   }
 }

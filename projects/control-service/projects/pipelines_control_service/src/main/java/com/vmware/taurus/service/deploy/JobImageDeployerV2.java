@@ -229,13 +229,14 @@ public class JobImageDeployerV2 {
           DeploymentModelConverter.toActualJobDeployment(
               desiredDataJobDeployment, desiredDeploymentVersionSha, lastDeployedDate);
     }
-    checkDefaultDeploymentResources(desiredDataJobDeployment, actualJobDeployment);
+    checkDefaultDeploymentResources(actualJobDeployment);
     return actualJobDeployment;
   }
 
-  private void checkDefaultDeploymentResources(
-      DesiredDataJobDeployment desiredDataJobDeployment,
-      ActualDataJobDeployment actualDataJobDeployment) {
+  private void checkDefaultDeploymentResources(ActualDataJobDeployment actualDataJobDeployment) {
+    if (actualDataJobDeployment == null) {
+      return;
+    }
 
     if (actualDataJobDeployment.getResources() == null) {
       actualDataJobDeployment.setResources(new DataJobDeploymentResources());
@@ -246,9 +247,6 @@ public class JobImageDeployerV2 {
     checkDefaultMemoryRequest(deploymentResources);
     checkDefaultCpuRequest(deploymentResources);
     checkDefaultCpuLimit(deploymentResources);
-
-    actualDataJobDeployment.setResources(deploymentResources);
-    desiredDataJobDeployment.setResources(deploymentResources);
   }
 
   private void checkDefaultMemoryLimit(DataJobDeploymentResources resources) {
