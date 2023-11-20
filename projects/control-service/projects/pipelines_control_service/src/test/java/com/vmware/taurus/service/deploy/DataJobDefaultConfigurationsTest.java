@@ -14,8 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class DataJobDefaultConfigurationsTest {
 
-  @Autowired
-  private DataJobDefaultConfigurations dataJobDefaultConfigurations;
+  @Autowired private DataJobDefaultConfigurations dataJobDefaultConfigurations;
 
   @Test
   public void testDefaultMemoryRequest() throws Exception {
