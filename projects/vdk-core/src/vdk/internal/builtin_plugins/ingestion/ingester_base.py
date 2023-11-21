@@ -37,7 +37,7 @@ from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
     IngesterConfiguration,
 )
 from vdk.internal.builtin_plugins.ingestion.ingester_utils import AtomicCounter
-from vdk.internal.builtin_plugins.ingestion.ingester_utils import DecimalJsonEncoder
+from vdk.internal.builtin_plugins.ingestion.ingester_utils import IngesterJsonEncoder
 from vdk.internal.core import errors
 from vdk.internal.core.errors import ResolvableBy
 
@@ -679,7 +679,7 @@ class IngesterBase(IIngester):
         # Check if payload dict is valid json
         # TODO: optimize the check - we should not need to serialize the payload every time
         try:
-            json.dumps(payload_dict, cls=DecimalJsonEncoder)
+            json.dumps(payload_dict, cls=IngesterJsonEncoder)
         except (TypeError, OverflowError, Exception) as e:
             errors.report_and_throw(
                 JsonSerializationIngestionException(
