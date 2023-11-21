@@ -11,7 +11,8 @@
     # krb5-user is a requirement for the tests because the Kerberos server is configured via kadmin
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update
-    - apt-get install -y krb5-user
+    - apt-get install -y krb5-user openssl
+    - openssl version
     - !reference [.build-plugin, script]
   extends: .build-plugin-dind
 
