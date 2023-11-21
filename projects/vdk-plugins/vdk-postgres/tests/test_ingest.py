@@ -91,4 +91,4 @@ class IngestToPostgresTests(TestCase):
             ]
         )
 
-        assert "UndefinedTable" in ingest_job_result.output
+        assert 'relation "test_table" does not exist' in ingest_job_result.output

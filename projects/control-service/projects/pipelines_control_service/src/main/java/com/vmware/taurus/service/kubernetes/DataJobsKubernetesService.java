@@ -227,7 +227,7 @@ public class DataJobsKubernetesService extends KubernetesService {
       if (e.getCode()
           == 404) { // as soon as the minimum supported k8s version is >=1.21 then we should remove
         // this.
-        log.debug("Unable to query for v1 batch jobs", e);
+        log.trace("Unable to query for v1 batch jobs", e);
       } else {
         throw e;
       }
@@ -240,7 +240,7 @@ public class DataJobsKubernetesService extends KubernetesService {
         v1BetaCronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
             .collect(Collectors.toSet());
-    log.debug("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
+    log.trace("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
     return Stream.concat(v1CronJobNames.stream(), v1BetaCronJobNames.stream())
         .collect(Collectors.toSet());
   }

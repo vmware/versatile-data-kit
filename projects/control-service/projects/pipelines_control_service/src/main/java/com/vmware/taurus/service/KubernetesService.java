@@ -227,7 +227,7 @@ public abstract class KubernetesService {
 
   private V1CronJob loadV1CronjobTemplate() {
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.debug("Datajob template file location is not set. Using internal datajob template.");
+      log.trace("Datajob template file location is not set. Using internal datajob template.");
       return loadInternalV1CronjobTemplate();
     }
     V1CronJob cronjobTemplate = loadConfigurableV1CronjobTemplate();
@@ -240,7 +240,7 @@ public abstract class KubernetesService {
 
   private V1beta1CronJob loadV1beta1CronjobTemplate() {
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.debug("Datajob template file location is not set. Using internal datajob template.");
+      log.trace("Datajob template file location is not set. Using internal datajob template.");
       return loadInternalV1beta1CronjobTemplate();
     }
     V1beta1CronJob cronjobTemplate = loadConfigurableV1beta1CronjobTemplate();
@@ -278,7 +278,7 @@ public abstract class KubernetesService {
   private V1beta1CronJob loadConfigurableV1beta1CronjobTemplate() {
     // Check whether to use configurable datajob template at all.
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.debug("Datajob template file location is not set.");
+      log.trace("Datajob template file location is not set.");
       return null;
     }
 
@@ -295,7 +295,7 @@ public abstract class KubernetesService {
   private V1CronJob loadConfigurableV1CronjobTemplate() {
     // Check whether to use configurable datajob template at all.
     if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.debug("Datajob template file location is not set.");
+      log.trace("Datajob template file location is not set.");
       return null;
     }
 
@@ -312,10 +312,6 @@ public abstract class KubernetesService {
     String cronjobTemplateString = Files.readString(datajobTemplateFile.toPath());
     // Check whether the string template is a valid datajob template.
     V1beta1CronJob cronjobTemplate = Yaml.loadAs(cronjobTemplateString, V1beta1CronJob.class);
-    log.debug(
-        "Datajob template for file '{}': \n{}",
-        datajobTemplateFile.getCanonicalPath(),
-        cronjobTemplate);
 
     return cronjobTemplate;
   }
@@ -324,10 +320,6 @@ public abstract class KubernetesService {
     String cronjobTemplateString = Files.readString(datajobTemplateFile.toPath());
     // Check whether the string template is a valid datajob template.
     V1CronJob cronjobTemplate = Yaml.loadAs(cronjobTemplateString, V1CronJob.class);
-    log.debug(
-        "Datajob template for file '{}': \n{}",
-        datajobTemplateFile.getCanonicalPath(),
-        cronjobTemplate);
 
     return cronjobTemplate;
   }
@@ -662,7 +654,7 @@ public abstract class KubernetesService {
             imagePullSecrets);
     V1beta1CronJob nsJob =
         batchV1beta1Api.createNamespacedCronJob(namespace, cronJob, null, null, null, null);
-    log.debug("Created k8s V1beta1 cron job: {}", nsJob);
+    log.debug("Created k8s V1beta1 cron job: {}", cronJob);
     log.debug(
         "Created k8s cron job name: {}, api_version:{}, uid:{}, link:{}",
         nsJob.getMetadata().getName(),
@@ -699,7 +691,7 @@ public abstract class KubernetesService {
             imagePullSecrets);
     V1CronJob nsJob =
         batchV1Api.createNamespacedCronJob(namespace, cronJob, null, null, null, null);
-    log.debug("Created k8s V1 cron job: {}", nsJob);
+    log.debug("Created k8s V1 cron job: {}", cronJob);
     log.debug(
         "Created k8s cron job name: {}, api_version: {}, uid:{}, link:{}",
         nsJob.getMetadata().getName(),
@@ -734,6 +726,7 @@ public abstract class KubernetesService {
 
     V1beta1CronJob nsJob =
         batchV1beta1Api.replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
+    log.debug("Updated k8s V1 cron job: {}", cronJob);
     log.debug(
         "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
@@ -767,6 +760,7 @@ public abstract class KubernetesService {
             imagePullSecrets);
     V1CronJob nsJob =
         batchV1Api.replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
+    log.debug("Updated k8s V1 cron job: {}", cronJob);
     log.debug(
         "Updated k8s V1 cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
@@ -1849,11 +1843,11 @@ public abstract class KubernetesService {
   }
 
   private static Map<String, Quantity> resources(Resources resources) {
-    return Map.of(
-        "cpu",
-        Quantity.fromString(resources.getCpu()),
-        "memory",
-        Quantity.fromString(resources.getMemory()));
+    Map<String, Quantity> resourcesMap = new LinkedHashMap<>();
+    resourcesMap.put("cpu", Quantity.fromString(resources.getCpu()));
+    resourcesMap.put("memory", Quantity.fromString(resources.getMemory()));
+
+    return resourcesMap;
   }
 
   private static V1EnvVar envVar(Map.Entry<String, String> entry) {

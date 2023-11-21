@@ -60,7 +60,7 @@ class VDKSensor(BaseSensorOperator):
         job_execution = vdk_hook.get_job_execution_status(self.job_execution_id)
         job_status = job_execution.status
 
-        log.info(
+        log.debug(
             f"Current status of job execution {self.job_execution_id} is: {job_status}."
         )
 

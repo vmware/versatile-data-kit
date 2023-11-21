@@ -92,7 +92,6 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
                 errors.VdkConfigurationError(
                     f"properties default type was configured to be {properties_type} "
                     f"no such properties api implementation has been registered",
-                    f"",
                     f"Check if the job has not been mis-configured - for example misspelling error. "
                     f"See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())} "
                     f"Alternatively make sure the correct plugin has been installed "

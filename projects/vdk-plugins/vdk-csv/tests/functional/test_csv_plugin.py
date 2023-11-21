@@ -175,7 +175,7 @@ def test_csv_export_with_nonexistent_table(tmpdir):
         assert hasattr(result.exception, "_vdk_resolvable_actual")
         assert (
             getattr(result.exception, "_vdk_resolvable_actual")
-            == ResolvableByActual.PLATFORM
+            == ResolvableByActual.USER
         )
 
 

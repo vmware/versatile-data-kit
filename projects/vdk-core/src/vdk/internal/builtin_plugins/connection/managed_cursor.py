@@ -116,8 +116,6 @@ class ManagedCursor(ProxyCursor):
                         [
                             "Executing query FAILED.",
                             errors.MSG_WHY_FROM_EXCEPTION(e),
-                            errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                         ]
                     )
                 )
@@ -142,8 +140,6 @@ class ManagedCursor(ProxyCursor):
                         [
                             "Decorating query FAILED.",
                             errors.MSG_WHY_FROM_EXCEPTION(e),
-                            errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                         ]
                     )
                 )
@@ -162,8 +158,6 @@ class ManagedCursor(ProxyCursor):
                         [
                             "Validating query FAILED.",
                             errors.MSG_WHY_FROM_EXCEPTION(e),
-                            errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                            errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
                         ]
                     )
                 )

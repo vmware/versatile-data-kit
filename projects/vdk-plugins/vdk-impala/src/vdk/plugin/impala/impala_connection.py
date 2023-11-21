@@ -7,7 +7,7 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
 
-_log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class ImpalaConnection(ManagedConnectionBase):
@@ -29,7 +29,7 @@ class ImpalaConnection(ManagedConnectionBase):
         auth_cookie_names=None,
         retries=3,
     ):
-        super().__init__(_log)
+        super().__init__(log)
 
         self._host = host
         self._port = port

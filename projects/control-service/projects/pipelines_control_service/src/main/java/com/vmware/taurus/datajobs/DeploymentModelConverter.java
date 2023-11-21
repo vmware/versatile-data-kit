@@ -7,6 +7,7 @@ package com.vmware.taurus.datajobs;
 
 import com.vmware.taurus.controlplane.model.data.DataJobContacts;
 import com.vmware.taurus.controlplane.model.data.DataJobDeploymentStatus;
+import com.vmware.taurus.controlplane.model.data.DataJobMode;
 import com.vmware.taurus.controlplane.model.data.DataJobResources;
 import com.vmware.taurus.controlplane.model.data.DataJobSchedule;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
@@ -294,6 +295,7 @@ public class DeploymentModelConverter {
     deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
     deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
     deploymentStatus.setContacts(getContactsFromJob(job));
+    deploymentStatus.setMode(DataJobMode.RELEASE);
     deploymentStatus.setSchedule(
         new DataJobSchedule().scheduleCron(actualDataJobDeployment.getSchedule()));
     deploymentStatus.setResources(getResourcesFromDeployment(actualDataJobDeployment));
@@ -315,6 +317,28 @@ public class DeploymentModelConverter {
       contacts.setNotifiedOnJobFailureUserError(config.getNotifiedOnJobFailureUserError());
     }
     return contacts;
+  }
+
+  public static JobDeploymentStatus toJobDeploymentStatus(
+      ActualDataJobDeployment deploymentStatus) {
+    JobDeploymentStatus jobDeploymentStatus = new JobDeploymentStatus();
+
+    jobDeploymentStatus.setDataJobName(deploymentStatus.getDataJobName());
+    jobDeploymentStatus.setPythonVersion(deploymentStatus.getPythonVersion());
+    jobDeploymentStatus.setGitCommitSha(deploymentStatus.getGitCommitSha());
+    jobDeploymentStatus.setEnabled(deploymentStatus.getEnabled());
+    jobDeploymentStatus.setLastDeployedBy(deploymentStatus.getLastDeployedBy());
+    jobDeploymentStatus.setLastDeployedDate(
+        deploymentStatus.getLastDeployedDate() == null
+            ? null
+            : deploymentStatus.getLastDeployedDate().toString());
+    jobDeploymentStatus.setResources(getResourcesFromDeployment(deploymentStatus));
+    // The ActualDataJobDeployment does not have a mode attribute, which is required by the
+    // JobDeploymentStatus,
+    // so we need to set something in order to avoid errors.
+    jobDeploymentStatus.setMode("release");
+
+    return jobDeploymentStatus;
   }
 
   private static DataJobResources getResourcesFromDeployment(ActualDataJobDeployment deployment) {

@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Spring Data / JPA Repository for DesiredDataJobDeployment objects and their members
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Repository;
  *
  * <p>JobDeploymentRepositoryIT validates some aspects of the behavior
  */
+@Transactional
 @Repository
 public interface DesiredJobDeploymentRepository
     extends JpaRepository<DesiredDataJobDeployment, String> {

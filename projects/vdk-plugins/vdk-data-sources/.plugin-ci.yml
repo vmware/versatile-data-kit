@@ -1,0 +1,22 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-data-sources:
+  variables:
+    PLUGIN_NAME: vdk-data-sources
+  extends: .build-plugin
+
+build-py37-vdk-data-sources:
+  extends: .build-vdk-data-sources
+  image: "python:3.7"
+
+build-py311-vdk-data-sources:
+  extends: .build-vdk-data-sources
+  image: "python:3.11"
+
+release-vdk-data-sources:
+  variables:
+    PLUGIN_NAME: vdk-data-sources
+  extends: .release-plugin

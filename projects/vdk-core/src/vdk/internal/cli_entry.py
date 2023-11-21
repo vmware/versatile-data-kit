@@ -13,6 +13,9 @@ from vdk.api.plugin.core_hook_spec import CoreHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins import builtin_hook_impl
+from vdk.internal.builtin_plugins.config.log_config import (
+    configure_initial_logging_before_anything,
+)
 from vdk.internal.builtin_plugins.internal_hookspecs import InternalHookSpecs
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
@@ -170,7 +173,7 @@ def main() -> None:
     This the starting point for the Python vdk console script.
     """
     # configure basic logging , it's expected that a plugin would override and set it up properly
-    click_log.basic_config(logging.getLogger())
+    configure_initial_logging_before_anything()
 
     log.debug("Setup plugin registry and call vdk_start hooks ...")
     plugin_registry = PluginRegistry()

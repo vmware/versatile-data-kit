@@ -90,7 +90,6 @@ class SecretsRouter(ISecretsRegistry, ISecrets):
                 errors.VdkConfigurationError(
                     f"secrets default type was configured to be {secrets_type} "
                     "no such secrets api implementation has been registered",
-                    "",
                     "Check if the job has not been mis-configured - for example misspelling error. "
                     f"See config-help for help on configuration. Existing secrets types are: {list(self.__secrets_builders.keys())} "
                     "Alternatively make sure the correct plugin has been installed "

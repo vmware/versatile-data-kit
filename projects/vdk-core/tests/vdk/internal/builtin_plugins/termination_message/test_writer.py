@@ -11,6 +11,7 @@ from vdk.internal.builtin_plugins.termination_message.writer import (
     TerminationMessageWriterPlugin,
 )
 from vdk.internal.builtin_plugins.version.version import get_version
+from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import get_blamee_overall
@@ -110,6 +111,7 @@ class WriterTest(unittest.TestCase):
     @patch("builtins.open")
     @patch(f"{get_blamee_overall.__module__}.{get_blamee_overall.__name__}")
     def test_writer(self, get_blamee_overall, mock_open):
+        errors.resolvable_context().clear()
         get_blamee_overall.return_value = None
         mock_file = MagicMock()
         mock_open.return_value = mock_file

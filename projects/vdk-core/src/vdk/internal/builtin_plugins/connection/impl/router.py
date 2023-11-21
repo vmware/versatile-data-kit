@@ -90,7 +90,6 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
                 errors.VdkConfigurationError(
                     f"Provided configuration variable for {DB_DEFAULT_TYPE} has invalid value.",
                     f"VDK was run with {DB_DEFAULT_TYPE}={dbtype}, however {dbtype} is invalid value for this variable.",
-                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                     f"Provide either valid value for {DB_DEFAULT_TYPE} or install database plugin that supports this type. "
                     f"Currently possible values are {list(self._connection_builders.keys())}",
                 )
@@ -125,7 +124,6 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
                 errors.VdkConfigurationError(
                     f"Could not create new connection of db type {dbtype}.",
                     f"VDK was run with {DB_DEFAULT_TYPE}={dbtype}, however no valid connection was created.",
-                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                     f"Seems to be a bug in the plugin for dbtype {dbtype}. Make sure it's correctly installed. "
                     f"If upgraded recently consider reverting to previous version. Or use another db type. "
                     f"Currently possible values are {list(self._connection_builders.keys())}",

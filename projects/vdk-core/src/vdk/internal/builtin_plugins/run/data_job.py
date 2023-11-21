@@ -121,7 +121,6 @@ class DataJobDefaultHookImplPlugin:
                 errors.UserCodeError(
                     "Data Job execution has failed.",
                     "Data Job has no steps.",
-                    "Data job execution will not continue.",
                     "Please include at least 1 valid step in your Data Job. Also make sure you are passing the correct data job directory.",
                 )
             )

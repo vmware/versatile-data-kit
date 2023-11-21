@@ -183,7 +183,7 @@ public class DeploymentService {
               jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha());
 
       if (jobImageBuilder.buildImage(
-          imageName, dataJob, toDesiredDataJobDeployment(jobDeployment), sendNotification)) {
+          imageName, dataJob, toDesiredDataJobDeployment(jobDeployment), null, sendNotification)) {
         log.info(
             "Image {} has been built. Will now schedule job {} for execution",
             imageName,

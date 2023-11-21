@@ -75,7 +75,7 @@ deploymentBuilder:
 
 ## Service configuration
 service:
-   internalPort: 8092
+   internalPort: &controlServicePort 8092
    type: LoadBalancer # NodePort
    externalTrafficPolicy: Cluster
    # nodePort:
@@ -104,17 +104,23 @@ ingress:
   annotations: {}
   # kubernetes.io/ingress.class: nginx
   ## Configure hostname to use in named-based virtual host.
-  host:
+  ## hosts:
+  ##  - name: "sc-dp-cs-stg.vdp-stg.oc.vmware.com"
+  ##    paths:
   ## URI path/endpoint to the service
   ## This should be unique path to instruct the ingress controller which path is served by the downstream service.
   ## Defaults to '/'
-  ## This allows the service to co-exist and share the same hostname with other services.
-  path: ""
+  ##      - path: /data-jobs
+  ##        serviceName: "{{ .Release.Name }}-svc"
+  ##        servicePort: *controlServicePort
+  ##    tls: true
   ## Provide existing secret which holds TLS certificate/key.
   ## This is will instruct the ingress controller to use specific TLS certificate on this ingress resource. By default,
   ## we use community Nginx controller which supports SNI, thus a signle IP could terminate all connections.
   ## https://github.com/kubernetes/ingress-nginx/
-  tls_secret: ""
+  ##    tlsSecretName: "tpcs-test-tls-secret"
+  ## It is used to associate an Ingress resource with a specific Ingress controller or implementation.
+  className: ""
 
 # Embedded server settings
 server:
@@ -553,6 +559,35 @@ resources:
    requests:
       cpu: 500m
       memory: 500Mi
+
+# Specify Pod Disruption Budget  for the Control Service Deployment to allow for higher availability while permitting
+# the cluster administrator to manage the clusters nodes
+# see https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+poddisruptionbudget:
+  enabled: false
+  metadata:
+    labels: # additional labels if needed
+  minAvailable: 1
+
+# Specify Limit Range for the data jobs namespace to limit the maximum allowed cpu and memory resources for a data job
+# see https://kubernetes.io/docs/concepts/policy/limit-range/
+datajobslimitrange:
+  enabled: false
+  max:
+    cpu: 2
+    memory: 8gi
+
+# Specify Resource Quota for the data jobs namespace to limit the maximum cpu and memory resources available to all
+# data jobs
+# see https://kubernetes.io/docs/concepts/policy/resource-quotas/
+datajobsresourcequota:
+    enabled: false
+    limits:
+      cpu: "100"
+      memory: 200Gi
+    requests:
+      cpu: "50"
+      memory: 100Gi
 
 ## [Required] Database configuration used by Control Plane
 ## Database is used to store Data Jobs metadata like name, team, description
@@ -1180,14 +1215,14 @@ alertmanager:
 # More information here: https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-1493-vault-integration
 secrets:
     vault:
-        enabled: false
-        ## Name of the secret which holds Vault URI and Approle RoleId and SecretId. The chart will not attempt to
-        ## create this, but will use it as is.
-        ## The secret should contain keys: URI, ROLEID, SECRETID
-        externalSecretName: ""
-        ## Alternatively provide the uri and Approle Settings here. externalSecretName takes precedence if both are set.
-        uri: "http://localhost:8200"
-        approle:
-            roleid: foo
-            secretid: foo
-        sizeLimitBytes: "1048576"
+      enabled: false
+      ## Name of the secret which holds Vault URI and Approle RoleId and SecretId. The chart will not attempt to
+      ## create this, but will use it as is.
+      ## The secret should contain keys: URI, ROLEID, SECRETID
+      externalSecretName: ""
+      ## Alternatively provide the uri and Approle Settings here. externalSecretName takes precedence if both are set.
+      uri: "http://localhost:8200"
+      approle:
+          roleid: foo
+          secretid: foo
+      sizeLimitBytes: "1048576"

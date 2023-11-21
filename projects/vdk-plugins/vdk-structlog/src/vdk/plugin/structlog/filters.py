@@ -5,6 +5,7 @@ from logging import LogRecord
 from typing import Set
 
 from vdk.plugin.structlog.constants import RECORD_DEFAULT_FIELDS
+from vdk.plugin.structlog.constants import STRUCTLOG_METADATA_FIELDS
 
 
 class JsonMetadataFilter(Filter):
@@ -18,7 +19,10 @@ class JsonMetadataFilter(Filter):
 
     def __init__(self, key_set: Set):
         super().__init__()
-        self._key_set = key_set
+        self._key_set = {
+            STRUCTLOG_METADATA_FIELDS[k] if k in STRUCTLOG_METADATA_FIELDS else k
+            for k in key_set
+        }
 
     def filter(self, record: LogRecord) -> LogRecord:
         fields = vars(record)
@@ -39,11 +43,7 @@ class ConsoleMetadataFilter(Filter):
 
     def __init__(self, key_set: Set):
         super().__init__()
-        temp = [
-            RECORD_DEFAULT_FIELDS[x] if x in RECORD_DEFAULT_FIELDS else x
-            for x in key_set
-        ]
-        self._key_set = set(temp)
+        self._key_set = key_set
 
     def filter(self, record: LogRecord) -> LogRecord:
         fields = vars(record)

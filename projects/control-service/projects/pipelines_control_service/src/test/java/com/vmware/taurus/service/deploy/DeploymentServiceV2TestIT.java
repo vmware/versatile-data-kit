@@ -56,7 +56,7 @@ public class DeploymentServiceV2TestIT {
     updateDeployment(DeploymentStatus.NONE, 1, true);
 
     Mockito.verify(jobImageBuilder, Mockito.times(1))
-        .buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(true));
+        .buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(true));
   }
 
   @Test
@@ -66,7 +66,7 @@ public class DeploymentServiceV2TestIT {
     updateDeployment(DeploymentStatus.NONE, 1, false);
 
     Mockito.verify(jobImageBuilder, Mockito.times(1))
-        .buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(false));
+        .buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(false));
   }
 
   private void updateDeployment(
@@ -86,7 +86,8 @@ public class DeploymentServiceV2TestIT {
     DataJob dataJob = new DataJob();
     dataJob.setJobConfig(new JobConfig());
     Mockito.when(
-            jobImageBuilder.buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            jobImageBuilder.buildImage(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(false);
 
     deploymentService.updateDeployment(

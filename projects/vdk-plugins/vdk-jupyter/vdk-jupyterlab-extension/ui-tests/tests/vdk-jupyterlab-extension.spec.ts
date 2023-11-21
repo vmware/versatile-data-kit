@@ -105,7 +105,7 @@ test('should try to create a job successfully', async ({ page }) => {
   page.on('dialog', async dialog => {
     expect(dialog.type()).toContain('alert');
     expect(dialog.message()).toContain(
-      'Job with name first-job was created successfully!'
+      'Job with name first-job was created only locally'
     );
     await dialog.accept();
   });
@@ -158,7 +158,6 @@ test(
     await page.getByText('test-dir').click();
     await page.menu.open('VDK');
     await page.locator('#jp-vdk-menu').getByText('Create').click();
-    await page.getByLabel('Local').check();
     await page.getByLabel('Job name:').click();
     await page.getByLabel('Job name:').fill('first-job');
     await page.getByLabel('Job team:').click();

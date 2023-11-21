@@ -72,7 +72,7 @@ class ImpalaErrorHandler:
         # try to handle multiple failed to open file errors in one query for different tables
         current_exception = caught_exception
         while recovery_cursor.get_retries() < self._num_retries:
-            self._log.info(
+            self._log.debug(
                 f"Try ({(recovery_cursor.get_retries() + 1)} of {self._num_retries}) "
                 f"to handle exception {current_exception}"
             )
@@ -125,7 +125,6 @@ class ImpalaErrorHandler:
             self._log.info(
                 "Execution of query exceeded impala time limit. "
                 "This is most likely because the query is resource heavy and needs optimisation. "
-                "The query would not be retried, in order to avoid increasing the load on the database."
             )
             return True
 
@@ -142,7 +141,7 @@ class ImpalaErrorHandler:
             regex = ".*/user/hive/warehouse/([^/]*).db/([^/]*)"
             matcher = re.compile(pattern=regex, flags=re.DOTALL)
             results = matcher.search(str(exception).strip())
-            self._log.info(
+            self._log.debug(
                 "Detected query failing with Failed to find file error. WIll try to autorecover."
             )
             if results and len(results.groups()) == 2:

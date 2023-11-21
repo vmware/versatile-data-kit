@@ -10,6 +10,7 @@ import com.vmware.taurus.service.JobsService;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DesiredDataJobDeployment;
+import com.vmware.taurus.service.monitoring.DataJobSynchronizerMonitor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -49,6 +50,8 @@ public class DataJobsSynchronizer {
 
   private final ThreadPoolTaskExecutor dataJobsSynchronizerTaskExecutor;
 
+  private final DataJobSynchronizerMonitor dataJobSynchronizerMonitor;
+
   @Value("${datajobs.deployment.configuration.synchronization.task.enabled:false}")
   private boolean synchronizationEnabled;
 
@@ -86,6 +89,7 @@ public class DataJobsSynchronizer {
           "Skipping data job deployment synchronization because deployment names cannot be loaded"
               + " from Kubernetes.",
           e);
+      dataJobSynchronizerMonitor.countSynchronizerFailures();
       return;
     }
 
@@ -210,8 +214,10 @@ public class DataJobsSynchronizer {
               + " some time...");
       countDownLatch.await();
       log.info("Data job deployments synchronization has successfully completed.");
+      dataJobSynchronizerMonitor.countSuccessfulSynchronizerInvocation();
     } catch (InterruptedException e) {
       log.error("An error occurred during the data job deployments' synchronization", e);
+      dataJobSynchronizerMonitor.countSynchronizerFailures();
     }
   }
 }

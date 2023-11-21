@@ -4,7 +4,6 @@
  */
 
 import { galata } from '@jupyterlab/galata';
-import path from 'path';
 
 export async function copyDirectory(
   baseURL: string,

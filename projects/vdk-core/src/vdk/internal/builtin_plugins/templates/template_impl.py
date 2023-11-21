@@ -77,7 +77,6 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
                 errors.UserCodeError(
                     f"No registered template with name: {name}.",
                     "Template with that name has not been registered",
-                    errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
                     "Make sure you have not misspelled the name of the template "
                     "or the plugin(s) providing the template is installed. "
                     f"Current list of templated is: {list(self._registered_templates.keys())}",

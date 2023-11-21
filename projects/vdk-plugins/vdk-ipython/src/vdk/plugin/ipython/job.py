@@ -75,8 +75,8 @@ class JobControl:
             self.job_input = None
         else:
             log.warning(
-                "You are trying to finalize a job that is not existing!\n"
-                "Initialize a job using VDK.get_initialized_job_input() first, please! "
+                "You are trying to finalize a job that does not exist.\n"
+                "Initialize a job using VDK.get_initialized_job_input() first. "
             )
 
 

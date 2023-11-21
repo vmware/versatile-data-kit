@@ -1,21 +1,20 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import collections
 import logging
 from contextlib import closing
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 
 import duckdb
+from vdk.api.plugin.plugin_input import PEP249Connection
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.core import errors
-from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
-from vdk.plugin.duckdb.duckdb_connection import DuckDBConnection
 
 log = logging.getLogger(__name__)
 
@@ -25,8 +24,13 @@ class IngestToDuckDB(IIngesterPlugin):
     Create a new ingestion mechanism for ingesting to a DuckDB database
     """
 
-    def __init__(self, conf: DuckDBConfiguration):
-        self.conf = conf
+    def __init__(
+        self,
+        conf: DuckDBConfiguration,
+        new_connection_func: Callable[[], PEP249Connection],
+    ):
+        self._new_connection_func = new_connection_func
+        self._conf = conf
 
     def ingest_payload(
         self,
@@ -39,16 +43,6 @@ class IngestToDuckDB(IIngesterPlugin):
         """
         Performs the ingestion
         """
-        target = target or self.conf.get_duckdb_file()
-        if not target:
-            errors.report_and_throw(
-                UserCodeError(
-                    "Failed to proceed with ingestion.",
-                    "Target was not supplied as a parameter.",
-                    "Will not proceed with ingestion.",
-                    "Set the correct target parameter.",
-                )
-            )
         if not payload:
             log.debug(
                 f"Payload is empty. "
@@ -61,24 +55,32 @@ class IngestToDuckDB(IIngesterPlugin):
             f"collection_id: {collection_id}"
         )
 
-        with DuckDBConnection(duckdb_file=target).new_connection() as conn:
-            with closing(conn.cursor()) as cur:
-                if self.conf.get_auto_create_table_enabled():
-                    self.__create_table_if_not_exists(cur, destination_table, payload)
-                else:
-                    self.__check_destination_table_exists(destination_table, cur)
-                self.__ingest_payload(destination_table, payload, cur)
+        with closing(self._new_connection_func().cursor()) as cur:
+            if self._conf.get_auto_create_table_enabled():
+                self.__create_table_if_not_exists(cur, destination_table, payload)
+            else:
+                self.__check_destination_table_exists(destination_table, cur)
+            self.__ingest_payload(destination_table, payload, cur)
 
     def __ingest_payload(
         self, destination_table: str, payload: List[dict], cur: duckdb.cursor
     ) -> None:
-        values, query = self.__create_query(destination_table, payload, cur)
-        for obj in values:
-            try:
-                cur.execute(query, obj)
-                log.debug(f"{obj} ingested.")
-            except Exception as e:
-                errors.report_and_rethrow(ResolvableBy.PLATFORM_ERROR, e)
+        # Start a new transaction
+        cur.execute("BEGIN TRANSACTION")
+
+        try:
+            keys = payload[0].keys()
+            values = [[dic[k] for k in keys] for dic in payload]
+
+            placeholders = ", ".join(["?" for _ in keys])
+            sql = f"INSERT INTO {destination_table} ({', '.join(keys)}) VALUES ({placeholders})"
+
+            cur.executemany(sql, values)
+
+            cur.execute("COMMIT")
+        except Exception:
+            cur.execute("ROLLBACK")
+            raise
 
     def __check_destination_table_exists(
         self, destination_table: str, cur: duckdb.cursor
@@ -105,37 +107,12 @@ class IngestToDuckDB(IIngesterPlugin):
     ) -> List[Tuple[str, str]]:
         columns = []
         if self._check_if_table_exists(destination_table, cur):
-            for row in cur.execute(
+            cur.execute(
                 f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{destination_table}'"
-            ).fetchall():
+            )
+            for row in cur.fetchall():
                 columns.append((row[0], row[1]))
         return columns
-
-    def __create_query(
-        self, destination_table: str, payload: List[dict], cur: duckdb.cursor
-    ) -> Tuple[list, str]:
-        fields = [
-            field_tuple[0]
-            for field_tuple in cur.execute(
-                f"SELECT column_name FROM information_schema.columns WHERE table_name = '{destination_table}'"
-            ).fetchall()
-        ]
-
-        for obj in payload:
-            if collections.Counter(fields) != collections.Counter(obj.keys()):
-                errors.report_and_throw(
-                    UserCodeError(
-                        "Failed to sent payload",
-                        f"""
-                                    One or more column names in the input data did NOT
-                                    match corresponding column names in the database.
-                                    Input Table Columns: {list(obj.keys())}
-                                    Database Table Columns: {fields}
-                                    """,
-                        "Will not be able to send the payload for ingestion",
-                        "See error message for help ",
-                    )
-                )
 
     def __create_table_if_not_exists(
         self, cur: duckdb.cursor, destination_table: str, payload: List[dict]

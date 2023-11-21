@@ -75,7 +75,7 @@ public class Telemetry implements ITelemetry {
     if (StringUtils.isBlank(this.telemetryEndpoint)) {
       return;
     }
-    log.debug("Sending streaming telemetry to {}", telemetryEndpoint);
+    log.trace("Sending streaming telemetry to {}", telemetryEndpoint);
     HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
 
     HttpRequest request =

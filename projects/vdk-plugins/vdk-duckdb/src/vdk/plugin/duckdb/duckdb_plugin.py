@@ -1,7 +1,6 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import pathlib
 
 import click
 import duckdb
@@ -10,6 +9,11 @@ from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.util.decorators import closing_noexcept_on_close
+from vdk.plugin.duckdb import duckdb_configuration
+from vdk.plugin.duckdb.duckdb_configuration import DUCKDB_CONFIGURATION_DICTIONARY
+from vdk.plugin.duckdb.duckdb_configuration import DUCKDB_DATABASE
+from vdk.plugin.duckdb.duckdb_configuration import DuckDBConfiguration
+from vdk.plugin.duckdb.ingest_to_duckdb import IngestToDuckDB
 
 log = logging.getLogger(__name__)
 """
@@ -20,16 +24,24 @@ Include the plugins implementation. For example:
 @hookimpl
 def vdk_configure(config_builder: ConfigurationBuilder) -> None:
     """Define the configuration settings needed for duckdb"""
-    config_builder.add("DUCKDB_FILE", default_value="mydb.duckdb")
+    duckdb_configuration.add_definitions(config_builder)
 
 
 @hookimpl
 def initialize_job(context: JobContext) -> None:
-    conf = context.core_context.configuration
-    duckdb_file = conf.get_value("DUCKDB_FILE")
+    conf = DuckDBConfiguration(context.core_context.configuration)
 
     context.connections.add_open_connection_factory_method(
-        "DUCKDB", lambda: duckdb.connect(database=duckdb_file)
+        "DUCKDB", lambda: duckdb.connect(conf.get_duckdb_database())
+    )
+
+    context.ingester.add_ingester_factory_method(
+        "duckdb",
+        (
+            lambda: IngestToDuckDB(
+                conf, lambda: context.connections.open_connection("DUCKDB")
+            )
+        ),
     )
 
 
@@ -40,8 +52,8 @@ def initialize_job(context: JobContext) -> None:
 @click.pass_context
 def duckdb_query(ctx: click.Context, query):
     conf = ctx.obj.configuration
-    duckdb_file = conf.get_value("DUCKDB_FILE")
-    conn = duckdb.connect(database=duckdb_file)
+    duckdb_db = conf.get_value(DUCKDB_DATABASE)
+    conn = duckdb.connect(database=duckdb_db)
 
     with closing_noexcept_on_close(conn.cursor()) as cursor:
         cursor.execute(query)

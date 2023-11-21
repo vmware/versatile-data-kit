@@ -6,6 +6,10 @@
 package com.vmware.taurus.service.graphql;
 
 import com.vmware.taurus.controlplane.model.data.DataJobExecution;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.ReadFrom;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
+import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.graphql.model.Filter;
@@ -22,11 +26,7 @@ import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByNext
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByScheduleCron;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBySourceUrl;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyByTeam;
-import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.graphql.model.DataJobPage;
-import com.vmware.taurus.service.model.ExecutionStatus;
-import com.vmware.taurus.service.model.JobConfig;
-import com.vmware.taurus.service.model.JobDeploymentStatus;
 import graphql.GraphQLException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
@@ -47,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -68,6 +69,10 @@ class GraphQLDataFetchersTest {
 
   @Mock private DataFetchingFieldSelectionSet dataFetchingFieldSelectionSet;
 
+  @Mock private DeploymentServiceV2 deploymentServiceV2;
+
+  @Mock private DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+
   private DataFetcher<Object> findDataJobs;
 
   @BeforeEach
@@ -76,12 +81,18 @@ class GraphQLDataFetchersTest {
         new JobFieldStrategyFactory(collectSupportedFieldStrategies());
     GraphQLDataFetchers graphQLDataFetchers =
         new GraphQLDataFetchers(
-            strategyFactory, jobsRepository, deploymentService, executionDataFetcher);
+            strategyFactory,
+            jobsRepository,
+            deploymentService,
+            executionDataFetcher,
+            dataJobDeploymentPropertiesConfig,
+            deploymentServiceV2);
     findDataJobs = graphQLDataFetchers.findAllAndBuildDataJobPage();
   }
 
   @Test
   void testDataFetcherOfJobs_whenGettingFullList_shouldReturnAllDataJobs() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
     when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(10);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
@@ -99,6 +110,7 @@ class GraphQLDataFetchersTest {
 
   @Test
   void testDataFetcherOfJobs_whenGettingPagedResult_shouldReturnPagedJobs() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(2);
     when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(2);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobs());
@@ -136,6 +148,7 @@ class GraphQLDataFetchersTest {
 
   @Test
   void testDataFetcherOfJobs_whenSearchingSpecificJob_shouldReturnSearchedJob() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
     when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(10);
     when(dataFetchingEnvironment.getArgument("search")).thenReturn("sample-job-2");
@@ -156,6 +169,7 @@ class GraphQLDataFetchersTest {
 
   @Test
   void testDataFetcherOfJobs_whenSearchingByPattern_shouldReturnMatchingJobs() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
     when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(10);
     when(dataFetchingEnvironment.getArgument("search")).thenReturn("sample-job-2");
@@ -213,6 +227,7 @@ class GraphQLDataFetchersTest {
 
   @Test
   void testPopulateDeployments() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
     when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
@@ -239,7 +254,38 @@ class GraphQLDataFetchersTest {
   }
 
   @Test
+  void testPopulateDeployments_readFromDB() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.DB);
+    when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
+    when(deploymentServiceV2.findAllActualDataJobDeployments())
+        .thenReturn(mockMapOfActualJobDeployments());
+    when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
+    when(dataFetchingEnvironment.getArgument("pageSize")).thenReturn(100);
+    when(dataFetchingEnvironment.getSelectionSet()).thenReturn(dataFetchingFieldSelectionSet);
+    when(dataFetchingFieldSelectionSet.contains(JobFieldStrategyBy.DEPLOYMENT.getPath()))
+        .thenReturn(true);
+
+    DataJobPage dataJobPage = (DataJobPage) findDataJobs.get(dataFetchingEnvironment);
+
+    assertThat(dataJobPage.getContent()).hasSize(5);
+    var job2 = (V2DataJob) dataJobPage.getContent().get(1);
+    assertThat(job2.getDeployments()).hasSize(1);
+    assertThat(job2.getDeployments().get(0).getLastExecutionStatus()).isNull();
+    assertThat(job2.getDeployments().get(0).getLastExecutionTime()).isNull();
+    assertThat(job2.getDeployments().get(0).getLastExecutionDuration()).isNull();
+    assertThat(job2.getDeployments().get(0).getJobPythonVersion()).isEqualTo("3.8-secure");
+    var job4 = (V2DataJob) dataJobPage.getContent().get(3);
+    assertThat(job4.getDeployments()).hasSize(1);
+    assertThat(job4.getDeployments().get(0).getLastExecutionStatus())
+        .isEqualTo(DataJobExecution.StatusEnum.SUCCEEDED);
+    assertThat(job4.getDeployments().get(0).getLastExecutionTime()).isNull();
+    assertThat(job4.getDeployments().get(0).getLastExecutionDuration()).isEqualTo(0);
+    assertThat(job4.getDeployments().get(0).getJobPythonVersion()).isEqualTo("3.9-secure");
+  }
+
+  @Test
   void testFilterByLastExecutionStatus() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
     when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
@@ -263,6 +309,7 @@ class GraphQLDataFetchersTest {
 
   @Test
   void testSortingByLastExecutionStatus() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
     when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
@@ -296,6 +343,7 @@ class GraphQLDataFetchersTest {
 
   @Test
   void testSortingByLastExecutionTime() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
     when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
@@ -327,6 +375,7 @@ class GraphQLDataFetchersTest {
 
   @Test
   void testSortingByLastExecutionDuration() throws Exception {
+    when(dataJobDeploymentPropertiesConfig.getReadDataSource()).thenReturn(ReadFrom.K8S);
     when(jobsRepository.findAll()).thenReturn(mockListOfDataJobsWithLastExecution());
     when(deploymentService.readDeployments()).thenReturn(mockListOfDeployments());
     when(dataFetchingEnvironment.getArgument("pageNumber")).thenReturn(1);
@@ -374,6 +423,15 @@ class GraphQLDataFetchersTest {
     dataJobs.add(mockSampleDataJob("sample-job-3", "Delete users", "0 4 8-14 * *"));
 
     return dataJobs;
+  }
+
+  private Map<String, ActualDataJobDeployment> mockMapOfActualJobDeployments() {
+    return Map.of(
+        "sample-job-1", mockSampleActualJobDeployment("sample-job-1", true, "3.8-secure"),
+        "sample-job-2", mockSampleActualJobDeployment("sample-job-2", false, "3.8-secure"),
+        "sample-job-3", mockSampleActualJobDeployment("sample-job-3", true, "3.9-secure"),
+        "sample-job-4", mockSampleActualJobDeployment("sample-job-4", false, "3.9-secure"),
+        "sample-job-5", mockSampleActualJobDeployment("sample-job-5", true, "3.9-secure"));
   }
 
   private List<DataJob> mockListOfDataJobsWithLastExecution() {
@@ -442,6 +500,25 @@ class GraphQLDataFetchersTest {
     status.setCronJobName(jobName + "-latest");
     status.setMode("release");
     return status;
+  }
+
+  private ActualDataJobDeployment mockSampleActualJobDeployment(
+      String jobName, boolean enabled, String pythonVersion) {
+    ActualDataJobDeployment actualJobDeployment = new ActualDataJobDeployment();
+    actualJobDeployment.setDataJobName(jobName);
+    actualJobDeployment.setEnabled(enabled);
+    actualJobDeployment.setPythonVersion(pythonVersion);
+    actualJobDeployment.setLastDeployedDate(
+        OffsetDateTime.of(2023, 10, 25, 16, 30, 42, 42, ZoneOffset.UTC));
+
+    DataJobDeploymentResources resources = new DataJobDeploymentResources();
+    resources.setCpuLimitCores(1f);
+    resources.setCpuRequestCores(1f);
+    resources.setMemoryLimitMi(100);
+    resources.setMemoryRequestMi(100);
+
+    actualJobDeployment.setResources(resources);
+    return actualJobDeployment;
   }
 
   static ArrayList<LinkedHashMap<String, String>> constructFilter(Filter... filters) {
