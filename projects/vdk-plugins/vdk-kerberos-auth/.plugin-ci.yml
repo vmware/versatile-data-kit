@@ -11,23 +11,8 @@
     # krb5-user is a requirement for the tests because the Kerberos server is configured via kadmin
     - export DEBIAN_FRONTEND=noninteractive
     - apt-get update
-    - apt-get install -y krb5-user openssl build-essential checkinstall zlib1g-dev
-    - openssl version
-    - wget https://www.openssl.org/source/openssl-3.1.4.tar.gz
-    - tar -xzvf openssl-3.1.4.tar.gz && cd openssl-3.1.4
-    - ./config
-    - make
-    - make install
-    - ldconfig
-    - cd ..
-    - openssl version
-    - /usr/local/bin/openssl version
-    - echo $PATH
-    - export PATH=/usr/local/bin:$PATH
-    - openssl version
-    - ln -sf /usr/local/bin/openssl /usr/bin/openssl
+    - apt-get install -y krb5-user
     - pip install https://github.com/wbond/oscrypto/archive/d5f3437ed24257895ae1edd9e503cfb352e635a8.zip
-    - openssl version
     - !reference [.build-plugin, script]
   extends: .build-plugin-dind
 
