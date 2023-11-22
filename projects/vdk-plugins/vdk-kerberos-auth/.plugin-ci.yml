@@ -18,6 +18,8 @@
     - ./config
     - make
     - make install
+    - ldconfig
+    - cd ..
     - openssl version
     - !reference [.build-plugin, script]
   extends: .build-plugin-dind
