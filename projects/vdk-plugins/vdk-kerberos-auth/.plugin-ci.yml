@@ -24,6 +24,9 @@
     - /usr/local/bin/openssl version
     - echo $PATH
     - export PATH=/usr/local/bin:$PATH
+    - openssl version
+    - ln -sf /usr/local/bin/openssl /usr/bin/openssl
+    - openssl version
     - !reference [.build-plugin, script]
   extends: .build-plugin-dind
 
