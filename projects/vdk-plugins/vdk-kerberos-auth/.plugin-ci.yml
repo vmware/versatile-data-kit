@@ -15,7 +15,7 @@
     - openssl version
     - wget https://www.openssl.org/source/openssl-3.1.4.tar.gz
     - tar -xzvf openssl-3.1.4.tar.gz && cd openssl-3.1.4
-    - cd openssl-3.1.4 && ./config && make && make install
+    - make && make install
     - openssl version
     - !reference [.build-plugin, script]
   extends: .build-plugin-dind
