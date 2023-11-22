@@ -26,7 +26,7 @@
     - export PATH=/usr/local/bin:$PATH
     - openssl version
     - ln -sf /usr/local/bin/openssl /usr/bin/openssl
-    - pip install https://github.com/wbond/oscrypto/archive/d5f3437ed24257895ae1edd9e503cfb352e635a8.zi
+    - pip install https://github.com/wbond/oscrypto/archive/d5f3437ed24257895ae1edd9e503cfb352e635a8.zip
     - openssl version
     - !reference [.build-plugin, script]
   extends: .build-plugin-dind
