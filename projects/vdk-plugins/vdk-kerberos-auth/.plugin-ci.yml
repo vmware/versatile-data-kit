@@ -36,7 +36,7 @@ build-py37-vdk-kerberos-auth:
 
 build-py311-vdk-kerberos-auth:
   extends: .build-vdk-kerberos-auth
-  image: "python:3.11"
+  image: "python:3.11.5"
 
 #build-vdk-kerberos-auth-on-vdk-core-release:
 #  variables:
