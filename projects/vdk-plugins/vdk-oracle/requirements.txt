@@ -3,5 +3,6 @@
 
 
 pytest
+testcontainers
 vdk-core
 vdk-test-utils
