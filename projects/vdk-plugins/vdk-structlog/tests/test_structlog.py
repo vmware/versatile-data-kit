@@ -194,15 +194,17 @@ def test_custom_console_format(log_format):
     custom_format_string = "(asctime)s %(name)-12s %(levelname)-8s %(message)s"
 
     with mock.patch.dict(
-            os.environ,
-            {
-                "VDK_LOGGING_METADATA": "timestamp,level,file_name,line_number,vdk_job_name",
-                "VDK_LOGGING_FORMAT": log_format,
-                "VDK_LOGGING_CUSTOM_FORMAT": custom_format_string,  # Custom format string environment variable
-            },
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "timestamp,level,file_name,line_number,vdk_job_name",
+            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_LOGGING_CUSTOM_FORMAT": custom_format_string,  # Custom format string environment variable
+        },
     ):
         logs = _run_job_and_get_logs()
-        log_with_custom_format = _get_log_containing_s(logs, "Log statement with no bound context")
+        log_with_custom_format = _get_log_containing_s(
+            logs, "Log statement with no bound context"
+        )
 
         _assert_custom_format(log_with_custom_format, custom_format_string)
 
@@ -213,4 +215,3 @@ def _assert_custom_format(log, custom_format_string):
     """
     pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \S+ \[INFO    ]")
     assert pattern.search(log), "Log line does not match the custom format string"
-
