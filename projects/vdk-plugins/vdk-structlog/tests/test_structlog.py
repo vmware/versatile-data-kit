@@ -135,9 +135,7 @@ def test_custom_console_format(log_format):
 
 
 def _matches_custom_format(log):
-    # This example pattern is assuming a structure
-    # based on the format string "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
-    pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \S+ \[INFO     ]")
+    pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\s+\S{1,12}\s+\S{1,8}")
     return bool(pattern.search(log))
 
 
