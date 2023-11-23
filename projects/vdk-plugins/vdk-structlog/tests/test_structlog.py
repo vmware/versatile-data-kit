@@ -135,7 +135,9 @@ def test_custom_console_format(log_format):
 
 
 def _matches_custom_format(log):
-    pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\s+\S{1,12}\s+\S{1,8}")
+    pattern = re.compile(
+        r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\s+\S{1,12}\s+\S{1,8}"
+    )
     return bool(pattern.search(log))
 
 
@@ -213,5 +215,3 @@ def _get_job_arguments():
     extra_fields = f'{{"{EXTRA_TEST_KEY}": "{EXTRA_TEST_VALUE}"}}'
 
     return f'{{"bound_fields": {bound_fields}, "extra_fields": {extra_fields}}}'
-
-
