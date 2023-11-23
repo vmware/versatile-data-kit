@@ -1,12 +1,19 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 import os
 import re
 from unittest import mock
+from unittest.mock import patch
 
 import pytest
 from click.testing import Result
+from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.errors import VdkConfigurationError
 from vdk.plugin.structlog import structlog_plugin
+from vdk.plugin.structlog.constants import parse_log_level_module
+from vdk.plugin.structlog.structlog_plugin import configure_loggers
+from vdk.plugin.structlog.structlog_plugin import StructlogPlugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 
@@ -54,6 +61,63 @@ STOCK_FIELD_REPRESENTATIONS = {
         "vdk_job_name": f'"vdk_job_name": "{JOB_NAME}"',
     },
 }
+
+
+def test_parse_log_level_module():
+    assert parse_log_level_module("") == {}
+    assert parse_log_level_module("a.b.c=INFO") == {"a.b.c": {"level": "INFO"}}
+    assert parse_log_level_module("a.b.c=info") == {"a.b.c": {"level": "INFO"}}
+    assert parse_log_level_module("a.b.c=INFO;x.y=WARN") == {
+        "a.b.c": {"level": "INFO"},
+        "x.y": {"level": "WARN"},
+    }
+
+
+def test_parse_log_level_module_error_cases():
+    with pytest.raises(VdkConfigurationError):
+        parse_log_level_module("a.b.c=NOSUCH")
+
+    with pytest.raises(VdkConfigurationError):
+        parse_log_level_module("bad_separator_not_semi_colon=DEBUG,second_module=INFO")
+
+
+def test_configure_logger():
+    with patch("logging.config.dictConfig") as mock_dict_config:
+        with patch.object(structlog_plugin, "_set_already_configured"):
+            configure_loggers(
+                job_name="job-name",
+                attempt_id="attempt-id",
+                log_level_module="a.b.c=INFO;foo.bar=ERROR",
+            )
+            configured_loggers = mock_dict_config.call_args[0][0]["loggers"]
+            assert configured_loggers["a.b.c"]["level"] == "INFO"
+            assert configured_loggers["foo.bar"]["level"] == "ERROR"
+
+
+def test_log_plugin_exception():
+    print("This")
+    with mock.patch(
+        "vdk.plugin.structlog.structlog_plugin.configure_loggers"
+    ) as mocked_log_config:
+        try:
+            mocked_log_config.side_effect = Exception("foo")
+
+            log_plugin = StructlogPlugin()
+
+            # Mock configuration since we wont be needing any.
+            job_context = mock.MagicMock(spec=JobContext)
+            job_context.name = mock.MagicMock()
+            job_context.core_context = mock.MagicMock()
+            job_context.core_context.configuration = mock.MagicMock()
+            job_context.core_context.state = mock.MagicMock()
+            job_context.core_context.state.get = mock.MagicMock()
+            job_context.core_context.configuration.get_value = mock.MagicMock()
+
+            # Test except: section in initialize_job and expect no exceptions
+            log_plugin.initialize_job(job_context)
+        finally:
+            logging.getLogger().setLevel(logging.INFO)
+            logging.getLogger("vdk").setLevel(logging.INFO)
 
 
 @pytest.mark.parametrize("log_format", ["console", "ltsv", "json"])

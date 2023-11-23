@@ -221,9 +221,26 @@ class StructlogPlugin:
             default_value="localhost",
             description="The hostname of the endpoint to which VDK logs will be sent through SysLog.",
         )
+        config_builder.add(
+            key=SYSLOG_PORT,
+            default_value=514,
+            description="The port of the endpoint to which VDK logs will be sent through SysLog.",
+        )
+        config_builder.add(
+            key=SYSLOG_ENABLED,
+            default_value=False,
+            description="If set to True, SysLog log forwarding is enabled.",
+        )
+        config_builder.add(
+            key=SYSLOG_SOCK_TYPE,
+            default_value="UDP",
+            description=f"Socket type for SysLog log forwarding connection. Currently possible values are "
+            f"{list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+        )
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext):
+        # Use this plugin for logging config and warn the user about the vdk-core logging deprecation
         os.environ["VDK_USE_STRUCTLOG"] = "1"
         configure_initial_logging()
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
