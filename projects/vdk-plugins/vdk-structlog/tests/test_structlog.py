@@ -113,6 +113,34 @@ def test_stock_fields_removal(log_format):
                 assert re.search(stock_field_reps[shown_field], test_log) is not None
 
 
+@pytest.mark.parametrize("log_format", ["console"])
+def test_custom_console_format(log_format):
+    custom_format_string = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "timestamp,level,file_name,line_number,vdk_job_name",
+            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_LOGGING_CUSTOM_FORMAT": custom_format_string,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+        for log in logs:
+            if "Log statement with no bound context" in log:
+                assert _matches_custom_format(log)
+                break
+        else:
+            pytest.fail("Log statement with no bound context not found in logs")
+
+
+def _matches_custom_format(log):
+    # This example pattern is assuming a structure
+    # based on the format string "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+    pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \S+ \[INFO     ]")
+    return bool(pattern.search(log))
+
+
 def _run_job_and_get_logs():
     """
     Runs the necessary job and returns the output logs.
