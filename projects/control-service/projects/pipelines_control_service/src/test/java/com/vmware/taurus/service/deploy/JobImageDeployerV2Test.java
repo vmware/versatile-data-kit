@@ -24,18 +24,17 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class JobImageDeployerV2Test {
 
-  @Autowired
-  private JobImageDeployerV2 jobImageDeployerV2;
-  @SpyBean
-  private DataJobsKubernetesService dataJobsKubernetesService;
+  @Autowired private JobImageDeployerV2 jobImageDeployerV2;
+  @SpyBean private DataJobsKubernetesService dataJobsKubernetesService;
 
   @Test
   public void testScheduleJob() throws ApiException {
     var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
     Mockito.doNothing().when(dataJobsKubernetesService).createCronJob(Mockito.any());
 
-    var actualDeployment = jobImageDeployerV2.scheduleJob(dataJob, getDesiredDeployment(dataJob),
-        null, false, false, "test-job");
+    var actualDeployment =
+        jobImageDeployerV2.scheduleJob(
+            dataJob, getDesiredDeployment(dataJob), null, false, false, "test-job");
 
     verifyActualDeployment(actualDeployment);
   }
@@ -45,8 +44,9 @@ public class JobImageDeployerV2Test {
     var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
     Mockito.doNothing().when(dataJobsKubernetesService).updateCronJob(Mockito.any());
 
-    var actualDeployment = jobImageDeployerV2.scheduleJob(dataJob, getDesiredDeployment(dataJob),
-        null, false, true, "test-job");
+    var actualDeployment =
+        jobImageDeployerV2.scheduleJob(
+            dataJob, getDesiredDeployment(dataJob), null, false, true, "test-job");
 
     verifyActualDeployment(actualDeployment);
   }

@@ -32,37 +32,36 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest(classes = ControlplaneApplication.class)
 @TestPropertySource(
     properties = {
-        "datajobs.deployment.configuration.persistence.writeTos=DB",
-        "datajobs.deployment.configuration.persistence.readDataSource=DB",
-        "datajobs.deployment.configuration.synchronization.task.enabled:true"
+      "datajobs.deployment.configuration.persistence.writeTos=DB",
+      "datajobs.deployment.configuration.persistence.readDataSource=DB",
+      "datajobs.deployment.configuration.synchronization.task.enabled:true"
     })
 public class DataJobsSynchronizerWriteTest {
 
-  @SpyBean
-  DeploymentServiceV2 deploymentServiceV2;
-  @SpyBean
-  JobImageBuilder jobImageBuilder;
-  @MockBean
-  JobImageDeployerV2 jobImageDeployer;
-  @MockBean
-  ControlKubernetesService controlKubernetesService;
-  @Autowired
-  JobsRepository jobsRepository;
-  @Autowired
-  DesiredJobDeploymentRepository desiredJobDeploymentRepository;
-  @Autowired
-  DataJobsSynchronizer dataJobsSynchronizer;
-  @Autowired
-  ActualJobDeploymentRepository actualJobDeploymentRepository;
+  @SpyBean DeploymentServiceV2 deploymentServiceV2;
+  @SpyBean JobImageBuilder jobImageBuilder;
+  @MockBean JobImageDeployerV2 jobImageDeployer;
+  @MockBean ControlKubernetesService controlKubernetesService;
+  @Autowired JobsRepository jobsRepository;
+  @Autowired DesiredJobDeploymentRepository desiredJobDeploymentRepository;
+  @Autowired DataJobsSynchronizer dataJobsSynchronizer;
+  @Autowired ActualJobDeploymentRepository actualJobDeploymentRepository;
 
   @BeforeEach
   public void setup() throws Exception {
-    Mockito.doReturn(Set.of("jobName")).when(deploymentServiceV2)
+    Mockito.doReturn(Set.of("jobName"))
+        .when(deploymentServiceV2)
         .findAllActualDeploymentNamesFromKubernetes();
-    Mockito.doReturn(true).when(jobImageBuilder)
+    Mockito.doReturn(true)
+        .when(jobImageBuilder)
         .buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-    Mockito.doReturn(getTestDeployment()).when(jobImageDeployer)
-        .scheduleJob(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyBoolean(),
+    Mockito.doReturn(getTestDeployment())
+        .when(jobImageDeployer)
+        .scheduleJob(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.anyBoolean(),
             Mockito.anyBoolean(),
             Mockito.anyString());
   }
@@ -85,18 +84,19 @@ public class DataJobsSynchronizerWriteTest {
 
     var actualDataJobDeployment = actualJobDeploymentRepository.findById(dataJob.getName()).get();
 
-    Assertions.assertEquals(jobDeployment.getDataJobName(),
-        actualDataJobDeployment.getDataJobName());
-    Assertions.assertEquals(jobDeployment.getGitCommitSha(),
-        actualDataJobDeployment.getGitCommitSha());
-    Assertions.assertEquals(jobDeployment.getPythonVersion(),
-        actualDataJobDeployment.getPythonVersion());
+    Assertions.assertEquals(
+        jobDeployment.getDataJobName(), actualDataJobDeployment.getDataJobName());
+    Assertions.assertEquals(
+        jobDeployment.getGitCommitSha(), actualDataJobDeployment.getGitCommitSha());
+    Assertions.assertEquals(
+        jobDeployment.getPythonVersion(), actualDataJobDeployment.getPythonVersion());
     Assertions.assertEquals("user", actualDataJobDeployment.getLastDeployedBy());
   }
 
   @Test
   public void testUpdateDesiredDeployment_expectNoDeployment() {
-    Mockito.doReturn(Set.of()).when(deploymentServiceV2)
+    Mockito.doReturn(Set.of())
+        .when(deploymentServiceV2)
         .findAllActualDeploymentNamesFromKubernetes();
 
     Assertions.assertEquals(0, actualJobDeploymentRepository.findAll().size());

@@ -76,12 +76,12 @@ public class DeploymentServiceV2Test {
     desiredDeployment = desiredJobDeploymentRepository.findById(dataJob.getName()).get();
 
     Assertions.assertTrue(desiredDeployment.getEnabled());
-
   }
 
   @Test
   public void testFindAllDesiredDataJobDeployments() {
-    Assertions.assertEquals(0, deploymentServiceV2.findAllDesiredDataJobDeployments().keySet().size());
+    Assertions.assertEquals(
+        0, deploymentServiceV2.findAllDesiredDataJobDeployments().keySet().size());
 
     var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
     jobsRepository.save(dataJob);
@@ -90,15 +90,15 @@ public class DeploymentServiceV2Test {
     initialDeployment.setDataJobName(dataJob.getName());
     desiredJobDeploymentRepository.save(initialDeployment);
 
-    Assertions.assertEquals(1, deploymentServiceV2.findAllDesiredDataJobDeployments().keySet().size());
-
+    Assertions.assertEquals(
+        1, deploymentServiceV2.findAllDesiredDataJobDeployments().keySet().size());
   }
 
   @Test
   public void testFindAllActualDataJobDeployments() {
 
-    Assertions.assertEquals(0,
-        deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
+    Assertions.assertEquals(
+        0, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
     var deployment = new ActualDataJobDeployment();
 
     var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
@@ -107,8 +107,8 @@ public class DeploymentServiceV2Test {
     jobsRepository.save(dataJob);
     actualJobDeploymentRepository.save(deployment);
 
-    Assertions.assertEquals(1,
-        deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
+    Assertions.assertEquals(
+        1, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
   }
 
   @AfterEach
