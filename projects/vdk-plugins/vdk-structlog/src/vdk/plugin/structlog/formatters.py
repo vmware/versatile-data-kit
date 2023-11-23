@@ -132,7 +132,9 @@ class StructlogMetadataBuilder:
         return ltsv_format
 
 
-def create_formatter(logging_format: str, metadata_keys: str, custom_console_format: str = None) -> [Formatter, Filter]:
+def create_formatter(
+    logging_format: str, metadata_keys: str, custom_console_format: str = None
+) -> [Formatter, Filter]:
     """
     Creates a formatter and a filter based on the logging format configuration
     and metadata_keys configuration that are passed. The formatter takes care
@@ -156,7 +158,9 @@ def create_formatter(logging_format: str, metadata_keys: str, custom_console_for
         if custom_console_format:
             format_string = custom_console_format
         else:
-            format_string = StructlogMetadataBuilder(metadata_keys).build_console_format()
+            format_string = StructlogMetadataBuilder(
+                metadata_keys
+            ).build_console_format()
         formatter = ConsoleFormatter(fmt=format_string)
         custom_key_filter = ConsoleMetadataFilter(key_set)
     return formatter, custom_key_filter
