@@ -16,7 +16,7 @@ from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
-from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_CUSTOM_FORMAT_KEY
+from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES
@@ -81,7 +81,7 @@ class StructlogPlugin:
         )
 
         config_builder.add(
-            key=STRUCTLOG_LOGGING_CUSTOM_FORMAT_KEY,
+            key=STRUCTLOG_CONSOLE_LOG_PATTERN,
             default_value="",
             description="Custom format string for console logging. Leave empty for default format.",
         )
@@ -101,7 +101,7 @@ class StructlogPlugin:
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
         custom_format_string = context.configuration.get_value(
-            STRUCTLOG_LOGGING_CUSTOM_FORMAT_KEY
+            STRUCTLOG_CONSOLE_LOG_PATTERN
         )
 
         formatter, metadata_filter = create_formatter(
@@ -126,7 +126,7 @@ class StructlogPlugin:
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
         custom_format_string = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_CUSTOM_FORMAT_KEY
+            STRUCTLOG_CONSOLE_LOG_PATTERN
         )
 
         formatter, metadata_filter = create_formatter(
@@ -158,7 +158,7 @@ class StructlogPlugin:
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
         custom_format_string = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_CUSTOM_FORMAT_KEY
+            STRUCTLOG_CONSOLE_LOG_PATTERN
         )
 
         formatter, metadata_filter = create_formatter(

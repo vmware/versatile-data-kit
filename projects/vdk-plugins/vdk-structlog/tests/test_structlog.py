@@ -122,7 +122,7 @@ def test_custom_console_format(log_format):
         {
             "VDK_LOGGING_METADATA": "timestamp,level,file_name,line_number,vdk_job_name",
             "VDK_LOGGING_FORMAT": log_format,
-            "VDK_LOGGING_CUSTOM_FORMAT": custom_format_string,
+            "STRUCTLOG_CONSOLE_LOG_PATTERN": custom_format_string,
         },
     ):
         logs = _run_job_and_get_logs()
