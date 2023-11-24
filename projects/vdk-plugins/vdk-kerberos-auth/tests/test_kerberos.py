@@ -38,7 +38,10 @@ class TestKerberosAuthentication(unittest.TestCase):
     def test_no_authentication(self):
         with mock.patch.dict(
             os.environ,
-            {"VDK_KRB_AUTH_FAIL_FAST": "true"},
+            {
+                "VDK_KRB_AUTH_FAIL_FAST": "true",
+                "VDK_LOG_EXECUTION_RESULT": "True",
+            },
         ):
             result: Result = self.__runner.invoke(
                 ["run", jobs_path_from_caller_directory("test-job")]
@@ -67,6 +70,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KRB_AUTH": "kinit",
                 "VDK_KRB_AUTH_FAIL_FAST": "true",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
+                "VDK_LOG_EXECUTION_RESULT": "True",
             },
         ):
             result: Result = self.__runner.invoke(
@@ -211,6 +215,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KEYTAB_REALM": "EXAMPLE.COM",
                 "VDK_KERBEROS_KDC_HOST": "localhost",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
+                "VDK_LOG_EXECUTION_RESULT": "True",
             },
         ):
             result: Result = self.__runner.invoke(

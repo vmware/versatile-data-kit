@@ -44,9 +44,9 @@
        - "projects/vdk-core/src/**/*"
 
 .build-plugin-dind:
-  image: docker:23.0.1
+  image: docker:23.0.6
   services:
-    - docker:23.0.1-dind
+    - docker:23.0.6-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2
