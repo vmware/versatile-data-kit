@@ -160,8 +160,9 @@ public class DeploymentServiceV2 {
           dockerRegistryService.dataJobImage(
               desiredJobDeployment.getDataJobName(), desiredJobDeployment.getGitCommitSha());
 
-      if (jobImageBuilder.buildImage(
-          imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
+      // If the job suspension operation is performed, we don't want to build the image.
+      if (Boolean.FALSE.equals(desiredJobDeployment.getEnabled()) ||
+              jobImageBuilder.buildImage(imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
         ActualDataJobDeployment actualJobDeploymentResult =
             jobImageDeployer.scheduleJob(
                 dataJob,

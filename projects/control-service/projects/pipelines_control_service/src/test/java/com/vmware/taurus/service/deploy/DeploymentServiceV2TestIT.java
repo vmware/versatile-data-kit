@@ -25,6 +25,8 @@ public class DeploymentServiceV2TestIT {
 
   @MockBean private JobImageBuilder jobImageBuilder;
 
+  @MockBean private JobImageDeployerV2 jobImageDeployer;
+
   @Test
   public void updateDeployment_withDesiredDeploymentStatusUserError_shouldSkipDeployment()
       throws IOException, InterruptedException, ApiException {
@@ -69,6 +71,34 @@ public class DeploymentServiceV2TestIT {
         .buildImage(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(false));
   }
 
+  @Test
+  public void
+  updateDeployment_withDesiredDeploymentEnabledFalseAndActualDeploymentEnabledTrueAndBuildImageSucceededFalse_shouldUpdateDeployment()
+          throws IOException, InterruptedException, ApiException {
+    updateDeployment(false, true, false, 1);
+  }
+
+  @Test
+  public void
+  updateDeployment_withDesiredDeploymentEnabledFalseAndActualDeploymentEnabledFalseAndBuildImageSucceededFalse_shouldUpdateDeployment()
+          throws IOException, InterruptedException, ApiException {
+    updateDeployment(false, false, false, 1);
+  }
+
+  @Test
+  public void
+  updateDeployment_withDesiredDeploymentEnabledTrueAndActualDeploymentEnabledFalseAndBuildImageSucceededTrue_shouldUpdateDeployment()
+          throws IOException, InterruptedException, ApiException {
+    updateDeployment(true, false, true, 1);
+  }
+
+  @Test
+  public void
+  updateDeployment_withDesiredDeploymentEnabledTrueAndActualDeploymentEnabledFalseAndBuildImageSucceededFalse_shouldUpdateDeployment()
+          throws IOException, InterruptedException, ApiException {
+    updateDeployment(true, false, false, 0);
+  }
+
   private void updateDeployment(
       DeploymentStatus deploymentStatus, int deploymentProgressStartedInvocations)
       throws IOException, InterruptedException, ApiException {
@@ -95,5 +125,32 @@ public class DeploymentServiceV2TestIT {
 
     Mockito.verify(deploymentProgress, Mockito.times(deploymentProgressStartedInvocations))
         .started(dataJob.getJobConfig(), desiredDataJobDeployment);
+  }
+
+  private void updateDeployment(
+          boolean desiredDeploymentEnabled,
+          boolean actualDeploymentEnabled,
+          boolean buildImageSucceeded,
+          int deploymentProgressStartedInvocations)
+          throws IOException, InterruptedException, ApiException {
+    DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
+    desiredDataJobDeployment.setEnabled(desiredDeploymentEnabled);
+    desiredDataJobDeployment.setStatus(DeploymentStatus.NONE);
+
+    ActualDataJobDeployment actualDeployment = new ActualDataJobDeployment();
+    actualDeployment.setEnabled(actualDeploymentEnabled);
+
+    DataJob dataJob = new DataJob();
+    dataJob.setJobConfig(new JobConfig());
+
+    Mockito.when(
+                    jobImageBuilder.buildImage(
+                            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(buildImageSucceeded);
+
+    deploymentService.updateDeployment(
+            dataJob, desiredDataJobDeployment, actualDeployment, true);
+
+    Mockito.verify(jobImageDeployer, Mockito.times(deploymentProgressStartedInvocations)).scheduleJob(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString());
   }
 }

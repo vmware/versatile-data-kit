@@ -121,7 +121,7 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
 
     executeDisableDeploymentWrongTeam();
 
-    verifyDeploymentDisabled(jobDeploymentName);
+    verifyDeploymentDisabled();
 
     verifyDeploymentFieldsAfterDisable(testJobVersionSha);
 
@@ -319,14 +319,13 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
         .andExpect(status().isNotFound());
   }
 
-  private void verifyDeploymentDisabled(String jobDeploymentName) {
+  private void verifyDeploymentDisabled() {
     waitUntil(
         () -> {
-          Optional<JobDeploymentStatus> deploymentOptional =
-              dataJobsKubernetesService.readCronJob(jobDeploymentName);
-          Assertions.assertTrue(deploymentOptional.isPresent());
-          JobDeploymentStatus deployment = deploymentOptional.get();
-          return !deployment.getEnabled();
+          var result = getJobDeployment();
+          DataJobDeploymentStatus jobDeployment =
+                  mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
+          return !jobDeployment.getEnabled();
         });
   }
 
