@@ -87,88 +87,59 @@ class StructlogPlugin:
             ),
         )
 
-    @hookimpl
-    def vdk_initialize(self, context: CoreContext):
+    def setup_logging(self, context, additional_filters=[]):
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
-        logging_formatter = context.configuration.get_value(
-            STRUCTLOG_LOGGING_FORMAT_KEY
-        )
+        logging_formatter = context.configuration.get_value(STRUCTLOG_LOGGING_FORMAT_KEY)
 
         formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
 
         root_logger = logging.getLogger()
-        root_logger.removeHandler(root_logger.handlers[0])
+        if root_logger.handlers:
+            root_logger.removeHandler(root_logger.handlers[0])
 
         handler = logging.StreamHandler(sys.stderr)
-        handler.addFilter(metadata_filter)
         handler.setFormatter(formatter)
+        handler.addFilter(metadata_filter)
+
+        for filter in additional_filters:
+            handler.addFilter(filter)
 
         root_logger.addHandler(handler)
+
+    @hookimpl
+    def vdk_initialize(self, context: CoreContext):
+        self.setup_logging(context)
 
     @hookimpl(hookwrapper=True)
     def initialize_job(self, context: JobContext) -> None:
-        logging_formatter = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_FORMAT_KEY
-        )
-        metadata_keys = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_METADATA_KEY
-        )
-
-        formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
+        self.setup_logging(context.core_context, [job_name_adder])
+
+        out: HookCallResult = yield
 
         root_logger = logging.getLogger()
-        root_logger.removeHandler(root_logger.handlers[0])
-
-        handler = logging.StreamHandler(sys.stderr)
-        handler.setFormatter(formatter)
-        handler.addFilter(job_name_adder)
-        handler.addFilter(metadata_filter)
-
-        root_logger.addHandler(handler)
-
-        out: HookCallResult
-        out = yield
-
-        root_logger.removeHandler(handler)
+        root_logger.removeHandler(root_logger.handlers[-1])
 
     @hookimpl(hookwrapper=True)
     def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
-        logging_formatter = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_FORMAT_KEY
-        )
-        metadata_keys = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_METADATA_KEY
-        )
-
-        formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
+        self.setup_logging(context.core_context, [job_name_adder])
 
-        root_logger = logging.getLogger()
-        root_logger.removeHandler(root_logger.handlers[0])
-
-        handler = logging.StreamHandler(sys.stderr)
-        handler.setFormatter(formatter)
-        handler.addFilter(job_name_adder)
-        handler.addFilter(metadata_filter)
-
-        root_logger.addHandler(handler)
-
-        out: HookCallResult
-        out = yield
-
+        out: HookCallResult = yield
         # do not remove the handler, we need it until the end
 
     @hookimpl(hookwrapper=True)
     def run_step(self, context: JobContext, step: Step) -> Optional[StepResult]:
-        root_logger = logging.getLogger()
         step_name_adder = AttributeAdder("vdk_step_name", step.name)
         step_type_adder = AttributeAdder("vdk_step_type", step.type)
+
+        root_logger = logging.getLogger()
         for handler in root_logger.handlers:
             handler.addFilter(step_name_adder)
             handler.addFilter(step_type_adder)
-        out: HookCallResult
-        out = yield
+
+        out: HookCallResult = yield
+
         for handler in root_logger.handlers:
             handler.removeFilter(step_name_adder)
             handler.removeFilter(step_type_adder)
