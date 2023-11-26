@@ -178,7 +178,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
     Assertions.assertEquals(true, jobDeployment.getEnabled());
     // by default the version is the same as the tag specified by datajobs.vdk.image
     // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
-    Assertions.assertEquals("release", jobDeployment.getVdkVersion());
+    Assertions.assertEquals("ghcr.io/versatile-data-kit-dev/versatiledatakit/quickstart-vdk:release", jobDeployment.getVdkVersion());
     Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
     // just check some valid date is returned. It would be too error-prone/brittle to verify exact
     // time.
@@ -212,9 +212,9 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isAccepted());
 
-    // verify vdk version is not changed
+    // verify vdk version is changed
     mockMvc
         .perform(
             get(String.format(
@@ -223,7 +223,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.vdk_version", is("release")));
+        .andExpect(jsonPath("$.vdk_version", is("new_vdk_version_tag")));
 
     // Execute change python version and set corresponding vdk version for deployment
     mockMvc

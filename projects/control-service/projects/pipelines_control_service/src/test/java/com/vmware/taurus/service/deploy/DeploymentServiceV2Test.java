@@ -16,7 +16,6 @@ import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

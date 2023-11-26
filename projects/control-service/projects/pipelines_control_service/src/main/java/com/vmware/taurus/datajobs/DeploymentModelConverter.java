@@ -237,9 +237,9 @@ public class DeploymentModelConverter {
             ? newDeployment.getEnabled()
             : oldDeployment.getEnabled());
     mergedDeployment.setVdkImage(
-            newDeployment.getVdkVersion() != null
+        newDeployment.getVdkVersion() != null
             ? newDeployment.getVdkVersion()
-                    : oldDeployment.getVdkImage());
+            : oldDeployment.getVdkImage());
 
     return mergedDeployment;
   }
