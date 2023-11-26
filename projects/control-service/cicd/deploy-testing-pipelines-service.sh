@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 export TAG=latest
 export FRONTEND_TAG=latest
-export RELEASE_NAME=pauls-pytorch-test
+export RELEASE_NAME=${RELEASE_NAME:-cicd-control-service}
 export VDK_OPTIONS="$SCRIPT_DIR/vdk-options.ini"
 export TPCS_CHART=${TPCS_CHART:-"$SCRIPT_DIR/../projects/helm_charts/pipelines-control-service"}
 export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
