@@ -326,6 +326,9 @@ deploymentSupportedPythonVersions:
   3.9:
     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
     vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
+  pytorch_development:
+    baseImage: "registry.hub.docker.com/pytorch/pytorch:2.1.1-cuda12.1-cudnn8-devel"
+    vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
 
 
 ## Default python version to be used for data job deployments. The value should be a string and would be
