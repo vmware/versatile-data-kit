@@ -36,7 +36,7 @@ public class DeploymentModelConverter {
     deployment.setResources(jobDeploymentStatus.getResources());
     deployment.setMode(jobDeploymentStatus.getMode());
     deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
-    deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
+    deployment.setVdkVersion(jobDeploymentStatus.getVdkImageName());
     deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
 
     return deployment;
@@ -62,6 +62,7 @@ public class DeploymentModelConverter {
 
     deployment.setGitCommitSha(jobDeployment.getGitCommitSha());
     deployment.setPythonVersion(jobDeployment.getPythonVersion());
+    deployment.setVdkImage(jobDeployment.getVdkVersion());
 
     return deployment;
   }
@@ -235,6 +236,10 @@ public class DeploymentModelConverter {
         newDeployment.getEnabled() != null
             ? newDeployment.getEnabled()
             : oldDeployment.getEnabled());
+    mergedDeployment.setVdkImage(
+            newDeployment.getVdkVersion() != null
+            ? newDeployment.getVdkVersion()
+                    : oldDeployment.getVdkImage());
 
     return mergedDeployment;
   }
@@ -323,6 +328,7 @@ public class DeploymentModelConverter {
             ? null
             : actualDataJobDeployment.getLastDeployedDate().toString());
     deploymentStatus.setLastDeployedBy(actualDataJobDeployment.getLastDeployedBy());
+    deploymentStatus.setVdkVersion(actualDataJobDeployment.getVdkImage());
     return deploymentStatus;
   }
 

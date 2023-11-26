@@ -34,4 +34,6 @@ public abstract class BaseDataJobDeployment {
   private String lastDeployedBy;
 
   private Boolean enabled;
+
+  private String vdkImage;
 }

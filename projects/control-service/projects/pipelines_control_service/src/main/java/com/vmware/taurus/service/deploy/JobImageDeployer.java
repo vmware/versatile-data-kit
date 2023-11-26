@@ -254,7 +254,13 @@ public class JobImageDeployer {
             "-c",
             "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
                 + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
-    var jobVdkImage = supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
+    String jobVdkImage;
+    if (jobDeployment.getVdkVersion() != null) {
+      jobVdkImage = jobDeployment.getVdkVersion();
+    } else {
+      jobVdkImage = supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
+    }
+
     var jobInitContainer =
         KubernetesService.container(
             "vdk",

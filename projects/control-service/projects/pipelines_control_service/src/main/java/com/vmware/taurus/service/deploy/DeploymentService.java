@@ -122,17 +122,6 @@ public class DeploymentService {
           mergedDeployment.getPythonVersion(),
           "Use POST HTTP request to change python version.");
     }
-
-    if (mergedDeployment.getVdkVersion() != null
-        && !mergedDeployment.getVdkVersion().equals(oldDeployment.getVdkVersion())) {
-      throw new ApiConstraintError(
-          "vdk_version",
-          String.format(
-              "same as the current vdk version -- %s -- when using PATCH request.",
-              oldDeployment.getVdkVersion()),
-          mergedDeployment.getPythonVersion(),
-          "Use POST HTTP request to change vdk version.");
-    }
   }
 
   /**

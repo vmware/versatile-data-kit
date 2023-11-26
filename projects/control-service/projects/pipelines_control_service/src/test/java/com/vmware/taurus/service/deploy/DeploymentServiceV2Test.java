@@ -16,6 +16,7 @@ import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
 import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
 import com.vmware.taurus.service.repository.JobsRepository;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -98,7 +99,7 @@ public class DeploymentServiceV2Test {
   public void testFindAllActualDataJobDeployments() {
 
     Assertions.assertEquals(
-        0, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
+            0, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
     var deployment = new ActualDataJobDeployment();
 
     var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
@@ -108,7 +109,23 @@ public class DeploymentServiceV2Test {
     actualJobDeploymentRepository.save(deployment);
 
     Assertions.assertEquals(
-        1, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
+            1, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
+  }
+
+  @Test
+  public void testPatchDesiredDeployment_changeVdkVersion_expectMergedDeployment() {
+    var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
+    jobsRepository.save(dataJob);
+    var initialDeployment = new DesiredDataJobDeployment();
+    initialDeployment.setDataJob(dataJob);
+    initialDeployment.setDataJobName(dataJob.getName());
+    desiredJobDeploymentRepository.save(initialDeployment);
+    JobDeployment jobDeployment = generateTestDeployment();
+    jobDeployment.setVdkVersion("new/test/vdkImage");
+    deploymentServiceV2.patchDesiredDbDeployment(dataJob, jobDeployment, "user");
+    var savedDeployment = desiredJobDeploymentRepository.findById("jobName").get();
+    compareSavedDeploymentWithTestDeployment(jobDeployment, savedDeployment, "user");
+    Assertions.assertEquals(jobDeployment.getVdkVersion(), savedDeployment.getVdkImage());
   }
 
   @AfterEach
