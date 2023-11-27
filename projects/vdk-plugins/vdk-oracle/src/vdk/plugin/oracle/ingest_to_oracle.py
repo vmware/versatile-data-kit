@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import datetime
 import logging
+import math
 from decimal import Decimal
 from typing import Any
 from typing import Dict
@@ -22,7 +23,7 @@ class IngestToOracle(IIngesterPlugin):
         self.conn: PEP249Connection = connections.open_connection("ORACLE").connect()
         self.cursor: ManagedCursor = self.conn.cursor()
         self.table_cache: Set[str] = set()  # Cache to store existing tables
-        self.column_cache: Dict[str, str] = {}  # New cache for columns
+        self.column_cache: Dict[str, Dict[str, str]] = {}  # New cache for columns
 
     @staticmethod
     def _get_oracle_type(value: Any) -> str:
@@ -62,10 +63,13 @@ class IngestToOracle(IIngesterPlugin):
     def _cache_columns(self, table_name: str) -> None:
         try:
             self.cursor.execute(
-                f"SELECT column_name FROM user_tab_columns WHERE table_name = '{table_name.upper()}'"
+                f"SELECT column_name, data_type, data_scale FROM user_tab_columns WHERE table_name = '{table_name.upper()}'"
             )
             result = self.cursor.fetchall()
-            self.column_cache[table_name.upper()] = {column[0] for column in result}
+            self.column_cache[table_name.upper()] = {
+                col: ("DECIMAL" if data_type == "NUMBER" and data_scale else data_type)
+                for (col, data_type, data_scale) in result
+            }
         except Exception as e:
             # TODO: https://github.com/vmware/versatile-data-kit/issues/2932
             log.error(
@@ -81,10 +85,9 @@ class IngestToOracle(IIngesterPlugin):
 
         # Find unique new columns from all rows in the payload
         all_columns = {col.upper() for row in payload for col in row.keys()}
-        new_columns = all_columns - existing_columns
-
+        new_columns = all_columns - existing_columns.keys()
+        column_defs = []
         if new_columns:
-            column_defs = []
             for col in new_columns:
                 sample_value = next(
                     (row[col] for row in payload if row.get(col) is not None), None
@@ -94,19 +97,41 @@ class IngestToOracle(IIngesterPlugin):
                     if sample_value is not None
                     else "VARCHAR2(255)"
                 )
-                column_defs.append(f"{col} {column_type}")
+                column_defs.append((col, column_type))
 
+            string_defs = [f"{col_def[0]} {col_def[1]}" for col_def in column_defs]
             alter_sql = (
-                f"ALTER TABLE {table_name.upper()} ADD ({', '.join(column_defs)})"
+                f"ALTER TABLE {table_name.upper()} ADD ({', '.join(string_defs)})"
             )
             self.cursor.execute(alter_sql)
-            self.column_cache[table_name.upper()].update(new_columns)
+            self.column_cache[table_name.upper()].update(column_defs)
 
     # TODO: https://github.com/vmware/versatile-data-kit/issues/2929
     # TODO: https://github.com/vmware/versatile-data-kit/issues/2930
-    def _cast_to_correct_type(self, value: Any) -> Any:
-        if type(value) is Decimal:
+    def _cast_to_correct_type(self, table: str, column: str, value: Any) -> Any:
+        def cast_string_to_type(db_type: str, payload_value: str) -> Any:
+            if db_type == "FLOAT" or db_type == "DECIMAL":
+                return float(payload_value)
+            if db_type == "NUMBER":
+                payload_value = payload_value.capitalize()
+                return (
+                    bool(payload_value)
+                    if payload_value in ["True", "False"]
+                    else int(payload_value)
+                )
+            if "TIMESTAMP" in db_type:
+                return datetime.datetime.strptime(payload_value, "%Y-%m-%dT%H:%M:%S")
+            if db_type == "BLOB":
+                return payload_value.encode("utf-8")
+            return payload_value
+
+        if (isinstance(value, float) or isinstance(value, int)) and math.isnan(value):
+            return None
+        if isinstance(value, Decimal):
             return float(value)
+        if isinstance(value, str):
+            col_type = self.column_cache.get(table.upper()).get(column.upper())
+            return cast_string_to_type(col_type, value)
         return value
 
     # TODO: Look into potential optimizations
@@ -132,7 +157,10 @@ class IngestToOracle(IIngesterPlugin):
             queries.append(insert_sql)
             temp_data = []
             for row in batch:
-                temp = [self._cast_to_correct_type(row[col]) for col in columns]
+                temp = [
+                    self._cast_to_correct_type(table_name, col, row[col])
+                    for col in columns
+                ]
                 temp_data.append(temp)
             batch_data.append(temp_data)
 

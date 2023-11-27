@@ -48,6 +48,14 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)
 
+    def test_oracle_ingest_type_inference(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("oracle-ingest-job-type-inference")]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_execution_type_inference(runner)
+
     def test_oracle_ingest_no_table(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
         result: Result = runner.invoke(
@@ -113,6 +121,21 @@ def _verify_ingest_execution(runner):
         "-------------------  --------------\n"
         "   5  string              12           1.2            1  2023-11-21 "
         "08:12:53             0.1\n"
+    )
+    assert check_result.output == expected
+
+
+def _verify_ingest_execution_type_inference(runner):
+    check_result = runner.invoke(
+        ["oracle-query", "--query", "SELECT * FROM test_table"]
+    )
+    expected = (
+        "  ID  STR_DATA      INT_DATA  NAN_INT_DATA      FLOAT_DATA    BOOL_DATA  "
+        "TIMESTAMP_DATA         DECIMAL_DATA\n"
+        "----  ----------  ----------  --------------  ------------  -----------  "
+        "-------------------  --------------\n"
+        "   5  string              12                           1.2            1  "
+        "2023-11-21 08:12:53             0.1\n"
     )
     assert check_result.output == expected
 
