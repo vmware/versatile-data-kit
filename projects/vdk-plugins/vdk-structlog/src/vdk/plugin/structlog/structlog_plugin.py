@@ -97,7 +97,9 @@ class StructlogPlugin:
     @hookimpl
     def vdk_initialize(self, context: CoreContext):
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
-        logging_formatter = context.configuration.get_value(STRUCTLOG_LOGGING_FORMAT_KEY)
+        logging_formatter = context.configuration.get_value(
+            STRUCTLOG_LOGGING_FORMAT_KEY
+        )
 
         formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
 
@@ -110,8 +112,12 @@ class StructlogPlugin:
 
     @hookimpl(hookwrapper=True)
     def initialize_job(self, context: JobContext) -> None:
-        metadata_keys = context.core_context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
-        logging_formatter = context.core_context.configuration.get_value(STRUCTLOG_LOGGING_FORMAT_KEY)
+        metadata_keys = context.core_context.configuration.get_value(
+            STRUCTLOG_LOGGING_METADATA_KEY
+        )
+        logging_formatter = context.core_context.configuration.get_value(
+            STRUCTLOG_LOGGING_FORMAT_KEY
+        )
 
         formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
@@ -120,7 +126,9 @@ class StructlogPlugin:
         if root_logger.handlers:
             root_logger.removeHandler(root_logger.handlers[0])
 
-        handler = self.configure_logging_handler(formatter, [metadata_filter, job_name_adder])
+        handler = self.configure_logging_handler(
+            formatter, [metadata_filter, job_name_adder]
+        )
         root_logger.addHandler(handler)
 
         out: HookCallResult
@@ -130,8 +138,12 @@ class StructlogPlugin:
 
     @hookimpl(hookwrapper=True)
     def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
-        metadata_keys = context.core_context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
-        logging_formatter = context.core_context.configuration.get_value(STRUCTLOG_LOGGING_FORMAT_KEY)
+        metadata_keys = context.core_context.configuration.get_value(
+            STRUCTLOG_LOGGING_METADATA_KEY
+        )
+        logging_formatter = context.core_context.configuration.get_value(
+            STRUCTLOG_LOGGING_FORMAT_KEY
+        )
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
 
         formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
@@ -140,7 +152,9 @@ class StructlogPlugin:
         if root_logger.handlers:
             root_logger.removeHandler(root_logger.handlers[0])
 
-        handler = self.configure_logging_handler(formatter, [metadata_filter, job_name_adder])
+        handler = self.configure_logging_handler(
+            formatter, [metadata_filter, job_name_adder]
+        )
         root_logger.addHandler(handler)
 
         out: HookCallResult
