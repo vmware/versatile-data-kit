@@ -325,7 +325,8 @@ class StructlogPlugin:
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
 
         root_logger = logging.getLogger()
-        root_logger.removeHandler(root_logger.handlers[0])
+        if root_logger.handlers:
+            root_logger.removeHandler(root_logger.handlers[0])
 
         handler = logging.StreamHandler(sys.stderr)
         handler.setFormatter(formatter)
