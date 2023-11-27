@@ -117,7 +117,8 @@ class StructlogPlugin:
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
         self.setup_logging(context.core_context, [job_name_adder])
 
-        out: HookCallResult = yield
+        out: HookCallResult
+        out = yield
 
         root_logger = logging.getLogger()
         root_logger.removeHandler(root_logger.handlers[-1])
@@ -127,7 +128,8 @@ class StructlogPlugin:
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
         self.setup_logging(context.core_context, [job_name_adder])
 
-        out: HookCallResult = yield
+        out: HookCallResult
+        out = yield
         # do not remove the handler, we need it until the end
 
     @hookimpl(hookwrapper=True)
@@ -140,7 +142,8 @@ class StructlogPlugin:
             handler.addFilter(step_name_adder)
             handler.addFilter(step_type_adder)
 
-        out: HookCallResult = yield
+        out: HookCallResult
+        out = yield
 
         for handler in root_logger.handlers:
             handler.removeFilter(step_name_adder)
