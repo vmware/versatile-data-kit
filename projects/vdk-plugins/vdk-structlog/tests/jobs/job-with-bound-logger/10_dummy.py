@@ -21,3 +21,5 @@ def run(job_input: IJobInput):
     bound_logger.info(
         "Log statement with bound context and extra context", extra=extra_fields
     )
+
+    logging.getLogger("test_structlog").info(f"This log statement should not appear + {__name__}")
