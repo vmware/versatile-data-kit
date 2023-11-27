@@ -103,7 +103,7 @@ def test_stock_fields_removal(log_format):
             {
                 "VDK_LOGGING_METADATA": vdk_logging_metadata,
                 "VDK_LOGGING_FORMAT": log_format,
-        },
+            },
         ):
             logs = _run_job_and_get_logs()
 
