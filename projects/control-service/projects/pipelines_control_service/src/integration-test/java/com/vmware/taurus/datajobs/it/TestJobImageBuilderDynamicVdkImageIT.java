@@ -178,7 +178,9 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
     Assertions.assertEquals(true, jobDeployment.getEnabled());
     // by default the version is the same as the tag specified by datajobs.vdk.image
     // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
-    Assertions.assertEquals("ghcr.io/versatile-data-kit-dev/versatiledatakit/quickstart-vdk:release", jobDeployment.getVdkVersion());
+    Assertions.assertEquals(
+        "ghcr.io/versatile-data-kit-dev/versatiledatakit/quickstart-vdk:release",
+        jobDeployment.getVdkVersion());
     Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
     // just check some valid date is returned. It would be too error-prone/brittle to verify exact
     // time.

@@ -124,7 +124,7 @@ public class DeploymentServiceV2Test {
     deploymentServiceV2.patchDesiredDbDeployment(dataJob, jobDeployment, "user");
     var savedDeployment = desiredJobDeploymentRepository.findById("jobName").get();
     compareSavedDeploymentWithTestDeployment(jobDeployment, savedDeployment, "user");
-    Assertions.assertEquals(jobDeployment.getVdkVersion(), savedDeployment.getVdkImage());
+    Assertions.assertEquals(jobDeployment.getVdkVersion(), savedDeployment.getVdkVersion());
   }
 
   @AfterEach

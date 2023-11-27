@@ -59,7 +59,7 @@ public class DataJobDeploymentControllerTest {
     dataJobsDeploymentController.deploymentPatch("teamName", "jobName", "id", newDeployment);
     var patchedJob = desiredJobDeploymentRepository.findById("jobName").get();
     Assertions.assertEquals("jobVersion", patchedJob.getGitCommitSha());
-    Assertions.assertEquals("", patchedJob.getVdkImage());
+    Assertions.assertEquals("", patchedJob.getVdkVersion());
   }
 
   @Test
@@ -76,7 +76,7 @@ public class DataJobDeploymentControllerTest {
     dataJobsDeploymentController.deploymentPatch("teamName", "jobName", "id", newDeployment);
 
     var patchedJob = desiredJobDeploymentRepository.findById("jobName").get();
-    Assertions.assertEquals("newVdkVersion", patchedJob.getVdkImage());
+    Assertions.assertEquals("newVdkVersion", patchedJob.getVdkVersion());
   }
 
   @Test
@@ -107,7 +107,7 @@ public class DataJobDeploymentControllerTest {
     deployment.setEnabled(true);
     deployment.setLastDeployedBy("user");
     deployment.setSchedule("sched");
-    deployment.setVdkImage("example.com/versatiledatakit/vdk:test-image");
+    deployment.setVdkVersion("example.com/versatiledatakit/vdk:test-image");
     var resources = new DataJobDeploymentResources();
     resources.setMemoryLimitMi(1);
     resources.setMemoryRequestMi(1);
