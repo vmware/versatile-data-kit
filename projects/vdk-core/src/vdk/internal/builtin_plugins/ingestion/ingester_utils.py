@@ -54,16 +54,20 @@ class AtomicCounter:
         return str(self)
 
 
-class DecimalJsonEncoder(JSONEncoder):
+class IngesterJsonEncoder(JSONEncoder):
     """
     This class is used to avoid an issue with the __verify_payload_format serialization check.
-    Normally, including data of type Decimal would cause that check to fail so we've amended
-    the default JsonEncoder object used to convert Decimal values to floats to avoid this issue.
+    Normally, including data of type Decimal and datetime would cause that check to fail so we've amended
+    the default JsonEncoder object used to convert Decimal and datetime values to floats to avoid this issue.
     """
 
     def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.timestamp()
         if isinstance(obj, Decimal):
             return float(obj)
+        if isinstance(obj, bytes):
+            return list(obj)
         return super().default(obj)
 
 

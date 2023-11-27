@@ -68,7 +68,7 @@ def test_payload_verification_unserializable():
             "run",
             jobs_path_from_caller_directory("test-ingest-bad-payload-job"),
             "--arguments",
-            '{"payload": "date"}',
+            '{"payload": "unserializable"}',
         ]
     )
 
