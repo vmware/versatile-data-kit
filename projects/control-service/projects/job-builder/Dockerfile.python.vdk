@@ -10,10 +10,8 @@ ARG GID=1000
 # Set the working directory
 WORKDIR /job
 
-# Validate base image is python based
-RUN python -V
-# Create necessary users and set home directory to /job
-RUN groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job
+# Validate base image is python based and Create necessary users and set home directory to /job
+RUN python -V && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user && chown -R $UID:$GID /job
 ENV HOME=/job
 
 # Copy the actual job that has to be executed
