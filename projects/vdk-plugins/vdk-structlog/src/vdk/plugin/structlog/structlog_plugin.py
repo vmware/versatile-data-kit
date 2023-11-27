@@ -87,7 +87,9 @@ class StructlogPlugin:
             ),
         )
 
-    def setup_logging(self, context, additional_filters=[]):
+    def setup_logging(self, context, additional_filters=None):
+        if additional_filters is None:
+            additional_filters = []
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
         logging_formatter = context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
