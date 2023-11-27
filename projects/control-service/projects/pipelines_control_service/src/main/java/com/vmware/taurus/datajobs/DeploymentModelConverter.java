@@ -17,7 +17,6 @@ import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import java.time.OffsetDateTime;
-import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -239,7 +238,7 @@ public class DeploymentModelConverter {
             ? newDeployment.getEnabled()
             : oldDeployment.getEnabled());
     mergedDeployment.setVdkVersion(
-            (newDeployment.getVdkVersion() != null || newDeployment.getPythonVersion() != null)
+        (newDeployment.getVdkVersion() != null || newDeployment.getPythonVersion() != null)
             ? newDeployment.getVdkVersion()
             : oldDeployment.getVdkVersion());
 
