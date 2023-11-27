@@ -240,7 +240,6 @@ class StructlogPlugin:
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext):
-        # Use this plugin for logging config and warn the user about the vdk-core logging deprecation
         os.environ["VDK_USE_STRUCTLOG"] = "1"
         configure_initial_logging()
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
