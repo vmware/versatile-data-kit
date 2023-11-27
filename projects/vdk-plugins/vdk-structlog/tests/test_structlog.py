@@ -6,10 +6,10 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
+from vdk.api.plugin.hook_markers import hookimpl
 from vdk.plugin.structlog import structlog_plugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
-from vdk.api.plugin.hook_markers import hookimpl
 
 JOB_NAME = "job-with-bound-logger"
 BOUND_TEST_KEY = "bound_test_key"
@@ -81,7 +81,9 @@ def test_structlog(log_format):
 
         # due to the log_level_module config specified in the config.ini of the test job
         # the 'This log statement should not appear' log should not appear in the output logs
-        assert _get_log_containing_s(logs, "This log statement should not appear") is None
+        assert (
+            _get_log_containing_s(logs, "This log statement should not appear") is None
+        )
 
         _assert_cases(
             log_with_no_bound_context,
