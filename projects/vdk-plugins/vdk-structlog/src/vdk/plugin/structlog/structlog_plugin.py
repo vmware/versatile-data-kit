@@ -123,7 +123,8 @@ class StructlogPlugin:
         handler = self.configure_logging_handler(formatter, [metadata_filter, job_name_adder])
         root_logger.addHandler(handler)
 
-        out: HookCallResult = yield
+        out: HookCallResult
+        out = yield
 
         root_logger.removeHandler(handler)
 
@@ -142,7 +143,8 @@ class StructlogPlugin:
         handler = self.configure_logging_handler(formatter, [metadata_filter, job_name_adder])
         root_logger.addHandler(handler)
 
-        out: HookCallResult = yield
+        out: HookCallResult
+        out = yield
         # do not remove the handler, we need it until the end
 
     @hookimpl(hookwrapper=True)
