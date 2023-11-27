@@ -95,7 +95,6 @@ def test_configure_logger():
 
 
 def test_log_plugin_exception():
-    print("This")
     with mock.patch(
         "vdk.plugin.structlog.structlog_plugin.configure_loggers"
     ) as mocked_log_config:
