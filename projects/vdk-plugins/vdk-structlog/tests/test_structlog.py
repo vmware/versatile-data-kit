@@ -64,6 +64,7 @@ def test_structlog(log_format):
         {
             "VDK_LOGGING_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
             "VDK_LOGGING_FORMAT": log_format,
+            "LOG_LEVEL_MODULE": "test_structlog=WARNING",
         },
     ):
         logs = _run_job_and_get_logs()
@@ -79,7 +80,7 @@ def test_structlog(log_format):
         )
 
         # due to the log_level_module config specified in the config.ini of the test job
-        # the 'Exiting 10_dummy.py' log should not appear in the output logs
+        # the 'This log statement should not appear' log should not appear in the output logs
         assert _get_log_containing_s(logs, "This log statement should not appear") is None
 
         _assert_cases(
@@ -102,8 +103,6 @@ def test_stock_fields_removal(log_format):
             {
                 "VDK_LOGGING_METADATA": vdk_logging_metadata,
                 "VDK_LOGGING_FORMAT": log_format,
-                "LOG_LEVEL_MODULE": "test_structlog=WARNING"
-
         },
         ):
             logs = _run_job_and_get_logs()
