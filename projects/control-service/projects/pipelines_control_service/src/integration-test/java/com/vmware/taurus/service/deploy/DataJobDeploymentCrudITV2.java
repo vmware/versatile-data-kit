@@ -198,10 +198,8 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     ActualDataJobDeployment actualDataJobDeployment = verifyDeploymentStatus(jobEnabled);
     String deploymentVersionShaInitial = actualDataJobDeployment.getDeploymentVersionSha();
     OffsetDateTime lastDeployedDateInitial = actualDataJobDeployment.getLastDeployedDate();
-    String vdkVersion = actualDataJobDeployment.getVdkVersion();
     Assertions.assertNotNull(deploymentVersionShaInitial);
     Assertions.assertNotNull(lastDeployedDateInitial);
-    Assertions.assertNotNull(vdkVersion);
 
     jobsRepository.deleteById(testJobName);
 

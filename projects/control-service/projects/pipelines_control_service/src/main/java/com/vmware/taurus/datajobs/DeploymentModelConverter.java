@@ -17,7 +17,6 @@ import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.model.JobDeployment;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
 import java.time.OffsetDateTime;
-
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -255,8 +255,7 @@ public class JobImageDeployer {
             "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
                 + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
 
-    var jobVdkImage =
-        (jobDeployment.getVdkVersion() != null)
+    var jobVdkImage = (jobDeployment.getVdkVersion() != null)
             ? jobDeployment.getVdkVersion()
             : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
 
