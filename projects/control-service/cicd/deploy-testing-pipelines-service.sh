@@ -102,8 +102,8 @@ helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $R
       --set deploymentGitPassword="$CICD_GIT_PASSWORD" \
       --set uploadGitReadWriteUsername="$CICD_GIT_USER" \
       --set uploadGitReadWritePassword="$CICD_GIT_PASSWORD" \
-      --set deploymentBuilderResourcesDefault.limits.memory=28000Mi \
-      --set deploymentBuilderResourcesDefault.requests.memory=21000Mi \
+      --set deploymentBuilderResourcesDefault.limits.memory=36000Mi \
+      --set deploymentBuilderResourcesDefault.requests.memory=28000Mi \
       --set deploymentBuilderResourcesDefault.limits.cpu=5 \
       --set deploymentBuilderResourcesDefault.requests.cpu=3 \
       --set deploymentDockerRegistryType=generic \
