@@ -106,6 +106,7 @@ helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $R
       --set deploymentBuilderResourcesDefault.requests.memory=28000Mi \
       --set deploymentBuilderResourcesDefault.limits.cpu=5 \
       --set deploymentBuilderResourcesDefault.requests.cpu=3 \
+      --set deploymentBuilderImage.tag=1.4.1 \
       --set deploymentDockerRegistryType=generic \
       --set deploymentDockerRegistryUsername="$CICD_CONTAINER_REGISTRY_USER_NAME" \
       --set deploymentDockerRegistryPassword="$CICD_CONTAINER_REGISTRY_USER_PASSWORD" \
