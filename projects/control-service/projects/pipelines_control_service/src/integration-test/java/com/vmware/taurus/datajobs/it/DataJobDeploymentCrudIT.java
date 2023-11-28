@@ -67,7 +67,7 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.vdk_version", is("new_vdk_version_tag")));
+        .andExpect(jsonPath("$.vdk_image", is("new_vdk_version_tag")));
   }
 
   private void resetVdkDeploymentVersion() throws Exception {
@@ -105,9 +105,9 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
     Assertions.assertEquals("3.9", jobDeployment.getPythonVersion());
     Assertions.assertFalse(jobDeployment.getEnabled());
-    Assertions.assertEquals("new_vdk_version_tag", jobDeployment.getVdkVersion());
+    Assertions.assertEquals("new_vdk_version_tag", jobDeployment.getVdkImage());
     Assertions.assertNotNull(jobDeployment.getJobVersion());
-    Assertions.assertNotNull(jobDeployment.getVdkVersion());
+    Assertions.assertNotNull(jobDeployment.getVdkImage());
   }
 
   @Override

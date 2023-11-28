@@ -349,7 +349,7 @@ public class JobExecutionService {
                     executionStatus, jobExecution.getMainContainerTerminationReason()))
             .opId(jobExecution.getOpId())
             .endTime(jobExecution.getEndTime())
-            .vdkVersion(executionResult.getVdkVersion())
+                .vdkImage(executionResult.getVdkImage())
             .jobVersion(jobExecution.getJobVersion())
             .jobPythonVersion(jobExecution.getJobPythonVersion())
             .jobSchedule(jobExecution.getJobSchedule())

@@ -21,7 +21,7 @@ public class JobDeployment {
 
   private String gitCommitSha;
 
-  private String vdkVersion;
+  private String vdkImage;
 
   private String pythonVersion;
 

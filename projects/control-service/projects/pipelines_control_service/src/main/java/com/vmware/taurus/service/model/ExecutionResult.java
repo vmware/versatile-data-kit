@@ -12,5 +12,5 @@ import lombok.Data;
 @Data
 public class ExecutionResult {
   private ExecutionStatus executionStatus;
-  private String vdkVersion;
+  private String vdkImage;
 }

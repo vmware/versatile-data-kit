@@ -46,7 +46,7 @@ public class DataJobExecution {
 
   private OffsetDateTime endTime;
 
-  private String vdkVersion;
+  private String vdkImage;
 
   private String jobVersion;
 

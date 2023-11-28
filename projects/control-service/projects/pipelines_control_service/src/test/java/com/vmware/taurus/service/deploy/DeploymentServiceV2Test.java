@@ -120,11 +120,11 @@ public class DeploymentServiceV2Test {
     initialDeployment.setDataJobName(dataJob.getName());
     desiredJobDeploymentRepository.save(initialDeployment);
     JobDeployment jobDeployment = generateTestDeployment();
-    jobDeployment.setVdkVersion("new/test/vdkImage");
+    jobDeployment.setVdkImage("new/test/vdkImage");
     deploymentServiceV2.patchDesiredDbDeployment(dataJob, jobDeployment, "user");
     var savedDeployment = desiredJobDeploymentRepository.findById("jobName").get();
     compareSavedDeploymentWithTestDeployment(jobDeployment, savedDeployment, "user");
-    Assertions.assertEquals(jobDeployment.getVdkVersion(), savedDeployment.getVdkVersion());
+    Assertions.assertEquals(jobDeployment.getVdkImage(), savedDeployment.getVdkImage());
   }
 
   @AfterEach

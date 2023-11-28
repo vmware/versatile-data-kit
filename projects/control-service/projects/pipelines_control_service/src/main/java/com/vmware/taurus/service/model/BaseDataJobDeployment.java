@@ -35,5 +35,5 @@ public abstract class BaseDataJobDeployment {
 
   private Boolean enabled;
 
-  private String vdkVersion;
+  private String vdkImage;
 }
