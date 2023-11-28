@@ -10,8 +10,6 @@ ARG GID=1000
 # Set the working directory
 WORKDIR /job
 
-# Validate base image is python based
-RUN python -V
 # Create necessary users and set home directory to /job
 RUN groupadd -r -g $GID vdkgroup && useradd -u $UID -g $GID -r vdkuser && chown -R $UID:$GID /job
 ENV HOME=/job
