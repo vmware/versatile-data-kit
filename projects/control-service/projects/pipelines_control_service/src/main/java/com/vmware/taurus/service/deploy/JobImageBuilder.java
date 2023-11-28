@@ -32,7 +32,6 @@ import org.springframework.stereotype.Component;
 public class JobImageBuilder {
   private static final Logger log = LoggerFactory.getLogger(JobImageBuilder.class);
 
-  private static final int BUILDER_TIMEOUT_SECONDS = 1800;
   private static final String REGISTRY_TYPE_ECR = "ecr";
   private static final String REGISTRY_TYPE_GENERIC = "generic";
 
@@ -80,6 +79,9 @@ public class JobImageBuilder {
 
   @Value("${datajobs.deployment.builder.serviceAccountName}")
   private String builderServiceAccountName;
+
+  @Value("${datajobs.deployment.builder.builderTimeoutSeconds:1800}")
+  private int builderTimeoutSeconds;
 
   private final ControlKubernetesService controlKubernetesService;
   private final DockerRegistryService dockerRegistryService;
@@ -228,7 +230,7 @@ public class JobImageBuilder {
 
     var condition =
         controlKubernetesService.watchJob(
-            builderJobName, BUILDER_TIMEOUT_SECONDS, s -> log.debug("Wait status: {}", s));
+            builderJobName, builderTimeoutSeconds, s -> log.debug("Wait status: {}", s));
 
     log.debug("Finished watching builder job {}. Condition is: {}", builderJobName, condition);
     String logs = null;
