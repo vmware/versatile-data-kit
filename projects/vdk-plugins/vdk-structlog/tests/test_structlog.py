@@ -158,7 +158,9 @@ def test_custom_format_overrides_default(log_format):
 
 
 def _matches_custom_format(log):
-    pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\s+\S{1,12}\s+\S{1,8}")
+    pattern = re.compile(
+        r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \S{1,12} \S{1,8} .+"
+    )
     return bool(pattern.search(log))
 
 
