@@ -5,7 +5,6 @@ import os
 import re
 import socket
 import types
-import warnings
 from sys import modules
 from typing import cast
 
