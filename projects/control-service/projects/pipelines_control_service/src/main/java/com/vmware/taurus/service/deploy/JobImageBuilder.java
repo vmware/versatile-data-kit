@@ -80,8 +80,6 @@ public class JobImageBuilder {
   @Value("${datajobs.deployment.builder.serviceAccountName}")
   private String builderServiceAccountName;
 
-
-
   @Value("${datajobs.deployment.builder.builderTimeoutSeconds:1800}")
   private int builderTimeoutSeconds;
 
