@@ -114,18 +114,18 @@ def test_stock_fields_removal(log_format):
 
 
 @pytest.mark.parametrize("log_format", ["console"])
-def test_custom_console_format(log_format):
+def test_custom_format_applied(log_format):
     custom_format_string = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
 
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "timestamp,level,file_name,line_number,vdk_job_name",
             "VDK_LOGGING_FORMAT": log_format,
-            "VDK_LOGGING_CUSTOM_FORMAT": custom_format_string,
+            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
         },
     ):
         logs = _run_job_and_get_logs()
+
         for log in logs:
             if "Log statement with no bound context" in log:
                 assert _matches_custom_format(log)
@@ -134,10 +134,31 @@ def test_custom_console_format(log_format):
             pytest.fail("Log statement with no bound context not found in logs")
 
 
+@pytest.mark.parametrize("log_format", ["json", "ltsv"])
+def test_custom_format_overrides_default(log_format):
+    custom_format_string = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "timestamp,level,file_name,vdk_job_name",
+            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+
+        for log in logs:
+            if "Log statement with no bound context" in log:
+                assert _matches_custom_format(log), \
+                    f"Log format did not match the custom format. Log: {log}"
+                break
+        else:
+            pytest.fail("Log statement with no bound context not found in logs")
+
+
 def _matches_custom_format(log):
-    pattern = re.compile(
-        r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\s+\S{1,12}\s+\S{1,8}"
-    )
+    pattern = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\s+\S{1,12}\s+\S{1,8}")
     return bool(pattern.search(log))
 
 
