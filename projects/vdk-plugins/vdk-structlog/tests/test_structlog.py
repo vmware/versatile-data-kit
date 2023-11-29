@@ -63,6 +63,7 @@ def test_structlog(log_format):
         {
             "VDK_LOGGING_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
             "VDK_LOGGING_FORMAT": log_format,
+            "LOG_LEVEL_MODULE": "test_structlog=WARNING",
         },
     ):
         logs = _run_job_and_get_logs()
@@ -75,6 +76,12 @@ def test_structlog(log_format):
         )
         log_with_bound_and_extra_context = _get_log_containing_s(
             logs, "Log statement with bound context and extra context"
+        )
+
+        # due to the log_level_module config specified in the config.ini of the test job
+        # the 'This log statement should not appear' log should not appear in the output logs
+        assert (
+            _get_log_containing_s(logs, "This log statement should not appear") is None
         )
 
         _assert_cases(
@@ -140,12 +147,11 @@ def _get_log_containing_s(logs, s):
     :param s:
     :return:
     """
-    try:
-        necessary_log = [x for x in logs if s in x][0]
-    except IndexError as e:
-        raise Exception("Log cannot be found inside provided job logs") from e
-
-    return necessary_log
+    necessary_log = [x for x in logs if s in x]
+    if len(necessary_log) == 0:
+        return None
+    else:
+        return necessary_log[0]
 
 
 def _assert_cases(
