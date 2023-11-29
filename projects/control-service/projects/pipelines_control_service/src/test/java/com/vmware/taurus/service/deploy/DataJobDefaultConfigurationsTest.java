@@ -18,51 +18,63 @@ public class DataJobDefaultConfigurationsTest {
 
   @Test
   public void testDefaultMemoryRequest() throws Exception {
-    Assertions.assertEquals(500, K8SMemoryConversionUtils.getMemoryInMi(dataJobDefaultConfigurations.dataJobRequests().getMemory()));
+    Assertions.assertEquals(
+        500,
+        K8SMemoryConversionUtils.getMemoryInMi(
+            dataJobDefaultConfigurations.dataJobRequests().getMemory()));
   }
 
   @Test
   public void testDefaultMemoryLimit() throws Exception {
-    Assertions.assertEquals(1000, K8SMemoryConversionUtils.getMemoryInMi(dataJobDefaultConfigurations.dataJobLimits().getMemory()));
+    Assertions.assertEquals(
+        1000,
+        K8SMemoryConversionUtils.getMemoryInMi(
+            dataJobDefaultConfigurations.dataJobLimits().getMemory()));
   }
 
   @Test
   public void testDefaultCpuRequest() throws Exception {
-    Assertions.assertEquals(1000, K8SMemoryConversionUtils.getCpuInFloat(dataJobDefaultConfigurations.dataJobRequests().getCpu()));
+    Assertions.assertEquals(
+        1000,
+        K8SMemoryConversionUtils.getCpuInFloat(
+            dataJobDefaultConfigurations.dataJobRequests().getCpu()));
   }
 
   @Test
   public void testDefaultCpuLimit() throws Exception {
-    Assertions.assertEquals(2000, K8SMemoryConversionUtils.getCpuInFloat(dataJobDefaultConfigurations.dataJobLimits().getCpu()));
+    Assertions.assertEquals(
+        2000,
+        K8SMemoryConversionUtils.getCpuInFloat(
+            dataJobDefaultConfigurations.dataJobLimits().getCpu()));
   }
 
   @Test
   public void testKbConversion() {
-    Assertions.assertEquals(2, K8SMemoryConversionUtils.getMemoryInMi( 2000, "K"));
+    Assertions.assertEquals(2, K8SMemoryConversionUtils.getMemoryInMi(2000, "K"));
   }
 
   @Test
   public void testKiConversion() {
-    Assertions.assertEquals(2, K8SMemoryConversionUtils.getMemoryInMi( 2048, "Ki"));
+    Assertions.assertEquals(2, K8SMemoryConversionUtils.getMemoryInMi(2048, "Ki"));
   }
 
   @Test
   public void testGbConversion() {
-    Assertions.assertEquals(2000, K8SMemoryConversionUtils.getMemoryInMi( 2, "G"));
+    Assertions.assertEquals(2000, K8SMemoryConversionUtils.getMemoryInMi(2, "G"));
   }
 
   @Test
   public void testGiConversion() {
-    Assertions.assertEquals(2048, K8SMemoryConversionUtils.getMemoryInMi( 2, "Gi"));
+    Assertions.assertEquals(2048, K8SMemoryConversionUtils.getMemoryInMi(2, "Gi"));
   }
 
   @Test
   public void testTbConversion() {
-    Assertions.assertEquals(2000000, K8SMemoryConversionUtils.getMemoryInMi( 2, "T"));
+    Assertions.assertEquals(2000000, K8SMemoryConversionUtils.getMemoryInMi(2, "T"));
   }
 
   @Test
   public void testTiConversion() {
-    Assertions.assertEquals(2097152, K8SMemoryConversionUtils.getMemoryInMi( 2, "Ti"));
+    Assertions.assertEquals(2097152, K8SMemoryConversionUtils.getMemoryInMi(2, "Ti"));
   }
 }
