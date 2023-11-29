@@ -6,8 +6,6 @@
 package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.service.KubernetesService;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,23 +30,5 @@ public class DataJobDefaultConfigurations {
 
   public KubernetesService.Resources dataJobLimits() {
     return new KubernetesService.Resources(cpuLimits, memoryLimits);
-  }
-
-  public float getCpuRequests() throws ParseException {
-    return NumberFormat.getInstance().parse(cpuRequests).floatValue();
-  }
-
-  public float getCpuLimits() throws ParseException {
-    return NumberFormat.getInstance().parse(cpuLimits).floatValue();
-  }
-
-  public int getMemoryRequests() throws ParseException {
-    var memoryAmount = NumberFormat.getInstance().parse(memoryRequests).intValue();
-    return K8SMemoryConversionUtils.getMemoryInMi(memoryRequests, memoryAmount);
-  }
-
-  public int getMemoryLimits() throws ParseException {
-    var memoryAmount = NumberFormat.getInstance().parse(memoryLimits).intValue();
-    return K8SMemoryConversionUtils.getMemoryInMi(memoryLimits, memoryAmount);
   }
 }

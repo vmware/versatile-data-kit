@@ -229,74 +229,7 @@ public class JobImageDeployerV2 {
           DeploymentModelConverter.toActualJobDeployment(
               desiredDataJobDeployment, desiredDeploymentVersionSha, lastDeployedDate);
     }
-    checkDefaultDeploymentResources(actualJobDeployment);
     return actualJobDeployment;
-  }
-
-  private void checkDefaultDeploymentResources(ActualDataJobDeployment actualDataJobDeployment) {
-    if (actualDataJobDeployment == null) {
-      return;
-    }
-
-    if (actualDataJobDeployment.getResources() == null) {
-      actualDataJobDeployment.setResources(new DataJobDeploymentResources());
-    }
-    var deploymentResources = actualDataJobDeployment.getResources();
-
-    checkDefaultMemoryLimit(deploymentResources);
-    checkDefaultMemoryRequest(deploymentResources);
-    checkDefaultCpuRequest(deploymentResources);
-    checkDefaultCpuLimit(deploymentResources);
-  }
-
-  private void checkDefaultMemoryLimit(DataJobDeploymentResources resources) {
-    if (resources.getMemoryLimitMi() == null) {
-      try {
-        resources.setMemoryLimitMi(defaultConfigurations.getMemoryLimits());
-      } catch (ParseException e) {
-        handleResourcesException(e);
-      }
-    }
-  }
-
-  private void checkDefaultMemoryRequest(DataJobDeploymentResources resources) {
-    if (resources.getMemoryRequestMi() == null) {
-      try {
-        resources.setMemoryRequestMi(defaultConfigurations.getMemoryRequests());
-      } catch (ParseException e) {
-        handleResourcesException(e);
-      }
-    }
-  }
-
-  private void checkDefaultCpuRequest(DataJobDeploymentResources resources) {
-    if (resources.getCpuRequestCores() == null) {
-      try {
-        resources.setCpuRequestCores(defaultConfigurations.getCpuRequests());
-      } catch (ParseException e) {
-        handleResourcesException(e);
-      }
-    }
-  }
-
-  private void checkDefaultCpuLimit(DataJobDeploymentResources resources) {
-    if (resources.getCpuLimitCores() == null) {
-      try {
-        resources.setCpuLimitCores(defaultConfigurations.getCpuLimits());
-      } catch (ParseException e) {
-        handleResourcesException(e);
-      }
-    }
-  }
-
-  private void handleResourcesException(ParseException e) {
-    var errorMessage =
-        new ErrorMessage(
-            "Couldn't write default resource to database",
-            "Parsing default string value failed",
-            "The resource won't be present in the DB",
-            "Verify the string can be parsed to a number");
-    log.error(errorMessage.toString(), e);
   }
 
   /**
@@ -412,33 +345,35 @@ public class JobImageDeployerV2 {
 
     var jobCommand = jobCommandProvider.getJobCommand(jobName);
 
+    checkDefaultDeploymentResources(jobDeployment);
     String cpuRequest =
         Optional.ofNullable(jobDeployment.getResources())
             .map(DataJobDeploymentResources::getCpuRequestCores)
             .filter(cpuRequestCores -> cpuRequestCores > 0)
             .map(String::valueOf)
             .orElse(defaultConfigurations.dataJobRequests().getCpu());
-
+    checkDefaultCpuRequest(jobDeployment.getResources(), cpuRequest);
     String cpuLimit =
         Optional.ofNullable(jobDeployment.getResources())
             .map(DataJobDeploymentResources::getCpuLimitCores)
             .filter(cpuLimitCores -> cpuLimitCores > 0)
             .map(String::valueOf)
             .orElse(defaultConfigurations.dataJobLimits().getCpu());
-
+    checkDefaultCpuLimit(jobDeployment.getResources(), cpuLimit);
     String memoryRequest =
         Optional.ofNullable(jobDeployment.getResources())
             .map(DataJobDeploymentResources::getMemoryRequestMi)
             .filter(memoryRequestMi -> memoryRequestMi > 0)
             .map(memoryRequestMi -> memoryRequestMi + "Mi")
             .orElse(defaultConfigurations.dataJobRequests().getMemory());
-
+    checkDefaultMemoryRequest(jobDeployment.getResources(), memoryRequest);
     String memoryLimit =
         Optional.ofNullable(jobDeployment.getResources())
             .map(DataJobDeploymentResources::getMemoryLimitMi)
             .filter(memoryLimitMi -> memoryLimitMi > 0)
             .map(memoryLimitMi -> memoryLimitMi + "Mi")
             .orElse(defaultConfigurations.dataJobLimits().getMemory());
+    checkDefaultMemoryLimit(jobDeployment.getResources(), memoryLimit);
     // The job name is used as the container name. This is something that we rely on later,
     // when watching for pod modifications in DataJobStatusMonitor.watchPods
     var jobContainer =
@@ -498,5 +433,57 @@ public class JobImageDeployerV2 {
         .jobLabels(jobLabels)
         .imagePullSecret(List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret))
         .build();
+  }
+
+  private void checkDefaultDeploymentResources(DesiredDataJobDeployment desiredDataJobDeployment) {
+    if (desiredDataJobDeployment == null) {
+      return;
+    }
+
+    if (desiredDataJobDeployment.getResources() == null) {
+      desiredDataJobDeployment.setResources(new DataJobDeploymentResources());
+    }
+  }
+
+  private void checkDefaultMemoryLimit(DataJobDeploymentResources resources, String memory) {
+    try {
+      resources.setMemoryLimitMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
+    } catch (ParseException e) {
+      handleResourcesException(e);
+    }
+  }
+
+  private void checkDefaultMemoryRequest(DataJobDeploymentResources resources, String memory) {
+    try {
+      resources.setMemoryRequestMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
+    } catch (ParseException e) {
+      handleResourcesException(e);
+    }
+  }
+
+  private void checkDefaultCpuRequest(DataJobDeploymentResources resources, String cpu) {
+    try {
+      resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+    } catch (ParseException e) {
+      handleResourcesException(e);
+    }
+  }
+
+  private void checkDefaultCpuLimit(DataJobDeploymentResources resources, String cpu) {
+    try {
+      resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+    } catch (ParseException e) {
+      handleResourcesException(e);
+    }
+  }
+
+  private void handleResourcesException(ParseException e) {
+    var errorMessage =
+        new ErrorMessage(
+            "Couldn't write default resource to database",
+            "Parsing default string value failed",
+            "The resource won't be present in the DB",
+            "Verify the string can be parsed to a number");
+    log.error(errorMessage.toString(), e);
   }
 }
