@@ -138,6 +138,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                     "No results.  Previous SQL was not a query.",  # message in pyodbc
                     "Trying to fetch results on an operation with no results.",  # message in impyla
                     "no results to fetch",  # psycopg: ProgrammingError: no results to fetch
+                    "DPY-1003: the executed statement does not return rows",  # oracledb
                 ):
                     self._log.debug(
                         "Fetching all results from query SUCCEEDED. Query does not produce results (e.g. DROP TABLE)."

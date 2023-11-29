@@ -20,10 +20,11 @@ def ip(session_ip):
 
 
 @pytest.fixture(scope="function")
-def sqlite_ip(ip, tmpdir):
-    job_dir = str(tmpdir) + "vdk-sqlite.db"
+def sqlite_ip(ip, tmp_path):
+    job_dir = f"{tmp_path}/vdk-sqlite.db"
     ip.get_ipython().run_cell("%env VDK_INGEST_METHOD_DEFAULT=sqlite")
     ip.get_ipython().run_cell(f"%env VDK_SQLITE_FILE={job_dir}")
     ip.get_ipython().run_cell(f"%env VDK_INGEST_TARGET_DEFAULT={job_dir}")
     ip.get_ipython().run_cell("%env VDK_DB_DEFAULT_TYPE=SQLITE")
+    ip.get_ipython().run_cell("%env INGESTER_WAIT_TO_FINISH_AFTER_EVERY_SEND=true")
     yield ip

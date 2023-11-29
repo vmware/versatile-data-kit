@@ -215,11 +215,17 @@ def test_user_error_handled(tmp_termination_msg_file):
 
 
 def test_error_from_pandas_user_error(tmp_termination_msg_file):
-    errors.resolvable_context().clear()
-    runner = CliEntryBasedTestRunner()
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOG_EXECUTION_RESULT": "True",
+        },
+    ):
+        errors.resolvable_context().clear()
+        runner = CliEntryBasedTestRunner()
 
-    result: Result = runner.invoke(["run", util.job_path("pandas-key-error-job")])
-    cli_assert_equal(1, result)
-    assert _get_job_status(tmp_termination_msg_file) == "User error"
-    assert '"blamee": "User Error"' in result.output
-    assert '"exception_name": "KeyError"' in result.output
+        result: Result = runner.invoke(["run", util.job_path("pandas-key-error-job")])
+        cli_assert_equal(1, result)
+        assert _get_job_status(tmp_termination_msg_file) == "User error"
+        assert '"blamee": "User Error"' in result.output
+        assert '"exception_name": "KeyError"' in result.output

@@ -27,4 +27,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
     ],
     python_requires="~=3.7",
+    extras_require={"data-sources": ["vdk-data-sources"]},
 )

@@ -6,5 +6,6 @@ click
 pytest
 requests
 vdk-core
+vdk-data-sources
 vdk-sqlite
 vdk-test-utils

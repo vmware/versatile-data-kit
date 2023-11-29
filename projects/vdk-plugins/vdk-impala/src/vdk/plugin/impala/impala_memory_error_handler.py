@@ -37,6 +37,10 @@ class ImpalaMemoryErrorHandler:
             exception,
             classname_with_package="impala.error.OperationalError",
             exception_message_matcher_regex=".*Memory limit exceeded:.*",
+        ) or errors.exception_matches(
+            exception,
+            classname_with_package="impala.error.HiveServer2Error",
+            exception_message_matcher_regex=".*Memory limit exceeded:.*",
         ):
             # We are going to try to increase the memory limits and see if the query passes
             # But we won't do anything if the sql statement itself sets a memory limit

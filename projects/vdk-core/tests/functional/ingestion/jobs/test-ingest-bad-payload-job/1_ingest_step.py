@@ -15,8 +15,8 @@ def run(job_input: IJobInput):
     payload = payload_str
     if payload_str == "None":
         payload = None
-    elif payload_str == "date":
-        payload = {"key1": datetime.utcnow()}
+    elif payload_str == "unserializable":
+        payload = {"key1": log}
 
     job_input.send_object_for_ingestion(
         payload=payload, destination_table="object_table", method="memory"
