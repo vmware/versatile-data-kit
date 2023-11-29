@@ -8,10 +8,22 @@ from unittest.mock import patch
 
 import pytest
 from click.testing import Result
+from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import VdkConfigurationError
+from vdk.internal.core.statestore import CommonStoreKeys
+from vdk.internal.core.statestore import StateStore
 from vdk.plugin.structlog import structlog_plugin
 from vdk.plugin.structlog.constants import parse_log_level_module
+from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
+from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
+from vdk.plugin.structlog.constants import SYSLOG_ENABLED
+from vdk.plugin.structlog.constants import SYSLOG_PORT
+from vdk.plugin.structlog.constants import SYSLOG_SOCK_TYPE
+from vdk.plugin.structlog.constants import SYSLOG_URL
 from vdk.plugin.structlog.structlog_plugin import configure_loggers
 from vdk.plugin.structlog.structlog_plugin import StructlogPlugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -61,6 +73,52 @@ STOCK_FIELD_REPRESENTATIONS = {
         "vdk_job_name": f'"vdk_job_name": "{JOB_NAME}"',
     },
 }
+
+
+@pytest.mark.parametrize(
+    "log_type, vdk_level, expected_vdk_level",
+    (
+        ("LOCAL", "INFO", logging.INFO),
+        ("REMOTE", "WARNING", logging.WARNING),
+        ("LOCAL", None, logging.DEBUG),  # if not set default to root log level
+    ),
+)
+def test_log_plugin(log_type, vdk_level, expected_vdk_level):
+    try:
+        with mock.patch("socket.socket.connect"):
+            logging.getLogger().setLevel(logging.DEBUG)  # root level
+
+            log_plugin = StructlogPlugin()
+
+            store = StateStore()
+            store.set(CommonStoreKeys.ATTEMPT_ID, "attempt_id")
+
+            conf = (
+                ConfigurationBuilder()
+                .add(vdk_config.LOG_CONFIG, log_type)
+                .add(vdk_config.LOG_LEVEL_VDK, vdk_level)
+                .add(SYSLOG_URL, "localhost")
+                .add(SYSLOG_PORT, 514)
+                .add(SYSLOG_ENABLED, True)
+                .add(SYSLOG_SOCK_TYPE, "UDP")
+                .add(
+                    STRUCTLOG_LOGGING_METADATA_KEY,
+                    "timestamp,level,file_name,line_number,vdk_job_name",
+                )
+                .add(STRUCTLOG_LOGGING_FORMAT_KEY, "console")
+                .build()
+            )
+            core_context = CoreContext(
+                mock.MagicMock(spec=IPluginRegistry), conf, store
+            )
+
+            log_plugin.vdk_initialize(core_context)
+
+            assert (
+                logging.getLogger().getEffectiveLevel() == expected_vdk_level
+            ), "internal vdk logs must be set according to configuration option LOG_LEVEL_VDK but are not"
+    finally:
+        logging.getLogger().setLevel(logging.INFO)
 
 
 def test_parse_log_level_module():

@@ -34,14 +34,6 @@ from vdk.plugin.structlog.filters import AttributeAdder
 from vdk.plugin.structlog.formatters import create_formatter
 
 
-def configure_initial_logging():
-    log_level = (
-        os.environ.get("LOG_LEVEL_VDK")
-        or os.environ.get("VDK_LOG_LEVEL_VDK", "WARNING").upper()
-    )
-    logging.basicConfig(format="%(message)s", level=logging.getLevelName(log_level))
-
-
 def _set_already_configured() -> None:
     setattr(sys.modules[__name__], "logging_already_configured", True)
 
@@ -241,7 +233,6 @@ class StructlogPlugin:
     @hookimpl
     def vdk_initialize(self, context: CoreContext):
         os.environ["VDK_USE_STRUCTLOG"] = "1"
-        configure_initial_logging()
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
         logging_formatter = context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
@@ -250,7 +241,16 @@ class StructlogPlugin:
         formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
 
         root_logger = logging.getLogger()
-        root_logger.removeHandler(root_logger.handlers[0])
+        log_level = (
+            context.configuration.get_value(vdk_config.LOG_LEVEL_VDK)
+            or os.environ.get("LOG_LEVEL_VDK")
+            or os.environ.get("VDK_LOG_LEVEL_VDK")
+        )
+        if log_level:
+            root_logger.setLevel(log_level.upper())
+        else:
+            if root_logger.getEffectiveLevel() == logging.NOTSET:
+                root_logger.setLevel("WARNING")
 
         handler = logging.StreamHandler(sys.stderr)
         handler.addFilter(metadata_filter)
@@ -298,7 +298,6 @@ class StructlogPlugin:
         job_name_adder = AttributeAdder("vdk_job_name", job_name)
 
         root_logger = logging.getLogger()
-        root_logger.removeHandler(root_logger.handlers[0])
 
         handler = logging.StreamHandler(sys.stderr)
         handler.setFormatter(formatter)
