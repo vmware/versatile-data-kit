@@ -327,7 +327,7 @@ deploymentSupportedPythonVersions:
     baseImage: "registry.hub.docker.com/versatiledatakit/data-job-base-python-3.9:latest"
     vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
   pytorch_development:
-    baseImage: "registry.hub.docker.com/pytorch/pytorch:2.1.1-cuda12.1-cudnn8-devel"
+    baseImage: "ghcr.io/versatile-data-kit-dev/dp/cicd-data-jobs/cicd-control-service/pytorch_base:latest"
     vdkImage: "registry.hub.docker.com/versatiledatakit/quickstart-vdk:release"
 
 
