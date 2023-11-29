@@ -324,7 +324,8 @@ public abstract class BaseDataJobDeploymentCrudIT extends BaseIT {
         () -> {
           var result = getJobDeployment();
           DataJobDeploymentStatus jobDeployment =
-                  mapper.readValue(result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
+              mapper.readValue(
+                  result.getResponse().getContentAsString(), DataJobDeploymentStatus.class);
           return !jobDeployment.getEnabled();
         });
   }

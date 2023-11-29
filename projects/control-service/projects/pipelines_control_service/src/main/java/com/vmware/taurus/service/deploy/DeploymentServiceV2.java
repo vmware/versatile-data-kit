@@ -161,8 +161,9 @@ public class DeploymentServiceV2 {
               desiredJobDeployment.getDataJobName(), desiredJobDeployment.getGitCommitSha());
 
       // If the job suspension operation is performed, we don't want to build the image.
-      if (Boolean.FALSE.equals(desiredJobDeployment.getEnabled()) ||
-              jobImageBuilder.buildImage(imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
+      if (Boolean.FALSE.equals(desiredJobDeployment.getEnabled())
+          || jobImageBuilder.buildImage(
+              imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
         ActualDataJobDeployment actualJobDeploymentResult =
             jobImageDeployer.scheduleJob(
                 dataJob,

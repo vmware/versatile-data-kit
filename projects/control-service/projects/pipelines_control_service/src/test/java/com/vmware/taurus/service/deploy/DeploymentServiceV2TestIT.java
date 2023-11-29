@@ -73,28 +73,28 @@ public class DeploymentServiceV2TestIT {
 
   @Test
   public void
-  updateDeployment_withDesiredDeploymentEnabledFalseAndActualDeploymentEnabledTrueAndBuildImageSucceededFalse_shouldUpdateDeployment()
+      updateDeployment_withDesiredDeploymentEnabledFalseAndActualDeploymentEnabledTrueAndBuildImageSucceededFalse_shouldUpdateDeployment()
           throws IOException, InterruptedException, ApiException {
     updateDeployment(false, true, false, 1);
   }
 
   @Test
   public void
-  updateDeployment_withDesiredDeploymentEnabledFalseAndActualDeploymentEnabledFalseAndBuildImageSucceededFalse_shouldUpdateDeployment()
+      updateDeployment_withDesiredDeploymentEnabledFalseAndActualDeploymentEnabledFalseAndBuildImageSucceededFalse_shouldUpdateDeployment()
           throws IOException, InterruptedException, ApiException {
     updateDeployment(false, false, false, 1);
   }
 
   @Test
   public void
-  updateDeployment_withDesiredDeploymentEnabledTrueAndActualDeploymentEnabledFalseAndBuildImageSucceededTrue_shouldUpdateDeployment()
+      updateDeployment_withDesiredDeploymentEnabledTrueAndActualDeploymentEnabledFalseAndBuildImageSucceededTrue_shouldUpdateDeployment()
           throws IOException, InterruptedException, ApiException {
     updateDeployment(true, false, true, 1);
   }
 
   @Test
   public void
-  updateDeployment_withDesiredDeploymentEnabledTrueAndActualDeploymentEnabledFalseAndBuildImageSucceededFalse_shouldUpdateDeployment()
+      updateDeployment_withDesiredDeploymentEnabledTrueAndActualDeploymentEnabledFalseAndBuildImageSucceededFalse_shouldUpdateDeployment()
           throws IOException, InterruptedException, ApiException {
     updateDeployment(true, false, false, 0);
   }
@@ -128,11 +128,11 @@ public class DeploymentServiceV2TestIT {
   }
 
   private void updateDeployment(
-          boolean desiredDeploymentEnabled,
-          boolean actualDeploymentEnabled,
-          boolean buildImageSucceeded,
-          int deploymentProgressStartedInvocations)
-          throws IOException, InterruptedException, ApiException {
+      boolean desiredDeploymentEnabled,
+      boolean actualDeploymentEnabled,
+      boolean buildImageSucceeded,
+      int deploymentProgressStartedInvocations)
+      throws IOException, InterruptedException, ApiException {
     DesiredDataJobDeployment desiredDataJobDeployment = new DesiredDataJobDeployment();
     desiredDataJobDeployment.setEnabled(desiredDeploymentEnabled);
     desiredDataJobDeployment.setStatus(DeploymentStatus.NONE);
@@ -144,13 +144,19 @@ public class DeploymentServiceV2TestIT {
     dataJob.setJobConfig(new JobConfig());
 
     Mockito.when(
-                    jobImageBuilder.buildImage(
-                            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(buildImageSucceeded);
+            jobImageBuilder.buildImage(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(buildImageSucceeded);
 
-    deploymentService.updateDeployment(
-            dataJob, desiredDataJobDeployment, actualDeployment, true);
+    deploymentService.updateDeployment(dataJob, desiredDataJobDeployment, actualDeployment, true);
 
-    Mockito.verify(jobImageDeployer, Mockito.times(deploymentProgressStartedInvocations)).scheduleJob(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString());
+    Mockito.verify(jobImageDeployer, Mockito.times(deploymentProgressStartedInvocations))
+        .scheduleJob(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.anyBoolean(),
+            Mockito.anyBoolean(),
+            Mockito.anyString());
   }
 }
