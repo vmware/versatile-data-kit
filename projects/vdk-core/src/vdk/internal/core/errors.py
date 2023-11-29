@@ -187,9 +187,7 @@ def report(error_type: ResolvableBy, exception: BaseException):
 
 
 def report_and_throw(
-    exception: BaseVdkError,
-    resolvable_by: ResolvableBy = None,
-    cause: BaseException = None,
+    exception: BaseVdkError, resolvable_by: ResolvableBy = None
 ) -> None:
     """
     Add exception to resolvable context and then throw it to be handled up the stack.
@@ -205,7 +203,7 @@ def report_and_throw(
             exception,
         )
     )
-    raise exception from cause
+    raise exception
 
 
 def report_and_rethrow(error_type: ResolvableBy, exception: BaseException) -> None:
