@@ -6,7 +6,6 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
-from vdk.api.plugin.hook_markers import hookimpl
 from vdk.plugin.structlog import structlog_plugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
