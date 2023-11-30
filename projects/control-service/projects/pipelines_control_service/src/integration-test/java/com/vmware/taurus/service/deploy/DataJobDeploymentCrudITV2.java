@@ -118,7 +118,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     String testJobVersionSha = testDataJobVersion.getVersionSha();
     Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
 
-    boolean jobEnabled = false;
+    boolean jobEnabled = true;
     DesiredDataJobDeployment desiredDataJobDeployment =
         createDesiredDataJobDeployment(testJobVersionSha, jobEnabled);
 
@@ -149,7 +149,7 @@ public class DataJobDeploymentCrudITV2 extends BaseIT {
     Assertions.assertEquals(lastDeployedDateInitial, lastDeployedDateShouldNotBeChanged);
 
     // Tries to redeploy job with changes
-    jobEnabled = true;
+    jobEnabled = false;
     desiredDataJobDeployment = updateDataJobDeployment(jobEnabled);
     dataJobsSynchronizer.synchronizeDataJob(
         dataJob, desiredDataJobDeployment, actualDataJobDeployment, true);
