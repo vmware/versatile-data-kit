@@ -5,6 +5,7 @@ import os
 import re
 import socket
 import types
+import warnings
 from sys import modules
 from typing import cast
 
@@ -81,13 +82,18 @@ def configure_initial_logging_before_anything():
     3. When initialize_job hook (applicable for vdk run only) is executed then below configure_loggers function
         is run which adds more context to the logs and initializes syslog handler (if configured to do so)
     """
-    log_level = "WARNING"
-    if os.environ.get(LOG_LEVEL_VDK, None):
-        log_level = os.environ.get(LOG_LEVEL_VDK)
-    elif os.environ.get("VDK_LOG_LEVEL_VDK", None):
-        log_level = os.environ.get("VDK_LOG_LEVEL_VDK")
+    # TODO uncomment this when the vdk-structlog plugin is released
+    # warnings.warn(
+    #     "The vdk-core logging configuration is not suitable for production. Please use vdk-structlog instead."
+    # )
+    if not os.environ.get("VDK_USE_STRUCTLOG"):
+        log_level = "WARNING"
+        if os.environ.get(LOG_LEVEL_VDK, None):
+            log_level = os.environ.get(LOG_LEVEL_VDK)
+        elif os.environ.get("VDK_LOG_LEVEL_VDK", None):
+            log_level = os.environ.get("VDK_LOG_LEVEL_VDK")
 
-    logging.basicConfig(format="%(message)s", level=logging.getLevelName(log_level))
+        logging.basicConfig(format="%(message)s", level=logging.getLevelName(log_level))
 
 
 def configure_loggers(
@@ -283,16 +289,28 @@ class LoggingPlugin:
         )
         syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED)
         try:  # If logging initialization fails we want to attempt sending telemetry before exiting VDK
-            configure_loggers(
-                job_name,
-                attempt_id,
-                log_config_type=log_config_type,
-                vdk_logging_level=vdk_log_level,
-                log_level_module=log_level_module,
-                syslog_args=(syslog_url, syslog_port, syslog_sock_type, syslog_enabled),
-            )
-            log = logging.getLogger(__name__)
-            log.debug(f"Initialized logging for log type {log_config_type}.")
+            if not os.environ.get("VDK_USE_STRUCTLOG"):
+                configure_loggers(
+                    job_name,
+                    attempt_id,
+                    log_config_type=log_config_type,
+                    vdk_logging_level=vdk_log_level,
+                    log_level_module=log_level_module,
+                    syslog_args=(
+                        syslog_url,
+                        syslog_port,
+                        syslog_sock_type,
+                        syslog_enabled,
+                    ),
+                )
+                log = logging.getLogger(__name__)
+                log.debug(f"Initialized logging for log type {log_config_type}.")
+            else:
+                log = logging.getLogger(__name__)
+                log.debug(
+                    "VDK_USE_STRUCTLOG environment variable is set, so the logging config will rely on the "
+                    "vdk-structlog plugin."
+                )
         except Exception as e:
             # Have local logs on DEBUG level, when standard log configuration fails
             logging.basicConfig(level=logging.DEBUG)
