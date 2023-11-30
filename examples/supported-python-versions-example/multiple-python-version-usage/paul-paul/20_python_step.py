@@ -1,16 +1,18 @@
+# Copyright 2021-2023 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 
 import pytorch_lightning as L
 import torch
+from run_training import run_training
 from torch.nn import functional as F
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
+from torch.utils.data import Subset
 from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
-
-
 from vdk.api.job_input import IJobInput
-from run_training import run_training
 
 
 class MNISTModel(L.LightningModule):
@@ -37,6 +39,7 @@ class MNISTModel(L.LightningModule):
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=0.02)
 
+
 # Initialize our model.
 mnist_model = MNISTModel()
 
@@ -51,8 +54,8 @@ train_loader = DataLoader(train_ds, batch_size=8)
 
 # Initialize a trainer.
 trainer = L.Trainer(max_epochs=3)
+
+
 def run(job_input: IJobInput):
     # job_input.
     run_training(lambda: trainer.fit(mnist_model, train_loader))
-
-
