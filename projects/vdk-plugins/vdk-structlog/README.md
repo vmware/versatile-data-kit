@@ -15,16 +15,15 @@ pip install vdk-structlog
 
 (`vdk config-help` is useful command to browse all config options of your installation of vdk)
 
-
-| Name                       | Description                                                                                         | Example Value                                           | Possible Values                                                                                                    |
-|----------------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| logging_metadata           | Configure the metadata that will be output along with the log message                               | "timestamp, level, logger_name, file_name, vdk_job_name | "timestamp, level, logger_name, file_name, line_number, function_name, vdk_job_name, vdk_step_name, vdk_step_type" |
-| logging_format             | Configure the logging output format. Available formats: json, console                               | "console"                                               | "console", "json"                                                                                                  |
-| custom_console_log_pattern | Custom format string for console logging. Overrides `logging_metadata` and `logging_format` if set. | "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"   | Any valid Python logging format string                                                                             |
+| Name                       | Description                                                                                                               | Example Value                                           | Possible Values                                                                                                    |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| logging_metadata           | Configure the metadata that will be output along with the log message                                                     | "timestamp, level, logger_name, file_name, vdk_job_name | "timestamp, level, logger_name, file_name, line_number, function_name, vdk_job_name, vdk_step_name, vdk_step_type" |
+| logging_format             | Configure the logging output format. Available formats: json, console                                                     | "console"                                               | "console", "json"                                                                                                  |
+| custom_console_log_pattern | Custom format string for console logging, applied only when`logging_format` is 'console' and overrides `logging_metadata` | "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"   | Any valid Python logging format string                                                                             |
 
 ### Example: Configure Custom Console Format
 
-If you wish to have a specific format for your console logs, you can define a custom format using the `custom_console_log_pattern` configuration. This format string will override the default format specified in `logging_format` and the metadata fields in `logging_metadata`.
+If you wish to apply a specific format to your console logs, you can define a custom format using the `custom_console_log_pattern` configuration. This custom format string will be used only when the `logging_format` is set to 'console'.
 
 For example, add the following to your data job configuration:
 
