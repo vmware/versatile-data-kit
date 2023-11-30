@@ -82,9 +82,10 @@ def configure_initial_logging_before_anything():
     3. When initialize_job hook (applicable for vdk run only) is executed then below configure_loggers function
         is run which adds more context to the logs and initializes syslog handler (if configured to do so)
     """
-    warnings.warn(
-        "The vdk-core logging configuration is not suitable for production. Please use vdk-structlog instead."
-    )
+    # TODO uncomment this when the vdk-structlog plugin is released
+    # warnings.warn(
+    #     "The vdk-core logging configuration is not suitable for production. Please use vdk-structlog instead."
+    # )
     if not os.environ.get("VDK_USE_STRUCTLOG"):
         log_level = "WARNING"
         if os.environ.get(LOG_LEVEL_VDK, None):
