@@ -57,5 +57,5 @@ trainer = L.Trainer(max_epochs=3)
 
 
 def run(job_input: IJobInput):
-    # job_input.
+    # job_input.run_training()
     run_training(lambda: trainer.fit(mnist_model, train_loader))
