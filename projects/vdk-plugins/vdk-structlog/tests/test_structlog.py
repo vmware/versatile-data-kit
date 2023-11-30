@@ -150,8 +150,9 @@ def test_custom_format_not_applied_for_non_console_formats(log_format):
 
         for log in logs:
             if "Log statement with no bound context" in log:
-                assert not _matches_custom_format(log), \
-                    f"Custom format was incorrectly applied for {log_format} format. Log: {log}"
+                assert not _matches_custom_format(
+                    log
+                ), f"Custom format was incorrectly applied for {log_format} format. Log: {log}"
                 break
         else:
             pytest.fail("Log statement with no bound context not found in logs")

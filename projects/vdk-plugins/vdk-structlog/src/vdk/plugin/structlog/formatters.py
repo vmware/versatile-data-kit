@@ -155,8 +155,11 @@ def create_formatter(
         )
         custom_key_filter = ConsoleMetadataFilter(key_set)
     elif logging_format == "console":
-        format_string = custom_console_format if custom_console_format else StructlogMetadataBuilder(
-            metadata_keys).build_console_format()
+        format_string = (
+            custom_console_format
+            if custom_console_format
+            else StructlogMetadataBuilder(metadata_keys).build_console_format()
+        )
         formatter = ConsoleFormatter(fmt=format_string)
         custom_key_filter = ConsoleMetadataFilter(key_set)
 
