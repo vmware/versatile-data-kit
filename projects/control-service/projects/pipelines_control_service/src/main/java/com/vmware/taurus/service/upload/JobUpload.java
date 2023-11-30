@@ -44,13 +44,13 @@ public class JobUpload {
 
   @Autowired
   public JobUpload(
-          @Value("${datajobs.temp.storage.folder:}") String datajobsTempStorageFolder,
-          GitCredentialsProvider gitCredentialsProvider,
-          GitWrapper gitWrapper,
-          FeatureFlags featureFlags,
-          AuthorizationProvider authorizationProvider,
-          JobUploadAllowListValidator jobUploadAllowListValidator,
-          JobUploadFilterListValidator jobUploadFilterListValidator) {
+      @Value("${datajobs.temp.storage.folder:}") String datajobsTempStorageFolder,
+      GitCredentialsProvider gitCredentialsProvider,
+      GitWrapper gitWrapper,
+      FeatureFlags featureFlags,
+      AuthorizationProvider authorizationProvider,
+      JobUploadAllowListValidator jobUploadAllowListValidator,
+      JobUploadFilterListValidator jobUploadFilterListValidator) {
     this.datajobsTempStorageFolder = datajobsTempStorageFolder;
     this.gitCredentialsProvider = gitCredentialsProvider;
     this.gitWrapper = gitWrapper;
@@ -69,10 +69,10 @@ public class JobUpload {
   public Optional<Resource> getDataJob(String jobName) {
     CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
     try (var tempDirPath =
-                 new EphemeralFile(datajobsTempStorageFolder, jobName, "get data job source")) {
+        new EphemeralFile(datajobsTempStorageFolder, jobName, "get data job source")) {
       Git git =
-              gitWrapper.cloneJobRepository(
-                      new File(tempDirPath.toFile(), "repo"), credentialsProvider);
+          gitWrapper.cloneJobRepository(
+              new File(tempDirPath.toFile(), "repo"), credentialsProvider);
       File jobDirectory = gitWrapper.getDataJobDirectory(git, jobName);
       if (jobDirectory.isDirectory()) {
         File tempFile = File.createTempFile(jobName, "zip");
@@ -87,19 +87,19 @@ public class JobUpload {
       // TODO: split into 5xx and 4xx errors depending on exception (e.g too big upload is client
       // error and not server error)
       throw new ExternalSystemError(
-              ExternalSystemError.MainExternalSystem.GIT,
-              String.format(
-                      "Communication with the git server failed while trying to get data job source: %s. "
-                              + "Please read the exception and follow the instructions.",
-                      jobName),
-              e);
+          ExternalSystemError.MainExternalSystem.GIT,
+          String.format(
+              "Communication with the git server failed while trying to get data job source: %s. "
+                  + "Please read the exception and follow the instructions.",
+              jobName),
+          e);
     } catch (IOException e) {
       throw new ExternalSystemError(
-              ExternalSystemError.MainExternalSystem.HOST_CONTAINER,
-              String.format(
-                      "Operations on the file system failed while trying to get data job source: %s",
-                      jobName),
-              e);
+          ExternalSystemError.MainExternalSystem.HOST_CONTAINER,
+          String.format(
+              "Operations on the file system failed while trying to get data job source: %s",
+              jobName),
+          e);
     }
   }
 
@@ -118,32 +118,32 @@ public class JobUpload {
     CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
     try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "deploy")) {
       File jobFolder =
-              FileUtils.unzipDataJob(resource, new File(tempDirPath.toFile(), "job"), jobName);
+          FileUtils.unzipDataJob(resource, new File(tempDirPath.toFile(), "job"), jobName);
       jobUploadFilterListValidator.validateJob(jobName, jobFolder.toPath());
       jobUploadAllowListValidator.validateJob(jobName, jobFolder.toPath());
 
       Git git =
-              gitWrapper.cloneJobRepository(
-                      new File(tempDirPath.toFile(), "repo"), credentialsProvider);
+          gitWrapper.cloneJobRepository(
+              new File(tempDirPath.toFile(), "repo"), credentialsProvider);
 
       jobVersion = createRemoteJob(git, jobName, credentialsProvider, reason, jobFolder);
     } catch (GitAPIException e) {
       // TODO: split into 5xx and 4xx errors depending on exception (e.g too big upload is client
       // error and not server error)
       throw new ExternalSystemError(
-              ExternalSystemError.MainExternalSystem.GIT,
-              String.format(
-                      "Communication with the git server failed while trying to deploy data job: %s. "
-                              + "Please read the exception and follow the instructions.",
-                      jobName),
-              e);
+          ExternalSystemError.MainExternalSystem.GIT,
+          String.format(
+              "Communication with the git server failed while trying to deploy data job: %s. "
+                  + "Please read the exception and follow the instructions.",
+              jobName),
+          e);
     } catch (IOException e) {
       throw new ExternalSystemError(
-              ExternalSystemError.MainExternalSystem.HOST_CONTAINER,
-              String.format(
-                      "Operations on the file system failed while trying to handle deployment of job: %s",
-                      jobName),
-              e);
+          ExternalSystemError.MainExternalSystem.HOST_CONTAINER,
+          String.format(
+              "Operations on the file system failed while trying to handle deployment of job: %s",
+              jobName),
+          e);
     }
     return jobVersion;
   }
@@ -158,37 +158,37 @@ public class JobUpload {
     CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
     try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "delete")) {
       Git git =
-              gitWrapper.cloneJobRepository(
-                      new File(tempDirPath.toFile(), "repo"), credentialsProvider);
+          gitWrapper.cloneJobRepository(
+              new File(tempDirPath.toFile(), "repo"), credentialsProvider);
 
       removeRemoteJob(git, jobName, credentialsProvider, reason);
     } catch (GitAPIException e) {
       // TODO: split into 5xx and 4xx errors depending on exception (e.g too big upload is client
       // error and not server error)
       throw new ExternalSystemError(
-              ExternalSystemError.MainExternalSystem.GIT,
-              String.format(
-                      "Communication with the git server failed while trying to delete data job: %s. "
-                              + "Please read the exception and follow the instructions.",
-                      jobName),
-              e);
+          ExternalSystemError.MainExternalSystem.GIT,
+          String.format(
+              "Communication with the git server failed while trying to delete data job: %s. "
+                  + "Please read the exception and follow the instructions.",
+              jobName),
+          e);
     } catch (IOException e) {
       throw new ExternalSystemError(
-              ExternalSystemError.MainExternalSystem.HOST_CONTAINER,
-              String.format(
-                      "Operations on the file system failed while trying to handle deletion of job: %s",
-                      jobName),
-              e);
+          ExternalSystemError.MainExternalSystem.HOST_CONTAINER,
+          String.format(
+              "Operations on the file system failed while trying to handle deletion of job: %s",
+              jobName),
+          e);
     }
   }
 
   private String createRemoteJob(
-          Git git,
-          String jobName,
-          CredentialsProvider credentialsProvider,
-          String reason,
-          File jobFolder)
-          throws GitAPIException, IOException {
+      Git git,
+      String jobName,
+      CredentialsProvider credentialsProvider,
+      String reason,
+      File jobFolder)
+      throws GitAPIException, IOException {
     String userID = null;
     if (featureFlags.isSecurityEnabled()) {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -198,8 +198,8 @@ public class JobUpload {
   }
 
   private void removeRemoteJob(
-          Git git, String jobName, CredentialsProvider credentialsProvider, String reason)
-          throws GitAPIException, IOException {
+      Git git, String jobName, CredentialsProvider credentialsProvider, String reason)
+      throws GitAPIException, IOException {
     String userID = null;
     if (featureFlags.isSecurityEnabled()) {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

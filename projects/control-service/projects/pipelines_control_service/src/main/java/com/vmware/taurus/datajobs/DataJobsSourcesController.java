@@ -52,7 +52,7 @@ public class DataJobsSourcesController implements DataJobsSourcesApi {
 
   @Override
   public ResponseEntity<DataJobVersion> sourcesUpload(
-          String teamName, String jobName, Resource resource, String reason) {
+      String teamName, String jobName, Resource resource, String reason) {
     System.out.println("The reason is " + reason);
     if (jobsService.jobWithTeamExists(jobName, teamName)) {
       DataJobVersion jobVersion = new DataJobVersion();
