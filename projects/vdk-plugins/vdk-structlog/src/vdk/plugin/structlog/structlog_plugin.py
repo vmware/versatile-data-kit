@@ -1,11 +1,11 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
 import sys
 from typing import List
 from typing import Optional
 
-from pythonjsonlogger import jsonlogger
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
@@ -13,6 +13,7 @@ from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
+from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
@@ -21,6 +22,11 @@ from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_ALL_KEYS
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
+from vdk.plugin.structlog.constants import SYSLOG_ENABLED
+from vdk.plugin.structlog.constants import SYSLOG_PORT
+from vdk.plugin.structlog.constants import SYSLOG_SOCK_TYPE
+from vdk.plugin.structlog.constants import SYSLOG_SOCK_TYPE_VALUES_DICT
+from vdk.plugin.structlog.constants import SYSLOG_URL
 from vdk.plugin.structlog.filters import AttributeAdder
 from vdk.plugin.structlog.formatters import create_formatter
 
@@ -86,13 +92,39 @@ class StructlogPlugin:
                 f"Controls the logging output format. Possible values: {STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES}"
             ),
         )
+        config_builder.add(
+            key=SYSLOG_URL,
+            default_value="localhost",
+            description="The hostname of the endpoint to which VDK logs will be sent through SysLog.",
+        )
+        config_builder.add(
+            key=SYSLOG_PORT,
+            default_value=514,
+            description="The port of the endpoint to which VDK logs will be sent through SysLog.",
+        )
+        config_builder.add(
+            key=SYSLOG_ENABLED,
+            default_value=False,
+            description="If set to True, SysLog log forwarding is enabled.",
+        )
+        config_builder.add(
+            key=SYSLOG_SOCK_TYPE,
+            default_value="UDP",
+            description=f"Socket type for SysLog log forwarding connection. Currently possible values are "
+            f"{list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+        )
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext):
+        os.environ["VDK_USE_STRUCTLOG"] = "1"
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
         logging_formatter = context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
+        syslog_url = context.configuration.get_value(SYSLOG_URL)
+        syslog_port = context.configuration.get_value(SYSLOG_PORT)
+        syslog_sock_type = context.configuration.get_value(SYSLOG_SOCK_TYPE)
+        syslog_enabled = context.configuration.get_value(SYSLOG_ENABLED)
 
         formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
 
@@ -105,6 +137,30 @@ class StructlogPlugin:
 
         root_logger.addHandler(handler)
 
+        if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT:
+            errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
+                    f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid "
+                    f"value for this variable. Provide a valid value for {SYSLOG_SOCK_TYPE}."
+                    f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+                )
+            )
+
+        if syslog_enabled:
+            syslog_handler = logging.handlers.SysLogHandler(
+                address=(
+                    syslog_url,
+                    syslog_port,
+                ),
+                socktype=SYSLOG_SOCK_TYPE_VALUES_DICT[syslog_sock_type],
+                facility="user",
+            )
+            syslog_handler.setLevel(logging.DEBUG)
+            syslog_handler.setFormatter(formatter)
+            syslog_handler.addFilter(metadata_filter)
+            root_logger.addHandler(syslog_handler)
+
     @hookimpl(hookwrapper=True)
     def initialize_job(self, context: JobContext) -> None:
         logging_formatter = context.core_context.configuration.get_value(
@@ -113,6 +169,12 @@ class StructlogPlugin:
         metadata_keys = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_METADATA_KEY
         )
+        syslog_url = context.core_context.configuration.get_value(SYSLOG_URL)
+        syslog_port = context.core_context.configuration.get_value(SYSLOG_PORT)
+        syslog_sock_type = context.core_context.configuration.get_value(
+            SYSLOG_SOCK_TYPE
+        )
+        syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED)
 
         formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
@@ -126,6 +188,31 @@ class StructlogPlugin:
         handler.addFilter(metadata_filter)
 
         root_logger.addHandler(handler)
+
+        if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT:
+            errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
+                    f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid "
+                    f"value for this variable. Provide a valid value for {SYSLOG_SOCK_TYPE}."
+                    f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+                )
+            )
+
+        if syslog_enabled:
+            syslog_handler = logging.handlers.SysLogHandler(
+                address=(
+                    syslog_url,
+                    syslog_port,
+                ),
+                socktype=SYSLOG_SOCK_TYPE_VALUES_DICT[syslog_sock_type],
+                facility="user",
+            )
+            syslog_handler.setLevel(logging.DEBUG)
+            syslog_handler.setFormatter(formatter)
+            syslog_handler.addFilter(job_name_adder)
+            syslog_handler.addFilter(metadata_filter)
+            root_logger.addHandler(syslog_handler)
 
         out: HookCallResult
         out = yield
@@ -140,6 +227,12 @@ class StructlogPlugin:
         metadata_keys = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_METADATA_KEY
         )
+        syslog_url = context.core_context.configuration.get_value(SYSLOG_URL)
+        syslog_port = context.core_context.configuration.get_value(SYSLOG_PORT)
+        syslog_sock_type = context.core_context.configuration.get_value(
+            SYSLOG_SOCK_TYPE
+        )
+        syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED)
 
         formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
@@ -153,6 +246,31 @@ class StructlogPlugin:
         handler.addFilter(metadata_filter)
 
         root_logger.addHandler(handler)
+
+        if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT:
+            errors.report_and_throw(
+                errors.VdkConfigurationError(
+                    f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
+                    f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid "
+                    f"value for this variable. Provide a valid value for {SYSLOG_SOCK_TYPE}."
+                    f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+                )
+            )
+
+        if syslog_enabled:
+            syslog_handler = logging.handlers.SysLogHandler(
+                address=(
+                    syslog_url,
+                    syslog_port,
+                ),
+                socktype=SYSLOG_SOCK_TYPE_VALUES_DICT[syslog_sock_type],
+                facility="user",
+            )
+            syslog_handler.setLevel(logging.DEBUG)
+            syslog_handler.setFormatter(formatter)
+            syslog_handler.addFilter(job_name_adder)
+            syslog_handler.addFilter(metadata_filter)
+            root_logger.addHandler(syslog_handler)
 
         out: HookCallResult
         out = yield
