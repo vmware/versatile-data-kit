@@ -144,10 +144,7 @@ def create_formatter(
     key_set = set(metadata_keys.split(","))
     formatter = None
     custom_key_filter = None
-    if custom_console_format:
-        formatter = ConsoleFormatter(fmt=custom_console_format)
-        custom_key_filter = ConsoleMetadataFilter(key_set)
-    elif logging_format == "json":
+    if logging_format == "json":
         formatter = JsonFormatter(
             StructlogMetadataBuilder(metadata_keys).build_json_format()
         )
@@ -157,7 +154,10 @@ def create_formatter(
             fmt=StructlogMetadataBuilder(metadata_keys).build_ltsv_format()
         )
         custom_key_filter = ConsoleMetadataFilter(key_set)
-    else:
-        formatter = ConsoleFormatter(fmt=StructlogMetadataBuilder(metadata_keys).build_console_format())
+    elif logging_format == "console":
+        format_string = custom_console_format if custom_console_format else StructlogMetadataBuilder(
+            metadata_keys).build_console_format()
+        formatter = ConsoleFormatter(fmt=format_string)
         custom_key_filter = ConsoleMetadataFilter(key_set)
+
     return formatter, custom_key_filter

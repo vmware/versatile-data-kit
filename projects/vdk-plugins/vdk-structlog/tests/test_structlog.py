@@ -135,7 +135,7 @@ def test_custom_format_applied(log_format):
 
 
 @pytest.mark.parametrize("log_format", ["json", "ltsv"])
-def test_custom_format_overrides_default(log_format):
+def test_custom_format_not_applied_for_non_console_formats(log_format):
     custom_format_string = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
 
     with mock.patch.dict(
@@ -150,8 +150,8 @@ def test_custom_format_overrides_default(log_format):
 
         for log in logs:
             if "Log statement with no bound context" in log:
-                assert _matches_custom_format(log), \
-                    f"Log format did not match the custom format. Log: {log}"
+                assert not _matches_custom_format(log), \
+                    f"Custom format was incorrectly applied for {log_format} format. Log: {log}"
                 break
         else:
             pytest.fail("Log statement with no bound context not found in logs")
