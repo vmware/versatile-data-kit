@@ -13,7 +13,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 
-export TAG=latest
+export TAG=${TAG:-$(git rev-parse --short HEAD)}
 export FRONTEND_TAG=latest
 export RELEASE_NAME=${RELEASE_NAME:-cicd-control-service}
 export VDK_OPTIONS="$SCRIPT_DIR/vdk-options.ini"
