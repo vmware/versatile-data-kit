@@ -269,20 +269,9 @@ public class GitWrapper {
   }
 
   RevCommit commitChanges(Git git, String username, String jobName, String reason)
-      throws GitAPIException {
+          throws GitAPIException {
     log.debug("Commit changes to job {} on behalf of {} to local git", jobName, username);
-    RevCommit commit;
-    if (StringUtils.isBlank(reason)) {
-      reason = "Updating data job: " + jobName;
-    }
-    if (StringUtils.isBlank(username)) {
-      String commitMessage = String.format(COMMIT_TEMPLATE_UNSIGNED, jobName, reason);
-      commit = git.commit().setMessage(commitMessage).call();
-    } else {
-      String commitMessage = String.format(COMMIT_TEMPLATE_SIGNED, jobName, reason, username);
-      commit = git.commit().setMessage(commitMessage).setAuthor(username, "").call();
-    }
-    return commit;
+    return git.commit().setMessage(reason).call();
   }
 
   String getLatestCommitSHAFile(Git git, String fileName) throws GitAPIException {
