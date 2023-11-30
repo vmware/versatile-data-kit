@@ -159,7 +159,7 @@ public class JobExecutionService {
             gitWrapper.cloneJobRepository(
                 new File(tempDirPath.toFile(), "repo"), credentialsProvider);
         envs.put(
-            "Commit_message", git.log().addPath(jobName).setMaxCount(1).call().iterator().next().getFullMessage());
+            "COMMIT_MESSAGE", git.log().addPath(jobName).setMaxCount(1).call().iterator().next().getFullMessage());
       }
 
       // Save Data Job execution
