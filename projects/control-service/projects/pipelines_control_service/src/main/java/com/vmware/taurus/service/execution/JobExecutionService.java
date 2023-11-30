@@ -158,8 +158,15 @@ public class JobExecutionService {
         Git git =
             gitWrapper.cloneJobRepository(
                 new File(tempDirPath.toFile(), "repo"), credentialsProvider);
-        String[] split = git.log().addPath(jobName).setMaxCount(1).call().iterator().next()
-                .getFullMessage().split("\n", 2);
+        String[] split =
+            git.log()
+                .addPath(jobName)
+                .setMaxCount(1)
+                .call()
+                .iterator()
+                .next()
+                .getFullMessage()
+                .split("\n", 2);
         envs.put("MLFLOW_RUN_NAME", split[0]);
         envs.put("MLFLOW_EXPERIMENT_NAME", jobName);
         envs.put("MLFLOW_EXPERIMENT_DESCRIPTION", split[1]);
