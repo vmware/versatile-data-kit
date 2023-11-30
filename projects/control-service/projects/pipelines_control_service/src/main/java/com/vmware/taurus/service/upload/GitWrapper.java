@@ -269,7 +269,7 @@ public class GitWrapper {
   }
 
   RevCommit commitChanges(Git git, String username, String jobName, String reason)
-          throws GitAPIException {
+      throws GitAPIException {
     log.debug("Commit changes to job {} on behalf of {} to local git", jobName, username);
     return git.commit().setMessage(reason).call();
   }
