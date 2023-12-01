@@ -1,12 +1,22 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 import os
 import re
 from unittest import mock
+from unittest.mock import patch
 
 import pytest
 from click.testing import Result
+from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.config import vdk_config
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import VdkConfigurationError
+from vdk.internal.core.statestore import StateStore
 from vdk.plugin.structlog import structlog_plugin
+from vdk.plugin.structlog.constants import parse_log_level_module
+from vdk.plugin.structlog.structlog_plugin import StructlogPlugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 
@@ -118,6 +128,96 @@ def test_stock_fields_removal(log_format):
             # check the rest are shown
             for shown_field in shown_fields:
                 assert re.search(stock_field_reps[shown_field], test_log) is not None
+
+
+@pytest.mark.parametrize(
+    "log_type, vdk_level, expected_vdk_level",
+    (
+        ("LOCAL", "INFO", logging.INFO),
+        ("REMOTE", "WARNING", logging.WARNING),
+        ("LOCAL", None, logging.DEBUG),  # if not set default to root log level
+    ),
+)
+def test_log_plugin_structlog(log_type, vdk_level, expected_vdk_level):
+    with mock.patch("socket.socket.connect"):
+        logging.getLogger().setLevel(logging.DEBUG)  # root level
+        logging.getLogger("vdk").setLevel(logging.NOTSET)  # reset vdk log level
+
+        log_plugin = StructlogPlugin()
+
+        store = StateStore()
+        conf = (
+            ConfigurationBuilder()
+            .add(vdk_config.LOG_CONFIG, log_type)
+            .add(vdk_config.LOG_LEVEL_VDK, vdk_level)
+            .build()
+        )
+        core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
+
+        log_plugin.vdk_initialize(core_context)
+
+        assert (
+            logging.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
+        ), "internal vdk logs must be set according to configuration option LOG_LEVEL_VDK but are not"
+
+
+def test_parse_log_level_module():
+    assert parse_log_level_module("") == {}
+    assert parse_log_level_module("a.b.c=INFO") == {"a.b.c": {"level": "INFO"}}
+    assert parse_log_level_module("a.b.c=info") == {"a.b.c": {"level": "INFO"}}
+    assert parse_log_level_module("a.b.c=INFO;x.y=WARN") == {
+        "a.b.c": {"level": "INFO"},
+        "x.y": {"level": "WARN"},
+    }
+
+
+def test_parse_log_level_module_error_cases():
+    with pytest.raises(VdkConfigurationError):
+        parse_log_level_module("a.b.c=NOSUCH")
+
+    with pytest.raises(VdkConfigurationError):
+        parse_log_level_module("bad_separator_not_semi_colon=DEBUG,second_module=INFO")
+
+
+def test_configure_logger_structlog():
+    with patch("logging.config.dictConfig") as mock_dict_config:
+        log_plugin = StructlogPlugin()
+
+        store = StateStore()
+        conf = (
+            ConfigurationBuilder()
+            .add(vdk_config.LOG_CONFIG, "LOCAL")
+            .add(vdk_config.LOG_LEVEL_VDK, "DEBUG")
+            .add(vdk_config.LOG_LEVEL_MODULE, "a.b.c=INFO;foo.bar=ERROR")
+            .build()
+        )
+        core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
+
+        log_plugin.vdk_initialize(core_context)
+
+        configured_loggers = mock_dict_config.call_args[0][0]["loggers"]
+        assert configured_loggers["a.b.c"]["level"] == "INFO"
+        assert configured_loggers["foo.bar"]["level"] == "ERROR"
+
+
+def test_log_plugin_exception_structlog():
+    with mock.patch(
+        "vdk.internal.builtin_plugins.config.log_config.configure_loggers"
+    ) as mocked_log_config:
+        try:
+            mocked_log_config.side_effect = Exception("foo")
+
+            log_plugin = StructlogPlugin()
+
+            # Mock configuration since we wont be needing any.
+            core_context = mock.MagicMock(spec=CoreContext)
+            core_context.configuration = mock.MagicMock()
+
+            # Test except: section in vdk_initialize and expect no exceptions
+            log_plugin.vdk_initialize(core_context)
+        finally:
+            logging.getLogger().setLevel(logging.INFO)
+            logging.getLogger("vdk").setLevel(logging.INFO)
 
 
 def _run_job_and_get_logs():
