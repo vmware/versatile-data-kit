@@ -24,6 +24,7 @@ setuptools.setup(
         "vdk-ingest-file",
         "vdk-server",
         "vdk-logging-format",
+        "vdk-structlog"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
