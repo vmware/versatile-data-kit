@@ -3,7 +3,7 @@
 
 .retry:
   retry_options:
-    max: 1
+    max: 2
     when:
       - always
 
