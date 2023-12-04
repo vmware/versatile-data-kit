@@ -264,27 +264,46 @@ public class DeploymentModelConverter {
       DesiredDataJobDeployment mergedDeployment,
       JobDeployment newDeployment,
       DesiredDataJobDeployment oldDeployment) {
-    if (newDeployment.getResources() == null) {
-      return;
+
+    if (newDeployment.getResources() == null && oldDeployment.getResources() != null) {
+      DataJobDeploymentResources resources = oldDeployment.getResources();
+      setDeploymentResources(
+          mergedDeployment,
+          resources.getCpuRequestCores(),
+          resources.getCpuLimitCores(),
+          resources.getMemoryRequestMi(),
+          resources.getMemoryLimitMi());
+    } else if (newDeployment.getResources() != null && oldDeployment.getResources() == null) {
+      DataJobResources resources = newDeployment.getResources();
+      setDeploymentResources(
+          mergedDeployment,
+          resources.getCpuRequest(),
+          resources.getCpuLimit(),
+          resources.getMemoryRequest(),
+          resources.getMemoryLimit());
+    } else if (newDeployment.getResources() != null && oldDeployment.getResources() != null) {
+      DataJobResources newResources = newDeployment.getResources();
+      DataJobDeploymentResources oldResources = oldDeployment.getResources();
+      Float cpuRequestCores =
+          newResources.getCpuRequest() != null
+              ? newResources.getCpuRequest()
+              : oldResources.getCpuRequestCores();
+      Float cpuLimitCores =
+          newResources.getCpuLimit() != null
+              ? newResources.getCpuLimit()
+              : oldResources.getCpuLimitCores();
+      Integer memoryRequestMi =
+          newResources.getMemoryRequest() != null
+              ? newResources.getMemoryRequest()
+              : oldResources.getMemoryRequestMi();
+      Integer memoryLimitMi =
+          newResources.getMemoryLimit() != null
+              ? newResources.getMemoryLimit()
+              : oldResources.getMemoryLimitMi();
+
+      setDeploymentResources(
+          mergedDeployment, cpuRequestCores, cpuLimitCores, memoryRequestMi, memoryLimitMi);
     }
-    DataJobDeploymentResources resources = new DataJobDeploymentResources();
-    resources.setCpuRequestCores(
-        newDeployment.getResources().getCpuRequest() != null
-            ? newDeployment.getResources().getCpuRequest()
-            : oldDeployment.getResources().getCpuRequestCores());
-    resources.setCpuLimitCores(
-        newDeployment.getResources().getCpuLimit() != null
-            ? newDeployment.getResources().getCpuLimit()
-            : oldDeployment.getResources().getCpuLimitCores());
-    resources.setMemoryRequestMi(
-        newDeployment.getResources().getMemoryRequest() != null
-            ? newDeployment.getResources().getMemoryRequest()
-            : oldDeployment.getResources().getMemoryRequestMi());
-    resources.setMemoryLimitMi(
-        newDeployment.getResources().getMemoryLimit() != null
-            ? newDeployment.getResources().getMemoryLimit()
-            : oldDeployment.getResources().getMemoryLimitMi());
-    mergedDeployment.setResources(resources);
   }
 
   public static DataJobDeploymentStatus toJobDeploymentStatus(
@@ -351,5 +370,19 @@ public class DeploymentModelConverter {
       resources.setMemoryLimit(deploymentResources.getMemoryLimitMi());
     }
     return resources;
+  }
+
+  private static void setDeploymentResources(
+      DesiredDataJobDeployment mergedDeployment,
+      Float cpuRequestCores,
+      Float cpuLimitCores,
+      Integer memoryRequestMi,
+      Integer memoryLimitMi) {
+    DataJobDeploymentResources resources = new DataJobDeploymentResources();
+    resources.setCpuRequestCores(cpuRequestCores);
+    resources.setCpuLimitCores(cpuLimitCores);
+    resources.setMemoryRequestMi(memoryRequestMi);
+    resources.setMemoryLimitMi(memoryLimitMi);
+    mergedDeployment.setResources(resources);
   }
 }

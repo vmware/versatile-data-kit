@@ -222,7 +222,7 @@ public class DataJobsKubernetesService extends KubernetesService {
           v1CronJobs.getItems().stream()
               .map(j -> j.getMetadata().getName())
               .collect(Collectors.toSet());
-      log.debug("K8s V1 cron jobs: {}", v1CronJobNames);
+      log.trace("K8s V1 cron jobs: {}", v1CronJobNames);
     } catch (ApiException e) {
       if (e.getCode()
           == 404) { // as soon as the minimum supported k8s version is >=1.21 then we should remove

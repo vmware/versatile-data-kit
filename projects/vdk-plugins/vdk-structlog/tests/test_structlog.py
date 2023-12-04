@@ -63,6 +63,7 @@ def test_structlog(log_format):
         {
             "VDK_LOGGING_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
             "VDK_LOGGING_FORMAT": log_format,
+            "LOG_LEVEL_MODULE": "test_structlog=WARNING",
         },
     ):
         logs = _run_job_and_get_logs()
@@ -75,6 +76,12 @@ def test_structlog(log_format):
         )
         log_with_bound_and_extra_context = _get_log_containing_s(
             logs, "Log statement with bound context and extra context"
+        )
+
+        # due to the log_level_module config specified in the config.ini of the test job
+        # the 'This log statement should not appear' log should not appear in the output logs
+        assert (
+            _get_log_containing_s(logs, "This log statement should not appear") is None
         )
 
         _assert_cases(
@@ -113,6 +120,58 @@ def test_stock_fields_removal(log_format):
                 assert re.search(stock_field_reps[shown_field], test_log) is not None
 
 
+@pytest.mark.parametrize("log_format", ["console"])
+def test_custom_format_applied(log_format):
+    custom_format_string = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+
+        for log in logs:
+            if "Log statement with no bound context" in log:
+                assert _matches_custom_format(log)
+                break
+        else:
+            pytest.fail("Log statement with no bound context not found in logs")
+
+
+@pytest.mark.parametrize("log_format", ["json", "ltsv"])
+def test_custom_format_not_applied_for_non_console_formats(log_format):
+    custom_format_string = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "timestamp,level,file_name,vdk_job_name",
+            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+
+        for log in logs:
+            if "Log statement with no bound context" in log:
+                assert not _matches_custom_format(
+                    log
+                ), f"Custom format was incorrectly applied for {log_format} format. Log: {log}"
+                break
+        else:
+            pytest.fail("Log statement with no bound context not found in logs")
+
+
+def _matches_custom_format(log):
+    pattern = re.compile(
+        r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \S{1,12} \S{1,8} .+"
+    )
+    return bool(pattern.search(log))
+
+
 def _run_job_and_get_logs():
     """
     Runs the necessary job and returns the output logs.
@@ -140,12 +199,11 @@ def _get_log_containing_s(logs, s):
     :param s:
     :return:
     """
-    try:
-        necessary_log = [x for x in logs if s in x][0]
-    except IndexError as e:
-        raise Exception("Log cannot be found inside provided job logs") from e
-
-    return necessary_log
+    necessary_log = [x for x in logs if s in x]
+    if len(necessary_log) == 0:
+        return None
+    else:
+        return necessary_log[0]
 
 
 def _assert_cases(

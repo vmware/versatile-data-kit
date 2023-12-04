@@ -15,10 +15,36 @@ pip install vdk-structlog
 
 (`vdk config-help` is useful command to browse all config options of your installation of vdk)
 
-| Name             | Description                                                           | Example  Value                                                                                                     | Possible Values                                                                                                    |
-| ---------------- | --------------------------------------------------------------------- |---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| logging_metadata | Configure the metadata that will be output along with the log message | "timestamp, level, logger_name, file_name, vdk_job_name | "timestamp, level, logger_name, file_name, line_number, function_name, vdk_job_name, vdk_step_name, vdk_step_type" |
-| logging_format   | Configure the logging output format. Available formats: json, console | "console"                                               | "console", "json"                                                                                                  |
+| Name                       | Description                                                                                                               | Example Value                                           | Possible Values                                                                                                    |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| logging_metadata           | Configure the metadata that will be output along with the log message                                                     | "timestamp, level, logger_name, file_name, vdk_job_name | "timestamp, level, logger_name, file_name, line_number, function_name, vdk_job_name, vdk_step_name, vdk_step_type" |
+| logging_format             | Configure the logging output format. Available formats: json, console                                                     | "console"                                               | "console", "json"                                                                                                  |
+| custom_console_log_pattern | Custom format string for console logging, applied only when`logging_format` is 'console' and overrides `logging_metadata` | "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"   | Any valid Python logging format string                                                                             |
+
+### Example: Configure Custom Console Format
+
+If you wish to apply a specific format to your console logs, you can define a custom format using the `custom_console_log_pattern` configuration. This custom format string will be used only when the `logging_format` is set to 'console'.
+
+For example, add the following to your data job configuration:
+
+```
+[vdk]
+custom_console_log_pattern=%(asctime)s %(name)-12s %(levelname)-8s %(message)s
+```
+When you run your data job, regardless of other logging settings, your logs will strictly follow this custom format, displaying the timestamp, logger's name, log level, and the log message as per the format string specified.
+
+```
+2023-10-17 11:20:59,202 managed_cursor    INFO     ingest-from-db-example-job - Executing query SUCCEEDED. Query duration 00h:00m:00s
+2023-10-17 11:20:59,202 managed_connectio INFO     ingest-from-db-example-job - Fetching query result...
+2023-10-17 11:20:59,202 managed_cursor    INFO     ingest-from-db-example-job - Fetching all results from query ...
+2023-10-17 11:20:59,202 managed_cursor    INFO     ingest-from-db-example-job - Fetching all results from query SUCCEEDED.
+2023-10-17 11:20:59,202 managed_cursor    INFO     ingest-from-db-example-job - Closing DB cursor ...
+2023-10-17 11:20:59,202 managed_cursor    INFO     ingest-from-db-example-job - Closing DB cursor SUCCEEDED.
+2023-10-17 11:20:59,203 file_based_step   INFO     ingest-from-db-example-job - Entering 30_ingest_to_table.py#run(...) ...
+2023-10-17 11:20:59,203 ingester_router   INFO     ingest-from-db-example-job - Sending tabular data for ingestion with method: sqlite and target: None
+2023-10-17 11:20:59,204 file_based_step   INFO     ingest-from-db-example-job - Exiting  30_ingest_to_table.py#run(...) SUCCESS
+```
+
 
 ### Example: Configure metadata
 
