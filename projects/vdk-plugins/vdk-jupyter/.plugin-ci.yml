@@ -49,7 +49,7 @@ control_service_publish_job_base_image:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - cd projects/vdk-plugins/vdk-jupyter/cicd
     - docker build . -t "$VDK_DOCKER_REGISTRY_URL/vdk_jupyter_integration_test:latest"
-    - docker push "$REGISTRY_URL/vdk_jupyter_integration_test:latest"
+    - docker push "$VDK_DOCKER_REGISTRY_URL/vdk_jupyter_integration_test:latest"
   retry: !reference [.control_service_retry, retry_options]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
