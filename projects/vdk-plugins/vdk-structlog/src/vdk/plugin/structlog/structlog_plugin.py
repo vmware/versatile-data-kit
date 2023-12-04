@@ -16,6 +16,7 @@ from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
+from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES
@@ -80,6 +81,12 @@ class StructlogPlugin:
         )
 
         config_builder.add(
+            key=STRUCTLOG_CONSOLE_LOG_PATTERN,
+            default_value="",
+            description="Custom format string for console logging. Leave empty for default format.",
+        )
+
+        config_builder.add(
             key=STRUCTLOG_LOGGING_FORMAT_KEY,
             default_value=STRUCTLOG_LOGGING_FORMAT_DEFAULT,
             description=(
@@ -93,8 +100,13 @@ class StructlogPlugin:
         logging_formatter = context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
+        custom_format_string = context.configuration.get_value(
+            STRUCTLOG_CONSOLE_LOG_PATTERN
+        )
 
-        formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
+        formatter, metadata_filter = create_formatter(
+            logging_formatter, metadata_keys, custom_format_string
+        )
 
         root_logger = logging.getLogger()
         root_logger.removeHandler(root_logger.handlers[0])
@@ -107,14 +119,19 @@ class StructlogPlugin:
 
     @hookimpl(hookwrapper=True)
     def initialize_job(self, context: JobContext) -> None:
-        logging_formatter = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_FORMAT_KEY
-        )
         metadata_keys = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_METADATA_KEY
         )
+        logging_formatter = context.core_context.configuration.get_value(
+            STRUCTLOG_LOGGING_FORMAT_KEY
+        )
+        custom_format_string = context.core_context.configuration.get_value(
+            STRUCTLOG_CONSOLE_LOG_PATTERN
+        )
 
-        formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
+        formatter, metadata_filter = create_formatter(
+            logging_formatter, metadata_keys, custom_format_string
+        )
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
 
         root_logger = logging.getLogger()
@@ -134,14 +151,19 @@ class StructlogPlugin:
 
     @hookimpl(hookwrapper=True)
     def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
-        logging_formatter = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_FORMAT_KEY
-        )
         metadata_keys = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_METADATA_KEY
         )
+        logging_formatter = context.core_context.configuration.get_value(
+            STRUCTLOG_LOGGING_FORMAT_KEY
+        )
+        custom_format_string = context.core_context.configuration.get_value(
+            STRUCTLOG_CONSOLE_LOG_PATTERN
+        )
 
-        formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
+        formatter, metadata_filter = create_formatter(
+            logging_formatter, metadata_keys, custom_format_string
+        )
         job_name_adder = AttributeAdder("vdk_job_name", context.name)
 
         root_logger = logging.getLogger()
