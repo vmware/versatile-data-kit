@@ -47,12 +47,10 @@ test.describe('convert job', () => {
     await page
       .locator('div')
       .filter({ hasText: 'convert-job was converted to notebook' });
-    //await page.getByRole('button', { name: 'OK' }).click();
 
     // select kernel for the newly created notebook
     await page.locator('div').filter({ hasText: 'Select Kernel' });
     await page.getByText('Select kernel for: "Untitled.ipynb"');
-    await page.getByRole('button', { name: 'Select', exact: true }).click();
 
     // go through the notebook content - guide
     await page.locator('pre').filter({
