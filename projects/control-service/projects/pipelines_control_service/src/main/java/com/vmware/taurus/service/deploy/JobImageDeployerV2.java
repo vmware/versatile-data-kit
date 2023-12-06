@@ -350,14 +350,16 @@ public class JobImageDeployerV2 {
         Optional.ofNullable(jobDeployment.getResources())
             .map(DataJobDeploymentResources::getCpuRequestCores)
             .filter(cpuRequestCores -> cpuRequestCores > 0)
-            .map(String::valueOf)
+            .map(cpuRequestM -> String.valueOf(cpuRequestM.intValue()))
+            .map(cpuRequestM -> cpuRequestM + "m")
             .orElse(defaultConfigurations.dataJobRequests().getCpu());
     checkDefaultCpuRequest(jobDeployment.getResources(), cpuRequest);
     String cpuLimit =
         Optional.ofNullable(jobDeployment.getResources())
             .map(DataJobDeploymentResources::getCpuLimitCores)
             .filter(cpuLimitCores -> cpuLimitCores > 0)
-            .map(String::valueOf)
+            .map(cpuLimitM -> String.valueOf(cpuLimitM.intValue()))
+            .map(cpuLimitM -> cpuLimitM + "m")
             .orElse(defaultConfigurations.dataJobLimits().getCpu());
     checkDefaultCpuLimit(jobDeployment.getResources(), cpuLimit);
     String memoryRequest =
@@ -447,7 +449,9 @@ public class JobImageDeployerV2 {
 
   private void checkDefaultMemoryLimit(DataJobDeploymentResources resources, String memory) {
     try {
-      resources.setMemoryLimitMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
+      if (resources.getMemoryLimitMi() == null) {
+        resources.setMemoryLimitMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
+      }
     } catch (ParseException e) {
       handleResourcesException(e);
     }
@@ -455,7 +459,9 @@ public class JobImageDeployerV2 {
 
   private void checkDefaultMemoryRequest(DataJobDeploymentResources resources, String memory) {
     try {
-      resources.setMemoryRequestMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
+      if (resources.getMemoryRequestMi() == null) {
+        resources.setMemoryRequestMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
+      }
     } catch (ParseException e) {
       handleResourcesException(e);
     }
@@ -463,7 +469,9 @@ public class JobImageDeployerV2 {
 
   private void checkDefaultCpuRequest(DataJobDeploymentResources resources, String cpu) {
     try {
-      resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+      if (resources.getCpuRequestCores() == null) {
+        resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+      }
     } catch (ParseException e) {
       handleResourcesException(e);
     }
@@ -471,7 +479,9 @@ public class JobImageDeployerV2 {
 
   private void checkDefaultCpuLimit(DataJobDeploymentResources resources, String cpu) {
     try {
-      resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+      if (resources.getCpuLimitCores() == null) {
+        resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+      }
     } catch (ParseException e) {
       handleResourcesException(e);
     }
