@@ -47,7 +47,7 @@ test.describe('convert job', () => {
     await page
       .locator('div')
       .filter({ hasText: 'convert-job was converted to notebook' });
-    await page.getByRole('button', { name: 'OK' }).click();
+    //await page.getByRole('button', { name: 'OK' }).click();
 
     // select kernel for the newly created notebook
     await page.locator('div').filter({ hasText: 'Select Kernel' });
