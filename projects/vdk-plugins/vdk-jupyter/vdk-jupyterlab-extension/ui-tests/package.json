@@ -8,6 +8,6 @@
     "test": "jlpm playwright test"
   },
   "devDependencies": {
-    "@jupyterlab/galata": "^4.3.0"
+    "@jupyterlab/galata": "4.3.0"
   }
 }
