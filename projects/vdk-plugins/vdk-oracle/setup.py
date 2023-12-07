@@ -24,7 +24,7 @@ setuptools.setup(
     # Define entry point called "vdk.plugin.run" with name of plugin and module to act as entry point.
     entry_points={"vdk.plugin.run": ["vdk-oracle = vdk.plugin.oracle.oracle_plugin"]},
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
