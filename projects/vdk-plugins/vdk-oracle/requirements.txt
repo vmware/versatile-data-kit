@@ -3,6 +3,9 @@
 
 
 pytest
+pytest-httpserver
 testcontainers
 vdk-core
+vdk-plugin-control-cli
 vdk-test-utils
+werkzeug
