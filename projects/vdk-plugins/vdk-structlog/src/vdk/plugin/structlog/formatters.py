@@ -162,5 +162,5 @@ def create_formatter(
         )
         formatter = ConsoleFormatter(fmt=format_string)
         custom_key_filter = ConsoleMetadataFilter(key_set)
-
+    custom_key_filter.name = "metadata_filter"
     return formatter, custom_key_filter
