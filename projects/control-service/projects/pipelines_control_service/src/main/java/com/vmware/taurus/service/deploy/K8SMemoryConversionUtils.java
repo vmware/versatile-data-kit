@@ -10,23 +10,23 @@ import java.text.ParseException;
 
 public class K8SMemoryConversionUtils {
 
-  public static int getMemoryInMi(int amount, String memory) {
-    if (memory.endsWith("K")) {
+  public static int getMemoryInMi(int amount, String memoryUnit) {
+    if (memoryUnit.endsWith("K")) {
       return amount / 1000;
     }
-    if (memory.endsWith("Ki")) {
+    if (memoryUnit.endsWith("Ki")) {
       return amount / 1024;
     }
-    if (memory.endsWith("Gi")) {
+    if (memoryUnit.endsWith("Gi")) {
       return amount * 1024;
     }
-    if (memory.endsWith("G")) {
+    if (memoryUnit.endsWith("G")) {
       return amount * 1000;
     }
-    if (memory.endsWith("T")) {
+    if (memoryUnit.endsWith("T")) {
       return amount * 1000000;
     }
-    if (memory.endsWith("Ti")) {
+    if (memoryUnit.endsWith("Ti")) {
       return amount * 1048576;
     }
     return amount;
