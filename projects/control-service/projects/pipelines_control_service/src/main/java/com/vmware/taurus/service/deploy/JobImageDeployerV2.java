@@ -200,6 +200,7 @@ public class JobImageDeployerV2 {
     String jobName = dataJob.getName();
     String desiredDataJobDeploymentName = getCronJobName(jobName);
     OffsetDateTime lastDeployedDate = OffsetDateTime.now();
+    setDesiredDeploymentResourcesIfNeeded(desiredDataJobDeployment);
     KubernetesService.CronJob desiredCronJob =
         getCronJob(
             desiredDataJobDeploymentName,
@@ -345,37 +346,11 @@ public class JobImageDeployerV2 {
 
     var jobCommand = jobCommandProvider.getJobCommand(jobName);
 
-    checkDefaultDeploymentResources(jobDeployment);
-    String cpuRequest =
-        Optional.ofNullable(jobDeployment.getResources())
-            .map(DataJobDeploymentResources::getCpuRequestCores)
-            .filter(cpuRequestCores -> cpuRequestCores > 0)
-            .map(cpuRequestM -> String.valueOf(cpuRequestM.intValue()))
-            .map(cpuRequestM -> cpuRequestM + "m")
-            .orElse(defaultConfigurations.dataJobRequests().getCpu());
-    checkDefaultCpuRequest(jobDeployment.getResources(), cpuRequest);
-    String cpuLimit =
-        Optional.ofNullable(jobDeployment.getResources())
-            .map(DataJobDeploymentResources::getCpuLimitCores)
-            .filter(cpuLimitCores -> cpuLimitCores > 0)
-            .map(cpuLimitM -> String.valueOf(cpuLimitM.intValue()))
-            .map(cpuLimitM -> cpuLimitM + "m")
-            .orElse(defaultConfigurations.dataJobLimits().getCpu());
-    checkDefaultCpuLimit(jobDeployment.getResources(), cpuLimit);
-    String memoryRequest =
-        Optional.ofNullable(jobDeployment.getResources())
-            .map(DataJobDeploymentResources::getMemoryRequestMi)
-            .filter(memoryRequestMi -> memoryRequestMi > 0)
-            .map(memoryRequestMi -> memoryRequestMi + "Mi")
-            .orElse(defaultConfigurations.dataJobRequests().getMemory());
-    checkDefaultMemoryRequest(jobDeployment.getResources(), memoryRequest);
-    String memoryLimit =
-        Optional.ofNullable(jobDeployment.getResources())
-            .map(DataJobDeploymentResources::getMemoryLimitMi)
-            .filter(memoryLimitMi -> memoryLimitMi > 0)
-            .map(memoryLimitMi -> memoryLimitMi + "Mi")
-            .orElse(defaultConfigurations.dataJobLimits().getMemory());
-    checkDefaultMemoryLimit(jobDeployment.getResources(), memoryLimit);
+    String cpuRequest = jobDeployment.getResources().getCpuRequestCores() + "m";
+    String cpuLimit = jobDeployment.getResources().getCpuLimitCores() + "m";
+    String memoryRequest = jobDeployment.getResources().getMemoryRequestMi() + "Mi";
+    String memoryLimit = jobDeployment.getResources().getMemoryLimitMi() + "Mi";
+
     // The job name is used as the container name. This is something that we rely on later,
     // when watching for pod modifications in DataJobStatusMonitor.watchPods
     var jobContainer =
@@ -437,7 +412,7 @@ public class JobImageDeployerV2 {
         .build();
   }
 
-  private void checkDefaultDeploymentResources(DesiredDataJobDeployment desiredDataJobDeployment) {
+  private void setDesiredDeploymentResourcesIfNeeded(DesiredDataJobDeployment desiredDataJobDeployment) {
     if (desiredDataJobDeployment == null) {
       return;
     }
@@ -445,11 +420,17 @@ public class JobImageDeployerV2 {
     if (desiredDataJobDeployment.getResources() == null) {
       desiredDataJobDeployment.setResources(new DataJobDeploymentResources());
     }
+
+    setDefaultCpuRequestIfNeeded(desiredDataJobDeployment.getResources());
+    setDefaultCpuLimitIfNeeded(desiredDataJobDeployment.getResources());
+    setDefaultMemoryRequestIfNeeded(desiredDataJobDeployment.getResources());
+    setDefaultMemoryLimitIfNeeded(desiredDataJobDeployment.getResources());
   }
 
-  private void checkDefaultMemoryLimit(DataJobDeploymentResources resources, String memory) {
+  private void setDefaultMemoryLimitIfNeeded(DataJobDeploymentResources resources) {
     try {
       if (resources.getMemoryLimitMi() == null) {
+        String memory = defaultConfigurations.dataJobLimits().getMemory();
         resources.setMemoryLimitMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
       }
     } catch (ParseException e) {
@@ -457,9 +438,10 @@ public class JobImageDeployerV2 {
     }
   }
 
-  private void checkDefaultMemoryRequest(DataJobDeploymentResources resources, String memory) {
+  private void setDefaultMemoryRequestIfNeeded(DataJobDeploymentResources resources) {
     try {
       if (resources.getMemoryRequestMi() == null) {
+        String memory = defaultConfigurations.dataJobRequests().getMemory();
         resources.setMemoryRequestMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
       }
     } catch (ParseException e) {
@@ -467,9 +449,10 @@ public class JobImageDeployerV2 {
     }
   }
 
-  private void checkDefaultCpuRequest(DataJobDeploymentResources resources, String cpu) {
+  private void setDefaultCpuRequestIfNeeded(DataJobDeploymentResources resources) {
     try {
       if (resources.getCpuRequestCores() == null) {
+        String cpu = defaultConfigurations.dataJobRequests().getCpu();
         resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
       }
     } catch (ParseException e) {
@@ -477,9 +460,10 @@ public class JobImageDeployerV2 {
     }
   }
 
-  private void checkDefaultCpuLimit(DataJobDeploymentResources resources, String cpu) {
+  private void setDefaultCpuLimitIfNeeded(DataJobDeploymentResources resources) {
     try {
       if (resources.getCpuLimitCores() == null) {
+        String cpu = defaultConfigurations.dataJobLimits().getCpu();
         resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
       }
     } catch (ParseException e) {
