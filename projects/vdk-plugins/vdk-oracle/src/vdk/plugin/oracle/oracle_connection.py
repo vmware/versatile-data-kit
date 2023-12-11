@@ -13,15 +13,20 @@ log = logging.getLogger(__name__)
 
 
 class OracleConnection(ManagedConnectionBase):
-    def __init__(self, user: str, password: str, connection_string: str):
+    def __init__(
+        self, user: str, password: str, connection_string: str, thick_mode: bool = True
+    ):
         super().__init__(log)
         self._oracle_user = user
         self._oracle_password = password
         self._oracle_connection_string = connection_string
+        self._thick_mode = thick_mode
 
     def _connect(self) -> PEP249Connection:
         import oracledb
 
+        if self._thick_mode:
+            oracledb.init_oracle_client()
         conn = oracledb.connect(
             user=self._oracle_user,
             password=self._oracle_password,
