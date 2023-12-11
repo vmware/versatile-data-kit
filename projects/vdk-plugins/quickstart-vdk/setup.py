@@ -23,7 +23,6 @@ setuptools.setup(
         "vdk-ingest-http",
         "vdk-ingest-file",
         "vdk-server",
-        "vdk-logging-format",
         "vdk-structlog"
     ],
     classifiers=[
