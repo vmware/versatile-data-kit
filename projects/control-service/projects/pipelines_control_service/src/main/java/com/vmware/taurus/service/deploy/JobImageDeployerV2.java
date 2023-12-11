@@ -412,7 +412,8 @@ public class JobImageDeployerV2 {
         .build();
   }
 
-  private void setDesiredDeploymentResourcesIfNeeded(DesiredDataJobDeployment desiredDataJobDeployment) {
+  private void setDesiredDeploymentResourcesIfNeeded(
+      DesiredDataJobDeployment desiredDataJobDeployment) {
     if (desiredDataJobDeployment == null) {
       return;
     }
