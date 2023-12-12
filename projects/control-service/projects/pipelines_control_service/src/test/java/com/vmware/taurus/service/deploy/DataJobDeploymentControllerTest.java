@@ -59,24 +59,6 @@ public class DataJobDeploymentControllerTest {
     dataJobsDeploymentController.deploymentPatch("teamName", "jobName", "id", newDeployment);
     var patchedJob = desiredJobDeploymentRepository.findById("jobName").get();
     Assertions.assertEquals("jobVersion", patchedJob.getGitCommitSha());
-    Assertions.assertEquals("", patchedJob.getVdkImage());
-  }
-
-  @Test
-  @WithMockUser
-  public void testDeploymentPatch_changeVdkVersion() {
-    var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
-    jobsRepository.save(dataJob);
-    var existingDeployment = getDesiredJobDeployment(dataJob);
-    desiredJobDeploymentRepository.save(existingDeployment);
-
-    var newDeployment = TestUtils.getDataJobDeployment("deploymentId", "jobVersion");
-    newDeployment.setVdkImage("newVdkVersion");
-
-    dataJobsDeploymentController.deploymentPatch("teamName", "jobName", "id", newDeployment);
-
-    var patchedJob = desiredJobDeploymentRepository.findById("jobName").get();
-    Assertions.assertEquals("newVdkVersion", patchedJob.getVdkImage());
   }
 
   @Test
@@ -107,7 +89,6 @@ public class DataJobDeploymentControllerTest {
     deployment.setEnabled(true);
     deployment.setLastDeployedBy("user");
     deployment.setSchedule("sched");
-    deployment.setVdkImage("example.com/versatiledatakit/vdk:test-image");
     var resources = new DataJobDeploymentResources();
     resources.setMemoryLimitMi(1);
     resources.setMemoryRequestMi(1);

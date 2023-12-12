@@ -59,7 +59,7 @@ public class JobExecutionResultManager {
 
     return ExecutionResult.builder()
         .executionStatus(executionStatus)
-            .vdkImage(podTerminationMessage.getVdkVersion())
+        .vdkVersion(podTerminationMessage.getVdkVersion())
         .build();
   }
 

@@ -36,7 +36,7 @@ public class DeploymentModelConverter {
     deployment.setResources(jobDeploymentStatus.getResources());
     deployment.setMode(jobDeploymentStatus.getMode());
     deployment.setGitCommitSha(jobDeploymentStatus.getGitCommitSha());
-    deployment.setVdkImage(jobDeploymentStatus.getVdkImage());
+    deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
     deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
 
     return deployment;
@@ -62,7 +62,7 @@ public class DeploymentModelConverter {
 
     deployment.setGitCommitSha(jobDeployment.getGitCommitSha());
     deployment.setPythonVersion(jobDeployment.getPythonVersion());
-    deployment.setVdkImage(jobDeployment.getVdkImage());
+    deployment.setVdkVersion(jobDeployment.getVdkVersion());
 
     return deployment;
   }
@@ -165,10 +165,10 @@ public class DeploymentModelConverter {
         newDeployment.getGitCommitSha() != null
             ? newDeployment.getGitCommitSha()
             : oldDeployment.getGitCommitSha());
-    mergedDeployment.setVdkImage(
-        (newDeployment.getVdkImage() != null || newDeployment.getPythonVersion() != null)
-            ? newDeployment.getVdkImage()
-            : oldDeployment.getVdkImage());
+    mergedDeployment.setVdkVersion(
+        newDeployment.getVdkVersion() != null
+            ? newDeployment.getVdkVersion()
+            : oldDeployment.getVdkVersion());
     mergedDeployment.setPythonVersion(
         newDeployment.getPythonVersion() != null
             ? newDeployment.getPythonVersion()
@@ -223,6 +223,10 @@ public class DeploymentModelConverter {
         newDeployment.getPythonVersion() != null
             ? newDeployment.getPythonVersion()
             : oldDeployment.getPythonVersion());
+    mergedDeployment.setVdkVersion(
+            newDeployment.getVdkVersion() != null
+            ? newDeployment.getVdkVersion()
+                    : oldDeployment.getVdkVersion());
     mergedDeployment.setLastDeployedBy(
         userDeployer != null ? userDeployer : oldDeployment.getLastDeployedBy());
     mergedDeployment.setSchedule(
@@ -236,10 +240,6 @@ public class DeploymentModelConverter {
         newDeployment.getEnabled() != null
             ? newDeployment.getEnabled()
             : oldDeployment.getEnabled());
-    mergedDeployment.setVdkImage(
-        (newDeployment.getVdkImage() != null || newDeployment.getPythonVersion() != null)
-            ? newDeployment.getVdkImage()
-            : oldDeployment.getVdkImage());
 
     return mergedDeployment;
   }
@@ -316,6 +316,7 @@ public class DeploymentModelConverter {
     var deploymentStatus = new DataJobDeploymentStatus();
     deploymentStatus.setJobVersion(actualDataJobDeployment.getGitCommitSha());
     deploymentStatus.setPythonVersion(actualDataJobDeployment.getPythonVersion());
+    deploymentStatus.setVdkVersion(actualDataJobDeployment.getVdkVersion());
     deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
     deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
     deploymentStatus.setContacts(getContactsFromJob(job));
@@ -328,7 +329,6 @@ public class DeploymentModelConverter {
             ? null
             : actualDataJobDeployment.getLastDeployedDate().toString());
     deploymentStatus.setLastDeployedBy(actualDataJobDeployment.getLastDeployedBy());
-    deploymentStatus.setVdkImage(actualDataJobDeployment.getVdkImage());
     return deploymentStatus;
   }
 

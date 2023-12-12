@@ -189,7 +189,7 @@ public class BaseIT {
   public String getDataJobDeploymentVdkVersionRequestBody(String vdkVersion)
       throws JsonProcessingException {
     var deployment = new DataJobDeployment();
-    deployment.setVdkImage(vdkVersion);
+    deployment.setVdkVersion(vdkVersion);
     return mapper.writeValueAsString(deployment);
   }
 }

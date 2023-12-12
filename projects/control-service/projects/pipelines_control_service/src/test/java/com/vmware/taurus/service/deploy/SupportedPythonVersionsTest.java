@@ -5,6 +5,7 @@
 
 package com.vmware.taurus.service.deploy;
 
+import com.vmware.taurus.service.model.JobDeployment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -231,7 +232,7 @@ public class SupportedPythonVersionsTest {
         supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
     ReflectionTestUtils.setField(supportedPythonVersions, DEFAULT_PYTHON_VERSION, "3.7");
 
-    final String defaultVdkImage = "test_vdk_image_3.7";
+    final String defaultVdkImage = "domain:5000/name:test_vdk_image_3.7";
 
     Assertions.assertEquals(defaultVdkImage, supportedPythonVersions.getVdkImage("3.11"));
   }
@@ -240,17 +241,52 @@ public class SupportedPythonVersionsTest {
   public void getVdkImage_multipleSupportedVersions() {
     var supportedVersions = generateSupportedPythonVersionsConf();
 
-    final String resultVdkImg = "test_vdk_image_3.8";
+    final String resultVdkImg = "domain:5000/name:test_vdk_image_3.7";
     ReflectionTestUtils.setField(
         supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
 
     Assertions.assertEquals(resultVdkImg, supportedPythonVersions.getVdkImage("3.8"));
   }
 
+  @Test
+  public void isVdkVersionPassedDifferentFromOneSetInPythonVersion_shouldReturnTrue() {
+    var supportedVersions = generateSupportedPythonVersionsConf();
+    ReflectionTestUtils.setField(
+            supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
+    JobDeployment testDeployment = new JobDeployment();
+    testDeployment.setPythonVersion("3.8");
+    testDeployment.setVdkVersion("test_vdk_image_3.7");
+
+    Assertions.assertTrue(supportedPythonVersions.isVdkVersionPassedDifferentFromOneSetByPythonVersion(testDeployment));
+  }
+
+  @Test
+  public void isVdkVersionPassedDifferentFromOneSetInPythonVersion_shouldReturnFalse() {
+    var supportedVersions = generateSupportedPythonVersionsConf();
+    ReflectionTestUtils.setField(
+            supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
+    JobDeployment testDeployment = new JobDeployment();
+    testDeployment.setPythonVersion("3.8");
+    testDeployment.setVdkVersion("test_vdk_image_3.8");
+
+    Assertions.assertFalse(supportedPythonVersions.isVdkVersionPassedDifferentFromOneSetByPythonVersion(testDeployment));
+  }
+
+  @Test
+  public void replaceVdkVersionInImage_replaceTheImage() {
+    var supportedVersions = generateSupportedPythonVersionsConf();
+    ReflectionTestUtils.setField(
+            supportedPythonVersions, SUPPORTED_PYTHON_VERSIONS, supportedVersions);
+    ReflectionTestUtils.setField(supportedPythonVersions, DEFAULT_PYTHON_VERSION, "3.8");
+    String resImage = "domain:5000/name:replaced_vdk_image";
+
+    Assertions.assertEquals(resImage, supportedPythonVersions.replaceVdkVersionInImage("replaced_vdk_image"));
+  }
+
   private static Map<String, Map<String, String>> generateSupportedPythonVersionsConf() {
     return Map.of(
-        "3.7", Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "test_vdk_image_3.7"),
-        "3.8", Map.of(BASE_IMAGE, "python:3.8-slim", VDK_IMAGE, "test_vdk_image_3.8"),
+        "3.7", Map.of(BASE_IMAGE, "python:3.7-slim", VDK_IMAGE, "domain:5000/name:test_vdk_image_3.7"),
+        "3.8", Map.of(BASE_IMAGE, "python:3.8-slim", VDK_IMAGE, "domain:5000/name:test_vdk_image_3.8"),
         "3.9", Map.of(BASE_IMAGE, "python:3.9-slim", VDK_IMAGE, "test_vdk_image_3.9"));
   }
 }

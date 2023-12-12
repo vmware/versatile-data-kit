@@ -2004,13 +2004,9 @@ public abstract class KubernetesService {
       var initContainers =
           cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getInitContainers();
       if (!CollectionUtils.isEmpty(initContainers)) {
-        // With the functionality to pass custom vdk images that are different from the ones
-        // specified
-        // in the supportedPythonVersions, we need to pass the whole image as a VdkVersion instead
-        // of
-        // just the image tag.
         String vdkImage = initContainers.get(0).getImage();
-        deployment.setVdkImage(vdkImage);
+        deployment.setVdkImageName(vdkImage);
+        deployment.setVdkVersion(DockerImageName.getTag(vdkImage));
       } else {
         log.warn("Missing init container for cronjob {}", cronJobName);
       }
@@ -2070,13 +2066,9 @@ public abstract class KubernetesService {
       var initContainers =
           cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getInitContainers();
       if (!CollectionUtils.isEmpty(initContainers)) {
-        // With the functionality to pass custom vdk images that are different from the ones
-        // specified
-        // in the supportedPythonVersions, we need to pass the whole image as a VdkVersion instead
-        // of
-        // just the image tag.
         String vdkImage = initContainers.get(0).getImage();
-        deployment.setVdkImage(vdkImage);
+        deployment.setVdkImageName(vdkImage);
+        deployment.setVdkVersion(DockerImageName.getTag(vdkImage));
       } else {
         log.warn("Missing init container for cronjob {}", cronJobName);
       }

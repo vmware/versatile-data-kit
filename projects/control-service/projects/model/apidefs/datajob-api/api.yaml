@@ -79,7 +79,7 @@ paths:
         List data Jobs with GraphQL like query. By choosing which field to be returned you can control the output.
         You can learn more about the GraphQL queries by visiting [GraphQL official website](https://graphql.org/learn/queries/)
         Query should be provided as GET parameter, not by POST body. Don't worry about the spaces and tabs
-        Keep in mind that each additional field <b>could make query response time slower, for instance deployments</b>,
+        Keep in mind that each aditional field <b>could make query response time slower, for instance deployments</b>,
         it's best if you request only what you need <br/><br/>
 
         The <b>pageNumber</b> and <b>pageSize</b> arguments are required! Page number should be a <b>number greater than 1</b>,
@@ -102,7 +102,7 @@ paths:
         an invalid response will be return.<br/>
         * <b>pattern</b> should be a non-empty string which the provided property should contains [ignoring cases], for instance: `starshot` pattern will match
         <b>import-starshot-sql, StarShot-servers and notify-starshot</b> job names, but it won't match <b>stars-shot-daily-prune`</b>
-        If a pattern string is not provided, then you must at least provide the property field<br/>
+        If a pattern string is not provided, then you must atleast provide the property field<br/>
         * <b>sort</b> should be an enum value - ASC (ascending) or DESC (descending) option [not required, default is ASC]
         Multiple filters could be applied, but <b>maximum one should contain sorting</b>!
         ```
@@ -376,8 +376,8 @@ paths:
         <li>5 characters at least
         <li>should contain only lowercase alphanumeric symbols and dash [a-z0-9\-]
         <br><br>
-        When successfully created clients can download the keytab associated with the Data Job to run it locally.<br>
-        To deploy so that it can be executed regularly in the runtime environment use /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments API.
+        When succesfully created clients can download the keytab associated with the Data Job to run it locally.<br>
+        To deploy so that it can be executed reguarly in the runtime environment use /data-jobs/for-team/{team_name}/jobs/{job_name}/deployments API.
 
   '/data-jobs/for-team/{team_name}/jobs/{job_name}':
     summary: |
@@ -548,9 +548,9 @@ paths:
       parameters:
         - name: send_notification
           description: |
-            Allows administrators to disable sending notification during maintenance window for platform errors -
+            Allows administrators to disable sending notification during maintance window for platfrom errors -
             e.g if all jobs are being re-deployed due to migration or after recovering from an outage.
-            Monitoring data will still be populated so deployment status can be monitored by admins.
+            Monitoring data will still be popoulated so deployment status can be monitored by admins.
           schema:
             type: boolean
             default: True
@@ -569,7 +569,7 @@ paths:
       summary: Creates or updates a deployment of a Data Job. | (Stable)
       description: |
         <i>(Introduced in v1.0)</i> | Creates or updates a deployment of a Data Job.
-        The API returns before the actual Job is deployed (the operation is asynchronous).
+        The API returns before the actual Job is deployed (the operation is asynchrounous).
         Depending on settings specified during Data Job creation, clients will get an e-mail in case of success or failure of the deployment.
         If you need to change only deployment settings without changing the job version, use PATCH deployments request which is synchronous.
     parameters:
@@ -632,7 +632,7 @@ paths:
       summary: |
           Patch a deployment of a Data Job. Use it to change the configuration of a data job.
           For example: to enable or disable deployment, to change the vdk version.
-          The operation is guaranteed to be synchronous so it cannot be used to deploy new version of a data job -
+          The operation is guranteed to be synchrounous so it cannot be used to deploy new version of a data job -
           job_version cannot be changed using PATCH. Use POST .../deployments for this. | (Stable)
       description: <i>(Introduced in v1.0)</i>
     parameters:
@@ -818,7 +818,7 @@ paths:
       operationId: dataJobLogsDownload
       summary: |
           Download data job logs.
-          This API is guaranteed to provide logs only if the jobs is currently running.
+          This API is guranteed to provide logs only if the jobs is currently running.
           For logs from older job executions - use logsUrl field passed by GET execution API or jobsQuery API.
       description: <i>(Introduced in v1.2.9)</i>
       parameters:
@@ -902,7 +902,7 @@ paths:
 
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/deployments/{deployment_id}/secrets':
     summary: |
-      Data Job Secrets API allows the management of secrets for specific data jobs. Secrets are any sensitive data:
+      Data Job Secrets API allows the management of secrets for specific data jobs. Secreats are any sensitive data:
       passwords/tokens/credentials which are need by a data job.
     get:
       tags:
@@ -1134,10 +1134,10 @@ components:
       description: A deployment of the Data Job
       type: object
       properties:
-        vdk_image:
-          description: A specific VDK image to use
+        vdk_version:
+          description: A specific VDK version to use
           type: string
-          example: "example.com/versatiledatakit/vdk:latest"
+          example: 2.1
         job_version:
           description: Job version (can be Git commit)
           type: string
@@ -1171,10 +1171,10 @@ components:
       description: A deployment status of the Data Job, which includes information such as last deployment date, and who deployed the Data Job.
       type: object
       properties:
-        vdk_image:
-          description: A specific VDK image to use
+        vdk_version:
+          description: A specific VDK version to use
           type: string
-          example: "example.com/versatiledatakit/vdk:latest"
+          example: 2.1
         job_version:
           description: Job version (can be Git commit)
           type: string
@@ -1333,7 +1333,7 @@ components:
       example: release
 
     DataJobResources:
-      description: Resource configuration of a data Data Job Deployment.
+      description: Resource cofiguration of a data Data Job Deployment.
       type: object
       properties:
         cpu_request:

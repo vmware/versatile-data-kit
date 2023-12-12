@@ -7,6 +7,7 @@ package com.vmware.taurus.service.deploy;
 
 import java.util.*;
 
+import com.vmware.taurus.service.model.JobDeployment;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -133,5 +134,17 @@ public class SupportedPythonVersions {
 
   private String getBuilderImage(Map<String, String> supportedPythonVersion) {
     return supportedPythonVersion.getOrDefault(BUILDER_IMAGE, dockerRegistryService.builderImage());
+  }
+
+  public boolean isVdkVersionPassedDifferentFromOneSetByPythonVersion(JobDeployment jobDeployment) {
+    var passedVdkVersion = jobDeployment.getVdkVersion();
+    var vdkVersionSetByPythonVersion = DockerImageName.getTag(getVdkImage(jobDeployment.getPythonVersion()));
+
+    return passedVdkVersion != null && !passedVdkVersion.equals(vdkVersionSetByPythonVersion);
+  }
+
+  public String replaceVdkVersionInImage(String vdkVersion) {
+    String defaultVdkImage = getDefaultVdkImage();
+    return defaultVdkImage.replace(DockerImageName.getTag(defaultVdkImage), vdkVersion);
   }
 }

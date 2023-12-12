@@ -178,9 +178,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
     Assertions.assertEquals(true, jobDeployment.getEnabled());
     // by default the version is the same as the tag specified by datajobs.vdk.image
     // for integration test this is registry.hub.docker.com/versatiledatakit/quickstart-vdk:release
-    Assertions.assertEquals(
-        "ghcr.io/versatile-data-kit-dev/versatiledatakit/quickstart-vdk:release",
-        jobDeployment.getVdkImage());
+    Assertions.assertEquals("release", jobDeployment.getVdkVersion());
     Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
     // just check some valid date is returned. It would be too error-prone/brittle to verify exact
     // time.
@@ -214,9 +212,9 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
+        .andExpect(status().isBadRequest());
 
-    // verify vdk version is changed
+    // verify vdk version is not changed
     mockMvc
         .perform(
             get(String.format(
@@ -225,7 +223,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.vdk_image", is("new_vdk_version_tag")));
+        .andExpect(jsonPath("$.vdk_version", is("release")));
 
     // Execute change python version and set corresponding vdk version for deployment
     mockMvc
@@ -247,7 +245,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
     Assertions.assertEquals(false, cronJob.getEnabled());
     Assertions.assertTrue(cronJob.getImageName().endsWith(testJobVersionSha));
     Assertions.assertEquals("user", cronJob.getLastDeployedBy());
-    Assertions.assertTrue(cronJob.getVdkImage().endsWith("pre-release"));
+    Assertions.assertTrue(cronJob.getVdkVersion().endsWith("pre-release"));
     Assertions.assertEquals("3.8", cronJob.getPythonVersion());
 
     // Execute delete deployment

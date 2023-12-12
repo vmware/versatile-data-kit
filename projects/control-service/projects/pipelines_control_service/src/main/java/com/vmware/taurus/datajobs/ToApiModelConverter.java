@@ -109,7 +109,7 @@ public class ToApiModelConverter {
     deployment.setJobVersion(jobDeploymentStatus.getGitCommitSha());
     deployment.setLastDeployedBy(jobDeploymentStatus.getLastDeployedBy());
     deployment.setLastDeployedDate(jobDeploymentStatus.getLastDeployedDate());
-    deployment.setVdkImage(jobDeploymentStatus.getVdkImage());
+    deployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
     deployment.setPythonVersion(jobDeploymentStatus.getPythonVersion());
 
     return deployment;
@@ -181,7 +181,7 @@ public class ToApiModelConverter {
     // TODO finish mapping implementation in TAUR-1535
     v2DataJobDeployment.setContacts(new DataJobContacts());
     v2DataJobDeployment.setSchedule(new V2DataJobSchedule());
-    v2DataJobDeployment.setVdkVersion(jobDeploymentStatus.getVdkImage());
+    v2DataJobDeployment.setVdkVersion(jobDeploymentStatus.getVdkVersion());
     v2DataJobDeployment.setExecutions(new ArrayList<>());
 
     return v2DataJobDeployment;
@@ -202,7 +202,7 @@ public class ToApiModelConverter {
         .logsUrl(logsUrl)
         .deployment(
             new DataJobDeployment()
-                    .vdkImage(jobExecutionToConvert.getVdkImage())
+                .vdkVersion(jobExecutionToConvert.getVdkVersion())
                 .jobVersion(jobExecutionToConvert.getJobVersion())
                 .pythonVersion(jobExecutionToConvert.getJobPythonVersion())
                 .schedule(

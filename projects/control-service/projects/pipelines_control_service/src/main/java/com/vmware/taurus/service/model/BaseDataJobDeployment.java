@@ -25,6 +25,8 @@ public abstract class BaseDataJobDeployment {
 
   private String pythonVersion;
 
+  private String vdkVersion;
+
   private String gitCommitSha;
 
   private String schedule;
@@ -34,6 +36,4 @@ public abstract class BaseDataJobDeployment {
   private String lastDeployedBy;
 
   private Boolean enabled;
-
-  private String vdkImage;
 }

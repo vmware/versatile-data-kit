@@ -16,7 +16,9 @@ public class JobDeploymentStatus {
 
   private String gitCommitSha;
 
-  private String vdkImage;
+  private String vdkImageName;
+
+  private String vdkVersion;
 
   private String pythonVersion;
 

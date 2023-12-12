@@ -41,7 +41,7 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
+        .andExpect(status().isBadRequest());
   }
 
   private void disableDeployment() throws Exception {
@@ -67,7 +67,7 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.vdk_image", is("new_vdk_version_tag")));
+        .andExpect(jsonPath("$.vdk_version", is("release")));
   }
 
   private void resetVdkDeploymentVersion() throws Exception {
@@ -80,7 +80,7 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody(""))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isAccepted());
+        .andExpect(status().isBadRequest());
   }
 
   private MvcResult getDeployment() throws Exception {
@@ -105,9 +105,9 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertEquals("user", jobDeployment.getLastDeployedBy());
     Assertions.assertEquals("3.9", jobDeployment.getPythonVersion());
     Assertions.assertFalse(jobDeployment.getEnabled());
-    Assertions.assertEquals("new_vdk_version_tag", jobDeployment.getVdkImage());
+    Assertions.assertEquals("release", jobDeployment.getVdkVersion());
     Assertions.assertNotNull(jobDeployment.getJobVersion());
-    Assertions.assertNotNull(jobDeployment.getVdkImage());
+    Assertions.assertNotNull(jobDeployment.getVdkVersion());
   }
 
   @Override

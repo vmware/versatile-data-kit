@@ -98,7 +98,7 @@ public class DeploymentServiceV2Test {
   public void testFindAllActualDataJobDeployments() {
 
     Assertions.assertEquals(
-            0, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
+        0, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
     var deployment = new ActualDataJobDeployment();
 
     var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
@@ -108,23 +108,7 @@ public class DeploymentServiceV2Test {
     actualJobDeploymentRepository.save(deployment);
 
     Assertions.assertEquals(
-            1, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
-  }
-
-  @Test
-  public void testPatchDesiredDeployment_changeVdkVersion_expectMergedDeployment() {
-    var dataJob = ToModelApiConverter.toDataJob(TestUtils.getDataJob("teamName", "jobName"));
-    jobsRepository.save(dataJob);
-    var initialDeployment = new DesiredDataJobDeployment();
-    initialDeployment.setDataJob(dataJob);
-    initialDeployment.setDataJobName(dataJob.getName());
-    desiredJobDeploymentRepository.save(initialDeployment);
-    JobDeployment jobDeployment = generateTestDeployment();
-    jobDeployment.setVdkImage("new/test/vdkImage");
-    deploymentServiceV2.patchDesiredDbDeployment(dataJob, jobDeployment, "user");
-    var savedDeployment = desiredJobDeploymentRepository.findById("jobName").get();
-    compareSavedDeploymentWithTestDeployment(jobDeployment, savedDeployment, "user");
-    Assertions.assertEquals(jobDeployment.getVdkImage(), savedDeployment.getVdkImage());
+        1, deploymentServiceV2.findAllActualDataJobDeployments().keySet().size());
   }
 
   @AfterEach

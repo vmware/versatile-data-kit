@@ -101,7 +101,6 @@ public class DataJobDeploymentControllerReadTest {
     deployment.setEnabled(true);
     deployment.setLastDeployedBy("user");
     deployment.setSchedule("sched");
-    deployment.setVdkImage("example.com/versatiledatakit/vdk:test-image");
     var resources = new DataJobDeploymentResources();
     resources.setMemoryLimitMi(1);
     resources.setMemoryRequestMi(1);
