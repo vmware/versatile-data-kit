@@ -14,4 +14,4 @@ To build the job_base images run `./publish-job-base-imagetest` which will publi
 
 ## Use
 
-It's then set in values.yaml of the helm chart as `deploymentDataJobBaseImage` option
+It's then set in values.yaml of the helm chart as `deploymentDataJobBaseImage` option 
