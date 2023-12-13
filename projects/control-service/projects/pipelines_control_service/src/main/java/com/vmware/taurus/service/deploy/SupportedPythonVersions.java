@@ -136,13 +136,6 @@ public class SupportedPythonVersions {
     return supportedPythonVersion.getOrDefault(BUILDER_IMAGE, dockerRegistryService.builderImage());
   }
 
-  public boolean isVdkVersionPassedDifferentFromOneSetByPythonVersion(JobDeployment jobDeployment) {
-    var passedVdkVersion = jobDeployment.getVdkVersion();
-    var vdkVersionSetByPythonVersion = DockerImageName.getTag(getVdkImage(jobDeployment.getPythonVersion()));
-
-    return passedVdkVersion != null && !passedVdkVersion.equals(vdkVersionSetByPythonVersion);
-  }
-
   public String replaceVdkVersionInImage(String vdkVersion) {
     String defaultVdkImage = getDefaultVdkImage();
     return defaultVdkImage.replace(DockerImageName.getTag(defaultVdkImage), vdkVersion);

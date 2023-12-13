@@ -373,7 +373,10 @@ public class JobImageDeployerV2 {
             "-c",
             "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
                 + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
-    var jobVdkImage = supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
+    var jobVdkImage =
+            isVdkVersionPassedDifferentFromOneSetByPythonVersion(jobDeployment)
+                    ? supportedPythonVersions.replaceVdkVersionInImage(jobDeployment.getVdkVersion())
+                    : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     var jobInitContainer =
         KubernetesService.container(
             "vdk",
@@ -480,5 +483,13 @@ public class JobImageDeployerV2 {
             "The resource won't be present in the DB",
             "Verify the string can be parsed to a number");
     log.error(errorMessage.toString(), e);
+  }
+
+  private boolean isVdkVersionPassedDifferentFromOneSetByPythonVersion(DesiredDataJobDeployment jobDeployment) {
+    var passedVdkVersion = jobDeployment.getVdkVersion();
+    var vdkVersionSetByPythonVersion =
+            DockerImageName.getTag(supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion()));
+
+    return passedVdkVersion != null && !passedVdkVersion.isEmpty() && !passedVdkVersion.equals(vdkVersionSetByPythonVersion);
   }
 }

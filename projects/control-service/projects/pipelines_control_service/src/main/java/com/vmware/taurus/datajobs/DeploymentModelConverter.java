@@ -224,9 +224,9 @@ public class DeploymentModelConverter {
             ? newDeployment.getPythonVersion()
             : oldDeployment.getPythonVersion());
     mergedDeployment.setVdkVersion(
-            newDeployment.getVdkVersion() != null
+        newDeployment.getVdkVersion() != null
             ? newDeployment.getVdkVersion()
-                    : oldDeployment.getVdkVersion());
+            : oldDeployment.getVdkVersion());
     mergedDeployment.setLastDeployedBy(
         userDeployer != null ? userDeployer : oldDeployment.getLastDeployedBy());
     mergedDeployment.setSchedule(
