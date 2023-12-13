@@ -184,16 +184,25 @@ class StructlogPlugin:
     @hookimpl(hookwrapper=True)
     def run_step(self, context: JobContext, step: Step) -> Optional[StepResult]:
         root_logger = logging.getLogger()
+        handler = root_logger.handlers[0]
+
+        # make sure the metadata filter executes last
+        # so that step_name and step_type are filtered if necessary
+        metadata_filter = [f for f in handler.filters if f.name == "metadata_filter"][0]
+        handler.removeFilter(metadata_filter)
+
         step_name_adder = AttributeAdder("vdk_step_name", step.name)
         step_type_adder = AttributeAdder("vdk_step_type", step.type)
-        for handler in root_logger.handlers:
-            handler.addFilter(step_name_adder)
-            handler.addFilter(step_type_adder)
+        handler.addFilter(step_name_adder)
+        handler.addFilter(step_type_adder)
+
+        # make sure the metadata filter executes last
+        # so that step_name and step_type are filtered if necessary
+        handler.addFilter(metadata_filter)
         out: HookCallResult
         out = yield
-        for handler in root_logger.handlers:
-            handler.removeFilter(step_name_adder)
-            handler.removeFilter(step_type_adder)
+        handler.removeFilter(step_name_adder)
+        handler.removeFilter(step_type_adder)
 
 
 @hookimpl
