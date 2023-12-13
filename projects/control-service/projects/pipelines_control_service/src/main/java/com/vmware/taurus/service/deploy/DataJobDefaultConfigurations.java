@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataJobDefaultConfigurations {
 
-  @Value("${datajobs.job.resources.limits.memory:1G}")
+  @Value("${datajobs.job.resources.limits.memory:1000Mi}")
   private String memoryLimits;
 
   @Value("${datajobs.job.resources.limits.cpu:2000m}")
