@@ -17,6 +17,7 @@ include:
   - "projects/vdk-plugins/airflow-provider-vdk/.airflow-ci.yml"
 
 stages:
+  - ssl_check
   - build
   - publish_artifacts
   - pre_release
@@ -26,6 +27,14 @@ stages:
   - release_image
   - coverity-scan
   - end
+
+check_ssl_certificate:
+  stage: ssl_check
+  script:
+    - apt-get update && apt-get install -y openssl
+    - openssl s_client -connect gitlab.com:443 -servername gitlab.com </dev/null || true
+    - curl -Iv https://gitlab.com || true
+  allow_failure: true
 
 build-check-prerequisites:
   stage: build
