@@ -45,6 +45,7 @@ class OraclePlugin:
                 oracle_user,
                 oracle_pass,
                 conf.get_oracle_connection_string(),
+                conf.oracle_thick_mode(),
             ),
         )
         context.ingester.add_ingester_factory_method(

@@ -12,6 +12,7 @@ from vdk.internal.core.config import ConfigurationBuilder
 ORACLE_USER = "ORACLE_USER"
 ORACLE_PASSWORD = "ORACLE_PASSWORD"
 ORACLE_USE_SECRETS = "ORACLE_USE_SECRETS"
+ORACLE_THICK_MODE = "ORACLE_THICK_MODE"
 ORACLE_USER_SECRET = "ORACLE_USER_SECRET"
 ORACLE_PASSWORD_SECRET = "ORACLE_PASSWORD_SECRET"
 ORACLE_CONNECTION_STRING = "ORACLE_CONNECTION_STRING"
@@ -38,6 +39,9 @@ class OracleConfiguration:
 
     def oracle_use_secrets(self) -> bool:
         return self.__config.get_value(ORACLE_USE_SECRETS)
+
+    def oracle_thick_mode(self) -> bool:
+        return self.__config.get_value(ORACLE_THICK_MODE)
 
     @staticmethod
     def add_definitions(config_builder: ConfigurationBuilder):
@@ -73,4 +77,9 @@ class OracleConfiguration:
             key=ORACLE_PASSWORD_SECRET,
             default_value=None,
             description="The password secret key if using secrets to connect to Oracle",
+        )
+        config_builder.add(
+            key=ORACLE_THICK_MODE,
+            default_value=True,
+            description="Use oracle thick mode, default is True. Set to False to disable oracle thick mode. More info: https://python-oracledb.readthedocs.io/en/latest/user_guide/appendix_b.html",
         )
