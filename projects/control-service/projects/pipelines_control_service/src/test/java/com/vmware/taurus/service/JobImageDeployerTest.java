@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
@@ -83,6 +84,7 @@ public class JobImageDeployerTest {
         .thenReturn(new KubernetesService.Resources("1.5", "200"));
     Mockito.when(kubernetesResources.dataJobInitContainerRequests())
         .thenReturn(new KubernetesService.Resources("1.5", "200"));
+    Mockito.when(supportedPythonVersions.getVdkImage("3.9")).thenReturn("release");
 
     var annotationCaptor = ArgumentCaptor.forClass(Map.class);
     var labelCaptor = ArgumentCaptor.forClass(Map.class);

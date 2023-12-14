@@ -7,7 +7,6 @@ package com.vmware.taurus.service.deploy;
 
 import java.util.*;
 
-import com.vmware.taurus.service.model.JobDeployment;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

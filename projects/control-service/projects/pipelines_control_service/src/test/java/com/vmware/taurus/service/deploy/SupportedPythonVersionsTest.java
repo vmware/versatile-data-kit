@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.service.model.JobDeployment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

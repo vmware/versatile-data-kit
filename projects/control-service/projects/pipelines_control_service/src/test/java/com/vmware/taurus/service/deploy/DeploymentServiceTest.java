@@ -142,6 +142,7 @@ public class DeploymentServiceTest {
 
     when(kubernetesService.readCronJob(TEST_CRONJOB_NAME))
         .thenReturn(Optional.of(TestUtils.getJobDeploymentStatus()));
+    when(supportedPythonVersions.getVdkImage(any())).thenReturn("release");
   }
 
   @Test

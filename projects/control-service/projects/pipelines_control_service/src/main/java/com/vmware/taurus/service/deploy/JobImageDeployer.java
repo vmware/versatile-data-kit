@@ -376,11 +376,15 @@ public class JobImageDeployer {
     return jobName;
   }
 
-  private boolean isVdkVersionPassedDifferentFromOneSetByPythonVersion(JobDeployment jobDeployment) {
+  private boolean isVdkVersionPassedDifferentFromOneSetByPythonVersion(
+      JobDeployment jobDeployment) {
     var passedVdkVersion = jobDeployment.getVdkVersion();
     var vdkVersionSetByPythonVersion =
-            DockerImageName.getTag(supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion()));
+        DockerImageName.getTag(
+            supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion()));
 
-    return passedVdkVersion != null && !passedVdkVersion.isEmpty() && !passedVdkVersion.equals(vdkVersionSetByPythonVersion);
+    return passedVdkVersion != null
+        && !passedVdkVersion.isEmpty()
+        && !passedVdkVersion.equals(vdkVersionSetByPythonVersion);
   }
 }
