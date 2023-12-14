@@ -241,6 +241,8 @@ public class DeploymentModelConverter {
             ? newDeployment.getEnabled()
             : oldDeployment.getEnabled());
 
+    resetVdkVersionIfPythonVersionChange(oldDeployment, mergedDeployment);
+
     return mergedDeployment;
   }
 
@@ -262,6 +264,13 @@ public class DeploymentModelConverter {
               + oldDeployment
               + " vs "
               + newDeployment);
+    }
+  }
+
+  private static void resetVdkVersionIfPythonVersionChange(
+          DesiredDataJobDeployment oldDeployment, DesiredDataJobDeployment newDeployment) {
+    if (newDeployment.getPythonVersion() != null && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
+      newDeployment.setVdkVersion(null);
     }
   }
 

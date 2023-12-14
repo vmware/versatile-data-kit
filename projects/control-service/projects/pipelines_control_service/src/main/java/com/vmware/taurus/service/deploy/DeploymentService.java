@@ -72,6 +72,7 @@ public class DeploymentService {
               dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
       var mergedDeployment =
           DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+      resetVdkVersionIfPythonVersionChange(oldDeployment, mergedDeployment);
       validateFieldsCanBePatched(oldDeployment, mergedDeployment);
 
       // we are setting sendNotification to false since it's not necessary. If something fails we'd
@@ -161,6 +162,7 @@ public class DeploymentService {
                 dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
         setPythonVersionIfNull(oldDeployment, jobDeployment);
         jobDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+        resetVdkVersionIfPythonVersionChange(oldDeployment, jobDeployment);
       }
 
       if (jobDeployment.getPythonVersion() == null) {
@@ -267,6 +269,12 @@ public class DeploymentService {
   private void setPythonVersionIfNull(JobDeployment oldDeployment, JobDeployment newDeployment) {
     if (oldDeployment.getPythonVersion() == null && newDeployment.getPythonVersion() == null) {
       newDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
+    }
+  }
+
+  private void resetVdkVersionIfPythonVersionChange(JobDeployment oldDeployment, JobDeployment newDeployment) {
+    if (newDeployment.getPythonVersion() != null && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
+      newDeployment.setVdkVersion(null);
     }
   }
 }
