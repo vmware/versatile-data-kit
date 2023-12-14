@@ -272,8 +272,10 @@ public class DeploymentService {
     }
   }
 
-  private void resetVdkVersionIfPythonVersionChange(JobDeployment oldDeployment, JobDeployment newDeployment) {
-    if (newDeployment.getPythonVersion() != null && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
+  private void resetVdkVersionIfPythonVersionChange(
+      JobDeployment oldDeployment, JobDeployment newDeployment) {
+    if (newDeployment.getPythonVersion() != null
+        && oldDeployment.getPythonVersion() != null && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
       newDeployment.setVdkVersion(null);
     }
   }
