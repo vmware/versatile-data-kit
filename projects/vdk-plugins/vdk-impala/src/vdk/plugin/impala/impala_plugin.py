@@ -66,6 +66,10 @@ class ImpalaPlugin:
 
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
+        self._db_default_type = context.core_context.configuration.get_value(
+            "DB_DEFAULT_TYPE"
+        )
+
         self._impala_cfg = ImpalaPluginConfiguration(
             context.core_context.configuration
         )  # necessary for the query decoration hook
@@ -152,11 +156,25 @@ class ImpalaPlugin:
     @hookimpl(tryfirst=True)
     def db_connection_decorate_operation(self, decoration_cursor: DecorationCursor):
         if self._impala_cfg.sync_ddl():
-            decoration_cursor.execute("SET SYNC_DDL=True")
+            try:
+                decoration_cursor.execute("SET SYNC_DDL=True")
+            except Exception as e:
+                logging.getLogger(__name__).error(
+                    "Failed to execute 'SET SYNC_DDL=True'"
+                )
+                if self._db_default_type.lower() == "impala":
+                    raise e
         if self._impala_cfg.query_pool():
-            decoration_cursor.execute(
-                f"SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
-            )
+            try:
+                decoration_cursor.execute(
+                    f"SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
+                )
+            except Exception as e:
+                logging.getLogger(__name__).error(
+                    f"Failed to execute 'SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
+                )
+                if self._db_default_type.lower() == "impala":
+                    raise e
 
 
 @hookimpl
