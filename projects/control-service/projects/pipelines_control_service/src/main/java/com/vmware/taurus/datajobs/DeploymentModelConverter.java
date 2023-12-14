@@ -270,7 +270,8 @@ public class DeploymentModelConverter {
   private static void resetVdkVersionIfPythonVersionChange(
       DesiredDataJobDeployment oldDeployment, DesiredDataJobDeployment newDeployment) {
     if (newDeployment.getPythonVersion() != null
-            && oldDeployment.getPythonVersion() != null && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
+        && oldDeployment.getPythonVersion() != null
+        && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
       newDeployment.setVdkVersion(null);
     }
   }
