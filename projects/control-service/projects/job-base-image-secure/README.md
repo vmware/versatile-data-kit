@@ -15,4 +15,4 @@ container registry.
 
 ## Use
 
-It's then set in values.yaml of the helm chart as `deploymentDataJobBaseImage` option 
+It's then set in values.yaml of the helm chart as `deploymentDataJobBaseImage` option
