@@ -41,7 +41,7 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isAccepted());
   }
 
   private void disableDeployment() throws Exception {
@@ -80,7 +80,7 @@ public class DataJobDeploymentCrudIT extends BaseDataJobDeploymentCrudIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody(""))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isAccepted());
   }
 
   private MvcResult getDeployment() throws Exception {

@@ -134,4 +134,9 @@ public class SupportedPythonVersions {
   private String getBuilderImage(Map<String, String> supportedPythonVersion) {
     return supportedPythonVersion.getOrDefault(BUILDER_IMAGE, dockerRegistryService.builderImage());
   }
+
+  public String replaceVdkVersionInImage(String vdkVersion) {
+    String defaultVdkImage = getDefaultVdkImage();
+    return defaultVdkImage.replace(DockerImageName.getTag(defaultVdkImage), vdkVersion);
+  }
 }

@@ -62,6 +62,7 @@ public class DeploymentModelConverter {
 
     deployment.setGitCommitSha(jobDeployment.getGitCommitSha());
     deployment.setPythonVersion(jobDeployment.getPythonVersion());
+    deployment.setVdkVersion(jobDeployment.getVdkVersion());
 
     return deployment;
   }
@@ -222,6 +223,10 @@ public class DeploymentModelConverter {
         newDeployment.getPythonVersion() != null
             ? newDeployment.getPythonVersion()
             : oldDeployment.getPythonVersion());
+    mergedDeployment.setVdkVersion(
+        newDeployment.getVdkVersion() != null
+            ? newDeployment.getVdkVersion()
+            : oldDeployment.getVdkVersion());
     mergedDeployment.setLastDeployedBy(
         userDeployer != null ? userDeployer : oldDeployment.getLastDeployedBy());
     mergedDeployment.setSchedule(
@@ -235,6 +240,8 @@ public class DeploymentModelConverter {
         newDeployment.getEnabled() != null
             ? newDeployment.getEnabled()
             : oldDeployment.getEnabled());
+
+    resetVdkVersionIfPythonVersionChange(oldDeployment, mergedDeployment);
 
     return mergedDeployment;
   }
@@ -260,31 +267,59 @@ public class DeploymentModelConverter {
     }
   }
 
+  private static void resetVdkVersionIfPythonVersionChange(
+      DesiredDataJobDeployment oldDeployment, DesiredDataJobDeployment newDeployment) {
+    if (newDeployment.getPythonVersion() != null
+        && oldDeployment.getPythonVersion() != null
+        && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
+      newDeployment.setVdkVersion(null);
+    }
+  }
+
   private static void mergeDeploymentResources(
       DesiredDataJobDeployment mergedDeployment,
       JobDeployment newDeployment,
       DesiredDataJobDeployment oldDeployment) {
-    if (newDeployment.getResources() == null) {
-      return;
+
+    if (newDeployment.getResources() == null && oldDeployment.getResources() != null) {
+      DataJobDeploymentResources resources = oldDeployment.getResources();
+      setDeploymentResources(
+          mergedDeployment,
+          resources.getCpuRequestCores(),
+          resources.getCpuLimitCores(),
+          resources.getMemoryRequestMi(),
+          resources.getMemoryLimitMi());
+    } else if (newDeployment.getResources() != null && oldDeployment.getResources() == null) {
+      DataJobResources resources = newDeployment.getResources();
+      setDeploymentResources(
+          mergedDeployment,
+          resources.getCpuRequest(),
+          resources.getCpuLimit(),
+          resources.getMemoryRequest(),
+          resources.getMemoryLimit());
+    } else if (newDeployment.getResources() != null && oldDeployment.getResources() != null) {
+      DataJobResources newResources = newDeployment.getResources();
+      DataJobDeploymentResources oldResources = oldDeployment.getResources();
+      Float cpuRequestCores =
+          newResources.getCpuRequest() != null
+              ? newResources.getCpuRequest()
+              : oldResources.getCpuRequestCores();
+      Float cpuLimitCores =
+          newResources.getCpuLimit() != null
+              ? newResources.getCpuLimit()
+              : oldResources.getCpuLimitCores();
+      Integer memoryRequestMi =
+          newResources.getMemoryRequest() != null
+              ? newResources.getMemoryRequest()
+              : oldResources.getMemoryRequestMi();
+      Integer memoryLimitMi =
+          newResources.getMemoryLimit() != null
+              ? newResources.getMemoryLimit()
+              : oldResources.getMemoryLimitMi();
+
+      setDeploymentResources(
+          mergedDeployment, cpuRequestCores, cpuLimitCores, memoryRequestMi, memoryLimitMi);
     }
-    DataJobDeploymentResources resources = new DataJobDeploymentResources();
-    resources.setCpuRequestCores(
-        newDeployment.getResources().getCpuRequest() != null
-            ? newDeployment.getResources().getCpuRequest()
-            : oldDeployment.getResources().getCpuRequestCores());
-    resources.setCpuLimitCores(
-        newDeployment.getResources().getCpuLimit() != null
-            ? newDeployment.getResources().getCpuLimit()
-            : oldDeployment.getResources().getCpuLimitCores());
-    resources.setMemoryRequestMi(
-        newDeployment.getResources().getMemoryRequest() != null
-            ? newDeployment.getResources().getMemoryRequest()
-            : oldDeployment.getResources().getMemoryRequestMi());
-    resources.setMemoryLimitMi(
-        newDeployment.getResources().getMemoryLimit() != null
-            ? newDeployment.getResources().getMemoryLimit()
-            : oldDeployment.getResources().getMemoryLimitMi());
-    mergedDeployment.setResources(resources);
   }
 
   public static DataJobDeploymentStatus toJobDeploymentStatus(
@@ -292,6 +327,7 @@ public class DeploymentModelConverter {
     var deploymentStatus = new DataJobDeploymentStatus();
     deploymentStatus.setJobVersion(actualDataJobDeployment.getGitCommitSha());
     deploymentStatus.setPythonVersion(actualDataJobDeployment.getPythonVersion());
+    deploymentStatus.setVdkVersion(actualDataJobDeployment.getVdkVersion());
     deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
     deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
     deploymentStatus.setContacts(getContactsFromJob(job));
@@ -351,5 +387,19 @@ public class DeploymentModelConverter {
       resources.setMemoryLimit(deploymentResources.getMemoryLimitMi());
     }
     return resources;
+  }
+
+  private static void setDeploymentResources(
+      DesiredDataJobDeployment mergedDeployment,
+      Float cpuRequestCores,
+      Float cpuLimitCores,
+      Integer memoryRequestMi,
+      Integer memoryLimitMi) {
+    DataJobDeploymentResources resources = new DataJobDeploymentResources();
+    resources.setCpuRequestCores(cpuRequestCores);
+    resources.setCpuLimitCores(cpuLimitCores);
+    resources.setMemoryRequestMi(memoryRequestMi);
+    resources.setMemoryLimitMi(memoryLimitMi);
+    mergedDeployment.setResources(resources);
   }
 }

@@ -3,7 +3,7 @@
 
 .retry:
   retry_options:
-    max: 1
+    max: 2
     when:
       - always
 
@@ -56,6 +56,7 @@ integration-tests-vdk-jupyterlab-extension:
     - jlpm install
     - jlpm playwright install
     - jlpm playwright test
+  retry: !reference [.retry, retry_options]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:

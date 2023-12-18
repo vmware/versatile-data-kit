@@ -212,9 +212,9 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
                 .with(user("user"))
                 .content(getDataJobDeploymentVdkVersionRequestBody("new_vdk_version_tag"))
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isAccepted());
 
-    // verify vdk version is not changed
+    // verify vdk version is changed
     mockMvc
         .perform(
             get(String.format(
@@ -223,7 +223,7 @@ public class TestJobImageBuilderDynamicVdkImageIT extends BaseIT {
                 .with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.vdk_version", is("release")));
+        .andExpect(jsonPath("$.vdk_version", is("new_vdk_version_tag")));
 
     // Execute change python version and set corresponding vdk version for deployment
     mockMvc

@@ -15,13 +15,28 @@ pip install vdk-oracle
 
 (`vdk config-help` is useful command to browse all config options of your installation of vdk)
 
-| Name                     | Description                                      | (example)  Value     |
-|--------------------------|--------------------------------------------------|----------------------|
-| oracle_user              | Username used when connecting to Oracle database | "my_user"            |
-| oracle_password          | Password used when connecting to Oracle database | "super_secret_shhhh" |
-| oracle_connection_string | The Oracle connection string                     | "localhost/free"     |
+| Name                     | Description                                                                                                                                                                                                                           | (example)  Value    |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
+| oracle_user              | Username used when connecting to Oracle database                                                                                                                                                                                      | my_user             |
+| oracle_password          | Password used when connecting to Oracle database                                                                                                                                                                                      | super_secret_shhhh  |
+| oracle_user_secret       | The user name secret key if using secrets to connect to Oracle                                                                                                                                                                        | user_secret_key     |
+| oracle_password_secret   | The password secret key if using secrets to connect to Oracle                                                                                                                                                                         | password_secret_key |
+| oracle_use_secrets       | Set to True to use secrets to connect to Oracle                                                                                                                                                                                       | True                |
+| oracle_connection_string | The Oracle connection string                                                                                                                                                                                                          | localhost:1521/free |
+| oracle_thick_mode        | Python-oracledb is said to be in Thick mode when Oracle Client libraries are used. True by default. Set to False to disable Oracle Thick mode. More info: https://python-oracledb.readthedocs.io/en/latest/user_guide/appendix_b.html | True                |
 
 ### Example
+
+#### CLI Queries
+
+```sh
+export VDK_ORACLE_USER=my_username
+export VDK_ORACLE_PASSWORD=my_password
+export VDK_ORACLE_CONNECTION_STRING=localhost:1521/free
+vdk oracle-query -q "SELECT * FROM TEST_TABLE"
+```
+
+**Note:** Running CLI queries does not support secrets
 
 #### Ingestion
 
@@ -88,6 +103,38 @@ def run(job_input):
     job_input.send_tabular_data_for_ingestion(
         rows=row_data, column_names=col_names, destination_table="test_table"
     )
+```
+
+#### Ingestion with type inference
+
+Ingestion works with an already created table even if you pass strings in the
+payload. `vdk-oracle` infers the correct type based on the existing table.
+
+```sql
+create table test_table (
+    id number,
+    str_data varchar2(255),
+    int_data number,
+    float_data float,
+    bool_data number(1),
+    timestamp_data timestamp,
+    decimal_data decimal(14,8),
+    primary key(id))
+```
+
+```python
+def run(job_input):
+    payload = {
+        "id": "5",
+        "str_data": "string",
+        "int_data": "12",
+        "float_data": "1.2",
+        "bool_data": "False",
+        "timestamp_data": "2023-11-21T08:12:53",
+        "decimal_data": "0.1",
+    }
+
+    job_input.send_object_for_ingestion(payload=payload, destination_table="test_table")
 ```
 ### Build and testing
 

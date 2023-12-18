@@ -18,6 +18,7 @@ from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
 from vdk.plugin.structlog.constants import set_log_levels
+from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES
@@ -84,6 +85,12 @@ class StructlogPlugin:
         )
 
         config_builder.add(
+            key=STRUCTLOG_CONSOLE_LOG_PATTERN,
+            default_value="",
+            description="Custom format string for console logging. Leave empty for default format.",
+        )
+
+        config_builder.add(
             key=STRUCTLOG_LOGGING_FORMAT_KEY,
             default_value=STRUCTLOG_LOGGING_FORMAT_DEFAULT,
             description=(
@@ -108,8 +115,13 @@ class StructlogPlugin:
         logging_formatter = context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
+        custom_format_string = context.configuration.get_value(
+            STRUCTLOG_CONSOLE_LOG_PATTERN
+        )
 
-        formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
+        formatter, metadata_filter = create_formatter(
+            logging_formatter, metadata_keys, custom_format_string
+        )
 
         root_logger = logging.getLogger()
         root_logger.removeHandler(root_logger.handlers[0])
@@ -122,6 +134,9 @@ class StructlogPlugin:
 
     @hookimpl(hookwrapper=True)
     def initialize_job(self, context: JobContext) -> None:
+        metadata_keys = context.core_context.configuration.get_value(
+            STRUCTLOG_LOGGING_METADATA_KEY
+        )
         job_name = context.name
         log_level = os.environ.get(
             "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "WARNING")
@@ -141,11 +156,13 @@ class StructlogPlugin:
         logging_formatter = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
-        metadata_keys = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_METADATA_KEY
+        custom_format_string = context.core_context.configuration.get_value(
+            STRUCTLOG_CONSOLE_LOG_PATTERN
         )
 
-        formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
+        formatter, metadata_filter = create_formatter(
+            logging_formatter, metadata_keys, custom_format_string
+        )
         job_name_adder = AttributeAdder("vdk_job_name", job_name)
 
         root_logger = logging.getLogger()
@@ -165,6 +182,9 @@ class StructlogPlugin:
 
     @hookimpl(hookwrapper=True)
     def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
+        metadata_keys = context.core_context.configuration.get_value(
+            STRUCTLOG_LOGGING_METADATA_KEY
+        )
         job_name = context.name
         log_level = os.environ.get(
             "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "WARNING")
@@ -184,11 +204,13 @@ class StructlogPlugin:
         logging_formatter = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
-        metadata_keys = context.core_context.configuration.get_value(
-            STRUCTLOG_LOGGING_METADATA_KEY
+        custom_format_string = context.core_context.configuration.get_value(
+            STRUCTLOG_CONSOLE_LOG_PATTERN
         )
 
-        formatter, metadata_filter = create_formatter(logging_formatter, metadata_keys)
+        formatter, metadata_filter = create_formatter(
+            logging_formatter, metadata_keys, custom_format_string
+        )
         job_name_adder = AttributeAdder("vdk_job_name", job_name)
 
         root_logger = logging.getLogger()
@@ -209,16 +231,25 @@ class StructlogPlugin:
     @hookimpl(hookwrapper=True)
     def run_step(self, context: JobContext, step: Step) -> Optional[StepResult]:
         root_logger = logging.getLogger()
+        handler = root_logger.handlers[0]
+
+        # make sure the metadata filter executes last
+        # so that step_name and step_type are filtered if necessary
+        metadata_filter = [f for f in handler.filters if f.name == "metadata_filter"][0]
+        handler.removeFilter(metadata_filter)
+
         step_name_adder = AttributeAdder("vdk_step_name", step.name)
         step_type_adder = AttributeAdder("vdk_step_type", step.type)
-        for handler in root_logger.handlers:
-            handler.addFilter(step_name_adder)
-            handler.addFilter(step_type_adder)
+        handler.addFilter(step_name_adder)
+        handler.addFilter(step_type_adder)
+
+        # make sure the metadata filter executes last
+        # so that step_name and step_type are filtered if necessary
+        handler.addFilter(metadata_filter)
         out: HookCallResult
         out = yield
-        for handler in root_logger.handlers:
-            handler.removeFilter(step_name_adder)
-            handler.removeFilter(step_type_adder)
+        handler.removeFilter(step_name_adder)
+        handler.removeFilter(step_type_adder)
 
 
 @hookimpl

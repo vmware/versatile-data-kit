@@ -46,6 +46,8 @@ STOCK_FIELD_REPRESENTATIONS = {
         "line_number": r"\s:[0-9]+",
         "function_name": "run",
         "vdk_job_name": JOB_NAME,
+        "vdk_step_name": r"10_dummy\.py",
+        "vdk_step_type": r"python",
     },
     "ltsv": {
         "timestamp": r"timestamp:\d+\.\d+",
@@ -54,6 +56,8 @@ STOCK_FIELD_REPRESENTATIONS = {
         "line_number": "line_number:[0-9]+",
         "function_name": "function_name:run",
         "vdk_job_name": f"vdk_job_name:{JOB_NAME}",
+        "vdk_step_name": r"vdk_step_name:10_dummy\.py",
+        "vdk_step_type": "vdk_step_type:python",
     },
     "json": {
         "timestamp": r'"timestamp": \d+\.\d+',
@@ -62,6 +66,8 @@ STOCK_FIELD_REPRESENTATIONS = {
         "line_number": '"lineno": [0-9]+',
         "function_name": '"funcName": "run"',
         "vdk_job_name": f'"vdk_job_name": "{JOB_NAME}"',
+        "vdk_step_name": '"vdk_step_name": "10_dummy.py"',
+        "vdk_step_type": '"vdk_step_type": "python"',
     },
 }
 
@@ -128,6 +134,98 @@ def test_stock_fields_removal(log_format):
             # check the rest are shown
             for shown_field in shown_fields:
                 assert re.search(stock_field_reps[shown_field], test_log) is not None
+
+
+@pytest.mark.parametrize("log_format", ["console"])
+def test_custom_format_applied(log_format):
+    custom_format_string = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+
+        for log in logs:
+            if "Log statement with no bound context" in log:
+                assert _matches_custom_format(log)
+                break
+        else:
+            pytest.fail("Log statement with no bound context not found in logs")
+
+
+@pytest.mark.parametrize("log_format", ["json", "ltsv"])
+def test_custom_format_not_applied_for_non_console_formats(log_format):
+    custom_format_string = "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "timestamp,level,file_name,vdk_job_name",
+            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+
+        for log in logs:
+            if "Log statement with no bound context" in log:
+                assert not _matches_custom_format(
+                    log
+                ), f"Custom format was incorrectly applied for {log_format} format. Log: {log}"
+                break
+        else:
+            pytest.fail("Log statement with no bound context not found in logs")
+
+
+@pytest.mark.parametrize("log_format", ["console", "json", "ltsv"])
+def test_step_name_step_type(log_format):
+    stock_field_reps = STOCK_FIELD_REPRESENTATIONS[log_format]
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "vdk_step_type,vdk_step_name",
+            "VDK_LOGGING_FORMAT": log_format,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+        test_log = _get_log_containing_s(logs, "Log statement with no bound context")
+        assert re.search(stock_field_reps["vdk_step_name"], test_log) is not None
+        assert re.search(stock_field_reps["vdk_step_type"], test_log) is not None
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "vdk_step_name",
+            "VDK_LOGGING_FORMAT": log_format,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+        test_log = _get_log_containing_s(logs, "Log statement with no bound context")
+        assert re.search(stock_field_reps["vdk_step_name"], test_log) is not None
+        assert re.search(stock_field_reps["vdk_step_type"], test_log) is None
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOGGING_METADATA": "vdk_step_type",
+            "VDK_LOGGING_FORMAT": log_format,
+        },
+    ):
+        logs = _run_job_and_get_logs()
+        test_log = _get_log_containing_s(logs, "Log statement with no bound context")
+        assert re.search(stock_field_reps["vdk_step_name"], test_log) is None
+        assert re.search(stock_field_reps["vdk_step_type"], test_log) is not None
+
+
+def _matches_custom_format(log):
+    pattern = re.compile(
+        r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \S{1,12} \S{1,8} .+"
+    )
+    return bool(pattern.search(log))
 
 
 @pytest.mark.parametrize(

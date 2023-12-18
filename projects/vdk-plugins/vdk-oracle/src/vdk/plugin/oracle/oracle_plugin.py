@@ -7,6 +7,7 @@ import click
 import oracledb
 from tabulate import tabulate
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
@@ -30,15 +31,21 @@ class OraclePlugin:
     def vdk_configure(self, config_builder: ConfigurationBuilder):
         OracleConfiguration.add_definitions(config_builder)
 
-    @hookimpl
+    @hookimpl(trylast=True)
     def initialize_job(self, context: JobContext):
         conf = OracleConfiguration(context.core_context.configuration)
+        oracle_user, oracle_pass = conf.get_oracle_user(), conf.get_oracle_password()
+        if conf.oracle_use_secrets():
+            job_secrets = context.job_input.get_all_secrets()
+            oracle_user = job_secrets[conf.get_oracle_user_secret()]
+            oracle_pass = job_secrets[conf.get_oracle_password_secret()]
         context.connections.add_open_connection_factory_method(
             "ORACLE",
             lambda: OracleConnection(
-                conf.get_oracle_user(),
-                conf.get_oracle_password(),
+                oracle_user,
+                oracle_pass,
                 conf.get_oracle_connection_string(),
+                conf.oracle_thick_mode(),
             ),
         )
         context.ingester.add_ingester_factory_method(

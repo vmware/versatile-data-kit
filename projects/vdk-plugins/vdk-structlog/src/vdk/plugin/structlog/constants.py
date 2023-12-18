@@ -9,6 +9,7 @@ from vdk.internal.core import errors
 
 STRUCTLOG_LOGGING_METADATA_KEY = "logging_metadata"
 STRUCTLOG_LOGGING_FORMAT_KEY = "logging_format"
+STRUCTLOG_CONSOLE_LOG_PATTERN = "logging_custom_format"
 
 STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES = ["console", "json"]
 STRUCTLOG_LOGGING_FORMAT_DEFAULT = "console"

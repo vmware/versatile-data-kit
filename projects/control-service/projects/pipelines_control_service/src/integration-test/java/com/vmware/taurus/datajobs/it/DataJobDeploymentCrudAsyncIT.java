@@ -59,7 +59,10 @@ public class DataJobDeploymentCrudAsyncIT extends BaseDataJobDeploymentCrudIT {
     Assertions.assertEquals("3.9", jobDeployment.getPythonVersion());
     Assertions.assertEquals("15 10 * * *", jobDeployment.getSchedule().getScheduleCron());
     Assertions.assertFalse(jobDeployment.getEnabled());
-    Assertions.assertNotNull(jobDeployment.getResources());
+    Assertions.assertEquals(1000, jobDeployment.getResources().getMemoryLimit());
+    Assertions.assertEquals(500, jobDeployment.getResources().getMemoryRequest());
+    Assertions.assertEquals(2000, jobDeployment.getResources().getCpuLimit());
+    Assertions.assertEquals(1000, jobDeployment.getResources().getCpuRequest());
     Assertions.assertNotNull(jobDeployment.getJobVersion());
     Assertions.assertNotNull(jobDeployment.getContacts());
   }

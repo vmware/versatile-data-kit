@@ -25,6 +25,7 @@ RUN : \
      && echo "Validating base image is python based ..." \
      && python -V \
      && echo "Creating necessary users and set home directory to /job ..." \
+     && tdnf clean all && tdnf makecache \
      && yum install shadow freetype2 libpng -y \
      && groupadd -r -g $GID group && useradd -u $UID -g $GID -r user \
      && chown -R $UID:$GID /job \

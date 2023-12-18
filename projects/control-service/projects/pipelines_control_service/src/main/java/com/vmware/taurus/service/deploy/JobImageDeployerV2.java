@@ -7,6 +7,7 @@ package com.vmware.taurus.service.deploy;
 
 import com.google.gson.Gson;
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
+import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.JobCredentialsService;
@@ -14,6 +15,7 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.*;
 import com.vmware.taurus.service.notification.NotificationContent;
 import io.kubernetes.client.openapi.ApiException;
+import java.text.ParseException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -198,6 +200,7 @@ public class JobImageDeployerV2 {
     String jobName = dataJob.getName();
     String desiredDataJobDeploymentName = getCronJobName(jobName);
     OffsetDateTime lastDeployedDate = OffsetDateTime.now();
+    setDesiredDeploymentResourcesIfNeeded(desiredDataJobDeployment);
     KubernetesService.CronJob desiredCronJob =
         getCronJob(
             desiredDataJobDeploymentName,
@@ -205,11 +208,9 @@ public class JobImageDeployerV2 {
             desiredDataJobDeployment,
             lastDeployedDate,
             jobImageName);
-
     // TODO [miroslavi] store sha in annotation???
     String desiredDeploymentVersionSha =
         dataJobsKubernetesService.getCronJobSha512(desiredCronJob, JobAnnotation.DEPLOYED_DATE);
-
     ActualDataJobDeployment actualJobDeployment = null;
 
     if (isJobDeploymentPresentInKubernetes) {
@@ -229,7 +230,6 @@ public class JobImageDeployerV2 {
           DeploymentModelConverter.toActualJobDeployment(
               desiredDataJobDeployment, desiredDeploymentVersionSha, lastDeployedDate);
     }
-
     return actualJobDeployment;
   }
 
@@ -346,33 +346,10 @@ public class JobImageDeployerV2 {
 
     var jobCommand = jobCommandProvider.getJobCommand(jobName);
 
-    String cpuRequest =
-        Optional.ofNullable(jobDeployment.getResources())
-            .map(DataJobDeploymentResources::getCpuRequestCores)
-            .filter(cpuRequestCores -> cpuRequestCores > 0)
-            .map(String::valueOf)
-            .orElse(defaultConfigurations.dataJobRequests().getCpu());
-
-    String cpuLimit =
-        Optional.ofNullable(jobDeployment.getResources())
-            .map(DataJobDeploymentResources::getCpuLimitCores)
-            .filter(cpuLimitCores -> cpuLimitCores > 0)
-            .map(String::valueOf)
-            .orElse(defaultConfigurations.dataJobLimits().getCpu());
-
-    String memoryRequest =
-        Optional.ofNullable(jobDeployment.getResources())
-            .map(DataJobDeploymentResources::getMemoryRequestMi)
-            .filter(memoryRequestMi -> memoryRequestMi > 0)
-            .map(memoryRequestMi -> memoryRequestMi + "Mi")
-            .orElse(defaultConfigurations.dataJobRequests().getMemory());
-
-    String memoryLimit =
-        Optional.ofNullable(jobDeployment.getResources())
-            .map(DataJobDeploymentResources::getMemoryLimitMi)
-            .filter(memoryLimitMi -> memoryLimitMi > 0)
-            .map(memoryLimitMi -> memoryLimitMi + "Mi")
-            .orElse(defaultConfigurations.dataJobLimits().getMemory());
+    String cpuRequest = jobDeployment.getResources().getCpuRequestCores() + "m";
+    String cpuLimit = jobDeployment.getResources().getCpuLimitCores() + "m";
+    String memoryRequest = jobDeployment.getResources().getMemoryRequestMi() + "Mi";
+    String memoryLimit = jobDeployment.getResources().getMemoryLimitMi() + "Mi";
 
     // The job name is used as the container name. This is something that we rely on later,
     // when watching for pod modifications in DataJobStatusMonitor.watchPods
@@ -396,7 +373,10 @@ public class JobImageDeployerV2 {
             "-c",
             "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
                 + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
-    var jobVdkImage = supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
+    var jobVdkImage =
+        isVdkVersionPassedDifferentFromOneSetByPythonVersion(jobDeployment)
+            ? supportedPythonVersions.replaceVdkVersionInImage(jobDeployment.getVdkVersion())
+            : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     var jobInitContainer =
         KubernetesService.container(
             "vdk",
@@ -433,5 +413,87 @@ public class JobImageDeployerV2 {
         .jobLabels(jobLabels)
         .imagePullSecret(List.of(dockerRegistrySecret, vdkSdkDockerRegistrySecret))
         .build();
+  }
+
+  private void setDesiredDeploymentResourcesIfNeeded(
+      DesiredDataJobDeployment desiredDataJobDeployment) {
+    if (desiredDataJobDeployment == null) {
+      return;
+    }
+
+    if (desiredDataJobDeployment.getResources() == null) {
+      desiredDataJobDeployment.setResources(new DataJobDeploymentResources());
+    }
+
+    setDefaultCpuRequestIfNeeded(desiredDataJobDeployment.getResources());
+    setDefaultCpuLimitIfNeeded(desiredDataJobDeployment.getResources());
+    setDefaultMemoryRequestIfNeeded(desiredDataJobDeployment.getResources());
+    setDefaultMemoryLimitIfNeeded(desiredDataJobDeployment.getResources());
+  }
+
+  private void setDefaultMemoryLimitIfNeeded(DataJobDeploymentResources resources) {
+    try {
+      if (resources.getMemoryLimitMi() == null) {
+        String memory = defaultConfigurations.dataJobLimits().getMemory();
+        resources.setMemoryLimitMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
+      }
+    } catch (ParseException e) {
+      handleResourcesException(e);
+    }
+  }
+
+  private void setDefaultMemoryRequestIfNeeded(DataJobDeploymentResources resources) {
+    try {
+      if (resources.getMemoryRequestMi() == null) {
+        String memory = defaultConfigurations.dataJobRequests().getMemory();
+        resources.setMemoryRequestMi(K8SMemoryConversionUtils.getMemoryInMi(memory));
+      }
+    } catch (ParseException e) {
+      handleResourcesException(e);
+    }
+  }
+
+  private void setDefaultCpuRequestIfNeeded(DataJobDeploymentResources resources) {
+    try {
+      if (resources.getCpuRequestCores() == null) {
+        String cpu = defaultConfigurations.dataJobRequests().getCpu();
+        resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+      }
+    } catch (ParseException e) {
+      handleResourcesException(e);
+    }
+  }
+
+  private void setDefaultCpuLimitIfNeeded(DataJobDeploymentResources resources) {
+    try {
+      if (resources.getCpuLimitCores() == null) {
+        String cpu = defaultConfigurations.dataJobLimits().getCpu();
+        resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+      }
+    } catch (ParseException e) {
+      handleResourcesException(e);
+    }
+  }
+
+  private void handleResourcesException(ParseException e) {
+    var errorMessage =
+        new ErrorMessage(
+            "Couldn't write default resource to database",
+            "Parsing default string value failed",
+            "The resource won't be present in the DB",
+            "Verify the string can be parsed to a number");
+    log.error(errorMessage.toString(), e);
+  }
+
+  private boolean isVdkVersionPassedDifferentFromOneSetByPythonVersion(
+      DesiredDataJobDeployment jobDeployment) {
+    var passedVdkVersion = jobDeployment.getVdkVersion();
+    var vdkVersionSetByPythonVersion =
+        DockerImageName.getTag(
+            supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion()));
+
+    return passedVdkVersion != null
+        && !passedVdkVersion.isEmpty()
+        && !passedVdkVersion.equals(vdkVersionSetByPythonVersion);
   }
 }
