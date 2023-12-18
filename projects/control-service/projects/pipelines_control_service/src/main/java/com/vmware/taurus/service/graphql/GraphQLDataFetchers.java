@@ -7,11 +7,10 @@ package com.vmware.taurus.service.graphql;
 
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.service.deploy.DeploymentServiceV2;
-import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
 import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.ReadFrom;
 import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.DataJobPage;
 import com.vmware.taurus.service.graphql.model.DataJobQueryVariables;
@@ -22,19 +21,26 @@ import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
+import com.vmware.taurus.service.repository.JobsRepository;
 import graphql.GraphqlErrorException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -176,7 +182,11 @@ public class GraphQLDataFetchers {
                     f -> f,
                     filter ->
                         strategyFactory.findStrategy(
-                            JobFieldStrategyBy.field(filter.getProperty()))));
+                            JobFieldStrategyBy.field(filter.getProperty())), (v1, v2) -> {
+                      throw new IllegalArgumentException(
+                          "No duplicate keys allowed in Filter Strategy Map. Duplicate was: "
+                              + v1.getStrategyName());
+                    }, LinkedHashMap::new));
 
     // compute criteria
     filterStrategyMap.forEach(
