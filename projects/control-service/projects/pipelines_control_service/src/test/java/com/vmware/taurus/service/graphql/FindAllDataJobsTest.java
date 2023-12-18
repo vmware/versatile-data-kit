@@ -37,17 +37,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @AutoConfigureMockMvc(addFilters = false)
 public class FindAllDataJobsTest {
 
-  @Autowired
-  JobsRepository jobsRepository;
+  @Autowired JobsRepository jobsRepository;
 
-  @Autowired
-  ActualJobDeploymentRepository actualJobDeploymentRepository;
+  @Autowired ActualJobDeploymentRepository actualJobDeploymentRepository;
 
-  @Autowired
-  JobExecutionRepository jobExecutionRepository;
+  @Autowired JobExecutionRepository jobExecutionRepository;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @AfterEach
   public void cleanup() {
@@ -61,7 +57,8 @@ public class FindAllDataJobsTest {
   }
 
   private static String getQuery(int pageNumber) {
-    return "{ jobs(pageNumber: " + pageNumber
+    return "{ jobs(pageNumber: "
+        + pageNumber
         + ", pageSize: 100, filter: [{ property: \"config.team\", sort: ASC },"
         + " { property: \"jobName\", sort: ASC }]) { content { jobName config { team description "
         + "schedule { scheduleCron }  }  deployments { enabled status }  }  }  }";
@@ -84,7 +81,6 @@ public class FindAllDataJobsTest {
       Assertions.assertEquals(firstPage, firstPageInALoop);
       Assertions.assertEquals(secondPage, secondPageInALoop);
       Assertions.assertEquals(thirdPage, thirdPageInALoop);
-
     }
   }
 
@@ -105,13 +101,14 @@ public class FindAllDataJobsTest {
   private String getResponseAsString(String team, int pageNumber) throws Exception {
     return getAllJobs(team, pageNumber)
         .andExpect(status().is(200))
-        .andReturn().getResponse()
+        .andReturn()
+        .getResponse()
         .getContentAsString();
   }
 
   private ResultActions getAllJobs(String jobTeam, int pageNumber) throws Exception {
-    var response = mockMvc
-        .perform(
+    var response =
+        mockMvc.perform(
             MockMvcRequestBuilders.get(getJobsUri(jobTeam))
                 .queryParam("query", getQuery(pageNumber))
                 .with(user("test")));
@@ -120,7 +117,7 @@ public class FindAllDataJobsTest {
   }
 
   private void populateThreePagesOfDummyJobs() {
-    //create 202 jobs to have 3 pages of results
+    // create 202 jobs to have 3 pages of results
     for (int i = 0; i < 101; i++) {
       saveTestJob(i + "bar", "AAAA");
       saveTestJob(i + "foo", "BBBB");

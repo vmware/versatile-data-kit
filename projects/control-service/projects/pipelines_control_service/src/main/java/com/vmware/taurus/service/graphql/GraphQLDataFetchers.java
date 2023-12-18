@@ -182,11 +182,13 @@ public class GraphQLDataFetchers {
                     f -> f,
                     filter ->
                         strategyFactory.findStrategy(
-                            JobFieldStrategyBy.field(filter.getProperty())), (v1, v2) -> {
+                            JobFieldStrategyBy.field(filter.getProperty())),
+                    (v1, v2) -> {
                       throw new IllegalArgumentException(
                           "No duplicate keys allowed in Filter Strategy Map. Duplicate was: "
                               + v1.getStrategyName());
-                    }, LinkedHashMap::new));
+                    },
+                    LinkedHashMap::new));
 
     // compute criteria
     filterStrategyMap.forEach(
