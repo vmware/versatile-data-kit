@@ -238,29 +238,28 @@ def _matches_custom_format(log):
     ),
 )
 def test_log_plugin_structlog(log_type, vdk_level, expected_vdk_level):
-    with mock.patch("socket.socket.connect"):
-        logging.getLogger().setLevel(logging.DEBUG)  # root level
-        logging.getLogger("vdk").setLevel(logging.NOTSET)  # reset vdk log level
+    logging.getLogger().setLevel(logging.DEBUG)  # root level
+    logging.getLogger("vdk").setLevel(logging.NOTSET)  # reset vdk log level
 
-        log_plugin = StructlogPlugin()
+    log_plugin = StructlogPlugin()
 
-        metadata_keys = "timestamp,level,file_name,line_number,vdk_job_name,bound_test_key,extra_test_key"
-        logging_format = "console"
+    metadata_keys = "timestamp,level,file_name,line_number,vdk_job_name,bound_test_key,extra_test_key"
+    logging_format = "console"
 
-        store = StateStore()
-        conf = (
-            ConfigurationBuilder()
-            .add(vdk_config.LOG_CONFIG, log_type)
-            .add(vdk_config.LOG_LEVEL_VDK, vdk_level)
-            .add(STRUCTLOG_LOGGING_METADATA_KEY, metadata_keys)
-            .add(STRUCTLOG_LOGGING_FORMAT_KEY, logging_format)
-            .build()
-        )
-        core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
+    store = StateStore()
+    conf = (
+        ConfigurationBuilder()
+        .add(vdk_config.LOG_CONFIG, log_type)
+        .add(vdk_config.LOG_LEVEL_VDK, vdk_level)
+        .add(STRUCTLOG_LOGGING_METADATA_KEY, metadata_keys)
+        .add(STRUCTLOG_LOGGING_FORMAT_KEY, logging_format)
+        .build()
+    )
+    core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
 
-        log_plugin.vdk_initialize(core_context)
+    log_plugin.vdk_initialize(core_context)
 
-        assert logging.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
+    assert logging.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
 
 
 def test_parse_log_level_module_structlog():
