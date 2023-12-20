@@ -17,7 +17,6 @@ from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
-from vdk.plugin.structlog.constants import set_non_root_log_levels
 from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
@@ -26,6 +25,7 @@ from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_ALL_KEYS
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
 from vdk.plugin.structlog.filters import AttributeAdder
 from vdk.plugin.structlog.formatters import create_formatter
+from vdk.plugin.structlog.log_level_utils import set_non_root_log_levels
 
 """
 Handlers

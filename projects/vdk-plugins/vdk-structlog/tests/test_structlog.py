@@ -14,9 +14,9 @@ from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import StateStore
 from vdk.plugin.structlog import structlog_plugin
-from vdk.plugin.structlog.constants import parse_log_level_module
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
+from vdk.plugin.structlog.log_level_utils import parse_log_level_module
 from vdk.plugin.structlog.structlog_plugin import StructlogPlugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
