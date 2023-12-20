@@ -17,7 +17,7 @@ from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
-from vdk.plugin.structlog.constants import set_log_levels
+from vdk.plugin.structlog.constants import set_non_root_log_levels
 from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
@@ -100,16 +100,17 @@ class StructlogPlugin:
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext):
-        log_level = os.environ.get(
-            "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "WARNING")
-        ).upper()
-        logging.getLogger().setLevel(log_level)
+        if logging.getLogger().getEffectiveLevel() == logging.NOTSET:
+            log_level = os.environ.get(
+                "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "INFO")
+            ).upper()
+            logging.getLogger().setLevel(log_level)
         vdk_log_level = context.configuration.get_value(vdk_config.LOG_LEVEL_VDK)
         if vdk_log_level is None:
-            vdk_log_level = log_level
+            vdk_log_level = logging.getLogger().getEffectiveLevel()
         log_level_module = context.configuration.get_value(vdk_config.LOG_LEVEL_MODULE)
 
-        set_log_levels(vdk_log_level, log_level_module)
+        set_non_root_log_levels(vdk_log_level, log_level_module)
 
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
         logging_formatter = context.configuration.get_value(
@@ -138,20 +139,21 @@ class StructlogPlugin:
             STRUCTLOG_LOGGING_METADATA_KEY
         )
         job_name = context.name
-        log_level = os.environ.get(
-            "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "WARNING")
-        ).upper()
-        logging.getLogger().setLevel(log_level)
+        if logging.getLogger().getEffectiveLevel() == logging.NOTSET:
+            log_level = os.environ.get(
+                "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "INFO")
+            ).upper()
+            logging.getLogger().setLevel(log_level)
         vdk_log_level = context.core_context.configuration.get_value(
             vdk_config.LOG_LEVEL_VDK
         )
         if vdk_log_level is None:
-            vdk_log_level = log_level
+            vdk_log_level = logging.getLogger().getEffectiveLevel()
         log_level_module = context.core_context.configuration.get_value(
             vdk_config.LOG_LEVEL_MODULE
         )
 
-        set_log_levels(vdk_log_level, log_level_module)
+        set_non_root_log_levels(vdk_log_level, log_level_module)
 
         logging_formatter = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
@@ -186,20 +188,21 @@ class StructlogPlugin:
             STRUCTLOG_LOGGING_METADATA_KEY
         )
         job_name = context.name
-        log_level = os.environ.get(
-            "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "WARNING")
-        ).upper()
-        logging.getLogger().setLevel(log_level)
+        if logging.getLogger().getEffectiveLevel() == logging.NOTSET:
+            log_level = os.environ.get(
+                "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "INFO")
+            ).upper()
+            logging.getLogger().setLevel(log_level)
         vdk_log_level = context.core_context.configuration.get_value(
             vdk_config.LOG_LEVEL_VDK
         )
         if vdk_log_level is None:
-            vdk_log_level = log_level
+            vdk_log_level = logging.getLogger().getEffectiveLevel()
         log_level_module = context.core_context.configuration.get_value(
             vdk_config.LOG_LEVEL_MODULE
         )
 
-        set_log_levels(vdk_log_level, log_level_module)
+        set_non_root_log_levels(vdk_log_level, log_level_module)
 
         logging_formatter = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY

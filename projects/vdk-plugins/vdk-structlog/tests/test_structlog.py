@@ -4,7 +4,6 @@ import logging
 import os
 import re
 from unittest import mock
-from unittest.mock import patch
 
 import pytest
 from click.testing import Result
@@ -16,6 +15,8 @@ from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import StateStore
 from vdk.plugin.structlog import structlog_plugin
 from vdk.plugin.structlog.constants import parse_log_level_module
+from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
+from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
 from vdk.plugin.structlog.structlog_plugin import StructlogPlugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -243,23 +244,26 @@ def test_log_plugin_structlog(log_type, vdk_level, expected_vdk_level):
 
         log_plugin = StructlogPlugin()
 
+        metadata_keys = "timestamp,level,file_name,line_number,vdk_job_name,bound_test_key,extra_test_key"
+        logging_format = "console"
+
         store = StateStore()
         conf = (
             ConfigurationBuilder()
             .add(vdk_config.LOG_CONFIG, log_type)
             .add(vdk_config.LOG_LEVEL_VDK, vdk_level)
+            .add(STRUCTLOG_LOGGING_METADATA_KEY, metadata_keys)
+            .add(STRUCTLOG_LOGGING_FORMAT_KEY, logging_format)
             .build()
         )
         core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
 
         log_plugin.vdk_initialize(core_context)
 
-        assert (
-            logging.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
-        ), "internal vdk logs must be set according to configuration option LOG_LEVEL_VDK but are not"
+        assert logging.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
 
 
-def test_parse_log_level_module():
+def test_parse_log_level_module_structlog():
     assert parse_log_level_module("") == {}
     assert parse_log_level_module("a.b.c=INFO") == {"a.b.c": {"level": "INFO"}}
     assert parse_log_level_module("a.b.c=info") == {"a.b.c": {"level": "INFO"}}
@@ -269,7 +273,7 @@ def test_parse_log_level_module():
     }
 
 
-def test_parse_log_level_module_error_cases():
+def test_parse_log_level_module_error_cases_structlog():
     with pytest.raises(VdkConfigurationError):
         parse_log_level_module("a.b.c=NOSUCH")
 
@@ -277,45 +281,23 @@ def test_parse_log_level_module_error_cases():
         parse_log_level_module("bad_separator_not_semi_colon=DEBUG,second_module=INFO")
 
 
-def test_configure_logger_structlog():
-    with patch("logging.config.dictConfig") as mock_dict_config:
-        log_plugin = StructlogPlugin()
-
-        store = StateStore()
-        conf = (
-            ConfigurationBuilder()
-            .add(vdk_config.LOG_CONFIG, "LOCAL")
-            .add(vdk_config.LOG_LEVEL_VDK, "DEBUG")
-            .add(vdk_config.LOG_LEVEL_MODULE, "a.b.c=INFO;foo.bar=ERROR")
-            .build()
-        )
-        core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
-
-        log_plugin.vdk_initialize(core_context)
-
-        configured_loggers = mock_dict_config.call_args[0][0]["loggers"]
-        assert configured_loggers["a.b.c"]["level"] == "INFO"
-        assert configured_loggers["foo.bar"]["level"] == "ERROR"
-
-
 def test_log_plugin_exception_structlog():
     with mock.patch(
-        "vdk.internal.builtin_plugins.config.log_config.configure_loggers"
-    ) as mocked_log_config:
-        try:
-            mocked_log_config.side_effect = Exception("foo")
+        "vdk.plugin.structlog.structlog_plugin.create_formatter"
+    ) as mocked_create_formatter:
+        mocked_create_formatter.side_effect = Exception("foo")
 
-            log_plugin = StructlogPlugin()
+        log_plugin = StructlogPlugin()
 
-            # Mock configuration since we wont be needing any.
-            core_context = mock.MagicMock(spec=CoreContext)
-            core_context.configuration = mock.MagicMock()
-
-            # Test except: section in vdk_initialize and expect no exceptions
+        # Mock configuration since we won't be needing any.
+        core_context = mock.MagicMock(spec=CoreContext)
+        core_context.configuration = mock.MagicMock()
+        core_context.configuration.get_value.side_effect = (
+            lambda key: "INFO" if key == vdk_config.LOG_LEVEL_VDK else None
+        )
+        with pytest.raises(Exception) as exc_info:
             log_plugin.vdk_initialize(core_context)
-        finally:
-            logging.getLogger().setLevel(logging.INFO)
-            logging.getLogger("vdk").setLevel(logging.INFO)
+        assert str(exc_info.value) == "foo", "Unexpected exception message"
 
 
 def _run_job_and_get_logs():

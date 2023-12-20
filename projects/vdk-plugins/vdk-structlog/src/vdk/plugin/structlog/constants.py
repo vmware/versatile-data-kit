@@ -1,9 +1,7 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import os
 import re
-import socket
 
 from vdk.internal.core import errors
 
@@ -111,11 +109,7 @@ def parse_log_level_module(log_level_module):
         )
 
 
-def set_log_levels(vdk_log_level: str, log_level_module: str):
-    log_level = os.environ.get(
-        "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "WARNING")
-    ).upper()
-    logging.getLogger().setLevel(log_level)
+def set_non_root_log_levels(vdk_log_level: str, log_level_module: str):
     logging.getLogger("requests_kerberos").setLevel(logging.INFO)
     logging.getLogger("requests_oauthlib").setLevel(logging.INFO)
     logging.getLogger("urllib3").setLevel(logging.INFO)
