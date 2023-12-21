@@ -54,6 +54,7 @@ def configure_syslog_handler(context: JobContext, job_name="", attempt_id="no-id
     syslog_socktype = SYSLOG_PROTOCOLS[syslog_protocol.upper()]
     syslog_handler = logging.handlers.SysLogHandler(
         address=(syslog_host, syslog_port),
+        facility=logging.handlers.SysLogHandler.LOG_USER,
         socktype=syslog_socktype
     )
 
@@ -63,7 +64,6 @@ def configure_syslog_handler(context: JobContext, job_name="", attempt_id="no-id
     formatter = logging.Formatter(DETAILED_FORMAT)
     syslog_handler.setFormatter(formatter)
 
-    vdk_log_level = context.core_context.configuration.get_value("LOG_LEVEL_VDK", "DEBUG").upper()
-    syslog_handler.setLevel(vdk_log_level)
+    syslog_handler.setLevel("DEBUG")
 
     return syslog_handler
