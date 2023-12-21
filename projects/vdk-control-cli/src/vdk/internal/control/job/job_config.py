@@ -104,11 +104,15 @@ class JobConfig:
     def _set_value(self, section, key, value) -> bool:
         success = False
         if self._config_ini.has_option(section, key):
-            for line in fileinput.input(self._config_file, inplace=1):
-                if line.replace(" ", "").startswith(f"{key}="):
-                    success = True
-                    line = f"{key} = {value}\n"
-                sys.stdout.write(line)
+            with open(self._config_file) as config_file:
+                conf_lines = config_file.readlines()
+
+            with open(self._config_file, "w") as f:
+                for line in conf_lines:
+                    if line.replace(" ", "").startswith(f"{key}="):
+                        success = True
+                        line = f"{key} = {value}\n"
+                    f.write(line)
         return success
 
     def _get_contacts(self, key) -> List[str]:
