@@ -1,12 +1,23 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import logging
 import os
 import re
 from unittest import mock
 
 import pytest
 from click.testing import Result
+from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.config import vdk_config
+from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import VdkConfigurationError
+from vdk.internal.core.statestore import StateStore
 from vdk.plugin.structlog import structlog_plugin
+from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
+from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
+from vdk.plugin.structlog.log_level_utils import parse_log_level_module
+from vdk.plugin.structlog.structlog_plugin import StructlogPlugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 
@@ -216,6 +227,76 @@ def _matches_custom_format(log):
         r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \S{1,12} \S{1,8} .+"
     )
     return bool(pattern.search(log))
+
+
+@pytest.mark.parametrize(
+    "log_type, vdk_level, expected_vdk_level",
+    (
+        ("LOCAL", "INFO", logging.INFO),
+        ("REMOTE", "WARNING", logging.WARNING),
+        ("LOCAL", None, logging.DEBUG),  # if not set default to root log level
+    ),
+)
+def test_log_plugin_structlog(log_type, vdk_level, expected_vdk_level):
+    logging.getLogger().setLevel(logging.DEBUG)  # root level
+    logging.getLogger("vdk").setLevel(logging.NOTSET)  # reset vdk log level
+
+    log_plugin = StructlogPlugin()
+
+    metadata_keys = "timestamp,level,file_name,line_number,vdk_job_name,bound_test_key,extra_test_key"
+    logging_format = "console"
+
+    store = StateStore()
+    conf = (
+        ConfigurationBuilder()
+        .add(vdk_config.LOG_CONFIG, log_type)
+        .add(vdk_config.LOG_LEVEL_VDK, vdk_level)
+        .add(STRUCTLOG_LOGGING_METADATA_KEY, metadata_keys)
+        .add(STRUCTLOG_LOGGING_FORMAT_KEY, logging_format)
+        .build()
+    )
+    core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
+
+    log_plugin.vdk_initialize(core_context)
+
+    assert logging.getLogger("vdk").getEffectiveLevel() == expected_vdk_level
+
+
+def test_parse_log_level_module_structlog():
+    assert parse_log_level_module("") == {}
+    assert parse_log_level_module("a.b.c=INFO") == {"a.b.c": {"level": "INFO"}}
+    assert parse_log_level_module("a.b.c=info") == {"a.b.c": {"level": "INFO"}}
+    assert parse_log_level_module("a.b.c=INFO;x.y=WARN") == {
+        "a.b.c": {"level": "INFO"},
+        "x.y": {"level": "WARN"},
+    }
+
+
+def test_parse_log_level_module_error_cases_structlog():
+    with pytest.raises(VdkConfigurationError):
+        parse_log_level_module("a.b.c=NOSUCH")
+
+    with pytest.raises(VdkConfigurationError):
+        parse_log_level_module("bad_separator_not_semi_colon=DEBUG,second_module=INFO")
+
+
+def test_log_plugin_exception_structlog():
+    with mock.patch(
+        "vdk.plugin.structlog.structlog_plugin.create_formatter"
+    ) as mocked_create_formatter:
+        mocked_create_formatter.side_effect = Exception("foo")
+
+        log_plugin = StructlogPlugin()
+
+        # Mock configuration since we won't be needing any.
+        core_context = mock.MagicMock(spec=CoreContext)
+        core_context.configuration = mock.MagicMock()
+        core_context.configuration.get_value.side_effect = (
+            lambda key: "INFO" if key == vdk_config.LOG_LEVEL_VDK else None
+        )
+        with pytest.raises(Exception) as exc_info:
+            log_plugin.vdk_initialize(core_context)
+        assert str(exc_info.value) == "foo", "Unexpected exception message"
 
 
 def _run_job_and_get_logs():

@@ -1,14 +1,15 @@
 # Copyright 2021-2023 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
 import sys
 from typing import List
 from typing import Optional
 
-from pythonjsonlogger import jsonlogger
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
@@ -24,6 +25,7 @@ from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_ALL_KEYS
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
 from vdk.plugin.structlog.filters import AttributeAdder
 from vdk.plugin.structlog.formatters import create_formatter
+from vdk.plugin.structlog.log_level_utils import set_non_root_log_levels
 
 """
 Handlers
@@ -49,7 +51,7 @@ Example:
 
 class BoundLogger(logging.LoggerAdapter):
     def process(self, msg, kwargs):
-        # merge bound extra dict with existing exra dict if any
+        # merge bound extra dict with existing extra dict if any
         if "extra" in kwargs:
             kwargs["extra"] = {**self.extra, **kwargs["extra"]}
         else:
@@ -75,8 +77,10 @@ class StructlogPlugin:
             ),
             description=(
                 f"Possible values: {STRUCTLOG_LOGGING_METADATA_ALL_KEYS}"
-                "User-defined key-value pairs added to the logger's context will be displayed after the metadata, but before the message"
-                "Keys for user-defined key-value pairs have to be added in this config option for the values to be displayed in the metadata"
+                "User-defined key-value pairs added to the logger's context will be displayed after the metadata, "
+                "but before the message"
+                "Keys for user-defined key-value pairs have to be added in this config option for the values to be "
+                "displayed in the metadata"
             ),
         )
 
@@ -96,6 +100,18 @@ class StructlogPlugin:
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext):
+        if logging.getLogger().getEffectiveLevel() == logging.NOTSET:
+            log_level = os.environ.get(
+                "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "INFO")
+            ).upper()
+            logging.getLogger().setLevel(log_level)
+        vdk_log_level = context.configuration.get_value(vdk_config.LOG_LEVEL_VDK)
+        if vdk_log_level is None:
+            vdk_log_level = logging.getLogger().getEffectiveLevel()
+        log_level_module = context.configuration.get_value(vdk_config.LOG_LEVEL_MODULE)
+
+        set_non_root_log_levels(vdk_log_level, log_level_module)
+
         metadata_keys = context.configuration.get_value(STRUCTLOG_LOGGING_METADATA_KEY)
         logging_formatter = context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
@@ -122,6 +138,23 @@ class StructlogPlugin:
         metadata_keys = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_METADATA_KEY
         )
+        job_name = context.name
+        if logging.getLogger().getEffectiveLevel() == logging.NOTSET:
+            log_level = os.environ.get(
+                "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "INFO")
+            ).upper()
+            logging.getLogger().setLevel(log_level)
+        vdk_log_level = context.core_context.configuration.get_value(
+            vdk_config.LOG_LEVEL_VDK
+        )
+        if vdk_log_level is None:
+            vdk_log_level = logging.getLogger().getEffectiveLevel()
+        log_level_module = context.core_context.configuration.get_value(
+            vdk_config.LOG_LEVEL_MODULE
+        )
+
+        set_non_root_log_levels(vdk_log_level, log_level_module)
+
         logging_formatter = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
@@ -132,7 +165,7 @@ class StructlogPlugin:
         formatter, metadata_filter = create_formatter(
             logging_formatter, metadata_keys, custom_format_string
         )
-        job_name_adder = AttributeAdder("vdk_job_name", context.name)
+        job_name_adder = AttributeAdder("vdk_job_name", job_name)
 
         root_logger = logging.getLogger()
         root_logger.removeHandler(root_logger.handlers[0])
@@ -154,6 +187,23 @@ class StructlogPlugin:
         metadata_keys = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_METADATA_KEY
         )
+        job_name = context.name
+        if logging.getLogger().getEffectiveLevel() == logging.NOTSET:
+            log_level = os.environ.get(
+                "LOG_LEVEL_VDK", os.environ.get("VDK_LOG_LEVEL_VDK", "INFO")
+            ).upper()
+            logging.getLogger().setLevel(log_level)
+        vdk_log_level = context.core_context.configuration.get_value(
+            vdk_config.LOG_LEVEL_VDK
+        )
+        if vdk_log_level is None:
+            vdk_log_level = logging.getLogger().getEffectiveLevel()
+        log_level_module = context.core_context.configuration.get_value(
+            vdk_config.LOG_LEVEL_MODULE
+        )
+
+        set_non_root_log_levels(vdk_log_level, log_level_module)
+
         logging_formatter = context.core_context.configuration.get_value(
             STRUCTLOG_LOGGING_FORMAT_KEY
         )
@@ -164,7 +214,7 @@ class StructlogPlugin:
         formatter, metadata_filter = create_formatter(
             logging_formatter, metadata_keys, custom_format_string
         )
-        job_name_adder = AttributeAdder("vdk_job_name", context.name)
+        job_name_adder = AttributeAdder("vdk_job_name", job_name)
 
         root_logger = logging.getLogger()
         root_logger.removeHandler(root_logger.handlers[0])
