@@ -16,6 +16,7 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT, SYSLOG_HOST_KEY, \
     DEFAULT_SYSLOG_HOST, SYSLOG_PORT_KEY, DEFAULT_SYSLOG_PORT, SYSLOG_PROTOCOL_KEY, DEFAULT_SYSLOG_PROTOCOL, \
     SYSLOG_ENABLED_KEY, DEFAULT_SYSLOG_ENABLED
@@ -160,10 +161,6 @@ class StructlogPlugin:
 
         root_logger.addHandler(handler)
 
-        syslog_handler = configure_syslog_handler(context)
-        if syslog_handler:
-            root_logger.addHandler(syslog_handler)
-
     @hookimpl(hookwrapper=True)
     def initialize_job(self, context: JobContext) -> None:
         metadata_keys = context.core_context.configuration.get_value(
@@ -208,10 +205,17 @@ class StructlogPlugin:
 
         root_logger.addHandler(handler)
 
+        attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
+        syslog_handler = configure_syslog_handler(context, job_name, attempt_id)
+        if syslog_handler:
+            root_logger.addHandler(syslog_handler)
+
         out: HookCallResult
         out = yield
 
         root_logger.removeHandler(handler)
+        if syslog_handler:
+            root_logger.removeHandler(syslog_handler)
 
     @hookimpl(hookwrapper=True)
     def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
