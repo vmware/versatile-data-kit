@@ -16,7 +16,9 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
-from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
+from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT, SYSLOG_HOST_KEY, \
+    DEFAULT_SYSLOG_HOST, SYSLOG_PORT_KEY, DEFAULT_SYSLOG_PORT, SYSLOG_PROTOCOL_KEY, DEFAULT_SYSLOG_PROTOCOL, \
+    SYSLOG_ENABLED_KEY, DEFAULT_SYSLOG_ENABLED
 from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
@@ -26,6 +28,7 @@ from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
 from vdk.plugin.structlog.filters import AttributeAdder
 from vdk.plugin.structlog.formatters import create_formatter
 from vdk.plugin.structlog.log_level_utils import set_non_root_log_levels
+from vdk.plugin.structlog.syslog_config import configure_syslog_handler
 
 """
 Handlers
@@ -98,6 +101,30 @@ class StructlogPlugin:
             ),
         )
 
+        config_builder.add(
+            key=SYSLOG_HOST_KEY,
+            default_value=DEFAULT_SYSLOG_HOST,
+            description="Hostname of the Syslog server."
+        )
+
+        config_builder.add(
+            key=SYSLOG_PORT_KEY,
+            default_value=DEFAULT_SYSLOG_PORT,
+            description="Port of the Syslog server."
+        )
+
+        config_builder.add(
+            key=SYSLOG_PROTOCOL_KEY,
+            default_value=DEFAULT_SYSLOG_PROTOCOL,
+            description="Syslog protocol (UDP or TCP)."
+        )
+
+        config_builder.add(
+            key=SYSLOG_ENABLED_KEY,
+            default_value=DEFAULT_SYSLOG_ENABLED,
+            description="Enable Syslog logging (True or False)."
+        )
+
     @hookimpl
     def vdk_initialize(self, context: CoreContext):
         if logging.getLogger().getEffectiveLevel() == logging.NOTSET:
@@ -132,6 +159,10 @@ class StructlogPlugin:
         handler.setFormatter(formatter)
 
         root_logger.addHandler(handler)
+
+        syslog_handler = configure_syslog_handler(context)
+        if syslog_handler:
+            root_logger.addHandler(syslog_handler)
 
     @hookimpl(hookwrapper=True)
     def initialize_job(self, context: JobContext) -> None:
