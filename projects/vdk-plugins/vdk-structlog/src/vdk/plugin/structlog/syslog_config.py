@@ -1,9 +1,6 @@
 import logging.handlers
 
-from vdk.internal.builtin_plugins.run.job_context import JobContext
-
-from vdk.plugin.structlog.constants import SYSLOG_PROTOCOLS, SYSLOG_ENABLED_KEY, SYSLOG_HOST_KEY, SYSLOG_PORT_KEY, \
-    SYSLOG_PROTOCOL_KEY
+from vdk.plugin.structlog.constants import SYSLOG_PROTOCOLS
 
 
 class JobContextFilter(logging.Filter):
