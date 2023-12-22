@@ -33,14 +33,9 @@ DETAILED_FORMAT = (
 )
 
 
-def configure_syslog_handler(context: JobContext, job_name="", attempt_id="no-id"):
-    syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED_KEY)
+def configure_syslog_handler(syslog_enabled, syslog_host, syslog_port, syslog_protocol, job_name="", attempt_id="no-id"):
     if not syslog_enabled:
         return None
-
-    syslog_host = context.core_context.configuration.get_value(SYSLOG_HOST_KEY)
-    syslog_port = context.core_context.configuration.get_value(SYSLOG_PORT_KEY)
-    syslog_protocol = context.core_context.configuration.get_value(SYSLOG_PROTOCOL_KEY)
 
     if syslog_protocol not in SYSLOG_PROTOCOLS:
         raise ValueError(
