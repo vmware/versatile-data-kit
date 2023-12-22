@@ -2,7 +2,7 @@
 
 <a href="https://pypistats.org/packages/vdk-core" alt="Monthly Downloads">
         <img src="https://img.shields.io/pypi/dm/vdk-core.svg" alt="monthly download count for vdk-core">
-        
+
 To build or contribute, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 Versatile Data Kit enables data engineers, data scientists and data analysts to develop, deploy, run, and manage data processing workloads (called "Data Job").
