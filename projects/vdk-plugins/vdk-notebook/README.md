@@ -1,5 +1,8 @@
 # vdk-notebook
 
+<a href="https://pypistats.org/packages/vdk-notebook" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-notebook.svg" alt="monthly download count for vdk-notebook">
+
 A new VDK plugin which supports running data jobs which consists of .ipynb files.
 You can see [VDK Jupyter Integration VEP](https://github.com/vmware/versatile-data-kit/blob/main/specs/vep-994-jupyter-notebook-integration/README.md) for more information.
 

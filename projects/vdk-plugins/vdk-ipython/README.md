@@ -1,5 +1,8 @@
 # vdk-ipython
 
+<a href="https://pypistats.org/packages/vdk-ipython" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-ipython.svg" alt="monthly download count for vdk-ipython">
+
 Ipython extension for VDK
 
 This extension introduces a magic command for Jupyter.

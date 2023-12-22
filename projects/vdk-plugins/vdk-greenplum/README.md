@@ -1,3 +1,6 @@
+<a href="https://pypistats.org/packages/vdk-greenplum" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-greenplum.svg" alt="monthly download count for vdk-greenplum">
+
 This plugin allows vdk-core to interface with and execute queries against a Greenplum database.
 
 # Usage

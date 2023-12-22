@@ -1,5 +1,8 @@
 # data-sources
 
+<a href="https://pypistats.org/packages/vdk-data-sources" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-data-sources.svg" alt="monthly download count for vdk-data-sources">
+
 Enables Versatile Data Kit (VDK) to integrate with various data sources by providing a unified interface for data ingestion and management.
 
 The data-sources project is a plugin for the Versatile Data Kit (VDK). It aims to simplify data ingestion from multiple sources by offering a single, unified API. Whether you're dealing with databases, REST APIs, or other forms of data, this project allows you to manage them all in a consistent manner. This is crucial for building scalable and maintainable data pipelines.

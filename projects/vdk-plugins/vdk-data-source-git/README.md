@@ -1,5 +1,8 @@
 # data-source-git
 
+<a href="https://pypistats.org/packages/vdk-data-source-git" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-data-source-git.svg" alt="monthly download count for vdk-data-source-git">
+
 Extracts content from Git repositories along with associated file metadata.
 
 ## Usage

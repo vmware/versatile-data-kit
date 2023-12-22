@@ -1,5 +1,8 @@
 # Structured Logging For VDK
 
+<a href="https://pypistats.org/packages/vdk-structlog" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-structlog.svg" alt="monthly download count for vdk-structlog">
+
 This plugin allows users to:
 - select the log output format
 - configure the logging metadata
