@@ -1,35 +1,34 @@
 import logging
 import logging.handlers
-import re
 import socket
-from io import StringIO
-
-from vdk.internal.builtin_plugins.run.job_context import JobContext
-from vdk.plugin.structlog.syslog_config import configure_syslog_handler, JobContextFilter, DETAILED_FORMAT
-
-
 import pytest
 from unittest.mock import MagicMock, patch
+from vdk.plugin.structlog.syslog_config import configure_syslog_handler, JobContextFilter, DETAILED_FORMAT
 
 
 @pytest.fixture
 def mock_job_context():
-    job_context = MagicMock(spec=JobContext)
-    core_context_mock = MagicMock()
-    configuration_mock = MagicMock()
-    configuration_mock.get_value.side_effect = lambda key: {
+    job_context = MagicMock()
+    job_context.name = "test_job"
+    job_context.core_context.state.get.return_value = "12345"
+    job_context.core_context.configuration.get_value.side_effect = lambda key: {
         "SYSLOG_ENABLED": True,
         "SYSLOG_HOST": "localhost",
         "SYSLOG_PORT": 514,
         "SYSLOG_PROTOCOL": "UDP"
     }.get(key, None)
-    core_context_mock.configuration = configuration_mock
-    job_context.core_context = core_context_mock
     return job_context
 
 
 def test_configure_syslog_handler_enabled(mock_job_context):
-    syslog_handler = configure_syslog_handler(mock_job_context, "test_job", "12345")
+    syslog_handler = configure_syslog_handler(
+        mock_job_context.core_context.configuration.get_value("SYSLOG_ENABLED"),
+        mock_job_context.core_context.configuration.get_value("SYSLOG_HOST"),
+        mock_job_context.core_context.configuration.get_value("SYSLOG_PORT"),
+        mock_job_context.core_context.configuration.get_value("SYSLOG_PROTOCOL"),
+        mock_job_context.name,
+        mock_job_context.core_context.state.get()
+    )
     assert isinstance(syslog_handler, logging.handlers.SysLogHandler)
     assert syslog_handler.level == logging.DEBUG
     assert any(isinstance(filter, JobContextFilter) for filter in syslog_handler.filters)
@@ -42,14 +41,14 @@ def test_configure_syslog_handler_with_different_protocols(mock_socket, protocol
     mock_socket_instance = MagicMock()
     mock_socket.return_value = mock_socket_instance
 
-    mock_job_context.core_context.configuration.get_value.side_effect = lambda key: {
-        "SYSLOG_ENABLED": True,
-        "SYSLOG_HOST": "localhost",
-        "SYSLOG_PORT": 514,
-        "SYSLOG_PROTOCOL": protocol
-    }.get(key, None)
-
-    syslog_handler = configure_syslog_handler(mock_job_context, "test_job", "12345")
+    syslog_handler = configure_syslog_handler(
+        True,
+        "localhost",
+        514,
+        protocol,
+        mock_job_context.name,
+        mock_job_context.core_context.state.get()
+    )
 
     expected_socktype = socket.SOCK_DGRAM if protocol == "UDP" else socket.SOCK_STREAM
     assert mock_socket.called
@@ -57,35 +56,27 @@ def test_configure_syslog_handler_with_different_protocols(mock_socket, protocol
 
 
 def test_configure_syslog_handler_disabled(mock_job_context):
-    mock_job_context.core_context.configuration.get_value.side_effect = lambda key: {
-        "SYSLOG_ENABLED": False
-    }.get(key, None)
-
-    syslog_handler = configure_syslog_handler(mock_job_context, "test_job", "12345")
+    syslog_handler = configure_syslog_handler(False, "localhost", 514, "UDP", "test_job", "12345")
     assert syslog_handler is None
 
 
 def test_configure_syslog_handler_invalid_protocol(mock_job_context):
-    mock_job_context.core_context.configuration.get_value.side_effect = lambda key: {
-        "SYSLOG_ENABLED": True,
-        "SYSLOG_HOST": "localhost",
-        "SYSLOG_PORT": 514,
-        "SYSLOG_PROTOCOL": "invalid_protocol"
-    }.get(key, None)
-
     with pytest.raises(ValueError):
-        configure_syslog_handler(mock_job_context, "test_job", "12345")
+        configure_syslog_handler(True, "localhost", 514, "invalid_protocol", "test_job", "12345")
 
 
 @patch('logging.handlers.SysLogHandler')
 def test_syslog_handler_configuration(mock_syslog_handler, mock_job_context):
-    mock_job_context.core_context.configuration.get_value.side_effect = lambda key: {
-        "SYSLOG_ENABLED": True,
-        "SYSLOG_HOST": "localhost",
-        "SYSLOG_PORT": 514,
-        "SYSLOG_PROTOCOL": "UDP"
-    }.get(key, None)
-    configure_syslog_handler(mock_job_context, "test_job", "12345")
-    mock_syslog_handler.assert_called_with(address=('localhost', 514),
-                                           facility=logging.handlers.SysLogHandler.LOG_USER,
-                                           socktype=socket.SOCK_DGRAM)
+    configure_syslog_handler(
+        True,
+        "localhost",
+        514,
+        "UDP",
+        mock_job_context.name,
+        mock_job_context.core_context.state.get()
+    )
+    mock_syslog_handler.assert_called_with(
+        address=('localhost', 514),
+        facility=logging.handlers.SysLogHandler.LOG_USER,
+        socktype=socket.SOCK_DGRAM
+    )
