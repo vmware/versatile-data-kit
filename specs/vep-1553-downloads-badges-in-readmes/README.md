@@ -42,7 +42,7 @@ documentation such as release notes or a (customer facing) development roadmap.
 The tone and content of the `Summary` section should be
 useful for a wide audience.
 -->
-Quick and accessible download statistics allow users a breif overview of how often a package is used. To deliver this information to the users, a monthly download badge has been added to each readme.
+Quick and accessible download statistics allow users a brief overview of how often a package is used. To deliver this information to the users, a monthly download badge has been added to each readme.
 
 ## Glossary
 <!--
@@ -71,7 +71,7 @@ Specify non-goals. Clearly, the list of non-goals can't be exhaustive.
 Non-goals are only features, which a contributor can reasonably assume were a goal.
 One example is features that were cut during scoping.
 -->
-1. A badge with the current monthly download should be displayed in the readme for each individual package. This includes some of the larger projects, but particularly includes each plugin.
+1. A badge with the current monthly downloads should be displayed in the readme for each individual package. This includes some of the larger projects, but particularly includes each plugin.
 2. When a user clicks on the badge, they should be lead to the PyPI stats page.
 
 ## High-level design
