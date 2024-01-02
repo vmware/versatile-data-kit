@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 export const CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL = 'Convert Job To Notebook';
