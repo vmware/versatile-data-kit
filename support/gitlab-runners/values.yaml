@@ -118,8 +118,8 @@ runners:
 # Resources for the runner itself. It is very lean.
 resources:
   limits:
-    memory: 256Mi
-    cpu: 200m
+    memory: 512Mi
+    cpu: 400m
   requests:
     memory: 128Mi
     cpu: 100m
