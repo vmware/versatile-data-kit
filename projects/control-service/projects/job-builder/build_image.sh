@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 # TODO: replace those as env variables
 aws_access_key_id=$1
