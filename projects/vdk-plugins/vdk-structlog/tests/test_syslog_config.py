@@ -1,9 +1,10 @@
 import logging
 import logging.handlers
 import socket
+from vdk.plugin.structlog.syslog_config import JobContextFilter, DETAILED_FORMAT, configure_syslog_handler
+
 import pytest
 from unittest.mock import MagicMock, patch
-from vdk.plugin.structlog.syslog_config import configure_syslog_handler, JobContextFilter, DETAILED_FORMAT
 
 
 @pytest.fixture
