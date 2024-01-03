@@ -266,6 +266,16 @@ class StructlogPlugin:
 
         root_logger.addHandler(handler)
 
+        syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED_KEY)
+        syslog_host = context.core_context.configuration.get_value(SYSLOG_HOST_KEY)
+        syslog_port = context.core_context.configuration.get_value(SYSLOG_PORT_KEY)
+        syslog_protocol = context.core_context.configuration.get_value(SYSLOG_PROTOCOL_KEY)
+        attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
+        syslog_handler = configure_syslog_handler(syslog_enabled, syslog_host, syslog_port,
+                                                  syslog_protocol, job_name, attempt_id)
+        if syslog_handler:
+            root_logger.addHandler(syslog_handler)
+
         out: HookCallResult
         out = yield
 
