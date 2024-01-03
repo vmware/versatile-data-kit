@@ -1,7 +1,9 @@
 import logging
 import logging.handlers
 import socket
-from vdk.plugin.structlog.syslog_config import JobContextFilter, DETAILED_FORMAT, configure_syslog_handler
+
+from vdk.plugin.structlog.filters import AttributeAdder
+from vdk.plugin.structlog.syslog_config import  DETAILED_FORMAT, configure_syslog_handler
 
 import pytest
 from unittest.mock import MagicMock, patch
@@ -32,7 +34,7 @@ def test_configure_syslog_handler_enabled(mock_job_context):
     )
     assert isinstance(syslog_handler, logging.handlers.SysLogHandler)
     assert syslog_handler.level == logging.DEBUG
-    assert any(isinstance(filter, JobContextFilter) for filter in syslog_handler.filters)
+    assert any(isinstance(filter, AttributeAdder) for filter in syslog_handler.filters)
     assert syslog_handler.formatter._fmt == DETAILED_FORMAT
 
 
@@ -54,6 +56,10 @@ def test_configure_syslog_handler_with_different_protocols(mock_socket, protocol
     expected_socktype = socket.SOCK_DGRAM if protocol == "UDP" else socket.SOCK_STREAM
     assert mock_socket.called
     assert mock_socket.call_args[0][1] == expected_socktype
+    assert any(
+        isinstance(filter, AttributeAdder) and filter._attr_key == "job_name" for filter in syslog_handler.filters)
+    assert any(
+        isinstance(filter, AttributeAdder) and filter._attr_key == "attempt_id" for filter in syslog_handler.filters)
 
 
 def test_configure_syslog_handler_disabled(mock_job_context):
