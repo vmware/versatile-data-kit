@@ -20,6 +20,7 @@ pip install vdk-structlog
 | logging_metadata           | Configure the metadata that will be output along with the log message                                                     | "timestamp, level, logger_name, file_name, vdk_job_name | "timestamp, level, logger_name, file_name, line_number, function_name, vdk_job_name, vdk_step_name, vdk_step_type" |
 | logging_format             | Configure the logging output format. Available formats: json, console                                                     | "console"                                               | "console", "json"                                                                                                  |
 | custom_console_log_pattern | Custom format string for console logging, applied only when`logging_format` is 'console' and overrides `logging_metadata` | "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"   | Any valid Python logging format string                                                                             |
+| log_level_module           | Configure the log level of different Python modules separately                                                            | "a.b.c=INFO;foo.bar=ERROR"                              | Semicolon-separated list of pairs of Python module paths and log level labels                                       |
 
 ### Example: Configure Custom Console Format
 
