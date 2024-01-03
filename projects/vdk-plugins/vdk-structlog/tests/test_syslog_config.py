@@ -1,12 +1,15 @@
-import logging
+# Copyright 2021-2024 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 import logging.handlers
 import socket
-
-from vdk.plugin.structlog.filters import AttributeAdder
-from vdk.plugin.structlog.syslog_config import  DETAILED_FORMAT, configure_syslog_handler
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
-from unittest.mock import MagicMock, patch
+from vdk.plugin.structlog.filters import AttributeAdder
+from vdk.plugin.structlog.syslog_config import configure_syslog_handler
+from vdk.plugin.structlog.syslog_config import DETAILED_FORMAT
 
 
 @pytest.fixture
@@ -18,7 +21,7 @@ def mock_job_context():
         "SYSLOG_ENABLED": True,
         "SYSLOG_HOST": "localhost",
         "SYSLOG_PORT": 514,
-        "SYSLOG_PROTOCOL": "UDP"
+        "SYSLOG_PROTOCOL": "UDP",
     }.get(key, None)
     return job_context
 
@@ -30,7 +33,7 @@ def test_configure_syslog_handler_enabled(mock_job_context):
         mock_job_context.core_context.configuration.get_value("SYSLOG_PORT"),
         mock_job_context.core_context.configuration.get_value("SYSLOG_PROTOCOL"),
         mock_job_context.name,
-        mock_job_context.core_context.state.get()
+        mock_job_context.core_context.state.get(),
     )
     assert isinstance(syslog_handler, logging.handlers.SysLogHandler)
     assert syslog_handler.level == logging.DEBUG
@@ -39,8 +42,10 @@ def test_configure_syslog_handler_enabled(mock_job_context):
 
 
 @pytest.mark.parametrize("protocol", ["UDP", "TCP"])
-@patch('socket.socket')
-def test_configure_syslog_handler_with_different_protocols(mock_socket, protocol, mock_job_context):
+@patch("socket.socket")
+def test_configure_syslog_handler_with_different_protocols(
+    mock_socket, protocol, mock_job_context
+):
     mock_socket_instance = MagicMock()
     mock_socket.return_value = mock_socket_instance
 
@@ -50,29 +55,37 @@ def test_configure_syslog_handler_with_different_protocols(mock_socket, protocol
         514,
         protocol,
         mock_job_context.name,
-        mock_job_context.core_context.state.get()
+        mock_job_context.core_context.state.get(),
     )
 
     expected_socktype = socket.SOCK_DGRAM if protocol == "UDP" else socket.SOCK_STREAM
     assert mock_socket.called
     assert mock_socket.call_args[0][1] == expected_socktype
     assert any(
-        isinstance(filter, AttributeAdder) and filter._attr_key == "job_name" for filter in syslog_handler.filters)
+        isinstance(filter, AttributeAdder) and filter._attr_key == "job_name"
+        for filter in syslog_handler.filters
+    )
     assert any(
-        isinstance(filter, AttributeAdder) and filter._attr_key == "attempt_id" for filter in syslog_handler.filters)
+        isinstance(filter, AttributeAdder) and filter._attr_key == "attempt_id"
+        for filter in syslog_handler.filters
+    )
 
 
 def test_configure_syslog_handler_disabled(mock_job_context):
-    syslog_handler = configure_syslog_handler(False, "localhost", 514, "UDP", "test_job", "12345")
+    syslog_handler = configure_syslog_handler(
+        False, "localhost", 514, "UDP", "test_job", "12345"
+    )
     assert syslog_handler is None
 
 
 def test_configure_syslog_handler_invalid_protocol(mock_job_context):
     with pytest.raises(ValueError):
-        configure_syslog_handler(True, "localhost", 514, "invalid_protocol", "test_job", "12345")
+        configure_syslog_handler(
+            True, "localhost", 514, "invalid_protocol", "test_job", "12345"
+        )
 
 
-@patch('logging.handlers.SysLogHandler')
+@patch("logging.handlers.SysLogHandler")
 def test_syslog_handler_configuration(mock_syslog_handler, mock_job_context):
     configure_syslog_handler(
         True,
@@ -80,10 +93,10 @@ def test_syslog_handler_configuration(mock_syslog_handler, mock_job_context):
         514,
         "UDP",
         mock_job_context.name,
-        mock_job_context.core_context.state.get()
+        mock_job_context.core_context.state.get(),
     )
     mock_syslog_handler.assert_called_with(
-        address=('localhost', 514),
+        address=("localhost", 514),
         facility=logging.handlers.SysLogHandler.LOG_USER,
-        socktype=socket.SOCK_DGRAM
+        socktype=socket.SOCK_DGRAM,
     )
