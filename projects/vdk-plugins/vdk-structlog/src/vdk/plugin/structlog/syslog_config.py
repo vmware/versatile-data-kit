@@ -1,27 +1,7 @@
 import logging.handlers
 
 from vdk.plugin.structlog.constants import SYSLOG_PROTOCOLS
-
-
-class JobContextFilter(logging.Filter):
-    """
-    A custom logging filter that adds job-specific context to log records.
-
-    This filter injects 'job_name' and 'attempt_id' attributes into each log record,
-    allowing these details to be included in the log messages formatted by log handlers.
-
-    The filter can be added to any standard Python logger. Once added, all log messages
-    emitted by this logger will include the 'job_name' and 'attempt_id' information.
-    """
-    def __init__(self, job_name, attempt_id):
-        super().__init__()
-        self.job_name = job_name
-        self.attempt_id = attempt_id
-
-    def filter(self, record):
-        record.job_name = self.job_name
-        record.attempt_id = self.attempt_id
-        return True
+from vdk.plugin.structlog.filters import AttributeAdder
 
 
 DETAILED_FORMAT = (
@@ -50,11 +30,14 @@ def configure_syslog_handler(syslog_enabled, syslog_host, syslog_port, syslog_pr
         socktype=syslog_socktype
     )
 
-    context_filter = JobContextFilter(job_name, attempt_id)
-    syslog_handler.addFilter(context_filter)
-
     formatter = logging.Formatter(DETAILED_FORMAT)
     syslog_handler.setFormatter(formatter)
+
+    job_name_adder = AttributeAdder('job_name', job_name)
+    attempt_id_adder = AttributeAdder('attempt_id', attempt_id)
+
+    syslog_handler.addFilter(job_name_adder)
+    syslog_handler.addFilter(attempt_id_adder)
 
     syslog_handler.setLevel("DEBUG")
 
