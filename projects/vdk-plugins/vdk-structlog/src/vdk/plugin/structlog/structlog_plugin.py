@@ -17,15 +17,21 @@ from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import CommonStoreKeys
-from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT, SYSLOG_HOST_KEY, \
-    DEFAULT_SYSLOG_HOST, SYSLOG_PORT_KEY, DEFAULT_SYSLOG_PORT, SYSLOG_PROTOCOL_KEY, DEFAULT_SYSLOG_PROTOCOL, \
-    SYSLOG_ENABLED_KEY, DEFAULT_SYSLOG_ENABLED
+from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_ENABLED
+from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_HOST
+from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_PORT
+from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_PROTOCOL
+from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_ALL_KEYS
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
+from vdk.plugin.structlog.constants import SYSLOG_ENABLED_KEY
+from vdk.plugin.structlog.constants import SYSLOG_HOST_KEY
+from vdk.plugin.structlog.constants import SYSLOG_PORT_KEY
+from vdk.plugin.structlog.constants import SYSLOG_PROTOCOL_KEY
 from vdk.plugin.structlog.filters import AttributeAdder
 from vdk.plugin.structlog.formatters import create_formatter
 from vdk.plugin.structlog.log_level_utils import set_non_root_log_levels
@@ -105,25 +111,25 @@ class StructlogPlugin:
         config_builder.add(
             key=SYSLOG_HOST_KEY,
             default_value=DEFAULT_SYSLOG_HOST,
-            description="Hostname of the Syslog server."
+            description="Hostname of the Syslog server.",
         )
 
         config_builder.add(
             key=SYSLOG_PORT_KEY,
             default_value=DEFAULT_SYSLOG_PORT,
-            description="Port of the Syslog server."
+            description="Port of the Syslog server.",
         )
 
         config_builder.add(
             key=SYSLOG_PROTOCOL_KEY,
             default_value=DEFAULT_SYSLOG_PROTOCOL,
-            description="Syslog protocol (UDP or TCP)."
+            description="Syslog protocol (UDP or TCP).",
         )
 
         config_builder.add(
             key=SYSLOG_ENABLED_KEY,
             default_value=DEFAULT_SYSLOG_ENABLED,
-            description="Enable Syslog logging (True or False)."
+            description="Enable Syslog logging (True or False).",
         )
 
     @hookimpl
@@ -205,13 +211,23 @@ class StructlogPlugin:
 
         root_logger.addHandler(handler)
 
-        syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED_KEY)
+        syslog_enabled = context.core_context.configuration.get_value(
+            SYSLOG_ENABLED_KEY
+        )
         syslog_host = context.core_context.configuration.get_value(SYSLOG_HOST_KEY)
         syslog_port = context.core_context.configuration.get_value(SYSLOG_PORT_KEY)
-        syslog_protocol = context.core_context.configuration.get_value(SYSLOG_PROTOCOL_KEY)
+        syslog_protocol = context.core_context.configuration.get_value(
+            SYSLOG_PROTOCOL_KEY
+        )
         attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
-        syslog_handler = configure_syslog_handler(syslog_enabled, syslog_host, syslog_port,
-                                                  syslog_protocol, job_name, attempt_id)
+        syslog_handler = configure_syslog_handler(
+            syslog_enabled,
+            syslog_host,
+            syslog_port,
+            syslog_protocol,
+            job_name,
+            attempt_id,
+        )
         if syslog_handler:
             root_logger.addHandler(syslog_handler)
 
@@ -266,13 +282,23 @@ class StructlogPlugin:
 
         root_logger.addHandler(handler)
 
-        syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED_KEY)
+        syslog_enabled = context.core_context.configuration.get_value(
+            SYSLOG_ENABLED_KEY
+        )
         syslog_host = context.core_context.configuration.get_value(SYSLOG_HOST_KEY)
         syslog_port = context.core_context.configuration.get_value(SYSLOG_PORT_KEY)
-        syslog_protocol = context.core_context.configuration.get_value(SYSLOG_PROTOCOL_KEY)
+        syslog_protocol = context.core_context.configuration.get_value(
+            SYSLOG_PROTOCOL_KEY
+        )
         attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
-        syslog_handler = configure_syslog_handler(syslog_enabled, syslog_host, syslog_port,
-                                                  syslog_protocol, job_name, attempt_id)
+        syslog_handler = configure_syslog_handler(
+            syslog_enabled,
+            syslog_host,
+            syslog_port,
+            syslog_protocol,
+            job_name,
+            attempt_id,
+        )
         if syslog_handler:
             root_logger.addHandler(syslog_handler)
 
