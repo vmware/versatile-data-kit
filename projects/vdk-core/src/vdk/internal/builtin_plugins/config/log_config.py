@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -162,9 +162,9 @@ def configure_loggers(
         "level": "DEBUG",
         "class": "logging.handlers.SysLogHandler",
         "formatter": "detailedFormatter",
-        "address": (syslog_url, syslog_port),
-        "socktype": SYSLOG_SOCK_TYPE_VALUES_DICT[syslog_sock_type],
-        "facility": "user",
+        "address": "/dev/log",
+        "socktype": socket.SOCK_DGRAM,
+        "facility": "daemon",
     }
 
     handlers = ["consoleHandler"]
@@ -182,7 +182,15 @@ def configure_loggers(
         }
         logging.config.dictConfig(CLOUD)
     elif "NONE" == log_config_type:
-        pass
+        CLOUD = {  # @UnusedVariable
+            "version": 1,
+            "handlers": {"consoleHandler": _CONSOLE_HANDLER, "SysLog": _SYSLOG_HANDLER},
+            "formatters": _FORMATTERS,
+            "root": {"handlers": handlers},
+            "loggers": _LOGGERS,
+            "disable_existing_loggers": False,
+        }
+        logging.config.dictConfig(CLOUD)
     else:
         LOCAL = {  # @UnusedVariable
             "version": 1,
