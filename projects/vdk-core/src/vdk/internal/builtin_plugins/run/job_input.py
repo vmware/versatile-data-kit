@@ -183,7 +183,9 @@ class JobInput(IJobInput):
             "pa__job_start_unixtime": str(int(start_time.timestamp())),
             "pa__job_start_ts_expr": f"cast ({start_time.timestamp()} as timestamp)",
             "pa__op_id": self.__statestore.get(CommonStoreKeys.OP_ID),
-            "pa__job_version": self.__statestore.get(ExecutionStateStoreKeys.JOB_GIT_HASH),
+            "pa__job_version": self.__statestore.get(
+                ExecutionStateStoreKeys.JOB_GIT_HASH
+            ),
         }
 
     def skip_remaining_steps(self) -> None:
