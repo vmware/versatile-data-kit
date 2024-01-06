@@ -28,6 +28,7 @@ from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import SkipRemainingStepsException
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.statestore import CommonStoreKeys
+from vdk.internal.core.statestore import ExecutionStateStoreKeys
 
 
 # TODO make this extensible so new job inputs can be added by plugins
@@ -182,6 +183,7 @@ class JobInput(IJobInput):
             "pa__job_start_unixtime": str(int(start_time.timestamp())),
             "pa__job_start_ts_expr": f"cast ({start_time.timestamp()} as timestamp)",
             "pa__op_id": self.__statestore.get(CommonStoreKeys.OP_ID),
+            "pa__job_version": self.__statestore.get(ExecutionStateStoreKeys.JOB_GIT_HASH),
         }
 
     def skip_remaining_steps(self) -> None:
