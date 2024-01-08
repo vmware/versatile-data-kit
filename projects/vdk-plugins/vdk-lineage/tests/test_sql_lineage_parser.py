@@ -14,8 +14,7 @@ def test_get_insert_table_lineage_from_query_complex():
       -- CREATE TABLE stg.dim_sddc_h STORED AS PARQUET AS SELECT * FROM stg.stg_dim_sddc_h;
       -- /* +SHUFFLE */ below is a query hint to Impala. -- Do not remove! https://www.cloudera.com/documentation/enterprise/5-9-x/topics/impala_hints.html
     INSERT OVERWRITE TABLE stg.dim_sddc_h
-        WITH
-       tgt_filtered AS (
+        WITH tgt_filtered AS (
         SELECT
             *
         FROM
