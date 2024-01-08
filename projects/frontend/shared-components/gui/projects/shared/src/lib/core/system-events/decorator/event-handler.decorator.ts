@@ -8,14 +8,17 @@
                   max-len
 */
 
-import 'reflect-metadata';
+import "reflect-metadata";
 
-import { Expression } from '../../../common';
+import { Expression } from "../../../common";
 
-import { SystemEvent } from '../event';
-import { SystemEventHandlerRef, SystemEventMetadataRecords } from '../dispatcher/models';
+import { SystemEvent } from "../event";
+import {
+  SystemEventHandlerRef,
+  SystemEventMetadataRecords,
+} from "../dispatcher/models";
 
-import { SYSTEM_EVENTS_METADATA_KEY } from './models';
+import { SYSTEM_EVENTS_METADATA_KEY } from "./models";
 
 /**
  * ** Decorator to register method as SystemEvent Handler.
@@ -99,34 +102,49 @@ import { SYSTEM_EVENTS_METADATA_KEY } from './models';
  *      }
  *    }
  */
-export function SystemEventHandler(knownEvents: SystemEvent | SystemEvent[], filterExpression?: Expression): MethodDecorator {
-    return (target, propertyKey, descriptor) => {
-        if (!descriptor || !knownEvents) {
-            return;
-        }
+export function SystemEventHandler(
+  knownEvents: SystemEvent | SystemEvent[],
+  filterExpression?: Expression,
+): MethodDecorator {
+  return (target, propertyKey, descriptor) => {
+    if (!descriptor || !knownEvents) {
+      return;
+    }
 
-        let metadataRecords: SystemEventMetadataRecords = [];
+    let metadataRecords: SystemEventMetadataRecords = [];
 
-        if (Reflect.hasMetadata(SYSTEM_EVENTS_METADATA_KEY, target.constructor)) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            metadataRecords = Reflect.getMetadata(SYSTEM_EVENTS_METADATA_KEY, target.constructor);
-            metadataRecords.push({
-                handler: descriptor.value as unknown as SystemEventHandlerRef,
-                events: knownEvents,
-                filterExpression
-            });
+    if (Reflect.hasMetadata(SYSTEM_EVENTS_METADATA_KEY, target.constructor)) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      metadataRecords = Reflect.getMetadata(
+        SYSTEM_EVENTS_METADATA_KEY,
+        target.constructor,
+      );
+      metadataRecords.push({
+        handler: descriptor.value as unknown as SystemEventHandlerRef,
+        events: knownEvents,
+        filterExpression,
+      });
 
-            Reflect.defineMetadata(SYSTEM_EVENTS_METADATA_KEY, metadataRecords, target.constructor, propertyKey);
+      Reflect.defineMetadata(
+        SYSTEM_EVENTS_METADATA_KEY,
+        metadataRecords,
+        target.constructor,
+        propertyKey,
+      );
 
-            return;
-        }
+      return;
+    }
 
-        metadataRecords.push({
-            handler: descriptor.value as unknown as SystemEventHandlerRef,
-            events: knownEvents,
-            filterExpression
-        });
+    metadataRecords.push({
+      handler: descriptor.value as unknown as SystemEventHandlerRef,
+      events: knownEvents,
+      filterExpression,
+    });
 
-        Reflect.defineMetadata(SYSTEM_EVENTS_METADATA_KEY, metadataRecords, target.constructor);
-    };
+    Reflect.defineMetadata(
+      SYSTEM_EVENTS_METADATA_KEY,
+      metadataRecords,
+      target.constructor,
+    );
+  };
 }

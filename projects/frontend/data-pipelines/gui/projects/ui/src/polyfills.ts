@@ -23,7 +23,7 @@
  * BROWSER POLYFILLS
  */
 
-import '@webcomponents/custom-elements';
+import "@webcomponents/custom-elements";
 /**
  * By default, zone.js will patch all possible macroTask and DomEvents
  * user can disable parts of macroTask/DomEvents patch by setting following flags
@@ -50,7 +50,7 @@ import '@webcomponents/custom-elements';
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
-import 'zone.js'; // Included with Angular CLI.
+import "zone.js"; // Included with Angular CLI.
 (window as any).global = window;
 
 /***************************************************************************************************

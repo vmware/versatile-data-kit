@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './router-serializer.service';
+export * from "./router-serializer.service";

@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { DynamicComponentsService } from './services';
-export { DynamicComponentsModule } from './dynamic-components.module';
+export { DynamicComponentsService } from "./services";
+export { DynamicComponentsModule } from "./dynamic-components.module";

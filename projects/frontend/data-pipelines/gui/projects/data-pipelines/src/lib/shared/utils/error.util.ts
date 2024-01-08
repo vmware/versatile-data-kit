@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ApolloError } from '@apollo/client/core';
+import { ApolloError } from "@apollo/client/core";
 
-import { CollectionsUtil } from '@versatiledatakit/shared';
+import { CollectionsUtil } from "@versatiledatakit/shared";
 
 /**
  * ** Error Utils class.
@@ -13,14 +13,17 @@ import { CollectionsUtil } from '@versatiledatakit/shared';
  * @author gorankokin
  */
 export class ErrorUtil {
-    /**
-     * ** Extract root Error depending of the format.
-     */
-    static extractError(error: Error): Error {
-        if (error instanceof ApolloError && CollectionsUtil.isDefined(error.networkError)) {
-            return error.networkError;
-        }
-
-        return error;
+  /**
+   * ** Extract root Error depending of the format.
+   */
+  static extractError(error: Error): Error {
+    if (
+      error instanceof ApolloError &&
+      CollectionsUtil.isDefined(error.networkError)
+    ) {
+      return error.networkError;
     }
+
+    return error;
+  }
 }

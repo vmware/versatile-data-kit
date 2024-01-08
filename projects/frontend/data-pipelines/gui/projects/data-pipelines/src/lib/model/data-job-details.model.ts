@@ -5,9 +5,9 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { StatusDetails } from './data-job-base.model';
+import { StatusDetails } from "./data-job-base.model";
 
-import { DataJobExecutionStatusDeprecated } from './data-job-executions.model';
+import { DataJobExecutionStatusDeprecated } from "./data-job-executions.model";
 
 /**
  * ** Data job details.
@@ -15,10 +15,10 @@ import { DataJobExecutionStatusDeprecated } from './data-job-executions.model';
  * @deprecated
  */
 export interface DataJobDetails {
-    job_name?: string;
-    team?: string;
-    description?: string;
-    config?: DataJobConfigDetails;
+  job_name?: string;
+  team?: string;
+  description?: string;
+  config?: DataJobConfigDetails;
 }
 
 /**
@@ -27,8 +27,8 @@ export interface DataJobDetails {
  * @deprecated
  */
 export interface DataJobConfigDetails {
-    schedule?: DataJobScheduleDetails;
-    contacts?: DataJobContactsDetails;
+  schedule?: DataJobScheduleDetails;
+  contacts?: DataJobContactsDetails;
 }
 
 /**
@@ -37,17 +37,17 @@ export interface DataJobConfigDetails {
  * @deprecated
  */
 export interface DataJobExecutionDetails {
-    id: string;
-    job_name: string;
-    type: 'manual' | 'scheduled';
-    status: DataJobExecutionStatusDeprecated;
-    start_time: string;
-    started_by: string;
-    end_time: string;
-    op_id: string;
-    message: string;
-    logs_url: string;
-    deployment?: DataJobDeploymentDetails;
+  id: string;
+  job_name: string;
+  type: "manual" | "scheduled";
+  status: DataJobExecutionStatusDeprecated;
+  start_time: string;
+  started_by: string;
+  end_time: string;
+  op_id: string;
+  message: string;
+  logs_url: string;
+  deployment?: DataJobDeploymentDetails;
 }
 
 /**
@@ -56,20 +56,20 @@ export interface DataJobExecutionDetails {
  * @deprecated
  */
 export interface DataJobDeploymentDetails extends StatusDetails {
-    id: string;
-    job_version: string;
-    mode: string;
-    vdk_version: string;
-    deployed_by: string;
-    deployed_date: string;
-    resources: {
-        cpu_request: number;
-        cpu_limit: number;
-        memory_limit: number;
-        memory_request: number;
-    };
-    contacts?: DataJobContactsDetails;
-    schedule?: DataJobScheduleDetails;
+  id: string;
+  job_version: string;
+  mode: string;
+  vdk_version: string;
+  deployed_by: string;
+  deployed_date: string;
+  resources: {
+    cpu_request: number;
+    cpu_limit: number;
+    memory_limit: number;
+    memory_request: number;
+  };
+  contacts?: DataJobContactsDetails;
+  schedule?: DataJobScheduleDetails;
 }
 
 /**
@@ -78,7 +78,7 @@ export interface DataJobDeploymentDetails extends StatusDetails {
  * @deprecated
  */
 export interface DataJobScheduleDetails {
-    schedule_cron: string;
+  schedule_cron: string;
 }
 
 /**
@@ -87,8 +87,8 @@ export interface DataJobScheduleDetails {
  * @deprecated
  */
 export interface DataJobContactsDetails {
-    notified_on_job_deploy: string[];
-    notified_on_job_failure_platform_error: string[];
-    notified_on_job_failure_user_error: string[];
-    notified_on_job_success: string[];
+  notified_on_job_deploy: string[];
+  notified_on_job_failure_platform_error: string[];
+  notified_on_job_failure_user_error: string[];
+  notified_on_job_success: string[];
 }

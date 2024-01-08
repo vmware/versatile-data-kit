@@ -3,29 +3,29 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { IThemeManager } from '@jupyterlab/apputils';
-import { getVdkCellIndices } from './serverRequests';
+import { INotebookTracker } from "@jupyterlab/notebook";
+import { IThemeManager } from "@jupyterlab/apputils";
+import { getVdkCellIndices } from "./serverRequests";
 
 export const addNumberElement = (number: Number, node: Element) => {
-  const numberElement = document.createElement('div');
+  const numberElement = document.createElement("div");
   numberElement.innerText = String(number);
-  node.classList.contains('jp-vdk-failing-cell')
-    ? numberElement.classList.add('jp-vdk-failing-cell-num')
-    : numberElement.classList.add('jp-vdk-cell-num');
+  node.classList.contains("jp-vdk-failing-cell")
+    ? numberElement.classList.add("jp-vdk-failing-cell-num")
+    : numberElement.classList.add("jp-vdk-cell-num");
   node.appendChild(numberElement);
 };
 
 export const addVdkLogo = (node: Element) => {
-  const logo = document.createElement('img');
+  const logo = document.createElement("img");
   logo.setAttribute(
-    'src',
-    'https://raw.githubusercontent.com/vmware/versatile-data-kit/dc15f7489f763a0e0e29370b2e06a714448fc234/support/images/versatile-data-kit-logo.svg'
+    "src",
+    "https://raw.githubusercontent.com/vmware/versatile-data-kit/dc15f7489f763a0e0e29370b2e06a714448fc234/support/images/versatile-data-kit-logo.svg",
   );
-  logo.setAttribute('width', '20');
-  logo.setAttribute('height', '20');
+  logo.setAttribute("width", "20");
+  logo.setAttribute("height", "20");
 
-  logo.classList.add('jp-vdk-logo');
+  logo.classList.add("jp-vdk-logo");
   node.appendChild(logo);
 };
 
@@ -33,29 +33,29 @@ export const addVdkCellDesign = (
   cells: Element[],
   vdkCellIndices: Array<Number>,
   themeManager: IThemeManager,
-  currentCell?: Element
+  currentCell?: Element,
 ) => {
   // Delete previous numbering in case of untagging elements
   const vdkCellNums = Array.from(
-    document.getElementsByClassName('jp-vdk-cell-num')
+    document.getElementsByClassName("jp-vdk-cell-num"),
   );
-  vdkCellNums.forEach(element => {
+  vdkCellNums.forEach((element) => {
     element.remove();
   });
 
   // Delete previous fail numbering
   const vdkFailingCellNums = Array.from(
-    document.getElementsByClassName('jp-vdk-failing-cell-num')
+    document.getElementsByClassName("jp-vdk-failing-cell-num"),
   );
-  vdkFailingCellNums.forEach(element => {
+  vdkFailingCellNums.forEach((element) => {
     element.remove();
   });
 
   // Delete previously added logo in case of untagging elements
   const vdkCellLogo = Array.from(
-    document.getElementsByClassName('jp-vdk-logo')
+    document.getElementsByClassName("jp-vdk-logo"),
   );
-  vdkCellLogo.forEach(element => {
+  vdkCellLogo.forEach((element) => {
     element.remove();
   });
 
@@ -66,11 +66,11 @@ export const addVdkCellDesign = (
         themeManager.theme &&
         themeManager.isLight(themeManager.theme.toString())
       ) {
-        cells[i].classList.remove('jp-vdk-cell-dark');
-        cells[i].classList.add('jp-vdk-cell');
+        cells[i].classList.remove("jp-vdk-cell-dark");
+        cells[i].classList.add("jp-vdk-cell");
       } else {
-        cells[i].classList.add('jp-vdk-cell');
-        cells[i].classList.add('jp-vdk-cell-dark');
+        cells[i].classList.add("jp-vdk-cell");
+        cells[i].classList.add("jp-vdk-cell-dark");
       }
       // We do not add logo to the active cell since it blocks other UI elements
       if (currentCell && cells[i] != currentCell) {
@@ -79,15 +79,15 @@ export const addVdkCellDesign = (
 
       addNumberElement(++vdkCellCounter, cells[i]);
     } else {
-      cells[i].classList.remove('jp-vdk-cell');
-      cells[i].classList.remove('jp-vdk-cell-dark');
+      cells[i].classList.remove("jp-vdk-cell");
+      cells[i].classList.remove("jp-vdk-cell-dark");
     }
   }
 };
 
 export const trackVdkTags = (
   notebookTracker: INotebookTracker,
-  themeManager: IThemeManager
+  themeManager: IThemeManager,
 ): void => {
   const changeCells = async () => {
     if (
@@ -105,15 +105,15 @@ export const trackVdkTags = (
       ) {
         const currentCellTags = notebookTracker.currentWidget.model.cells
           .get(cellIndex)
-          .metadata.get('tags')! as ReadonlyArray<String>;
-        if (currentCellTags && currentCellTags.includes('vdk'))
+          .metadata.get("tags")! as ReadonlyArray<String>;
+        if (currentCellTags && currentCellTags.includes("vdk"))
           vdkCellIndices.push(cellIndex);
         cellIndex++;
       }
       // this case covers the use case when the notebook is loaded for the first time
       if (!vdkCellIndices.length) {
         vdkCellIndices = await getVdkCellIndices(
-          notebookTracker.currentWidget.context.path
+          notebookTracker.currentWidget.context.path,
         );
       }
       if (
@@ -126,7 +126,7 @@ export const trackVdkTags = (
           Array.from(notebookTracker.activeCell.parent.node.children!),
           vdkCellIndices,
           themeManager,
-          notebookTracker.activeCell.node
+          notebookTracker.activeCell.node,
         );
       }
     }
