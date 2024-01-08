@@ -17,15 +17,15 @@
 ## Summary
 
 With the rise in popularity of LLMs and RAG we see VDK as a core component to getting the data where we need it to be.
-
+VDK's strengths are ETL tasks. We see that its very well suited to populating the databases needed for RAG.
 
 
 ## Glossary
 
-LLM: Large language model. The most ubiquitous example of this is chatgpt. It is a specialized type of artificial intelligence (AI) that has been trained on vast amounts of text to understand existing content and generate original content. 
-RAG: Retrival augmented generation. Additional information is passed to the LLM through the prompt. This additional information can help it generate better and more context aware responses. 
-Vector database: A database which supports storing vectors(arrays of numbers) and doing similarity searches between vectors(cosine distance, dot product etc...). 
-PGVector: A postgres extension which enables similarity searches in postgres and a vector datatype. 
+LLM: Large language model. The most ubiquitous example of this is chatgpt. It is a specialized type of artificial intelligence (AI) that has been trained on vast amounts of text to understand existing content and generate original content.
+RAG: Retrival augmented generation. Additional information is passed to the LLM through the prompt. This additional information can help it generate better and more context aware responses.
+Vector database: A database which supports storing vectors(arrays of numbers) and doing similarity searches between vectors(cosine distance, dot product etc...).
+PGVector: A postgres extension which enables similarity searches in postgres and a vector datatype.
 
 
 ## Motivation
@@ -45,16 +45,13 @@ Steps they need to complete:
 4. save Vector and paragraph in vector database
 5. remove old information. For example if we are scraping jira every hour and we are writing details to the vector database we need to make sure we clean up all embeddings/chunks which were generated from old versions of the ticket.
 
-
-#### Benefits to customers:
-
-We want to template this.
-We will build a datajob in VDK which reads data from confluence or jira and writes it to a DSM postgres instance with PGVector enabled. A embedding model will be running on a different machine which will be exposed through an API.
+We will build a datajob in VDK which reads data from confluence or jira and writes it to a postgres instance with PGVector enabled. A embedding model will be running on a different machine which will be exposed through an API.
 We will make requests to the API to create embeddings for us.
 
 After this datajob is running we will create a template from this in which we think customers will be able to adopt to meet their use cases.
 
-
+#### Benefits to customers:
+They will be able to follow our template to quickly create similar jobs. This gives customers the ability to get up and runnning quickly.
 
 ## Requirements and goals
 1. There should be a single pipelines which given jira/confluence credentials can scrape the source
