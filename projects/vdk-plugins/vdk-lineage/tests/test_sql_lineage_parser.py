@@ -65,8 +65,8 @@ def test_get_select_table_lineage_from_query_complex():
           from staging.stats, default_stats
           where
             pa__collector_instance_id like '%prod%'
-            and cast(pa__arrival_day as timestamp) > adddate(utc_timestamp(), -22)  
-            and pa__arrival_ts > adddate(utc_timestamp(), -21) 
+            and cast(pa__arrival_day as timestamp) > adddate(utc_timestamp(), -22)
+            and pa__arrival_ts > adddate(utc_timestamp(), -21)
             and num_rows > 0
         )
         select *
