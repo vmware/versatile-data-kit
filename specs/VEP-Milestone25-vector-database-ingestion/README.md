@@ -1,28 +1,8 @@
 
 # VEP-NNNN: Your short, descriptive title
 
-* **Author(s):** Name (mail), ... <!-- main contributors to the proposal (not just writers) and expected points of contact for questions -->
-* **Status:** draft | implementable | implemented | rejected | withdrawn | replaced
-
-
-To get started with this template:
-
-- [ ] **Create an issue(or milestone) in Github (if one does not exists already)**
-- [ ] **Make a copy of this template directory.**
-  Copy this template into the specs directory and name it
-  `NNNN-short-descriptive-title`, where `NNNN` is the issue number (with no
-  leading-zero padding) created above. If a milestone is being used instead of a ticket `NNNN` should be set to `milestone-NN` where `NN` is the milestone number 
-- [ ] **Fill out this file as best you can.**
-  There are instructions as HTML comments.
-  At minimum, you should fill in the "Summary" and "Motivation" sections.
-- [ ] **Create a PR for this VEP.**
-- [ ] **Merge early and iterate.**
-  Avoid getting hung up on specific details and instead aim to get the goals of
-  the VEP clarified and merged quickly. The best way to do this is to just
-  start with the high-level sections and fill out details incrementally in
-  subsequent PRs.
-
-<!-- Provide table of content as it's helpful. -->
+* **Author(s):** Paul Murphy (murphp15@tcd.ie), Antoni Ivanov ()
+* **Status:** draft
 
 - [Summary](#summary)
 - [Glossary](#glossary)
@@ -36,59 +16,63 @@ To get started with this template:
 
 ## Summary
 
-<!--
-Short summary of the proposal. It will be used as user-focused
-documentation such as release notes or a (customer facing) development roadmap.
-The tone and content of the `Summary` section should be
-useful for a wide audience.
--->
+With the rise in popularity of LLMs and RAG we see VDK as a core component to getting the data where we need it to be.
+
+
 
 ## Glossary
-<!--
-Optional section which defines terms and abbreviations used in the rest of the document.
--->
+
+LLM: Large language model. The most ubiquitous example of this is chatgpt. It is a specialized type of artificial intelligence (AI) that has been trained on vast amounts of text to understand existing content and generate original content. 
+RAG: Retrival augmented generation. Additional information is passed to the LLM through the prompt. This additional information can help it generate better and more context aware responses. 
+Vector database: A database which supports storing vectors(arrays of numbers) and doing similarity searches between vectors(cosine distance, dot product etc...). 
+PGVector: A postgres extension which enables similarity searches in postgres and a vector datatype. 
+
 
 ## Motivation
-<!--
-It tells **why** do we need X?
-Describe why the change is important and the benefits to users.
-Explain the user problem that need to be solved.
--->
+
+#### Example problem scenario:
+A company has a powerful private LLM chatbot.
+However they want it to be able to answer questions using the latest version of confluence docs/jira tickets etc...
+Retraining every night on the latest tickets/docs is not feasible.
+Instead, they opt to use RAG to improve the chatbot responses.
+
+This leaves them with the question.
+How do we populate the data?
+Steps they need to complete:
+1. Read data from confluence/jira
+2. Chunk into paragraphs(or something similar)
+3. Embed into vector space
+4. save Vector and paragraph in vector database
+5. remove old information. For example if we are scraping jira every hour and we are writing details to the vector database we need to make sure we clean up all embeddings/chunks which were generated from old versions of the ticket.
+
+
+#### Benefits to customers:
+
+We want to template this.
+We will build a datajob in VDK which reads data from confluence or jira and writes it to a DSM postgres instance with PGVector enabled. A embedding model will be running on a different machine which will be exposed through an API.
+We will make requests to the API to create embeddings for us.
+
+After this datajob is running we will create a template from this in which we think customers will be able to adopt to meet their use cases.
+
+
 
 ## Requirements and goals
-<!--
-It tells **what** is it trying to achieve including expected deliverables.
-List the specific goals (functional and nonfunctional requirements)?
-It's recommended to specify metrics that can be used to check the goal has been achieved.
+1. There should be a single pipelines which given jira/confluence credentials can scrape the source
+2. it should chunk up the information, embed it and then save it
+3. The systems should be easily configurable
+   1. Read from different sources
+   2. Different chunks sizes
+   3. Different embedders
+   4. Extra columns saved in database
+4. There should be an example on how to build your own ingestion pipeline
+5. Only scraping new data and removing old data must be supported
 
-Specify for what type of users, what is going to be delivered.
-Recommended (but not required format) is
-User <persona/type of user>, they need <new deliverable/feature/improvement>, so that <reason>
 
-Specify non-goals. Clearly, the list of non-goals can't be exhaustive.
-Non-goals are only features, which a contributor can reasonably assume were a goal.
-One example is features that were cut during scoping.
--->
+### Non goals
+1. This only populates information into a database that could be used by as RAG system. We don't handle stuffing the actual prompts.
 
 ## High-level design
-
-<!--
-All the rest sections tell **how** are we solving it?
-
-This is where we get down to the specifics of what the proposal actually is.
-This should have enough detail that reviewers can understand exactly what
-you're proposing, but should not include things like API designs or
-implementation. What is the desired outcome and how do we measure success?
-
-Provide a valid UML Component diagram that focuses on the architecture changes
-implementing the feature. For more details on how to write UML Component Spec -
-see https://en.wikipedia.org/wiki/Component_diagram#External_links.
-
-For every new component on the diagram, explain which goals does it solve.
-In this context, a component is any separate software process.
-
--->
-
+![sequence_diagram.png](sequence_diagram.png)
 
 ## API design
 
