@@ -15,8 +15,7 @@ def test_get_insert_table_lineage_from_query_complex():
       -- /* +SHUFFLE */ below is a query hint to Impala. -- Do not remove! https://www.cloudera.com/documentation/enterprise/5-9-x/topics/impala_hints.html
     INSERT OVERWRITE TABLE stg.dim_sddc_h
         WITH
-        -- filter from the target all elements that define non-current state and are not updated/present in the source
-     tgt_filtered AS (
+       tgt_filtered AS (
         SELECT
             *
         FROM
@@ -30,7 +29,6 @@ def test_get_insert_table_lineage_from_query_complex():
                 CAST(valid_from_ts AS STRING))
             FROM
                 processing_stg.vw_dim_sddc_h ) ),
-        -- filter from the source all elements which are present in
      tgt_filtered src_filtered AS (
         SELECT
             *
