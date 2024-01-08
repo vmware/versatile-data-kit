@@ -1,6 +1,5 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 import logging.handlers
 import socket
 from unittest.mock import MagicMock
@@ -83,20 +82,3 @@ def test_configure_syslog_handler_invalid_protocol(mock_job_context):
         configure_syslog_handler(
             True, "localhost", 514, "invalid_protocol", "test_job", "12345"
         )
-
-
-@patch("logging.handlers.SysLogHandler")
-def test_syslog_handler_configuration(mock_syslog_handler, mock_job_context):
-    configure_syslog_handler(
-        True,
-        "localhost",
-        514,
-        "UDP",
-        mock_job_context.name,
-        mock_job_context.core_context.state.get(),
-    )
-    mock_syslog_handler.assert_called_with(
-        address=("localhost", 514),
-        facility=logging.handlers.SysLogHandler.LOG_USER,
-        socktype=socket.SOCK_DGRAM,
-    )

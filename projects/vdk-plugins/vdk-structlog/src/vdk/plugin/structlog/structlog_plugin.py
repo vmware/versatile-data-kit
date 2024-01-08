@@ -311,11 +311,17 @@ class StructlogPlugin:
     def run_step(self, context: JobContext, step: Step) -> Optional[StepResult]:
         root_logger = logging.getLogger()
         handler = root_logger.handlers[0]
-
+        metadata_filter = None
         # make sure the metadata filter executes last
         # so that step_name and step_type are filtered if necessary
-        metadata_filter = [f for f in handler.filters if f.name == "metadata_filter"][0]
-        handler.removeFilter(metadata_filter)
+        metadata_filter_result = [
+            f for f in handler.filters if f.name == "metadata_filter"
+        ]
+        if metadata_filter_result:
+            metadata_filter = metadata_filter_result[0]
+
+        if metadata_filter:
+            handler.removeFilter(metadata_filter)
 
         step_name_adder = AttributeAdder("vdk_step_name", step.name)
         step_type_adder = AttributeAdder("vdk_step_type", step.type)
@@ -324,7 +330,8 @@ class StructlogPlugin:
 
         # make sure the metadata filter executes last
         # so that step_name and step_type are filtered if necessary
-        handler.addFilter(metadata_filter)
+        if metadata_filter:
+            handler.addFilter(metadata_filter)
         out: HookCallResult
         out = yield
         handler.removeFilter(step_name_adder)

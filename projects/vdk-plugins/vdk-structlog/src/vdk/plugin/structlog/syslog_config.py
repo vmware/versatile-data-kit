@@ -1,6 +1,5 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 import logging.handlers
 
 from vdk.plugin.structlog.constants import SYSLOG_PROTOCOLS
@@ -36,7 +35,7 @@ def configure_syslog_handler(
     syslog_socktype = SYSLOG_PROTOCOLS[syslog_protocol.upper()]
     syslog_handler = logging.handlers.SysLogHandler(
         address=(syslog_host, syslog_port),
-        facility=logging.handlers.SysLogHandler.LOG_USER,
+        facility=logging.handlers.SysLogHandler.LOG_DAEMON,
         socktype=syslog_socktype,
     )
 

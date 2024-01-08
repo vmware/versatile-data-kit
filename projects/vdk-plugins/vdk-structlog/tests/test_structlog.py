@@ -3,6 +3,8 @@
 import logging
 import os
 import re
+import socket
+import threading
 from unittest import mock
 
 import pytest
@@ -106,6 +108,44 @@ def test_structlog(log_format):
             log_with_bound_context,
             log_with_bound_and_extra_context,
         )
+
+
+def test_structlog_syslog():
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_STRUCTLOG_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
+            "VDK_STRUCTLOG_FORMAT": "console",
+            "LOG_LEVEL_MODULE": "test_structlog=WARNING",
+            "VDK_SYSLOG_HOST": "127.0.0.1",
+            "VDK_SYSLOG_PORT": "32123",
+            "VDK_SYSLOG_PROTOCOL": "UDP",
+            "VDK_SYSLOG_ENABLED": "True",
+        },
+    ):
+        syslog_out = []
+
+        def start_syslog_server(host, port):
+            server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            server_socket.bind((host, port))
+            print(f"Syslog server listening on {host}:{port}")
+
+            while True:
+                data, addr = server_socket.recvfrom(1024)
+                syslog_out.append(f"{data.decode('utf-8')}")
+
+        server = threading.Thread(
+            target=start_syslog_server, args=("127.0.0.1", 32123), daemon=True
+        )
+        server.start()
+
+        _run_job_and_get_logs()
+
+        assert syslog_out
+
+        # assert log entries are formatted using the hardcoded formatter
+        for log in syslog_out:
+            assert re.search("\\[id:.*\\]", log)
 
 
 @pytest.mark.parametrize("log_format", ["console", "ltsv", "json"])
