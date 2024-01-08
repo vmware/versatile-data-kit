@@ -1,0 +1,11 @@
+Created using: https://sequencediagram.org/
+
+```
+title RAG data population
+
+VDK->Confluence: Read latest changes from confluence
+VDK<--Confluence: Return confluence pages changed recently along with metadata
+VDK->Embedding Model: Send chunks of text for which embeddings are required
+VDK<--Embedding Model: Return embeddings
+VDK->Postgres(PGVector enabled): Save the rows in the database
+```
