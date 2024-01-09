@@ -2,6 +2,6 @@
 # testing:
 pytest
 pytest-httpserver
+sqllineage==1.3.8
 vdk-sqlite
 vdk-test-utils
-sqllineage==1.3.8
