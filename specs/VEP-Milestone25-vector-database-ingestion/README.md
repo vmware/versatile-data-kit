@@ -22,11 +22,16 @@ VDK's strengths are ETL tasks. We see that its very well suited to populating th
 
 ## Glossary
 
-LLM: Large language model. The most ubiquitous example of this is chatgpt. It is a specialized type of artificial intelligence (AI) that has been trained on vast amounts of text to understand existing content and generate original content.
-RAG: Retrival augmented generation. Additional information is passed to the LLM through the prompt. This additional information can help it generate better and more context aware responses.
-Vector database: A database which supports storing vectors(arrays of numbers) and doing similarity searches between vectors(cosine distance, dot product etc...).
-PGVector: A postgres extension which enables similarity searches in postgres and a vector datatype.
+*LLM*: Large language model. The most ubiquitous example of this is chatgpt. It is a specialized type of artificial intelligence (AI) that has been trained on vast amounts of text to understand existing content and generate original content.
 
+*RAG*: Retrival augmented generation. Additional information is passed to the LLM through the prompt. This additional information can help it generate better and more context aware responses.
+
+*Vector database*: A database which supports storing vectors(arrays of numbers) and doing similarity searches between vectors(cosine distance, dot product etc...).
+
+*PGVector*: A postgres extension which enables similarity searches in postgres and a vector datatype.
+
+*Chunk*: A piece of text which it makes sense to create an embedding from. Lets look an example. In the case where we are saving confluence docs into a vector store it would be most obvious to create an embedding per paragraph. 
+However we might find that it really helps to include the page title along with the paragraph when creating the embeddings.
 
 ## Motivation
 
@@ -72,18 +77,33 @@ They will be able to follow our template to quickly create similar jobs. This gi
 ![sequence_diagram.png](sequence_diagram.png)
 
 ## API design
+The api design should be heavily influenced by: https://python.langchain.com/docs/modules/data_connection/vectorstores/.
 
-<!--
+The table should have a structure like 
 
-Describe the changes and additions to the public API (if there are any).
+| embedding     | text chunk                  | document id | metadata |  
+|---------------|-----------------------------|------------- |------------- | 
+| [1,2,3,4,5,6] | in this document blah...    | 15 | {"groups_with_access": ["IT", "HR"]} |
+| [1,2,3,3,5,6] | other content from same doc | 15 | {"groups_with_access": ["IT", "HR"]} |
 
-For all API changes:
 
-Include Swagger URL for HTTP APIs, no matter if the API is RESTful or RPC-like.
-PyDoc/Javadoc (or similar) for Python/Java changes.
-Explain how does the system handle API violations.
--->
+I think the python code could look something like this. 
+In it we:
+1. delete any files that have been removed since the last scrape 
+2. Then in a transaction delete all information for a page and in the same transaction write all the new information page
+3. The embedding api is abstracted into it own class allowing users to easily provide their own embedding api
 
+
+
+
+```python
+PostgresInstance.delete(ConfluenceReader(credentials_for_confluence).find_removed_document(last_timestamp))
+raw_page_or_tickets : Iterable[Union[PageChanges]] = ConfluenceReader(credentials_for_confluence).load(last_timestamp)
+with postgres_start_transaction as transaction:
+   PostgresInstance.delete([a.document_id for a in raw_page_or_tickets])
+   documents = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0).split_documents(raw_page_or_tickets)
+   PostgresInstance.from_documents(documents, MyEmbeddingApi())
+```
 
 ## Detailed design
 <!--
