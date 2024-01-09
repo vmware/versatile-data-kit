@@ -30,7 +30,7 @@ VDK's strengths are ETL tasks. We see that its very well suited to populating th
 
 *PGVector*: A postgres extension which enables similarity searches in postgres and a vector datatype.
 
-*Chunk*: A piece of text which it makes sense to create an embedding from. Lets look an example. In the case where we are saving confluence docs into a vector store it would be most obvious to create an embedding per paragraph. 
+*Chunk*: A piece of text which it makes sense to create an embedding from. Lets look an example. In the case where we are saving confluence docs into a vector store it would be most obvious to create an embedding per paragraph.
 However we might find that it really helps to include the page title along with the paragraph when creating the embeddings.
 
 ## Motivation
@@ -79,17 +79,17 @@ They will be able to follow our template to quickly create similar jobs. This gi
 ## API design
 The api design should be heavily influenced by: https://python.langchain.com/docs/modules/data_connection/vectorstores/.
 
-The table should have a structure like 
+The table should have a structure like
 
-| embedding     | text chunk                  | document id | metadata |  
-|---------------|-----------------------------|------------- |------------- | 
+| embedding     | text chunk                  | document id | metadata |
+|---------------|-----------------------------|------------- |------------- |
 | [1,2,3,4,5,6] | in this document blah...    | 15 | {"groups_with_access": ["IT", "HR"]} |
 | [1,2,3,3,5,6] | other content from same doc | 15 | {"groups_with_access": ["IT", "HR"]} |
 
 
-I think the python code could look something like this. 
+I think the python code could look something like this.
 In it we:
-1. delete any files that have been removed since the last scrape 
+1. delete any files that have been removed since the last scrape
 2. Then in a transaction delete all information for a page and in the same transaction write all the new information page
 3. The embedding api is abstracted into it own class allowing users to easily provide their own embedding api
 
