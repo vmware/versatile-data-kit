@@ -127,6 +127,28 @@ Check out the [connection hook spec](../vdk-core/src/vdk/api/plugin/connection_h
 
 [![connection-hooks-activity-diagram](https://user-images.githubusercontent.com/2536458/228570184-4fba653c-dd6a-4a6d-80b3-bee83beb85e6.svg)](https://www.plantuml.com/plantuml/uml/ZPDFQnin4CNl-XG3kTY7-51wgGqb4BiKcaBwf-cXBKQMnbwrMib8sgI1_V0PQOMrcrs7-EBTVK-_DoEDhdpWBZIrPe8VWx86lbVAWrJyu7WDlh8FzCO3tt6FSBkvXJTltu4zekFHxU51XGhkrf_WsXg38Y4-MllFBnZJU40ZsKtwMx8M3WxHG7lYVCPGMGdThoN3JZT8-WGlwaJ9ICRQ7nvTorBv360f7FA084whLgmbJ1krduuVYJTMBevSOofgMUH5PipcP5pdrXDdu-b5Ar_rOwBm5KFZJEyhsDrVUbhbCli5DivRjpeVdlHnTexev0dyvZ-AXlZVljo0i7NDZNmUafOki3DIGjcWEwwLv07BmQQrMXsg48zaANVRqjpsFjkt9tka4MUDmhhNSsIqZpcb6Ug27r2-4fSxAxJnBcPmsI6rXnawPzqSGeK6Pe_ev-Iy_7NXKFwvV4_FUPlE1piKzXxTC7Z8Y3dPXdASbKweSwBs23DZep9ab4hYF715lbJwQiBfWpr6c95gpmfo69RKwJbpw1iTOjdSFAwOvZlKu9AsxRJUx7t082gGX8aB3AB4CyEtZqvhQFf-c_wdcbAUV-DQdxq6oO0oPVPlmRMjQnKWE6uyxsvYgUY52nzNZSF6j46MjhxSvwbkHNICi5cDMsmR9z3JaqOIvPXUXko5wgTJYcCoAGt85HhPrFe9)
 
+### Data Ingestion Cycle
+
+Data engineers use one of the [IIngester](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/job_input.py#L112) methods to send data for ingestion. The way data is ingested is controlled by different ingestion plugins which implement one of three possible methods (hooks)
+
+* **pre_ingest_process** - called before data is about to be ingested
+* **ingest_payload** - does the actual ingestion (sending the data to remote store)
+* **post_ingest_process** - called after data is ingested (or failed to ingest in case of error)
+
+[![vdk-ingest](https://github.com/vmware/versatile-data-kit/assets/2536458/a74582ef-eaaa-4693-91c4-41745212ad79)](https://www.plantuml.com/plantuml/uml/hPDFRzfC4CRl_XIZS843Yi8HnIWGb4DU3aYW5rMAP2tU0MzjppZxfnHL_UuTsm4KYvP3w-FCRsQUvrbuSbvP7yeYShcXIbbLWiFtW9GY_8X0lgcrV7ZcWYtC2fNcRJ7rR6TiDTfkQs5sk324DxfIs5iEf5lY2nO57nfaAOfCQYf5_igE3j1PiygFio9W5tjXybSjTEUdxq5Tkjsndr6awZhSpPLNyChREr0Evg_GQmQhoqMu-t_-7xn8ddXWcpTSNUcT57vYbqNO6uBl3mstVBY1ZLfiz6TiZiuRKjumjVpwmclHlrKEFvmiL8xt6sKnu-3m_etMcR5wM6yz0fAks91llIusqDjankEgv1oZICmF9usrCJX14zv-nTGdExQ9eJsw-dw_H9-nZlL5qY2AOvYw8wMPPPApq1VDs_DxWCyiAkq64CTHHEmH-1lQZqlF6QQv0pa2LUFMGSgqC_jWKOEXDtfyRAydbJeMh7HIMQmif-XSSlg5JoQHhAlrI-HZ428v3RLaVt06Hhy3_a9QcqgYSQT2uISJa9cs1hj0QHqJDFz9z6ZFIjPovBCtKI7LeJJbUSQmmYO-XFgL0KwzLjuqpOaF1UezbaZ-doJBpj-ALf0RsLubOlcY9_4Jok8N)
+
+Details about ingestion hooks [can be seen here](https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/api/plugin/plugin_input.py#L232).
+
+You can see an example of [an ingest plugin here](https://github.com/vmware/versatile-data-kit/blob/main/examples/ingest-and-anonymize-plugin/plugins/vdk-poc-anonymize/src/vdk/plugin/anonymize/anonymization_plugin.py)
+
+Ingestion hooks can be used for the following example use-cases (this is not an exhaustive list):
+
+* **Data Validation (pre_ingest_process):** Plugin validates incoming data against a predefined schema or rules. For example, it verifies if all necessary fields in sales data are present and correctly formatted.
+* **Data Transformation (pre_ingest_process):** Plugin transforms the data into the required format. For instance, it might convert product names to uppercase or generate new fields in sales data, or anonymize PII data.
+* **Data Ingestion (ingest_payload):** The Plugin Destination pushes data to the final storage, managing connections to systems like Amazon S3, Google Cloud Storage, or SQL databases.
+* **Data Auditing (post_ingest_process):** In the post-ingest phase, the plugin serves as a data auditing tool, generating reports detailing data volume, errors, and timestamps of the ingestion process.
+* **Metadata Update (post_ingest_process):** A plugin updates a metadata repository with information about the ingested data, like source, time, volume, schema.
+
 ## Public interfaces
 
 Any backwards compatibility guarantees apply only to public interfaces.

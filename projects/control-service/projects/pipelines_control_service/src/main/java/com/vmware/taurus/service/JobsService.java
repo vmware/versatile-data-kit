@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,6 +11,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.google.common.collect.Lists;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
+import com.vmware.taurus.service.repository.JobsRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,6 +34,7 @@ import com.vmware.taurus.service.monitoring.DataJobMetrics;
 import com.vmware.taurus.service.webhook.WebHookRequestBody;
 import com.vmware.taurus.service.webhook.WebHookRequestBodyProvider;
 import com.vmware.taurus.service.webhook.WebHookResult;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * CRUD and other management operations on Versatile Data Kit across all systems which the pipelines
@@ -52,7 +56,10 @@ public class JobsService {
   private final PostCreateWebHookProvider postCreateWebHookProvider;
   private final PostDeleteWebHookProvider postDeleteWebHookProvider;
   private final DataJobMetrics dataJobMetrics;
+  private final DeploymentServiceV2 deploymentServiceV2;
+  private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
 
+  @Transactional
   public JobOperationResult deleteJob(String name) {
     if (!jobsRepository.existsById(name)) {
       return JobOperationResult.builder().completed(false).build();
@@ -63,7 +70,19 @@ public class JobsService {
     Optional<WebHookResult> resultHolder = postDeleteWebHookProvider.invokeWebHook(requestBody);
     if (isInvocationSuccessful(resultHolder)) {
       credentialsService.deleteJobCredentials(name);
-      deploymentService.deleteDeployment(name);
+
+      if (dataJobDeploymentPropertiesConfig
+          .getWriteTos()
+          .contains(DataJobDeploymentPropertiesConfig.WriteTo.K8S)) {
+        deploymentService.deleteDeployment(name);
+      }
+
+      if (dataJobDeploymentPropertiesConfig
+          .getWriteTos()
+          .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+        deploymentServiceV2.deleteDesiredDeployment(name);
+      }
+
       jobsRepository.deleteById(name);
       dataJobMetrics.clearGauges(name);
 
@@ -137,12 +156,24 @@ public class JobsService {
    * @param jobInfo
    * @return if the job existed
    */
+  @Transactional
   public boolean updateJob(DataJob jobInfo) {
     if (jobsRepository.existsById(jobInfo.getName())) {
       dataJobMetrics.updateInfoGauges(jobsRepository.save(jobInfo));
+
+      if (dataJobDeploymentPropertiesConfig
+          .getWriteTos()
+          .contains(DataJobDeploymentPropertiesConfig.WriteTo.DB)) {
+        deploymentServiceV2.updateDeploymentEnabledStatus(jobInfo.getName(), jobInfo.getEnabled());
+      }
+
       return true;
     }
     return false;
+  }
+
+  public Iterable<DataJob> findAllDataJobs() {
+    return jobsRepository.findAll();
   }
 
   /**

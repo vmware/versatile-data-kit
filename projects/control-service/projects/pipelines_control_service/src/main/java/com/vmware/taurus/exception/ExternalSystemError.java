@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -54,7 +54,10 @@ public class ExternalSystemError extends SystemError implements UserFacingError 
     GIT("Git"),
 
     /** A secrets storage/repository used to store data jobs secrets. */
-    SECRETS("Secrets");
+    SECRETS("Secrets"),
+
+    /** A container registry (like dockerhub or ECR) used to store container images. */
+    CONTAINER_REGISTRY("Container Registry");
 
     private final String userFacingName;
 

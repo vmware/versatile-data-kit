@@ -1,8 +1,9 @@
+ipyaggrid
 
 
-IPython
-
+# testing dependecies
 pytest
 vdk-core
+vdk-data-sources
 vdk-sqlite
 vdk-test-utils

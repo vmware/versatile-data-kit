@@ -1,13 +1,16 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.graphql;
 
+import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.datajobs.ToApiModelConverter;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig;
+import com.vmware.taurus.service.deploy.DataJobDeploymentPropertiesConfig.ReadFrom;
 import com.vmware.taurus.service.deploy.DeploymentService;
+import com.vmware.taurus.service.deploy.DeploymentServiceV2;
 import com.vmware.taurus.service.graphql.model.Criteria;
 import com.vmware.taurus.service.graphql.model.DataJobPage;
 import com.vmware.taurus.service.graphql.model.DataJobQueryVariables;
@@ -18,17 +21,15 @@ import com.vmware.taurus.service.graphql.strategy.JobFieldStrategyFactory;
 import com.vmware.taurus.service.graphql.strategy.datajob.JobFieldStrategyBy;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.JobDeploymentStatus;
+import com.vmware.taurus.service.repository.JobsRepository;
 import graphql.GraphqlErrorException;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -50,6 +54,8 @@ public class GraphQLDataFetchers {
   private final JobsRepository jobsRepository;
   private final DeploymentService deploymentService;
   private final ExecutionDataFetcher executionDataFetcher;
+  private final DataJobDeploymentPropertiesConfig dataJobDeploymentPropertiesConfig;
+  private final DeploymentServiceV2 deploymentServiceV2;
 
   public DataFetcher<Object> findAllAndBuildDataJobPage() {
     return dataFetchingEnvironment -> {
@@ -176,7 +182,13 @@ public class GraphQLDataFetchers {
                     f -> f,
                     filter ->
                         strategyFactory.findStrategy(
-                            JobFieldStrategyBy.field(filter.getProperty()))));
+                            JobFieldStrategyBy.field(filter.getProperty())),
+                    (v1, v2) -> {
+                      throw new IllegalArgumentException(
+                          "No duplicate keys allowed in Filter Strategy Map. Duplicate was: "
+                              + v1.getStrategyName());
+                    },
+                    LinkedHashMap::new));
 
     // compute criteria
     filterStrategyMap.forEach(
@@ -206,9 +218,15 @@ public class GraphQLDataFetchers {
 
   private List<V2DataJob> populateDeployments(
       List<V2DataJob> allDataJob, Map<String, DataJob> dataJobs) {
-    Map<String, JobDeploymentStatus> deploymentStatuses =
-        deploymentService.readDeployments().stream()
-            .collect(Collectors.toMap(JobDeploymentStatus::getDataJobName, cronJob -> cronJob));
+    Map<String, JobDeploymentStatus> deploymentStatuses;
+
+    if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.DB)) {
+      deploymentStatuses = readJobDeploymentsFromDb();
+    } else if (dataJobDeploymentPropertiesConfig.getReadDataSource().equals(ReadFrom.K8S)) {
+      deploymentStatuses = readJobDeploymentsFromK8s();
+    } else {
+      deploymentStatuses = Collections.emptyMap();
+    }
 
     allDataJob.forEach(
         dataJob -> {
@@ -225,6 +243,19 @@ public class GraphQLDataFetchers {
           }
         });
     return allDataJob;
+  }
+
+  private Map<String, JobDeploymentStatus> readJobDeploymentsFromK8s() {
+    return deploymentService.readDeployments().stream()
+        .collect(Collectors.toMap(JobDeploymentStatus::getDataJobName, cronJob -> cronJob));
+  }
+
+  private Map<String, JobDeploymentStatus> readJobDeploymentsFromDb() {
+    return deploymentServiceV2.findAllActualDataJobDeployments().entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> DeploymentModelConverter.toJobDeploymentStatus(entry.getValue())));
   }
 
   private static DataJobPage buildResponse(int pageSize, int count, List pageList) {

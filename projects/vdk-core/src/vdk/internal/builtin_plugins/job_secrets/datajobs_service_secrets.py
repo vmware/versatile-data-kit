@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from copy import deepcopy
@@ -10,9 +10,11 @@ from typing import Union
 from vdk.api.job_input import ISecrets
 from vdk.api.plugin.plugin_input import ISecretsServiceClient
 
-from ...core.errors import log_and_throw
+from ...core.errors import report_and_throw
 from ...core.errors import ResolvableBy
+from ...core.errors import UserCodeError
 from .base_secrets_impl import check_valid_secret
+from .exception import WritePreProcessSecretsException
 
 log = logging.getLogger(__name__)
 
@@ -80,15 +82,11 @@ class DataJobsServiceSecrets(ISecrets):
                         self._job_name, self._team_name, secrets
                     )
                 except Exception as e:
-                    log_and_throw(
-                        to_be_fixed_by=ResolvableBy.USER_ERROR,
-                        log=log,
-                        what_happened=f"A write pre-processor of secrets client {client} had failed.",
-                        why_it_happened=f"User Error occurred. Exception was: {e}",
-                        consequences="SECRETS_WRITE_PREPROCESS_SEQUENCE was interrupted, and "
-                        "secrets won't be written by the SECRETS_DEFAULT_TYPE client.",
-                        countermeasures="Handle the exception raised.",
-                    )
+                    raise WritePreProcessSecretsException(
+                        client=client,
+                        preprocess_sequence=str(self._write_preprocessors),
+                        resolvable_by=ResolvableBy.USER_ERROR,
+                    ) from e
 
         for k, v in list(secrets.items()):
             check_valid_secret(k, v, DataJobsServiceSecrets.__VALID_TYPES)  # throws

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,8 +11,8 @@ import com.vmware.taurus.controlplane.model.data.DataJobExecutionRequest;
 import com.vmware.taurus.exception.DataJobAlreadyRunningException;
 import com.vmware.taurus.exception.DataJobDeploymentNotFoundException;
 import com.vmware.taurus.exception.DataJobNotFoundException;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.deploy.DeploymentService;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;

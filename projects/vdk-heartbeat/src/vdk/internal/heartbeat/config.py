@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import configparser
 import getpass
@@ -112,6 +112,12 @@ class Config:
         # Deploy the job with a specific vdk version (optional). By default latest vdk is used.
         self.deploy_job_vdk_version = self.get_value(
             "VDK_HEARTBEAT_DEPLOY_JOB_VDK_VERSION", is_required=False
+        )
+
+        # Deploy the job with a specific python version (optional). By default, the default python
+        # version set by the Control Service is used.
+        self.deploy_job_python_version = self.get_value(
+            "DATAJOB_DEPLOYMENT_PYTHON_VERSION", is_required=False
         )
 
         # Job name deployed during the test

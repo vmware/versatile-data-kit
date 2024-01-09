@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,7 +28,10 @@ export class NavigationService {
     /**
      * ** Constructor.
      */
-    constructor(private readonly router: Router, private readonly routerService: RouterService) {
+    constructor(
+        private readonly router: Router,
+        private readonly routerService: RouterService
+    ) {
         this._routeStateFactory = new RouteStateFactory();
     }
 

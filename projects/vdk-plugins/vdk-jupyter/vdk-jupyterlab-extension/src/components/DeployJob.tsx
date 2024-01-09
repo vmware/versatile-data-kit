@@ -5,7 +5,15 @@ import VDKTextInput from './VdkTextInput';
 import { Dialog, showDialog, showErrorMessage } from '@jupyterlab/apputils';
 import { jobRequest, jobRunRequest } from '../serverRequests';
 import { IJobFullProps } from './props';
-import { CREATE_DEP_BUTTON_LABEL } from '../utils';
+import {
+  CREATE_DEP_BUTTON_LABEL,
+  RUN_JOB_BUTTON_LABEL,
+  RUN_LOG_FILE
+} from '../utils';
+import { VdkErrorMessage } from './VdkErrorMessage';
+import { VDKCheckbox } from './VdkCheckbox';
+import { StatusButton } from './StatusButton';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 
 export default class DeployJobDialog extends Component<IJobFullProps> {
   /**
@@ -42,78 +50,80 @@ export default class DeployJobDialog extends Component<IJobFullProps> {
         ></VDKTextInput>
         <VDKTextInput
           option={VdkOption.DEPLOYMENT_REASON}
-          value="reason"
+          value=""
           label="Deployment reason:"
         ></VDKTextInput>
-        <div>
-          <input
-            type="checkbox"
-            name="enable"
-            id="enable"
-            className="jp-vdk-checkbox"
-            onClick={this.onEnableClick()}
-          />
-          <label className="checkboxLabel" htmlFor="enable">
-            Enable
-          </label>
-        </div>
       </>
     );
   }
-  /**
-   * Callback invoked upon choosing Enable checkbox
-   */
-  private onEnableClick() {
-    return (event: React.MouseEvent) => {
-      const checkbox = document.getElementById('enable');
-      if (checkbox?.classList.contains('checked')) {
-        checkbox.classList.remove('checked');
-        jobData.set(VdkOption.DEPLOY_ENABLE, '');
-      } else {
-        checkbox?.classList.add('checked');
-        jobData.set(VdkOption.DEPLOY_ENABLE, '1');
-      }
-    };
-  }
 }
 
-export async function showCreateDeploymentDialog() {
+export async function showCreateDeploymentDialog(
+  docManager?: IDocumentManager,
+  statusButton?: StatusButton
+) {
+  let runBeforeDeploy = true;
+
   const result = await showDialog({
     title: CREATE_DEP_BUTTON_LABEL,
     body: (
-      <DeployJobDialog
-        jobName={jobData.get(VdkOption.NAME)!}
-        jobPath={jobData.get(VdkOption.PATH)!}
-        jobTeam={jobData.get(VdkOption.TEAM)!}
-      ></DeployJobDialog>
+      <>
+        <DeployJobDialog
+          jobName={jobData.get(VdkOption.NAME) || ''}
+          jobPath={jobData.get(VdkOption.PATH) || ''}
+          jobTeam={jobData.get(VdkOption.TEAM) || ''}
+        />
+        <VDKCheckbox
+          checked={true}
+          onChange={checked => (runBeforeDeploy = checked)}
+          label="Run data job before deployment"
+          id="deployRun"
+        />
+      </>
     ),
     buttons: [Dialog.okButton(), Dialog.cancelButton()]
   });
+
   const resultButtonClicked = !result.value && result.button.accept;
-  if (resultButtonClicked) {
+  if (
+    resultButtonClicked &&
+    (await checkIfVdkOptionDataIsDefined(VdkOption.DEPLOYMENT_REASON))
+  ) {
     try {
-      const runConfirmationResult = await showDialog({
-        title: CREATE_DEP_BUTTON_LABEL,
-        body: 'The job will be executed once before deployment.',
-        buttons: [
-          Dialog.cancelButton({ label: 'Cancel' }),
-          Dialog.okButton({ label: 'Continue' })
-        ]
-      });
-      if (runConfirmationResult.button.accept) {
-        const { message, status } = await jobRunRequest();
-        if (status) {
-          if (
-            await checkIfVdkOptionDataIsDefined(VdkOption.DEPLOYMENT_REASON)
-          ) {
-            await jobRequest('deploy');
+      statusButton?.show('Deploy', jobData.get(VdkOption.PATH)!);
+      if (runBeforeDeploy) {
+        docManager?.closeFile(RUN_LOG_FILE);
+        const run = await jobRunRequest();
+        if (run.isSuccessful) {
+          const deployment = await jobRequest('deploy');
+          // We only handle the successful deployment scenario.
+          // The failing scenario is handled in the request itself.
+          if (deployment.isSuccessful && deployment.message) {
+            alert(
+              'The test job run completed successfully! \n' + deployment.message
+            );
           }
         } else {
-          showErrorMessage(
-            'Encоuntered an error while running the job!',
-            message,
-            [Dialog.okButton()]
-          );
+          const errorMessage = new VdkErrorMessage('ERROR : ' + run.message);
+          showDialog({
+            title: RUN_JOB_BUTTON_LABEL,
+            body: (
+              <div className="vdk-run-error-message ">
+                <p>{errorMessage.exception_message}</p>
+                <p>{errorMessage.what_happened}</p>
+                <p>{errorMessage.why_it_happened}</p>
+                <p>{errorMessage.consequences}</p>
+                <p>{errorMessage.countermeasures}</p>
+              </div>
+            ),
+            buttons: [Dialog.okButton()]
+          });
+        }
+        docManager?.open(RUN_LOG_FILE);
+      } else {
+        const deployment = await jobRequest('deploy');
+        if (deployment.isSuccessful && deployment.message) {
+          alert(deployment.message);
         }
       }
     } catch (error) {

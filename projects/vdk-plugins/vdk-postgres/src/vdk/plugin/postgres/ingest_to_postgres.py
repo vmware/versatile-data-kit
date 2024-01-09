@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import List
@@ -10,7 +10,7 @@ from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 
-_log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class IngestToPostgres(IIngesterPlugin):
@@ -33,7 +33,7 @@ class IngestToPostgres(IIngesterPlugin):
         See parent class doc for details
         """
 
-        _log.info(
+        log.info(
             f"Ingesting payloads to table: {destination_table} in database; "
             f"collection_id: {collection_id}"
         )
@@ -49,17 +49,10 @@ class IngestToPostgres(IIngesterPlugin):
             try:
                 cursor.execute(query, parameters)
                 connection.commit()
-                _log.debug("Payload was ingested.")
+                log.debug("Payload was ingested.")
             except Exception as e:
-                errors.log_and_rethrow(
-                    errors.find_whom_to_blame_from_exception(e),
-                    _log,
-                    "Failed to send payload",
-                    "Unknown error. Error message was : " + str(e),
-                    "Will not be able to send the payload for ingestion",
-                    "See error message for help ",
-                    e,
-                    wrap_in_vdk_error=True,
+                errors.report_and_rethrow(
+                    errors.find_whom_to_blame_from_exception(e), e
                 )
 
     @staticmethod

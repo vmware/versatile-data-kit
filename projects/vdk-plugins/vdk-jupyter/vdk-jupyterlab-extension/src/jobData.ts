@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -42,11 +42,8 @@ export function getJobDataJsonObject() {
     jobName: jobData.get(VdkOption.NAME),
     jobTeam: jobData.get(VdkOption.TEAM),
     jobPath: jobData.get(VdkOption.PATH),
-    cloud: jobData.get(VdkOption.CLOUD),
-    local: jobData.get(VdkOption.LOCAL),
     jobArguments: jobData.get(VdkOption.ARGUMENTS),
-    deploymentReason: jobData.get(VdkOption.DEPLOYMENT_REASON),
-    enableDeploy: jobData.get(VdkOption.DEPLOY_ENABLE)
+    deploymentReason: jobData.get(VdkOption.DEPLOYMENT_REASON)
   };
   return jsObj;
 }
@@ -58,8 +55,9 @@ export function getJobDataJsonObject() {
 export async function checkIfVdkOptionDataIsDefined(
   option: VdkOption
 ): Promise<boolean> {
-  if (jobData.get(option)) return true;
-  else {
+  if (jobData.get(option)) {
+    return true;
+  } else {
     await showErrorMessage(
       'Encountered an error while trying to execute operation. Error:',
       'The ' + option + ' should be defined!',

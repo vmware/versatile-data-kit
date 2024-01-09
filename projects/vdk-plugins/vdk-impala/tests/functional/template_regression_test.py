@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
@@ -11,7 +11,11 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
+from vdk.internal.core.errors import ResolvableByActual
+from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala import impala_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
@@ -91,11 +95,13 @@ class TestTemplateRegression(unittest.TestCase):
             template_name="load_dimension_scd1_template_only",
             template_args={},
             num_exp_errors=4,
+            params_class_name="SlowlyChangingDimensionTypeOverwriteParams",
         )
         self._run_template_with_bad_arguments(
             template_name="load_dimension_scd1_template_only",
             template_args={"source_view": "foo", "extra_parameter": "bar"},
             num_exp_errors=3,
+            params_class_name="SlowlyChangingDimensionTypeOverwriteParams",
         )
 
     def test_load_dimension_scd1_bad_target_schema(self) -> None:
@@ -199,11 +205,13 @@ class TestTemplateRegression(unittest.TestCase):
             template_name="load_dimension_scd2_template_only",
             template_args={},
             num_exp_errors=9,
+            params_class_name="SlowlyChangingDimensionType2Params",
         )
         self._run_template_with_bad_arguments(
             template_name="load_dimension_scd2_template_only",
             template_args={"source_view": "foo", "extra_parameter": "bar"},
             num_exp_errors=8,
+            params_class_name="SlowlyChangingDimensionType2Params",
         )
 
     def test_load_dimension_scd2_bad_target_schema(self) -> None:
@@ -328,6 +336,7 @@ class TestTemplateRegression(unittest.TestCase):
             template_name="load_versioned_template_only",
             template_args={},
             num_exp_errors=7,
+            params_class_name="LoadVersionedParams",
         )
 
         good_template_args = {
@@ -372,6 +381,7 @@ class TestTemplateRegression(unittest.TestCase):
                 },
             },
             num_exp_errors=1,
+            params_class_name="LoadVersionedParams",
         )
 
         self._run_template_with_bad_arguments(
@@ -389,6 +399,7 @@ class TestTemplateRegression(unittest.TestCase):
                 },
             },
             num_exp_errors=1,
+            params_class_name="LoadVersionedParams",
         )
 
     def test_load_versioned_bad_target_schema(self) -> None:
@@ -518,11 +529,13 @@ class TestTemplateRegression(unittest.TestCase):
             template_name="load_fact_snapshot_template_only",
             template_args={},
             num_exp_errors=5,
+            params_class_name="FactDailySnapshotParams",
         )
         self._run_template_with_bad_arguments(
             template_name="load_fact_snapshot_template_only",
             template_args={"source_view": "foo", "target_table": None},
             num_exp_errors=4,
+            params_class_name="FactDailySnapshotParams",
         )
 
     def test_load_fact_snapshot_bad_target_schema(self) -> None:
@@ -625,29 +638,26 @@ class TestTemplateRegression(unittest.TestCase):
         )
 
     def _run_template_with_bad_arguments(
-        self, template_name: str, template_args: dict, num_exp_errors: int
+        self,
+        template_name: str,
+        template_args: dict,
+        num_exp_errors: int,
+        params_class_name: str,
     ) -> None:
-        expected_error_regex = re.escape(
+        expected_error = (
             f'{num_exp_errors} validation {"errors" if num_exp_errors > 1 else "error"} '
-            f"for {template_name} template"
+            f"for {params_class_name}"
         )
 
-        def just_rethrow(*_, **kwargs):
-            raise Exception(expected_error_regex)
-
-        with patch.object(errors, "log_and_rethrow") as patched_log_and_rethrow:
-            patched_log_and_rethrow.side_effect = just_rethrow
-            result = self._run_job(template_name, template_args)
-            assert expected_error_regex in result.output, result.output
-            assert errors.log_and_rethrow.call_args[1]["what_happened"], result.output
-            assert (
-                f"{num_exp_errors} validation error"
-                in errors.log_and_rethrow.call_args[1]["why_it_happened"]
-                or f"{num_exp_errors}\\ validation\\ error"
-                in errors.log_and_rethrow.call_args[1]["why_it_happened"]
-            ), result.output
-            assert errors.log_and_rethrow.call_args[1]["consequences"], result.output
-            assert errors.log_and_rethrow.call_args[1]["countermeasures"], result.output
+        result = self._run_job(template_name, template_args)
+        cli_assert_equal(1, result)
+        ex = result.exception
+        assert isinstance(ex, ValidationError)
+        assert hasattr(ex, "_vdk_resolvable_actual")
+        assert getattr(ex, "_vdk_resolvable_actual") == ResolvableByActual.USER
+        assert hasattr(ex, "_vdk_resolvable_by")
+        assert getattr(ex, "_vdk_resolvable_by") == ResolvableBy.USER_ERROR
+        assert expected_error in result.output
 
     def _run_template_with_bad_target_schema(
         self, template_name: str, template_args: dict
@@ -685,29 +695,28 @@ class TestTemplateRegression(unittest.TestCase):
             f"clause. Please change the table definition accordingly and re-create the table."
         )
 
+        expected_error = UserCodeError(
+            "Data loading has failed.",  # FIXME: this is too specific
+            f"You are trying to load data into a table {table_name} with an unsupported format. "
+            f"Currently only Parquet table format is supported."
+            f"Data load will be aborted.",  # FIXME: this is too specific
+            "Make sure that the destination table is stored as parquet: "
+            "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
+            "#parquet_ddl",
+        )
+
         def just_throw(*_, **kwargs):
             raise Exception(expected_why_it_happened_msg)
 
         with patch(
-            "vdk.internal.core.errors.log_and_throw", MagicMock(side_effect=just_throw)
+            "vdk.internal.core.errors.report_and_throw",
+            MagicMock(side_effect=just_throw),
         ):
             res = self._run_job(template_name, template_args)
             assert expected_why_it_happened_msg in res.output
-            errors.log_and_throw.assert_called_once_with(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=ANY,
-                what_happened="Data loading has failed.",
-                why_it_happened=(
-                    f"You are trying to load data into a table {table_name} with an unsupported format. "
-                    f"Currently only Parquet table format is supported."
-                ),
-                consequences="Data load will be aborted.",
-                countermeasures=(
-                    "Make sure that the destination table is stored as parquet: "
-                    "https://www.cloudera.com/documentation/enterprise/5-11-x/topics/impala_parquet.html"
-                    "#parquet_ddl"
-                ),
-            )
+            actual_args, actual_kwargs = errors.report_and_throw.call_args
+            actual_message = actual_args[0]
+            assert str(actual_message) == expected_error.__str__()
 
     def test_insert(self) -> None:
         test_schema = "vdkprototypes"

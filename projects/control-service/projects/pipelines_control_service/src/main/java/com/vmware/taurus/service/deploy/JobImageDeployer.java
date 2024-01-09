@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -41,6 +41,9 @@ public class JobImageDeployer {
 
   @Value("${datajobs.deployment.readOnlyRootFilesystem:}")
   private boolean readOnlyRootFilesystem;
+
+  @Value("${datajobs.deployment.jobImagePullPolicy:IfNotPresent}")
+  private String jobImagePullPolicy;
 
   private static final String VOLUME_NAME = "vdk";
   private static final String VOLUME_MOUNT_PATH = "/vdk";
@@ -137,12 +140,7 @@ public class JobImageDeployer {
                     "Please fix the job's configuration");
             log.error(msg);
           }
-          deploymentProgress.failed(
-              dataJob.getJobConfig(),
-              jobDeployment,
-              DeploymentStatus.USER_ERROR,
-              msg,
-              sendNotification);
+          deploymentProgress.failed(dataJob, DeploymentStatus.USER_ERROR, msg, sendNotification);
           return false;
         } catch (Exception ignored) {
           log.debug("Failed to parse ApiException body, re-throwing it.: ", ignored);
@@ -245,7 +243,7 @@ public class JobImageDeployer {
             jobContainerEnvVars,
             List.of(),
             List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
-            "Always",
+            jobImagePullPolicy,
             defaultConfigurations.dataJobRequests(),
             defaultConfigurations.dataJobLimits(),
             null,
@@ -256,7 +254,10 @@ public class JobImageDeployer {
             "-c",
             "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
                 + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
-    var jobVdkImage = supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
+    var jobVdkImage =
+        isVdkVersionPassedDifferentFromOneSetByPythonVersion(jobDeployment)
+            ? supportedPythonVersions.replaceVdkVersionInImage(jobDeployment.getVdkVersion())
+            : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     var jobInitContainer =
         KubernetesService.container(
             "vdk",
@@ -266,15 +267,11 @@ public class JobImageDeployer {
             Map.of(),
             List.of(),
             List.of(volumeMount, secretVolumeMount, ephemeralVolumeMount),
-            "Always",
+            jobImagePullPolicy,
             kubernetesResources.dataJobInitContainerRequests(),
             kubernetesResources.dataJobInitContainerLimits(),
             null,
             vdkCommand);
-    // TODO: changing imagePullPolicy to IfNotPresent might be necessary optimization when running
-    // thousands of jobs.
-    // At the moment Always is chosen because it's possible to have a change in image that is not
-    // detected.
 
     var jobLabels = getJobLabels(dataJob, jobDeployment);
     var jobAnnotations =
@@ -377,5 +374,17 @@ public class JobImageDeployer {
   // Public for integration testing purposes
   public static String getCronJobName(String jobName) {
     return jobName;
+  }
+
+  private boolean isVdkVersionPassedDifferentFromOneSetByPythonVersion(
+      JobDeployment jobDeployment) {
+    var passedVdkVersion = jobDeployment.getVdkVersion();
+    var vdkVersionSetByPythonVersion =
+        DockerImageName.getTag(
+            supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion()));
+
+    return passedVdkVersion != null
+        && !passedVdkVersion.isEmpty()
+        && !passedVdkVersion.equals(vdkVersionSetByPythonVersion);
   }
 }

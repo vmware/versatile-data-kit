@@ -1,11 +1,11 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.graphql;
 
-import com.vmware.taurus.service.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobExecutionRepository;
 import com.vmware.taurus.service.execution.JobExecutionLogsUrlBuilder;
 import com.vmware.taurus.service.execution.JobExecutionService;
 import com.vmware.taurus.service.graphql.model.V2DataJob;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -83,6 +83,7 @@ public class JobImageDeployerTest {
         .thenReturn(new KubernetesService.Resources("1.5", "200"));
     Mockito.when(kubernetesResources.dataJobInitContainerRequests())
         .thenReturn(new KubernetesService.Resources("1.5", "200"));
+    Mockito.when(supportedPythonVersions.getVdkImage("3.9")).thenReturn("release");
 
     var annotationCaptor = ArgumentCaptor.forClass(Map.class);
     var labelCaptor = ArgumentCaptor.forClass(Map.class);

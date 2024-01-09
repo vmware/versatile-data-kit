@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import base64
 import hashlib
@@ -125,6 +125,7 @@ class LoginHandler:
                 "No client secret specified. We assume native app workflow with PKCE (RFC 7636)."
             )
             data = f"{data}&code_verifier={self.code_verifier}"
+            self.client_secret = ""
         basic_auth = HTTPBasicAuth(self.client_id, self.client_secret)
         try:
             response = post(

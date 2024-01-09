@@ -1,5 +1,4 @@
 pytest
 pytest-httpserver
-requests
-requests_oauthlib
+requests-mock
 vdk-test-utils

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -42,7 +42,10 @@ export class VdkCopyToClipboardButtonComponent implements OnInit {
     isSafari: boolean = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     copied: boolean = false;
 
-    constructor(private el: ElementRef, public translateService: VdkSimpleTranslateService) {
+    constructor(
+        private el: ElementRef,
+        public translateService: VdkSimpleTranslateService
+    ) {
         this.translateService.loadTranslationsForComponent('copy-to-clipboard-button', TRANSLATIONS);
     }
 

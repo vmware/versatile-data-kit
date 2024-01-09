@@ -1,7 +1,7 @@
 
 # VEP-1243: VDK DAG
 
-* **Author(s):** Yoan Salambashev (ysalambashev@vmware.com)
+* **Author(s):** Yoan Salambashev (ysalambashev@vmware.com), Gabriel Georgiev (gageorgiev@vmware.com), Antoni Ivanov (aivanov@vmware.com)
 * **Status:** implemented
 
 - [Summary](#summary)

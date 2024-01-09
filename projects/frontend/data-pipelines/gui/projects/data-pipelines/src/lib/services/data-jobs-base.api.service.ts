@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -48,7 +48,10 @@ export class DataJobsBaseApiService extends TaurusBaseApiService<DataJobsBaseApi
     /**
      * ** Constructor.
      */
-    constructor(private readonly apollo: Apollo, private readonly httpLink: HttpLink) {
+    constructor(
+        private readonly apollo: Apollo,
+        private readonly httpLink: HttpLink
+    ) {
         super(DataJobsBaseApiService.CLASS_NAME);
 
         this.registerErrorCodes(DataJobsBaseApiService);

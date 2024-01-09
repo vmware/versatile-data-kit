@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 """
 Ingestion Utilities
@@ -13,8 +13,14 @@ from decimal import Decimal
 from json import JSONEncoder
 from typing import Any
 from typing import List
+from typing import Optional
 
+from vdk.internal.builtin_plugins.ingestion.exception import (
+    InvalidArgumentsIngestionException,
+)
+from vdk.internal.builtin_plugins.ingestion.exception import PayloadIngestionException
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 
 log = logging.getLogger(__name__)
 
@@ -48,48 +54,64 @@ class AtomicCounter:
         return str(self)
 
 
-class DecimalJsonEncoder(JSONEncoder):
+class IngesterJsonEncoder(JSONEncoder):
     """
     This class is used to avoid an issue with the __verify_payload_format serialization check.
-    Normally, including data of type Decimal would cause that check to fail so we've amended
-    the default JsonEncoder object used to convert Decimal values to floats to avoid this issue.
+    Normally, including data of type Decimal and datetime would cause that check to fail so we've amended
+    the default JsonEncoder object used to convert Decimal and datetime values to floats to avoid this issue.
     """
 
     def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.timestamp()
         if isinstance(obj, Decimal):
             return float(obj)
+        if isinstance(obj, bytes):
+            return list(obj)
         return super().default(obj)
 
 
-def get_page_generator(data, page_size=10000):
+def get_page_generator(rows, page_size=10000):
     # TODO add support for Pandas
-    try:
+    if hasattr(rows, "fetchmany"):
         while True:
-            page = data.fetchmany(page_size)
+            page = rows.fetchmany(page_size)
             if not page:
                 return
             yield page
-    except AttributeError:
-        it = iter(data)
+    elif hasattr(rows, "__iter__") or hasattr(rows, "__getitem__"):
+        it = iter(rows)
         while True:
             page = list(itertools.islice(it, page_size))
             if not page:
                 return
             yield page
+    else:
+        raise InvalidArgumentsIngestionException(
+            param_name="rows",
+            param_constraint="rows is a python iterator or database cursor",
+            actual_value=type(rows),
+            resolvable_by=ResolvableBy.USER_ERROR,
+        )
 
 
-def validate_column_count(data: iter, column_names: iter):
+def validate_column_count(
+    data: iter, column_names: iter, destination_table: str, target: str
+):
     if data:
         if len(column_names) != len(data[0]):
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=log,
-                what_happened="Failed to post tabular data for ingestion.",
-                why_it_happened="The number of column names are not matching the number of values in at least on of"
-                "the rows. You provided columns: '{column_names}' and data row: "
-                "'{data_row}'".format(column_names=column_names, data_row=data[0]),
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures="Check the data and the column names you are providing, their count should match.",
+            errors.report_and_throw(
+                PayloadIngestionException(
+                    message=f"Failed to post tabular data for ingestion "
+                    f"for table {destination_table} and target {target}."
+                    "The number of column names are not matching the number of values in at least on of"
+                    f"the rows. You provided columns: '{column_names}' and data row: "
+                    f"'{data[0]}'"
+                    + "Check the data and the column names you are providing, their count should match.",
+                    payload_id=get_payload_id_for_debugging(data[0]),
+                    destination_table=destination_table,
+                    target=target,
+                )
             )
 
 
@@ -148,3 +170,10 @@ def is_iterable(obj: Any) -> bool:
         return True
     except TypeError:
         return False
+
+
+def get_payload_id_for_debugging(payload_dict: dict) -> Optional[str]:
+    if isinstance(payload_dict, dict):
+        payload_id = payload_dict.get("@id", payload_dict.get("id", ""))[0:20]
+        return str(payload_id)
+    return None

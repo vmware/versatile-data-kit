@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 # The script will deploy/upgrade Control service using helm
@@ -20,7 +20,7 @@ export VDK_OPTIONS="$SCRIPT_DIR/vdk-options.ini"
 export TPCS_CHART=${TPCS_CHART:-"$SCRIPT_DIR/../projects/helm_charts/pipelines-control-service"}
 export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
 export TESTING_PIPELINES_SERVICE_VALUES_FILE=${TESTING_PIPELINES_SERVICE_VALUES_FILE:-"$SCRIPT_DIR/testing-pipelines-service-values.yaml"}
-
+export HELM_EXTRA_ARGUMENTS=${HELM_EXTRA_ARGUMENTS:-""}
 
 RUN_ENVIRONMENT_SETUP=${RUN_ENVIRONMENT_SETUP:-'n'}
 
@@ -61,14 +61,13 @@ if [ "$RUN_ENVIRONMENT_SETUP" = 'y' ]; then
     kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$secret_name'"},{"name":"'$dockerhub_secretname'"}]}'
 
   fi
-
 fi
 
 # this is the internal hostname of the Control Service.
 # Since all tests (gitlab runners) are installed inside it's easier if we use it.
-export CONTROL_SERVICE_URL=${CONTROL_SERVICE_URL:-"http://cicd-control-service-svc:8092"}
+export CONTROL_SERVICE_URL=${CONTROL_SERVICE_URL:-"http://cicd-control-service-svc.cicd.svc.cluster.local:8092"}
 # Trino host used by data jobs
-export TRINO_HOST=${TRINO_HOST:-"test-trino"}
+export TRINO_HOST=${TRINO_HOST:-"test-trino.cicd.svc.cluster.local"}
 
 # Update vdk-options with substituted variables like sensitive configuration (passwords)
 export VDK_OPTIONS_SUBSTITUTED="${VDK_OPTIONS}.temp"
@@ -87,13 +86,12 @@ if [[ $helm_latest_deployment == *"pending-upgrade"* ]]; then
   exit 125
 fi
 
-
 #
 # TODO :change container images with official ones when they are being deployed (I've currently uploaded them once in ghcr.io/tozka)
 #
 # image.tag is fixed during release. It is set here to deploy using latest change in source code.
 # We are using here embedded database, and we need to set the storageclass since in our test k8s no default storage class is not set.
-helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
+helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $RELEASE_NAME . \
       -f "$TESTING_PIPELINES_SERVICE_VALUES_FILE" \
       --set image.tag="$TAG" \
       --set operationsUi.image.tag="$FRONTEND_TAG" \
@@ -113,5 +111,7 @@ helm upgrade --install --debug --wait --timeout 10m0s $RELEASE_NAME . \
       --set security.oauth2.jwtJwkSetUri=https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/token-public-key?format=jwks \
       --set security.oauth2.jwtIssuerUrl=https://gaz-preview.csp-vidm-prod.com \
       --set security.authorizationEnabled=false \
+      --set deploymentK8sNamespace="cicd-deployment" \
+      --set controlK8sNamespace="cicd-control" \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
       --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service"

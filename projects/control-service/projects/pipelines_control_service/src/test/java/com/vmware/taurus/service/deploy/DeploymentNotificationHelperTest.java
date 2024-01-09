@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -7,10 +7,7 @@ package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.ControlplaneApplication;
 import com.vmware.taurus.service.KubernetesService;
-import com.vmware.taurus.service.model.DeploymentStatus;
-import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.JobConfig;
-import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import com.vmware.taurus.service.notification.NotificationContent;
@@ -48,7 +45,7 @@ public class DeploymentNotificationHelperTest {
     testDataJob.setName(TEST_JOB_NAME);
     testDataJob.setJobConfig(jobConfig);
 
-    JobDeployment testJobDeployment = new JobDeployment();
+    DesiredDataJobDeployment testJobDeployment = new DesiredDataJobDeployment();
     testJobDeployment.setDataJobName(TEST_JOB_NAME);
     testJobDeployment.setGitCommitSha("test-git-commit-sha");
 
@@ -96,12 +93,6 @@ public class DeploymentNotificationHelperTest {
         BUILDER_JOB_LOGS,
         true);
 
-    verify(deploymentProgress)
-        .failed(
-            testDataJob.getJobConfig(),
-            testJobDeployment,
-            DeploymentStatus.USER_ERROR,
-            errorMessage,
-            true);
+    verify(deploymentProgress).failed(testDataJob, DeploymentStatus.USER_ERROR, errorMessage, true);
   }
 }

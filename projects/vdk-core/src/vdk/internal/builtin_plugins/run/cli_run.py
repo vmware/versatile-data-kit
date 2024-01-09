@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -17,6 +17,7 @@ from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.config.job_config import JobConfig
 from vdk.internal.builtin_plugins.run import job_input_error_classifier
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
+from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_tracking import (
     ExecutionTrackingPlugin,
 )
@@ -40,17 +41,15 @@ class CliRunImpl:
             else:
                 return None
         except Exception as e:
-            blamee = errors.ResolvableBy.USER_ERROR
-            errors.log_and_rethrow(
-                blamee,
-                logging.getLogger(__name__),
-                what_happened="Failed to validate job arguments.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                exception=e,
-                wrap_in_vdk_error=True,
+            log.error(
+                "\n".join(
+                    [
+                        "Failed to validate job arguments.",
+                        errors.MSG_WHY_FROM_EXCEPTION(e),
+                    ]
+                )
             )
+            errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
 
     @staticmethod
     def __split_into_chunks(exec_steps: List, chunks: int) -> List:
@@ -104,14 +103,16 @@ class CliRunImpl:
                     log.warning(
                         f"""
                         {os.linesep + (' ' * 20) + ('*' * 80)}
-                        What: Python version mismatch between local python and configure python.
-                        Why: The Python version specified in the job's config.ini file  is ({configured_python_version})
+                        Python version mismatch between local python and configure python.
+                        The Python version specified in the job's config.ini file  is ({configured_python_version})
                         while the local python version used to execute the data job is ({local_py_version}).
-                        Consequences: Developing a data job using one Python version and deploying
+
+                        Developing a data job using one Python version and deploying
                         it with a different version can result in unexpected and
                         difficult-to-troubleshoot errors like module incompatibilities, or
                         unexpected behavior during execution.
-                        Countermeasures: To resolve this issue, ensure that the Python version
+
+                        To resolve this issue, ensure that the Python version
                         specified in the python_version property of the config.ini file matches
                         the Python version of your execution environment by either editing the
                         python_version property in config.ini, or switching local environment
@@ -119,6 +120,26 @@ class CliRunImpl:
                         {os.linesep + (' ' * 20) + ('*' * 80)}
                         """
                     )
+
+    def __log_exec_result(self, execution_result: ExecutionResult) -> None:
+        # On some platforms, if the size of a string is too large, the
+        # logging module starts throwing OSError: [Errno 40] Message too long,
+        # so it is safer if we split large strings into smaller chunks.
+        string_exec_result = str(execution_result)
+        if len(string_exec_result) > 5000:
+            temp_exec_result = json.loads(string_exec_result)
+            steps = temp_exec_result.pop("steps_list")
+
+            log.info(
+                f"Data Job execution summary: {json.dumps(temp_exec_result, indent=2)}"
+            )
+
+            chunks = math.ceil(len(string_exec_result) / 5000)
+            for i in self.__split_into_chunks(exec_steps=steps, chunks=chunks):
+                log.info(f"Execution Steps: {json.dumps(i, indent=2)}")
+
+        else:
+            log.info(f"Data Job execution summary: {execution_result}")
 
     def create_and_run_data_job(
         self,
@@ -141,38 +162,30 @@ class CliRunImpl:
         execution_result = None
         try:
             execution_result = job.run(args)
-
-            # On some platforms, if the size of a string is too large, the
-            # logging module starts throwing OSError: [Errno 40] Message too long,
-            # so it is safer if we split large strings into smaller chunks.
-            string_exec_result = str(execution_result)
-            if len(string_exec_result) > 5000:
-                temp_exec_result = json.loads(string_exec_result)
-                steps = temp_exec_result.pop("steps_list")
-
-                log.info(
-                    f"Data Job execution summary: {json.dumps(temp_exec_result, indent=2)}"
-                )
-
-                chunks = math.ceil(len(string_exec_result) / 5000)
-                for i in self.__split_into_chunks(exec_steps=steps, chunks=chunks):
-                    log.info(f"Execution Steps: {json.dumps(i, indent=2)}")
-
+            if context.configuration.get_value("LOG_EXECUTION_RESULT"):
+                self.__log_exec_result(execution_result)
             else:
-                log.info(f"Data Job execution summary: {execution_result}")
+                if execution_result.is_success():
+                    log.info("Job execution result: SUCCESS")
+                if execution_result.is_failed():
+                    log.info("Job execution result: FAILED")
+
         except BaseException as e:
-            errors.log_and_rethrow(
+            log.error(
+                "\n".join(
+                    [
+                        "Failed executing job.",
+                        errors.MSG_WHY_FROM_EXCEPTION(e),
+                        " Most likely a prerequisite or plugin of one of the key VDK components failed, see"
+                        + " logs for details and ensure the prerequisite for the failed component.",
+                    ]
+                )
+            )
+            errors.report_and_rethrow(
                 job_input_error_classifier.whom_to_blame(
                     e, __file__, data_job_directory
                 ),
-                log,
-                what_happened="Failed executing job.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-                + " Most likely a prerequisite or plugin of one of the key VDK components failed, see"
-                + " logs for details and ensure the prerequisite for the failed component (details in stacktrace).",
-                exception=e,
+                e,
             )
         if execution_result.is_failed() and execution_result.get_exception_to_raise():
             raise execution_result.get_exception_to_raise()

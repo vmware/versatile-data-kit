@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,15 +9,13 @@ import com.vmware.taurus.exception.ErrorMessage;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.model.DataJob;
 import com.vmware.taurus.service.model.DeploymentStatus;
-import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import com.vmware.taurus.service.notification.NotificationContent;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -29,11 +27,10 @@ public class DeploymentNotificationHelper {
   public void verifyBuilderResult(
       String builderJobName,
       DataJob dataJob,
-      JobDeployment jobDeployment,
+      DesiredDataJobDeployment jobDeployment,
       KubernetesService.JobStatusCondition condition,
       String logs,
-      Boolean sendNotification)
-      throws IOException {
+      Boolean sendNotification) {
 
     if (condition.isSuccess()) {
       log.info("Builder job {} finished successfully", builderJobName);
@@ -48,12 +45,15 @@ public class DeploymentNotificationHelper {
                 jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha()));
 
         deploymentProgress.failed(
-            dataJob.getJobConfig(),
-            jobDeployment,
-            DeploymentStatus.USER_ERROR,
-            userErrorMessage,
-            sendNotification);
+            dataJob, DeploymentStatus.USER_ERROR, userErrorMessage, sendNotification);
       } else {
+        if (logs.contains("error resolving source context: reference not found")) {
+          log.error(
+              "Job Builder image failed to clone the git repository: "
+                  + "double check the git configuration including git url, credentials and branch."
+                  + "If this not not the root cause. See next error message");
+        }
+
         ErrorMessage message =
             new ErrorMessage(
                 String.format(
@@ -68,8 +68,7 @@ public class DeploymentNotificationHelper {
                     + logs);
         log.warn(message.toString());
         deploymentProgress.failed(
-            dataJob.getJobConfig(),
-            jobDeployment,
+            dataJob,
             DeploymentStatus.PLATFORM_ERROR,
             NotificationContent.getPlatformErrorBody(),
             sendNotification);
@@ -77,7 +76,7 @@ public class DeploymentNotificationHelper {
     }
   }
 
-  private String getUserErrorMessage(String logs, JobDeployment jobDeployment) throws IOException {
+  private String getUserErrorMessage(String logs, DesiredDataJobDeployment jobDeployment) {
     String requirementsError = getRequirementsError(logs);
     if (StringUtils.isNotBlank(requirementsError)) {
       return NotificationContent.getErrorBody(
@@ -95,10 +94,12 @@ public class DeploymentNotificationHelper {
     return null;
   }
 
-  private String getDataJobNotFoundError(String logs, JobDeployment jobDeployment) {
+  private String getDataJobNotFoundError(String logs, DesiredDataJobDeployment jobDeployment) {
     String error = null;
 
-    if (StringUtils.isNotBlank(logs) && logs.contains(">data-job-not-found<")) {
+    if (StringUtils.isNotBlank(logs)
+        && (logs.contains(">data-job-not-found<")
+            || logs.contains("failed to get files used from context"))) {
       error =
           NotificationContent.getErrorBody(
               "Tried to deploy a data job and failed.",
@@ -114,7 +115,7 @@ public class DeploymentNotificationHelper {
 
   // Currently, the only way to differentiate between infra and user error
   // when building a data job is by parsing the logs of the builder job.
-  private String getRequirementsError(String logs) throws IOException {
+  private String getRequirementsError(String logs) {
     String requirements_error = null;
 
     if (StringUtils.isNotBlank(logs) && logs.contains(">requirements_failed<")) {

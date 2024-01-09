@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -114,7 +114,10 @@ export class DataJobsWidgetOneComponent implements OnInit {
 
     errorJobs: boolean;
 
-    constructor(private readonly dataJobsService: DataJobsApiService, private readonly errorHandlerService: ErrorHandlerService) {}
+    constructor(
+        private readonly dataJobsService: DataJobsApiService,
+        private readonly errorHandlerService: ErrorHandlerService
+    ) {}
 
     @HostListener('window:resize')
     onWindowResize() {

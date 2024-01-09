@@ -1,7 +1,7 @@
 
 # testing requirements
 click
-docker-compose
+
 testcontainers
 trino
 vdk-core

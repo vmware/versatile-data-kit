@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -25,7 +25,7 @@ setuptools.setup(
     "authentication.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["requests", "requests_oauthlib"],
+    install_requires=["requests", "requests_oauthlib", "PyJWT"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     classifiers=[

@@ -1,14 +1,17 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
 import re
 import socket
 import types
+import warnings
 from sys import modules
 from typing import cast
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.config import vdk_config
+from vdk.internal.builtin_plugins.config.vdk_config import LOG_LEVEL_VDK
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.core.config import ConfigurationBuilder
@@ -55,14 +58,42 @@ def _parse_log_level_module(log_level_module):
         else:
             return {}
     except Exception as e:
-        errors.log_and_throw(
-            ResolvableBy.CONFIG_ERROR,
-            logging.getLogger(__name__),
-            "Invalid logging configuration passed to LOG_LEVEL_MODULE.",
-            f"Error is: {e}. log_level_module was set to {log_level_module}.",
-            "Logging will not be initialized and exception is raised",
-            "Set correctly configuration to log_level_debug configuration in format 'module=level;module2=level2'",
+        errors.report_and_throw(
+            errors.VdkConfigurationError(
+                "Invalid logging configuration passed to LOG_LEVEL_MODULE.",
+                f"Error is: {e}. log_level_module was set to {log_level_module}.",
+                "Set correctly configuration to log_level_debug configuration in format 'module=level;module2=level2'",
+            )
         )
+
+
+def configure_initial_logging_before_anything():
+    """
+    Configure logging at the start of the app.
+    At this point we do not know what user has configured so we use some sensible approach
+    All logs would be vdk only logs. User code will not have been executed yet so we will use log_level_vdk
+    to control the level.
+    We default to WARN since in most cases users would not care about internal vdk logs.
+
+    Logging lifecycle:
+    1. This function is executed at the entry point of the app and configures default logging format and level
+    2. After vdk_initialize hook is executed and CLI command starts then `vdk --verbosity` option is taken (if set)
+        and click logging configuration takes over
+    3. When initialize_job hook (applicable for vdk run only) is executed then below configure_loggers function
+        is run which adds more context to the logs and initializes syslog handler (if configured to do so)
+    """
+    # TODO uncomment this when the vdk-structlog plugin is released
+    # warnings.warn(
+    #     "The vdk-core logging configuration is not suitable for production. Please use vdk-structlog instead."
+    # )
+    if not os.environ.get("VDK_USE_STRUCTLOG"):
+        log_level = "WARNING"
+        if os.environ.get(LOG_LEVEL_VDK, None):
+            log_level = os.environ.get(LOG_LEVEL_VDK)
+        elif os.environ.get("VDK_LOG_LEVEL_VDK", None):
+            log_level = os.environ.get("VDK_LOG_LEVEL_VDK")
+
+        logging.basicConfig(format="%(message)s", level=logging.getLevelName(log_level))
 
 
 def configure_loggers(
@@ -118,14 +149,13 @@ def configure_loggers(
     syslog_url, syslog_port, syslog_sock_type, syslog_enabled = syslog_args
 
     if syslog_sock_type not in SYSLOG_SOCK_TYPE_VALUES_DICT:
-        errors.log_and_throw(
-            to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-            log=log,
-            what_happened=f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
-            why_it_happened=f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid value for this variable.",
-            consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-            countermeasures=f"Provide a valid value for {SYSLOG_SOCK_TYPE}."
-            f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+        errors.report_and_throw(
+            errors.VdkConfigurationError(
+                f"Provided configuration variable for {SYSLOG_SOCK_TYPE} has invalid value.",
+                f"VDK was run with {SYSLOG_SOCK_TYPE}={syslog_sock_type}, however {syslog_sock_type} is invalid value for this variable.",
+                f"Provide a valid value for {SYSLOG_SOCK_TYPE}."
+                f"Currently possible values are {list(SYSLOG_SOCK_TYPE_VALUES_DICT.keys())}",
+            )
         )
 
     _SYSLOG_HANDLER = {
@@ -259,16 +289,28 @@ class LoggingPlugin:
         )
         syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED)
         try:  # If logging initialization fails we want to attempt sending telemetry before exiting VDK
-            configure_loggers(
-                job_name,
-                attempt_id,
-                log_config_type=log_config_type,
-                vdk_logging_level=vdk_log_level,
-                log_level_module=log_level_module,
-                syslog_args=(syslog_url, syslog_port, syslog_sock_type, syslog_enabled),
-            )
-            log = logging.getLogger(__name__)
-            log.debug(f"Initialized logging for log type {log_config_type}.")
+            if not os.environ.get("VDK_USE_STRUCTLOG"):
+                configure_loggers(
+                    job_name,
+                    attempt_id,
+                    log_config_type=log_config_type,
+                    vdk_logging_level=vdk_log_level,
+                    log_level_module=log_level_module,
+                    syslog_args=(
+                        syslog_url,
+                        syslog_port,
+                        syslog_sock_type,
+                        syslog_enabled,
+                    ),
+                )
+                log = logging.getLogger(__name__)
+                log.debug(f"Initialized logging for log type {log_config_type}.")
+            else:
+                log = logging.getLogger(__name__)
+                log.debug(
+                    "VDK_USE_STRUCTLOG environment variable is set, so the logging config will rely on the "
+                    "vdk-structlog plugin."
+                )
         except Exception as e:
             # Have local logs on DEBUG level, when standard log configuration fails
             logging.basicConfig(level=logging.DEBUG)
@@ -278,12 +320,13 @@ class LoggingPlugin:
                 "Trying to send telemetry for Job attempt: %s"
                 % (log_config_type, attempt_id)
             )
-            errors.log_and_rethrow(
-                errors.find_whom_to_blame_from_exception(e),
-                log=logging.getLogger(__name__),
-                what_happened="Failed to initialize logging",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences="Logging is critical VDK component. VDK will now exit.",
-                countermeasures="Depending on stacktrace",
-                exception=e,
+            errors.log_exception(
+                logging.getLogger(__name__),
+                e,
+                "Failed to initialize logging",
+                errors.MSG_WHY_FROM_EXCEPTION(e),
+                "Failed to initialize data job logging."
+                " Will proceed with basic local logging on"
+                " DEBUG level.",
+                "Depending on stacktrace.",
             )

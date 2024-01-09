@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import traceback
@@ -288,8 +288,44 @@ def test_create_only_local_flag(httpserver: PluginHTTPServer, tmpdir: LocalPath)
         ],
     )
 
-    # created only locally would not try to contact REST API so it should succeeds.
+    # created only locally would not try to contact REST API, so it should succeed.
     assert_click_status(result, 0)
+
+
+def test_create_local_flag_check_generated_config_file(
+    httpserver: PluginHTTPServer, tmpdir: LocalPath
+):
+    team_name = "test-team"
+    job_name = "test-job"
+    jobs_dir, rest_api_url = setup_create(
+        httpserver, tmpdir, 500, 500, job_name, team_name
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        create,
+        [
+            "-n",
+            "test-job",
+            "-t",
+            "team_name",
+            "-p",
+            jobs_dir,
+            "-u",
+            rest_api_url,
+            "--local",
+        ],
+    )
+
+    # created only locally would not try to contact REST API, so it should succeed.
+    job_dir = os.path.join(jobs_dir, job_name)
+    assert_click_status(result, 0)
+    assert os.path.isdir(job_dir)
+    assert os.path.isfile(os.path.join(job_dir, "config.ini"))
+
+    # Verify that config.ini is not empty
+    with open(os.path.join(job_dir, "config.ini"), "rb") as f:
+        assert f.seek(0, 2) > 0
 
 
 def test_create_with_empty_url(httpserver: PluginHTTPServer, tmpdir: LocalPath):

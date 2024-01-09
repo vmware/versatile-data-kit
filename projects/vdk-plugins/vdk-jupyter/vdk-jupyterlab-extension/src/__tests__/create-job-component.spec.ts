@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 import CreateJobDialog from '../components/CreateJob';
@@ -29,38 +29,10 @@ describe('#render()', () => {
     expect(input).toBe(component.getAllByLabelText('Job Team:')[0]);
   });
 
-  it('should return contain job path input with placeholder equal to jobPath from props', () => {
+  it('should return contain job path input with blank placeholder', () => {
     const component = render(new CreateJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText(defaultProps.jobPath);
-    expect(input).toBe(
-      component.getAllByLabelText('Path to job directory:')[0]
-    );
-  });
-});
-
-describe('#onLocalClick', () => {
-  it('should put a flag for local in jobData', () => {
-    const component = render(new CreateJobDialog(defaultProps).render());
-    const localCheckbox = component.getAllByLabelText(
-      'Local'
-    )[0] as HTMLInputElement;
-    expect(localCheckbox.checked).toEqual(false);
-    fireEvent.click(localCheckbox);
-    expect(localCheckbox.checked).toEqual(true);
-    expect(jobData.get(VdkOption.LOCAL)).toEqual('1');
-  });
-});
-
-describe('#onCloudClick', () => {
-  it('should put a flag for cloud in jobData', () => {
-    const component = render(new CreateJobDialog(defaultProps).render());
-    const cloudCheckbox = component.getAllByLabelText(
-      'Cloud'
-    )[0] as HTMLInputElement;
-    expect(cloudCheckbox.checked).toEqual(false);
-    fireEvent.click(cloudCheckbox);
-    expect(cloudCheckbox.checked).toEqual(true);
-    expect(jobData.get(VdkOption.CLOUD)).toEqual('1');
+    const jobPathInput = component.getByPlaceholderText(defaultProps.jobPath);
+    expect(jobPathInput).toBeDefined();
   });
 });
 
@@ -85,7 +57,7 @@ describe('#onTeamChange', () => {
 describe('#onPathChange', () => {
   it('should change the path in jobData', () => {
     const component = render(new CreateJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText(defaultProps.jobPath);
+    const input = component.getAllByRole('textbox')[2];
     fireEvent.change(input, { target: { value: 'other/path' } });
     expect(jobData.get(VdkOption.PATH)).toEqual('other/path');
   });

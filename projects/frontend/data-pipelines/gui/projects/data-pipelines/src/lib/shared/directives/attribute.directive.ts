@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -30,7 +30,10 @@ export class AttributesDirective extends TaurusObject implements OnInit, OnChang
     /**
      * ** Constructor.
      */
-    constructor(private readonly el: ElementRef, private readonly renderer: Renderer2) {
+    constructor(
+        private readonly el: ElementRef,
+        private readonly renderer: Renderer2
+    ) {
         super();
     }
 

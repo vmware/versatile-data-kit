@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -46,7 +46,7 @@ def test_router_send_object_for_ingestion_no_default_method(
 ):
     router = create_ingester_router({})
 
-    with pytest.raises(UserCodeError):
+    with pytest.raises(VdkConfigurationError):
         router.send_object_for_ingestion({"a": "b"})
 
     mock_ingester_base.return_value.send_object_for_ingestion.assert_not_called()
@@ -70,7 +70,7 @@ def test_router_send_tabular_data_for_ingestion_no_default_method(
 ):
     router = create_ingester_router({})
 
-    with pytest.raises(UserCodeError):
+    with pytest.raises(VdkConfigurationError):
         router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
 
     mock_ingester_base.return_value.send_tabular_data_for_ingestion.assert_not_called()
@@ -142,6 +142,4 @@ def test_router_raise_error_chained_ingest_plugins_not_registered():
         router.send_tabular_data_for_ingestion(rows=["b"], column_names=["a"])
 
     error_msg = exc_info.value
-    assert "Could not create new processor plugin of type pre-ingest-test" in str(
-        error_msg
-    )
+    assert "method: pre-ingest-test" in str(error_msg)

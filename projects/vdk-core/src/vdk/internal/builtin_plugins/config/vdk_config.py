@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -20,6 +20,9 @@ JOB_GITHASH = "JOB_GITHASH"
 LOG_CONFIG = "LOG_CONFIG"
 LOG_LEVEL_VDK = "LOG_LEVEL_VDK"
 LOG_LEVEL_MODULE = "LOG_LEVEL_MODULE"
+LOG_STACK_TRACE_ON_EXIT = "LOG_STACK_TRACE_ON_EXIT"
+LOG_EXECUTION_RESULT = "LOG_EXECUTION_RESULT"
+LOG_EXCEPTION_FORMATTER = "LOG_EXCEPTION_FORMATTER"
 WORKING_DIR = "WORKING_DIR"
 ATTEMPT_ID = "ATTEMPT_ID"
 EXECUTION_ID = "EXECUTION_ID"
@@ -67,11 +70,14 @@ class CoreConfigDefinitionPlugin:
         )  # {LOCAL, CLOUD, NONE} To be overridden when executing in cloud
         config_builder.add(
             LOG_LEVEL_VDK,
-            None,
+            "INFO",
             True,
             "Logging verbosity of VDK code can be controlled from here. "
             "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG. "
-            "If not set python default or one set by vdk -v LEVEL is used. ",
+            "If not set python default is used. vdk -v <LEVEL> would take precedence over this variable."
+            "LOG_LEVEL_VDK environment variable is used when the CLI is starting as initial logging level "
+            "before any configuration is loaded. "
+            "Afterwards -v <LEVEL> is considered and vdk loaded configuration.",
         )
         config_builder.add(
             LOG_LEVEL_MODULE,
@@ -83,6 +89,28 @@ class CoreConfigDefinitionPlugin:
             "Allowed values: CRITICAL, ERROR, WARNING, INFO, DEBUG. "
             "If not set python default or one set by vdk -v LEVEL is used. ",
         )
+        config_builder.add(
+            LOG_STACK_TRACE_ON_EXIT,
+            False,
+            True,
+            "Controls whether the full stack trace is displayed again on exit code 1. "
+            "False by default, shoud be set to true in production environments for more debug output. ",
+        )
+        config_builder.add(
+            LOG_EXECUTION_RESULT,
+            False,
+            True,
+            "Controls whether the job execution result is logged on job completion. "
+            "False by default, shoud be set to true in production environments for more debug output. ",
+        )
+        config_builder.add(
+            LOG_EXCEPTION_FORMATTER,
+            "pretty",
+            True,
+            "Determines the exception format. Possible values are [pretty | plain]. Default is 'pretty'"
+            "When set to pretty, it draws a box around VDK exceptions and add news lines and wrapping",
+        )
+
         config_builder.add(JOB_GITHASH, "unknown")
         config_builder.add(
             OP_ID,

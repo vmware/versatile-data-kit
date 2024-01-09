@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import os
@@ -6,7 +6,7 @@ from sqlite3 import OperationalError
 from unittest import mock
 
 from click.testing import Result
-from vdk.internal.core.errors import PlatformServiceError
+from vdk.internal.core.errors import ResolvableByActual
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.csv import csv_plugin
 from vdk.plugin.sqlite import sqlite_plugin
@@ -171,7 +171,12 @@ def test_csv_export_with_nonexistent_table(tmpdir):
                 "result3.csv",
             ]
         )
-        assert isinstance(result.exception, PlatformServiceError)
+        assert isinstance(result.exception, OperationalError)
+        assert hasattr(result.exception, "_vdk_resolvable_actual")
+        assert (
+            getattr(result.exception, "_vdk_resolvable_actual")
+            == ResolvableByActual.USER
+        )
 
 
 def test_csv_export_with_no_data(tmpdir):

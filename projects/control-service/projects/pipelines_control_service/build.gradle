@@ -80,6 +80,8 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'com.amazonaws:aws-java-sdk-core'
     implementation versions.'com.amazonaws:aws-java-sdk-sts'
 
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+
     compileOnly versions.'org.hibernate:hibernate-jpamodelgen'
     annotationProcessor versions.'org.hibernate:hibernate-jpamodelgen'
 
@@ -87,7 +89,6 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation versions.'com.mmnaseri.utils:spring-data-mock'
     testImplementation versions.'org.mock-server:mockserver-netty'
-    testImplementation 'org.springframework.security:spring-security-oauth2-jose'
     testImplementation versions.'org.mockito:mockito-core'
     testImplementation versions.'net.bytebuddy:byte-buddy'
     testImplementation versions.'org.testcontainers:testcontainers'
@@ -98,8 +99,9 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation versions.'org.junit.jupiter:junit-jupiter-api'
     testImplementation versions.'org.junit.platform:junit-platform-suite-api'
     testImplementation versions.'org.junit.platform:junit-platform-commons'
+    testImplementation versions.'org.junit.platform:junit-platform-engine'
     testRuntimeOnly versions.'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation 'com.kerb4j:kerb4j-client:0.1.3'
+    testImplementation 'com.kerb4j:kerb4j-client:0.2.0'
     testImplementation 'org.apache.kerby:kerb-simplekdc:2.0.3'
     implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
     implementation versions.'com.amazonaws:aws-java-sdk-ecr'

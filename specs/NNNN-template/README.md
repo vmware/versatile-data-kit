@@ -1,7 +1,7 @@
 
 # VEP-NNNN: Your short, descriptive title
 
-* **Author(s):** Name (mail), ...
+* **Author(s):** Name (mail), ... <!-- main contributors to the proposal (not just writers) and expected points of contact for questions -->
 * **Status:** draft | implementable | implemented | rejected | withdrawn | replaced
 
 
@@ -57,9 +57,13 @@ Explain the user problem that need to be solved.
 
 ## Requirements and goals
 <!--
-It tells **what** is it trying to achieve?
-List the specific goals (functional and nonfunctional requirements)? How will we
-know that this has succeeded?
+It tells **what** is it trying to achieve including expected deliverables.
+List the specific goals (functional and nonfunctional requirements)?
+It's recommended to specify metrics that can be used to check the goal has been achieved.
+
+Specify for what type of users, what is going to be delivered.
+Recommended (but not required format) is
+User <persona/type of user>, they need <new deliverable/feature/improvement>, so that <reason>
 
 Specify non-goals. Clearly, the list of non-goals can't be exhaustive.
 Non-goals are only features, which a contributor can reasonably assume were a goal.
@@ -151,7 +155,8 @@ Consider at least the below topics but you do not need to cover those that are n
 
 ## Implementation stories
 <!--
-Optionally, describe what are the implementation stories (eventually we'd create github issues out of them).
+Optionally, describe what are the implementation stories. Link to Milestone or initiative in Github is fine
+As part of the implementation make sure to include stories covering release/launch plan, promotional activities before the release,
 -->
 
 ## Alternatives

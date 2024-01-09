@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,6 +13,7 @@ import {
   jobRequest,
   jobRunRequest
 } from '../serverRequests';
+import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
 
 jest.mock('../handler', () => {
   return {
@@ -20,7 +21,12 @@ jest.mock('../handler', () => {
   };
 });
 
-window.alert = jest.fn();
+jest.mock('@jupyterlab/apputils', () => ({
+  showErrorMessage: jest.fn(),
+  Dialog: {
+    okButton: jest.fn()
+  }
+}));
 
 describe('jobdDataRequest', () => {
   afterEach(() => {
@@ -72,27 +78,65 @@ describe('jobRunRequest()', () => {
     jest.clearAllMocks();
   });
 
-  it('should call requestAPI with correct arguments and return successful result', async () => {
-    const expectedMessage = '0';
-    const expectedResponse = { message: '0', status: true };
-    (requestAPI as jest.Mock).mockResolvedValue(expectedResponse);
+  it('should call requestAPI to start a task and then poll for its completion, returning a successful result', async () => {
+    const mockData = {
+      [VdkOption.PATH]: '/test/job/path'
+    };
+    jobData.set(VdkOption.PATH, mockData[VdkOption.PATH]);
+
+    const taskId = 'RUN-6266cd99-908c-480b-9a3e-8a30564736a4';
+    const taskInitiationResponse = {
+      error: '',
+      message: `Task ${taskId} started`
+    };
+    const taskCompletionResponse = {
+      task_id: taskId,
+      status: 'completed',
+      message: 'Operation completed successfully',
+      error: null
+    };
+
+    (requestAPI as jest.Mock)
+      .mockResolvedValueOnce(taskInitiationResponse)
+      .mockResolvedValue(taskCompletionResponse);
 
     const result = await jobRunRequest();
 
-    expect(requestAPI).toHaveBeenCalledTimes(1);
-    expect(result).toEqual({ message: expectedMessage, status: true });
+    expect(requestAPI).toHaveBeenCalledWith('run', {
+      body: JSON.stringify(getJobDataJsonObject()),
+      method: 'POST'
+    });
+    expect(requestAPI).toHaveBeenCalledWith(`taskStatus?taskId=${taskId}`, {
+      method: 'GET'
+    });
+    expect(result).toEqual({
+      message: taskCompletionResponse.message,
+      isSuccessful: true
+    });
   });
 
   it('should call requestAPI with correct arguments and return unsuccessful result', async () => {
-    const expectedError = new Error('1');
-    (requestAPI as jest.Mock).mockResolvedValue(expectedError);
+    const mockData = {
+      [VdkOption.PATH]: '/test/job/path'
+    };
+    jobData.set(VdkOption.PATH, mockData[VdkOption.PATH]);
+
+    const taskId = 'RUN-6266cd99-908c-480b-9a3e-8a30564736a4';
+    const taskInitiationResponse = {
+      error: '1',
+      message: `Task ${taskId} started`
+    };
+    (requestAPI as jest.Mock).mockResolvedValueOnce(taskInitiationResponse);
 
     const result = await jobRunRequest();
 
-    expect(requestAPI).toHaveBeenCalledTimes(1);
+    expect(requestAPI).toHaveBeenCalledWith('run', {
+      body: JSON.stringify(getJobDataJsonObject()),
+      method: 'POST'
+    });
     expect(result).toEqual({
-      message: '1',
-      status: false
+      message: taskInitiationResponse.message,
+      isSuccessful: false
     });
   });
 });
@@ -103,40 +147,131 @@ describe('jobRequest()', () => {
   });
 
   it('should call requestAPI with the correct arguments', async () => {
-    const endPoint = 'your-endpoint-url';
-    const expectedRequestBody = JSON.stringify(getJobDataJsonObject());
-    const expectedRequestMethod = 'POST';
-
-    await jobRequest(endPoint);
-
-    expect(requestAPI).toHaveBeenCalledWith(endPoint, {
-      body: expectedRequestBody,
-      method: expectedRequestMethod
-    });
-  });
-
-  it('should show a success message if requestAPI returns a serverVdkOperationResult without errors', async () => {
-    const endPoint = 'your-endpoint-url';
-    const serverVdkOperationResultMock = {
-      error: '',
-      message: 'Operation completed successfully'
+    const mockData = {
+      [VdkOption.NAME]: 'Test Job',
+      [VdkOption.TEAM]: 'Test Team'
     };
-    (requestAPI as jest.Mock).mockResolvedValue(serverVdkOperationResultMock);
 
-    const alertMock = jest
-      .spyOn(window, 'alert')
-      .mockImplementationOnce(() => {});
+    jobData.set(VdkOption.NAME, mockData[VdkOption.NAME]);
+    jobData.set(VdkOption.TEAM, mockData[VdkOption.TEAM]);
 
-    await jobRequest(endPoint);
+    const endpoint = 'CREATE';
+    const taskId = endpoint + '-6266cd99-908c-480b-9a3e-8a30564736a4';
+    const taskInitiationResponse = {
+      error: '',
+      message: `Task ${taskId} started`
+    };
+    const taskCompletionResponse = {
+      task_id: taskId,
+      status: 'completed',
+      message: 'Task completed successfully',
+      error: null
+    };
 
-    expect(alertMock as jest.Mock).toHaveBeenCalledWith(
-      serverVdkOperationResultMock['message']
-    );
-    expect(requestAPI).toHaveBeenCalledWith(endPoint, {
+    (requestAPI as jest.Mock)
+      .mockResolvedValueOnce(taskInitiationResponse)
+      .mockResolvedValue(taskCompletionResponse);
+
+    const result = await jobRequest(endpoint);
+
+    // Verify the call for initiating the task
+    expect(requestAPI).toHaveBeenCalledWith(endpoint, {
       body: JSON.stringify(getJobDataJsonObject()),
       method: 'POST'
     });
-    (window.alert as jest.Mock).mockClear();
+
+    // Verify the polling for task status
+    expect(requestAPI).toHaveBeenCalledWith(`taskStatus?taskId=${taskId}`, {
+      method: 'GET'
+    });
+
+    // Verify the final result
+    expect(result).toEqual({
+      message: taskCompletionResponse.message,
+      isSuccessful: true
+    });
+  });
+
+  it('should show an error message if requestAPI returns a serverVdkOperationResult with error', async () => {
+    const mockData = {
+      [VdkOption.NAME]: 'Test Job',
+      [VdkOption.TEAM]: 'Test Team'
+    };
+
+    jobData.set(VdkOption.NAME, mockData[VdkOption.NAME]);
+    jobData.set(VdkOption.TEAM, mockData[VdkOption.TEAM]);
+
+    const endpoint = 'DEPLOY';
+    const serverVdkOperationResultMock = {
+      error: '1',
+      message: `${endpoint} task failed`
+    };
+    (requestAPI as jest.Mock).mockResolvedValueOnce(
+      serverVdkOperationResultMock
+    );
+
+    const result = await jobRequest(endpoint);
+
+    expect(requestAPI).toHaveBeenCalledWith(endpoint, {
+      body: JSON.stringify(getJobDataJsonObject()),
+      method: 'POST'
+    });
+    expect(result).toEqual({
+      message: serverVdkOperationResultMock.message,
+      isSuccessful: false
+    });
+  });
+
+  it('should show an error message if a task fails', async () => {
+    const mockData = {
+      [VdkOption.NAME]: 'Test Job',
+      [VdkOption.TEAM]: 'Test Team'
+    };
+
+    jobData.set(VdkOption.NAME, mockData[VdkOption.NAME]);
+    jobData.set(VdkOption.TEAM, mockData[VdkOption.TEAM]);
+
+    const endpoint = 'DEPLOY';
+    const taskId = endpoint + '-6266cd99-908c-480b-9a3e-8a30564736a4';
+    const taskInitiationResponse = {
+      error: '',
+      message: `Task ${taskId} started`
+    };
+    const taskCompletionResponse = {
+      task_id: taskId,
+      status: 'failed',
+      message: '',
+      error: 'An error occurred'
+    };
+
+    (requestAPI as jest.Mock)
+      .mockResolvedValueOnce(taskInitiationResponse)
+      .mockResolvedValue(taskCompletionResponse);
+
+    const result = await jobRequest(endpoint);
+
+    // Verify the call for initiating the task
+    expect(requestAPI).toHaveBeenCalledWith(endpoint, {
+      body: JSON.stringify(getJobDataJsonObject()),
+      method: 'POST'
+    });
+
+    // Verify the polling for task status
+    expect(requestAPI).toHaveBeenCalledWith(`taskStatus?taskId=${taskId}`, {
+      method: 'GET'
+    });
+
+    expect(showErrorMessage).toHaveBeenCalledWith(
+      'Encountered an error while trying to connect the server. Error:',
+      taskCompletionResponse.error,
+      [Dialog.okButton()]
+    );
+
+    // Verify the final result
+    expect(result).toEqual({
+      message: taskCompletionResponse.error,
+      isSuccessful: false
+    });
   });
 });
 

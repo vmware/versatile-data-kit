@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import sys
@@ -13,6 +13,9 @@ from vdk.api.plugin.core_hook_spec import CoreHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins import builtin_hook_impl
+from vdk.internal.builtin_plugins.config.log_config import (
+    configure_initial_logging_before_anything,
+)
 from vdk.internal.builtin_plugins.internal_hookspecs import InternalHookSpecs
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
@@ -153,7 +156,8 @@ class CliEntry:
             # if at least one hook implementation returned handled, means we do
             # not need to log the exception
             if not (True in handled):
-                log.exception("Exiting with exception.")
+                if core_context.configuration.get_value("LOG_STACK_TRACE_ON_EXIT"):
+                    log.exception("Exiting with exception.")
                 exit_code = 1
             else:
                 exit_code = 0
@@ -169,7 +173,7 @@ def main() -> None:
     This the starting point for the Python vdk console script.
     """
     # configure basic logging , it's expected that a plugin would override and set it up properly
-    click_log.basic_config(logging.getLogger())
+    configure_initial_logging_before_anything()
 
     log.debug("Setup plugin registry and call vdk_start hooks ...")
     plugin_registry = PluginRegistry()

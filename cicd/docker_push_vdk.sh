@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 # This Bash script provides a utility to push a containers image to multiple container registries.
@@ -34,7 +34,7 @@ function push_image_to_vdk_registries() {
   if [ -z "${VDK_REGISTRIES}" ]; then
       export VDK_REGISTRIES=(
         "${VDK_DOCKER_REGISTRY_URL} ${VDK_DOCKER_REGISTRY_USERNAME} ${VDK_DOCKER_REGISTRY_PASSWORD}"
-        "${CICD_CONTAINER_REGISTRY_URI} ${CICD_CONTAINER_REGISTRY_USER_NAME} ${CICD_CONTAINER_REGISTRY_USER_PASSWORD}"
+        "${CICD_CONTAINER_REGISTRY_URI}/versatiledatakit ${CICD_CONTAINER_REGISTRY_USER_NAME} ${CICD_CONTAINER_REGISTRY_USER_PASSWORD}"
         )
   fi
 

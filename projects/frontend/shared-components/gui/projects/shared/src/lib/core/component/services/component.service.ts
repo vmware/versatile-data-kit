@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -102,7 +102,10 @@ export class ComponentServiceImpl extends ComponentService {
     /**
      * ** Constructor.
      */
-    constructor(private readonly store$: Store<StoreState>, private readonly routerService: RouterService) {
+    constructor(
+        private readonly store$: Store<StoreState>,
+        private readonly routerService: RouterService
+    ) {
         super();
 
         this.componentsStateHelper = new ComponentsStateHelper();

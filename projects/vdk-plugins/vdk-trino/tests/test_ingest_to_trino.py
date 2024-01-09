@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import pathlib
@@ -19,6 +19,7 @@ VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_TRINO_PORT = "VDK_TRINO_PORT"
 VDK_TRINO_USE_SSL = "VDK_TRINO_USE_SSL"
 VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
+VDK_LOG_EXECUTION_RESULT = "VDK_LOG_EXECUTION_RESULT"
 
 
 @pytest.mark.usefixtures("trino_service")
@@ -29,6 +30,7 @@ VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
         VDK_TRINO_PORT: "8080",
         VDK_TRINO_USE_SSL: "False",
         VDK_INGEST_METHOD_DEFAULT: "TRINO",
+        VDK_LOG_EXECUTION_RESULT: "True",
     },
 )
 class IngestToTrinoTests(TestCase):

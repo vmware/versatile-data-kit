@@ -1,12 +1,15 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.monitoring;
 
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DeploymentStatus;
+import com.vmware.taurus.service.repository.ActualJobDeploymentRepository;
+import com.vmware.taurus.service.repository.DesiredJobDeploymentRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -33,12 +36,22 @@ public class DeploymentMonitor {
 
   private final JobsRepository jobsRepository;
 
+  private final ActualJobDeploymentRepository actualJobDeploymentRepository;
+
+  private final DesiredJobDeploymentRepository desiredJobDeploymentRepository;
+
   private final Map<String, Integer> currentStatuses = new ConcurrentHashMap<>();
 
   @Autowired
-  public DeploymentMonitor(MeterRegistry meterRegistry, JobsRepository jobsRepository) {
+  public DeploymentMonitor(
+      MeterRegistry meterRegistry,
+      JobsRepository jobsRepository,
+      ActualJobDeploymentRepository actualJobDeploymentRepository,
+      DesiredJobDeploymentRepository desiredJobDeploymentRepository) {
     this.meterRegistry = meterRegistry;
     this.jobsRepository = jobsRepository;
+    this.actualJobDeploymentRepository = actualJobDeploymentRepository;
+    this.desiredJobDeploymentRepository = desiredJobDeploymentRepository;
   }
 
   /**
@@ -63,9 +76,12 @@ public class DeploymentMonitor {
    * @param dataJobName
    * @param deploymentStatus
    */
-  public void recordDeploymentStatus(String dataJobName, DeploymentStatus deploymentStatus) {
+  public void recordDeploymentStatus(
+      String dataJobName,
+      DeploymentStatus deploymentStatus,
+      ActualDataJobDeployment actualDataJobDeployment) {
     if (StringUtils.isNotBlank(dataJobName)) {
-      boolean jobExists = saveDataJobStatus(dataJobName, deploymentStatus);
+      boolean jobExists = saveDataJobStatus(dataJobName, deploymentStatus, actualDataJobDeployment);
       if (jobExists || currentStatuses.containsKey(dataJobName)) {
         // TODO: Add tag for data job mode
         DistributionSummary.builder(SUMMARY_METRIC_NAME)
@@ -80,10 +96,20 @@ public class DeploymentMonitor {
     }
   }
 
-  private boolean saveDataJobStatus(
-      final String dataJobName, final DeploymentStatus deploymentStatus) {
+  public boolean saveDataJobStatus(
+      final String dataJobName,
+      final DeploymentStatus deploymentStatus,
+      ActualDataJobDeployment actualDataJobDeployment) {
     if (jobsRepository.updateDataJobLatestJobDeploymentStatusByName(dataJobName, deploymentStatus)
         > 0) {
+
+      if (DeploymentStatus.SUCCESS.equals(deploymentStatus) && actualDataJobDeployment != null) {
+        actualJobDeploymentRepository.save(actualDataJobDeployment);
+      }
+
+      desiredJobDeploymentRepository
+          .updateDesiredDataJobDeploymentStatusAndUserInitiatedByDataJobName(
+              dataJobName, deploymentStatus, false);
       return true;
     }
     log.debug("Data job: {} was deleted or hasn't been created", dataJobName);

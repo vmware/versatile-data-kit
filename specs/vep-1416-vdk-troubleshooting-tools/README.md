@@ -1,7 +1,7 @@
 
 # VEP-1416: VDK Troubleshooting Tools
 
-* **Author(s):** Andon Andonov (andonova@vmware.com)
+* **Author(s):** Andon Andonov (andonova@vmware.com), Dako Dakov (ddakov@vmware.com)
 * **Status:** implemented
 
 

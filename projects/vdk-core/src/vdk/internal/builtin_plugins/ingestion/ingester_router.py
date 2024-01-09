@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import Callable
@@ -16,7 +16,6 @@ from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
 from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
-from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
@@ -24,7 +23,6 @@ from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.internal.core.statestore import StateStore
 from vdk.internal.util.utils import parse_config_sequence
-
 
 IngesterPluginFactory = Callable[[], IIngesterPlugin]
 
@@ -62,47 +60,36 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Use the method and target provided by customer, or load the default ones
-        # if set. `method` and `target` provided when the method is called take
-        # precedence over the ones set with environment variables.
-        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
-        method = method.lower() if method is not None else None
-        target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
+        method, target = self.__get_correct_method_and_target(method, target)
         self._log.info(
             "Sending object for ingestion with "
             f"method: {method} and target: {target}"
         )
 
-        if method in self._cached_ingesters.keys():
-            ingester = self._cached_ingesters.get(method)
-            self.__ingest_object(
-                ingester=ingester,
-                payload=payload,
-                destination_table=destination_table,
-                method=method,
-                target=target,
-                collection_id=collection_id,
-            )
+        ingester = self.__get_ingester(method)
 
+        self.__ingest_object(
+            ingester=ingester,
+            payload=payload,
+            destination_table=destination_table,
+            method=method,
+            target=target,
+            collection_id=collection_id,
+        )
+
+    def __get_ingester(self, method: str) -> IngesterBase:
+        if method in self._cached_ingesters.keys():
+            return self._cached_ingesters.get(method)
         elif method in self._ingester_builders.keys():
-            ingester = self.__initialize_ingester(method=method)
-            self.__ingest_object(
-                ingester=ingester,
-                payload=payload,
-                destination_table=destination_table,
-                method=method,
-                target=target,
-                collection_id=collection_id,
-            )
+            return self.__initialize_ingester(method=method)
         else:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=self._log,
-                what_happened=f"Provided method, {method}, has invalid value.",
-                why_it_happened=f"VDK was run with method={method}, however {method} is not part of the available ingestion mechanisms.",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures=f"Provide either valid value for method, or install ingestion plugin that supports this type. "
-                f"Currently possible values are {list(self._ingester_builders.keys())}",
+            errors.report_and_throw(
+                VdkConfigurationError(
+                    f"Provided method, {method}, has invalid value."
+                    f"VDK was run with method={method}, however {method} is not part of the available ingestion methods."
+                    f"Provide either valid value for method, or install ingestion plugin that supports this type. "
+                    f"Currently possible values are {list(self._ingester_builders.keys())}"
+                )
             )
 
     def send_tabular_data_for_ingestion(
@@ -114,50 +101,32 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
     ):
-        # Use the method and target provided by customer, or load the
-        # default ones, if set. `method` and `target` provided when the
-        # method is called take precedence over the ones set with
-        # environment variables.
-        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
-        target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
+        method, target = self.__get_correct_method_and_target(method, target)
         self._log.info(
             "Sending tabular data for ingestion with "
             f"method: {method} and target: {target}"
         )
 
-        if method in self._cached_ingesters.keys():
-            ingester = self._cached_ingesters.get(method)
-            self.__ingest_tabular_data(
-                ingester=ingester,
-                rows=rows,
-                column_names=column_names,
-                destination_table=destination_table,
-                method=method,
-                target=target,
-                collection_id=collection_id,
-            )
+        ingester = self.__get_ingester(method)
+        self.__ingest_tabular_data(
+            ingester=ingester,
+            rows=rows,
+            column_names=column_names,
+            destination_table=destination_table,
+            method=method,
+            target=target,
+            collection_id=collection_id,
+        )
 
-        elif method in self._ingester_builders.keys():
-            ingester = self.__initialize_ingester(method=method)
-            self.__ingest_tabular_data(
-                ingester=ingester,
-                rows=rows,
-                column_names=column_names,
-                destination_table=destination_table,
-                method=method,
-                target=target,
-                collection_id=collection_id,
-            )
-        else:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=self._log,
-                what_happened=f"Provided method, {method}, has invalid value.",
-                why_it_happened=f"VDK was run with method={method}, however {method} is not part of the available ingestion mechanisms.",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures=f"Provide either valid value for method, or install ingestion plugin that supports this type. "
-                f"Currently possible values are {list(self._ingester_builders.keys())}",
-            )
+    def __get_correct_method_and_target(self, method, target):
+        # Use the method and target provided by customer, or load the
+        # default ones, if set. `method` and `target` provided when the
+        # method is called take precedence over the ones set with
+        # environment variables.
+        method = method or self._cfg.get_value("INGEST_METHOD_DEFAULT")
+        method = method.lower() if method is not None else None
+        target = target or self._cfg.get_value("INGEST_TARGET_DEFAULT")
+        return method, target
 
     def __ingest_object(
         self,
@@ -173,9 +142,8 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 payload, destination_table, method, target, collection_id
             )
         except Exception as e:
-            self._log.error(
-                "Failed to send object for ingestion." f"Exception was: {e}"
-            )
+            errors.report(ResolvableBy.USER_ERROR, e)
+            raise
 
     def __ingest_tabular_data(
         self,
@@ -192,19 +160,8 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 rows, column_names, destination_table, method, target, collection_id
             )
         except Exception as e:
-            self._log.error(
-                "Failed to send tabular data for ingestion." f"Exception was: {e}"
-            )
-            errors.log_and_rethrow(
-                ResolvableBy.USER_ERROR,
-                self._log,
-                what_happened="Failed to send tabular data for ingestion",
-                why_it_happened=f"Exception was: {e}",
-                consequences="Data is not ingested and the method will raise an exception",
-                countermeasures="Please look the error message and try to fix the error and re-try.",
-                exception=e,
-                wrap_in_vdk_error=True,
-            )
+            errors.report(ResolvableBy.USER_ERROR, e)
+            raise
 
     def __initialize_ingester(self, method) -> IngesterBase:
         ingester_plugin = None
@@ -215,14 +172,13 @@ class IngesterRouter(IIngesterRegistry, IIngester):
             self._log.error("Could not initialize ingestion plugin.")
 
         if ingester_plugin is None:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-                log=self._log,
-                what_happened=f"Could not create new ingester plugin of type {method}.",
-                why_it_happened=f"VDK was run with method={method}, however no valid ingester plugin was created.",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures=f"Seems to be a bug in the plugin for method {method}. Make sure it's correctly installed. "
-                f"If upgraded recently consider reverting to previous version. Or use another method type.",
+            errors.report_and_throw(
+                VdkConfigurationError(
+                    f"Could not create new ingester plugin of type {method}.",
+                    f"VDK was run with method={method}, however no valid ingester plugin was created.",
+                    f"Seems to be a bug in the plugin for method {method}. Make sure it's correctly installed. "
+                    f"If upgraded recently consider reverting to previous version. Or use another method type.",
+                )
             )
         else:
             # Initialize the pre- and post- processors.
@@ -259,20 +215,12 @@ class IngesterRouter(IIngesterRegistry, IIngester):
             self._log.error("Could not initialize processor plugin.")
 
         if processor_plugin is None:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-                log=self._log,
-                what_happened="Could not create new processor plugin of type"
-                f" {method}.",
-                why_it_happened=f"VDK was run with method={method}, however "
-                "no valid ingestion processor plugin was "
-                "created.",
-                consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                countermeasures="Seems to be a bug in the plugin for method"
-                f" {method}. Make sure it's correctly "
-                f"installed. If upgraded recently, consider"
-                " reverting to previous version. Or use "
-                "another method type.",
+            errors.report_and_throw(
+                VdkConfigurationError(
+                    "Could not create new processor plugin of method: " f"{method}.",
+                    f"Currently possible processor methods are {list(self._ingester_builders.keys())}. "
+                    "Make sure the processing configuration value are correct and the plugin is installed. ",
+                )
             )
         return processor_plugin
 
@@ -294,25 +242,24 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 )
 
         if errors_list:
-            message = ErrorMessage(
+            # TODO: Remove the error types
+            error_message_lines = [
                 "Ingesting data failed",
                 f"On close some following ingest queues types reported errors:  {list(errors_list.keys())}.",
                 f"There were errors while closing ingestion. Exceptions were: {errors_list}.",
                 "Some data was partially ingested or not ingested at all.",
-                "Follow the instructions in the error messages and log warnings. "
-                "Make sure to inspect any errors or warning logs generated"
-                "Re-try the job if necessary",
-            )
+            ]
 
             if any(
                 filter(lambda v: isinstance(v, UserCodeError), errors_list.values())
             ):
-                raise UserCodeError(message)
+                raise UserCodeError(*error_message_lines)
             elif any(
                 filter(
                     lambda v: isinstance(v, VdkConfigurationError), errors_list.values()
                 )
             ):
-                raise VdkConfigurationError(message)
+                raise VdkConfigurationError(*error_message_lines)
             else:
-                raise PlatformServiceError(message)
+                error = PlatformServiceError(*error_message_lines)
+                raise error

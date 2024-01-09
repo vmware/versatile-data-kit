@@ -1,28 +1,34 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import sys
 import traceback
 from dataclasses import dataclass
 from typing import Callable
+from typing import Union
 
 from vdk.api.job_input import IJobInput
+from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON
+from vdk.internal.builtin_plugins.run.file_based_step import TYPE_SQL
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
+from vdk.internal.core.errors import UserCodeError
+from vdk.plugin.notebook import vdk_ingest
+from vdk.plugin.notebook.vdk_ingest import TYPE_INGEST
 
 log = logging.getLogger(__name__)
 
 # consists may duplicates of
 # https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-core/src/vdk/internal/builtin_plugins/run/file_based_step.py
 
-# The function accept NotebookStep (below class) and IJobInput and
+# The function accept NotebookCellStep (below class) and IJobInput and
 # return true if the step has been executed and false if it is not (valid) executable step.
 # On error it's expected to raise an exception.
-NotebookStepFunction = Callable[["NotebookStep", IJobInput], bool]
+NotebookStepFunction = Callable[["NotebookCellStep", IJobInput], bool]
 
 
 @dataclass
-class NotebookStep(Step):
+class NotebookCellStep(Step):
     """
     A notebook step that will be executed when running a data job.
 
@@ -65,7 +71,26 @@ class NotebookStepFuncFactory:
     """
 
     @staticmethod
-    def run_python_step(step: NotebookStep, job_input: IJobInput) -> bool:
+    def get_run_function(source_type: Union[TYPE_PYTHON, TYPE_SQL]) -> Callable:
+        if source_type == TYPE_PYTHON:
+            return NotebookStepFuncFactory.run_python_step
+        elif source_type == TYPE_SQL:
+            return NotebookStepFuncFactory.run_sql_step
+        elif source_type == TYPE_INGEST:
+            return vdk_ingest.run_ingest_step
+        else:
+            raise NotImplementedError(
+                f"Run function for source type {source_type} is not implemented."
+            )
+
+    @staticmethod
+    def run_sql_step(step: NotebookCellStep, job_input: IJobInput) -> bool:
+        """ """
+        job_input.execute_query(step.source)
+        return True
+
+    @staticmethod
+    def run_python_step(step: NotebookCellStep, job_input: IJobInput) -> bool:
         try:
             sys.path.insert(0, str(step.job_dir))
             success = False
@@ -77,34 +102,32 @@ class NotebookStepFuncFactory:
                 success = True
             except SyntaxError as e:
                 log.info("Loading %s FAILURE" % step.name)
-                errors.log_and_rethrow(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                    log=log,
-                    what_happened=f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
-                    f" from {step.file_path.name}",
-                    why_it_happened=f"{e.__class__.__name__} at line {e.lineno} of {step.name}"
-                    f": {e.args[0]}",
-                    consequences=f"Current Step {step.name} from {step.file_path}"
-                    f"will fail, and as a result the whole Data Job will fail. ",
-                    countermeasures=f"Please, check the {step.file_path.name} file again for syntax errors",
-                    exception=e,
-                    wrap_in_vdk_error=True,
+                errors.report_and_throw(
+                    UserCodeError(
+                        f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
+                        f" from {step.file_path.name}",
+                        f"{e.__class__.__name__} at line {e.lineno} of {step.name}"
+                        f": {e.args[0]}",
+                        f"Current Step {step.name} from {step.file_path}"
+                        "will fail, and as a result the whole Data Job will fail. ",
+                        f"Please, check the {step.file_path.name} file again for syntax errors",
+                        f"{e}",
+                    )
                 )
             except Exception as e:
                 cl, exc, tb = sys.exc_info()
                 line_number = traceback.extract_tb(tb)[-1][1]
-                errors.log_and_rethrow(
-                    to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                    log=log,
-                    what_happened=f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
-                    f" from {step.file_path.name}",
-                    why_it_happened=f"{e.__class__.__name__} at line {line_number} of {step.name}"
-                    f": {e.args[0]}",
-                    consequences=f"Current Step {step.name} from {step.file_path}"
-                    f"will fail, and as a result the whole Data Job will fail. ",
-                    countermeasures=f"Please, check the {step.file_path.name} file again for errors",
-                    exception=e,
-                    wrap_in_vdk_error=True,
+                errors.report_and_throw(
+                    UserCodeError(
+                        f"Failed loading job sources of {step.name} from cell with cell_id:{step.cell_id}"
+                        f" from {step.file_path.name}",
+                        f"{e.__class__.__name__} at line {line_number} of {step.name}"
+                        f": {e.args[0]}",
+                        f"Current Step {step.name} from {step.file_path}"
+                        "will fail, and as a result the whole Data Job will fail. ",
+                        f"Please, check the {step.file_path.name} file again for errors",
+                        f"{e}",
+                    )
                 )
             return success
         finally:

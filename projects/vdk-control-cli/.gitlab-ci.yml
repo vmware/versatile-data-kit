@@ -1,7 +1,5 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
-image: "python:3.9"
 
 .vdk_control_cli_changes: &vdk_control_cli_changes_locations
   - projects/vdk-control-cli/**/*
@@ -20,7 +18,7 @@ image: "python:3.9"
   artifacts:
     when: always
     reports:
-      junit: tests.xml
+      junit: ./projects/vdk-control-cli/tests.xml
 
 
 # Run in different environments
@@ -51,7 +49,7 @@ vdk-control-cli-release-acceptance-test:
   artifacts:
     when: always
     reports:
-      junit: tests.xml
+      junit: ./projects/vdk-control-cli/tests.xml
   only:
     refs:
       - main

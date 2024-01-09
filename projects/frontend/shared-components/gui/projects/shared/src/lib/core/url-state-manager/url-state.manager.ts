@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -39,7 +39,10 @@ export class URLStateManager {
     /**
      * ** Constructor.
      */
-    constructor(public baseURL: string, public urlLocation: Location) {
+    constructor(
+        public baseURL: string,
+        public urlLocation: Location
+    ) {
         this.params = new Map<string, StateManagerParamValue>();
         this.queryParams = new Map<string, StateManagerParamValue>();
 

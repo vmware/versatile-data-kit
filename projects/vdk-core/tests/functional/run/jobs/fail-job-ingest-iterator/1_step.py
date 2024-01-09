@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from vdk.api.job_input import IJobInput
 
@@ -28,5 +28,5 @@ def run(job_input: IJobInput):
 
 def ingest_some_data(job_input):
     job_input.send_tabular_data_for_ingestion(
-        rows=BrokenIterator(), column_names=["a", "b"]
+        rows=BrokenIterator(), column_names=["a", "b"], method="memory"
     )

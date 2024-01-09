@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
@@ -16,9 +16,11 @@ from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCu
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.core.errors import ResolvableByActual
+from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
+from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
 from vdk.plugin.test_utils.util_plugins import TestSecretsPlugin
@@ -74,10 +76,11 @@ def test_run_user_error_fail_job_library(tmp_termination_msg_file):
 
 def test_run_user_error_fail_job_ingest_iterator(tmp_termination_msg_file):
     errors.resolvable_context().clear()
-    runner = CliEntryBasedTestRunner()
+    runner = CliEntryBasedTestRunner(IngestIntoMemoryPlugin())
 
     result: Result = runner.invoke(["run", util.job_path("fail-job-ingest-iterator")])
     cli_assert_equal(1, result)
+    assert "FloatingPointError" in result.output
     assert _get_job_status(tmp_termination_msg_file) == "User error"
 
 
@@ -194,7 +197,8 @@ def test_run_platform_error_sql(tmp_termination_msg_file):
 
 
 def _get_job_status(tmp_termination_msg_file):
-    return json.loads(tmp_termination_msg_file.read_text())["status"]
+    result = json.loads(tmp_termination_msg_file.read_text())
+    return result["status"]
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
@@ -208,3 +212,20 @@ def test_user_error_handled(tmp_termination_msg_file):
     )
     cli_assert_equal(0, result)
     assert (json.loads(tmp_termination_msg_file.read_text())["status"]) == "Success"
+
+
+def test_error_from_pandas_user_error(tmp_termination_msg_file):
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOG_EXECUTION_RESULT": "True",
+        },
+    ):
+        errors.resolvable_context().clear()
+        runner = CliEntryBasedTestRunner()
+
+        result: Result = runner.invoke(["run", util.job_path("pandas-key-error-job")])
+        cli_assert_equal(1, result)
+        assert _get_job_status(tmp_termination_msg_file) == "User error"
+        assert '"blamee": "User Error"' in result.output
+        assert '"exception_name": "KeyError"' in result.output

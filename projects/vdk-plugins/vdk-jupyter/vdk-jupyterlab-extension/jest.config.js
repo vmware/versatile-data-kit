@@ -1,12 +1,13 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
 
 const esModules = [
-  '@jupyterlab/',
+  '.*@jupyterlab/',
+  '@jupyter/ydoc',
   'lib0',
   'y\\-protocols',
   'y\\-websocket',
@@ -20,7 +21,6 @@ const {
   moduleNameMapper,
   preset,
   setupFilesAfterEnv,
-  setupFiles,
   testPathIgnorePatterns,
   transform
 } = jlabConfig;
@@ -30,7 +30,7 @@ module.exports = {
   moduleNameMapper,
   preset,
   setupFilesAfterEnv,
-  setupFiles,
+  setupFiles: ['<rootDir>/testutils/jest-setup-files.js'],
   testPathIgnorePatterns,
   transform,
   automock: false,
@@ -42,6 +42,16 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text'],
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: './',
+        outputName: 'frontend_tests_results.xml'
+      }
+    ]
+  ],
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.json'

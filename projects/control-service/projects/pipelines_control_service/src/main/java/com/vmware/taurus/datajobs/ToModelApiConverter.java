@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -16,7 +16,6 @@ public class ToModelApiConverter {
 
   public static JobDeployment toJobDeployment(
       String teamName, String jobName, DataJobDeployment dataJobDeployment) {
-
     JobDeployment jobDeployment = new JobDeployment();
     jobDeployment.setDataJobTeam(teamName);
     jobDeployment.setDataJobName(jobName);
@@ -30,7 +29,9 @@ public class ToModelApiConverter {
     if (dataJobDeployment.getPythonVersion() != null) {
       jobDeployment.setPythonVersion(dataJobDeployment.getPythonVersion());
     }
-
+    if (dataJobDeployment.getSchedule() != null) {
+      jobDeployment.setSchedule(dataJobDeployment.getSchedule().getScheduleCron());
+    }
     return jobDeployment;
   }
 

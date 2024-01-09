@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -11,7 +11,6 @@ from typing import List
 from typing import Optional
 
 from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
-from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import find_whom_to_blame_from_exception
 from vdk.internal.core.errors import PlatformServiceError
 from vdk.internal.core.errors import ResolvableBy
@@ -80,6 +79,19 @@ class ExecutionResult:
         """
         return self.get_exception_to_raise()
 
+    @staticmethod
+    def _get_root_cause_exception(exception: BaseException) -> BaseException:
+        root_exception = exception
+        while root_exception.__cause__ is not None:
+            root_exception = root_exception.__cause__
+        return root_exception
+
+    def get_details(self):
+        exception = self.get_exception_to_raise()
+        if exception:
+            exception = self._get_root_cause_exception(exception)
+        return str(exception)
+
     def get_exception_to_raise(self):
         """
         Returns main exception to be used as a failure reason for the data job.
@@ -92,14 +104,12 @@ class ExecutionResult:
             return step_exception
         else:
             return PlatformServiceError(
-                ErrorMessage(
-                    f"Data Job {self.data_job_name} failed",
-                    "Data Job has failed",
-                    "Failure is with unspecified reason. Seems like a bug in VDK.",
-                    "Job will not complete",
-                    "Retry the job. "
-                    "Consider opening a ticket https://github.com/vmware/versatile-data-kit/issues",
-                )
+                f"Data Job {self.data_job_name} failed",
+                "Data Job has failed",
+                "Failure is with unspecified reason. Seems like a bug in VDK.",
+                "Job will not complete",
+                "Retry the job. "
+                "Consider opening a ticket https://github.com/vmware/versatile-data-kit/issues",
             )
 
     def get_blamee(self) -> Optional[ResolvableBy]:
@@ -108,7 +118,7 @@ class ExecutionResult:
         exception = self.get_exception_to_raise()
 
         step_raising_exception = next(
-            filter(lambda s: s.exception == exception, self.steps_list)
+            filter(lambda s: s.exception == exception, self.steps_list), None
         )
         if step_raising_exception:
             return step_raising_exception.blamee

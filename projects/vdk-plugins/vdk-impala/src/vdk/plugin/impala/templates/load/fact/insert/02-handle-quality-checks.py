@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 
@@ -67,6 +67,8 @@ def run(job_input: IJobInput):
 
         view_full_name = f"{view_schema}.{view_name}"
         if check(view_full_name):
+            job_input.execute_query(f"COMPUTE STATS {staging_table}")
+
             insert_into_target = insert_query.format(
                 source_schema=staging_schema,
                 source_view=staging_table_name,

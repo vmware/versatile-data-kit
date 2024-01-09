@@ -2,7 +2,7 @@
  * Copyright 2023-2023 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-import RunJobDialog, { findFailingCellId, getCellInputAreaPromp, handleErrorsProducedByNotebookCell } from '../components/RunJob';
+import RunJobDialog, { findFailingCellId, getCellInputAreaPrompt, handleErrorsProducedByNotebookCell } from '../components/RunJob';
 import { render, fireEvent } from '@testing-library/react';
 import { jobData } from '../jobData';
 import { VdkOption } from '../vdkOptions/vdk_options';
@@ -139,7 +139,7 @@ describe('handleErrorsProducedByNotebookCell', () => {
 
 });
 
-describe('getCellInputAreaPromp', () => {
+describe('getCellInputAreaPrompt', () => {
   test('returns the prompt element when it exists', () => {
     const mockPromptElement = document.createElement('div');
     mockPromptElement.classList.add('jp-InputArea-prompt');
@@ -152,10 +152,10 @@ describe('getCellInputAreaPromp', () => {
     mockCellInputWrapper.classList.add('jp-Cell-inputWrapper');
     mockCellInputWrapper.appendChild(mockCellInputArea);
 
-    const mockFailinCell = document.createElement('div');
-    mockFailinCell.appendChild(mockCellInputWrapper);
+    const mockFailingCell = document.createElement('div');
+    mockFailingCell.appendChild(mockCellInputWrapper);
 
-    const result = getCellInputAreaPromp(mockFailinCell);
+    const result = getCellInputAreaPrompt(mockFailingCell);
 
     expect(result).toBe(mockPromptElement);
   });
@@ -168,10 +168,10 @@ describe('getCellInputAreaPromp', () => {
     mockCellInputWrapper.classList.add('jp-Cell-inputWrapper');
     mockCellInputWrapper.appendChild(mockCellInputArea);
 
-    const mockFailinCell = document.createElement('div');
-    mockFailinCell.appendChild(mockCellInputWrapper);
+    const mockFailingCell = document.createElement('div');
+    mockFailingCell.appendChild(mockCellInputWrapper);
 
-    const result = getCellInputAreaPromp(mockFailinCell);
+    const result = getCellInputAreaPrompt(mockFailingCell);
 
     expect(result).toBeUndefined();
   });

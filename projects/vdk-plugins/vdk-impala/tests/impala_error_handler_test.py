@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import unittest
@@ -242,6 +242,87 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
             self.error_handler.handle_error(test_exception, mock_recovery_cursor)
         )
         mock_native_cursor.execute.assert_not_called()
+
+    def test_handle_failed_to_open_hdfs_new_authorization_exception_is_thrown_after_fix(
+        self, patched_time_sleep
+    ):
+        new_exception = HiveServer2Error(
+            "AuthorizationException: User 'pa__view_test-user' does not have privileges to "
+            "execute 'INVALIDATE METADATA/REFRESH' on"
+        )
+        test_exception = OperationalError(
+            """Disk I/O error: Failed to open HDFS file
+            hdfs://HDFS/user/hive/warehouse/history.db/vm/pa__arrival_day=1573171200/pa__collector_id=vSphere.6_6/pa__schema_version=1/7642f6c1c2c31372-588d054900000012_186717772_data.0.parq
+            Error(255): Unknown error 255
+            Root cause: ConnectException: Connection refused"""
+        )
+        original_query = "select * from history.vm"
+
+        (
+            mock_native_cursor,
+            _,
+            _,
+            mock_recovery_cursor,
+            _,
+        ) = populate_mock_managed_cursor(
+            mock_exception_to_recover=test_exception, mock_operation=original_query
+        )
+        mock_native_cursor.execute.side_effect = [new_exception, None]
+
+        self.error_handler.handle_error(test_exception, mock_recovery_cursor)
+
+        # make sure we have tried
+        calls = [call("refresh `history`.`vm`"), call(original_query)]
+        mock_native_cursor.execute.assert_has_calls(calls)
+
+    def test_handle_memory_error(self, patched_time_sleep):
+        msg = """Memory limit exceeded: HdfsParquetTableWriter::BaseColumnWriter::Flush() failed to allocate 884879 bytes for dictionary page.
+HdfsTableSink could not allocate 864.14 KB without exceeding limit.
+Error occurred on backend prd-impala-wdc-08-vc24c06-e14-ix-2.supercollider.vmware.com:22000 by fragment 0842bccde0974578:6fd468a200000042
+Memory left in process limit: 116.53 GB
+Memory left in query limit: 640.67 KB
+Query(0842bccde0974578:6fd468a200000000): Limit=2.00 GB Reservation=1.78 GB ReservationLimit=9.00 GB OtherMemory=227.37 MB Total=2.00 GB Peak=2.00 GB
+  Fragment 0842bccde0974578:6fd468a200000042: Reservation=1.78 GB OtherMemory=227.37 MB Total=2.00 GB Peak=2.00 GB"""
+        test_exception = OperationalError(msg)
+        (
+            mock_native_cursor,
+            _,
+            _,
+            mock_recovery_cursor,
+            _,
+        ) = populate_mock_managed_cursor(
+            mock_exception_to_recover=test_exception, mock_operation=self._query
+        )
+        mock_native_cursor.execute.side_effect = [
+            None,
+            test_exception,
+            None,
+            test_exception,
+            None,
+            test_exception,
+            None,
+            test_exception,
+            None,
+            ...,
+        ]
+
+        self.assertTrue(
+            self.error_handler.handle_error(test_exception, mock_recovery_cursor)
+        )
+
+        calls = [
+            call("set mem_limit=2576980377;"),
+            call("select 1"),
+            call("set mem_limit=3221225472;"),
+            call("select 1"),
+            call("set mem_limit=4294967296;"),
+            call("select 1"),
+            call("set memory_limit=512GB;"),
+            call("select 1"),
+            call("select 1"),
+        ]
+
+        mock_native_cursor.execute.assert_has_calls(calls)
 
 
 if __name__ == "__main__":

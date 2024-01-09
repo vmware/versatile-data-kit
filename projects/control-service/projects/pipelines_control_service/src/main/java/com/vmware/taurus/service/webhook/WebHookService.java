@@ -1,22 +1,18 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.webhook;
 
+import com.vmware.taurus.authorization.provider.AuthorizationProvider;
+import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.exception.ExternalSystemError;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.http.*;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,22 +29,31 @@ import java.util.Optional;
  * @see com.vmware.taurus.datajobs.webhook.PostCreateWebHookProvider
  * @see com.vmware.taurus.authorization.webhook.AuthorizationWebHookProvider
  */
-@Service
 @RequiredArgsConstructor
 public abstract class WebHookService<T extends WebHookRequestBody> implements InitializingBean {
 
-  @Getter private final String webHookEndpoint;
+  protected final String webHookEndpoint;
 
   private final int retriesOn5xxErrors;
 
+  private final boolean authenticationEnabled;
+
+  private final String authorizationServerEndpoint;
+
+  private final String refreshToken;
+
   private final Logger log;
 
-  @Autowired private RestTemplate restTemplate;
+  private final RestTemplate restTemplate;
+
+  private final FeatureFlags featureFlags;
+
+  private final AuthorizationProvider authorizationProvider;
 
   public Optional<WebHookResult> invokeWebHook(T webHookRequestBody) {
     ensureConfigured();
 
-    if (StringUtils.isBlank(getWebHookEndpoint())) {
+    if (StringUtils.isBlank(webHookEndpoint)) {
       log.debug("The webHook Endpoint is not configured. Requests will not be send ...");
       return Optional.empty();
     }
@@ -56,21 +61,21 @@ public abstract class WebHookService<T extends WebHookRequestBody> implements In
     ResponseEntity responseEntity = sendRequest(webHookRequestBody);
 
     if (responseEntity.getStatusCode().is5xxServerError()) {
-      log.debug("The WebHook invocation {} returns 5xxServerError ...", getWebHookEndpoint());
+      log.debug("The WebHook invocation {} returns 5xxServerError ...", webHookEndpoint);
       responseEntity = retry5xxWebHookRequest(webHookRequestBody, responseEntity);
     }
     if (responseEntity.getStatusCode().is4xxClientError()) {
-      log.debug("The WebHook invocation {} returns 4xxClientError ...", getWebHookEndpoint());
+      log.debug("The WebHook invocation {} returns 4xxClientError ...", webHookEndpoint);
       return Optional.of(provideClientErrorMessage(responseEntity));
     }
     if (responseEntity.getStatusCode().is2xxSuccessful()) {
-      log.debug("The WebHook invocation {} is successful ...", getWebHookEndpoint());
+      log.debug("The WebHook invocation {} is successful ...", webHookEndpoint);
       return Optional.of(provideSuccessMessage(responseEntity));
     }
 
     log.debug(
         "The WebHook invocation {} returns unhandled status code:  {}",
-        getWebHookEndpoint(),
+        webHookEndpoint,
         responseEntity.getStatusCode().value());
     ExternalSystemError.MainExternalSystem mainExternalSystem = getExternalSystemType();
     throw new ExternalSystemError(
@@ -103,7 +108,8 @@ public abstract class WebHookService<T extends WebHookRequestBody> implements In
     // necessary
     log.info("WebHook body: {}", webHookRequestBody.toString());
     try {
-      HttpEntity<WebHookRequestBody> request = new HttpEntity<>(webHookRequestBody);
+      HttpEntity<WebHookRequestBody> request = createHttpRequest(webHookRequestBody);
+
       return restTemplate.exchange(
           getWebHookRequestURL(webHookRequestBody), HttpMethod.POST, request, String.class);
     } catch (RestClientResponseException responseException) {
@@ -133,7 +139,7 @@ public abstract class WebHookService<T extends WebHookRequestBody> implements In
    * @return a valid URL
    */
   protected String getWebHookRequestURL(T webHookRequestBody) {
-    return getWebHookEndpoint() + webHookRequestBody.getRequestedHttpPath();
+    return webHookEndpoint + webHookRequestBody.getRequestedHttpPath();
   }
 
   /**
@@ -174,5 +180,23 @@ public abstract class WebHookService<T extends WebHookRequestBody> implements In
         .message("")
         .success(true)
         .build();
+  }
+
+  private HttpEntity<WebHookRequestBody> createHttpRequest(T webHookRequestBody) {
+    HttpEntity<WebHookRequestBody> request = null;
+
+    if (featureFlags.isSecurityEnabled() && authenticationEnabled) {
+      String accessToken =
+          authorizationProvider.getAccessToken(authorizationServerEndpoint, refreshToken);
+
+      if (StringUtils.isNotEmpty(accessToken)) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setBearerAuth(accessToken);
+
+        request = new HttpEntity<>(webHookRequestBody, httpHeaders);
+      }
+    }
+
+    return request != null ? request : new HttpEntity<>(webHookRequestBody);
   }
 }

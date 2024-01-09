@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 """This module contains the logic that
 decides who is to blame, between Platform (SRE) Team and VDK Users,
@@ -31,7 +31,7 @@ def whom_to_blame(
     :return: ResolvableBy.PLATFORM_ERROR if exception was recognized as Platform Team responsibility.
              errors.ResolvableBy.USER_ERROR if exception was recognized as User Error.
     """
-    if isinstance(exception, errors.BaseVdkError):
+    if is_classified(exception):
         return errors.find_whom_to_blame_from_exception(exception)
     if is_user_error(exception, data_job_path):
         return errors.ResolvableBy.USER_ERROR
@@ -61,7 +61,8 @@ def _is_exception_from_vdk_code(exception, executor_module):
         return True
 
     for call in call_list:
-        caller_module = call.split('"')[1]  # Extract module path from stacktrace call.
+        # Extract module path from stacktrace call.
+        caller_module = call.split('"')[1]
         if vdk_code_directory in caller_module and caller_module != executor_module:
             return True
         elif (
@@ -84,6 +85,12 @@ def is_user_error(
         or _is_timeout_error(received_exception)
         or _is_memory_limit_exceeded(received_exception)
         or _is_direct_user_code_error(received_exception, job_path=data_job_path)
+    )
+
+
+def is_classified(exception: BaseException):
+    return isinstance(exception, errors.BaseVdkError) or hasattr(
+        exception, errors.ATTR_VDK_RESOLVABLE_BY
     )
 
 

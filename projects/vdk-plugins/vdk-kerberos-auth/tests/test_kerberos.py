@@ -1,5 +1,6 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import asyncio
 import os
 import pathlib
 import unittest
@@ -37,7 +38,10 @@ class TestKerberosAuthentication(unittest.TestCase):
     def test_no_authentication(self):
         with mock.patch.dict(
             os.environ,
-            {"VDK_KRB_AUTH_FAIL_FAST": "true"},
+            {
+                "VDK_KRB_AUTH_FAIL_FAST": "true",
+                "VDK_LOG_EXECUTION_RESULT": "True",
+            },
         ):
             result: Result = self.__runner.invoke(
                 ["run", jobs_path_from_caller_directory("test-job")]
@@ -66,6 +70,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KRB_AUTH": "kinit",
                 "VDK_KRB_AUTH_FAIL_FAST": "true",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
+                "VDK_LOG_EXECUTION_RESULT": "True",
             },
         ):
             result: Result = self.__runner.invoke(
@@ -210,6 +215,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KEYTAB_REALM": "EXAMPLE.COM",
                 "VDK_KERBEROS_KDC_HOST": "localhost",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
+                "VDK_LOG_EXECUTION_RESULT": "True",
             },
         ):
             result: Result = self.__runner.invoke(
@@ -257,3 +263,10 @@ class TestKerberosAuthentication(unittest.TestCase):
 
             assert "Cannot locate keytab file" in str(result.exception)
             cli_assert_equal(1, result)
+
+    def test_minikerberos_authentication_within_asyncio_event_loop(self):
+        async def test_coroutine():
+            self.test_minikerberos_authentication()
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(test_coroutine())

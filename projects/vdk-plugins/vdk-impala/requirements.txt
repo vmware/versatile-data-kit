@@ -1,5 +1,3 @@
 
-# testing requirements
-docker-compose
-pytest-docker
+testcontainers
 vdk-test-utils

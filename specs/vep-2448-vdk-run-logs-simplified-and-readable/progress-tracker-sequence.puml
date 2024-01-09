@@ -1,0 +1,40 @@
+@startuml
+skinparam Participant {
+  BackgroundColor<<Main Tracker>> Gold
+  FontColor<<Main Tracker>> Black
+
+  BackgroundColor<<Step1 Tracker>> LightBlue
+  FontColor<<Step1 Tracker>> Black
+
+  BackgroundColor<<DAG Tracker>> LightGreen
+  FontColor<<DAG Tracker>> Black
+
+  BackgroundColor<<SQL Tracker>> LightGreen
+  FontColor<<SQL Tracker>> Black
+}
+
+participant "Main" as MT <<Main Tracker>>
+participant "Step1" as S1T <<Step1 Tracker>>
+participant "DAG" as DT  <<DAG Tracker>>
+participant "SQL" as ST  <<SQL Tracker>>
+
+MT -> S1T: create_sub_tracker("Step 1")
+
+
+S1T [#blue]-> DT: create_sub_tracker("DAG", 5)
+DT [#blue]--> S1T: add(5)
+S1T [#blue]--> MT: add(5)
+
+DT [#red]-> DT: update(1) x 5
+DT [#red]--> S1T: update(1) x 5
+S1T [#red]--> MT: update(1) x 5
+
+S1T [#blue]-> ST: create_sub_tracker("SQL", 1)
+ST [#blue]--> S1T: add(1)
+S1T [#blue]--> MT: add(1)
+
+ST [#red]-> ST: update(1)
+ST [#red]--> S1T: update(1)
+S1T [#red]--> MT: update(1)
+
+@enduml

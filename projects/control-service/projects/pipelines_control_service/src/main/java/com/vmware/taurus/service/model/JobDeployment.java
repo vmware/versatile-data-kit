@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,6 +28,8 @@ public class JobDeployment {
   private String imageName;
 
   private String cronJobName;
+
+  private String schedule;
 
   /**
    * When disabled, the DataJob will still be deployed but it will never be executed. When enabled,

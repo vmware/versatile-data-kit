@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import time
@@ -22,6 +22,9 @@ from vdk.internal.builtin_plugins.config.vdk_config import JobConfigIniPlugin
 from vdk.internal.builtin_plugins.connection.connection_plugin import (
     QueryDecoratorPlugin,
 )
+from vdk.internal.builtin_plugins.connection.query_command_plugin import (
+    QueryCommandPlugin,
+)
 from vdk.internal.builtin_plugins.debug.debug import DebugPlugins
 from vdk.internal.builtin_plugins.ingestion.ingester_configuration_plugin import (
     IngesterConfigurationPlugin,
@@ -33,6 +36,7 @@ from vdk.internal.builtin_plugins.job_secrets.secrets_api_plugin import (
     SecretsApiPlugin,
 )
 from vdk.internal.builtin_plugins.notification.notification import NotificationPlugin
+from vdk.internal.builtin_plugins.run.summary_output import JobRunSummaryOutputPlugin
 from vdk.internal.builtin_plugins.termination_message.writer import (
     TerminationMessageWriterPlugin,
 )
@@ -127,9 +131,11 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     plugin_registry.add_hook_specs(JobRunHookSpecs)
     plugin_registry.load_plugin_with_hooks_impl(JobConfigIniPlugin())
     plugin_registry.load_plugin_with_hooks_impl(TerminationMessageWriterPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(JobRunSummaryOutputPlugin())
     # connection plugins
     plugin_registry.add_hook_specs(ConnectionHookSpec)
     plugin_registry.load_plugin_with_hooks_impl(QueryDecoratorPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(QueryCommandPlugin())
 
 
 @hookimpl(tryfirst=True)

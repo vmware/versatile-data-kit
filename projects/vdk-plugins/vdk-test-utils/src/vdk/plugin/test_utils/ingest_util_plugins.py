@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import datetime
 import logging
@@ -106,7 +106,7 @@ class AddPayloadSizeAsColumn(IIngesterPlugin):
 
     @hookimpl(tryfirst=True)
     def initialize_job(self, context: JobContext) -> None:
-        log.info("Initialize data job with ConvertPayloadValuesToString Plugin.")
+        log.debug("Initialize data job with ConvertPayloadValuesToString Plugin.")
 
         context.ingester.add_ingester_factory_method("add-payload-size", lambda: self)
 
@@ -124,6 +124,6 @@ class DummyIngestionPlugin(IIngesterPlugin):
 
     @hookimpl(tryfirst=True)
     def initialize_job(self, context: JobContext) -> None:
-        log.info("Initialize data job with DummyIngestion Plugin.")
+        log.debug("Initialize data job with DummyIngestion Plugin.")
 
         context.ingester.add_ingester_factory_method("dummy-ingest", lambda: self)

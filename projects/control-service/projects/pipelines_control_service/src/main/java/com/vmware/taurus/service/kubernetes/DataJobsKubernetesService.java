@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,6 +11,7 @@ import com.vmware.taurus.exception.ExecutionCancellationFailureReason;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.deploy.JobCommandProvider;
+import com.vmware.taurus.service.model.JobAnnotation;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
@@ -18,14 +19,14 @@ import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1Volume;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,6 +54,20 @@ public class DataJobsKubernetesService extends KubernetesService {
         batchV1Api,
         batchV1beta1Api,
         jobCommandProvider);
+  }
+
+  public void createCronJob(KubernetesService.CronJob cronJob) throws ApiException {
+    createCronJob(
+        cronJob.getName(),
+        cronJob.getImage(),
+        cronJob.getSchedule(),
+        cronJob.isEnable(),
+        cronJob.getJobContainer(),
+        cronJob.getInitContainer(),
+        cronJob.getVolumes(),
+        cronJob.getJobAnnotations(),
+        cronJob.getJobLabels(),
+        cronJob.getImagePullSecret());
   }
 
   public void createCronJob(
@@ -92,6 +107,61 @@ public class DataJobsKubernetesService extends KubernetesService {
           jobLabels,
           imagePullSecrets);
     }
+  }
+
+  public String getCronJobSha512(
+      KubernetesService.CronJob cronJob, JobAnnotation excludeAnnotation) {
+    String cronJobString = null;
+    Map<String, String> jobAnnotations = cronJob.getJobAnnotations();
+
+    if (MapUtils.isNotEmpty(jobAnnotations) && excludeAnnotation != null) {
+      jobAnnotations = SerializationUtils.clone((HashMap) cronJob.getJobAnnotations());
+      jobAnnotations.remove(excludeAnnotation.getValue());
+    }
+
+    if (getK8sSupportsV1CronJob()) {
+      cronJobString =
+          v1CronJobFromTemplate(
+                  cronJob.getName(),
+                  cronJob.getSchedule(),
+                  !cronJob.isEnable(),
+                  cronJob.getJobContainer(),
+                  cronJob.getInitContainer(),
+                  cronJob.getVolumes(),
+                  jobAnnotations,
+                  cronJob.getJobLabels(),
+                  cronJob.getImagePullSecret())
+              .toString();
+    } else {
+      cronJobString =
+          v1beta1CronJobFromTemplate(
+                  cronJob.getName(),
+                  cronJob.getSchedule(),
+                  !cronJob.isEnable(),
+                  cronJob.getJobContainer(),
+                  cronJob.getInitContainer(),
+                  cronJob.getVolumes(),
+                  jobAnnotations,
+                  cronJob.getJobLabels(),
+                  cronJob.getImagePullSecret())
+              .toString();
+    }
+
+    return DigestUtils.sha1Hex(cronJobString);
+  }
+
+  public void updateCronJob(KubernetesService.CronJob cronJob) throws ApiException {
+    updateCronJob(
+        cronJob.getName(),
+        cronJob.getImage(),
+        cronJob.getSchedule(),
+        cronJob.isEnable(),
+        cronJob.getJobContainer(),
+        cronJob.getInitContainer(),
+        cronJob.getVolumes(),
+        cronJob.getJobAnnotations(),
+        cronJob.getJobLabels(),
+        cronJob.getImagePullSecret());
   }
 
   public void updateCronJob(
@@ -152,12 +222,12 @@ public class DataJobsKubernetesService extends KubernetesService {
           v1CronJobs.getItems().stream()
               .map(j -> j.getMetadata().getName())
               .collect(Collectors.toSet());
-      log.debug("K8s V1 cron jobs: {}", v1CronJobNames);
+      log.trace("K8s V1 cron jobs: {}", v1CronJobNames);
     } catch (ApiException e) {
       if (e.getCode()
           == 404) { // as soon as the minimum supported k8s version is >=1.21 then we should remove
         // this.
-        log.debug("Unable to query for v1 batch jobs", e);
+        log.trace("Unable to query for v1 batch jobs", e);
       } else {
         throw e;
       }
@@ -170,7 +240,7 @@ public class DataJobsKubernetesService extends KubernetesService {
         v1BetaCronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
             .collect(Collectors.toSet());
-    log.debug("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
+    log.trace("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
     return Stream.concat(v1CronJobNames.stream(), v1BetaCronJobNames.stream())
         .collect(Collectors.toSet());
   }

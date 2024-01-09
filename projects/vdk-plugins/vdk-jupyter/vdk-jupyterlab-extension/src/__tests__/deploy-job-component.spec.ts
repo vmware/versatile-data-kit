@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 import DeployJobDialog from '../components/DeployJob';
@@ -38,19 +38,6 @@ describe('#render()', () => {
   });
 });
 
-describe('#onEnableClick', () => {
-  it('should put a flag for enabled in jobData', () => {
-    const component = render(new DeployJobDialog(defaultProps).render());
-    const enableCheckbox = component.getAllByLabelText(
-      'Enable'
-    )[0] as HTMLInputElement;
-    expect(enableCheckbox.checked).toEqual(false);
-    fireEvent.click(enableCheckbox);
-    expect(enableCheckbox.checked).toEqual(true);
-    expect(jobData.get(VdkOption.DEPLOY_ENABLE)).toEqual('1');
-  });
-});
-
 describe('#onNameChange', () => {
   it('should change the job name in jobData', () => {
     const component = render(new DeployJobDialog(defaultProps).render());
@@ -81,7 +68,7 @@ describe('#onPathChange', () => {
 describe('#onDeploymentReasonChange', () => {
   it('should change the vdk version in jobData', () => {
     const component = render(new DeployJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText('reason');
+    const input = component.getByLabelText('Deployment reason:');
     fireEvent.change(input, { target: { value: 'Another reason' } });
     expect(jobData.get(VdkOption.DEPLOYMENT_REASON)).toEqual('Another reason');
   });

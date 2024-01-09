@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -31,7 +31,10 @@ export class ToastsComponent extends TaurusObject implements OnInit {
 
     toasts: ToastInternal[];
 
-    constructor(private readonly toastService: ToastService, private readonly clipboardService: ClipboardService) {
+    constructor(
+        private readonly toastService: ToastService,
+        private readonly clipboardService: ClipboardService
+    ) {
         super();
         this.toasts = [];
     }

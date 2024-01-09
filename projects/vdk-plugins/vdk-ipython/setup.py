@@ -1,11 +1,11 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
 import setuptools
 
 
-__version__ = "0.1.0"
+__version__ = "0.2.5"
 
 setuptools.setup(
     name="vdk-ipython",
@@ -14,10 +14,10 @@ setuptools.setup(
     description="Ipython extension for VDK",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "iPython"],
+    install_requires=["vdk-core", "iPython", "pandas"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
-    entry_points={"vdk.plugin.run": ["ipython = vdk_ipython"]},
+    entry_points={"vdk.plugin.run": ["ipython = vdk.plugin.ipython"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: Apache Software License",
@@ -28,4 +28,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3.11",
         "Framework :: IPython",
     ],
+    extras_require={"data-sources": ["vdk-data-sources"]},
 )

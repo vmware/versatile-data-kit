@@ -18,7 +18,7 @@ control-service
 
 **Prerequisites**
 
-* Java 11 or greater - make sure JAVA_HOME is set
+* Java 17 or greater - make sure JAVA_HOME is set
 * Docker latest - make sure "docker" is on the path
 * A git repository and a docker registry you'll use for the datajobs code and docker images
   * easiest way is to create a throwaway GitHub account and use the GitHub
@@ -76,7 +76,7 @@ Note: You can also build and run using IntelliJ by running the
 
 **Prerequisites**
 
-* Java 11 or greater - make sure JAVA_HOME is set
+* Java 17 or greater - make sure JAVA_HOME is set
 * Docker latest - make sure "docker" is on the path
 * (for the helm charts) Helm 3+ - make sure that "helm" is on the path
 * (optional) AWS CLI configured with your account for the Taurus AWS account

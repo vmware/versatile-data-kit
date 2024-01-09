@@ -1,8 +1,8 @@
 
 # VEP-1493: Vault Integration For Secrets Storage
 
-* **Author(s):** Dako Dakov (ddakov@gmail.com), ...
-* **Status:** implementable
+* **Author(s):** Dako Dakov (ddakov@gmail.com)
+* **Status:** implemented
 
 
 To get started with this template:
@@ -258,19 +258,19 @@ Changes to the properties cli command:
 We are going to enhance the VDK-CS configuration with an optional Spring Vault Configuration.
 
 ```yaml
-spring.cloud.vault:
-    host: localhost
-    port: 8200
-    scheme: https
-    uri: https://localhost:8200
-    connection-timeout: 5000
-    read-timeout: 15000
-    config:
-    token: 19aefa97-cccc-bbbb-aaaa-225940e63d76
+# Hashicorp Vault Integration settings
+# When disabled/not configured the Secrets functionality won't work
+featureflag.vault.integration.enabled=true
+vdk.vault.uri=https://localhost:8200/v1/
+vdk.vault.approle.roleid=z2d59142-9b53-d163-1ae9-d6286d3dfe22
+vdk.vault.approle.secretid=c336f9e9-1555-8c29-9a7f-283608d06fbd
+datajobs.vault.size.limit.bytes=1048576
 ```
-The configuration can be marked optional as outlined in the
-[documentation](https://docs.spring.io/spring-cloud-vault/docs/current/reference/html/#vault.configdata.location.optional)
-which allows users who are not interested in using a secret storage, to simply disable this feature.
+The feature flag allows users who are not interested in using a secret storage, to simply disable this feature.
+
+The VDK Control Service is going to authenticate using Vault's [AppRole mechanism](https://developer.hashicorp.com/vault/tutorials/auth-methods/approle).
+THe Service Operator should setup the App Role authentication based on their needs in Vault, and provide the Vault URI
+the App Role's Role ID and Secret ID.
 
 ### Secrets service
 

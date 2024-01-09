@@ -1,13 +1,13 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package com.vmware.taurus.service.monitoring;
 
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.service.JobExecutionRepository;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobExecutionRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.KubernetesService.JobExecution;
 import com.vmware.taurus.service.execution.JobExecutionResultManager;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;

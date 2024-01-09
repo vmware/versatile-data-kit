@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -78,6 +78,17 @@ def vdk_configure(config_builder: ConfigurationBuilder):
 
 @hookimpl(tryfirst=True)
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
+    log = logging.getLogger(__name__)
+    log.warning(
+        "-------------------------------------------------------------------------"
+    )
+    log.warning(
+        "Vdk-logging-format has been deprecated; please use vdk-structlog instead."
+    )
+    log.warning(
+        "-------------------------------------------------------------------------"
+    )
+
     logging_format = os.getenv("VDK_LOGGING_FORMAT")
     if (
         logging_format == "JSON"

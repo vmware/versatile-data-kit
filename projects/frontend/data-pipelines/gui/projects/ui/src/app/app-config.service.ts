@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,7 +17,10 @@ export class AppConfigService {
     private httpClient: HttpClient;
     private appConfig: AppConfig;
 
-    constructor(private httpBackend: HttpBackend, private router: Router) {
+    constructor(
+        private httpBackend: HttpBackend,
+        private router: Router
+    ) {
         this.httpClient = new HttpClient(httpBackend);
     }
 

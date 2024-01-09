@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataJobDefaultConfigurations {
 
-  @Value("${datajobs.job.resources.limits.memory:1G}")
+  @Value("${datajobs.job.resources.limits.memory:1000Mi}")
   private String memoryLimits;
 
   @Value("${datajobs.job.resources.limits.cpu:2000m}")

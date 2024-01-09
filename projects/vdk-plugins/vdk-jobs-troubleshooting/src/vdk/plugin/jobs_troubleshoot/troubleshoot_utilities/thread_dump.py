@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import sys
@@ -29,7 +29,6 @@ class ThreadDumpHandler(BaseHTTPRequestHandler):
         Otherwise, a 404 error is sent as the response.
         """
         if self.path == "/threads":
-            log.info("Dumping threads")
             self.send_response(200)
             self.send_header("Content-type", "text/plain]")
             self.end_headers()

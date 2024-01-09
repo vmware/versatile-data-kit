@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import inspect
 from logging import Logger
@@ -58,9 +58,10 @@ def log_plugin_load_fail(
     :param group_name
     :return:
     """
+    errors.report(user_error, exception)
     errors.log_exception(
-        user_error,
         log,
+        exception,
         f"Cannot load plugin from setuptools entrypoint for group {group_name}",
         "See exception for possible reason",
         "The CLI tool will likely abort.",
@@ -69,5 +70,4 @@ def log_plugin_load_fail(
         " list` command) and if there aren't issues. Or try to reinstall the"
         " app in a new clean environment. Try to revert to previous version of"
         " the CLI tool. If nothing works open a SRE ticket.",
-        exception,
     )

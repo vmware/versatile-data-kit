@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -7,7 +7,7 @@ package com.vmware.taurus.service.deploy;
 
 import com.vmware.taurus.datajobs.DeploymentModelConverter;
 import com.vmware.taurus.exception.*;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.diag.methodintercept.Measurable;
 import com.vmware.taurus.service.model.*;
@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.vmware.taurus.datajobs.DeploymentModelConverter.toDesiredDataJobDeployment;
 
 /**
  * CRUD operations for Versatile Data Kit deployments on kubernetes.
@@ -70,6 +72,7 @@ public class DeploymentService {
               dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
       var mergedDeployment =
           DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+      resetVdkVersionIfPythonVersionChange(oldDeployment, mergedDeployment);
       validateFieldsCanBePatched(oldDeployment, mergedDeployment);
 
       // we are setting sendNotification to false since it's not necessary. If something fails we'd
@@ -120,17 +123,6 @@ public class DeploymentService {
           mergedDeployment.getPythonVersion(),
           "Use POST HTTP request to change python version.");
     }
-
-    if (mergedDeployment.getVdkVersion() != null
-        && !mergedDeployment.getVdkVersion().equals(oldDeployment.getVdkVersion())) {
-      throw new ApiConstraintError(
-          "vdk_version",
-          String.format(
-              "same as the current vdk version -- %s -- when using PATCH request.",
-              oldDeployment.getVdkVersion()),
-          mergedDeployment.getPythonVersion(),
-          "Use POST HTTP request to change vdk version.");
-    }
   }
 
   /**
@@ -170,6 +162,7 @@ public class DeploymentService {
                 dataJob.getJobConfig().getTeam(), dataJob.getName(), deploymentStatus.get());
         setPythonVersionIfNull(oldDeployment, jobDeployment);
         jobDeployment = DeploymentModelConverter.mergeDeployments(oldDeployment, jobDeployment);
+        resetVdkVersionIfPythonVersionChange(oldDeployment, jobDeployment);
       }
 
       if (jobDeployment.getPythonVersion() == null) {
@@ -180,7 +173,8 @@ public class DeploymentService {
           dockerRegistryService.dataJobImage(
               jobDeployment.getDataJobName(), jobDeployment.getGitCommitSha());
 
-      if (jobImageBuilder.buildImage(imageName, dataJob, jobDeployment, sendNotification)) {
+      if (jobImageBuilder.buildImage(
+          imageName, dataJob, toDesiredDataJobDeployment(jobDeployment), null, sendNotification)) {
         log.info(
             "Image {} has been built. Will now schedule job {} for execution",
             imageName,
@@ -195,7 +189,7 @@ public class DeploymentService {
 
           saveDeployment(dataJob, jobDeployment);
 
-          deploymentProgress.completed(dataJob.getJobConfig(), jobDeployment, sendNotification);
+          deploymentProgress.completed(dataJob, sendNotification);
         }
       }
     } catch (ApiException e) {
@@ -252,8 +246,7 @@ public class DeploymentService {
                 + "SRE team may investigate by looking at the logs or in kubernetes.");
     log.error(message.toString(), e);
     deploymentProgress.failed(
-        dataJob.getJobConfig(),
-        jobDeployment,
+        dataJob,
         DeploymentStatus.PLATFORM_ERROR,
         NotificationContent.getPlatformErrorBody(),
         sendNotification);
@@ -276,6 +269,15 @@ public class DeploymentService {
   private void setPythonVersionIfNull(JobDeployment oldDeployment, JobDeployment newDeployment) {
     if (oldDeployment.getPythonVersion() == null && newDeployment.getPythonVersion() == null) {
       newDeployment.setPythonVersion(supportedPythonVersions.getDefaultPythonVersion());
+    }
+  }
+
+  private void resetVdkVersionIfPythonVersionChange(
+      JobDeployment oldDeployment, JobDeployment newDeployment) {
+    if (newDeployment.getPythonVersion() != null
+        && oldDeployment.getPythonVersion() != null
+        && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
+      newDeployment.setVdkVersion(null);
     }
   }
 }

@@ -140,7 +140,7 @@ th control service and the frontend are deployed to the same host by the helm
 chart.
 
 ```
-CONTROL_API_URL=http://cicd-control-service-svc:8092
+CONTROL_API_URL=http://cicd-control-service-svc.cicd.svc.cluster.local:8092
 ```
 
 The test sends a `GET` request to the URL and expects a success response

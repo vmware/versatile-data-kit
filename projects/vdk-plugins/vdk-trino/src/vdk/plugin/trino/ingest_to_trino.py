@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import math
@@ -78,16 +78,7 @@ class IngestToTrino(IIngesterPlugin):
             cur.fetchall()
             log.debug("Payload was ingested.")
         except Exception as e:
-            errors.log_and_rethrow(
-                errors.find_whom_to_blame_from_exception(e),
-                log,
-                f"Failed to sent payload into table {destination_table}",
-                "Unknown error. Error message was : " + str(e),
-                "Will not be able to send the payload for ingestion",
-                "See error message for help ",
-                e,
-                wrap_in_vdk_error=True,
-            )
+            errors.report_and_rethrow(errors.find_whom_to_blame_from_exception(e), e)
 
     @staticmethod
     def __to_bool(value: Any) -> bool:

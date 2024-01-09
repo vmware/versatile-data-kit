@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from copy import deepcopy
@@ -10,9 +10,9 @@ from typing import Union
 from vdk.api.job_input import IProperties
 from vdk.api.plugin.plugin_input import IPropertiesServiceClient
 
-from ...core.errors import log_and_throw
 from ...core.errors import ResolvableBy
 from .base_properties_impl import check_valid_property
+from .exception import WritePreProcessPropertiesException
 
 log = logging.getLogger(__name__)
 
@@ -82,15 +82,11 @@ class DataJobsServiceProperties(IProperties):
                         self._job_name, self._team_name, properties
                     )
                 except Exception as e:
-                    log_and_throw(
-                        to_be_fixed_by=ResolvableBy.USER_ERROR,
-                        log=log,
-                        what_happened=f"A write pre-processor of properties client {client} had failed.",
-                        why_it_happened=f"User Error occurred. Exception was: {e}",
-                        consequences="PROPERTIES_WRITE_PREPROCESS_SEQUENCE was interrupted, and "
-                        "properties won't be written by the PROPERTIES_DEFAULT_TYPE client.",
-                        countermeasures=f"Handle the exception raised.",
-                    )
+                    raise WritePreProcessPropertiesException(
+                        client=client,
+                        preprocess_sequence=str(self._write_preprocessors),
+                        resolvable_by=ResolvableBy.USER_ERROR,
+                    ) from e
 
         for k, v in list(properties.items()):
             check_valid_property(

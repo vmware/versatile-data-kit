@@ -2,8 +2,8 @@
   "name": "shared-wrapper",
   "version": "0.0.0",
   "engines": {
-    "node": "^14.15.0 || >=16.10.0",
-    "npm": ">=8.5.5"
+    "node": "^14.15.0 || >=18.12.0",
+    "npm": ">=9.7.2"
   },
   "private": true,
   "scripts": {

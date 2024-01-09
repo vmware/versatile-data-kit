@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 import DownloadJobDialog from '../components/DownloadJob';
@@ -16,6 +16,14 @@ const defaultProps: IJobPathProp = {
 // yet to be implemented
 describe('#render()', () => {
   it('should return contain job name input with placeholder equal to jobName from props', () => {
+    // TODO:  The way we're rendering the component inside the test is unconventional.
+    // Typically, we'd render the component directly rather than invoking its render method:
+    // const component = render(<DownloadJobDialog />);
+    // The file should be renamed to tsx
+    // This ensures that the component is correctly initialized,
+    // all React lifecycle methods are correctly called, default props are correctly applied and so on
+    // Otherwise we are going to have problems during more realistic test setups
+
     const component = render(new DownloadJobDialog(defaultProps).render());
     const input = component.getByPlaceholderText('default-name');
     expect(input).toBe(component.getAllByLabelText('Job Name:')[0]);
@@ -29,10 +37,8 @@ describe('#render()', () => {
 
   it('should return contain job path input with placeholder equal to jobPath from props', () => {
     const component = render(new DownloadJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText(defaultProps.jobPath);
-    expect(input).toBe(
-      component.getAllByLabelText('Path to job directory:')[0]
-    );
+    const jobPathInput = component.getByPlaceholderText(defaultProps.jobPath);
+    expect(jobPathInput).toBeDefined();
   });
 });
 
@@ -57,7 +63,7 @@ describe('#onTeamChange', () => {
 describe('#onPathChange', () => {
   it('should change the path in jobData', () => {
     const component = render(new DownloadJobDialog(defaultProps).render());
-    const input = component.getByPlaceholderText(defaultProps.jobPath);
+    const input = component.getAllByRole('textbox')[2];
     fireEvent.change(input, { target: { value: 'other/path' } });
     expect(jobData.get(VdkOption.PATH)).toEqual('other/path');
   });

@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 
@@ -56,6 +56,8 @@ def run(job_input: IJobInput):
         job_input.execute_query(insert_into_staging)
 
         if check(staging_table):
+            job_input.execute_query(f"COMPUTE STATS {staging_table}")
+
             insert_into_target = overwrite_target_query.format(
                 staging_schema=staging_schema,
                 staging_table_name=staging_table_name,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -128,7 +128,11 @@ export class DataJobsEffects extends TaurusBaseEffects {
     /**
      * ** Constructor.
      */
-    constructor(actions$: Actions, componentService: ComponentService, private readonly dataJobsApiService: DataJobsApiService) {
+    constructor(
+        actions$: Actions,
+        componentService: ComponentService,
+        private readonly dataJobsApiService: DataJobsApiService
+    ) {
         super(actions$, componentService, DataJobsEffects.CLASS_NAME);
 
         this.registerEffectsErrorCodes();

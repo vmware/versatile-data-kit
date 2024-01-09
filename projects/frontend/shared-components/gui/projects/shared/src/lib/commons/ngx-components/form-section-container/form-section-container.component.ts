@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -114,7 +114,10 @@ export class VdkFormSectionContainerComponent {
 
     @ViewChild('editButton') editButtonEl: ElementRef;
 
-    constructor(@Optional() @Host() private cspForm: FormGroupDirective, private cdr: ChangeDetectorRef) {}
+    constructor(
+        @Optional() @Host() private cspForm: FormGroupDirective,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     showEditBtn() {
         return this._sectionState === FORM_STATE.CAN_EDIT && this.canEditSection;

@@ -1,0 +1,34 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE ProgressTracker {
+    +add_iterations(new_iterations: int): void
+    +update_progress(iterations: int): void
+    +create_sub_tracker(title: str, total_iterations: int): ProgressTracker
+}
+
+
+INTERFACE ProgressPresenter {
+    +start(): void
+    +end(): void
+    +update(iterations: int): void
+    +adjust_total_iteration(total_iterations: int): void
+}
+
+
+RECTANGLE TqdmProgressPresenter {
+}
+
+RECTANGLE NotebookProgressPresenter {
+}
+
+RECTANGLE CloudLoggingProgressPresenter {
+}
+
+ProgressTracker "1" -right-> "*" ProgressTracker: children
+ProgressTracker "1" -down-> "1" ProgressPresenter
+
+ProgressPresenter <|.. TqdmProgressPresenter
+ProgressPresenter <|.. NotebookProgressPresenter
+ProgressPresenter <|.. CloudLoggingProgressPresenter
+@enduml

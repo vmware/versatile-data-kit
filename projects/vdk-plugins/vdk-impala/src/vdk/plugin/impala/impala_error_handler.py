@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import re
@@ -6,10 +6,14 @@ import time
 
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.core import errors
+from vdk.internal.core.errors import UserCodeError
+from vdk.plugin.impala.impala_memory_error_handler import ImpalaMemoryErrorHandler
+
+MEMORY_LIMIT_PATTERN = r"Limit=(\d+\.\d+)\s*([KMGTP]B)"
 
 
 class ImpalaErrorHandler:
-    def __init__(self, log=None, num_retries=5):
+    def __init__(self, log=None, num_retries=5, backoff_seconds=30):
         """
         This module offers error handling and error recovery for an Impala connection.
 
@@ -21,6 +25,8 @@ class ImpalaErrorHandler:
         self._log = log
 
         self._num_retries = num_retries
+        self._backoff_seconds = backoff_seconds
+        self._memory_error_handler = ImpalaMemoryErrorHandler(log=log)
 
     def handle_error(
         self, caught_exception: Exception, recovery_cursor: RecoveryCursor
@@ -40,35 +46,33 @@ class ImpalaErrorHandler:
         :param caught_exception: the caught Impala exception
         :param recovery_cursor: cursor that can be used to execute recovery queries and query retries against Impala
         :return: true if and only if the exception was handled successfully and the query passed has succeeded.
-                Otherwise return false - the caught_exception was not handled.
+                Otherwise, return false - the caught_exception was not handled.
                 This method will raise an exception in the following scenarios and assuming handling of the error
                 produced another exception:
                  1. Exceptions are of the same type but have different args.
                  2. Exceptions are different types.
                 Moreover, the root cause stack trace will appear in the error message if an exception is raised.
-                Otherwise stacktrace gets changed and becomes confusing.
+                Otherwise, stacktrace gets changed and becomes confusing.
         """
         if self._handle_should_not_retry_error(caught_exception):
             return False
 
         if self._is_pool_error(caught_exception):
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=self._log,
-                what_happened="An Impala Pool Error occured: " + str(caught_exception),
-                why_it_happened="Review the contents of the exception.",
-                consequences="The queries will not be executed.",
-                countermeasures=(
+            errors.report_and_throw(
+                UserCodeError(
+                    "An Impala Pool Error occurred: " + str(caught_exception),
+                    "Review the contents of the exception.",
+                    "The queries will not be executed.",
                     "Optimise the executed queries. Alternatively, make sure that "
-                    "the data job is not running too many queries in parallel."
-                ),
+                    "the data job is not running too many queries in parallel.",
+                )
             )
 
         is_handled = False
         # try to handle multiple failed to open file errors in one query for different tables
         current_exception = caught_exception
         while recovery_cursor.get_retries() < self._num_retries:
-            self._log.info(
+            self._log.debug(
                 f"Try ({(recovery_cursor.get_retries() + 1)} of {self._num_retries}) "
                 f"to handle exception {current_exception}"
             )
@@ -106,6 +110,9 @@ class ImpalaErrorHandler:
             or self._handle_metadata_exception_with_invalidate_and_retry(
                 exception, recovery_cursor
             )
+            or self._memory_error_handler.handle_memory_error(
+                exception, recovery_cursor
+            )
             or self._handle_impala_network_error(exception, recovery_cursor)
         )
 
@@ -118,7 +125,6 @@ class ImpalaErrorHandler:
             self._log.info(
                 "Execution of query exceeded impala time limit. "
                 "This is most likely because the query is resource heavy and needs optimisation. "
-                "The query would not be retried, in order to avoid increasing the load on the database."
             )
             return True
 
@@ -135,7 +141,7 @@ class ImpalaErrorHandler:
             regex = ".*/user/hive/warehouse/([^/]*).db/([^/]*)"
             matcher = re.compile(pattern=regex, flags=re.DOTALL)
             results = matcher.search(str(exception).strip())
-            self._log.info(
+            self._log.debug(
                 "Detected query failing with Failed to find file error. WIll try to autorecover."
             )
             if results and len(results.groups()) == 2:
@@ -150,16 +156,24 @@ class ImpalaErrorHandler:
                 )
                 # Try refreshing the table metadata several times,
                 # and if the issue is not fixed invalidate the metadata.
-                if recovery_cursor.get_retries() > 3:
-                    recovery_cursor.execute(
-                        "invalidate metadata `" + database + "`.`" + table + "`"
-                    )
-                else:
-                    recovery_cursor.execute(
-                        "refresh `" + database + "`.`" + table + "`"
+                try:
+                    if recovery_cursor.get_retries() > 3:
+                        recovery_cursor.execute(
+                            "invalidate metadata `" + database + "`.`" + table + "`"
+                        )
+                    else:
+                        recovery_cursor.execute(
+                            "refresh `" + database + "`.`" + table + "`"
+                        )
+                        time.sleep(
+                            2 ** recovery_cursor.get_retries() * self._backoff_seconds
+                        )  # exponential backoff 30s, 60s, 2m, 4m, 8m
+                except Exception as e:
+                    self._log.info(
+                        f"Refresh/Invalidate metadata operation failed with error: {e}"
                     )
                     time.sleep(
-                        2 ** recovery_cursor.get_retries() * 30
+                        2 ** recovery_cursor.get_retries() * self._backoff_seconds
                     )  # exponential backoff 30s, 60s, 2m, 4m, 8m
                 recovery_cursor.retry_operation()
                 return True
@@ -195,7 +209,7 @@ class ImpalaErrorHandler:
             # wait a little before retrying the query, giving time for the network to recover
             if recovery_cursor.get_retries() > 0:
                 time.sleep(
-                    2 ** recovery_cursor.get_retries() * 30
+                    2 ** recovery_cursor.get_retries() * self._backoff_seconds
                 )  # exponential backoff 60s, 2m, 4m, 8m
             # retry the query
             recovery_cursor.retry_operation()
@@ -228,7 +242,7 @@ class ImpalaErrorHandler:
                 exception_message_matcher_regex=".*ImpalaRuntimeException: Error making 'updateTableColumnStatistics'.*",
             )
         ):
-            sleep_seconds = 2 ** recovery_cursor.get_retries() * 30
+            sleep_seconds = 2 ** recovery_cursor.get_retries() * self._backoff_seconds
             self._log.info(
                 f"Query failed with: {exception.__class__} : {str(exception)}"
                 f"Will sleep for {sleep_seconds} seconds and try the query again."
@@ -285,7 +299,7 @@ class ImpalaErrorHandler:
         if (
             pattern_for_the_table_name
         ):  # then one of the exceptions matched and we can handle with invalidate
-            sleep_seconds = 2 ** recovery_cursor.get_retries() * 30
+            sleep_seconds = 2 ** recovery_cursor.get_retries() * self._backoff_seconds
             self._log.info(
                 f"Query failed with: {exception.__class__} : {str(exception)}"
                 f"Will sleep for {sleep_seconds} seconds, will issue invalidate metadata on the table and try the query again."
@@ -297,9 +311,14 @@ class ImpalaErrorHandler:
             if results and len(results.groups()) == 1:
                 fully_qualified_table_name = results.group(1)
                 # invalidate the metadata for the missing table
-                recovery_cursor.execute(
-                    f"invalidate metadata {fully_qualified_table_name}"
-                )
+                try:
+                    recovery_cursor.execute(
+                        f"invalidate metadata {fully_qualified_table_name}"
+                    )
+                except Exception as e:
+                    self._log.info(
+                        f"Invalidate metadata operation failed with error: {e}"
+                    )
                 # wait a little before retrying the query, relaxing the stress on the metastore service
                 self._log.info(
                     f"Sleeping for {sleep_seconds} seconds before retrying the query ..."
@@ -386,7 +405,10 @@ class ImpalaErrorHandler:
 
             # invalidate the metadata for the table. This is necessary in case the metadata for the table
             # has not been propagated before the query is executed again.
-            recovery_cursor.execute(f"invalidate metadata {detected_table}")
+            try:
+                recovery_cursor.execute(f"invalidate metadata {detected_table}")
+            except Exception as e:
+                self._log.info(f"Invalidate metadata operation failed with error: {e}")
             # wait a little before retrying the query, relaxing the stress on the metastore service
             self._log.info(
                 f"Sleeping for {sleep_seconds} seconds before retrying the query ..."

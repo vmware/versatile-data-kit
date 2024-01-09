@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -75,7 +75,11 @@ export class RouterEffects {
     /**
      * ** Constructor.
      */
-    constructor(private readonly actions$: Actions, private readonly router: Router, private readonly location: Location) {}
+    constructor(
+        private readonly actions$: Actions,
+        private readonly router: Router,
+        private readonly location: Location
+    ) {}
 
     private static _handleError(error: unknown): Observable<boolean> {
         console.error(error);

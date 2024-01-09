@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -27,4 +27,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
     ],
     python_requires="~=3.7",
+    extras_require={"data-sources": ["vdk-data-sources"]},
 )

@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 .retry:
@@ -9,12 +9,12 @@
 
 .build-plugin:
   stage: build
-  before_script:
+  # before_script: leaving it empty so that script can be extended
+  script:
     - cd projects/vdk-plugins/
     - pip install -U pip
     - pip install ./vdk-test-utils # TODO: REMOVE THIS AT SOME POINT
     - if [ -n "${USE_VDKCORE_DEV_VERSION}" ] ; then pip install -e ../vdk-core; fi
-  script:
     - echo "Build plugin $PLUGIN_NAME"
     - cd ./$PLUGIN_NAME || exit 1
     - ../build-plugin.sh
@@ -26,6 +26,9 @@
         - "projects/vdk-plugins/$PLUGIN_NAME/**/*"
   artifacts:
     when: always
+    paths:
+      - "projects/vdk-plugins/$PLUGIN_NAME/tests.xml"
+    expire_in: 1 week
     reports:
       junit: "projects/vdk-plugins/$PLUGIN_NAME/tests.xml"
 
@@ -41,9 +44,9 @@
        - "projects/vdk-core/src/**/*"
 
 .build-plugin-dind:
-  image: docker:23.0.1
+  image: docker:23.0.6
   services:
-    - docker:23.0.1-dind
+    - docker:23.0.6-dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
     DOCKER_DRIVER: overlay2

@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import types
@@ -138,6 +138,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                     "No results.  Previous SQL was not a query.",  # message in pyodbc
                     "Trying to fetch results on an operation with no results.",  # message in impyla
                     "no results to fetch",  # psycopg: ProgrammingError: no results to fetch
+                    "DPY-1003: the executed statement does not return rows",  # oracledb
                 ):
                     self._log.debug(
                         "Fetching all results from query SUCCEEDED. Query does not produce results (e.g. DROP TABLE)."
@@ -147,14 +148,17 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                         blamee = errors.ResolvableBy.USER_ERROR
                     else:
                         blamee = errors.ResolvableBy.PLATFORM_ERROR
-                    errors.log_and_rethrow(
+                    self._log.error(
+                        "\n".join(
+                            [
+                                "Fetching all results from query FAILED.",
+                                errors.MSG_WHY_FROM_EXCEPTION(e),
+                            ]
+                        )
+                    )
+                    errors.report_and_rethrow(
                         blamee,
-                        self._log,
-                        what_happened="Fetching all results from query FAILED.",
-                        why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                        consequences=errors.MSG_CONSEQUENCE_DELEGATING_TO_CALLER__LIKELY_EXECUTION_FAILURE,
-                        countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION,
-                        exception=e,
+                        e,
                     )
             return cast(
                 List[List[Any]], res

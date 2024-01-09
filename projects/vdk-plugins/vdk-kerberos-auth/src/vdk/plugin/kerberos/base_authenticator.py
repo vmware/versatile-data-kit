@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -6,6 +6,7 @@ from abc import ABC
 from abc import abstractmethod
 
 from vdk.internal.core import errors
+from vdk.internal.core.errors import VdkConfigurationError
 
 log = logging.getLogger(__name__)
 
@@ -21,14 +22,14 @@ class BaseAuthenticator(ABC):
     ):
         if not os.path.isfile(keytab_pathname):
             f = os.path.abspath(keytab_pathname)
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
-                log=log,
-                what_happened=f"Cannot locate keytab file {keytab_pathname}.",
-                why_it_happened=f"Keytab file at {f} does not exist",
-                consequences="Kerberos authentication is impossible. "
-                "Subsequent operation that require authentication will fail.",
-                countermeasures=f"Ensure a keytab file is located at {f}.",
+            errors.report_and_throw(
+                VdkConfigurationError(
+                    f"Cannot locate keytab file {keytab_pathname}.",
+                    f"Keytab file at {f} does not exist",
+                    "Kerberos authentication is impossible. "
+                    "Subsequent operation that require authentication will fail.",
+                    f"Ensure a keytab file is located at {f}.",
+                )
             )
         self._krb5_conf_filename = krb5_conf_filename
         self._keytab_pathname = os.path.abspath(keytab_pathname)
@@ -48,6 +49,12 @@ class BaseAuthenticator(ABC):
 
     def authenticate(self):
         if not self._is_authenticated:
+            log.debug(
+                f"Starting kerberos authentication for principal {self._kerberos_principal}"
+                f" to KDC host {self._kerberos_kdc_hostname}"
+                f" at KDC realm {self._kerberos_realm}"
+                f" using keytab {self._keytab_pathname}"
+            )
             self._kinit()
             self._is_authenticated = True
         else:

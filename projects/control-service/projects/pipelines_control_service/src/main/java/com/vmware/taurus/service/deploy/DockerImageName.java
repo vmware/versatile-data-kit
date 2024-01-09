@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -43,6 +43,33 @@ public class DockerImageName {
   public static String getTag(String imageName) {
     var tag = matchImageName(imageName).group(2);
     return tag != null ? tag : "latest";
+  }
+
+  /**
+   * Extracts the image path from a given container URL.
+   *
+   * <p>The method takes a container URL string in the format [hostName]/[imagePath]:[tag] and
+   * returns the image path. This includes the namespace and image name but excludes the host and
+   * the tag. If no tag is present in the URL, the method will return the full image path.
+   *
+   * @param containerURL A string representing the container URL. Should be in the format
+   *     [hostName]/[imageName]:[tag].
+   * @return A string representing the image path (i.e., namespace and image name) from the
+   *     container URL.
+   */
+  public static String getImagePath(String containerURL) {
+    String imageName = containerURL;
+
+    var firstSlash = containerURL.indexOf('/');
+    if (firstSlash >= 0) {
+      imageName = containerURL.substring(firstSlash + 1, containerURL.length());
+    }
+
+    var lastColon = imageName.lastIndexOf(':');
+    if (lastColon >= 0) {
+      imageName = imageName.substring(0, lastColon);
+    }
+    return imageName;
   }
 
   /**

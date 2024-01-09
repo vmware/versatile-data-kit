@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -249,5 +249,5 @@ class RemoteDataJob:
             return self.auth.read_access_token()
 
     def _login(self) -> None:
-        self.auth = Authentication(cache_locally=True)
+        self.auth = Authentication()
         # self.auth.authenticate()

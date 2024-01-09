@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,8 +11,9 @@ import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.KubernetesException;
 import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
+import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.JobDeployment;
+import com.vmware.taurus.service.model.DesiredDataJobDeployment;
 import io.kubernetes.client.openapi.ApiException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,7 +32,6 @@ import org.springframework.stereotype.Component;
 public class JobImageBuilder {
   private static final Logger log = LoggerFactory.getLogger(JobImageBuilder.class);
 
-  private static final int BUILDER_TIMEOUT_SECONDS = 1800;
   private static final String REGISTRY_TYPE_ECR = "ecr";
   private static final String REGISTRY_TYPE_GENERIC = "generic";
 
@@ -43,6 +43,9 @@ public class JobImageBuilder {
 
   @Value("${datajobs.git.password}")
   private String gitPassword;
+
+  @Value("${datajobs.git.branch}")
+  private String gitDataJobsBranch;
 
   @Value("${datajobs.docker.repositoryUrl}")
   private String dockerRepositoryUrl;
@@ -77,12 +80,16 @@ public class JobImageBuilder {
   @Value("${datajobs.deployment.builder.serviceAccountName}")
   private String builderServiceAccountName;
 
+  @Value("${datajobs.deployment.builder.builderTimeoutSeconds:1800}")
+  private int builderTimeoutSeconds;
+
   private final ControlKubernetesService controlKubernetesService;
   private final DockerRegistryService dockerRegistryService;
   private final DeploymentNotificationHelper notificationHelper;
   private final KubernetesResources kubernetesResources;
   private final AWSCredentialsService awsCredentialsService;
   private final SupportedPythonVersions supportedPythonVersions;
+  private final EcrRegistryInterface ecrRegistryInterface;
 
   public JobImageBuilder(
       ControlKubernetesService controlKubernetesService,
@@ -90,7 +97,8 @@ public class JobImageBuilder {
       DeploymentNotificationHelper notificationHelper,
       KubernetesResources kubernetesResources,
       AWSCredentialsService awsCredentialsService,
-      SupportedPythonVersions supportedPythonVersions) {
+      SupportedPythonVersions supportedPythonVersions,
+      EcrRegistryInterface ecrRegistryInterface) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
@@ -98,6 +106,7 @@ public class JobImageBuilder {
     this.kubernetesResources = kubernetesResources;
     this.awsCredentialsService = awsCredentialsService;
     this.supportedPythonVersions = supportedPythonVersions;
+    this.ecrRegistryInterface = ecrRegistryInterface;
   }
 
   /**
@@ -107,7 +116,8 @@ public class JobImageBuilder {
    *
    * @param imageName Full name of the image to build.
    * @param dataJob Information about the data job.
-   * @param jobDeployment Information about the data job deployment.
+   * @param desiredDataJobDeployment Information about the desired data job deployment.
+   * @param actualDataJobDeployment Information about the actual data job deployment.
    * @param sendNotification
    * @return True if build and push was successful. False otherwise.
    * @throws ApiException
@@ -115,8 +125,13 @@ public class JobImageBuilder {
    * @throws InterruptedException
    */
   public boolean buildImage(
-      String imageName, DataJob dataJob, JobDeployment jobDeployment, Boolean sendNotification)
+      String imageName,
+      DataJob dataJob,
+      DesiredDataJobDeployment desiredDataJobDeployment,
+      ActualDataJobDeployment actualDataJobDeployment,
+      Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
+    // TODO: refactor and hide AWS details behind DockerRegistryService?
     var credentials = awsCredentialsService.createTemporaryCredentials();
 
     String builderAwsSecretAccessKey = credentials.awsSecretAccessKey();
@@ -124,10 +139,10 @@ public class JobImageBuilder {
     String builderAwsSessionToken = credentials.awsSessionToken();
     String awsRegion = credentials.region();
 
-    log.info("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
+    log.trace("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
     if (!StringUtils.isBlank(registryType)) {
       if (unsupportedRegistryType(registryType)) {
-        log.debug(
+        log.warn(
             String.format(
                 "Unsupported registry type: %s available options %s/%s",
                 registryType, REGISTRY_TYPE_ECR, REGISTRY_TYPE_GENERIC));
@@ -135,17 +150,22 @@ public class JobImageBuilder {
       }
     }
 
-    if (jobDeployment.getPythonVersion() == null) {
+    if (desiredDataJobDeployment.getPythonVersion() == null) {
       log.warn("Missing pythonVersion. Data Job cannot be deployed.");
       return false;
     }
 
-    if (dockerRegistryService.dataJobImageExists(imageName, credentials)) {
-      log.debug("Data Job image {} already exists and nothing else to do.", imageName);
+    // Rebuild the image if the Python version changes but the gitCommitSha remains the same.
+    if ((actualDataJobDeployment == null
+            || desiredDataJobDeployment
+                .getPythonVersion()
+                .equals(actualDataJobDeployment.getPythonVersion()))
+        && dockerRegistryService.dataJobImageExists(imageName, credentials)) {
+      log.trace("Data Job image {} already exists and nothing else to do.", imageName);
       return true;
     }
 
-    String builderJobName = getBuilderJobName(jobDeployment.getDataJobName());
+    String builderJobName = getBuilderJobName(desiredDataJobDeployment.getDataJobName());
 
     log.debug("Check if old builder job {} exists", builderJobName);
     if (controlKubernetesService.listJobs().contains(builderJobName)) {
@@ -156,6 +176,12 @@ public class JobImageBuilder {
       while (controlKubernetesService.listJobs().contains(builderJobName)) {
         Thread.sleep(1000);
       }
+    }
+
+    if (REGISTRY_TYPE_ECR.equalsIgnoreCase(registryType)) {
+      ecrRegistryInterface.createRepository(
+          DockerImageName.getImagePath(dockerRepositoryUrl) + "/" + dataJob.getName(),
+          awsCredentialsService.createTemporaryCredentials());
     }
 
     var args =
@@ -171,15 +197,17 @@ public class JobImageBuilder {
             registryUsername,
             registryPassword,
             builderAwsSessionToken);
-    var envs = getBuildParameters(dataJob, jobDeployment);
+    var envs = getBuildParameters(dataJob, desiredDataJobDeployment);
+    String builderImage =
+        supportedPythonVersions.getBuilderImage(desiredDataJobDeployment.getPythonVersion());
 
     log.info(
         "Creating builder job {} for data job version {}",
         builderJobName,
-        jobDeployment.getGitCommitSha());
+        desiredDataJobDeployment.getGitCommitSha());
     controlKubernetesService.createJob(
         builderJobName,
-        dockerRegistryService.builderImage(),
+        builderImage,
         false,
         false,
         envs,
@@ -198,11 +226,11 @@ public class JobImageBuilder {
     log.debug(
         "Waiting for builder job {} for data job version {}",
         builderJobName,
-        jobDeployment.getGitCommitSha());
+        desiredDataJobDeployment.getGitCommitSha());
 
     var condition =
         controlKubernetesService.watchJob(
-            builderJobName, BUILDER_TIMEOUT_SECONDS, s -> log.debug("Wait status: {}", s));
+            builderJobName, builderTimeoutSeconds, s -> log.debug("Wait status: {}", s));
 
     log.debug("Finished watching builder job {}. Condition is: {}", builderJobName, condition);
     String logs = null;
@@ -217,9 +245,13 @@ public class JobImageBuilder {
     }
     if (!condition.isSuccess()) {
       notificationHelper.verifyBuilderResult(
-          builderJobName, dataJob, jobDeployment, condition, logs, sendNotification);
+          builderJobName, dataJob, desiredDataJobDeployment, condition, logs, sendNotification);
     } else {
       log.info("Builder job {} finished successfully. Will delete it now", builderJobName);
+      log.info(
+          "Image {} has been built. Will now schedule job {} for execution",
+          imageName,
+          dataJob.getName());
       try {
         controlKubernetesService.deleteJob(builderJobName);
       } catch (Exception e) {
@@ -255,7 +287,8 @@ public class JobImageBuilder {
     }
   }
 
-  private Map<String, String> getBuildParameters(DataJob dataJob, JobDeployment jobDeployment) {
+  private Map<String, String> getBuildParameters(
+      DataJob dataJob, DesiredDataJobDeployment jobDeployment) {
     String jobName = dataJob.getName();
     String jobVersion = jobDeployment.getGitCommitSha();
     String pythonVersion = jobDeployment.getPythonVersion();
@@ -267,6 +300,7 @@ public class JobImageBuilder {
         entry("DATA_JOB_NAME", jobName),
         entry("GIT_COMMIT", jobVersion),
         entry("JOB_GITHASH", jobVersion),
+        entry("GIT_BRANCH", gitDataJobsBranch),
         entry("IMAGE_REGISTRY_PATH", dockerRepositoryUrl),
         entry("BASE_IMAGE", dataJobBaseImage),
         entry("EXTRA_ARGUMENTS", builderJobExtraArgs),

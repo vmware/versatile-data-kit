@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import os
 import pathlib
@@ -89,4 +89,4 @@ class IngestToGreenplumTests(TestCase):
             ]
         )
 
-        assert "UndefinedTable" in ingest_job_result.output
+        assert 'relation "test_table" does not exist' in ingest_job_result.output

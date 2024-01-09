@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,7 +9,7 @@ import com.vmware.taurus.authorization.provider.AuthorizationProvider;
 import com.vmware.taurus.authorization.webhook.AuthorizationWebHookProvider;
 import com.vmware.taurus.base.FeatureFlags;
 import com.vmware.taurus.security.SecurityConfiguration;
-import com.vmware.taurus.service.JobsRepository;
+import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.webhook.WebHookResult;
 import org.junit.jupiter.api.Assertions;

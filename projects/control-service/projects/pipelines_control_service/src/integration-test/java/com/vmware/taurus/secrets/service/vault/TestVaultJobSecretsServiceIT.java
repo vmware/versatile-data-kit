@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -14,19 +14,18 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.vault.authentication.TokenAuthentication;
-import org.springframework.vault.client.VaultEndpoint;
 import org.springframework.vault.core.VaultTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.vault.VaultContainer;
 
-import java.net.URI;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.vmware.taurus.secrets.service.vault.VaultTestSetup.setupVaultTemplate;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(
@@ -37,18 +36,18 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
   @Container
   private static final VaultContainer vaultContainer =
-      new VaultContainer<>("vault:1.0.2").withVaultToken("root");
+      new VaultContainer<>("vault:1.13.3").withVaultToken("root");
 
   private static VaultJobSecretsService vaultJobSecretService;
 
   @BeforeAll
-  public static void init() throws URISyntaxException {
+  public static void init() throws URISyntaxException, IOException, InterruptedException {
     String vaultUri = vaultContainer.getHttpHostAddress();
 
-    VaultEndpoint vaultEndpoint = VaultEndpoint.from(new URI(vaultUri));
-    TokenAuthentication clientAuthentication = new TokenAuthentication("root");
+    // Setup vault app roles authentication
+    // https://developer.hashicorp.com/vault/tutorials/auth-methods/approle
 
-    VaultTemplate vaultTemplate = new VaultTemplate(vaultEndpoint, clientAuthentication);
+    VaultTemplate vaultTemplate = setupVaultTemplate(vaultUri, vaultContainer);
 
     vaultJobSecretService = new VaultJobSecretsService(vaultTemplate);
   }
@@ -63,6 +62,18 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
   public void testSetDataJobSecrets() throws Exception {
     Map<String, Object> temp = new HashMap<>();
     temp.put("key1", "value1");
+
+    Map<String, Object> secrets = Collections.unmodifiableMap(temp);
+
+    vaultJobSecretService.updateJobSecrets("testJob2", secrets);
+
+    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testJob2");
+    Assertions.assertEquals(secrets, readResult);
+  }
+
+  @Test
+  public void testSetEmptyDataJobSecrets() throws Exception {
+    Map<String, Object> temp = new HashMap<>();
 
     Map<String, Object> secrets = Collections.unmodifiableMap(temp);
 

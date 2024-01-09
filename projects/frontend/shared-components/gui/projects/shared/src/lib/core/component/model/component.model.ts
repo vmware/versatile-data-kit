@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -22,7 +22,10 @@ export class ComponentModel extends AbstractComponentModel {
     /**
      * ** Constructor.
      */
-    constructor(protected _componentState: ComponentState, protected _routerState: RouterState) {
+    constructor(
+        protected _componentState: ComponentState,
+        protected _routerState: RouterState
+    ) {
         super();
     }
 

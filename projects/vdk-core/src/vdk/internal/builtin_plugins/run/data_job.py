@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from typing import cast
 from vdk.api.job_input import IJobArguments
 from vdk.api.plugin.core_hook_spec import JobRunHookSpecs
 from vdk.api.plugin.hook_markers import hookimpl
+from vdk.internal.builtin_plugins.config.vdk_config import LOG_EXCEPTION_FORMATTER
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
@@ -24,6 +25,7 @@ from vdk.internal.builtin_plugins.run.run_status import ExecutionStatus
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core import errors
 from vdk.internal.core.context import CoreContext
+from vdk.internal.core.errors import BaseVdkError
 from vdk.internal.core.errors import SkipRemainingStepsException
 from vdk.internal.core.statestore import CommonStoreKeys
 
@@ -86,20 +88,10 @@ class DataJobDefaultHookImplPlugin:
             )
         except Exception as e:
             status = ExecutionStatus.ERROR
-            details = errors.MSG_WHY_FROM_EXCEPTION(e)
             blamee = whom_to_blame(e, __file__, context.job_directory)
             exception = e
-            errors.log_exception(
-                blamee,
-                log,
-                what_happened=f"Processing step {step.name} completed with error.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                consequences="I will not process the remaining steps (if any), "
-                "and this Data Job execution will be marked as failed.",
-                countermeasures="See exception and fix the root cause, so that the exception does "
-                "not appear anymore.",
-                exception=e,
-            )
+            errors.report(blamee, exception)
+            log.warning(f"Processing step {step.name} completed with error.")
 
         return StepResult(
             name=step.name,
@@ -125,18 +117,18 @@ class DataJobDefaultHookImplPlugin:
         step_results = []
 
         if len(steps) == 0:
-            errors.log_and_throw(
-                to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
-                log=log,
-                what_happened="Data Job execution has failed.",
-                why_it_happened="Data Job has no steps.",
-                consequences="Data job execution will not continue.",
-                countermeasures="Please include at least 1 valid step in your Data Job. Also make sure you are passing the correct data job directory.",
+            errors.report_and_throw(
+                errors.UserCodeError(
+                    "Data Job execution has failed.",
+                    "Data Job has no steps.",
+                    "Please include at least 1 valid step in your Data Job. Also make sure you are passing the correct data job directory.",
+                )
             )
 
         execution_status = ExecutionStatus.SUCCESS
         for current_step in steps:
             step_start_time = datetime.utcnow()
+            res = None
             try:
                 res = context.core_context.plugin_registry.hook().run_step(
                     context=context, step=current_step
@@ -144,16 +136,9 @@ class DataJobDefaultHookImplPlugin:
             except BaseException as e:
                 blamee = whom_to_blame(e, __file__, context.job_directory)
                 exception = e
-                errors.log_exception(
-                    blamee,
-                    log,
-                    what_happened=f"Processing step {current_step.name} completed with error.",
-                    why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
-                    consequences="I will not process the remaining steps (if any), "
-                    "and this Data Job execution will be marked as failed.",
-                    countermeasures="See exception and fix the root cause, so that the exception does "
-                    "not appear anymore.",
-                    exception=e,
+                errors.report(blamee, exception)
+                log.warning(
+                    f"Processing step {current_step.name} completed with error."
                 )
                 res = StepResult(
                     name=current_step.name,
@@ -170,11 +155,11 @@ class DataJobDefaultHookImplPlugin:
             # errors.clear_intermediate_errors()  # step completed successfully, so we can forget errors
             if res.status == ExecutionStatus.ERROR:
                 execution_status = ExecutionStatus.ERROR
+                exception = res.exception
                 break
             if res.status == ExecutionStatus.SKIP_REQUESTED:
                 # We keep the status as Success, but we skip all remaining steps
                 break
-
         execution_result = ExecutionResult(
             context.name,
             context.core_context.state.get(CommonStoreKeys.EXECUTION_ID),
@@ -308,32 +293,37 @@ class DataJob:
         self._plugin_hook.initialize_job(context=job_context)
 
         start_time = datetime.utcnow()
+        step_results = []
         try:
-            return self._plugin_hook.run_job(context=job_context)
+            execution_result = self._plugin_hook.run_job(context=job_context)
+            if (
+                execution_result.exception
+                and execution_result.status == ExecutionStatus.ERROR
+            ):
+                step_results = execution_result.steps_list
+                raise execution_result.exception
+            return execution_result
         except BaseException as ex:
+            if isinstance(ex, BaseVdkError):
+                config = self._core_context.configuration
+                if config.get_value(LOG_EXCEPTION_FORMATTER) == "pretty":
+                    ex._format(errors.pretty_vdk_error_formatter)
+                else:
+                    ex._format(errors.plain_vdk_error_formatter)
             blamee = whom_to_blame(ex, __file__, job_context.job_directory)
-            errors.log_exception(
-                blamee,
-                log,
-                what_happened=f"Data Job {self._name} completed with error.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(ex),
-                consequences="I will not process the remaining steps (if any), "
-                "and this Data Job execution will be marked as failed.",
-                countermeasures="See exception and fix the root cause, so that the exception does "
-                "not appear anymore.",
-                exception=ex,
-            )
+            errors.report(blamee, ex)
+            log.warning(f"Data Job {self._name} completed with error.")
+            log.exception(ex)
             execution_result = ExecutionResult(
                 self._name,
                 self._core_context.state.get(CommonStoreKeys.EXECUTION_ID),
                 start_time,
                 datetime.utcnow(),
                 ExecutionStatus.ERROR,
-                [],
+                step_results,
                 ex,
                 blamee,
             )
             return execution_result
-
         finally:  # TODO: we should pass execution result to finalize_job somehow ...
             self._plugin_hook.finalize_job(context=job_context)
