@@ -22,7 +22,7 @@ setuptools.setup(
         "vdk-core",
         "vdk-lineage-model",
         "sqlparse",
-        "sqllineage",
+        "sqllineage=1.4.9",
         "openlineage-integration-common",
         "openlineage-python",
     ],
