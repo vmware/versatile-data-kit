@@ -4,4 +4,4 @@ pytest
 pytest-httpserver
 vdk-sqlite
 vdk-test-utils
-sqllineage==1.4.9
+sqllineage==1.3.8
