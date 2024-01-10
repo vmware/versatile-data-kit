@@ -78,8 +78,8 @@ def test_structlog(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
-            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_STRUCTLOG_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
+            "VDK_STRUCTLOG_FORMAT": log_format,
             "LOG_LEVEL_MODULE": "test_structlog=WARNING",
         },
     ):
@@ -119,8 +119,8 @@ def test_stock_fields_removal(log_format):
         with mock.patch.dict(
             os.environ,
             {
-                "VDK_LOGGING_METADATA": vdk_logging_metadata,
-                "VDK_LOGGING_FORMAT": log_format,
+                "VDK_STRUCTLOG_METADATA": vdk_logging_metadata,
+                "VDK_STRUCTLOG_FORMAT": log_format,
             },
         ):
             logs = _run_job_and_get_logs()
@@ -144,8 +144,8 @@ def test_custom_format_applied(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_FORMAT": log_format,
-            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+            "VDK_STRUCTLOG_FORMAT": log_format,
+            "VDK_STRUCTLOG_CONSOLE_CUSTOM_FORMAT": custom_format_string,
         },
     ):
         logs = _run_job_and_get_logs()
@@ -165,9 +165,9 @@ def test_custom_format_not_applied_for_non_console_formats(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "timestamp,level,file_name,vdk_job_name",
-            "VDK_LOGGING_FORMAT": log_format,
-            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+            "VDK_STRUCTLOG_METADATA": "timestamp,level,file_name,vdk_job_name",
+            "VDK_STRUCTLOG_FORMAT": log_format,
+            "VDK_STRUCTLOG_CUSTOM_CONSOLE_FORMAT": custom_format_string,
         },
     ):
         logs = _run_job_and_get_logs()
@@ -188,8 +188,8 @@ def test_step_name_step_type(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "vdk_step_type,vdk_step_name",
-            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_STRUCTLOG_METADATA": "vdk_step_type,vdk_step_name",
+            "VDK_STRUCTLOG_FORMAT": log_format,
         },
     ):
         logs = _run_job_and_get_logs()
@@ -200,8 +200,8 @@ def test_step_name_step_type(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "vdk_step_name",
-            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_STRUCTLOG_METADATA": "vdk_step_name",
+            "VDK_STRUCTLOG_FORMAT": log_format,
         },
     ):
         logs = _run_job_and_get_logs()
@@ -212,8 +212,8 @@ def test_step_name_step_type(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "vdk_step_type",
-            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_STRUCTLOG_METADATA": "vdk_step_type",
+            "VDK_STRUCTLOG_FORMAT": log_format,
         },
     ):
         logs = _run_job_and_get_logs()
