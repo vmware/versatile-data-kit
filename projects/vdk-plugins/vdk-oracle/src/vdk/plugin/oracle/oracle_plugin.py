@@ -39,19 +39,22 @@ class OraclePlugin:
             job_secrets = context.job_input.get_all_secrets()
             oracle_user = job_secrets[conf.get_oracle_user_secret()]
             oracle_pass = job_secrets[conf.get_oracle_password_secret()]
+        connection_string = conf.get_oracle_connection_string()
         context.connections.add_open_connection_factory_method(
             "ORACLE",
             lambda: OracleConnection(
-                oracle_user,
-                oracle_pass,
-                conf.get_oracle_connection_string(),
-                conf.oracle_thick_mode(),
+                user=oracle_user,
+                password=oracle_pass,
+                connection_string=connection_string,
+                host=conf.get_oracle_host(),
+                port=conf.get_oracle_port(),
+                sid=conf.get_oracle_sid(),
+                thick_mode=conf.oracle_thick_mode(),
             ),
         )
         context.ingester.add_ingester_factory_method(
             "oracle", (lambda: IngestToOracle(context.connections))
         )
-
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):

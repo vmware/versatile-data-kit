@@ -14,25 +14,31 @@ log = logging.getLogger(__name__)
 
 class OracleConnection(ManagedConnectionBase):
     def __init__(
-        self, user: str, password: str, connection_string: str, thick_mode: bool = True
+            self, user: str, password: str, connection_string: str = None, host=None, port=1521, sid=None,
+            thick_mode: bool = True
     ):
         super().__init__(log)
         self._oracle_user = user
         self._oracle_password = password
+        self._host = host
+        self._port = port
+        self._sid = sid
         self._oracle_connection_string = connection_string
         self._thick_mode = thick_mode
 
     def _connect(self) -> PEP249Connection:
         import oracledb
-
         if self._thick_mode:
             oracledb.init_oracle_client()
-        conn = oracledb.connect(
-            user=self._oracle_user,
-            password=self._oracle_password,
-            dsn=self._oracle_connection_string,
-        )
-        return conn
+        if self._oracle_connection_string:
+            params = oracledb.ConnectParams()
+            params.set(user=self._oracle_user)
+            params.set(password=self._oracle_password)
+            params.parse_connect_string(self._oracle_connection_string)
+            return oracledb.connect(params=params)
+        else:
+            params = oracledb.ConnectParams(user=self._oracle_user, password=self._oracle_password, host=self._host, port=self._port, service_name=self._sid)
+            return oracledb.connect(params=params)
 
     def _is_connected(self) -> bool:
         if None is self._is_db_con_open:

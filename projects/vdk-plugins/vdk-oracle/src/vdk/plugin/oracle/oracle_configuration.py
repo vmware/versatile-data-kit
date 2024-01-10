@@ -16,6 +16,9 @@ ORACLE_THICK_MODE = "ORACLE_THICK_MODE"
 ORACLE_USER_SECRET = "ORACLE_USER_SECRET"
 ORACLE_PASSWORD_SECRET = "ORACLE_PASSWORD_SECRET"
 ORACLE_CONNECTION_STRING = "ORACLE_CONNECTION_STRING"
+ORACLE_HOST = "ORACLE_HOST"
+ORACLE_PORT = "ORACLE_PORT"
+ORACLE_SID = "ORACLE_SID"
 
 
 class OracleConfiguration:
@@ -37,6 +40,15 @@ class OracleConfiguration:
     def get_oracle_connection_string(self) -> str:
         return self.__config.get_value(ORACLE_CONNECTION_STRING)
 
+    def get_oracle_host(self) -> str:
+        return self.__config.get_value(ORACLE_HOST)
+
+    def get_oracle_port(self) -> str:
+        return int(self.__config.get_value(ORACLE_PORT))
+
+    def get_oracle_sid(self) -> str:
+        return self.__config.get_value(ORACLE_SID)
+
     def oracle_use_secrets(self) -> bool:
         return self.__config.get_value(ORACLE_USE_SECRETS)
 
@@ -56,6 +68,24 @@ class OracleConfiguration:
             default_value=None,
             is_sensitive=True,
             description="The Oracle password for the database connection",
+        )
+        config_builder.add(
+            key=ORACLE_HOST,
+            default_value=None,
+            is_sensitive=True,
+            description="The host of the Oracle database. Note: This option is overridden by ORACLE_CONNECTION_STRING",
+        )
+        config_builder.add(
+            key=ORACLE_PORT,
+            default_value="1521",
+            is_sensitive=True,
+            description="The port of the Oracle database. Note: This option is overridden by ORACLE_CONNECTION_STRING",
+        )
+        config_builder.add(
+            key=ORACLE_SID,
+            default_value=None,
+            is_sensitive=True,
+            description="The schema id of the Oracle database. Note: This option is overridden by ORACLE_CONNECTION_STRING",
         )
         config_builder.add(
             key=ORACLE_CONNECTION_STRING,
