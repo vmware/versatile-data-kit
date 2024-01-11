@@ -56,6 +56,7 @@ class OraclePlugin:
             "oracle", (lambda: IngestToOracle(context.connections))
         )
 
+
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.load_plugin_with_hooks_impl(OraclePlugin(), "OraclePlugin")
