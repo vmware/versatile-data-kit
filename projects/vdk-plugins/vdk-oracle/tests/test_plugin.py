@@ -18,6 +18,9 @@ ORACLE_CONNECTION_STRING = "ORACLE_CONNECTION_STRING"
 ORACLE_THICK_MODE = "ORACLE_THICK_MODE"
 VDK_LOG_EXECUTION_RESULT = "VDK_LOG_EXECUTION_RESULT"
 VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
+ORACLE_HOST = "ORACLE_HOST"
+ORACLE_PORT = "ORACLE_PORT"
+ORACLE_SID = "ORACLE_SID"
 
 
 @pytest.mark.usefixtures("oracle_db")
@@ -27,6 +30,9 @@ VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
         DB_DEFAULT_TYPE: "oracle",
         ORACLE_USER: "SYSTEM",
         ORACLE_PASSWORD: "Gr0mh3llscr3am",
+        ORACLE_HOST: "localhost",
+        ORACLE_PORT: "1521",
+        ORACLE_SID: "FREE",
         ORACLE_CONNECTION_STRING: "localhost:1521/FREE",
         ORACLE_THICK_MODE: "False",
         VDK_LOG_EXECUTION_RESULT: "True",
@@ -40,6 +46,18 @@ class OracleTests(TestCase):
             ["run", jobs_path_from_caller_directory("oracle-connect-execute-job")]
         )
         cli_assert_equal(0, result)
+        _verify_query_execution(runner)
+
+    def test_oracle_connect_execute_without_connection_string(self):
+        backup_conn_string = os.environ["ORACLE_CONNECTION_STRING"]
+        del os.environ["ORACLE_CONNECTION_STRING"]
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("oracle-connect-execute-job")]
+        )
+        cli_assert_equal(0, result)
+
+        os.environ["ORACLE_CONNECTION_STRING"] = backup_conn_string
         _verify_query_execution(runner)
 
     def test_oracle_ingest_existing_table(self):

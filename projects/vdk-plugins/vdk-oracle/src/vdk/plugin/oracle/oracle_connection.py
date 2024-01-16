@@ -3,7 +3,9 @@
 import logging
 from typing import Any
 from typing import List
+from typing import Optional
 
+from oracledb import Connection
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
@@ -14,24 +16,55 @@ log = logging.getLogger(__name__)
 
 class OracleConnection(ManagedConnectionBase):
     def __init__(
-        self, user: str, password: str, connection_string: str, thick_mode: bool = True
+        self,
+        user: str,
+        password: str,
+        connection_string: str = None,
+        host=None,
+        port=1521,
+        sid: str = None,
+        service_name: str = None,
+        thick_mode: bool = True,
+        thick_mode_lib_dir: Optional[str] = None,
     ):
         super().__init__(log)
         self._oracle_user = user
         self._oracle_password = password
+        self._host = host
+        self._port = port
+        self._sid = sid
+        self._service_name = service_name
         self._oracle_connection_string = connection_string
         self._thick_mode = thick_mode
+        self._thick_mode_lib_dir = thick_mode_lib_dir
 
-    def _connect(self) -> PEP249Connection:
+    def _connect(self) -> Connection:
         import oracledb
 
         if self._thick_mode:
-            oracledb.init_oracle_client()
-        conn = oracledb.connect(
-            user=self._oracle_user,
-            password=self._oracle_password,
-            dsn=self._oracle_connection_string,
-        )
+            if self._thick_mode_lib_dir:
+                oracledb.init_oracle_client(self._thick_mode_lib_dir)
+            else:
+                oracledb.init_oracle_client()
+        if self._oracle_connection_string:
+            log.debug("Connecting to Oracle using connection string")
+            params = oracledb.ConnectParams()
+            params.set(user=self._oracle_user)
+            params.set(password=self._oracle_password)
+            params.parse_connect_string(self._oracle_connection_string)
+
+            conn = oracledb.connect(params=params)
+        else:
+            log.debug("Connecting to Oracle using host,port,sid")
+            params = oracledb.ConnectParams(
+                user=self._oracle_user,
+                password=self._oracle_password,
+                host=self._host,
+                port=self._port,
+                sid=self._sid,
+                service_name=self._service_name,
+            )
+            conn = oracledb.connect(params=params)
         return conn
 
     def _is_connected(self) -> bool:
