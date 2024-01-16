@@ -1,10 +1,11 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import socket
 
-STRUCTLOG_LOGGING_METADATA_KEY = "logging_metadata"
-STRUCTLOG_LOGGING_FORMAT_KEY = "logging_format"
-STRUCTLOG_CONSOLE_LOG_PATTERN = "logging_custom_format"
+STRUCTLOG_LOGGING_METADATA_KEY = "structlog_metadata"
+STRUCTLOG_LOGGING_FORMAT_KEY = "structlog_format"
+STRUCTLOG_CONSOLE_LOG_PATTERN = "structlog_console_custom_format"
 
 STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES = ["console", "json"]
 STRUCTLOG_LOGGING_FORMAT_DEFAULT = "console"
@@ -63,3 +64,17 @@ STRUCTLOG_LOGGING_METADATA_ALL_KEYS = set(
 ) | set(STRUCTLOG_LOGGING_METADATA_JOB.keys())
 
 RECORD_DEFAULT_FIELDS = set(vars(logging.LogRecord("", "", "", "", "", "", "")))
+
+# Syslog constants
+SYSLOG_HOST_KEY = "SYSLOG_HOST"
+SYSLOG_PORT_KEY = "SYSLOG_PORT"
+SYSLOG_PROTOCOL_KEY = "SYSLOG_PROTOCOL"
+SYSLOG_ENABLED_KEY = "SYSLOG_ENABLED"
+
+# Default values for Syslog
+DEFAULT_SYSLOG_HOST = "localhost"
+DEFAULT_SYSLOG_PORT = 514
+DEFAULT_SYSLOG_PROTOCOL = "UDP"
+DEFAULT_SYSLOG_ENABLED = False
+
+SYSLOG_PROTOCOLS = {"UDP": socket.SOCK_DGRAM, "TCP": socket.SOCK_STREAM}

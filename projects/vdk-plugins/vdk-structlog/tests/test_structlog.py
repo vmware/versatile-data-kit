@@ -3,6 +3,8 @@
 import logging
 import os
 import re
+import socket
+import threading
 from unittest import mock
 
 import pytest
@@ -78,8 +80,8 @@ def test_structlog(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
-            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_STRUCTLOG_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
+            "VDK_STRUCTLOG_FORMAT": log_format,
             "LOG_LEVEL_MODULE": "test_structlog=WARNING",
         },
     ):
@@ -108,6 +110,44 @@ def test_structlog(log_format):
         )
 
 
+def test_structlog_syslog():
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_STRUCTLOG_METADATA": f"timestamp,level,file_name,line_number,vdk_job_name,{BOUND_TEST_KEY},{EXTRA_TEST_KEY}",
+            "VDK_STRUCTLOG_FORMAT": "console",
+            "LOG_LEVEL_MODULE": "test_structlog=WARNING",
+            "VDK_SYSLOG_HOST": "127.0.0.1",
+            "VDK_SYSLOG_PORT": "32123",
+            "VDK_SYSLOG_PROTOCOL": "UDP",
+            "VDK_SYSLOG_ENABLED": "True",
+        },
+    ):
+        syslog_out = []
+
+        def start_syslog_server(host, port):
+            server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            server_socket.bind((host, port))
+            print(f"Syslog server listening on {host}:{port}")
+
+            while True:
+                data, addr = server_socket.recvfrom(1024)
+                syslog_out.append(f"{data.decode('utf-8')}")
+
+        server = threading.Thread(
+            target=start_syslog_server, args=("127.0.0.1", 32123), daemon=True
+        )
+        server.start()
+
+        _run_job_and_get_logs()
+
+        assert syslog_out
+
+        # assert log entries are formatted using the hardcoded formatter
+        for log in syslog_out:
+            assert re.search("\\[id:.*\\]", log)
+
+
 @pytest.mark.parametrize("log_format", ["console", "ltsv", "json"])
 def test_stock_fields_removal(log_format):
     stock_field_reps = STOCK_FIELD_REPRESENTATIONS[log_format]
@@ -119,8 +159,8 @@ def test_stock_fields_removal(log_format):
         with mock.patch.dict(
             os.environ,
             {
-                "VDK_LOGGING_METADATA": vdk_logging_metadata,
-                "VDK_LOGGING_FORMAT": log_format,
+                "VDK_STRUCTLOG_METADATA": vdk_logging_metadata,
+                "VDK_STRUCTLOG_FORMAT": log_format,
             },
         ):
             logs = _run_job_and_get_logs()
@@ -144,8 +184,8 @@ def test_custom_format_applied(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_FORMAT": log_format,
-            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+            "VDK_STRUCTLOG_FORMAT": log_format,
+            "VDK_STRUCTLOG_CONSOLE_CUSTOM_FORMAT": custom_format_string,
         },
     ):
         logs = _run_job_and_get_logs()
@@ -165,9 +205,9 @@ def test_custom_format_not_applied_for_non_console_formats(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "timestamp,level,file_name,vdk_job_name",
-            "VDK_LOGGING_FORMAT": log_format,
-            "VDK_CUSTOM_CONSOLE_LOG_PATTERN": custom_format_string,
+            "VDK_STRUCTLOG_METADATA": "timestamp,level,file_name,vdk_job_name",
+            "VDK_STRUCTLOG_FORMAT": log_format,
+            "VDK_STRUCTLOG_CUSTOM_CONSOLE_FORMAT": custom_format_string,
         },
     ):
         logs = _run_job_and_get_logs()
@@ -188,8 +228,8 @@ def test_step_name_step_type(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "vdk_step_type,vdk_step_name",
-            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_STRUCTLOG_METADATA": "vdk_step_type,vdk_step_name",
+            "VDK_STRUCTLOG_FORMAT": log_format,
         },
     ):
         logs = _run_job_and_get_logs()
@@ -200,8 +240,8 @@ def test_step_name_step_type(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "vdk_step_name",
-            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_STRUCTLOG_METADATA": "vdk_step_name",
+            "VDK_STRUCTLOG_FORMAT": log_format,
         },
     ):
         logs = _run_job_and_get_logs()
@@ -212,8 +252,8 @@ def test_step_name_step_type(log_format):
     with mock.patch.dict(
         os.environ,
         {
-            "VDK_LOGGING_METADATA": "vdk_step_type",
-            "VDK_LOGGING_FORMAT": log_format,
+            "VDK_STRUCTLOG_METADATA": "vdk_step_type",
+            "VDK_STRUCTLOG_FORMAT": log_format,
         },
     ):
         logs = _run_job_and_get_logs()
