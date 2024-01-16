@@ -44,7 +44,7 @@ Instead, they opt to use RAG to improve the chatbot responses.
 This leaves them with the question.
 How do we populate the data?
 Steps they need to complete:
-1. Read data from confluence/jira
+1. Read data from confluence/jira or any other data source 
 2. Chunk into paragraphs(or something similar)
 3. Embed into vector space
 4. save Vector and paragraph in vector database
@@ -79,6 +79,7 @@ They will be able to follow our template to quickly create similar jobs. This gi
 ## API design
 The api design should be heavily influenced by: https://python.langchain.com/docs/modules/data_connection/vectorstores/.
 
+### Vector Database table structure
 The table should have a structure like
 
 | embedding     | text chunk                  | document id | metadata |
@@ -87,15 +88,33 @@ The table should have a structure like
 | [1,2,3,3,5,6] | other content from same doc | 15 | {"groups_with_access": ["IT", "HR"]} |
 
 
+### Python code 
+
 I think the python code could look something like this.
 In it we:
 1. delete any files that have been removed since the last scrape
 2. Then in a transaction delete all information for a page and in the same transaction write all the new information page
-3. The embedding api is abstracted into it own class allowing users to easily provide their own embedding api
+3. The embedding api is abstracted into it own class allowing users to easily provide their own embedding API
+
+For user it may look like that: 
 
 
 
+```python
+# Initialize the Confluence to Vector Database pipeline
+pipeline = vdk.ToVectorPipeline(ConfluenceReader(credentials), PostgresInstance, MyEmbeddingApi())
 
+# Execute the pipeline to update the Vector Database with the latest Confluence data
+pipeline.update_vector_database(last_timestamp)
+```
+
+The goal is to simplify the entire process into two lines of code for typical use cases, covering data extraction, chunking, embedding creation, and saving in the DB.
+- Incorporates incremental updates with deduplication and deletion
+- Regular updates to the Vector DB with the latest content.
+- Automate data extraction, chunking, embedding, and DB storage.
+- Provide defaults for easy quick start, with customization options for complex needs
+
+Internally the ToVectorPipeline may do something like that (very simplified for bringing more clarity purpose): 
 ```python
 PostgresInstance.delete(ConfluenceReader(credentials_for_confluence).find_removed_document(last_timestamp))
 raw_page_or_tickets : Iterable[Union[PageChanges]] = ConfluenceReader(credentials_for_confluence).load(last_timestamp)
