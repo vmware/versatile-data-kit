@@ -1,5 +1,5 @@
 
-# VEP-milestone-25: Your short, descriptive title
+# VEP-milestone-25:  Ingestion into vector database```
 
 * **Author(s):** Paul Murphy (murphp15@tcd.ie), Antoni Ivanov (antoni.ivanov@broadcom.com)
 * **Status:** draft
