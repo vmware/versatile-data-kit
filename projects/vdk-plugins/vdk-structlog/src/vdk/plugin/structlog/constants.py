@@ -7,7 +7,7 @@ STRUCTLOG_LOGGING_METADATA_KEY = "structlog_metadata"
 STRUCTLOG_LOGGING_FORMAT_KEY = "structlog_format"
 STRUCTLOG_CONSOLE_LOG_PATTERN = "structlog_console_custom_format"
 
-STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES = ["console", "json"]
+STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES = ["console", "json", "ltsv"]
 STRUCTLOG_LOGGING_FORMAT_DEFAULT = "console"
 
 STRUCTLOG_LOGGING_METADATA_JOB = {
@@ -63,7 +63,8 @@ STRUCTLOG_LOGGING_METADATA_ALL_KEYS = set(
     JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT.keys()
 ) | set(STRUCTLOG_LOGGING_METADATA_JOB.keys())
 
-RECORD_DEFAULT_FIELDS = set(vars(logging.LogRecord("", "", "", "", "", "", "")))
+RECORD_DEFAULT_FIELDS = set(
+    vars(logging.LogRecord("", "", "", "", "", "", "")))
 
 # Syslog constants
 SYSLOG_HOST_KEY = "SYSLOG_HOST"
