@@ -141,6 +141,17 @@ class CliRunImpl:
         else:
             log.info(f"Data Job execution summary: {execution_result}")
 
+        self.__log_short_job_summary(execution_result)
+
+    @staticmethod
+    def __log_short_job_summary(execution_result):
+        log.info(
+            "Short job summary:\n" +
+            "Job status: " + execution_result.status.upper() + "\n"
+            "Steps list:\n" +
+            "".join([step.name + " - " + step.status.upper() + "\n" for step in execution_result.steps_list])
+        )
+
     def create_and_run_data_job(
         self,
         context: CoreContext,
