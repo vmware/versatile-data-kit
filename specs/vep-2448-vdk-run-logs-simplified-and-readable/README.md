@@ -335,7 +335,7 @@ Resources:
 - https://pypi.org/project/progress2/
 - https://tqdm.github.io/
 - https://joblib.readthedocs.io/en/stable/
- 
+
 ## Detailed design
 
 ### Log Structure
@@ -363,7 +363,7 @@ brevity.
 
 Users can pass a custom format string with %-formatting and are not forced to
 use pre-configured metadata fields at all cost. This format string is valid only
-for the console format. 
+for the console format.
 
 ```python
 structlog_console_custom_format=%(asctime)s [VDK] %(job_name)s [%(levelname)-5.5s] %(name)-30.30s %(filename)20.20s:%(lineno)-4.4s %(funcName)-16.16s[id:%(attempt_id)s]- %(message)s
@@ -434,11 +434,11 @@ CREATE TABLE IF NOT EXISTS hello_world (id NVARCHAR);
 2024-01-16 10:51:55,085 [VDK] [INFO ] vdk.internal.builtin_plugins.r   file_based_step.py :111  run_python_step    - Exiting  20_python_step.py#run(...) SUCCESS
 2024-01-16 10:51:57,091 [VDK] [INFO ] vdk.plugin.sqlite.ingest_to_sq  ingest_to_sqlite.py :76   ingest_payload     - Ingesting payloads for target: /var/folders/5d/bbd89v315777n_d24q2wznlh0000gr/T/vdk-sqlite.db; collection_id: hello-world|d9064de6-710c-4006-bc7b-686e39e3c305-1705395115
 2024-01-16 10:51:57,092 [VDK] [INFO ] vdk.plugin.sqlite.sqlite_conne sqlite_connection.py :29   new_connection     - Creating new connection against local file database located at: /var/folders/5d/bbd89v315777n_d24q2wznlh0000gr/T/vdk-sqlite.db
-2024-01-16 10:51:57,099 [VDK] [INFO ] vdk.internal.builtin_plugins.i     ingester_base.py :564  close_now          - Ingester statistics: 
+2024-01-16 10:51:57,099 [VDK] [INFO ] vdk.internal.builtin_plugins.i     ingester_base.py :564  close_now          - Ingester statistics:
 		Successful uploads: 1
 		Failed uploads: 0
 		Ingesting plugin errors: None
-		
+
 2024-01-16 10:51:57,099 [VDK] [INFO ] vdk.internal.builtin_plugins.r           cli_run.py :169  create_and_run_d   - Job execution result: SUCCESS
 ```
 
@@ -535,11 +535,11 @@ timestamp:1705395409.705944	level:INFO	logger_name:vdk.internal.builtin_plugins.
 timestamp:1705395409.7065542	level:INFO	logger_name:vdk.internal.builtin_plugins.run.file_based_step	file_name:file_based_step.py	line_number:111	function_name:run_python_step	message:Exiting  20_python_step.py#run(...) SUCCESS
 timestamp:1705395411.713161	level:INFO	logger_name:vdk.plugin.sqlite.ingest_to_sqlite	file_name:ingest_to_sqlite.py	line_number:76	function_name:ingest_payload	message:Ingesting payloads for target: /var/folders/5d/bbd89v315777n_d24q2wznlh0000gr/T/vdk-sqlite.db; collection_id: hello-world|fc5c9c89-dce7-4de7-88bc-f1f4894f3ece-1705395409
 timestamp:1705395411.713954	level:INFO	logger_name:vdk.plugin.sqlite.sqlite_connection	file_name:sqlite_connection.py	line_number:29	function_name:new_connection	message:Creating new connection against local file database located at: /var/folders/5d/bbd89v315777n_d24q2wznlh0000gr/T/vdk-sqlite.db
-timestamp:1705395411.720793	level:INFO	logger_name:vdk.internal.builtin_plugins.ingestion.ingester_base	file_name:ingester_base.py	line_number:564	function_name:close_now	message:Ingester statistics: 
+timestamp:1705395411.720793	level:INFO	logger_name:vdk.internal.builtin_plugins.ingestion.ingester_base	file_name:ingester_base.py	line_number:564	function_name:close_now	message:Ingester statistics:
 		Successful uploads: 1
 		Failed uploads: 0
 		Ingesting plugin errors: None
-		
+
 timestamp:1705395411.721028	level:INFO	logger_name:vdk.internal.builtin_plugins.run.cli_run	file_name:cli_run.py	line_number:169	function_name:create_and_run_data_job	message:Job execution result: SUCCESS
 ```
 
@@ -649,7 +649,7 @@ The syslog output format is set to `console` and the following formatter string
 is used. These are currently not configurable.
 
 ```python
-DETAILED_FORMAT = 
+DETAILED_FORMAT =
     "%(asctime)s [VDK] %(job_name)s [%(levelname)-5.5s] %(name)-30.30s %(filename)20.20s:%("
     "lineno)-4.4s %(funcName)-16.16s[id:%(attempt_id)s]- %(message)s"
 ```
@@ -825,7 +825,7 @@ send_tabular_data_for_ingestion which adds to the number of payloads that are
 tracked.
 
 Also as we need progress indicators in multiple places likely we need a common
-encapsulation (or abstraction) for that - in a form of a python module or plugin. 
+encapsulation (or abstraction) for that - in a form of a python module or plugin.
 
 There is a common abstraction for spawning progress indicators in multiple
 places. Progress indicators provide a notification callback mechanism so it's

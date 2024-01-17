@@ -63,8 +63,7 @@ STRUCTLOG_LOGGING_METADATA_ALL_KEYS = set(
     JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT.keys()
 ) | set(STRUCTLOG_LOGGING_METADATA_JOB.keys())
 
-RECORD_DEFAULT_FIELDS = set(
-    vars(logging.LogRecord("", "", "", "", "", "", "")))
+RECORD_DEFAULT_FIELDS = set(vars(logging.LogRecord("", "", "", "", "", "", "")))
 
 # Syslog constants
 SYSLOG_HOST_KEY = "SYSLOG_HOST"
