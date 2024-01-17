@@ -146,10 +146,17 @@ class CliRunImpl:
     @staticmethod
     def __log_short_job_summary(execution_result):
         log.info(
-            "Short job summary:\n" +
-            "Job status: " + execution_result.status.upper() + "\n"
-            "Steps list:\n" +
-            "".join([step.name + " - " + step.status.upper() + "\n" for step in execution_result.steps_list])
+            "Short job summary:\n"
+            + "Job status: "
+            + execution_result.status.upper()
+            + "\n"
+            "Steps list:\n"
+            + "".join(
+                [
+                    step.name + " - " + step.status.upper() + "\n"
+                    for step in execution_result.steps_list
+                ]
+            )
         )
 
     def create_and_run_data_job(
