@@ -46,7 +46,12 @@ class OraclePlugin:
                 oracle_user,
                 oracle_pass,
                 conf.get_oracle_connection_string(),
-                conf.oracle_thick_mode(),
+                host=conf.get_oracle_host(),
+                port=conf.get_oracle_port(),
+                sid=conf.get_oracle_sid(),
+                service_name=conf.get_oracle_service_name(),
+                thick_mode=conf.oracle_thick_mode(),
+                thick_mode_lib_dir=conf.oracle_thick_mode_lib_dir(),
             ),
         )
         context.ingester.add_ingester_factory_method(
