@@ -11,7 +11,7 @@ def run(job_input):
         "int_data": 12,
         "float_data": 1.2,
         "bool_data": True,
-        "timestamp_data": datetime.datetime.fromtimestamp(1700554373),
+        "timestamp_data": datetime.datetime.utcfromtimestamp(1700554373),
         "decimal_data": Decimal(0.1),
     }
 

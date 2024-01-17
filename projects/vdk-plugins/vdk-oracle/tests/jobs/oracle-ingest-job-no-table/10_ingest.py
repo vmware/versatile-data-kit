@@ -21,7 +21,7 @@ def run(job_input):
             12,
             1.2,
             True,
-            datetime.datetime.fromtimestamp(1700554373),
+            datetime.datetime.utcfromtimestamp(1700554373),
             Decimal(1.1),
         ],
         [
@@ -30,7 +30,7 @@ def run(job_input):
             12,
             1.2,
             True,
-            datetime.datetime.fromtimestamp(1700554373),
+            datetime.datetime.utcfromtimestamp(1700554373),
             Decimal(1.1),
         ],
         [
@@ -39,7 +39,7 @@ def run(job_input):
             12,
             1.2,
             True,
-            datetime.datetime.fromtimestamp(1700554373),
+            datetime.datetime.utcfromtimestamp(1700554373),
             Decimal(1.1),
         ],
     ]
