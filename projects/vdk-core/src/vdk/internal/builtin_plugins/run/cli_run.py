@@ -144,9 +144,11 @@ class CliRunImpl:
     @staticmethod
     def __log_short_exec_result(execution_result):
         log.info(
-            "Job execution result: " + execution_result.status.upper() + "\n" +
-            "Steps list:\n" +
-            "".join(
+            "Job execution result: "
+            + execution_result.status.upper()
+            + "\n"
+            + "Steps list:\n"
+            + "".join(
                 [
                     step.name + " - " + step.status.upper() + "\n"
                     for step in execution_result.steps_list
