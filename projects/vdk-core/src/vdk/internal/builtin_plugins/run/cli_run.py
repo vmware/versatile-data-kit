@@ -147,7 +147,10 @@ class CliRunImpl:
             "Job execution result: " + execution_result.status.upper() + "\n" +
             "Steps list:\n" +
             "".join(
-                [step.name + " - " + step.status.upper() + "\n" for step in execution_result.steps_list]
+                [
+                    step.name + " - " + step.status.upper() + "\n"
+                    for step in execution_result.steps_list
+                ]
             )
         )
 
