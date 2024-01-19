@@ -60,4 +60,4 @@ def test_run_log_execution_result_disabled_on_fail():
     cli_assert_equal(1, result)
     assert "Data Job execution summary" not in result.output
     assert "steps_list" not in result.output
-    assert "Job execution result: FAILED" in result.output
+    assert "Job execution result: ERROR" in result.output
