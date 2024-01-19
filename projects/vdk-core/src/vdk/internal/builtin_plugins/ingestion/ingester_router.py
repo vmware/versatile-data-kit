@@ -61,7 +61,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         collection_id: Optional[str] = None,
     ):
         method, target = self.__get_correct_method_and_target(method, target)
-        self._log.info(
+        self._log.debug(
             "Sending object for ingestion with "
             f"method: {method} and target: {target}"
         )
@@ -102,7 +102,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         collection_id: Optional[str] = None,
     ):
         method, target = self.__get_correct_method_and_target(method, target)
-        self._log.info(
+        self._log.debug(
             "Sending tabular data for ingestion with "
             f"method: {method} and target: {target}"
         )
