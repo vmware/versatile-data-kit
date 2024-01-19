@@ -107,7 +107,7 @@ class OracleConfiguration:
         )
         config_builder.add(
             key=ORACLE_THICK_MODE,
-            default_value=False,
+            default_value=True,
             description="Use oracle thick mode. Set to False to disable oracle thick mode."
             "If set to true you may need to manually install client library. "
             "Refer to "
