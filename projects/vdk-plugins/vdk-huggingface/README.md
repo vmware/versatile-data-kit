@@ -1,5 +1,8 @@
 # Huggingface
 
+<a href="https://pypistats.org/packages/vdk-huggingface" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-huggingface.svg" alt="monthly download count for vdk-huggingface">
+
 Versatile Data Kit (VDK) plugin for integrating with Huggingface as both a data source and a target.
 This plugin allows you to ingest data payloads into a Huggingface repository and makes it easier to work with datasets stored in Huggingface.
 

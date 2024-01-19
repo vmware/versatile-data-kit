@@ -1,5 +1,8 @@
 # Versatile Data Kit Plugin for Snowflake Support
 
+<a href="https://pypistats.org/packages/vdk-snowflake" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-snowflake.svg" alt="monthly download count for vdk-snowflake">
+
 This plugin provides functionality, used by the Versatile Data Kit
 to interact with a Snowflake instance. Users of the plugin can connect to
 Snowflake, and execute queries against it.

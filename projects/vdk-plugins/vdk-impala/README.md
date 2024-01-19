@@ -1,5 +1,8 @@
 This plugin allows vdk-core to interface with and execute queries against an Impala database.
 
+<a href="https://pypistats.org/packages/vdk-impala" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-impala.svg" alt="monthly download count for vdk-impala">
+
 # Features
 
 * It provides a powerful recovery mechanism handling a lot of challenges - like eventual consistency issues in Impala and more. In one production deployment of VDK it was able to improve SLA of Impala from 95% (queries directly to Impala) to 99% (queries using VDK to Impala).

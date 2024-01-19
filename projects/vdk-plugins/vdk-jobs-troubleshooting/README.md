@@ -1,5 +1,8 @@
 ## VDK-JOBS-TROUBLESHOOTING Plugin
 
+<a href="https://pypistats.org/packages/vdk-jobs-troubleshooting" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-jobs-troubleshooting.svg" alt="monthly download count for vdk-jobs-troubleshooting">
+
 The VDK JOB Troubleshooting plugin provides the ability to add various troubleshooting utilities which can be accessed
 during the data job runtime.
 

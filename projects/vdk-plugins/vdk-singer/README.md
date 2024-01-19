@@ -1,5 +1,8 @@
 # singer
 
+<a href="https://pypistats.org/packages/vdk-singer" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-singer.svg" alt="monthly download count for vdk-singer">
+
 The vdk-singer plugin provides an easy way to integrate Singer Taps as data sources within the Versatile Data Kit (VDK).
 This allows you to pull data from various external systems that have Singer Taps available and use them seamlessly
 within your VDK pipelines.

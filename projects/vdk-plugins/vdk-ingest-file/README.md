@@ -1,5 +1,8 @@
 ## VDK-INGEST-FILE Plugin
 
+<a href="https://pypistats.org/packages/vdk-ingest-file" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-ingest-file.svg" alt="monthly download count for vdk-ingest-file">
+
 This plugin provides functionality to ingest data into a file. It is intended for local testing.
 
 ### Usage

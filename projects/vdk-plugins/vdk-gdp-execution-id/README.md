@@ -1,3 +1,6 @@
+<a href="https://pypistats.org/packages/vdk-gdp-execution-id" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-gdp-execution-id.svg" alt="monthly download count for vdk-gdp-execution-id">
+
 An installed Generative Data Pack plugin automatically expands the data sent for ingestion.
 
 This GDP plugin detects the execution ID of a Data Job running, and decorates your data product with it. So that,
