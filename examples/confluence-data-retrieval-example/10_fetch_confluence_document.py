@@ -24,11 +24,8 @@ def fetch_confluence_document(url, token, document_id):
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    # the internal Confluence URL is https://confluence.eng.vmware.com/
     confluence_url = os.environ.get("VDK_CONFLUENCE_URL")
-    # create at: https://confluence.eng.vmware.com/plugins/personalaccesstokens/usertokens.action
     token = os.environ.get("VDK_CONFLUENCE_TOKEN")
-    # for example: 1260314928
     doc_id = os.environ.get("VDK_CONFLUENCE_DOC_ID")
 
     doc = fetch_confluence_document(confluence_url, token, doc_id)

@@ -26,11 +26,8 @@ def fetch_confluence_space(url, token, space_key):
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    # the internal Confluence URL is https://confluence.eng.vmware.com/
     confluence_url = os.environ.get("VDK_CONFLUENCE_URL")
-    # create at: https://confluence.eng.vmware.com/plugins/personalaccesstokens/usertokens.action
     token = os.environ.get("VDK_CONFLUENCE_TOKEN")
-    # for the Super Collider space, the key is SuperCollider
     space_key = os.environ.get("VDK_CONFLUENCE_SPACE_KEY")
 
     docs = fetch_confluence_space(confluence_url, token, space_key)
