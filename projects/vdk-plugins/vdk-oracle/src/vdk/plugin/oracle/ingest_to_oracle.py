@@ -3,12 +3,10 @@
 import datetime
 import logging
 import math
+import re
+
 from decimal import Decimal
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Set
+from typing import Any, Collection, Dict, List, Optional, Set
 
 from vdk.api.plugin.plugin_input import PEP249Connection
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
@@ -18,12 +16,76 @@ from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 log = logging.getLogger(__name__)
 
 
+# Functions for escaping special characters
+def _is_plain_identifier(identifier: str) -> bool:
+    # https://docs.oracle.com/en/error-help/db/ora-00904/
+    # Alphanumeric that doesn't start with a number
+    # Can contain and start with $, # and _
+    regex = "^[A-Za-z\\$#_][0-9A-Za-z\\$#_]*$"
+    return bool(re.fullmatch(regex, identifier))
+
+
+def _normalize_identifier(identifier: str) -> str:
+    return identifier.upper() if _is_plain_identifier(identifier) else identifier
+
+def _escape_special_chars(value: str) -> str:
+    return value if _is_plain_identifier(value) else f'"{value}"'
+
+class TableCache:
+
+    def __init__(self, cursor: ManagedCursor):
+        self._tables: Dict[str, Dict[str, str]] = {}
+        self._cursor = cursor
+
+    def cache_columns(self, table: str) -> None:
+
+        # exit if the table columns have already been cached
+        if table.upper() in self._tables and self._tables[table.upper()]:
+            return
+        try:
+            self._cursor.execute(
+                f"SELECT column_name, data_type, data_scale FROM user_tab_columns WHERE table_name = '{table.upper()}'"
+            )
+            result = self._cursor.fetchall()
+            self._tables[table.upper()] = {
+                col: ("DECIMAL" if data_type == "NUMBER" and data_scale else data_type)
+                for (col, data_type, data_scale) in result
+            }
+        except Exception as e:
+            # TODO: https://github.com/vmware/versatile-data-kit/issues/2932
+            log.exception("An error occurred while trying to cache columns. Ignoring for now.", e)
+
+    def get_columns(self, table: str) -> Dict[str, str]:
+        return self._tables[table.upper()]
+
+    def update_from_col_defs(self, table: str, col_defs) -> None:
+        self._tables[table.upper()].update(col_defs)
+
+    def get_col_type(self, table: str, col: str) -> str:
+        return self._tables.get(table.upper()).get(
+            col.upper() if _is_plain_identifier(col) else col)
+
+    def table_exists(self, table: str) -> bool:
+        if table.upper() in self._tables:
+            return True
+
+        self._cursor.execute(
+            f"SELECT COUNT(*) FROM user_tables WHERE table_name = :1",
+            [table.upper()],
+        )
+        exists = bool(self._cursor.fetchone()[0])
+
+        if exists:
+            self._tables[table.upper()] = {}
+
+        return exists
+
+
 class IngestToOracle(IIngesterPlugin):
     def __init__(self, connections: ManagedConnectionRouter):
         self.conn: PEP249Connection = connections.open_connection("ORACLE").connect()
         self.cursor: ManagedCursor = self.conn.cursor()
-        self.table_cache: Set[str] = set()  # Cache to store existing tables
-        self.column_cache: Dict[str, Dict[str, str]] = {}  # New cache for columns
+        self.table_cache: TableCache = TableCache(self.cursor)  # New cache for columns
 
     @staticmethod
     def _get_oracle_type(value: Any) -> str:
@@ -38,53 +100,19 @@ class IngestToOracle(IIngesterPlugin):
         }
         return type_mappings.get(type(value), "VARCHAR2(255)")
 
-    def _table_exists(self, table_name: str) -> bool:
-        if table_name.upper() in self.table_cache:
-            return True
-
-        self.cursor.execute(
-            f"SELECT COUNT(*) FROM user_tables WHERE table_name = :1",
-            [table_name.upper()],
-        )
-        exists = bool(self.cursor.fetchone()[0])
-
-        if exists:
-            self.table_cache.add(table_name.upper())
-
-        return exists
-
     def _create_table(self, table_name: str, row: Dict[str, Any]) -> None:
-        column_defs = [f"{col} {self._get_oracle_type(row[col])}" for col in row.keys()]
+        column_defs = [f"{_escape_special_chars(col)} {self._get_oracle_type(row[col])}" for col in row.keys()]
         create_table_sql = (
             f"CREATE TABLE {table_name.upper()} ({', '.join(column_defs)})"
         )
         self.cursor.execute(create_table_sql)
 
-    def _cache_columns(self, table_name: str) -> None:
-        try:
-            self.cursor.execute(
-                f"SELECT column_name, data_type, data_scale FROM user_tab_columns WHERE table_name = '{table_name.upper()}'"
-            )
-            result = self.cursor.fetchall()
-            self.column_cache[table_name.upper()] = {
-                col: ("DECIMAL" if data_type == "NUMBER" and data_scale else data_type)
-                for (col, data_type, data_scale) in result
-            }
-        except Exception as e:
-            # TODO: https://github.com/vmware/versatile-data-kit/issues/2932
-            log.error(
-                "An exception occurred while trying to cache columns. Ignoring for now."
-            )
-            log.exception(e)
-
     def _add_columns(self, table_name: str, payload: List[Dict[str, Any]]) -> None:
-        if table_name.upper() not in self.column_cache:
-            self._cache_columns(table_name)
-
-        existing_columns = self.column_cache[table_name.upper()]
+        self.table_cache.cache_columns(table_name)
+        existing_columns = self.table_cache.get_columns(table_name)
 
         # Find unique new columns from all rows in the payload
-        all_columns = {col.upper() for row in payload for col in row.keys()}
+        all_columns = {_normalize_identifier(col) for row in payload for col in row.keys()}
         new_columns = all_columns - existing_columns.keys()
         column_defs = []
         if new_columns:
@@ -99,12 +127,12 @@ class IngestToOracle(IIngesterPlugin):
                 )
                 column_defs.append((col, column_type))
 
-            string_defs = [f"{col_def[0]} {col_def[1]}" for col_def in column_defs]
+            string_defs = [f"{_escape_special_chars(col_def[0])} {col_def[1]}" for col_def in column_defs]
             alter_sql = (
                 f"ALTER TABLE {table_name.upper()} ADD ({', '.join(string_defs)})"
             )
             self.cursor.execute(alter_sql)
-            self.column_cache[table_name.upper()].update(column_defs)
+            self.table_cache.update_from_col_defs(table_name, column_defs)
 
     # TODO: https://github.com/vmware/versatile-data-kit/issues/2929
     # TODO: https://github.com/vmware/versatile-data-kit/issues/2930
@@ -130,7 +158,7 @@ class IngestToOracle(IIngesterPlugin):
         if isinstance(value, Decimal):
             return float(value)
         if isinstance(value, str):
-            col_type = self.column_cache.get(table.upper()).get(column.upper())
+            col_type = self.table_cache.get_col_type(table, column)
             return cast_string_to_type(col_type, value)
         return value
 
@@ -153,7 +181,8 @@ class IngestToOracle(IIngesterPlugin):
         batch_data = []
         for column_names, batch in batches.items():
             columns = list(column_names)
-            insert_sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({', '.join([':' + str(i + 1) for i in range(len(columns))])})"
+            query_columns = [_escape_special_chars(col) for col in columns]
+            insert_sql = f"INSERT INTO {table_name} ({', '.join(query_columns)}) VALUES ({', '.join([':' + str(i + 1) for i in range(len(query_columns))])})"
             queries.append(insert_sql)
             temp_data = []
             for row in batch:
@@ -169,21 +198,21 @@ class IngestToOracle(IIngesterPlugin):
             self.cursor.executemany(queries[i], batch_data[i])
 
     def ingest_payload(
-        self,
-        payload: List[Dict[str, Any]],
-        destination_table: Optional[str] = None,
-        target: str = None,
-        collection_id: Optional[str] = None,
-        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
+            self,
+            payload: List[Dict[str, Any]],
+            destination_table: Optional[str] = None,
+            target: str = None,
+            collection_id: Optional[str] = None,
+            metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
     ) -> None:
         if not payload:
             return None
         if not destination_table:
             raise ValueError("Destination table must be specified if not in payload.")
 
-        if not self._table_exists(destination_table):
+        if not self.table_cache.table_exists(destination_table):
             self._create_table(destination_table, payload[0])
-            self._cache_columns(destination_table)
+            self.table_cache.cache_columns(destination_table)
 
         self._add_columns(destination_table, payload)
         self._insert_data(destination_table, payload)
