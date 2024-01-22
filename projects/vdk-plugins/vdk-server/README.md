@@ -1,5 +1,8 @@
 ## Versatile Data Kit Server Plugin
 
+<a href="https://pypistats.org/packages/vdk-server" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-server.svg" alt="monthly download count for vdk-server">
+
 This plugin facilitates installation of the Control Service in a local [Kind](https://kind.sigs.k8s.io/) cluster.
 
 ### Usage

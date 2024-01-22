@@ -1,5 +1,8 @@
 ### VDK-INGEST-HTTP Plugin
 
+<a href="https://pypistats.org/packages/vdk-ingest-http" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-ingest-http.svg" alt="monthly download count for vdk-ingest-http">
+
 This plugin provides functionality to ingest data over http.
 
 ### Usage

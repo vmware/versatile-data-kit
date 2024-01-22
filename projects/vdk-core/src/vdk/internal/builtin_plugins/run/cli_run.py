@@ -141,6 +141,21 @@ class CliRunImpl:
         else:
             log.info(f"Data Job execution summary: {execution_result}")
 
+    @staticmethod
+    def __log_short_exec_result(execution_result):
+        log.info(
+            "Job execution result: "
+            + execution_result.status.upper()
+            + "\n"
+            + "Steps list:\n"
+            + "".join(
+                [
+                    step.name + " - " + step.status.upper() + "\n"
+                    for step in execution_result.steps_list
+                ]
+            )
+        )
+
     def create_and_run_data_job(
         self,
         context: CoreContext,
@@ -165,10 +180,7 @@ class CliRunImpl:
             if context.configuration.get_value("LOG_EXECUTION_RESULT"):
                 self.__log_exec_result(execution_result)
             else:
-                if execution_result.is_success():
-                    log.info("Job execution result: SUCCESS")
-                if execution_result.is_failed():
-                    log.info("Job execution result: FAILED")
+                self.__log_short_exec_result(execution_result)
 
         except BaseException as e:
             log.error(
