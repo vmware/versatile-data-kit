@@ -34,7 +34,7 @@ def run(job_input: IJobInput):
 
     if docs:
         log.info(f"{len(docs)} documents fetched successfully.")
-        log.info(f"Printing the first 50 chars of each doc")
+        log.info("Printing the first 50 chars of each doc")
         for i, doc in enumerate(docs):
             print(f"{i}: {doc.page_content[:50]}")
     else:
