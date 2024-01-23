@@ -4,9 +4,13 @@ import datetime
 import logging
 import math
 import re
-
 from decimal import Decimal
-from typing import Any, Collection, Dict, List, Optional, Set
+from typing import Any
+from typing import Collection
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
 
 from vdk.api.plugin.plugin_input import PEP249Connection
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
@@ -28,17 +32,17 @@ def _is_plain_identifier(identifier: str) -> bool:
 def _normalize_identifier(identifier: str) -> str:
     return identifier.upper() if _is_plain_identifier(identifier) else identifier
 
+
 def _escape_special_chars(value: str) -> str:
     return value if _is_plain_identifier(value) else f'"{value}"'
 
-class TableCache:
 
+class TableCache:
     def __init__(self, cursor: ManagedCursor):
         self._tables: Dict[str, Dict[str, str]] = {}
         self._cursor = cursor
 
     def cache_columns(self, table: str) -> None:
-
         # exit if the table columns have already been cached
         if table.upper() in self._tables and self._tables[table.upper()]:
             return
@@ -53,7 +57,9 @@ class TableCache:
             }
         except Exception as e:
             # TODO: https://github.com/vmware/versatile-data-kit/issues/2932
-            log.exception("An error occurred while trying to cache columns. Ignoring for now.", e)
+            log.exception(
+                "An error occurred while trying to cache columns. Ignoring for now.", e
+            )
 
     def get_columns(self, table: str) -> Dict[str, str]:
         return self._tables[table.upper()]
@@ -63,7 +69,8 @@ class TableCache:
 
     def get_col_type(self, table: str, col: str) -> str:
         return self._tables.get(table.upper()).get(
-            col.upper() if _is_plain_identifier(col) else col)
+            col.upper() if _is_plain_identifier(col) else col
+        )
 
     def table_exists(self, table: str) -> bool:
         if table.upper() in self._tables:
@@ -101,7 +108,10 @@ class IngestToOracle(IIngesterPlugin):
         return type_mappings.get(type(value), "VARCHAR2(255)")
 
     def _create_table(self, table_name: str, row: Dict[str, Any]) -> None:
-        column_defs = [f"{_escape_special_chars(col)} {self._get_oracle_type(row[col])}" for col in row.keys()]
+        column_defs = [
+            f"{_escape_special_chars(col)} {self._get_oracle_type(row[col])}"
+            for col in row.keys()
+        ]
         create_table_sql = (
             f"CREATE TABLE {table_name.upper()} ({', '.join(column_defs)})"
         )
@@ -112,7 +122,9 @@ class IngestToOracle(IIngesterPlugin):
         existing_columns = self.table_cache.get_columns(table_name)
 
         # Find unique new columns from all rows in the payload
-        all_columns = {_normalize_identifier(col) for row in payload for col in row.keys()}
+        all_columns = {
+            _normalize_identifier(col) for row in payload for col in row.keys()
+        }
         new_columns = all_columns - existing_columns.keys()
         column_defs = []
         if new_columns:
@@ -127,7 +139,10 @@ class IngestToOracle(IIngesterPlugin):
                 )
                 column_defs.append((col, column_type))
 
-            string_defs = [f"{_escape_special_chars(col_def[0])} {col_def[1]}" for col_def in column_defs]
+            string_defs = [
+                f"{_escape_special_chars(col_def[0])} {col_def[1]}"
+                for col_def in column_defs
+            ]
             alter_sql = (
                 f"ALTER TABLE {table_name.upper()} ADD ({', '.join(string_defs)})"
             )
@@ -198,12 +213,12 @@ class IngestToOracle(IIngesterPlugin):
             self.cursor.executemany(queries[i], batch_data[i])
 
     def ingest_payload(
-            self,
-            payload: List[Dict[str, Any]],
-            destination_table: Optional[str] = None,
-            target: str = None,
-            collection_id: Optional[str] = None,
-            metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
+        self,
+        payload: List[Dict[str, Any]],
+        destination_table: Optional[str] = None,
+        target: str = None,
+        collection_id: Optional[str] = None,
+        metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
     ) -> None:
         if not payload:
             return None
