@@ -68,6 +68,14 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)
 
+    def test_oracle_ingest_existing_table_special_chars(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("oracle-ingest-job-special-chars")]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_execution_special_chars(runner)
+
     def test_oracle_ingest_type_inference(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
         result: Result = runner.invoke(
@@ -83,6 +91,19 @@ class OracleTests(TestCase):
         )
         cli_assert_equal(0, result)
         _verify_ingest_execution_no_table(runner)
+
+    def test_oracle_ingest_no_table_special_chars(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            [
+                "run",
+                jobs_path_from_caller_directory(
+                    "oracle-ingest-job-no-table-special-chars"
+                ),
+            ]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_execution_no_table_special_chars(runner)
 
     def test_oracle_ingest_different_payloads(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
@@ -107,6 +128,19 @@ class OracleTests(TestCase):
         )
         cli_assert_equal(0, result)
         _verify_ingest_execution_different_payloads_no_table(runner)
+
+    def test_oracle_ingest_different_payloads_no_table_special_chars(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            [
+                "run",
+                jobs_path_from_caller_directory(
+                    "oracle-ingest-job-different-payloads-no-table-special-chars"
+                ),
+            ]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_execution_different_payloads_no_table_special_chars(runner)
 
     def test_oracle_ingest_blob(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
@@ -140,6 +174,21 @@ def _verify_ingest_execution(runner):
         "----  ----------  ----------  ------------  -----------  "
         "-------------------  --------------\n"
         "   5  string              12           1.2            1  2023-11-21 "
+        "08:12:53             0.1\n"
+    )
+    assert check_result.output == expected
+
+
+def _verify_ingest_execution_special_chars(runner):
+    check_result = runner.invoke(
+        ["oracle-query", "--query", "SELECT * FROM test_table"]
+    )
+    expected = (
+        "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
+        "TIMESTAMP_DATA         DECIMAL_DATA\n"
+        "----  -----------  -----------  --------------  -----------  "
+        "-------------------  --------------\n"
+        "   5  string                12             1.2            1  2023-11-21 "
         "08:12:53             0.1\n"
     )
     assert check_result.output == expected
@@ -179,12 +228,55 @@ def _verify_ingest_execution_no_table(runner):
     assert check_result.output == expected
 
 
+def _verify_ingest_execution_no_table_special_chars(runner):
+    check_result = runner.invoke(
+        ["oracle-query", "--query", "SELECT * FROM test_table"]
+    )
+    expected = (
+        "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
+        "TIMESTAMP_DATA         DECIMAL_DATA\n"
+        "----  -----------  -----------  --------------  -----------  "
+        "-------------------  --------------\n"
+        "   0  string                12             1.2            1  "
+        "2023-11-21T08:12:53             1.1\n"
+        "   1  string                12             1.2            1  "
+        "2023-11-21T08:12:53             1.1\n"
+        "   2  string                12             1.2            1  "
+        "2023-11-21T08:12:53             1.1\n"
+    )
+    assert check_result.output == expected
+
+
 def _verify_ingest_execution_different_payloads_no_table(runner):
     check_result = runner.invoke(
         ["oracle-query", "--query", "SELECT count(*) FROM test_table"]
     )
     expected = "  COUNT(*)\n----------\n         8\n"
     assert check_result.output == expected
+
+
+def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
+    check_result = runner.invoke(
+        ["oracle-query", "--query", "SELECT * FROM test_table"]
+    )
+
+    actual_columns = check_result.output.split("\n")[0].split()
+    expected_columns = [
+        "ID",
+        "&timestamp_data",
+        "^bool_data",
+        "@int_data",
+        "%float_data",
+        "?str_data",
+    ]
+    for expected_col in expected_columns:
+        assert expected_col in actual_columns
+
+    expected_count = "  COUNT(*)\n----------\n         8\n"
+    check_result = runner.invoke(
+        ["oracle-query", "--query", "SELECT count(*) FROM test_table"]
+    )
+    assert check_result.output == expected_count
 
 
 def _verify_ingest_execution_different_payloads(runner):
