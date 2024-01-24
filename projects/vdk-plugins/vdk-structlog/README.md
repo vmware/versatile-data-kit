@@ -137,7 +137,7 @@ And you should see json-formatted logs.
 
 Python's logging module allows you to pass extra params as a dict. vdk-structlog
 takes this into account and displays the extra params, as long as they're added
-to `structlog_metadata` in config.ini 
+to `structlog_metadata` in config.ini
 
 ```python
 import logging
