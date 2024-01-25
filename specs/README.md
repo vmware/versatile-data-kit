@@ -16,7 +16,8 @@ communicate and coordinate on new efforts for the Versatile Data Kit project.
 
 1. It is good idea to socialize an idea with some other contributors of VDK first. You can send your idea to VDK mailing list, slack, mail, etc.
 2. Follow the process outlined in the [VEP template](NNNN-template/README.md)
-
+3. It is strongly recommended to build the VEP incrementally (with multiple PRs). As you research and discover new things the proposal would naturally evolve.
+   It is very good idea the first PR should focus only on describing the motivation and the goals and so there's agreement and alignment on those before continuing.
 
 ## Credits
 
