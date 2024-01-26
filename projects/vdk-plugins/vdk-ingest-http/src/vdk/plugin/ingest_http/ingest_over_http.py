@@ -228,4 +228,5 @@ class IngestOverHttp(IIngesterPlugin):
                 }
             )
         except Exception as e:
-            errors.report_and_rethrow(ResolvableBy.PLATFORM_ERROR, e)
+            errors.report(ResolvableBy.PLATFORM_ERROR, e)
+            raise e

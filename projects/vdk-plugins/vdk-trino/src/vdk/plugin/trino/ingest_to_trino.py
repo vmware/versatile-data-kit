@@ -78,7 +78,8 @@ class IngestToTrino(IIngesterPlugin):
             cur.fetchall()
             log.debug("Payload was ingested.")
         except Exception as e:
-            errors.report_and_rethrow(errors.find_whom_to_blame_from_exception(e), e)
+            errors.report(errors.find_whom_to_blame_from_exception(e), e)
+            raise e
 
     @staticmethod
     def __to_bool(value: Any) -> bool:

@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 import pyarrow
 from vdk.internal.core import errors
+from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala import impala_error_classifier
 from vdk.plugin.impala.impala_connection import ImpalaConnection
@@ -21,14 +22,14 @@ class ImpalaHelper:
             return self._db_connection.execute_query(f"DESCRIBE formatted {table_name}")
         except Exception as e:
             if impala_error_classifier._is_authorization_error(e):
-                errors.report_and_rethrow(
-                    UserCodeError(
-                        f"Data loading into table {table_name} has failed.",
-                        f"You are trying to load data into a table which you do not have access to or it does not "
-                        f"exist: {table_name}. Data load will be aborted.",
-                        "Make sure that the destination table exists and you have access to it.",
-                    )
+                ex = UserCodeError(
+                    f"Data loading into table {table_name} has failed.",
+                    f"You are trying to load data into a table which you do not have access to or it does not "
+                    f"exist: {table_name}. Data load will be aborted.",
+                    "Make sure that the destination table exists and you have access to it.",
                 )
+                errors.report(ResolvableBy.USER, ex)
+                raise ex
             else:
                 raise e
 
