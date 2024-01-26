@@ -259,7 +259,8 @@ def log_and_rethrow(
         # wrap
     message = [what_happened, why_it_happened, consequences, countermeasures]
     log.error("\n".join(message))
-    report_and_rethrow(to_be_fixed_by, exception)
+    report(to_be_fixed_by, exception)
+    raise exception
 
 
 class ErrorMessage:

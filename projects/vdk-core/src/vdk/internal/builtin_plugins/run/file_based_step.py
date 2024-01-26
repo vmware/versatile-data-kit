@@ -97,7 +97,8 @@ class StepFuncFactory:
                         ]
                     )
                 )
-                errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
+                errors.report(errors.ResolvableBy.USER_ERROR, e)
+                raise e
 
             for _, func in inspect.getmembers(python_module, inspect.isfunction):
                 if func.__name__ == "run":
@@ -153,7 +154,8 @@ class StepFuncFactory:
                 )
 
                 to_be_fixed_by = whom_to_blame(e, __file__, None)
-                errors.report_and_rethrow(to_be_fixed_by, e)
+                errors.report(to_be_fixed_by, e)
+                raise e
         else:
             errors.report_and_throw(
                 errors.UserCodeError(
