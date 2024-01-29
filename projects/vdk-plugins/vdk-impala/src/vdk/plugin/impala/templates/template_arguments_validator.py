@@ -58,4 +58,5 @@ class TemplateArgumentsValidator:
         try:
             return self.TemplateParams(**args).dict()
         except ValidationError as error:
-            errors.report_and_rethrow(ResolvableBy.USER_ERROR, error)
+            errors.report(ResolvableBy.USER_ERROR, error)
+            raise error

@@ -78,7 +78,8 @@ class SnowflakeConnection(ManagedConnectionBase):
         except (errors.BaseVdkError, ProgrammingError, Exception) as e:
             blamee = ResolvableBy.CONFIG_ERROR
             log.warning("Connecting to Snowflake FAILED.")
-            errors.report_and_rethrow(blamee, e)
+            errors.report(blamee, e)
+            raise e
 
     def execute_query(self, query) -> List[List[Any]]:
         try:
