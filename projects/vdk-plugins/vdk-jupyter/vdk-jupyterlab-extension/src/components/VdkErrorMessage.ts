@@ -15,31 +15,31 @@ export class VdkErrorMessage {
   public countermeasures: String;
 
   constructor(message: String) {
-    this.exception_message = '';
-    this.what_happened = '';
-    this.why_it_happened = '';
-    this.consequences = '';
-    this.countermeasures = '';
+    this.exception_message = "";
+    this.what_happened = "";
+    this.why_it_happened = "";
+    this.consequences = "";
+    this.countermeasures = "";
 
     this.__parse_message(message);
   }
 
   private __parse_message(message: String): void {
     const keys: (keyof VdkErrorMessage)[] = [
-      'exception_message',
-      'what_happened',
-      'why_it_happened',
-      'consequences',
-      'countermeasures'
+      "exception_message",
+      "what_happened",
+      "why_it_happened",
+      "consequences",
+      "countermeasures",
     ];
     const delimiters = [
-      'ERROR : ',
-      'WHAT HAPPENED :',
-      'WHY IT HAPPENED :',
-      'CONSEQUENCES :',
-      'COUNTERMEASURES :'
+      "ERROR : ",
+      "WHAT HAPPENED :",
+      "WHY IT HAPPENED :",
+      "CONSEQUENCES :",
+      "COUNTERMEASURES :",
     ];
-    const lines = message.split('\n');
+    const lines = message.split("\n");
     let keyIndex = 0;
     for (let i = 0; i < lines.length; i++) {
       const delimiterIndex = lines[i].indexOf(delimiters[keyIndex]);

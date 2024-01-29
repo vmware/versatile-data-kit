@@ -5,42 +5,46 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { ApiPredicate } from '@versatiledatakit/shared';
+import { ApiPredicate } from "@versatiledatakit/shared";
 
-import { DataJobContacts, DataJobSchedule, GraphQLResponsePage } from './data-job-base.model';
+import {
+  DataJobContacts,
+  DataJobSchedule,
+  GraphQLResponsePage,
+} from "./data-job-base.model";
 
-import { DataJobDeployment } from './data-job-deployments.model';
+import { DataJobDeployment } from "./data-job-deployments.model";
 
 export type DataJobPage = GraphQLResponsePage<DataJob>;
 
 export interface DataJob {
-    jobName?: string;
-    config?: DataJobConfig;
-    deployments?: DataJobDeployment[];
+  jobName?: string;
+  config?: DataJobConfig;
+  deployments?: DataJobDeployment[];
 }
 
 export interface DataJobConfig {
-    team?: string;
-    description?: string;
-    generateKeytab?: boolean;
-    sourceUrl?: string;
-    logsUrl?: string;
-    schedule?: DataJobSchedule;
-    contacts?: DataJobContacts;
+  team?: string;
+  description?: string;
+  generateKeytab?: boolean;
+  sourceUrl?: string;
+  logsUrl?: string;
+  schedule?: DataJobSchedule;
+  contacts?: DataJobContacts;
 }
 
 /**
  * ** Request variables for DataJobs jobsQuery GraphQL API.
  */
 export interface DataJobReqVariables {
-    pageNumber?: number;
-    pageSize?: number;
-    filter?: ApiPredicate[];
-    search?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  filter?: ApiPredicate[];
+  search?: string;
 }
 
 export enum DataJobStatus {
-    ENABLED = 'Enabled',
-    DISABLED = 'Disabled',
-    NOT_DEPLOYED = 'Not Deployed'
+  ENABLED = "Enabled",
+  DISABLED = "Disabled",
+  NOT_DEPLOYED = "Not Deployed",
 }

@@ -3,28 +3,28 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ExtractJobStatusPipe } from '../../../pipes/extract-job-status.pipe';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ExtractJobStatusPipe } from "../../../pipes/extract-job-status.pipe";
 
-import { StatusPanelComponent } from './status-panel.component';
+import { StatusPanelComponent } from "./status-panel.component";
 
-describe('StatusPanelComponent', () => {
-    let component: StatusPanelComponent;
-    let fixture: ComponentFixture<StatusPanelComponent>;
+describe("StatusPanelComponent", () => {
+  let component: StatusPanelComponent;
+  let fixture: ComponentFixture<StatusPanelComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [StatusPanelComponent, ExtractJobStatusPipe]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [StatusPanelComponent, ExtractJobStatusPipe],
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(StatusPanelComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(StatusPanelComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });

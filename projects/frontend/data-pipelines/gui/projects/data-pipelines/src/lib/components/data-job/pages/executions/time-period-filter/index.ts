@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './time-period-filter.component';
+export * from "./time-period-filter.component";

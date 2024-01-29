@@ -331,8 +331,8 @@ def test_log_plugin_exception_structlog():
         # Mock configuration since we won't be needing any.
         core_context = mock.MagicMock(spec=CoreContext)
         core_context.configuration = mock.MagicMock()
-        core_context.configuration.get_value.side_effect = (
-            lambda key: "INFO" if key == vdk_config.LOG_LEVEL_VDK else None
+        core_context.configuration.get_value.side_effect = lambda key: (
+            "INFO" if key == vdk_config.LOG_LEVEL_VDK else None
         )
         with pytest.raises(Exception) as exc_info:
             log_plugin.vdk_initialize(core_context)

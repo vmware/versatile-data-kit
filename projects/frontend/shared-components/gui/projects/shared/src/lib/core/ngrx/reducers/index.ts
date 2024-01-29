@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './shared-root-reducers.registry';
+export * from "./shared-root-reducers.registry";

@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { URLStateManager } from './index';
+export { URLStateManager } from "./index";
