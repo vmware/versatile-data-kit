@@ -229,3 +229,18 @@ def test_error_from_pandas_user_error(tmp_termination_msg_file):
         assert _get_job_status(tmp_termination_msg_file) == "User error"
         assert '"blamee": "User Error"' in result.output
         assert '"exception_name": "KeyError"' in result.output
+
+
+def test_run_simple_job_summary(tmp_termination_msg_file):
+    runner = CliEntryBasedTestRunner()
+
+    result: Result = runner.invoke(["run", util.job_path("fail-job")])
+    cli_assert_equal(1, result)
+    expected = f"""
+Step results:
+1_step.py - ERROR
+  File "{os.getcwd()}/tests/functional/run/jobs/fail-job/1_step.py", line 7, in run
+    raise ArithmeticError("cannot do math :(")
+ArithmeticError: cannot do math :(
+"""
+    assert expected in result.output
