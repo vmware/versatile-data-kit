@@ -168,6 +168,18 @@ class ErrorsTest(unittest.TestCase):
             is 1
         )
 
+    def test_report(self):
+        ex = IndexError("foo")
+        errors.report(
+            errors.ResolvableBy.USER_ERROR,
+            exception=ex,
+        )
+        assert errors.ResolvableByActual.USER in errors.resolvable_context().resolvables
+        assert (
+            len(errors.resolvable_context().resolvables[errors.ResolvableByActual.USER])
+            is 1
+        )
+
     def test_report_and_throw(self):
         with pytest.raises(errors.PlatformServiceError):
             errors.report_and_throw(PlatformServiceError("My super awesome message"))

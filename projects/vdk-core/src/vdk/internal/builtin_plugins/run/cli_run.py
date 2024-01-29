@@ -49,7 +49,8 @@ class CliRunImpl:
                     ]
                 )
             )
-            errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
+            errors.report(errors.ResolvableBy.USER_ERROR, e)
+            raise e
 
     @staticmethod
     def __split_into_chunks(exec_steps: List, chunks: int) -> List:
@@ -193,12 +194,13 @@ class CliRunImpl:
                     ]
                 )
             )
-            errors.report_and_rethrow(
+            errors.report(
                 job_input_error_classifier.whom_to_blame(
                     e, __file__, data_job_directory
                 ),
                 e,
             )
+            raise e
         if execution_result.is_failed() and execution_result.get_exception_to_raise():
             raise execution_result.get_exception_to_raise()
 

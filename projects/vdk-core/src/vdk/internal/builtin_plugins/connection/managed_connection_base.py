@@ -156,10 +156,8 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                             ]
                         )
                     )
-                    errors.report_and_rethrow(
-                        blamee,
-                        e,
-                    )
+                    errors.report(blamee, e)
+                    raise e
             return cast(
                 List[List[Any]], res
             )  # we return None in case of DML. This is not PEP249 compliant, but is more convenient
