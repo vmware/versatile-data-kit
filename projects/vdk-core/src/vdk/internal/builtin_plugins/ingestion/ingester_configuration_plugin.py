@@ -60,6 +60,18 @@ class IngesterConfigurationPlugin:
             """,
         )
         config_builder.add(
+            key="INGEST_IGNORE_PAYLOAD_PREPROCESS_SEQUENCE_FOR_METHOD",
+            default_value=None,
+            description="""A string of coma-separated ingestion methods, for
+            which the payload preprocess sequence is not to be applied.
+            Example:
+                   INGEST_IGNORE_PAYLOAD_PREPROCESS_SEQUENCE_FOR_METHOD="file, http"
+            This configuration can be used in cases, where a data job ingests
+            payloads through multiple methods and the preprocessors need to be
+            used only for some payloads.
+            """,
+        )
+        config_builder.add(
             key="INGEST_PAYLOAD_POSTPROCESS_SEQUENCE",
             default_value=None,
             description="""A string of coma-separated ingestion post-

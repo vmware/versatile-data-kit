@@ -189,6 +189,26 @@ class IngesterRouter(IIngesterRegistry, IIngester):
                 "INGEST_PAYLOAD_POSTPROCESS_SEQUENCE"
             )
 
+            if self._cfg.get_value(
+                "INGEST_IGNORE_PAYLOAD_PREPROCESS_SEQUENCE_FOR_METHOD"
+            ):
+                ignore_seq = [
+                    i.strip()
+                    for i in self._cfg.get_value(
+                        "INGEST_IGNORE_PAYLOAD_PREPROCESS_SEQUENCE_FOR_METHOD"
+                    ).split(",")
+                ]
+                if method in ignore_seq:
+                    self._cached_ingesters[method] = IngesterBase(
+                        self._state.get(ExecutionStateStoreKeys.JOB_NAME),
+                        self._state.get(CommonStoreKeys.OP_ID),
+                        ingester_plugin,
+                        IngesterConfiguration(config=self._cfg),
+                        pre_processors=[],
+                        post_processors=initialized_post_processors,
+                    )
+                    return self._cached_ingesters[method]
+
             self._cached_ingesters[method] = IngesterBase(
                 self._state.get(ExecutionStateStoreKeys.JOB_NAME),
                 self._state.get(CommonStoreKeys.OP_ID),

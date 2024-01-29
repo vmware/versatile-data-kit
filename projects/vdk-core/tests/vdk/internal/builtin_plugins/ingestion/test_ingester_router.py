@@ -143,3 +143,34 @@ def test_router_raise_error_chained_ingest_plugins_not_registered():
 
     error_msg = exc_info.value
     assert "method: pre-ingest-test" in str(error_msg)
+
+
+@patch(f"{IngesterRouter.__module__}.{IngesterBase.__name__}", spec=IngesterBase)
+def test_router_ignore_preprocessors(mock_ingester_base: MagicMock):
+    config = {
+        "ingest_payload_preprocess_sequence": "pre-ingest-test",
+        "ingest_payload_postprocess_sequence": "post-ingest-test",
+        "ingest_method_default": "test",
+        "ingest_ignore_payload_preprocess_sequence_for_method": "test",
+    }
+
+    router = create_ingester_router(config)
+
+    # Register plugins
+    router.add_ingester_factory_method(
+        "pre-ingest-test", lambda: MagicMock(spec=IIngesterPlugin)
+    )
+    router.add_ingester_factory_method(
+        "post-ingest-test", lambda: MagicMock(spec=IIngesterPlugin)
+    )
+    router.add_ingester_factory_method("test", lambda: MagicMock(spec=IIngesterPlugin))
+
+    # Send data for ingestion
+    router.send_object_for_ingestion({"a": "b"})
+
+    # Verify method calls
+    mock_ingester_base.return_value.send_object_for_ingestion.assert_called_with(
+        {"a": "b"}, None, "test", None, None
+    )
+    assert len(mock_ingester_base.call_args[1]["pre_processors"]) == 0
+    assert len(mock_ingester_base.call_args[1]["post_processors"]) == 1
