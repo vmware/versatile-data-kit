@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import logging
-import os
 
 from langchain_community.document_loaders import ConfluenceLoader
 from vdk.api.job_input import IJobInput
@@ -36,7 +35,7 @@ def run(job_input: IJobInput):
 
     confluence_url = "https://yoansalambashev.atlassian.net/"
     # since the Confluence space is public, no need to generate API token
-    token = "TOKEN"
+    token = ""
     space_key = "RESEARCH"
     output_csv = "documents.csv"
 
