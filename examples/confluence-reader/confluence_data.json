@@ -1,0 +1,52 @@
+[
+    {
+        "title": "Migration Guide from DAP V1 to DAP V2",
+        "id": "464041667",
+        "source": "https://confluence.eng.vmware.com/display/SuperCollider/Migration+Guide+from+DAP+V1+to+DAP+V2"
+    },
+    {
+        "title": "DAP User Guide",
+        "id": "465248187",
+        "source": "https://confluence.eng.vmware.com/display/SuperCollider/DAP+User+Guide"
+    },
+    {
+        "title": "DAP V2 Roadmap",
+        "id": "465254097",
+        "source": "https://confluence.eng.vmware.com/display/SuperCollider/DAP+V2+Roadmap"
+    },
+    {
+        "title": "Payload Research/Debugging",
+        "id": "598661588",
+        "source": "https://confluence.eng.vmware.com/pages/viewpage.action?pageId=598661588"
+    },
+    {
+        "title": "Scheduled Maintenance",
+        "id": "796258239",
+        "source": "https://confluence.eng.vmware.com/display/SuperCollider/Scheduled+Maintenance"
+    },
+    {
+        "title": "ODBC (Open Database Connectivity)",
+        "id": "723070776",
+        "source": "https://confluence.eng.vmware.com/pages/viewpage.action?pageId=723070776"
+    },
+    {
+        "title": "Outbound Integrations",
+        "id": "731043646",
+        "source": "https://confluence.eng.vmware.com/display/SuperCollider/Outbound+Integrations"
+    },
+    {
+        "title": "Help & Support",
+        "id": "721295269",
+        "source": "https://confluence.eng.vmware.com/pages/viewpage.action?pageId=721295269"
+    },
+    {
+        "title": "Programmatic Data Access/Processing",
+        "id": "1587767359",
+        "source": "https://confluence.eng.vmware.com/pages/viewpage.action?pageId=1587767359"
+    },
+    {
+        "title": "Desktop clients",
+        "id": "1587767408",
+        "source": "https://confluence.eng.vmware.com/display/SuperCollider/Desktop+clients"
+    }
+]
