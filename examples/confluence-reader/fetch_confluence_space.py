@@ -10,7 +10,7 @@ from vdk.api.job_input import IJobInput
 log = logging.getLogger(__name__)
 
 
-def save_documents(file_path, new_docs):
+def update_saved_documents(file_path, new_docs):
     try:
         with open(file_path, 'r') as file:
             existing_docs = json.load(file)
@@ -52,10 +52,10 @@ def flag_deleted_pages(file_path, current_confluence_pages):
 
 
 class ConfluenceDataSource:
-    def __init__(self):
-        self.confluence_url = "your_confluence_url"
-        self.token = "your_confluence_token"
-        self.space_key = "your_space_key"
+    def __init__(self, confluence_url, token, space_key):
+        self.confluence_url = confluence_url
+        self.token = token
+        self.space_key = space_key
         self.loader = ConfluenceLoader(url=self.confluence_url, token=self.token)
 
     def fetch_updated_pages_in_confluence_space(self):
@@ -93,7 +93,17 @@ class ConfluenceDataSource:
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    confluence_reader = ConfluenceDataSource()
+    confluence_url = job_input.get_property(
+        "confluence_url", "YOUR_CONFLUENCE_URL"
+    )
+    token = job_input.get_property(
+        "confluence_token", "YOUR_TOKEN"
+    )
+    space_key = job_input.get_property(
+        "confluence_space_key", "YOUR_SPACE_KEY"
+    )
+
+    confluence_reader = ConfluenceDataSource(confluence_url, token, space_key)
 
     file_path = 'confluence_data.json'
 
@@ -102,7 +112,7 @@ def run(job_input: IJobInput):
     docs_metadata = []
     for doc in docs:
         docs_metadata.append(doc.metadata)
-    save_documents(file_path, docs_metadata)
+    update_saved_documents(file_path, docs_metadata)
 
     # check for deletions
     flag_deleted_pages(file_path, confluence_reader.fetch_all_pages_in_confluence_space())
