@@ -83,7 +83,6 @@ def run(job_input: IJobInput):
 
     nltk.download("stopwords", download_dir=str(nltk_data_path))
     nltk.download("wordnet", download_dir=str(nltk_data_path))
-    nltk.download("punkt", download_dir=str(nltk_data_path))
 
     cleaned_documents = load_and_clean_documents(input_csv)
     if cleaned_documents:
