@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import logging
+import pathlib
 import re
 
 import nltk
 from config import DOCUMENTS_CSV_FILE_LOCATION
+from config import EMBEDDINGS_PKL_FILE_LOCATION
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from sentence_transformers import SentenceTransformer
@@ -74,7 +76,8 @@ def run(job_input: IJobInput):
 
     input_csv = DOCUMENTS_CSV_FILE_LOCATION
     # output_cleaned_csv = 'documents_cleaned.csv'
-    output_embeddings = "embeddings.pkl"
+    data_job_dir = pathlib.Path(job_input.get_job_directory())
+    output_embeddings = data_job_dir / EMBEDDINGS_PKL_FILE_LOCATION
 
     temp_dir = job_input.get_temporary_write_directory()
     nltk_data_path = temp_dir / "nltk_data"

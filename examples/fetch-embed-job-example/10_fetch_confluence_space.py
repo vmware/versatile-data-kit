@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import logging
+import pathlib
 
 from config import DOCUMENTS_CSV_FILE_LOCATION
 from langchain_community.document_loaders import ConfluenceLoader
@@ -40,7 +41,8 @@ def run(job_input: IJobInput):
     # since the Confluence space is public, no need to generate API token
     token = ""
     space_key = job_input.get_property("space_key", "RESEARCH")
-    output_csv = DOCUMENTS_CSV_FILE_LOCATION
+    data_job_dir = pathlib.Path(job_input.get_job_directory())
+    output_csv = data_job_dir / DOCUMENTS_CSV_FILE_LOCATION
 
     docs = fetch_confluence_space(confluence_url, token, space_key)
 
