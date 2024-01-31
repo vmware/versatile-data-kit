@@ -10,7 +10,7 @@ from vdk.api.job_input import IJobInput
 log = logging.getLogger(__name__)
 
 
-def save_documents(self, file_path, new_docs):
+def save_documents(file_path, new_docs):
     try:
         with open(file_path, 'r') as file:
             existing_docs = json.load(file)
@@ -31,11 +31,31 @@ def save_documents(self, file_path, new_docs):
             json.dump(list(existing_docs.values()), file, indent=4)
 
 
+def flag_deleted_pages(file_path, current_confluence_pages):
+    try:
+        with open(file_path, 'r') as file:
+            existing_docs = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        print("File not found or invalid format. Exiting.")
+        return
+
+    # convert to a set of IDs for faster lookup
+    current_page_ids = set(page.metadata['id'] for page in current_confluence_pages)
+
+    # flag deleted pages
+    for doc in existing_docs:
+        if doc['id'] not in current_page_ids:
+            doc['deleted'] = True
+
+    with open(file_path, 'w') as file:
+        json.dump(existing_docs, file, indent=4)
+
+
 class ConfluenceDataSource:
     def __init__(self):
-        self.confluence_url = "https://confluence.eng.vmware.com/"
-        self.token = "Njc0Nzk0NDMyNzcxOiFRTi5TYXYo/KJCNn54GuBAlQ7w"
-        self.space_key = "SuperCollider"
+        self.confluence_url = "your_confluence_url"
+        self.token = "your_confluence_token"
+        self.space_key = "your_space_key"
         self.loader = ConfluenceLoader(url=self.confluence_url, token=self.token)
 
     def fetch_updated_pages_in_confluence_space(self):
@@ -76,19 +96,14 @@ def run(job_input: IJobInput):
     confluence_reader = ConfluenceDataSource()
 
     file_path = 'confluence_data.json'
+
+    # check updates
     docs = confluence_reader.fetch_updated_pages_in_confluence_space()
     docs_metadata = []
     for doc in docs:
         docs_metadata.append(doc.metadata)
     save_documents(file_path, docs_metadata)
 
-    if docs:
-        log.info(f"{len(docs)} documents fetched successfully.")
-        log.info("Printing the first 50 chars of each doc")
-        for i, doc in enumerate(docs):
-            print("\n")
-            print(doc.metadata)
-            print("\n")
-    else:
-        log.error(f"Failed to fetch any documents from the space with key {space_key}.")
+    # check for deletions
+    flag_deleted_pages(file_path, confluence_reader.fetch_all_pages_in_confluence_space())
 
