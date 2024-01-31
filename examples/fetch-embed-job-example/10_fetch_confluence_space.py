@@ -3,6 +3,7 @@
 import csv
 import logging
 
+from config import DOCUMENTS_CSV_FILE_LOCATION
 from langchain_community.document_loaders import ConfluenceLoader
 from vdk.api.job_input import IJobInput
 
@@ -37,7 +38,7 @@ def run(job_input: IJobInput):
     # since the Confluence space is public, no need to generate API token
     token = ""
     space_key = "RESEARCH"
-    output_csv = "documents.csv"
+    output_csv = DOCUMENTS_CSV_FILE_LOCATION
 
     docs = fetch_confluence_space(confluence_url, token, space_key)
 

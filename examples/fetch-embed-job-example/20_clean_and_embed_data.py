@@ -5,19 +5,26 @@ import logging
 import re
 
 import nltk
+from config import DOCUMENTS_CSV_FILE_LOCATION
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from sentence_transformers import SentenceTransformer
 from vdk.api.job_input import IJobInput
 
-nltk.download("stopwords")
-nltk.download("wordnet")
-nltk.download("punkt")
-
 log = logging.getLogger(__name__)
 
 
 def clean_text(text):
+    """
+    Prepares text for NLP tasks (embedding and RAG) by standardizing its form. It focuses on retaining
+    meaningful words and achieving consistency in their representation. This involves
+    converting to lowercase (uniformity), removing punctuation and stopwords
+    (focusing on relevant words), and lemmatization (reducing words to their base form).
+    Such preprocessing is crucial for effective NLP analysis.
+
+    :param text: A string containing the text to be processed.
+    :return: The processed text as a string.
+    """
     text = text.lower()
     # remove punctuation and special characters
     text = re.sub(r"[^\w\s]", "", text)
@@ -65,9 +72,18 @@ def embed_documents_in_batches(documents):
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    input_csv = "documents.csv"
+    input_csv = DOCUMENTS_CSV_FILE_LOCATION
     # output_cleaned_csv = 'documents_cleaned.csv'
     output_embeddings = "embeddings.pkl"
+
+    temp_dir = job_input.get_temporary_write_directory()
+    nltk_data_path = temp_dir / "nltk_data"
+    nltk_data_path.mkdir(exist_ok=True)
+    nltk.data.path.append(str(nltk_data_path))
+
+    nltk.download("stopwords", download_dir=str(nltk_data_path))
+    nltk.download("wordnet", download_dir=str(nltk_data_path))
+    nltk.download("punkt", download_dir=str(nltk_data_path))
 
     cleaned_documents = load_and_clean_documents(input_csv)
     if cleaned_documents:
