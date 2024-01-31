@@ -34,7 +34,9 @@ def write_documents_to_csv(documents, filename):
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    confluence_url = "https://yoansalambashev.atlassian.net/"
+    confluence_url = job_input.get_property(
+        "confluence_url", "https://yoansalambashev.atlassian.net/"
+    )
     # since the Confluence space is public, no need to generate API token
     token = ""
     space_key = "RESEARCH"
