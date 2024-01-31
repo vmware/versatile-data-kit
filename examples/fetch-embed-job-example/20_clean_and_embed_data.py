@@ -79,6 +79,8 @@ def run(job_input: IJobInput):
     data_job_dir = pathlib.Path(job_input.get_job_directory())
     output_embeddings = data_job_dir / EMBEDDINGS_PKL_FILE_LOCATION
 
+    # create a temporary (until the end of the job execution) dir with
+    # write permissions to store the relevant nltk dependencies
     temp_dir = job_input.get_temporary_write_directory()
     nltk_data_path = temp_dir / "nltk_data"
     nltk_data_path.mkdir(exist_ok=True)
