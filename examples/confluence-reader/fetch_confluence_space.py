@@ -85,6 +85,27 @@ def update_last_modification_date():
 
 
 class ConfluenceDataSource:
+    """
+       A class for retrieving and managing data from a Confluence space.
+
+       This class provides methods to interact with Confluence data, including fetching updated pages,
+       retrieving all pages, fetching updated documents by parent ID, flagging deleted pages, and updating saved documents.
+
+       Attributes:
+           confluence_url (str): The URL of the Confluence instance.
+           token (str): The authentication token for accessing Confluence.
+           space_key (str): The key of the Confluence space to retrieve data from.
+           loader (ConfluenceLoader): An instance of the ConfluenceLoader for data retrieval.
+
+       Methods:
+           fetch_updated_pages_in_confluence_space(): Fetches updated pages in the Confluence space based on the last modification date.
+           fetch_all_pages_in_confluence_space(): Retrieves all pages in the Confluence space.
+           fetch_updated_documents_by_parent_id(parent_page_id): Recursively fetches updated documents based on a parent page ID.
+           flag_deleted_pages(): Flags deleted pages based on the current Confluence data.
+           update_saved_documents(): Updates the saved documents in the JSON file with the latest data.
+
+       """
+
     def __init__(self, confluence_url, token, space_key):
         self.confluence_url = confluence_url
         self.token = token
