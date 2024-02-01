@@ -70,6 +70,18 @@ def embed_documents_in_batches(documents):
     return embeddings
 
 
+def setup_nltk(temp_dir):
+    """
+    Set up NLTK by creating a temporary directory for NLTK data and downloading required resources.
+    """
+    nltk_data_path = temp_dir / "nltk_data"
+    nltk_data_path.mkdir(exist_ok=True)
+    nltk.data.path.append(str(nltk_data_path))
+
+    nltk.download("stopwords", download_dir=str(nltk_data_path))
+    nltk.download("wordnet", download_dir=str(nltk_data_path))
+
+
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
@@ -78,12 +90,7 @@ def run(job_input: IJobInput):
     output_embeddings = data_job_dir / EMBEDDINGS_PKL_FILE_LOCATION
 
     temp_dir = job_input.get_temporary_write_directory()
-    nltk_data_path = temp_dir / "nltk_data"
-    nltk_data_path.mkdir(exist_ok=True)
-    nltk.data.path.append(str(nltk_data_path))
-
-    nltk.download("stopwords", download_dir=str(nltk_data_path))
-    nltk.download("wordnet", download_dir=str(nltk_data_path))
+    setup_nltk(temp_dir)
 
     cleaned_documents = load_and_clean_documents(input_json)
     if cleaned_documents:
