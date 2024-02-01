@@ -49,9 +49,11 @@ What this means for your workflow is that when you want to work on a specific pr
 This should make it easier to focus on your specific task without getting lost in the entire codebase.
 
 
-# Design Principles
+# Design Principles and Architecture
 [Familiarize with Versatile Data Kit Design Principles](https://github.com/vmware/versatile-data-kit/wiki/Design-Principles).
 We want to prioritize user-centered development, seamless user experience, and data-centric interfaces.
+
+[Familiarize with Versatile Data Kit Architecture](https://github.com/vmware/versatile-data-kit/tree/main/specs/architecture)
 
 # Coding Standard
 See [Versatile Data Kit Coding Standard](https://github.com/vmware/versatile-data-kit/wiki/Coding-Standard).
