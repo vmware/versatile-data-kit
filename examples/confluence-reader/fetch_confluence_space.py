@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
+import os
 from datetime import datetime
 
 from confluence_document import ConfluenceDocument
@@ -72,9 +73,12 @@ def flag_deleted_pages(file_path, current_confluence_documents):
 
     current_page_ids = {doc.metadata["id"] for doc in current_confluence_documents}
 
+    num_deleted = 0
     for doc in existing_docs:
         if doc.metadata["id"] not in current_page_ids:
             doc.metadata["deleted"] = True
+            num_deleted += 1
+    log.info(f"Found {num_deleted} deleted pages.")
 
     serialized_docs = [doc.serialize() for doc in existing_docs]
     write_json_file(file_path, serialized_docs)
@@ -92,6 +96,9 @@ def read_last_modification_date():
 def update_last_modification_date():
     try:
         with open(LAST_MODIFICATION_FILE, "w") as file:
+            # This is buggy , it doesn't account for server timezone and local timezone
+            # But also assumes that server clock and local clock are synchronized (which they are likely not)
+            # The ts should be the one of the latest processed page.
             formatted_date = datetime.now().strftime("%Y-%m-%d %H:%M")
             file.write(formatted_date)
     except OSError as e:
@@ -114,7 +121,6 @@ class ConfluenceDataSource:
     Methods:
         fetch_updated_pages_in_confluence_space(): Fetches updated pages in the Confluence space based on the last modification date.
         fetch_all_pages_in_confluence_space(): Retrieves all pages in the Confluence space.
-        fetch_updated_documents_by_parent_id(parent_page_id): Recursively fetches updated documents based on a parent page ID.
         flag_deleted_pages(): Flags deleted pages based on the current Confluence data.
         update_saved_documents(): Updates the saved documents in the JSON file with the latest data.
 
@@ -128,7 +134,9 @@ class ConfluenceDataSource:
 
     def fetch_confluence_documents(self, cql_query):
         try:
-            raw_documents = self.loader.load(cql=cql_query, limit=10, max_pages=10)
+            # TODO: think about configurable limits ? or some streaming solution
+            # How do we fit all documents in memory ?
+            raw_documents = self.loader.load(cql=cql_query, limit=50, max_pages=200)
             return [
                 ConfluenceDocument(doc.metadata, doc.page_content)
                 for doc in raw_documents
@@ -137,51 +145,52 @@ class ConfluenceDataSource:
             log.error(f"Error fetching documents from Confluence: {e}")
             return []
 
-    def fetch_updated_pages_in_confluence_space(self):
+    def fetch_updated_pages_in_confluence_space(self, parent_page_id=None):
         last_date = read_last_modification_date()
+        # TODO: this really should be called not when page is read but after it's successfully processed.
         update_last_modification_date()
         cql_query = (
             f"lastModified > '{last_date}' and type = page and space = {self.space_key}"
         )
 
+        if parent_page_id:
+            # https://developer.atlassian.com/server/confluence/cql-field-reference/#ancestor
+            cql_query += f" and ancestor = {parent_page_id}"
+
         return self.fetch_confluence_documents(cql_query)
 
-    def fetch_all_pages_in_confluence_space(self):
+    def fetch_all_pages_in_confluence_space(self, parent_page_id=None):
+        # TODO: this is very inefficient as we are actually downloading everything
+        # the rest api offer expand query parameter for that but langchain loader limits all expansion to return body always.
+        # See https://docs.atlassian.com/atlassian-confluence/REST/5.5/
+        # We can hack around with by subclassing ContentFormat enum ? and try to convince library devs to add metadata only response in the loader
         cql_query = f"type = page and space = {self.space_key}"
+        if parent_page_id:
+            cql_query += f" and ancestor = {parent_page_id}"
         return self.fetch_confluence_documents(cql_query)
-
-    def fetch_updated_documents_by_parent_id(self, parent_page_id):
-        last_modified_date = read_last_modification_date()
-        update_last_modification_date()
-
-        def fetch_updated_recursive(page_id, last_modified_date):
-            updated_documents = []
-            cql_query = f"type = page and parent = {page_id} and lastModified > '{last_modified_date}'"
-            child_documents = self.fetch_confluence_documents(cql_query)
-
-            for doc in child_documents:
-                updated_documents.append(doc)
-                updated_documents.extend(
-                    fetch_updated_recursive(doc["id"], last_modified_date)
-                )
-
-            return updated_documents
-
-        return fetch_updated_recursive(parent_page_id, last_modified_date)
 
 
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    confluence_url = job_input.get_property("confluence_url", "YOUR_CONFLUENCE_URL")
-    token = job_input.get_property("confluence_token", "YOUR_CONFLUENCE_TOKEN")
-    space_key = job_input.get_property("confluence_space_key", "YOUR_SPACE_KEY")
+    confluence_url = job_input.get_property(
+        "confluence_url", "http://confluence.eng.vmware.com/"
+    )
+    token = job_input.get_property(
+        "confluence_token", os.environ.get("VDK_CONFLUENCE_TOKEN")
+    )
+    space_key = job_input.get_property("confluence_space_key", "TAURUS")
+    parent_page_id = job_input.get_property("confluence_parent_page_id", "1105807412")
 
     confluence_reader = ConfluenceDataSource(confluence_url, token, space_key)
 
-    updated_docs = confluence_reader.fetch_updated_pages_in_confluence_space()
+    updated_docs = confluence_reader.fetch_updated_pages_in_confluence_space(
+        parent_page_id
+    )
+    log.info(f"Found {len(updated_docs)} updated pages")
     update_saved_documents(CONFLUENCE_DATA_FILE, updated_docs)
 
     flag_deleted_pages(
-        CONFLUENCE_DATA_FILE, confluence_reader.fetch_all_pages_in_confluence_space()
+        CONFLUENCE_DATA_FILE,
+        confluence_reader.fetch_all_pages_in_confluence_space(parent_page_id),
     )
