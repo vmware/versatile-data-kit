@@ -46,8 +46,8 @@ def load_and_clean_documents(json_file_path):
         documents = json.load(file)
 
     for doc in documents:
-        if "page_content" in doc:
-            cleaned_text = clean_text(doc["page_content"])
+        if "data" in doc:
+            cleaned_text = clean_text(doc["data"])
             cleaned_documents.append([cleaned_text])
 
     print(len(cleaned_documents))

@@ -44,8 +44,9 @@ def run(job_input: IJobInput):
         metadata_payload = {
             "id": document["metadata"]["id"],
             "title": document["metadata"]["title"],
-            "content": document["page_content"],
+            "data": document["data"],
             "source": document["metadata"]["source"],
+            "deleted": document["metadata"]["deleted"],
         }
         job_input.send_object_for_ingestion(
             payload=metadata_payload,

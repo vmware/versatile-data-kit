@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.vdk_confluence_doc_metadata_example
     id INTEGER PRIMARY KEY,
     title TEXT,
     source TEXT,
-    content TEXT,
+    data TEXT,
+    deleted BOOLEAN,
     CONSTRAINT fk_metadata_embeddings FOREIGN KEY (id) REFERENCES public.vdk_confluence_doc_embeddings_example(id)
 );
