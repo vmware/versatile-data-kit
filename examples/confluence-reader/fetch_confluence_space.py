@@ -35,7 +35,7 @@ def update_saved_documents(file_path, new_docs):
     existing_docs = read_json_file(file_path) or []
 
     if isinstance(existing_docs, list) and existing_docs and isinstance(existing_docs[0], dict):
-        existing_docs = [ConfluenceDocument(doc['metadata'], doc['page_content'], doc.get('deleted', False)) for doc in existing_docs]
+        existing_docs = [ConfluenceDocument(doc['metadata'], doc['data'], doc['metadata'].get('deleted', False)) for doc in existing_docs]
 
     existing_docs_dict = {doc.metadata['id']: doc for doc in existing_docs}
 
@@ -54,13 +54,13 @@ def flag_deleted_pages(file_path, current_confluence_documents):
         log.error("Existing documents not found. Exiting.")
         return
 
-    existing_docs = [ConfluenceDocument(doc['metadata'], doc['page_content'], doc.get('deleted', False)) for doc in existing_docs]
+    existing_docs = [ConfluenceDocument(doc['metadata'], doc['data'], doc['metadata'].get('deleted', False)) for doc in existing_docs]
 
     current_page_ids = {doc.metadata['id'] for doc in current_confluence_documents}
 
     for doc in existing_docs:
         if doc.metadata['id'] not in current_page_ids:
-            doc.deleted = True
+            doc.metadata['deleted'] = True
 
     serialized_docs = [doc.serialize() for doc in existing_docs]
     write_json_file(file_path, serialized_docs)

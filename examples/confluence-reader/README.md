@@ -25,28 +25,20 @@ It follows this structured format:
         "metadata": {
             "title": "Page Title",
             "id": "Page ID",
-            "source": "Source URL"
+            "source": "Source URL",
+            "deleted": false
         },
-        "page_content": "Page Content Text",
-        "deleted": false
+        "data": "Page Content Text"
     },
     {
         "metadata": {
             "title": "Another Page Title",
             "id": "Another Page ID",
-            "source": "Another Source URL"
+            "source": "Another Source URL",
+            "deleted": true
         },
-        "page_content": "Another Page Content Text",
-        "deleted": false
-    },
-    {
-        "metadata": {
-            "title": "Yet Another Page Title",
-            "id": "Yet Another Page ID",
-            "source": "Yet Another Source URL"
-        },
-        "page_content": "Yet Another Page Content Text",
-        "deleted": false
+        "data": "Another Page Content Text"
     }
 ]
+
 ```
