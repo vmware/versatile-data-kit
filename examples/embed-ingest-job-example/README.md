@@ -1,7 +1,22 @@
 # Embed And Ingest Data Job Example
 
-The following Versatile Data Kit example allows you to embed your Confluence JSON data
+The following Versatile Data Kit example allows you to embed documenta data and metadata (in certain format)
 and ingest it into Postgres instance with pgvector.
+
+# Expected input format
+
+```python
+[
+    {
+        "metadata": {
+            "title": "Page (or chunk) title",
+            "id": "Content page ID",
+            "source": "Source URL",
+            "deleted": <is the content being deleted in the source>
+        },
+        "data": "Content Text"
+    },
+```
 
 # Create embeddings for the data
 The fetched data from the previous step is read, cleaned and embedded using the

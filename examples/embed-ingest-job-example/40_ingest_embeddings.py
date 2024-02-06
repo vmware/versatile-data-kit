@@ -27,6 +27,8 @@ def run(job_input: IJobInput):
 
     print(len(documents), len(embeddings))
 
+    # TODO: our postgres plugin doesn't support updates (upserts) so updating with same ID fails.
+
     for i, embedding in enumerate(embeddings):
         embedding_list = (
             embedding.tolist() if isinstance(embedding, np.ndarray) else embedding
@@ -37,7 +39,7 @@ def run(job_input: IJobInput):
         }
         job_input.send_object_for_ingestion(
             payload=embedding_payload,
-            destination_table="vdk_confluence_doc_embeddings_example",
+            destination_table=job_input.get_property("destination_embeddings_table"),
         )
 
     for document in documents:
@@ -50,5 +52,5 @@ def run(job_input: IJobInput):
         }
         job_input.send_object_for_ingestion(
             payload=metadata_payload,
-            destination_table="vdk_confluence_doc_metadata_example",
+            destination_table=job_input.get_property("destination_metadata_table"),
         )
