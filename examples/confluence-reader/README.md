@@ -8,7 +8,6 @@ The `ConfluenceDataSource` class is the heart of this data job. It provides a se
 
 - `fetch_updated_pages_in_confluence_space()`: Fetches updated pages in the Confluence space based on the last modification date.
 - `fetch_all_pages_in_confluence_space()`: Retrieves all pages in the Confluence space.
-- `fetch_updated_documents_by_parent_id(parent_page_id)`: Recursively fetches updated documents based on a parent page ID, ensuring that nested pages are also captured.
 - `flag_deleted_pages()`: Flags deleted pages based on the current Confluence data.
 - `update_saved_documents()`: Updates the saved documents in the JSON file with the latest data.
 

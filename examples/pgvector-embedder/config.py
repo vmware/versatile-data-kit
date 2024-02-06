@@ -1,5 +1,9 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
+import os
 
-DOCUMENTS_JSON_FILE_LOCATION = "documents_example.json"
-EMBEDDINGS_PKL_FILE_LOCATION = "embeddings_example.pkl"
+
+def get_value(job_input, key: str, default_value=None):
+    return job_input.get_arguments().get(
+        key, job_input.get_property(key, os.environ.get(key.upper(), default_value))
+    )

@@ -11,9 +11,6 @@ from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
 
-CONFLUENCE_DATA_FILE = "confluence_data.json"
-LAST_MODIFICATION_FILE = "last_modification.txt"
-
 
 def read_json_file(file_path):
     try:
@@ -84,27 +81,6 @@ def flag_deleted_pages(file_path, current_confluence_documents):
     write_json_file(file_path, serialized_docs)
 
 
-def read_last_modification_date():
-    try:
-        with open(LAST_MODIFICATION_FILE) as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        log.error(f"{LAST_MODIFICATION_FILE} not found. Using default date.")
-        return datetime.min.strftime("%Y-%m-%d %H:%M")
-
-
-def update_last_modification_date():
-    try:
-        with open(LAST_MODIFICATION_FILE, "w") as file:
-            # This is buggy , it doesn't account for server timezone and local timezone
-            # But also assumes that server clock and local clock are synchronized (which they are likely not)
-            # The ts should be the one of the latest processed page.
-            formatted_date = datetime.now().strftime("%Y-%m-%d %H:%M")
-            file.write(formatted_date)
-    except OSError as e:
-        log.error(f"Error writing to file: {e}")
-
-
 class ConfluenceDataSource:
     """
     A class for retrieving and managing data from a Confluence space.
@@ -143,12 +119,12 @@ class ConfluenceDataSource:
             ]
         except Exception as e:
             log.error(f"Error fetching documents from Confluence: {e}")
-            return []
+            raise e
 
-    def fetch_updated_pages_in_confluence_space(self, parent_page_id=None):
-        last_date = read_last_modification_date()
+    def fetch_updated_pages_in_confluence_space(
+        self, last_date="1900-02-06 17:54", parent_page_id=None
+    ):
         # TODO: this really should be called not when page is read but after it's successfully processed.
-        update_last_modification_date()
         cql_query = (
             f"lastModified > '{last_date}' and type = page and space = {self.space_key}"
         )
@@ -170,27 +146,46 @@ class ConfluenceDataSource:
         return self.fetch_confluence_documents(cql_query)
 
 
+def get_value(job_input, key: str, default_value=None):
+    return job_input.get_arguments().get(
+        key, job_input.get_property(key, os.environ.get(key.upper(), default_value))
+    )
+
+
+def set_property(job_input: IJobInput, key, value):
+    props = job_input.get_all_properties()
+    props[key] = value
+    job_input.set_all_properties(props)
+
+
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    confluence_url = job_input.get_property(
-        "confluence_url", "http://confluence.eng.vmware.com/"
+    confluence_url = get_value(job_input, "confluence_url")
+    token = get_value(job_input, "confluence_token")
+    space_key = get_value(job_input, "confluence_space_key")
+    parent_page_id = get_value(job_input, "confluence_parent_page_id")
+    last_date = get_value(job_input, "last_date", "1900-01-01 12:00")
+    data_file = get_value(
+        job_input,
+        "data_file",
+        os.path.join(job_input.get_temporary_write_directory(), "confluence_data.json"),
     )
-    token = job_input.get_property(
-        "confluence_token", os.environ.get("VDK_CONFLUENCE_TOKEN")
-    )
-    space_key = job_input.get_property("confluence_space_key", "TAURUS")
-    parent_page_id = job_input.get_property("confluence_parent_page_id", "1105807412")
 
     confluence_reader = ConfluenceDataSource(confluence_url, token, space_key)
 
     updated_docs = confluence_reader.fetch_updated_pages_in_confluence_space(
-        parent_page_id
+        last_date, parent_page_id
     )
     log.info(f"Found {len(updated_docs)} updated pages")
-    update_saved_documents(CONFLUENCE_DATA_FILE, updated_docs)
+    update_saved_documents(data_file, updated_docs)
+
+    # This is buggy , it doesn't account for server timezone and local timezone
+    # But also assumes that server clock and local clock are synchronized (which they are likely not)
+    # The ts should be the one of the latest processed page.
+    set_property(job_input, "last_date", datetime.now().strftime("%Y-%m-%d %H:%M"))
 
     flag_deleted_pages(
-        CONFLUENCE_DATA_FILE,
+        data_file,
         confluence_reader.fetch_all_pages_in_confluence_space(parent_page_id),
     )
