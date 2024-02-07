@@ -17,7 +17,7 @@ class PageContentDataSourceConfiguration(IDataSourceConfiguration):
 @data_source(
     name="confluence-page-content", config_class=PageContentDataSourceConfiguration
 )
-class PageContentDataSource(IDataSource):
+class ConfluenceDataSource(IDataSource):
     def __init__(self):
         self._config = None
         self._streams = []
@@ -64,7 +64,8 @@ class PageContentStream(IDataSourceStream):
                     "space_key": self.space_key,
                     "title": page['title'],
                     "last_modified": page['history']['lastUpdated']['when'],
-                    "version": page['version']['number']
+                    "version": page['version']['number'],
+                    "status": "existing"
                 }
                 yield DataSourcePayload(data=data, metadata=metadata)
             start += limit

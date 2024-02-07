@@ -4,4 +4,7 @@
 vdk-core
 
 pytest
+requests-mock
+pytest-mock
 vdk-test-utils
+atlassian

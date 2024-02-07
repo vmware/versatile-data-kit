@@ -5,7 +5,7 @@ from vdk.api.plugin.plugin_registry import IPluginRegistry
 
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.config import ConfigurationBuilder
-from vdk.plugin.confluence_data_source.data_source import ConfluenceDataSourceDataSource
+from vdk.plugin.confluence_data_source.data_source import ConfluenceDataSource
 from vdk.plugin.data_sources.factory import IDataSourceFactory
 
 
@@ -14,7 +14,7 @@ class DataSourcePlugin:
     @hookimpl
     def vdk_data_sources_register(self,
                                   data_source_factory: IDataSourceFactory):
-        data_source_factory.register_data_source_class(ConfluenceDataSourceDataSource)
+        data_source_factory.register_data_source_class(ConfluenceDataSource)
 
 
 @hookimpl
