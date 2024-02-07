@@ -8,3 +8,4 @@ requests-mock
 pytest-mock
 vdk-test-utils
 atlassian
+retrying
