@@ -1,7 +1,7 @@
 # Versatile Data Kit SDK Core
 
 <a href="https://pypistats.org/packages/vdk-core" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-core.svg" alt="monthly download count for vdk-core">
+        <img src="https://img.shields.io/pypi/dm/vdk-core.svg" alt="monthly download count for vdk-core"></a>
 
 To build or contribute, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 

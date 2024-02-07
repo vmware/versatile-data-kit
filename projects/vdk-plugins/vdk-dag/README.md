@@ -1,7 +1,7 @@
 # VDK DAGs
 
 <a href="https://pypistats.org/packages/vdk-dag" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-dag.svg" alt="monthly download count for vdk-dag">
+        <img src="https://img.shields.io/pypi/dm/vdk-dag.svg" alt="monthly download count for vdk-dag"></a>
 
 Express dependencies between data jobs.
 

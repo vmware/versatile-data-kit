@@ -1,7 +1,7 @@
 # data-sources
 
 <a href="https://pypistats.org/packages/vdk-data-sources" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-data-sources.svg" alt="monthly download count for vdk-data-sources">
+        <img src="https://img.shields.io/pypi/dm/vdk-data-sources.svg" alt="monthly download count for vdk-data-sources"></a>
 
 Enables Versatile Data Kit (VDK) to integrate with various data sources by providing a unified interface for data ingestion and management.
 

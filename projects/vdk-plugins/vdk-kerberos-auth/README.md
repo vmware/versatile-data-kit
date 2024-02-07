@@ -1,5 +1,5 @@
 <a href="https://pypistats.org/packages/vdk-kerberos-auth" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-kerberos-auth.svg" alt="monthly download count for vdk-kerberos-auth">
+        <img src="https://img.shields.io/pypi/dm/vdk-kerberos-auth.svg" alt="monthly download count for vdk-kerberos-auth"></a>
 
 The plugin provides GSSAPI Kerberos authentication on data job startup. The plugin also adds Kerberos/GSSAPI support for HTTP requests.
 

@@ -7,7 +7,7 @@
     <a href="https://github.com/vmware/versatile-data-kit/contributors" alt="Last Activity">
         <img src="https://img.shields.io/github/last-commit/vmware/versatile-data-kit" alt="Last Activity"></a>
     <a href="https://pypistats.org/packages/vdk-core" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-core.svg" alt="monthly download count for vdk-core">
+        <img src="https://img.shields.io/pypi/dm/vdk-core.svg" alt="monthly download count for vdk-core"></a>
     <a href="https://github.com/vmware/versatile-data-kit/blob/main/LICENSE" alt="License">
         <img src="https://img.shields.io/github/license/vmware/versatile-data-kit" alt="license"></a>
     <a href="https://github.com/pre-commit/pre-commit">
