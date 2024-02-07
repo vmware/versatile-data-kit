@@ -1,6 +1,9 @@
 import logging
 
 from vdk.api.job_input import IJobInput
+from vdk.plugin.data_sources.mapping.data_flow import DataFlowInput
+from vdk.plugin.data_sources.mapping.definitions import SourceDefinition, DestinationDefinition, \
+    DataFlowMappingDefinition
 
 log = logging.getLogger(__name__)
 

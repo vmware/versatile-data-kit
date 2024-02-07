@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 from unittest import mock
@@ -8,6 +9,7 @@ from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 from vdk.plugin.data_sources import plugin_entry as data_sources_plugin_entry
+from vdk.plugin.test_utils.util_plugins import IngestIntoMemoryPlugin
 
 """
 This is a sample test file showing a recommended way to test new plugins.
