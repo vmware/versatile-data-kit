@@ -18,7 +18,7 @@ from vdk.plugin.data_sources.factory import data_source
 
 
 @config_class(
-    name="confluence-page-content", description="Stream Confluence page contents"
+    name="confluence-data-source-config", description="Stream Confluence page contents"
 )
 class ConfluenceContentDataSourceConfiguration(IDataSourceConfiguration):
     confluence_url: str = config_field(description="URL of the Confluence site")

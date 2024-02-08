@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import os
 
 from vdk.api.job_input import IJobInput
 from vdk.plugin.data_sources.mapping.data_flow import DataFlowInput
@@ -9,16 +10,36 @@ from vdk.plugin.data_sources.mapping.definitions import DataFlowMappingDefinitio
 from vdk.plugin.data_sources.mapping.definitions import DestinationDefinition
 from vdk.plugin.data_sources.mapping.definitions import SourceDefinition
 
+from vdk.plugin.confluence_data_source.data_source import ConfluenceDataSource
+
 log = logging.getLogger(__name__)
 
 
-def run(job_input: IJobInput):
-    source = SourceDefinition(
-        id="test-data-source",
-        name="confluence-data-source",
-        config=job_input.get_arguments("config", {}),
-    )
-    destination = DestinationDefinition(id="test-destination", method="memory")
+class ConfluenceContentDataSourceConfiguration:
+    def __init__(self):
+        self.confluence_url = os.getenv("CONFLUENCE_URL")
+        self.api_token = os.getenv("CONFLUENCE_API_TOKEN")
+        self.space_key = os.getenv("CONFLUENCE_SPACE_KEY", None)
+        self.cloud = True
+        self.confluence_kwargs = {}
+        self.username = None
+        self.personal_access_token = None
+        self.oauth2 = None
 
-    with DataFlowInput(job_input) as flow_input:
-        flow_input.start(DataFlowMappingDefinition(source, destination))
+
+def run():
+    config = ConfluenceContentDataSourceConfiguration()
+
+    confluence_data_source = ConfluenceDataSource()
+    confluence_data_source.configure(config)
+
+    confluence_data_source.connect(None)
+
+    for stream in confluence_data_source.streams():
+        for page_content in stream.read():
+            print(page_content.data, page_content.metadata)
+
+    confluence_data_source.disconnect()
+
+
+run()
