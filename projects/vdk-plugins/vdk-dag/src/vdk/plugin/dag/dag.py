@@ -15,10 +15,21 @@ from vdk.plugin.dag.cached_data_job_executor import TrackingDataJobExecutor
 from vdk.plugin.dag.dag_plugin_configuration import DagPluginConfiguration
 from vdk.plugin.dag.dag_validator import DagValidator
 from vdk.plugin.dag.dags import TrackableJob
+from vdk.plugin.dag.local_executor import LocalDataJobExecutor
 from vdk.plugin.dag.remote_data_job_executor import RemoteDataJobExecutor
 from vdk.plugin.dag.time_based_queue import TimeBasedQueue
 
 log = logging.getLogger(__name__)
+
+
+def get_job_executor(executor_type: str):
+    if executor_type.lower() == "remote":
+        return RemoteDataJobExecutor()
+    if executor_type.lower() == "local":
+        return LocalDataJobExecutor()
+    raise ValueError(
+        f"Unsupported executor type: {executor_type}. Must be either remote or local."
+    )
 
 
 class Dag:
@@ -49,7 +60,7 @@ class Dag:
             dags_config.dags_dag_execution_check_time_period_seconds()
         )
         self._job_executor = TrackingDataJobExecutor(
-            executor=RemoteDataJobExecutor(),
+            executor=get_job_executor(dags_config.dags_job_executor_type()),
             time_between_status_check_seconds=dags_config.dags_time_between_status_check_seconds(),
         )
         self._dag_validator = DagValidator()
