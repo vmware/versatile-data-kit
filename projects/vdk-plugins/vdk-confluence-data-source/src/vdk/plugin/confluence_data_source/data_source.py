@@ -130,15 +130,17 @@ class ConfluenceDataSource(IDataSource):
             else:
                 # no space_key provided, fetch all accessible spaces and create a stream for each
                 try:
-                    spaces = self._confluence_client.get_all_spaces(limit=1000)  # we should adjust the limit as needed
-                    for space in spaces:
-                        space_key = space['key']
-                        self._streams.append(
-                            PageContentStream(
-                                confluence_client=self._confluence_client,
-                                space_key=space_key,
-                            )
-                        )
+                    response = self._confluence_client.get_all_spaces(limit=1000)  # should be adjusted as needed
+                    if 'results' in response:
+                        for space in response['results']:
+                            space_key = space.get('key')
+                            if space_key:
+                                self._streams.append(
+                                    PageContentStream(
+                                        confluence_client=self._confluence_client,
+                                        space_key=space_key,
+                                    )
+                                )
                 except Exception as e:
                     logging.error(f"Failed to fetch spaces from Confluence: {e}")
                     raise
