@@ -2,12 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
-import pathlib
 import re
 
 import nltk
-from config import DOCUMENTS_JSON_FILE_LOCATION
-from config import EMBEDDINGS_PKL_FILE_LOCATION
+from config import get_value
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from sentence_transformers import SentenceTransformer
@@ -84,9 +82,8 @@ def setup_nltk(temp_dir):
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    data_job_dir = pathlib.Path(job_input.get_job_directory())
-    input_json = data_job_dir / DOCUMENTS_JSON_FILE_LOCATION
-    output_embeddings = data_job_dir / EMBEDDINGS_PKL_FILE_LOCATION
+    input_json = get_value(job_input, "data_file")
+    output_embeddings = get_value(job_input, "output_embeddings")
 
     temp_dir = job_input.get_temporary_write_directory()
     setup_nltk(temp_dir)
