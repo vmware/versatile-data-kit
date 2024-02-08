@@ -50,7 +50,7 @@ class ConfluenceContentDataSourceConfiguration(IDataSourceConfiguration):
 
 
 @data_source(
-    name="confluence-content", config_class=ConfluenceContentDataSourceConfiguration
+    name="confluence-data-source", config_class=ConfluenceContentDataSourceConfiguration
 )
 class ConfluenceDataSource(IDataSource):
     """
