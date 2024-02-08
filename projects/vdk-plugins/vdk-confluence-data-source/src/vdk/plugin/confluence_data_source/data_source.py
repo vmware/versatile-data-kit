@@ -102,7 +102,7 @@ class PageContentStream(IDataSourceStream):
         if not space_key:
             raise ValueError("Space key is required")
 
-        auth_methods = [username, api_key, token, oauth2]
+        auth_methods = [username, token, oauth2]
         if sum(bool(method) for method in auth_methods) > 1:
             raise ValueError("Only one authentication method should be provided")
 
