@@ -120,12 +120,29 @@ class ConfluenceDataSource(IDataSource):
 
     def connect(self, state):
         if not self._streams and self._confluence_client:
-            self._streams.append(
-                PageContentStream(
-                    confluence_client=self._confluence_client,
-                    space_key=self._config.space_key,
+            if self._config.space_key:
+                # if a space_key is provided, create a stream for that space only
+                self._streams.append(
+                    PageContentStream(
+                        confluence_client=self._confluence_client,
+                        space_key=self._config.space_key,
+                    )
                 )
-            )
+            else:
+                # no space_key provided, fetch all accessible spaces and create a stream for each
+                try:
+                    spaces = self._confluence_client.get_all_spaces(limit=1000)  # we should adjust the limit as needed
+                    for space in spaces:
+                        space_key = space['key']
+                        self._streams.append(
+                            PageContentStream(
+                                confluence_client=self._confluence_client,
+                                space_key=space_key,
+                            )
+                        )
+                except Exception as e:
+                    logging.error(f"Failed to fetch spaces from Confluence: {e}")
+                    raise
 
     def disconnect(self):
         self._streams = []
