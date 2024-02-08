@@ -9,3 +9,4 @@ pytest-mock
 vdk-test-utils
 atlassian
 retrying
+python-dateutil

@@ -5,7 +5,7 @@ import re
 
 from click.testing import Result
 from vdk.plugin.confluence_data_source import plugin_entry
-from vdk.plugin.confluence_data_source.data_source import PageUpdatesStream, PageContentStream
+from vdk.plugin.confluence_data_source.data_source import PageContentStream
 from vdk.plugin.data_sources.data_source import DataSourcePayload
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -59,7 +59,7 @@ def mock_confluence_api(requests_mock):
 
 @pytest.mark.usefixtures("mock_confluence_api")
 def test_page_content_stream():
-    stream = PageContentStream(url="https://your-confluence-instance.atlassian.net/wiki", username="user",
+    stream = PageContentStream(url="https://your-confluence-instance.atlassian.net/wiki",
                                token="token", space_key="SPACE_KEY")
     pages = list(stream.read())
     assert len(pages) > 0
@@ -67,18 +67,6 @@ def test_page_content_stream():
         assert isinstance(page, DataSourcePayload)
         assert page.metadata['space_key'] == "SPACE_KEY"
         assert 'existing' in page.metadata['status']
-
-
-@pytest.mark.usefixtures("mock_confluence_api")
-def test_page_updates_stream():
-    stream = PageUpdatesStream(url="https://your-confluence-instance.atlassian.net/wiki", username="user",
-                               token="token", space_key="SPACE_KEY")
-    pages = list(stream.read(last_check_timestamp="2020-12-31T23:59:59.999Z"))
-    assert len(pages) > 0
-    for page in pages:
-        assert isinstance(page, DataSourcePayload)
-        assert page.metadata['space_key'] == "SPACE_KEY"
-        assert page.metadata['status'] == "existing"
 
 
 def test_run_api_ingest(tmpdir):
