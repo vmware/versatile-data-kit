@@ -7,7 +7,6 @@ from typing import List
 from typing import Optional
 
 from atlassian import Confluence
-from dateutil import parser
 from retrying import retry
 from vdk.plugin.data_sources.config import config_class
 from vdk.plugin.data_sources.config import config_field
