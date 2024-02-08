@@ -12,9 +12,19 @@ from vdk.plugin.data_sources.factory import data_source
 @config_class(name="confluence-page-content", description="Stream Confluence page contents")
 class ConfluenceContentDataSourceConfiguration(IDataSourceConfiguration):
     confluence_url: str = config_field(description="URL of the Confluence site")
-    username: str = config_field(description="Confluence username for authentication")
-    api_token: str = config_field(description="Confluence API token for authentication")
     space_key: str = config_field(description="Key of the Confluence space")
+    username: Optional[str] = config_field(description="Confluence username for authentication", default=None)
+    api_token: Optional[str] = config_field(description="Confluence API token for authentication", default=None)
+    personal_access_token: Optional[str] = config_field(description="Confluence personal access token for"
+                                                                    " authentication", default=None)
+    oauth2: Optional[dict] = config_field(description="OAuth2 credentials for authentication "
+                                                      "in dictionary format. Required keys: 'access_token',"
+                                                      " 'access_token_secret', 'consumer_key', 'key_cert'",
+                                          default=None)
+    cloud: bool = config_field(description="Flag indicating if the Confluence instance is"
+                                           " cloud-based", default=True)
+    confluence_kwargs: Optional[dict] = config_field(description="Additional keyword arguments "
+                                                                 "for the Confluence client", default=None)
 
 
 @data_source(
@@ -31,10 +41,14 @@ class ConfluenceDataSource(IDataSource):
     def connect(self, state):
         if not self._streams:
             self._streams.append(PageContentStream(
-                self._config.confluence_url,
-                self._config.username,
-                self._config.api_token,
-                self._config.space_key
+                url=self._config.confluence_url,
+                space_key=self._config.space_key,
+                username=self._config.username,
+                api_key=self._config.api_token,
+                token=self._config.personal_access_token,
+                oauth2=self._config.oauth2,
+                cloud=self._config.cloud,
+                confluence_kwargs=self._config.confluence_kwargs
             ))
 
     def disconnect(self):
@@ -51,19 +65,6 @@ class PageContentStream(IDataSourceStream):
        This class initializes a connection to a Confluence instance and provides a method to read and stream content
        from pages. It supports multiple authentication methods including basic authentication with username and API key,
         OAuth2, and personal access tokens. The stream can optionally filter pages updated after a specified timestamp.
-
-       Attributes:
-           url (str): The base URL of the Confluence instance.
-           space_key (str): The key of the space from which to fetch pages.
-           username (Optional[str]): The username for basic authentication.
-           api_key (Optional[str]): The API key or password for basic authentication. Required if username is provided.
-           token (Optional[str]): A personal access token for authentication.
-           oauth2 (Optional[dict]): A dictionary containing OAuth2 credentials for authentication.
-           cloud (bool): A flag indicating whether the Confluence instance is cloud-based. Defaults to True.
-           confluence_kwargs (Optional[dict]): Additional keyword arguments to pass to the Confluence client.
-
-       Raises:
-           ValueError: If the URL or space key is not provided, or if multiple authentication methods are provided.
 
        Usage Example:
            # Basic authentication
