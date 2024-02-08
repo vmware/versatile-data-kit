@@ -1,6 +1,5 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 import json
 import re
 
@@ -65,12 +64,9 @@ def mock_confluence_api(requests_mock):
 @pytest.mark.usefixtures("mock_confluence_api")
 def test_page_content_stream():
     confluence = Confluence(
-        url="https://your-confluence-instance.atlassian.net/wiki",
-        token="token")
-    stream = PageContentStream(
-        confluence_client=confluence,
-        space_key="SPACE_KEY"
+        url="https://your-confluence-instance.atlassian.net/wiki", token="token"
     )
+    stream = PageContentStream(confluence_client=confluence, space_key="SPACE_KEY")
     pages = list(stream.read())
     assert len(pages) > 0
     for page in pages:

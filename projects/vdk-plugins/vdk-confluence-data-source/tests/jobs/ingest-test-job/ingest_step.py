@@ -1,16 +1,14 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 import logging
 import os
 
 from vdk.api.job_input import IJobInput
+from vdk.plugin.confluence_data_source.data_source import ConfluenceDataSource
 from vdk.plugin.data_sources.mapping.data_flow import DataFlowInput
 from vdk.plugin.data_sources.mapping.definitions import DataFlowMappingDefinition
 from vdk.plugin.data_sources.mapping.definitions import DestinationDefinition
 from vdk.plugin.data_sources.mapping.definitions import SourceDefinition
-
-from vdk.plugin.confluence_data_source.data_source import ConfluenceDataSource
 
 log = logging.getLogger(__name__)
 

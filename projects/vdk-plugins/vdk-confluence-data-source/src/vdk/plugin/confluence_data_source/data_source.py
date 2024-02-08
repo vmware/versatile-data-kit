@@ -1,6 +1,5 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
 import logging
 from typing import Iterator
 from typing import List
@@ -54,36 +53,37 @@ class ConfluenceContentDataSourceConfiguration(IDataSourceConfiguration):
 )
 class ConfluenceDataSource(IDataSource):
     """
-        A data source class for streaming content from Confluence. This class is responsible for
-        configuring and managing connections to a Confluence instance, and it provides methods to
-        connect to, disconnect from, and retrieve streams of data from Confluence.
+    A data source class for streaming content from Confluence. This class is responsible for
+    configuring and managing connections to a Confluence instance, and it provides methods to
+    connect to, disconnect from, and retrieve streams of data from Confluence.
 
-        The data source supports multiple authentication methods including basic authentication with
-        username and API token, OAuth2, and personal access tokens. It initializes a single Confluence
-        client based on the provided configuration and uses this client across different streams to
-        fetch page content, comments, or other Confluence entities.
+    The data source supports multiple authentication methods including basic authentication with
+    username and API token, OAuth2, and personal access tokens. It initializes a single Confluence
+    client based on the provided configuration and uses this client across different streams to
+    fetch page content, comments, or other Confluence entities.
 
-        Example:
+    Example:
 
-            ```python
-            config = ConfluenceContentDataSourceConfiguration(
-                confluence_url="https://your-confluence-instance.atlassian.net/wiki",
-                space_key="SPACE_KEY",
-                username="user",
-                api_token="secret"
-            )
-            confluence_data_source = ConfluenceDataSource()
-            confluence_data_source.configure(config)
-            confluence_data_source.connect(state=None)
+        ```python
+        config = ConfluenceContentDataSourceConfiguration(
+            confluence_url="https://your-confluence-instance.atlassian.net/wiki",
+            space_key="SPACE_KEY",
+            username="user",
+            api_token="secret"
+        )
+        confluence_data_source = ConfluenceDataSource()
+        confluence_data_source.configure(config)
+        confluence_data_source.connect(state=None)
 
-            for stream in confluence_data_source.streams():
-                for page_content in stream.read():
-                    print(page_content.data, page_content.metadata)
+        for stream in confluence_data_source.streams():
+            for page_content in stream.read():
+                print(page_content.data, page_content.metadata)
 
-            confluence_data_source.disconnect()
-            ```
+        confluence_data_source.disconnect()
+        ```
 
-        """
+    """
+
     def __init__(self):
         self._config = None
         self._confluence_client = None
@@ -98,17 +98,23 @@ class ConfluenceDataSource(IDataSource):
         confluence_kwargs = self._config.confluence_kwargs or {}
         if self._config.oauth2:
             self._confluence_client = Confluence(
-                url=self._config.confluence_url, oauth2=self._config.oauth2, cloud=self._config.cloud,
-                **confluence_kwargs
+                url=self._config.confluence_url,
+                oauth2=self._config.oauth2,
+                cloud=self._config.cloud,
+                **confluence_kwargs,
             )
         elif self._config.api_token:
             self._confluence_client = Confluence(
-                url=self._config.confluence_url, token=self._config.api_token, cloud=self._config.cloud,
-                **confluence_kwargs
+                url=self._config.confluence_url,
+                token=self._config.api_token,
+                cloud=self._config.cloud,
+                **confluence_kwargs,
             )
         else:
             if not self._config.username or not self._config.personal_access_token:
-                raise ValueError("Username and API token are required for basic authentication")
+                raise ValueError(
+                    "Username and API token are required for basic authentication"
+                )
             self._confluence_client = Confluence(
                 url=self._config.confluence_url,
                 username=self._config.username,
@@ -130,10 +136,12 @@ class ConfluenceDataSource(IDataSource):
             else:
                 # no space_key provided, fetch all accessible spaces and create a stream for each
                 try:
-                    response = self._confluence_client.get_all_spaces(limit=1000)  # should be adjusted as needed
-                    if 'results' in response:
-                        for space in response['results']:
-                            space_key = space.get('key')
+                    response = self._confluence_client.get_all_spaces(
+                        limit=1000
+                    )  # should be adjusted as needed
+                    if "results" in response:
+                        for space in response["results"]:
+                            space_key = space.get("key")
                             if space_key:
                                 self._streams.append(
                                     PageContentStream(
