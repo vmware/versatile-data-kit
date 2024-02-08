@@ -45,6 +45,46 @@ class ConfluenceDataSource(IDataSource):
 
 
 class PageContentStream(IDataSourceStream):
+    """
+       A stream class for fetching content from Confluence pages within a specified space.
+
+       This class initializes a connection to a Confluence instance and provides a method to read and stream content
+       from pages. It supports multiple authentication methods including basic authentication with username and API key,
+        OAuth2, and personal access tokens. The stream can optionally filter pages updated after a specified timestamp.
+
+       Attributes:
+           url (str): The base URL of the Confluence instance.
+           space_key (str): The key of the space from which to fetch pages.
+           username (Optional[str]): The username for basic authentication.
+           api_key (Optional[str]): The API key or password for basic authentication. Required if username is provided.
+           token (Optional[str]): A personal access token for authentication.
+           oauth2 (Optional[dict]): A dictionary containing OAuth2 credentials for authentication.
+           cloud (bool): A flag indicating whether the Confluence instance is cloud-based. Defaults to True.
+           confluence_kwargs (Optional[dict]): Additional keyword arguments to pass to the Confluence client.
+
+       Raises:
+           ValueError: If the URL or space key is not provided, or if multiple authentication methods are provided.
+
+       Usage Example:
+           # Basic authentication
+           stream = PageContentStream(
+               url="https://your-confluence-instance.atlassian.net/wiki",
+               space_key="SPACE_KEY",
+               username="user",
+               api_key="secret"
+           )
+
+           # Using a personal access token
+           stream = PageContentStream(
+               url="https://your-confluence-instance.atlassian.net/wiki",
+               space_key="SPACE_KEY",
+               token="your_token"
+           )
+
+           # Iterating through page content
+           for page in stream.read(last_check_timestamp="2022-02-14T01:42:29.000-08:00"):
+               print(page.data, page.metadata)
+       """
     def __init__(
             self,
             url: str,
@@ -82,7 +122,7 @@ class PageContentStream(IDataSourceStream):
 
     @retry(stop_max_attempt_number=3, wait_exponential_multiplier=1000, wait_exponential_max=10000)
     def read(self, last_check_timestamp: Optional[str] = None) -> Iterator[DataSourcePayload]:
-        limit = 50
+        limit = 50  # TODO: should be adjustable value as needed to comply with API limitations and user requirements
         start = 0
         more_pages = True
 
