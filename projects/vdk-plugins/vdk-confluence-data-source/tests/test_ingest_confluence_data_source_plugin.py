@@ -5,6 +5,7 @@ import json
 import re
 
 import pytest
+from atlassian import Confluence
 from click.testing import Result
 from vdk.plugin.confluence_data_source import plugin_entry
 from vdk.plugin.confluence_data_source.data_source import PageContentStream
@@ -63,10 +64,12 @@ def mock_confluence_api(requests_mock):
 
 @pytest.mark.usefixtures("mock_confluence_api")
 def test_page_content_stream():
-    stream = PageContentStream(
+    confluence = Confluence(
         url="https://your-confluence-instance.atlassian.net/wiki",
-        token="token",
-        space_key="SPACE_KEY",
+        token="token")
+    stream = PageContentStream(
+        confluence_client=confluence,
+        space_key="SPACE_KEY"
     )
     pages = list(stream.read())
     assert len(pages) > 0

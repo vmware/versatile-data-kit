@@ -54,25 +54,76 @@ class ConfluenceContentDataSourceConfiguration(IDataSourceConfiguration):
     name="confluence-content", config_class=ConfluenceContentDataSourceConfiguration
 )
 class ConfluenceDataSource(IDataSource):
+    """
+        A data source class for streaming content from Confluence. This class is responsible for
+        configuring and managing connections to a Confluence instance, and it provides methods to
+        connect to, disconnect from, and retrieve streams of data from Confluence.
+
+        The data source supports multiple authentication methods including basic authentication with
+        username and API token, OAuth2, and personal access tokens. It initializes a single Confluence
+        client based on the provided configuration and uses this client across different streams to
+        fetch page content, comments, or other Confluence entities.
+
+        Example:
+
+            ```python
+            config = ConfluenceContentDataSourceConfiguration(
+                confluence_url="https://your-confluence-instance.atlassian.net/wiki",
+                space_key="SPACE_KEY",
+                username="user",
+                api_token="secret"
+            )
+            confluence_data_source = ConfluenceDataSource()
+            confluence_data_source.configure(config)
+            confluence_data_source.connect(state=None)
+
+            for stream in confluence_data_source.streams():
+                for page_content in stream.read():
+                    print(page_content.data, page_content.metadata)
+
+            confluence_data_source.disconnect()
+            ```
+
+        """
     def __init__(self):
         self._config = None
+        self._confluence_client = None
         self._streams = []
 
     def configure(self, config: ConfluenceContentDataSourceConfiguration):
         self._config = config
+        self._initialize_confluence_client()
+
+    def _initialize_confluence_client(self):
+        """Initialize the Confluence client based on the provided configuration."""
+        confluence_kwargs = self._config.confluence_kwargs or {}
+        if self._config.oauth2:
+            self._confluence_client = Confluence(
+                url=self._config.confluence_url, oauth2=self._config.oauth2, cloud=self._config.cloud,
+                **confluence_kwargs
+            )
+        elif self._config.api_token:
+            self._confluence_client = Confluence(
+                url=self._config.confluence_url, token=self._config.api_token, cloud=self._config.cloud,
+                **confluence_kwargs
+            )
+        else:
+            if not self._config.username or not self._config.personal_access_token:
+                raise ValueError("Username and API token are required for basic authentication")
+            self._confluence_client = Confluence(
+                url=self._config.confluence_url,
+                username=self._config.username,
+                password=self._config.api_token,
+                cloud=self._config.cloud,
+                **confluence_kwargs,
+            )
 
     def connect(self, state):
-        if not self._streams:
+        if not self._streams and self._confluence_client:
             self._streams.append(
                 PageContentStream(
-                    url=self._config.confluence_url,
+                    confluence_client=self._confluence_client,
                     space_key=self._config.space_key,
-                    username=self._config.username,
-                    api_key=self._config.api_token,
-                    token=self._config.personal_access_token,
-                    oauth2=self._config.oauth2,
-                    cloud=self._config.cloud,
-                    confluence_kwargs=self._config.confluence_kwargs,
                 )
             )
 
@@ -87,26 +138,7 @@ class PageContentStream(IDataSourceStream):
     """
     A stream class for fetching content from Confluence pages within a specified space.
 
-    This class initializes a connection to a Confluence instance and provides a method to read and stream content
-    from pages. It supports multiple authentication methods including basic authentication with username and API key,
-     OAuth2, and personal access tokens. The stream can optionally filter pages updated after a specified timestamp.
-
-    Usage Example:
-        # Basic authentication
-        stream = PageContentStream(
-            url="https://your-confluence-instance.atlassian.net/wiki",
-            space_key="SPACE_KEY",
-            username="user",
-            api_key="secret"
-        )
-
-        # Using a personal access token
-        stream = PageContentStream(
-            url="https://your-confluence-instance.atlassian.net/wiki",
-            space_key="SPACE_KEY",
-            token="your_token"
-        )
-
+    Example:
         # Iterating through page content
         for page in stream.read(last_check_timestamp="2022-02-14T01:42:29.000-08:00"):
             print(page.data, page.metadata)
@@ -114,46 +146,10 @@ class PageContentStream(IDataSourceStream):
 
     def __init__(
         self,
-        url: str,
+        confluence_client: Confluence,
         space_key: str,
-        username: Optional[str] = None,
-        api_key: Optional[str] = None,
-        token: Optional[str] = None,
-        oauth2: Optional[dict] = None,
-        cloud: bool = True,
-        confluence_kwargs: Optional[dict] = None,
     ):
-        if not url:
-            raise ValueError("URL is required")
-        if not space_key:
-            raise ValueError("Space key is required")
-
-        auth_methods = [username, token, oauth2]
-        if sum(bool(method) for method in auth_methods) > 1:
-            raise ValueError("Only one authentication method should be provided")
-
-        confluence_kwargs = confluence_kwargs or {}
-        if oauth2:
-            self.confluence = Confluence(
-                url=url, oauth2=oauth2, cloud=cloud, **confluence_kwargs
-            )
-        elif token:
-            self.confluence = Confluence(
-                url=url, token=token, cloud=cloud, **confluence_kwargs
-            )
-        else:
-            if not username or not api_key:
-                raise ValueError(
-                    "Username and API key are required for basic authentication"
-                )
-            self.confluence = Confluence(
-                url=url,
-                username=username,
-                password=api_key,
-                cloud=cloud,
-                **confluence_kwargs,
-            )
-
+        self.confluence = confluence_client
         self.space_key = space_key
 
     def name(self) -> str:
