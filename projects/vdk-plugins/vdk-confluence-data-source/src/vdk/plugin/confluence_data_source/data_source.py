@@ -177,15 +177,14 @@ class PageContentStream(IDataSourceStream):
         wait_exponential_multiplier=1000,
         wait_exponential_max=10000,
     )
-    def read(
-        self, last_check_timestamp: Optional[str] = None
-    ) -> Iterator[DataSourcePayload]:
+    def read(self) -> Iterator[DataSourcePayload]:
         limit = 50  # TODO: should be adjustable value as needed to comply with API limitations and user requirements
         start = 0
         more_pages = True
 
         while more_pages:
             try:
+                # TODO: add check for last modification timestamp and fetch documents accordingly
                 pages = self.confluence.get_all_pages_from_space(
                     space=self.space_key,
                     start=start,
@@ -194,20 +193,12 @@ class PageContentStream(IDataSourceStream):
                 )
                 if pages:
                     for page in pages:
-                        last_updated_str = page["history"]["lastUpdated"]["when"]
-                        last_updated = parser.isoparse(last_updated_str)
-
-                        if last_check_timestamp:
-                            last_check_dt = parser.isoparse(last_check_timestamp)
-                            if last_updated <= last_check_dt:
-                                continue
-
                         data = page["body"]["storage"]["value"]
                         metadata = {
                             "page_id": page["id"],
                             "space_key": self.space_key,
                             "title": page["title"],
-                            "last_modified": last_updated_str,
+                            "last_modified": page["history"]["lastUpdated"]["when"],
                             "version": page["version"]["number"],
                             "status": "existing",
                         }
