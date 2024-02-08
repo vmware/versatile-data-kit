@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -14,7 +14,7 @@ setuptools.setup(
     name="vdk-confluence-data-source",
     version=__version__,
     url="https://github.com/vmware/versatile-data-kit",
-    description='VDK data source plugin for Confluence',
+    description="VDK data source plugin for Confluence",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["vdk-core", "vdk-data-sources"],
@@ -37,9 +37,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3.11",
     ],
     project_urls={
-            "Documentation": "https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-confluence-data-source",
-            "Source Code": "https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-confluence-data-source",
-            "Bug Tracker": "https://github.com/vmware/versatile-data-kit/issues/new/choose"
-        },
-
+        "Documentation": "https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-confluence-data-source",
+        "Source Code": "https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-confluence-data-source",
+        "Bug Tracker": "https://github.com/vmware/versatile-data-kit/issues/new/choose",
+    },
 )
