@@ -1,9 +1,11 @@
-from vdk.api.job_input import IJobInput
+# Copyright 2021-2024 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
 
+from vdk.api.job_input import IJobInput
 from vdk.plugin.data_sources.mapping.data_flow import DataFlowInput
+from vdk.plugin.data_sources.mapping.definitions import DataFlowMappingDefinition
 from vdk.plugin.data_sources.mapping.definitions import DestinationDefinition
 from vdk.plugin.data_sources.mapping.definitions import SourceDefinition
-from vdk.plugin.data_sources.mapping.definitions import DataFlowMappingDefinition
 
 
 def run(job_input: IJobInput):
@@ -15,7 +17,7 @@ def run(job_input: IJobInput):
         "confluence_kwargs": {},
         "username": None,
         "personal_access_token": None,
-        "oauth2": None
+        "oauth2": None,
     }
     source = SourceDefinition(id="pages", name="confluence-data-source", config=config)
     destination = DestinationDefinition(id="test", method="memory")
