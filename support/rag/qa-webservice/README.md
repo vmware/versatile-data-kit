@@ -1,0 +1,18 @@
+## RAG Question-answering Web Service
+
+This script allows for the quick deployment of a local service which can answer questions based on
+the context provided from a configured vector database.
+To run it, you need to first install the required dependencies:
+```
+pip install -r reqs.txt
+```
+
+Then, you need to start the web service:
+```
+uvicorn private_ai_api:app --reload
+```
+
+You can now query the web service through the following command:
+```
+curl http://127.0.0.1:8000/question/ -H "Content-Type: application/json" -d '{"question": "INPUT-QUESTION-HERE"}
+```

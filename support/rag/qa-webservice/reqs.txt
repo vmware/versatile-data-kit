@@ -1,0 +1,7 @@
+pgvector
+langchain
+"uvicorn[standard]"
+fastapi
+nltk
+sentence-transformers
+openai
