@@ -75,12 +75,22 @@ def test_page_content_stream():
         assert "existing" in page.metadata["status"]
 
 
+@pytest.mark.usefixtures("mock_confluence_api")
 def test_run_api_ingest(tmpdir):
     ingest_plugin = IngestIntoMemoryPlugin()
     runner = CliEntryBasedTestRunner(
         ingest_plugin, data_sources_plugin_entry, plugin_entry
     )
-    source_configuration = {}
+    source_configuration = {
+        "confluence_url": "https://your-confluence-instance.atlassian.net/wiki",
+        "api_token": "token",
+        "space_key": "SPACE_KEY",
+        "cloud": True,
+        "confluence_kwargs": {},
+        "username": None,
+        "personal_access_token": None,
+        "oauth2": None
+    }
 
     result: Result = runner.invoke(
         [
@@ -92,9 +102,26 @@ def test_run_api_ingest(tmpdir):
     )
 
     cli_assert_equal(0, result)
+    payload_objects = ingest_plugin.payloads
+    expected_payload_objects = get_expected_data()
 
-    assert ingest_plugin.payloads == get_expected_data()
+    all_raw_contents = [item['raw_content'] for payload_object in payload_objects for item in payload_object.payload]
+    expected_contents = [item['raw_content'] for expected_payload_object in expected_payload_objects for item in
+                         expected_payload_object.payload]
+
+    for content, expected_content in zip(all_raw_contents, expected_contents):
+        assert content == expected_content, f"Content {content} does not match expected content {expected_content}"
 
 
 def get_expected_data():
-    return []
+    example_payloads = []
+    for i in range(150):
+        example_payloads.append({
+            'raw_content': f'<p>Hello World from page {i}</p>'
+        })
+
+    expected_payloads = [IngestIntoMemoryPlugin.Payload(payload=example_payloads,
+                                                        destination_table='confluence-space-SPACE_KEY-page-content',
+                                                        target=None,
+                                                        collection_id=None)]
+    return expected_payloads

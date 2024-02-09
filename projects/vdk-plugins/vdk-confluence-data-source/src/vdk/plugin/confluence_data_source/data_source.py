@@ -202,7 +202,10 @@ class PageContentStream(IDataSourceStream):
                 )
                 if pages:
                     for page in pages:
-                        data = page["body"]["storage"]["value"]
+                        # vdk ingester accepts only dic type, so we cannot directly put str to data
+                        data = {
+                            "raw_content": page["body"]["storage"]["value"]
+                        }
                         metadata = {
                             "page_id": page["id"],
                             "space_key": self.space_key,

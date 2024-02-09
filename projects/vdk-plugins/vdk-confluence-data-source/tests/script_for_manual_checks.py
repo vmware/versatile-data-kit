@@ -3,12 +3,8 @@
 import logging
 import os
 
-from vdk.api.job_input import IJobInput
 from vdk.plugin.confluence_data_source.data_source import ConfluenceDataSource
-from vdk.plugin.data_sources.mapping.data_flow import DataFlowInput
-from vdk.plugin.data_sources.mapping.definitions import DataFlowMappingDefinition
-from vdk.plugin.data_sources.mapping.definitions import DestinationDefinition
-from vdk.plugin.data_sources.mapping.definitions import SourceDefinition
+
 
 log = logging.getLogger(__name__)
 
@@ -34,8 +30,12 @@ def run():
     confluence_data_source.connect(None)
 
     for stream in confluence_data_source.streams():
+        count = 0
         for page_content in stream.read():
-            print(page_content.data, page_content.metadata)
+            print(page_content.metadata)
+            count += 1
+            if count == 3:
+                break
 
     confluence_data_source.disconnect()
 
