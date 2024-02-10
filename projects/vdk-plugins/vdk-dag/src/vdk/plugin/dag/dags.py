@@ -21,7 +21,7 @@ class IDataJobExecutor(abc.ABC):
         job_name: str,
         team_name: str,
         started_by: str = None,
-        arguments: IJobArguments = None,
+        arguments: dict = None,
     ):
         """
         Start an execution of a data job and returns its execution id
