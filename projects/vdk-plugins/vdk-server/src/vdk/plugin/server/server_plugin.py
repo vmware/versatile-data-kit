@@ -4,6 +4,7 @@
 VDK Server plugin script.
 """
 import logging
+import sys
 
 import click
 from vdk.api.plugin.hook_markers import hookimpl

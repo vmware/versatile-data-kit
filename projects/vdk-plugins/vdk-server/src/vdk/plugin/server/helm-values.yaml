@@ -1,0 +1,13 @@
+# Copyright 2021-2024 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+ingress:
+  hosts:
+    - name: "localhost"
+      paths:
+        - path: /data-jobs
+          serviceName: "{{ .Release.Name }}-svc"
+          servicePort: 8092
+        - path: /
+          serviceName: "{{ .Release.Name }}-ui"
+          servicePort: 8091
