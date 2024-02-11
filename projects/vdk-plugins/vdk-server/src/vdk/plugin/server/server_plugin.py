@@ -4,6 +4,7 @@
 VDK Server plugin script.
 """
 import logging
+import sys
 
 import click
 from vdk.api.plugin.hook_markers import hookimpl
@@ -37,7 +38,13 @@ log = logging.getLogger(__name__)
     is_flag=True,
     help="Returns whether a local Control Service is currently installed.",
 )
-def server(install, uninstall, status):
+@click.option(
+    "-si",
+    "--server-id",
+    default="",
+    help="Server identifier. Used to create multiple instances of VDK Server on same machine.",
+)
+def server(install, uninstall, status, server_id):
     flags = 0
     if install:
         flags += 1
@@ -51,7 +58,7 @@ def server(install, uninstall, status):
             "Exactly one of --install, --uninstall, or --status options should be specified"
         )
     else:
-        installer = Installer()
+        installer = Installer(server_id)
         if install:
             installer.install()
         elif uninstall:
