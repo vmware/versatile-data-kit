@@ -16,3 +16,8 @@ You can now query the web service through the following command:
 ```
 curl http://127.0.0.1:8000/question/ -H "Content-Type: application/json" -d '{"question": "INPUT-QUESTION-HERE"}
 ```
+
+Alternatively, you can use the Python script for easier access + string formatting:
+```
+python question.py "INPUT-QUESTION-HERE"
+```
