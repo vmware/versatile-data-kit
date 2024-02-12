@@ -16,6 +16,7 @@ and ingest it into Postgres instance with pgvector.
         },
         "data": "Content Text"
     },
+]
 ```
 
 # Chunking the data prior to embedding

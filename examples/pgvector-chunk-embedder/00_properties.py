@@ -7,8 +7,8 @@ def run(job_input: IJobInput):
     properties = job_input.get_all_properties()
     properties.update(
         dict(
-            destination_embeddings_table="vdk_doc_embeddings_ys2",
-            destination_metadata_table="vdk_doc_metadata_ys2",
+            destination_embeddings_table="vdk_doc_embeddings",
+            destination_metadata_table="vdk_doc_metadata",
             chunking_strategy="default",
         )
     )
