@@ -5,7 +5,7 @@ and ingest it into Postgres instance with pgvector.
 
 # Expected input format
 
-```python
+```json
 [
     {
         "metadata": {
