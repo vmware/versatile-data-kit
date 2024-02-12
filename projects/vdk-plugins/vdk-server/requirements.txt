@@ -6,3 +6,4 @@ kubernetes
 pytest
 pytest-cov
 vdk-core
+vdk-test-utils
