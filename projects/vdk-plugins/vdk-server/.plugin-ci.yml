@@ -6,15 +6,21 @@
 .build-vdk-server:
   variables:
     PLUGIN_NAME: vdk-server
+  before_script:
+    - apk add --no-cache bash curl python3 py3-pip
+    - curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.21.0/kind-linux-amd64
+    - chmod +x ./kind
+    - mv ./kind /usr/local/bin/kind
+    - kind --version
+    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - helm version
   extends: .build-plugin
-
-build-py37-vdk-server:
-  extends: .build-vdk-server
-  image: "python:3.7"
+  tags:
+    - docker
 
 build-py311-vdk-server:
   extends: .build-vdk-server
-  image: "python:3.11"
 
 release-vdk-server:
   variables:
