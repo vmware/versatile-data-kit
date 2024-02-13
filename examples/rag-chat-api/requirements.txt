@@ -1,7 +1,7 @@
-pgvector
-langchain
 "uvicorn[standard]"
 fastapi
+langchain
 nltk
-sentence-transformers
 openai
+pgvector
+sentence-transformers
