@@ -1,4 +1,6 @@
-nltk
+
 numpy
+psycopg2-binary
 sentence-transformers
+sqlalchemy
 vdk-postgres

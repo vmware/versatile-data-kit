@@ -4,7 +4,6 @@ import configparser
 
 import psycopg2
 from clean_embed_text import get_question_embedding
-from clean_embed_text import setup_nltk
 from fastapi import FastAPI
 from openai import OpenAI
 from pgvector.psycopg2 import register_vector
@@ -24,8 +23,6 @@ app = FastAPI()
 
 @app.post("/question/")
 async def answer_question(question: QuestionModel):
-    setup_nltk(".")
-
     config = configparser.ConfigParser()
     config.read("api_config.ini")
 
