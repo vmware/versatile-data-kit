@@ -1,0 +1,3 @@
+# Python jobs can specify extra library dependencies in requirements.txt file.
+# See https://pip.readthedocs.io/en/stable/user_guide/#requirements-files
+# The file is optional and can be deleted if no extra library dependencies are necessary.
