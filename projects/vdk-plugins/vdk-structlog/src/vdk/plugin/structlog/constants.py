@@ -8,6 +8,7 @@ STRUCTLOG_LOGGING_METADATA_KEY = "structlog_metadata"
 STRUCTLOG_LOGGING_FORMAT_KEY = "structlog_format"
 STRUCTLOG_CONSOLE_LOG_PATTERN = "structlog_console_custom_format"
 STRUCTLOG_CONFIG_PRESET = "structlog_config_preset"
+STRUCTLOG_FORMAT_INIT_LOGS = "structlog_format_init_logs"
 
 STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES = ["console", "json", "ltsv"]
 STRUCTLOG_LOGGING_FORMAT_DEFAULT = "console"
