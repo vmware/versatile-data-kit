@@ -146,6 +146,23 @@ There are 3 types of jobs right now in terms of how are they started.
    * If a DAG job tries to start a job and there is already running such job, the approach of the DAG job would be
      similar to the schedule - retry later but more times.
 
+### Local run of DAG jobs
+
+By default the DAG would execute deployed jobs by VDK Control Service.
+Those are jobs deployed (usually using vdk deploy command) in managed environment by VDK Control Service.
+We will call this "remote" execution.
+
+If you want to test or debug the DAG you would need to run all jobs locally (on your machine only).
+This is possible by setting following configuration either as environment variable or in the DAG Job config.ini file
+
+```python
+DAGS_JOB_EXECUTOR_TYPE=local
+```
+
+This will run all jobs from local file system. The orchestrated jobs will be searched either:
+- In the current working directory (where you executed the `vdk run dag-job` command)
+- or in the same level as the DAG Job directory.
+
 ### Configuration
 
 The configuration variables of the VDK DAGs can be checked by running the command:

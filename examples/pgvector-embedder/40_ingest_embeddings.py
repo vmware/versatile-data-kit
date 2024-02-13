@@ -2,12 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
-import pathlib
 import pickle
 
 import numpy as np
-from config import DOCUMENTS_JSON_FILE_LOCATION
-from config import EMBEDDINGS_PKL_FILE_LOCATION
+from config import get_value
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
@@ -16,9 +14,8 @@ log = logging.getLogger(__name__)
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    data_job_dir = pathlib.Path(job_input.get_job_directory())
-    input_embeddings_path = data_job_dir / EMBEDDINGS_PKL_FILE_LOCATION
-    input_documents_path = data_job_dir / DOCUMENTS_JSON_FILE_LOCATION
+    input_embeddings_path = get_value(job_input, "output_embeddings")
+    input_documents_path = get_value(job_input, "data_file")
 
     with open(input_embeddings_path, "rb") as file:
         embeddings = pickle.load(file)
@@ -26,6 +23,8 @@ def run(job_input: IJobInput):
         documents = json.load(file)
 
     print(len(documents), len(embeddings))
+
+    # TODO: our postgres plugin doesn't support updates (upserts) so updating with same ID fails.
 
     for i, embedding in enumerate(embeddings):
         embedding_list = (
@@ -37,7 +36,7 @@ def run(job_input: IJobInput):
         }
         job_input.send_object_for_ingestion(
             payload=embedding_payload,
-            destination_table="vdk_confluence_doc_embeddings_example",
+            destination_table=get_value(job_input, "destination_embeddings_table"),
         )
 
     for document in documents:
@@ -50,5 +49,5 @@ def run(job_input: IJobInput):
         }
         job_input.send_object_for_ingestion(
             payload=metadata_payload,
-            destination_table="vdk_confluence_doc_metadata_example",
+            destination_table=get_value(job_input, "destination_metadata_table"),
         )
