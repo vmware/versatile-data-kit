@@ -38,6 +38,3 @@ def run():
                 break
 
     confluence_data_source.disconnect()
-
-
-# run()
