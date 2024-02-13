@@ -4,8 +4,6 @@ from typing import List
 
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
-from vdk.internal.core.config import ConfigurationBuilder
-from vdk.internal.core.context import CoreContext
 from vdk.plugin.confluence_data_source.data_source import ConfluenceDataSource
 from vdk.plugin.data_sources.factory import IDataSourceFactory
 
