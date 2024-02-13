@@ -17,39 +17,48 @@ from vdk.plugin.data_sources.factory import data_source
 
 
 @config_class(
-    name="confluence-data-source-config", description="Stream Confluence page contents"
+    name="confluence-config",
+    description="Stream Confluence page contents. This configuration is used to connect to and retrieve data from "
+                "Confluence, supporting both cloud and server instances. For more information on Confluence API and "
+                "clients, visit"
+                "https://developer.atlassian.com/cloud/confluence/rest/api-group-content/. "
 )
 class ConfluenceContentDataSourceConfiguration(IDataSourceConfiguration):
-    confluence_url: str = config_field(description="URL of the Confluence site")
-    space_key: str = config_field(description="Key of the Confluence space")
+    confluence_url: str = config_field(description="URL of the Confluence site.")
+    space_key: str = config_field(description="Key of the Confluence space.")
     username: Optional[str] = config_field(
-        description="Confluence username for authentication", default=None
+        description="Confluence username for authentication. Optional if using token-based authentication.",
+        default=None
     )
     api_token: Optional[str] = config_field(
-        description="Confluence API token for authentication", default=None
+        description="Confluence API token for authentication. Obtain your API token from your Confluence account "
+                    "security settings.",
+        default=None
     )
     personal_access_token: Optional[str] = config_field(
-        description="Confluence personal access token for" " authentication",
+        description="Confluence personal access token for authentication, used primarily for server instances. "
+                    "Generate a token in your user profile security settings.",
         default=None,
     )
     oauth2: Optional[dict] = config_field(
-        description="OAuth2 credentials for authentication "
-        "in dictionary format. Required keys: 'access_token',"
-        " 'access_token_secret', 'consumer_key', 'key_cert'",
+        description="OAuth2 credentials for authentication in dictionary format. Required keys include "
+                    "'access_token', 'access_token_secret', 'consumer_key', and 'key_cert'. ",
         default=None,
     )
     cloud: bool = config_field(
-        description="Flag indicating if the Confluence instance is" " cloud-based",
+        description="Flag indicating if the Confluence instance is cloud-based. Typically, cloud instances have URLs "
+                    "hosted on atlassian.net. For server instances, this should be set to False.",
         default=True,
     )
     confluence_kwargs: Optional[dict] = config_field(
-        description="Additional keyword arguments " "for the Confluence client",
+        description="Additional keyword arguments for the Confluence client, such as timeout settings or proxy "
+                    "configurations. These arguments are passed directly to the Confluence client library. ",
         default=None,
     )
 
 
 @data_source(
-    name="confluence-data-source", config_class=ConfluenceContentDataSourceConfiguration
+    name="confluence", config_class=ConfluenceContentDataSourceConfiguration
 )
 class ConfluenceDataSource(IDataSource):
     """
@@ -155,6 +164,8 @@ class ConfluenceDataSource(IDataSource):
 
     def disconnect(self):
         self._streams = []
+        self._confluence_client = None
+        logging.info("Disconnected from Confluence.")
 
     def streams(self) -> List[IDataSourceStream]:
         return self._streams
@@ -171,9 +182,9 @@ class PageContentStream(IDataSourceStream):
     """
 
     def __init__(
-        self,
-        confluence_client: Confluence,
-        space_key: str,
+            self,
+            confluence_client: Confluence,
+            space_key: str,
     ):
         self.confluence = confluence_client
         self.space_key = space_key
@@ -219,6 +230,5 @@ class PageContentStream(IDataSourceStream):
             except Exception as e:
                 logging.error(f"Failed to fetch page updates: {e}")
                 raise
-
 
 # TODO: add stream for deletions

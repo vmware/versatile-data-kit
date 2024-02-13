@@ -18,7 +18,7 @@ def run(job_input: IJobInput):
         "personal_access_token": None,
         "oauth2": None,
     }
-    source = SourceDefinition(id="pages", name="confluence-data-source", config=config)
+    source = SourceDefinition(id="pages", name="confluence", config=config)
     destination = DestinationDefinition(id="test", method="memory")
 
     with DataFlowInput(job_input) as flow_input:
