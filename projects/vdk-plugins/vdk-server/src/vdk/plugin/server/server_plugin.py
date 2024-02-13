@@ -16,7 +16,25 @@ log = logging.getLogger(__name__)
     name="server",
     help="Installs (and runs) or uninstalls a local Control Service."
     """
-         TODO: Add description
+        This command facilitates the management of the local VDK Control Service Server.
+        It's designed to simplify the setup process for development and testing environments.
+        For production deployment of VDK Control Service see
+        https://github.com/vmware/versatile-data-kit/wiki/Versatile-Data-Kit-Control-Service
+
+        Examples:
+
+        \b
+        # Install the VDK Control Service Server. It can then be acess at http://localhost:8092.
+        # It will set default API url to http://localhost:8092 as well for vdk CLI.
+        vdk server --install
+
+        \b
+        # Check status (is it installed and running)
+        vdk server --status
+
+        \b Uninstall and remove the VDK Control Service Server.
+        vdk server --uninstall
+
          """,
 )
 @click.option(
