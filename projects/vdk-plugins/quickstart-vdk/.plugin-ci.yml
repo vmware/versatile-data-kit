@@ -86,6 +86,9 @@ quickstart-vdk-release-acceptance-test:
 release-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
   extends: .release-plugin
 
 release-vdk-image-quickstart-vdk:
