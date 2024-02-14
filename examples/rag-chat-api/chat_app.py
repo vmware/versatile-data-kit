@@ -1,5 +1,4 @@
 import streamlit as st
-import requests
 from question import get_api_response
 
 st.title("VDK Demo Chat Bot")
