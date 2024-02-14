@@ -9,7 +9,7 @@ def run(job_input: IJobInput):
         dict(
             destination_embeddings_table="vdk_doc_embeddings",
             destination_metadata_table="vdk_doc_metadata",
-            chunking_strategy="default",
+            chunking_strategy="fixed",
         )
     )
     job_input.set_all_properties(properties)
