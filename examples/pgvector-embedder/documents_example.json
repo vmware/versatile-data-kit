@@ -1,0 +1,47 @@
+[
+  {
+    "metadata": {
+      "title": "Getting Started",
+      "id": "123213312",
+      "source": "https://github.com/vmware/versatile-data-kit/wiki/Getting-Started",
+      "deleted": false
+    },
+    "data": "VDK Getting Started guide"
+  },
+  {
+    "metadata": {
+      "title": "VDK Wiki",
+      "id": "747124724",
+      "source": "https://github.com/vmware/versatile-data-kit/wiki",
+      "deleted": false
+    },
+    "data": "VDK Wiki"
+  },
+  {
+    "metadata": {
+      "title": "VDK Issues",
+      "id": "721295269",
+      "source": "https://github.com/vmware/versatile-data-kit/issues",
+      "deleted": false
+    },
+    "data": "VDK Issues"
+  },
+  {
+    "metadata": {
+      "title": "VDK PRs",
+      "id": "1323122133",
+      "source": "https://github.com/vmware/versatile-data-kit/pulls",
+      "deleted": false
+    },
+    "data": "VDK Pull Requests"
+  },
+  {
+    "metadata": {
+      "title": "VDK Main Page",
+      "id": "312343243",
+      "source": "https://github.com/vmware/versatile-data-kit/tree/main",
+      "deleted": false
+    },
+    "data": "VDK: One framework to develop, deploy and operate data workflows with Python and SQL."
+  }
+]

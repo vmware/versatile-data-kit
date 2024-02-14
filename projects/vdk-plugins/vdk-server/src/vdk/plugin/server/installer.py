@@ -52,6 +52,8 @@ class Installer:
     git_server_repository_name = "vdk-git-repo"
 
     def __init__(self):
+        self.git_server_image = "gogs/gogs:0.12"
+        self.registry_image = "registry:2"
         self.__current_directory = self.__get_current_directory()
 
     def install(self):
@@ -163,7 +165,7 @@ class Installer:
                 # Create the Docker registry container
                 # docker run -d --restart=always -p "127.0.0.1:${docker_registry_port}:5000" --name "${docker_registry_name}" registry:2
                 docker_client.containers.run(
-                    "registry:2",
+                    self.registry_image,
                     detach=True,
                     restart_policy={"Name": "always"},
                     name=self.docker_registry_container_name,
@@ -243,7 +245,7 @@ class Installer:
             else:
                 # docker run --name=vdk-git-server -p 10022:22 -p 10080:3000 -p 10081:80 gogs/gogs:0.12
                 docker_client.containers.run(
-                    "gogs/gogs:0.12",
+                    self.git_server_image,
                     detach=True,
                     name=self.git_server_container_name,
                     ports={"22/tcp": "10022", "3000/tcp": "10080", "80/tcp": "10081"},
@@ -612,20 +614,22 @@ class Installer:
                 if result.returncode != 0:
                     stderr_as_str = result.stderr.decode("utf-8")
                     log.error(f"Stderr output: {stderr_as_str}")
-                    exit(result.returncode)
+                    sys.exit(result.returncode)
                 result = subprocess.run(["helm", "repo", "update"], capture_output=True)
                 if result.returncode != 0:
                     stderr_as_str = result.stderr.decode("utf-8")
                     log.error(f"Stderr output: {stderr_as_str}")
-                    exit(result.returncode)
+                    sys.exit(result.returncode)
+                helm_command = self.__helm_install_command(git_server_ip)
+                log.debug(f"Running helm command: {helm_command}")
                 result = subprocess.run(
-                    self.__helm_install_command(git_server_ip),
+                    helm_command,
                     capture_output=True,
                 )
                 if result.returncode != 0:
                     stderr_as_str = result.stderr.decode("utf-8")
                     log.error(f"Stderr output: {stderr_as_str}")
-                    exit(result.returncode)
+                    sys.exit(result.returncode)
                 else:
                     log.info("Control Service installed successfully")
         except Exception as ex:
@@ -680,9 +684,9 @@ class Installer:
             "--set",
             "deploymentDockerRegistryType=generic",
             "--set",
-            f"deploymentDockerRepository={self.docker_registry_container_name}:5000",
+            f"deploymentDockerRepository={self.docker_registry_container_name}:{self.__docker_registry_port}",
             "--set",
-            "proxyRepositoryURL=localhost:5000",
+            f"proxyRepositoryURL=localhost:{self.__docker_registry_port}",
             "--set",
             f"deploymentGitUrl={git_server_ip}/{self.git_server_admin_user}/{self.git_server_repository_name}.git",
             "--set",
@@ -705,6 +709,8 @@ class Installer:
             "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
             "--set",
             "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
+            "-f",
+            self.__current_directory.joinpath("helm-values.yaml"),
         ]
 
     def __uninstall_helm_chart(self):
@@ -786,7 +792,7 @@ class Installer:
             write_default_rest_api_url("http://localhost:8092")
         except Exception as ex:
             log.error(f"Failed to finalize installation. {str(ex)}")
-            exit(1)
+            sys.exit(1)
         log.info("Done")
 
     @staticmethod
@@ -796,7 +802,7 @@ class Installer:
             reset_default_rest_api_url()
         except Exception as ex:
             log.error(f"Failed to clean up. {str(ex)}")
-            exit(1)
+            sys.exit(1)
         log.info("Done")
 
     @staticmethod

@@ -13,6 +13,8 @@ DAGS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS = (
 DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS = "DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS"
 DAGS_MAX_CONCURRENT_RUNNING_JOBS = "DAGS_MAX_CONCURRENT_RUNNING_JOBS"
 
+DAGS_JOB_EXECUTOR_TYPE = "DAGS_JOB_EXECUTOR_TYPE"
+
 
 class DagPluginConfiguration:
     def __init__(self, config: Configuration):
@@ -67,6 +69,9 @@ class DagPluginConfiguration:
         :seealso: `DAGS_MAX_CONCURRENT_RUNNING_JOBS <https://github.com/vmware/versatile-data-kit/blob/main/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/dag_plugin_configuration.py#L132>`
         """
         return self.__config.get_value(DAGS_MAX_CONCURRENT_RUNNING_JOBS)
+
+    def dags_job_executor_type(self):
+        return self.__config.get_value(DAGS_JOB_EXECUTOR_TYPE)
 
 
 def add_definitions(config_builder: ConfigurationBuilder):
@@ -126,5 +131,15 @@ def add_definitions(config_builder: ConfigurationBuilder):
             "would be delayed until a running job is completed. The limit is determined by this configuration option. "
             "Setting an appropriate value helps to limit the generation of too many API calls or consuming too many "
             "resources. It's advisable to use the default value for this variable."
+        ),
+    )
+    config_builder.add(
+        key=DAGS_JOB_EXECUTOR_TYPE,
+        default_value="remote",
+        description=(
+            "The job executor to use when running the jobs within the DAG"
+            "There are two possible values : 'remote' and 'local'."
+            "'remote' executor would run the jobs deployed in the control service."
+            "'local' executor will try to find the jobs in the current working directory"
         ),
     )

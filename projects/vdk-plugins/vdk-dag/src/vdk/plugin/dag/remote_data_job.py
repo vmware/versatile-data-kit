@@ -245,8 +245,15 @@ class RemoteDataJob:
         if self.auth:
             return self.auth.read_access_token()
         else:
-            self._login()
-            return self.auth.read_access_token()
+            try:
+                self._login()
+                return self.auth.read_access_token()
+            except Exception as e:
+                log.warning(
+                    f"Failed to get access token. If authorization is required later it, it won't work."
+                    f"Authentication error is {e}"
+                )
+                return None
 
     def _login(self) -> None:
         self.auth = Authentication()

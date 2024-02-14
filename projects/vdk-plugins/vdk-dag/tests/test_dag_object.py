@@ -27,6 +27,9 @@ class DummyDAGPluginConfiguration:
     def dags_max_concurrent_running_jobs(self):
         return 15
 
+    def dags_job_executor_type(self):
+        return "remote"
+
 
 def test_execute_dag_happy_case():
     job1 = dict(job_name="job1", depends_on=[])
