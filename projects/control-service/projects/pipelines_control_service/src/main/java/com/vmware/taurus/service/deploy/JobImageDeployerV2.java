@@ -346,8 +346,8 @@ public class JobImageDeployerV2 {
 
     var jobCommand = jobCommandProvider.getJobCommand(jobName);
 
-    String cpuRequest = jobDeployment.getResources().getCpuRequestCores() + "m";
-    String cpuLimit = jobDeployment.getResources().getCpuLimitCores() + "m";
+    String cpuRequest = Float.toString(jobDeployment.getResources().getCpuRequestCores());
+    String cpuLimit = Float.toString(jobDeployment.getResources().getCpuLimitCores());
     String memoryRequest = jobDeployment.getResources().getMemoryRequestMi() + "Mi";
     String memoryLimit = jobDeployment.getResources().getMemoryLimitMi() + "Mi";
 
