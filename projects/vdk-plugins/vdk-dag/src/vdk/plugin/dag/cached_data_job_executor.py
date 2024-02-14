@@ -111,7 +111,11 @@ class TrackingDataJobExecutor:
     @staticmethod
     def __get_printable_details(details):
         del details["deployment"]
-        return json.dumps(details, default=lambda o: str(o), indent=2)
+        return json.dumps(
+            details,
+            default=lambda o: o.__dict__ if hasattr(o, "__dict__") else str(o),
+            indent=2,
+        )
 
     def __get_job(self, job_name) -> TrackableJob:
         job: TrackableJob = self._jobs_cache.get(job_name)
@@ -196,7 +200,7 @@ class TrackingDataJobExecutor:
         job_name: str,
         team_name: str,
         started_by: str = None,
-        arguments: IJobArguments = None,
+        arguments: dict = None,
     ) -> str:
         """
         Start a new data job execution.

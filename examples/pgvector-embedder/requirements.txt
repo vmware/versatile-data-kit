@@ -1,0 +1,4 @@
+nltk
+numpy
+sentence-transformers
+vdk-postgres
