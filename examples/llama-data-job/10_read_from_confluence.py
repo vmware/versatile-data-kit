@@ -43,10 +43,10 @@ def update_saved_documents(file_path, new_docs):
             for doc in existing_docs
         ]
 
-    existing_docs_dict = {doc.metadata["id"]: doc for doc in existing_docs}
+    existing_docs_dict = {doc.metadata["page_id"]: doc for doc in existing_docs}
 
     for doc in new_docs:
-        existing_docs_dict[doc.metadata["id"]] = doc
+        existing_docs_dict[doc.metadata["page_id"]] = doc
 
     updated_docs_list = list(existing_docs_dict.values())
 
@@ -67,11 +67,11 @@ def flag_deleted_pages(file_path, current_confluence_documents):
         for doc in existing_docs
     ]
 
-    current_page_ids = {doc.metadata["id"] for doc in current_confluence_documents}
+    current_page_ids = {doc.metadata["page_id"] for doc in current_confluence_documents}
 
     num_deleted = 0
     for doc in existing_docs:
-        if doc.metadata["id"] not in current_page_ids:
+        if doc.metadata["page_id"] not in current_page_ids:
             doc.metadata["deleted"] = True
             num_deleted += 1
     log.info(f"Found {num_deleted} deleted pages.")
@@ -93,7 +93,7 @@ class ConfluenceDataSource:
         try:
             # TODO: think about configurable limits ? or some streaming solution
             # How do we fit all documents in memory ?
-            raw_documents = self.reader.load_data(cql=cql_query, max_num_results=10, limit=50)
+            raw_documents = self.reader.load_data(cql=cql_query, max_num_results=10)
             return [
                 ConfluenceDocument(doc.metadata, doc.text)
                 for doc in raw_documents
