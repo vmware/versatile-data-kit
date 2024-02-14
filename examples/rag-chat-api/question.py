@@ -3,12 +3,8 @@ import requests
 
 
 def get_api_response(question):
-    headers = {
-        "Content-Type": "application/json"
-    }
-    data = {
-        "question": question
-    }
+    headers = {"Content-Type": "application/json"}
+    data = {"question": question}
     res = requests.post('http://127.0.0.1:8000/question/', headers=headers, json=data)
 
     return res.text.replace("\\n", "\n").replace("\\t", "\t")

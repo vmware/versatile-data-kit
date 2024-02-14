@@ -4,7 +4,7 @@ This script allows for the quick deployment of a local service which can answer 
 the context provided from a configured vector database.
 To run it, you need to first install the required dependencies:
 ```
-pip install -r reqs.txt
+pip install -r requirements.txt
 ```
 
 Then, you need to start the web service:
