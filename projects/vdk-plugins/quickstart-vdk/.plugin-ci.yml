@@ -93,5 +93,7 @@ release-vdk-image-quickstart-vdk:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-vdk-image
   rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
