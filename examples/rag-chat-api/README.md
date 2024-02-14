@@ -4,7 +4,7 @@ This script allows for the quick deployment of a local service which can answer 
 the context provided from a configured vector database.
 To run it, you need to first install the required dependencies:
 ```
-pip install -r requirements.txt
+pip install -r reqs.txt
 ```
 
 Then, you need to start the web service:
@@ -20,4 +20,17 @@ curl http://127.0.0.1:8000/question/ -H "Content-Type: application/json" -d '{"q
 Alternatively, you can use the Python script for easier access + string formatting:
 ```
 python question.py "INPUT-QUESTION-HERE"
+```
+
+### UI
+
+To run the UI, you need to install `streamlit`:
+```
+pip install streamlit
+```
+Note that newer versions of `streamlit` require Python 3.8+.
+
+Then, run the app:
+```
+streamlit run chat_app.py
 ```
