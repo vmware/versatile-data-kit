@@ -1,23 +1,27 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
 from datetime import datetime
 
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, Settings
+from llama_index.core import Settings
+from llama_index.core import SimpleDirectoryReader
+from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from vdk.api.job_input import IJobInput
 from llama_index.readers.confluence import ConfluenceReader
+from vdk.api.job_input import IJobInput
+
 log = logging.getLogger(__name__)
 
 
 class ConfluenceDataSource:
-
     def __init__(self, confluence_url, token, space_key):
         self.confluence_url = confluence_url
         self.token = token
         self.space_key = space_key
-        os.environ['CONFLUENCE_API_TOKEN'] = token  # ConfluenceReader works with env variables
+        os.environ[
+            "CONFLUENCE_API_TOKEN"
+        ] = token  # ConfluenceReader works with env variables
         self.reader = ConfluenceReader(base_url=confluence_url)
 
     def fetch_confluence_documents(self, cql_query):
