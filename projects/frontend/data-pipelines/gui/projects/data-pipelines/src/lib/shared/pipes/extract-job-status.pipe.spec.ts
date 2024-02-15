@@ -15,6 +15,7 @@ const TEST_JOB_DEPLOYMENT_DETAILS: DataJobDeploymentDetails = {
     mode: 'special',
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
     vdk_version: 'v002',
+    python_version: '3.9-secure',
     contacts: null,
     /* eslint-disable @typescript-eslint/naming-convention */
     deployed_date: '2020-11-11T10:10:10Z',

@@ -27,6 +27,7 @@ export interface BaseDataJobDeployment<E extends DataJobExecution = DataJobExecu
     resources?: DataJobResources;
     schedule?: DataJobSchedule;
     vdkVersion?: string;
+    jobPythonVersion?: string;
     status?: DataJobDeploymentStatus;
     executions?: E[];
 }

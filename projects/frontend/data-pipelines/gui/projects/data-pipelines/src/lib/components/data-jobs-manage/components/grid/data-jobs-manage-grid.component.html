@@ -171,6 +171,15 @@
 
             <clr-dg-column
                 class="column__min-width--l"
+                [clrDgSortBy]="'deployments.jobPythonVersion'"
+                [(clrDgSortOrder)]="
+                    clrGridUIState.sort['deployments.jobPythonVersion']"
+            >
+                Python Version
+            </clr-dg-column>
+
+            <clr-dg-column
+                class="column__min-width--l"
                 [clrDgSortBy]="'deployments.lastExecutionTime'"
                 [(clrDgSortOrder)]="
                     clrGridUIState.sort['deployments.lastExecutionTime']
@@ -364,6 +373,10 @@
                     data-cy="data-pipelines-manage-grid-status-cell"
                 >
                     <lib-status-cell [dataJob]="job"></lib-status-cell>
+                </clr-dg-cell>
+
+                <clr-dg-cell class="column__min-width--l">
+                    {{ job.deployments ? job.deployments[0]?.jobPythonVersion : null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell class="column__min-width--l">

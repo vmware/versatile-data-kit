@@ -87,6 +87,7 @@ describe('DataJobsDetailsComponent', () => {
         mode: 'test_mode',
         /* eslint-disable-next-line @typescript-eslint/naming-convention */
         vdk_version: '002',
+        python_version: '3.9-secure',
         endTime: new Date(),
         opId: 'op002',
         message: 'message002',

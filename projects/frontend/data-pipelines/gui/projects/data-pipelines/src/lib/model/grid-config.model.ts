@@ -16,4 +16,5 @@ export interface GridFilters {
     description?: string;
     deploymentStatus?: string;
     deploymentLastExecutionStatus?: string;
+    jobPythonVersion?: string;
 }
