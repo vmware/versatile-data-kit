@@ -152,6 +152,7 @@ describe('DataJobUtil', () => {
                     job_version: '002',
                     mode: 'test_mode',
                     vdk_version: '002',
+                    python_version: '3.9-secure',
                     resources: {
                         memory_limit: 1000,
                         memory_request: 1000,
@@ -182,6 +183,7 @@ describe('DataJobUtil', () => {
                     jobVersion: '002',
                     mode: 'test_mode',
                     vdkVersion: '002',
+                    jobPythonVersion:'3.9-secure',
                     resources: {
                         memoryLimit: 1000,
                         memoryRequest: 1000,

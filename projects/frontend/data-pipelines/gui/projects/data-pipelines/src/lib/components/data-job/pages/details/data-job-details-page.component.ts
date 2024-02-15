@@ -140,6 +140,10 @@ export class DataJobDetailsPageComponent
         return this.tmForm.get('description');
     }
 
+    get jobPythonVersion() {
+        return this.tmForm.get('jobPythonVersion');
+    }
+
     /**
      * ** Array of error code patterns that component should listen for in errors store.
      */
@@ -467,7 +471,8 @@ export class DataJobDetailsPageComponent
             name: '',
             team: '',
             status: '',
-            description: ''
+            description: '',
+            jobPythonVersion: ''
         });
     }
 
@@ -476,7 +481,8 @@ export class DataJobDetailsPageComponent
             name: this.jobDetails.job_name,
             team: this.jobDetails.team,
             status: ExtractJobStatusPipe.transform(this.jobState?.deployments),
-            description: this.jobDetails.description
+            description: this.jobDetails.description,
+            jobPythonVersion: this.jobState?.deployments && this.jobState?.deployments[0] ? this.jobState?.deployments[0]?.jobPythonVersion : ''
         });
     }
 

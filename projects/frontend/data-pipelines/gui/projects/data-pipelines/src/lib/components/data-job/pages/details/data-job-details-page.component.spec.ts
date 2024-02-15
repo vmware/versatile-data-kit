@@ -65,6 +65,7 @@ const TEST_JOB_EXECUTION = {
         jobVersion: '002',
         mode: 'test_mode',
         vdkVersion: '002',
+        jobPythonVersion: '3.9-secure',
         resources: {
             memoryLimit: 1000,
             memoryRequest: 1000,
@@ -85,7 +86,8 @@ const TEST_JOB_DEPLOYMENT = {
     job_version: '001',
     mode: 'test_mode',
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
-    vdk_version: '001'
+    vdk_version: '001',
+    python_version: '3.7-secure'
 } as DataJobDeploymentDetails;
 
 const TEST_JOB_DETAILS = {

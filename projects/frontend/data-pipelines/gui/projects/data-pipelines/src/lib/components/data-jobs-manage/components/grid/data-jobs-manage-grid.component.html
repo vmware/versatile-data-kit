@@ -169,6 +169,21 @@
                 </clr-dg-filter>
             </clr-dg-column>
 
+            <clr-dg-column class="column__min-width--l">
+                <ng-template
+                    [clrDgHideableColumn]="{
+                        hidden: localStorageUserConfig.hiddenColumns[
+                            'jobPythonVersion'
+                        ]
+                    }"
+                    (clrDgHiddenChange)="
+                        showOrHideColumnChange('jobPythonVersion', $event)
+                    "
+                >
+                    Python Version
+                </ng-template>
+            </clr-dg-column>
+
             <clr-dg-column
                 class="column__min-width--l"
                 [clrDgSortBy]="'deployments.lastExecutionTime'"
@@ -364,6 +379,10 @@
                     data-cy="data-pipelines-manage-grid-status-cell"
                 >
                     <lib-status-cell [dataJob]="job"></lib-status-cell>
+                </clr-dg-cell>
+
+                <clr-dg-cell class="column__min-width--l">
+                    {{ job.deployments ? job.deployments[0]?.jobPythonVersion : null }}
                 </clr-dg-cell>
 
                 <clr-dg-cell class="column__min-width--l">
