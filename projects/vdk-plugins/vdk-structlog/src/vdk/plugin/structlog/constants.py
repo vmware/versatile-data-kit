@@ -1,15 +1,19 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import socket
 
-STRUCTLOG_LOGGING_METADATA_KEY = "logging_metadata"
-STRUCTLOG_LOGGING_FORMAT_KEY = "logging_format"
-STRUCTLOG_CONSOLE_LOG_PATTERN = "logging_custom_format"
+STRUCTLOG_USE_STRUCTLOG = "use_structlog"
+STRUCTLOG_LOGGING_METADATA_KEY = "structlog_metadata"
+STRUCTLOG_LOGGING_FORMAT_KEY = "structlog_format"
+STRUCTLOG_CONSOLE_LOG_PATTERN = "structlog_console_custom_format"
+STRUCTLOG_CONFIG_PRESET = "structlog_config_preset"
 
-STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES = ["console", "json"]
+STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES = ["console", "json", "ltsv"]
 STRUCTLOG_LOGGING_FORMAT_DEFAULT = "console"
 
 STRUCTLOG_LOGGING_METADATA_JOB = {
+    "attempt_id": "%(attempt_id)s",
     "vdk_job_name": "%(vdk_job_name)s",
     "vdk_step_name": "%(vdk_step_name)s",
     "vdk_step_type": "%(vdk_step_type)s",
@@ -43,6 +47,7 @@ CONSOLE_STRUCTLOG_LOGGING_METADATA_DEFAULT = {
 }
 
 CONSOLE_STRUCTLOG_LOGGING_METADATA_JOB = {
+    "attempt_id": "[id:%(attempt_id)s]",
     "vdk_job_name": "%(vdk_job_name)s",
     "vdk_step_name": "%(vdk_step_name)s",
     "vdk_step_type": "%(vdk_step_type)s",
@@ -63,3 +68,22 @@ STRUCTLOG_LOGGING_METADATA_ALL_KEYS = set(
 ) | set(STRUCTLOG_LOGGING_METADATA_JOB.keys())
 
 RECORD_DEFAULT_FIELDS = set(vars(logging.LogRecord("", "", "", "", "", "", "")))
+
+# Syslog constants
+SYSLOG_HOST_KEY = "syslog_host"
+SYSLOG_PORT_KEY = "syslog_port"
+SYSLOG_PROTOCOL_KEY = "syslog_protocol"
+SYSLOG_ENABLED_KEY = "syslog_enabled"
+
+# Default values for Syslog
+DEFAULT_SYSLOG_HOST = "localhost"
+DEFAULT_SYSLOG_PORT = 514
+DEFAULT_SYSLOG_PROTOCOL = "UDP"
+DEFAULT_SYSLOG_ENABLED = False
+
+SYSLOG_PROTOCOLS = {"UDP": socket.SOCK_DGRAM, "TCP": socket.SOCK_STREAM}
+
+DETAILED_LOGGING_FORMAT = (
+    "%(asctime)s [VDK] %(vdk_job_name)s [%(levelname)-5.5s] %(name)-30.30s %(filename)20.20s:%("
+    "lineno)-4.4s %(funcName)-16.16s[id:%(attempt_id)s]- %(message)s"
+)

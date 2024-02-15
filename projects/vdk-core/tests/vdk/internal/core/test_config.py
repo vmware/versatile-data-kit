@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pytest
 from vdk.internal.core.config import ConfigurationBuilder
@@ -22,6 +22,7 @@ def test_add(key, default_value, show_default_value, description):
     assert description is None or description in cfg.get_description(key)
     assert default_value == cfg.get_value(key)
     assert default_value == cfg[key]
+    assert cfg.is_default(key)
 
 
 def test_unknown_key():
@@ -81,6 +82,16 @@ def test_set_value_overrides_default():
     builder.add("key", "default_value", False, "key description")
     cfg = builder.build()
     assert cfg.get_value("key") == "value"
+    assert not cfg.is_default("key")
+
+
+def test_set_value_eq_default_is_not_default():
+    builder = ConfigurationBuilder()
+    builder.add("key", "value", False, "key description")
+    builder.set_value("key", "value")
+    cfg = builder.build()
+    assert cfg.get_value("key") == "value"
+    assert not cfg.is_default("key")
 
 
 def test_set_value_overrides_default_preserve_types():

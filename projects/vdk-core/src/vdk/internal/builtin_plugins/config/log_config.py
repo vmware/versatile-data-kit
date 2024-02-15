@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -86,14 +86,13 @@ def configure_initial_logging_before_anything():
     # warnings.warn(
     #     "The vdk-core logging configuration is not suitable for production. Please use vdk-structlog instead."
     # )
-    if not os.environ.get("VDK_USE_STRUCTLOG"):
-        log_level = "WARNING"
-        if os.environ.get(LOG_LEVEL_VDK, None):
-            log_level = os.environ.get(LOG_LEVEL_VDK)
-        elif os.environ.get("VDK_LOG_LEVEL_VDK", None):
-            log_level = os.environ.get("VDK_LOG_LEVEL_VDK")
+    log_level = "WARNING"
+    if os.environ.get(LOG_LEVEL_VDK, None):
+        log_level = os.environ.get(LOG_LEVEL_VDK)
+    elif os.environ.get("VDK_LOG_LEVEL_VDK", None):
+        log_level = os.environ.get("VDK_LOG_LEVEL_VDK")
 
-        logging.basicConfig(format="%(message)s", level=logging.getLevelName(log_level))
+    logging.basicConfig(format="%(message)s", level=logging.getLevelName(log_level))
 
 
 def configure_loggers(
@@ -289,7 +288,7 @@ class LoggingPlugin:
         )
         syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED)
         try:  # If logging initialization fails we want to attempt sending telemetry before exiting VDK
-            if not os.environ.get("VDK_USE_STRUCTLOG"):
+            if not context.core_context.configuration.get_value("use_structlog"):
                 configure_loggers(
                     job_name,
                     attempt_id,

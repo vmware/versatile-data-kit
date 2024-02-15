@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import datetime
 from decimal import Decimal
@@ -21,7 +21,7 @@ def run(job_input):
             12,
             1.2,
             True,
-            datetime.datetime.fromtimestamp(1700554373),
+            datetime.datetime.utcfromtimestamp(1700554373),
             Decimal(1.1),
         ],
         [
@@ -30,7 +30,7 @@ def run(job_input):
             12,
             1.2,
             True,
-            datetime.datetime.fromtimestamp(1700554373),
+            datetime.datetime.utcfromtimestamp(1700554373),
             Decimal(1.1),
         ],
         [
@@ -39,7 +39,7 @@ def run(job_input):
             12,
             1.2,
             True,
-            datetime.datetime.fromtimestamp(1700554373),
+            datetime.datetime.utcfromtimestamp(1700554373),
             Decimal(1.1),
         ],
     ]

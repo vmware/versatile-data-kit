@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2023 VMware, Inc.
+ * Copyright 2023-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -133,5 +133,10 @@ public class SupportedPythonVersions {
 
   private String getBuilderImage(Map<String, String> supportedPythonVersion) {
     return supportedPythonVersion.getOrDefault(BUILDER_IMAGE, dockerRegistryService.builderImage());
+  }
+
+  public String replaceVdkVersionInImage(String vdkVersion) {
+    String defaultVdkImage = getDefaultVdkImage();
+    return defaultVdkImage.replace(DockerImageName.getTag(defaultVdkImage), vdkVersion);
   }
 }

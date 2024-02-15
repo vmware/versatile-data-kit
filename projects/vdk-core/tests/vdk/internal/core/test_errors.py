@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import unittest
@@ -162,6 +162,18 @@ class ErrorsTest(unittest.TestCase):
                 errors.ResolvableBy.USER_ERROR,
                 exception=IndexError("foo"),
             )
+        assert errors.ResolvableByActual.USER in errors.resolvable_context().resolvables
+        assert (
+            len(errors.resolvable_context().resolvables[errors.ResolvableByActual.USER])
+            is 1
+        )
+
+    def test_report(self):
+        ex = IndexError("foo")
+        errors.report(
+            errors.ResolvableBy.USER_ERROR,
+            exception=ex,
+        )
         assert errors.ResolvableByActual.USER in errors.resolvable_context().resolvables
         assert (
             len(errors.resolvable_context().resolvables[errors.ResolvableByActual.USER])

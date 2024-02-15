@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -126,6 +126,7 @@ export class DataJobExecutionsGridComponent implements OnChanges, OnInit, OnDest
     jobDeploymentModalData: DataJobDeployment;
 
     paginatedJobExecutions: GridDataJobExecution[] = [];
+    gridState: ClrDatagridStateInterface;
 
     paginationPageNumber: number;
     paginationPageSize: number;
@@ -183,6 +184,7 @@ export class DataJobExecutionsGridComponent implements OnChanges, OnInit, OnDest
         }
 
         let skipCriteriaAndComparatorEmitterDebouncing = false;
+        this.gridState = state;
 
         if (this.isInitialCriteriasEmit) {
             this.isInitialCriteriasEmit = false;
@@ -208,7 +210,7 @@ export class DataJobExecutionsGridComponent implements OnChanges, OnInit, OnDest
             !CollectionsUtil.isEqual(changes['jobExecutions'].previousValue, changes['jobExecutions'].currentValue)
         ) {
             this.paginationTotalItems = this.jobExecutions.length;
-            this._paginateExecutions(null);
+            this._paginateExecutions(this.gridState);
         }
     }
 

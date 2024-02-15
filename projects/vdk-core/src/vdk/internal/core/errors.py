@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 """
 errors -- Exception handling implementations
@@ -259,7 +259,8 @@ def log_and_rethrow(
         # wrap
     message = [what_happened, why_it_happened, consequences, countermeasures]
     log.error("\n".join(message))
-    report_and_rethrow(to_be_fixed_by, exception)
+    report(to_be_fixed_by, exception)
+    raise exception
 
 
 class ErrorMessage:

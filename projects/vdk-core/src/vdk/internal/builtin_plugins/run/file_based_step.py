@@ -1,6 +1,6 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
-import imp
+import importlib.util
 import inspect
 import logging
 import pathlib
@@ -79,7 +79,11 @@ class StepFuncFactory:
 
             try:
                 log.debug("Loading %s ..." % filename)
-                python_module = imp.load_source(namespace, str(step.file_path))
+                spec = importlib.util.spec_from_file_location(
+                    namespace, str(step.file_path)
+                )
+                python_module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(python_module)
                 log.debug("Loading %s SUCCESS" % filename)
             except BaseException as e:
                 log.info("Loading %s FAILURE" % filename)
@@ -93,7 +97,8 @@ class StepFuncFactory:
                         ]
                     )
                 )
-                errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
+                errors.report(errors.ResolvableBy.USER_ERROR, e)
+                raise e
 
             for _, func in inspect.getmembers(python_module, inspect.isfunction):
                 if func.__name__ == "run":
@@ -149,7 +154,8 @@ class StepFuncFactory:
                 )
 
                 to_be_fixed_by = whom_to_blame(e, __file__, None)
-                errors.report_and_rethrow(to_be_fixed_by, e)
+                errors.report(to_be_fixed_by, e)
+                raise e
         else:
             errors.report_and_throw(
                 errors.UserCodeError(

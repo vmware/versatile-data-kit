@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -142,6 +142,7 @@ public class DeploymentServiceTest {
 
     when(kubernetesService.readCronJob(TEST_CRONJOB_NAME))
         .thenReturn(Optional.of(TestUtils.getJobDeploymentStatus()));
+    when(supportedPythonVersions.getVdkImage(any())).thenReturn("release");
   }
 
   @Test

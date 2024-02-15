@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -62,6 +62,7 @@ public class DeploymentModelConverter {
 
     deployment.setGitCommitSha(jobDeployment.getGitCommitSha());
     deployment.setPythonVersion(jobDeployment.getPythonVersion());
+    deployment.setVdkVersion(jobDeployment.getVdkVersion());
 
     return deployment;
   }
@@ -222,6 +223,10 @@ public class DeploymentModelConverter {
         newDeployment.getPythonVersion() != null
             ? newDeployment.getPythonVersion()
             : oldDeployment.getPythonVersion());
+    mergedDeployment.setVdkVersion(
+        newDeployment.getVdkVersion() != null
+            ? newDeployment.getVdkVersion()
+            : oldDeployment.getVdkVersion());
     mergedDeployment.setLastDeployedBy(
         userDeployer != null ? userDeployer : oldDeployment.getLastDeployedBy());
     mergedDeployment.setSchedule(
@@ -235,6 +240,8 @@ public class DeploymentModelConverter {
         newDeployment.getEnabled() != null
             ? newDeployment.getEnabled()
             : oldDeployment.getEnabled());
+
+    resetVdkVersionIfPythonVersionChange(oldDeployment, mergedDeployment);
 
     return mergedDeployment;
   }
@@ -257,6 +264,15 @@ public class DeploymentModelConverter {
               + oldDeployment
               + " vs "
               + newDeployment);
+    }
+  }
+
+  private static void resetVdkVersionIfPythonVersionChange(
+      DesiredDataJobDeployment oldDeployment, DesiredDataJobDeployment newDeployment) {
+    if (newDeployment.getPythonVersion() != null
+        && oldDeployment.getPythonVersion() != null
+        && !oldDeployment.getPythonVersion().equals(newDeployment.getPythonVersion())) {
+      newDeployment.setVdkVersion(null);
     }
   }
 
@@ -311,6 +327,7 @@ public class DeploymentModelConverter {
     var deploymentStatus = new DataJobDeploymentStatus();
     deploymentStatus.setJobVersion(actualDataJobDeployment.getGitCommitSha());
     deploymentStatus.setPythonVersion(actualDataJobDeployment.getPythonVersion());
+    deploymentStatus.setVdkVersion(actualDataJobDeployment.getVdkVersion());
     deploymentStatus.setId(actualDataJobDeployment.getDataJobName());
     deploymentStatus.setEnabled(actualDataJobDeployment.getEnabled());
     deploymentStatus.setContacts(getContactsFromJob(job));

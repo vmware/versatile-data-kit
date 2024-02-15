@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import List
@@ -51,9 +51,8 @@ class IngestToPostgres(IIngesterPlugin):
                 connection.commit()
                 log.debug("Payload was ingested.")
             except Exception as e:
-                errors.report_and_rethrow(
-                    errors.find_whom_to_blame_from_exception(e), e
-                )
+                errors.report(errors.find_whom_to_blame_from_exception(e), e)
+                raise e
 
     @staticmethod
     def _populate_query_parameters_tuple(

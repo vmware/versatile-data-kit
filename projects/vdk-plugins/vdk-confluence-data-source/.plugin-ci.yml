@@ -1,0 +1,22 @@
+# Copyright 2021-2024 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+image: "python:3.7"
+
+.build-vdk-confluence-data-source:
+  variables:
+    PLUGIN_NAME: vdk-confluence-data-source
+  extends: .build-plugin
+
+build-py37-vdk-confluence-data-source:
+  extends: .build-vdk-confluence-data-source
+  image: "python:3.7"
+
+build-py311-vdk-confluence-data-source:
+  extends: .build-vdk-confluence-data-source
+  image: "python:3.11"
+
+release-vdk-confluence-data-source:
+  variables:
+    PLUGIN_NAME: vdk-confluence-data-source
+  extends: .release-plugin

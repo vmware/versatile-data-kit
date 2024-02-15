@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 # Add all quickstart-vdk dependencies locations which trigger the dependency release when changed.
@@ -86,6 +86,9 @@ quickstart-vdk-release-acceptance-test:
 release-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
   extends: .release-plugin
 
 release-vdk-image-quickstart-vdk:
@@ -93,5 +96,7 @@ release-vdk-image-quickstart-vdk:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-vdk-image
   rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never

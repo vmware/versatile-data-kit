@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
@@ -37,6 +37,7 @@ def test_oracle_secrets_sql_only(httpserver: PluginHTTPServer):
             "VDK_ORACLE_USE_SECRETS": "True",
             "VDK_ORACLE_CONNECTION_STRING": "localhost:1521/FREE",
             "VDK_LOG_EXECUTION_RESULT": "True",
+            "VDK_ORACLE_THICK_MODE": "False",
             "VDK_INGEST_METHOD_DEFAULT": "ORACLE",
             "DB_DEFAULT_TYPE": "oracle",
         },
@@ -57,6 +58,7 @@ def test_oracle_secrets_sql_only(httpserver: PluginHTTPServer):
             "VDK_ORACLE_CONNECTION_STRING": "localhost:1521/FREE",
             "VDK_LOG_EXECUTION_RESULT": "True",
             "VDK_INGEST_METHOD_DEFAULT": "ORACLE",
+            "VDK_ORACLE_THICK_MODE": "False",
             "DB_DEFAULT_TYPE": "oracle",
         },
     ):
@@ -85,6 +87,7 @@ def test_oracle_secrets_ingest_job(httpserver: PluginHTTPServer):
             "VDK_ORACLE_CONNECTION_STRING": "localhost:1521/FREE",
             "VDK_LOG_EXECUTION_RESULT": "True",
             "VDK_INGEST_METHOD_DEFAULT": "ORACLE",
+            "VDK_ORACLE_THICK_MODE": "False",
             "DB_DEFAULT_TYPE": "oracle",
         },
     ):
@@ -104,6 +107,7 @@ def test_oracle_secrets_ingest_job(httpserver: PluginHTTPServer):
             "VDK_ORACLE_CONNECTION_STRING": "localhost:1521/FREE",
             "VDK_LOG_EXECUTION_RESULT": "True",
             "VDK_INGEST_METHOD_DEFAULT": "ORACLE",
+            "VDK_ORACLE_THICK_MODE": "False",
             "DB_DEFAULT_TYPE": "oracle",
         },
     ):

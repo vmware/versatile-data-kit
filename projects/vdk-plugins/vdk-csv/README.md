@@ -1,5 +1,8 @@
 ## Versatile Data Kit CSV Plugin
 
+<a href="https://pypistats.org/packages/vdk-csv" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-csv.svg" alt="monthly download count for vdk-csv">
+
 This plugin provides functionality to ingest and export CSV files.
 
 ### Usage

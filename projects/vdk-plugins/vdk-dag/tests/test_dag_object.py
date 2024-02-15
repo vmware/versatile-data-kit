@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import time
 from unittest.mock import call
@@ -26,6 +26,9 @@ class DummyDAGPluginConfiguration:
 
     def dags_max_concurrent_running_jobs(self):
         return 15
+
+    def dags_job_executor_type(self):
+        return "remote"
 
 
 def test_execute_dag_happy_case():

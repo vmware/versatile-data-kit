@@ -1,5 +1,8 @@
 # Meta Jobs
 
+<a href="https://pypistats.org/packages/vdk-meta-jobs" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-meta-jobs.svg" alt="monthly download count for vdk-meta-jobs">
+
 Express dependencies between data jobs.
 
 A plugin for Versatile Data Kit extends its Job API with an additional feature that allows users to trigger so-called Meta Jobs.

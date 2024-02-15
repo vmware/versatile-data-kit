@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import types
@@ -156,10 +156,8 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                             ]
                         )
                     )
-                    errors.report_and_rethrow(
-                        blamee,
-                        e,
-                    )
+                    errors.report(blamee, e)
+                    raise e
             return cast(
                 List[List[Any]], res
             )  # we return None in case of DML. This is not PEP249 compliant, but is more convenient

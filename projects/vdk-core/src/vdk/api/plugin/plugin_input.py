@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 from abc import ABC
@@ -387,6 +387,7 @@ class IIngesterPlugin:
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
         metadata: Optional[IngestionMetadata] = None,
+        method: Optional[str] = None,
     ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
         """
         Do some processing on the ingestion payload before passing it to the
@@ -403,6 +404,7 @@ class IIngesterPlugin:
                 target: Optional[str],
                 collection_id: Optional[str],
                 metadata: Optional[IngestionMetadata],
+                method: Optional[str],
             ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
                 # Ensure all values in the payload are strings
                 processed_payload = \
@@ -455,6 +457,7 @@ class IIngesterPlugin:
                         target: Optional[str],
                         collection_id: Optional[str],
                         metadata: Optional[IngestionMetadata],
+                        method: Optional[str],
                     ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
                         if metadata:
                             metadata[IIngesterPlugin.UPDATED_DYNAMIC_PARAMS] = {
@@ -468,6 +471,23 @@ class IIngesterPlugin:
                         return payload, metadata
             NOTE: A read-only parameter. Whatever modifications are done to
             this object, once returned, it is treated as a new object.
+        :param method: string
+            (Optional) A string indicating what ingestion method will be used to
+            ingest the passed payload. This identifier can be used by the
+            pre-processor in case some special behavior is necessary for specific
+            ingestion methods. For example:
+                .. code-block:: python
+                    def pre_ingest_process(self,
+                        payload: List[dict],
+                        destination_table: Optional[str],
+                        target: Optional[str],
+                        collection_id: Optional[str],
+                        metadata: Optional[IngestionMetadata],
+                        method: Optional[str],
+                    ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
+                        if method == "http":
+                            # do something only for http ingestion
+                        return payload, metadata
         :return: Tuple[List[Dict], Optional[IngestionMetadata]], a tuple
             containing the processed payload objects and an
             IngestionMetadata object with ingestion metadata information.
@@ -491,6 +511,7 @@ class IIngesterPlugin:
         collection_id: Optional[str] = None,
         metadata: Optional[IngestionMetadata] = None,
         exception: Optional[Exception] = None,
+        method: Optional[str] = None,
     ) -> Optional[IngestionMetadata]:
         """
         Do post-ingestion processing of the ingestion payload
@@ -508,6 +529,7 @@ class IIngesterPlugin:
                 collection_id: Optional[str],
                 metadata: Optional[IngestionMetadata],
                 exception: Optional[Exception],
+                method: Optional[str],
             ) -> Optional[IngestionMetadata]:
 
                 # Prepare telemetry
@@ -567,6 +589,11 @@ class IIngesterPlugin:
             A caught exception (if any) encountered while ingesting data.
             NOTE: A read-only parameter. Whatever modifications are done to
             this object, once returned, it is treated as a new object.
+        :param method: string
+            (Optional) A string indicating what ingestion method was used to
+            ingest the passed payload. This identifier can be used by the
+            post-processor in case some special behavior is necessary for specific
+            ingestion methods.
         :return: Optional[IngestionMetadata], an IngestionMetadata object
             with information about this and possibly the previous processes (
             pre-ingestion, ingestion, post-ingestion).

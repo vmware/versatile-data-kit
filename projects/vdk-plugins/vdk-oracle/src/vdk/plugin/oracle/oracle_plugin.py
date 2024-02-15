@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import List
@@ -36,15 +36,22 @@ class OraclePlugin:
         conf = OracleConfiguration(context.core_context.configuration)
         oracle_user, oracle_pass = conf.get_oracle_user(), conf.get_oracle_password()
         if conf.oracle_use_secrets():
+            # TODO: this will be removed once support for reading configuration from secrets is added in core
             job_secrets = context.job_input.get_all_secrets()
-            oracle_user = job_secrets[conf.get_oracle_user_secret()]
-            oracle_pass = job_secrets[conf.get_oracle_password_secret()]
+            oracle_user = job_secrets.get(ORACLE_USER.lower(), oracle_user)
+            oracle_pass = job_secrets.get(ORACLE_PASSWORD.lower(), oracle_pass)
         context.connections.add_open_connection_factory_method(
             "ORACLE",
             lambda: OracleConnection(
                 oracle_user,
                 oracle_pass,
                 conf.get_oracle_connection_string(),
+                host=conf.get_oracle_host(),
+                port=conf.get_oracle_port(),
+                sid=conf.get_oracle_sid(),
+                service_name=conf.get_oracle_service_name(),
+                thick_mode=conf.oracle_thick_mode(),
+                thick_mode_lib_dir=conf.oracle_thick_mode_lib_dir(),
             ),
         )
         context.ingester.add_ingester_factory_method(

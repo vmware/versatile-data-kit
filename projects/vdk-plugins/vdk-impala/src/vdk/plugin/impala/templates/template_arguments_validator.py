@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from logging import getLogger
 from typing import cast
@@ -58,4 +58,5 @@ class TemplateArgumentsValidator:
         try:
             return self.TemplateParams(**args).dict()
         except ValidationError as error:
-            errors.report_and_rethrow(ResolvableBy.USER_ERROR, error)
+            errors.report(ResolvableBy.USER_ERROR, error)
+            raise error

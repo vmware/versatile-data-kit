@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -7,6 +7,7 @@ import os
 import pathlib
 import re
 import sys
+import traceback
 from typing import cast
 from typing import Dict
 from typing import List
@@ -18,6 +19,7 @@ from vdk.internal.builtin_plugins.config.job_config import JobConfig
 from vdk.internal.builtin_plugins.run import job_input_error_classifier
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
+from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.execution_tracking import (
     ExecutionTrackingPlugin,
 )
@@ -49,7 +51,8 @@ class CliRunImpl:
                     ]
                 )
             )
-            errors.report_and_rethrow(errors.ResolvableBy.USER_ERROR, e)
+            errors.report(errors.ResolvableBy.USER_ERROR, e)
+            raise e
 
     @staticmethod
     def __split_into_chunks(exec_steps: List, chunks: int) -> List:
@@ -141,6 +144,46 @@ class CliRunImpl:
         else:
             log.info(f"Data Job execution summary: {execution_result}")
 
+    @staticmethod
+    def __log_short_exec_result(execution_result: ExecutionResult):
+        def extract_relevant_lines(step: StepResult) -> List[str]:
+            out = []
+            if step.exception:
+                call_list = traceback.format_tb(step.exception.__traceback__)
+
+                for line_index, line in enumerate(call_list):
+                    # Check if the step name is in the line
+                    if step.name in line:
+                        out.append(line)
+                        next_line_index = line_index + 1
+                        # Pull in subsequent relevant lines
+                        # that do not come from another file
+                        while next_line_index < len(call_list) and not re.match(
+                            r'^\s*File "', call_list[next_line_index]
+                        ):
+                            out.append(call_list[next_line_index])
+                            next_line_index += 1
+                # add the exception type and message
+                out.append(f"{type(step.exception).__name__}: {str(step.exception)}")
+            return out
+
+        log.info(
+            "Job execution result: "
+            + execution_result.status.upper()
+            + "\n"
+            + "Step results:\n"
+            + "".join(
+                [
+                    step.name
+                    + " - "
+                    + step.status.upper()
+                    + "\n"
+                    + "".join(extract_relevant_lines(step))
+                    for step in execution_result.steps_list
+                ]
+            )
+        )
+
     def create_and_run_data_job(
         self,
         context: CoreContext,
@@ -165,10 +208,7 @@ class CliRunImpl:
             if context.configuration.get_value("LOG_EXECUTION_RESULT"):
                 self.__log_exec_result(execution_result)
             else:
-                if execution_result.is_success():
-                    log.info("Job execution result: SUCCESS")
-                if execution_result.is_failed():
-                    log.info("Job execution result: FAILED")
+                self.__log_short_exec_result(execution_result)
 
         except BaseException as e:
             log.error(
@@ -181,12 +221,13 @@ class CliRunImpl:
                     ]
                 )
             )
-            errors.report_and_rethrow(
+            errors.report(
                 job_input_error_classifier.whom_to_blame(
                     e, __file__, data_job_directory
                 ),
                 e,
             )
+            raise e
         if execution_result.is_failed() and execution_result.get_exception_to_raise():
             raise execution_result.get_exception_to_raise()
 

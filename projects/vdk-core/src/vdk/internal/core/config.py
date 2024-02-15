@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
@@ -123,6 +123,17 @@ class Configuration:
         :return: True if sensitive, else False
         """
         return self.__config_key_to_sensitive.get(key)
+
+    def is_default(self, key: ConfigKey) -> bool:
+        """
+        Return True if the configuration value for a given key uses the default value.
+        If set_value is called for a specific key, this will return False, even if
+        value == default_value
+
+        :param key: the configuration key (e.g db_host, service_uri, etc.)
+        :return: the value corresponding to the configuration key
+        """
+        return key not in self.__config_key_to_value
 
     def list_config_keys(self) -> list[ConfigKey]:
         """

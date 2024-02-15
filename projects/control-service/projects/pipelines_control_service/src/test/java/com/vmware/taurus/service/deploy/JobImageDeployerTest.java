@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -94,7 +94,8 @@ public class JobImageDeployerTest {
     when(defaultConfigurations.dataJobLimits())
         .thenReturn(new KubernetesService.Resources("2000m", "1G"));
 
-    when(supportedPythonVersions.getDefaultVdkImage()).thenReturn("release");
+    when(supportedPythonVersions.getDefaultVdkImage()).thenReturn("domain:5000/name:release");
+    when(supportedPythonVersions.getVdkImage(any())).thenReturn("domain:5000/name:release");
 
     JobConfig jobConfig = new JobConfig();
     jobConfig.setSchedule(TEST_JOB_SCHEDULE);

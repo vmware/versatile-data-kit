@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 # Extracts the latest rc-version number for the pipeline id that's passed

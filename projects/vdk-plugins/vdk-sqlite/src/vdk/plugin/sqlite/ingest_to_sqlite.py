@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import collections
 import logging
@@ -99,9 +99,10 @@ class IngestToSQLite(IIngesterPlugin):
                     log.warning(
                         "Failed to sent payload. An issue with the SQL query occurred."
                     )
-                    errors.report_and_rethrow(ResolvableBy.USER_ERROR, e)
+                    errors.report(ResolvableBy.USER_ERROR, e)
                 else:
-                    errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
+                    errors.report(errors.ResolvableBy.PLATFORM_ERROR, e)
+                raise e
 
     def __check_destination_table_exists(
         self, destination_table: str, cur: Cursor

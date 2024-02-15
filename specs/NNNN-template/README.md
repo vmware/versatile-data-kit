@@ -7,11 +7,11 @@
 
 To get started with this template:
 
-- [ ] **Create an issue in Github (if one does not exists already)**
+- [ ] **Create an issue(or milestone) in Github (if one does not exists already)**
 - [ ] **Make a copy of this template directory.**
   Copy this template into the specs directory and name it
   `NNNN-short-descriptive-title`, where `NNNN` is the issue number (with no
-  leading-zero padding) created above.
+  leading-zero padding) created above. If a milestone is being used instead of a ticket `NNNN` should be set to `milestone-NN` where `NN` is the milestone number
 - [ ] **Fill out this file as best you can.**
   There are instructions as HTML comments.
   At minimum, you should fill in the "Summary" and "Motivation" sections.

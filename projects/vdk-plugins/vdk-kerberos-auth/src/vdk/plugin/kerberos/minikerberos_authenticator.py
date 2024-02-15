@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import asyncio
 import logging
@@ -138,4 +138,5 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
             )
         except Exception as e:
             log.warning("Could not retrieve Kerberos TGT")
-            errors.report_and_rethrow(ResolvableBy.CONFIG_ERROR, e)
+            errors.report(ResolvableBy.CONFIG_ERROR, e)
+            raise e

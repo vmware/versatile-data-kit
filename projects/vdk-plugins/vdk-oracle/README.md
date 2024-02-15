@@ -1,5 +1,8 @@
 # oracle
 
+<a href="https://pypistats.org/packages/vdk-oracle" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-oracle.svg" alt="monthly download count for vdk-oracle">
+
 Support for VDK Managed Oracle connection
 
 TODO: what the project is about, what is its purpose
@@ -15,14 +18,17 @@ pip install vdk-oracle
 
 (`vdk config-help` is useful command to browse all config options of your installation of vdk)
 
-| Name                     | Description                                                    | (example)  Value      |
-| ------------------------ | -------------------------------------------------------------- | --------------------- |
-| oracle_user              | Username used when connecting to Oracle database               | "my_user"             |
-| oracle_password          | Password used when connecting to Oracle database               | "super_secret_shhhh"  |
-| oracle_user_secret       | The user name secret key if using secrets to connect to Oracle | "user_secret_key"     |
-| oracle_password_secret   | The password secret key if using secrets to connect to Oracle  | "password_secret_key" |
-| oracle_use_secrets       | Set to True to use secrets to connect to Oracle                | "True"                |
-| oracle_connection_string | The Oracle connection string                                   | "localhost:1521/free" |
+| Name                     | Description                                                                                                                                                                                                                           | (example)  Value    |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
+| oracle_user              | Username used when connecting to Oracle database                                                                                                                                                                                      | my_user             |
+| oracle_password          | Password used when connecting to Oracle database                                                                                                                                                                                      | super_secret_shhhh  |
+| oracle_use_secrets       | Set to True to use secrets to connect to Oracle                                                                                                                                                                                       | True                |
+| oracle_connection_string | The Oracle connection string                                                                                                                                                                                                          | localhost:1521/free |
+| oracle_host              | The host of the Oracle database. Note: This gets overridden if oracle_connection_string is set.                                                                                                                                       | localhost           |
+| oracle_port              | The port of the Oracle database. Note: This gets overridden if oracle_connection_string is set.                                                                                                                                       | 1521                |
+| oracle_sid               | The SID of the Oracle database. Note: This gets overridden if oracle_connection_string is set.                                                                                                                                        | free                |
+| oracle_service_name      | The Service name of the Oracle database. Note: This gets overridden if oracle_connection_string is set.                                                                                                                               | free                |
+| oracle_thick_mode        | Python-oracledb is said to be in Thick mode when Oracle Client libraries are used. True by default. Set to False to disable Oracle Thick mode. More info: https://python-oracledb.readthedocs.io/en/latest/user_guide/appendix_b.html | True                |
 
 ### Example
 

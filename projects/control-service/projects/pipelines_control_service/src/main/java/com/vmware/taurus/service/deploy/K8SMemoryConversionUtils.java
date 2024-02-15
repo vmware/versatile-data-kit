@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -37,7 +37,13 @@ public class K8SMemoryConversionUtils {
     return getMemoryInMi(memoryAmount, memory);
   }
 
-  public static float getCpuInFloat(String cpu) throws ParseException {
-    return NumberFormat.getInstance().parse(cpu).floatValue();
+  public static float getCpuInCores(String cpu) throws ParseException {
+    float value = NumberFormat.getInstance().parse(cpu).floatValue();
+
+    if (cpu != null && cpu.endsWith("m")) {
+      value = value / 1000;
+    }
+
+    return value;
   }
 }

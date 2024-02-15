@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -24,6 +24,8 @@ public abstract class BaseDataJobDeployment {
   private String dataJobName;
 
   private String pythonVersion;
+
+  private String vdkVersion;
 
   private String gitCommitSha;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 VMware, Inc.
+ * Copyright 2021-2024 VMware, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -346,8 +346,8 @@ public class JobImageDeployerV2 {
 
     var jobCommand = jobCommandProvider.getJobCommand(jobName);
 
-    String cpuRequest = jobDeployment.getResources().getCpuRequestCores() + "m";
-    String cpuLimit = jobDeployment.getResources().getCpuLimitCores() + "m";
+    String cpuRequest = Float.toString(jobDeployment.getResources().getCpuRequestCores());
+    String cpuLimit = Float.toString(jobDeployment.getResources().getCpuLimitCores());
     String memoryRequest = jobDeployment.getResources().getMemoryRequestMi() + "Mi";
     String memoryLimit = jobDeployment.getResources().getMemoryLimitMi() + "Mi";
 
@@ -373,7 +373,10 @@ public class JobImageDeployerV2 {
             "-c",
             "cp -r $(python -c \"from distutils.sysconfig import get_python_lib;"
                 + " print(get_python_lib())\") /vdk/. && cp /usr/local/bin/vdk /vdk/.");
-    var jobVdkImage = supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
+    var jobVdkImage =
+        isVdkVersionPassedDifferentFromOneSetByPythonVersion(jobDeployment)
+            ? supportedPythonVersions.replaceVdkVersionInImage(jobDeployment.getVdkVersion())
+            : supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion());
     var jobInitContainer =
         KubernetesService.container(
             "vdk",
@@ -454,7 +457,7 @@ public class JobImageDeployerV2 {
     try {
       if (resources.getCpuRequestCores() == null) {
         String cpu = defaultConfigurations.dataJobRequests().getCpu();
-        resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+        resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInCores(cpu));
       }
     } catch (ParseException e) {
       handleResourcesException(e);
@@ -465,7 +468,7 @@ public class JobImageDeployerV2 {
     try {
       if (resources.getCpuLimitCores() == null) {
         String cpu = defaultConfigurations.dataJobLimits().getCpu();
-        resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+        resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInCores(cpu));
       }
     } catch (ParseException e) {
       handleResourcesException(e);
@@ -480,5 +483,17 @@ public class JobImageDeployerV2 {
             "The resource won't be present in the DB",
             "Verify the string can be parsed to a number");
     log.error(errorMessage.toString(), e);
+  }
+
+  private boolean isVdkVersionPassedDifferentFromOneSetByPythonVersion(
+      DesiredDataJobDeployment jobDeployment) {
+    var passedVdkVersion = jobDeployment.getVdkVersion();
+    var vdkVersionSetByPythonVersion =
+        DockerImageName.getTag(
+            supportedPythonVersions.getVdkImage(jobDeployment.getPythonVersion()));
+
+    return passedVdkVersion != null
+        && !passedVdkVersion.isEmpty()
+        && !passedVdkVersion.equals(vdkVersionSetByPythonVersion);
   }
 }

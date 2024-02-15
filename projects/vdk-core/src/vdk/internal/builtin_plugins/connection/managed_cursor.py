@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import types
@@ -119,10 +119,11 @@ class ManagedCursor(ProxyCursor):
                         ]
                     )
                 )
-                errors.report_and_rethrow(
+                errors.report(
                     blamee,
                     e,
                 )
+                raise e
 
     def _decorate_operation(self, managed_operation: ManagedOperation, operation: str):
         if self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls():
@@ -143,7 +144,8 @@ class ManagedCursor(ProxyCursor):
                         ]
                     )
                 )
-                errors.report_and_rethrow(errors.ResolvableBy.PLATFORM_ERROR, e)
+                errors.report(errors.ResolvableBy.PLATFORM_ERROR, e)
+                raise e
 
     def _validate_operation(self, operation: str, parameters: Optional[Container]):
         if self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
@@ -161,10 +163,11 @@ class ManagedCursor(ProxyCursor):
                         ]
                     )
                 )
-                errors.report_and_rethrow(
+                errors.report(
                     errors.ResolvableBy.USER_ERROR,
                     exception=e,
                 )
+                raise e
 
     def _execute_operation(self, managed_operation: ManagedOperation):
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())

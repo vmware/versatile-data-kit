@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import Any
@@ -111,6 +111,14 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
                 factory_method = self.__properties_builders[
                     list(self.__properties_builders.keys())[0]
                 ]
+            elif (
+                len(self.__properties_builders) == 2
+                and "memory" in self.__properties_builders.keys()
+            ):
+                properties_type = list(self.__properties_builders.keys())[0]
+                if properties_type == "memory":
+                    properties_type = list(self.__properties_builders.keys())[1]
+                factory_method = self.__choose_from_default_type(properties_type)
             else:
                 errors.report_and_throw(
                     errors.VdkConfigurationError(

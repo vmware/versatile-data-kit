@@ -1,7 +1,7 @@
 project.ext {
     versions = [
             // include only libraries which are NOT in the Spring Boot BOM: org.springframework:spring-boot-dependencies
-            'com.google.guava:guava'                                             : 'com.google.guava:guava:32.1.1-jre',
+            'com.google.guava:guava'                                             : 'com.google.guava:guava:33.0.0-jre',
             'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.37',
             // Update the ph-client to latest.
             'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.12.0',
@@ -14,11 +14,11 @@ project.ext {
             'org.junit.jupiter:junit-jupiter-engine'                             : 'org.junit.jupiter:junit-jupiter-engine:5.10.1',
             'org.junit.platform:junit-platform-suite-api'                        : 'org.junit.platform:junit-platform-suite-api:1.10.1',
             'com.mmnaseri.utils:spring-data-mock'                                : 'com.mmnaseri.utils:spring-data-mock:2.2.0',
-            'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:5.8.0',
+            'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:5.10.0',
             'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.14.5',
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.16.0',
             'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0',
-            'org.json:json'                                                      : 'org.json:json:20231013',
+            'org.json:json'                                                      : 'org.json:json:20240205',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.15.1',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.33',
             'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r',
@@ -30,8 +30,8 @@ project.ext {
             'com.graphql-java:graphql-java-spring-boot-starter-webmvc'           : 'com.graphql-java:graphql-java-spring-boot-starter-webmvc:2021-10-25T04-50-54-fbc162f',
             'com.cronutils:cron-utils'                                           : 'com.cronutils:cron-utils:9.2.1',
             'net.lingala.zip4j:zip4j'                                            : 'net.lingala.zip4j:zip4j:2.11.5',
-            'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.10.0',
-            'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:5.10.0',
+            'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'            : 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.11.0',
+            'net.javacrumbs.shedlock:shedlock-spring'                            : 'net.javacrumbs.shedlock:shedlock-spring:5.11.0',
             'org.testcontainers:testcontainers'                                  : 'org.testcontainers:testcontainers:1.19.2',
             'org.testcontainers:vault'                                           : 'org.testcontainers:vault:1.19.1',
             'org.testcontainers:junit-jupiter'                                   : 'org.testcontainers:junit-jupiter:1.19.1',
@@ -57,7 +57,7 @@ project.ext {
             'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.14',
             'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.14',
             'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.12.0',
-            'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.6.0',
+            'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.8.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.25.0',
             'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.15.Final'
 

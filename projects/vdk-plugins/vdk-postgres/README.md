@@ -1,3 +1,6 @@
+<a href="https://pypistats.org/packages/vdk-postgres" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-postgres.svg" alt="monthly download count for vdk-postgres">
+
 This plugin allows vdk-core to interface with and execute queries against a PostgreSQL database.
 
 # Usage

@@ -1,3 +1,6 @@
+<a href="https://pypistats.org/packages/vdk-plugin-control-cli" alt="Monthly Downloads">
+        <img src="https://img.shields.io/pypi/dm/vdk-plugin-control-cli.svg" alt="monthly download count for vdk-plugin-control-cli">
+
 This plugin allows vdk-core to access vdk-control-cli functionality.
 
 Upon installing it enhances vdk with CLI commands for data job lifecycle management available from vdk-control-cli package

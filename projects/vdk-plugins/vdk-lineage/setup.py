@@ -1,4 +1,4 @@
-# Copyright 2021-2023 VMware, Inc.
+# Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import pathlib
 
@@ -22,7 +22,7 @@ setuptools.setup(
         "vdk-core",
         "vdk-lineage-model",
         "sqlparse",
-        "sqllineage",
+        "sqllineage==1.3.8",
         "openlineage-integration-common",
         "openlineage-python",
     ],
