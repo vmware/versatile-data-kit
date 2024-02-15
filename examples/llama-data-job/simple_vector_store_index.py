@@ -5,7 +5,6 @@ import os
 from datetime import datetime
 
 from llama_index.core import Settings
-from llama_index.core import SimpleDirectoryReader
 from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.readers.confluence import ConfluenceReader
