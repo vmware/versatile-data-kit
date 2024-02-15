@@ -1,5 +1,5 @@
 <a href="https://pypistats.org/packages/vdk-plugin-control-cli" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-plugin-control-cli.svg" alt="monthly download count for vdk-plugin-control-cli">
+        <img src="https://img.shields.io/pypi/dm/vdk-plugin-control-cli.svg" alt="monthly download count for vdk-plugin-control-cli"></a>
 
 This plugin allows vdk-core to access vdk-control-cli functionality.
 

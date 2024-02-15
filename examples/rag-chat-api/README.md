@@ -21,3 +21,16 @@ Alternatively, you can use the Python script for easier access + string formatti
 ```
 python question.py "INPUT-QUESTION-HERE"
 ```
+
+### UI
+
+To run the UI, you need to install `streamlit`:
+```
+pip install streamlit
+```
+Note that newer versions of `streamlit` require Python 3.8+.
+
+Then, run the app:
+```
+streamlit run chat_app.py
+```

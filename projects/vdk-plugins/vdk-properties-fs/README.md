@@ -1,5 +1,5 @@
 <a href="https://pypistats.org/packages/vdk-properties-fs" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-properties-fs.svg" alt="monthly download count for vdk-properties-fs">
+        <img src="https://img.shields.io/pypi/dm/vdk-properties-fs.svg" alt="monthly download count for vdk-properties-fs"></a>
 
 This plugin allows vdk-core to read/write properties on the local FS. Mainly for development purposes,
 to simplify a use-case with local Properties API usage, that would otherwise require a Control Service instance prerequisite.
