@@ -5,13 +5,14 @@ import os
 from datetime import datetime
 
 import psycopg2
-from llama_index.core import Settings, StorageContext
+from llama_index.core import Settings
+from llama_index.core import StorageContext
 from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.legacy.vector_stores import PGVectorStore
 from llama_index.readers.confluence import ConfluenceReader
-from vdk.api.job_input import IJobInput
 from sqlalchemy import make_url
+from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
 
@@ -111,4 +112,3 @@ def run(job_input: IJobInput):
     index = VectorStoreIndex.from_documents(
         documents, storage_context=storage_context, show_progress=True
     )
-

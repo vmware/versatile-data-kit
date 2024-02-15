@@ -3,5 +3,5 @@
 # The file is optional and can be deleted if no extra library dependencies are necessary.
 
 llama-index==0.10.3
-llama-index-readers-confluence
 llama-index-embeddings-huggingface
+llama-index-readers-confluence
