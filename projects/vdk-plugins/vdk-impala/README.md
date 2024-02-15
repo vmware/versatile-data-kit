@@ -1,7 +1,7 @@
 This plugin allows vdk-core to interface with and execute queries against an Impala database.
 
 <a href="https://pypistats.org/packages/vdk-impala" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-impala.svg" alt="monthly download count for vdk-impala">
+        <img src="https://img.shields.io/pypi/dm/vdk-impala.svg" alt="monthly download count for vdk-impala"></a>
 
 # Features
 

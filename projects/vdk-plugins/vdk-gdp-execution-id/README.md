@@ -1,5 +1,5 @@
 <a href="https://pypistats.org/packages/vdk-gdp-execution-id" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-gdp-execution-id.svg" alt="monthly download count for vdk-gdp-execution-id">
+        <img src="https://img.shields.io/pypi/dm/vdk-gdp-execution-id.svg" alt="monthly download count for vdk-gdp-execution-id"></a>
 
 An installed Generative Data Pack plugin automatically expands the data sent for ingestion.
 

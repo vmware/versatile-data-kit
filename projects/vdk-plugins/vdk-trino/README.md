@@ -1,5 +1,5 @@
 <a href="https://pypistats.org/packages/vdk-trino" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-trino.svg" alt="monthly download count for vdk-trino">
+        <img src="https://img.shields.io/pypi/dm/vdk-trino.svg" alt="monthly download count for vdk-trino"></a>
 
 This plugin allows vdk-core to interface with and execute queries against a Trino database. Additionally, it can collect lineage data, assuming a lineage logger has been provided through the vdk-core configuration.
 
