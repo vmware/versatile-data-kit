@@ -114,9 +114,9 @@ def load_documents(json_file_path: str):
         return json.load(file)
 
 
-def store(output_file_path, chunked_documents):
-    json_data = json.dumps(chunked_documents, indent=4)
-    with open(output_file_path, "w") as file:
+def store(name, content):
+    json_data = json.dumps(content, indent=4)
+    with open(name, "w") as file:
         file.write(json_data)
 
 
