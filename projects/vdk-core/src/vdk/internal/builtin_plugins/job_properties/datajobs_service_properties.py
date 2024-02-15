@@ -78,8 +78,8 @@ class DataJobsServiceProperties(IProperties):
             )  # keeps the outer scope originally-referenced dictionary intact
             for client in self._write_preprocessors:
                 try:
-                    if (properties.get('cipher_key')) is not None:
-                        properties.pop('cipher_key')
+                    if (properties.get("cipher_key")) is not None:
+                        properties.pop("cipher_key")
                     properties = client.write_properties(
                         self._job_name, self._team_name, properties
                     )
