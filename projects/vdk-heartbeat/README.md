@@ -1,7 +1,7 @@
 # Versatile Data Kit Heartbeat tool
 
 <a href="https://pypistats.org/packages/vdk-heartbeat" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-heartbeat.svg" alt="monthly download count for vdk-heartbeat">
+        <img src="https://img.shields.io/pypi/dm/vdk-heartbeat.svg" alt="monthly download count for vdk-heartbeat"></a>
 
 Heartbeat tool for verifying deployed SDK and Control Service are functional and working correctly.<br>
 It  checks that a job can be created, deployed, run and deleted.

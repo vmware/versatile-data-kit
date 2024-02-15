@@ -1,7 +1,7 @@
 # vdk-ipython
 
 <a href="https://pypistats.org/packages/vdk-ipython" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-ipython.svg" alt="monthly download count for vdk-ipython">
+        <img src="https://img.shields.io/pypi/dm/vdk-ipython.svg" alt="monthly download count for vdk-ipython"></a>
 
 Ipython extension for VDK
 

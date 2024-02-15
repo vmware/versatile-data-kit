@@ -1,7 +1,7 @@
 # oracle
 
 <a href="https://pypistats.org/packages/vdk-oracle" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-oracle.svg" alt="monthly download count for vdk-oracle">
+        <img src="https://img.shields.io/pypi/dm/vdk-oracle.svg" alt="monthly download count for vdk-oracle"></a>
 
 Support for VDK Managed Oracle connection
 

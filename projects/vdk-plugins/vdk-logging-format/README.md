@@ -1,7 +1,7 @@
 # This plugin has been deprecated; please use vdk-structlog instead.
 
 <a href="https://pypistats.org/packages/vdk-logging-format" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-logging-format.svg" alt="monthly download count for vdk-logging-format">
+        <img src="https://img.shields.io/pypi/dm/vdk-logging-format.svg" alt="monthly download count for vdk-logging-format"></a>
 
 This plugins allows for the configuration of the format of VDK logs.
 

@@ -1,5 +1,5 @@
 <a href="https://pypistats.org/packages/vdk-sqlite" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-sqlite.svg" alt="monthly download count for vdk-sqlite">
+        <img src="https://img.shields.io/pypi/dm/vdk-sqlite.svg" alt="monthly download count for vdk-sqlite"></a>
 
 This plugin allows vdk-core to interface with, execute queries against, and ingest data to a SQLite database.
 

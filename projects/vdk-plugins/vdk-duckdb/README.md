@@ -1,7 +1,7 @@
 # duckdb
 
 <a href="https://pypistats.org/packages/vdk-duckdb" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-duckdb.svg" alt="monthly download count for vdk-duckdb">
+        <img src="https://img.shields.io/pypi/dm/vdk-duckdb.svg" alt="monthly download count for vdk-duckdb"></a>
 
 DuckDB plugin for the Versatile Data Kit (VDK), which enables users to connect to and interact with DuckDB databases.
 The purpose is to simplify data extraction, transformation, and loading tasks when working with DuckDB as a data source or destination

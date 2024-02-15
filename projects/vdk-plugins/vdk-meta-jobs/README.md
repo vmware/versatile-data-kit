@@ -1,7 +1,7 @@
 # Meta Jobs
 
 <a href="https://pypistats.org/packages/vdk-meta-jobs" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-meta-jobs.svg" alt="monthly download count for vdk-meta-jobs">
+        <img src="https://img.shields.io/pypi/dm/vdk-meta-jobs.svg" alt="monthly download count for vdk-meta-jobs"></a>
 
 Express dependencies between data jobs.
 

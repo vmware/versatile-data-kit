@@ -1,5 +1,5 @@
 <a href="https://pypistats.org/packages/vdk-test-utils" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-test-utils.svg" alt="monthly download count for vdk-test-utils">
+        <img src="https://img.shields.io/pypi/dm/vdk-test-utils.svg" alt="monthly download count for vdk-test-utils"></a>
 
 This plugin provides utility tools used for the testing of vdk-core and vdk-core plugins.
 

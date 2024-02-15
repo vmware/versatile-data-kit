@@ -1,7 +1,7 @@
 # VDK Smarter
 
 <a href="https://pypistats.org/packages/vdk-smarter" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-smarter.svg" alt="monthly download count for vdk-smarter">
+        <img src="https://img.shields.io/pypi/dm/vdk-smarter.svg" alt="monthly download count for vdk-smarter"></a>
 
 Making VDK smarter by employing ML/AI.
 

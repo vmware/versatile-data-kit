@@ -1,7 +1,7 @@
 # vdk-jupyterlab-extension
 
 <a href="https://pypistats.org/packages/vdk-jupyterlab-extension" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-jupyterlab-extension.svg" alt="monthly download count for vdk-jupyterlab-extension">
+        <img src="https://img.shields.io/pypi/dm/vdk-jupyterlab-extension.svg" alt="monthly download count for vdk-jupyterlab-extension"></a>
 
 A Jupyterlab extension for using VDK
 For more information see: https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-994-jupyter-notebook-integration

@@ -1,7 +1,7 @@
 # Quickstart-VDK
 
 <a href="https://pypistats.org/packages/quickstart-vdk" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/quickstart-vdk.svg" alt="monthly download count for quickstart-vdk">
+        <img src="https://img.shields.io/pypi/dm/quickstart-vdk.svg" alt="monthly download count for quickstart-vdk"></a>
 
 This is the first VDK packaging that users would install to play around with.
 
