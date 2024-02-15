@@ -3,12 +3,12 @@
 import logging
 from typing import List
 from typing import Optional
-from typing import Tuple
 
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
+from vdk.internal.util.decorators import closing_noexcept_on_close
 
 log = logging.getLogger(__name__)
 
@@ -38,16 +38,17 @@ class IngestToPostgres(IIngesterPlugin):
             f"collection_id: {collection_id}"
         )
 
-        with self._context.connections.open_connection(
-            "POSTGRES"
-        ).connect() as connection:
-            cursor = connection.cursor()
+        # this is managed connection, no need to close it here.
+        connection = self._context.connections.open_connection("POSTGRES")
+        with closing_noexcept_on_close(connection.cursor()) as cursor:
             query, parameters = self._populate_query_parameters_tuple(
                 destination_table, cursor, payload
             )
 
             try:
-                cursor.execute(query, parameters)
+                cursor.executemany(
+                    query, parameters
+                )  # Use executemany for bulk insertion
                 connection.commit()
                 log.debug("Payload was ingested.")
             except Exception as e:
@@ -57,28 +58,19 @@ class IngestToPostgres(IIngesterPlugin):
     @staticmethod
     def _populate_query_parameters_tuple(
         destination_table: str, cursor: PEP249Cursor, payload: List[dict]
-    ) -> (str, Tuple[str]):
+    ) -> (str, list):
         """
-        Returns insert into destination table tuple of query and parameters;
-        E.g. for a table dest_table with columns val1, val2 and payload size 3, this method will return:
-        'INSERT INTO dest_table (val1, val2) VALUES (%s, %s), (%s, %s), (%s, %s)', ['val1', 'val2']
-
-        :param destination_table: str
-            the name of the destination table
-        :param cursor: PEP249Cursor
-            the database cursor
-        :param payload: List[dict]
-            the payloads to be ingested
-        :return: Tuple[str, Tuple[str]]
-            tuple containing the query and parameters
+        Prepare the SQL query and parameters for bulk insertion.
         """
         cursor.execute(f"SELECT * FROM {destination_table} WHERE false")
-        columns = [c.name for c in cursor.description]
+        columns = [desc[0] for desc in cursor.description]
 
-        row_placeholder = f"({', '.join('%s' for column in columns)})"
+        placeholders = ", ".join(["%s"] * len(columns))
+        query = f"INSERT INTO {destination_table} ({', '.join(columns)}) VALUES ({placeholders})"
 
-        return (
-            f"INSERT INTO {destination_table} ({', '.join(columns)}) "
-            f"VALUES {', '.join([row_placeholder for i in range(len(payload))])}",
-            tuple(obj[column] for obj in payload for column in columns),
-        )
+        parameters = []
+        for obj in payload:
+            row = tuple(obj[column] for column in columns)
+            parameters.append(row)
+
+        return query, parameters
