@@ -288,7 +288,7 @@ class LoggingPlugin:
         )
         syslog_enabled = context.core_context.configuration.get_value(SYSLOG_ENABLED)
         try:  # If logging initialization fails we want to attempt sending telemetry before exiting VDK
-            if not os.environ.get("VDK_USE_STRUCTLOG"):
+            if not context.core_context.configuration.get_value("use_structlog"):
                 configure_loggers(
                     job_name,
                     attempt_id,
