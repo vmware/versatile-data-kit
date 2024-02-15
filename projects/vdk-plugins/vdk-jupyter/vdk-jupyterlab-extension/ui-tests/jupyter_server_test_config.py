@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 """Server configuration for integration tests.
 
 !! Never use this configuration in production because it

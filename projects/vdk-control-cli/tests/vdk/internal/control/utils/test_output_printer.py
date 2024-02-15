@@ -1,5 +1,6 @@
-# Copyright 2023-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 import unittest
 from typing import Any
 from typing import Dict

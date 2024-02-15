@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 """
 Functional test aiming at verifying the end-to-end operation of the
 ingestion plugins chaining functionality

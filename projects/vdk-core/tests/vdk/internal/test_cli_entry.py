@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 import click
 from click.testing import CliRunner
 from vdk.api.plugin.hook_markers import hookimpl

@@ -1,6 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
 
+# Copyright 2023-2024 Broadcom
+# SPDX-License-Identifier: Apache-2.0
 
 def run(job_input):
     payload = {"some_data": "some_test_data", "more_data": "more_test_data"}

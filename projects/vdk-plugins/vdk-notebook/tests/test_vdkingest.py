@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 from click.testing import Result
 from vdk.plugin.data_sources import plugin_entry as data_sources_plugin_entry
 from vdk.plugin.notebook import notebook_plugin

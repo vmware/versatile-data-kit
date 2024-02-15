@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.errors import VdkConfigurationError

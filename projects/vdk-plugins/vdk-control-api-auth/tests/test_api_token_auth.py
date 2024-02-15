@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 import pytest
 from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from test_core_auth import allow_oauthlib_insecure_transport

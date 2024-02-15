@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 from click.testing import CliRunner
 from py._path.local import LocalPath
 from pytest_httpserver.pytest_plugin import PluginHTTPServer

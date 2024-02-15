@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 """
 Detailed documentation of VDK provided functionalities in job_input object can be found in the user wiki
 """

@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 # TODO: this is basically a copy of VDK JobConfig in vdk-core
 import configparser
 import fileinput

@@ -1,5 +1,6 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.job_properties import properties_config
 from vdk.internal.builtin_plugins.job_properties.inmemproperties import (
