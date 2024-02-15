@@ -1,6 +1,37 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+resources:
+  limits:
+    cpu: 0
+    memory: 0
+  requests:
+    cpu: 0
+    memory: 0
+
+deploymentDefaultDataJobsResources:
+  limits:
+    cpu: 0
+    memory: 0
+  requests:
+    cpu: 0
+    memory: 0
+
+deploymentBuilderResourcesDefault:
+  limits:
+    cpu: 0
+    memory: 0
+  requests:
+    cpu: 0
+    memory: 0
+
+#extraEnvVars:
+#  DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS: "--insecure --verbosity=debug --compressed-caching=false"
+#  DATAJOBS_DEPLOYMENT_BUILDER_BUILDERTIMEOUTSECONDS: "3600"
+
+#deploymentBuilderImage:
+#  tag: "1.4.1"
+
 ingress:
   hosts:
     - name: "localhost"

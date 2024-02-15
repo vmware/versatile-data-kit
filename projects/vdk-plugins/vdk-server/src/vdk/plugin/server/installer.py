@@ -7,6 +7,7 @@ import pathlib
 import subprocess
 import sys
 import time
+from typing import Optional
 
 import click_spinner
 import docker
@@ -51,10 +52,11 @@ class Installer:
     git_server_admin_email = "vdkuser@vmware.com"
     git_server_repository_name = "vdk-git-repo"
 
-    def __init__(self):
+    def __init__(self, values_file: Optional[str]):
         self.git_server_image = "gogs/gogs:0.12"
         self.registry_image = "registry:2"
         self.__current_directory = self.__get_current_directory()
+        self.__values_file = values_file
 
     def install(self):
         """
@@ -109,6 +111,7 @@ class Installer:
             and self.__control_service_is_up()
         ):
             log.info("The Versatile Data Kit Control Service is installed and running.")
+            log.info("Access the UI at http://localhost:8092")
             log.info(
                 "Access the REST API at http://localhost:8092/data-jobs/swagger-ui.html\n"
             )
@@ -639,7 +642,7 @@ class Installer:
             sys.exit(1)
 
     def __helm_install_command(self, git_server_ip):
-        return [
+        helm_command = [
             "helm",
             "install",
             self.helm_installation_name,
@@ -648,31 +651,7 @@ class Installer:
             "--set",
             "service.type=ClusterIP",
             "--set",
-            "deploymentBuilderResourcesDefault.limits.cpu=0",
-            "--set",
             "dataJob.executions.logsUrl.urlTemplate=http://localhost:8092/data-jobs/for-team/{{team_name}}/jobs/{{job_name}}/executions/{{execution_id}}/logs?tail_lines=400",
-            "--set",
-            "deploymentBuilderResourcesDefault.requests.cpu=0",
-            "--set",
-            "deploymentBuilderResourcesDefault.limits.memory=0",
-            "--set",
-            "deploymentBuilderResourcesDefault.requests.memory=0",
-            "--set",
-            "deploymentDefaultDataJobsResources.limits.cpu=0",
-            "--set",
-            "deploymentDefaultDataJobsResources.requests.cpu=0",
-            "--set",
-            "deploymentDefaultDataJobsResources.limits.memory=0",
-            "--set",
-            "deploymentDefaultDataJobsResources.requests.memory=0",
-            "--set",
-            "resources.limits.cpu=0",
-            "--set",
-            "resources.requests.cpu=0",
-            "--set",
-            "resources.limits.memory=0",
-            "--set",
-            "resources.requests.memory=0",
             "--set",
             "cockroachdb.statefulset.replicas=1",
             "--set",
@@ -702,6 +681,8 @@ class Installer:
             "--set",
             "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_EXTRAARGS=--insecure",
             "--set",
+            "extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_BUILDERTIMEOUTSECONDS=3600",
+            "--set",
             "extraEnvVars.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://localhost",
             "--set",
             "extraEnvVars.SWAGGER_UI_HOSTNAME=http://localhost:8092",
@@ -712,6 +693,9 @@ class Installer:
             "-f",
             self.__current_directory.joinpath("helm-values.yaml"),
         ]
+        if self.__values_file:
+            helm_command += ["-f", self.__values_file]
+        return helm_command
 
     def __uninstall_helm_chart(self):
         log.info("Uninstalling Control Service...")

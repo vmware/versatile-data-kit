@@ -4,6 +4,7 @@
 VDK Server plugin script.
 """
 import logging
+from typing import Optional
 
 import click
 from vdk.api.plugin.hook_markers import hookimpl
@@ -55,7 +56,21 @@ log = logging.getLogger(__name__)
     is_flag=True,
     help="Returns whether a local Control Service is currently installed.",
 )
-def server(install, uninstall, status):
+@click.option(
+    "-f",
+    "--file",
+    help="Pass custom values.yaml file with helm chart configuration for Control Service installation..",
+)
+@click.option(
+    "-f",
+    "--file",
+    type=click.Path(exists=True, resolve_path=True),
+    required=False,
+    help="The path to a values.yaml file with control service helm configuration."
+    " Used this to fine tune the deployment of hte control service when running vdk server --install."
+    " See all configuration options documented in https://bit.ly/vdk-helm-values",
+)
+def server(install, uninstall, status, file: Optional[str]):
     flags = 0
     if install:
         flags += 1
@@ -69,7 +84,7 @@ def server(install, uninstall, status):
             "Exactly one of --install, --uninstall, or --status options should be specified"
         )
     else:
-        installer = Installer()
+        installer = Installer(file)
         if install:
             installer.install()
         elif uninstall:
