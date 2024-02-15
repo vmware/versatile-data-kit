@@ -102,6 +102,11 @@ helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $R
       --set deploymentGitPassword="$CICD_GIT_PASSWORD" \
       --set uploadGitReadWriteUsername="$CICD_GIT_USER" \
       --set uploadGitReadWritePassword="$CICD_GIT_PASSWORD" \
+      --set deploymentBuilderResourcesDefault.limits.memory=36000Mi \
+      --set deploymentBuilderResourcesDefault.requests.memory=28000Mi \
+      --set deploymentBuilderResourcesDefault.limits.cpu=5 \
+      --set deploymentBuilderResourcesDefault.requests.cpu=3 \
+      --set deploymentBuilderImage.tag=1.4.1 \
       --set deploymentDockerRegistryType=generic \
       --set deploymentDockerRegistryUsername="$CICD_CONTAINER_REGISTRY_USER_NAME" \
       --set deploymentDockerRegistryPassword="$CICD_CONTAINER_REGISTRY_USER_PASSWORD" \
@@ -114,4 +119,5 @@ helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $R
       --set deploymentK8sNamespace="cicd-deployment" \
       --set controlK8sNamespace="cicd-control" \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
+      --set extraEnvVars.DATAJOBS_DEPLOYMENT_BUILDER_BUILDERTIMEOUTSECONDS=3600 \
       --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service"
