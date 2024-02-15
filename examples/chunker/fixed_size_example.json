@@ -1,0 +1,56 @@
+[
+  {
+    "metadata": {
+      "title": "Getting Started",
+      "id": "123213312",
+      "source": "https://github.com/vmware/versatile-data-kit/wiki/Getting-Started",
+      "deleted": false
+    },
+    "data": "VDK Getting Started guide"
+  },
+  {
+    "metadata": {
+      "title": "VDK Wiki",
+      "id": "747124724",
+      "source": "https://github.com/vmware/versatile-data-kit/wiki",
+      "deleted": false
+    },
+    "data": "VDK Wiki"
+  },
+  {
+    "metadata": {
+      "title": "VDK Issues",
+      "id": "721295269",
+      "source": "https://github.com/vmware/versatile-data-kit/issues",
+      "deleted": false
+    },
+    "data": "VDK Issues"
+  },
+  {
+    "metadata": {
+      "title": "VDK PRs",
+      "id": "1323122133",
+      "source": "https://github.com/vmware/versatile-data-kit/pulls",
+      "deleted": false
+    },
+    "data": "VDK Pull Requests"
+  },
+  {
+    "metadata": {
+      "title": "VDK Main Page",
+      "id": "312343243",
+      "source": "https://github.com/vmware/versatile-data-kit/tree/main",
+      "deleted": false
+    },
+    "data": "VDK: One framework to develop, deploy and operate data workflows with Python and SQL."
+  },
+  {
+    "metadata": {
+      "title": "VDK VEP",
+      "id": "747124725",
+      "source": "https://github.com/vmware/versatile-data-kit/tree/main/specs/vep-milestone-25-vector-database-ingestion",
+      "deleted": false
+    },
+    "data": "VDK VEP milestone 25 vector database ingestion. Summary: With the rise in popularity of LLMs and RAG we see VDK as a core component to getting the data where we need it to be. VDK's strengths are ETL tasks. We see that its very well suited to populating the databases needed for RAG."
+  }
+]
