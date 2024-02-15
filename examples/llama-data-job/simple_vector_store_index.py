@@ -4,11 +4,14 @@ import logging
 import os
 from datetime import datetime
 
-from llama_index.core import Settings
+import psycopg2
+from llama_index.core import Settings, StorageContext
 from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.legacy.vector_stores import PGVectorStore
 from llama_index.readers.confluence import ConfluenceReader
 from vdk.api.job_input import IJobInput
+from sqlalchemy import make_url
 
 log = logging.getLogger(__name__)
 
@@ -89,5 +92,23 @@ def run(job_input: IJobInput):
     set_property(job_input, "last_date", datetime.now().strftime("%Y-%m-%d %H:%M"))
 
     Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-    index = VectorStoreIndex.from_documents(documents)
-    index.storage_context.persist(persist_dir="./persist_dir")
+
+    connection_string = "postgresql://@localhost:5432/postgres"
+
+    url = make_url(connection_string)
+    vector_store = PGVectorStore.from_params(
+        database="postgres",
+        host=url.host,
+        password=url.password,
+        port=url.port,
+        user=url.username,
+        table_name="confluence_docs",
+        embed_dim=384
+        # this is buggy and will probably fail with dim error
+        # similar to https://github.com/langchain-ai/langchain/issues/2219
+    )
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    index = VectorStoreIndex.from_documents(
+        documents, storage_context=storage_context, show_progress=True
+    )
+
