@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from collections import OrderedDict
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
@@ -69,6 +68,11 @@ class Configuration:
     def __getitem__(self, key: ConfigKey):
         key = _normalize_config_key(key)
         return self.get_value(key)
+
+    def override_value(self, key: ConfigKey, value: ConfigValue):
+        key = _normalize_config_key(key)
+        if key in self.__config_key_to_default_value:
+            self.__config_key_to_value[key] = value
 
     def get_value(self, key: ConfigKey) -> ConfigValue:
         """

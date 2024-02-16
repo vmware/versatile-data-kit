@@ -35,6 +35,46 @@ vdk --help
 Plugins are a powerful way of extending or adapting Versatile Data Kit for all kinds of use-cases.
 For more information see [Plugins doc](../vdk-plugins/README.md).
 
+### A note on configs and secrets
+
+[Secrets also double as config keys.](https://github.com/vmware/versatile-data-kit/pull/3125). At the end of the
+`initialize_job` hook, the secrets provider is called and all secrets keys are fetched. Any configs that match a
+secrets key have their values overridden. However, if a plugin caches some config values in the `initialize_job`
+hook and re-uses them later, those values will not be overridden by secrets.
+
+**Example**
+
+This will not work
+
+```shell
+vdk secrets --set-prompt mytoken
+```
+
+```python
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        token = context.core_context.configuration.get_value("mytoken") # will be None if not set in config.ini
+
+        if token:
+            myapi.login(token)
+
+        # secrets override configs after initialize_job but before run_job
+```
+
+Plugins should do this instead
+
+```python
+    @hookimpl(hookwrapper=True)
+    def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
+        # config is already overridden by secrets
+        token = context.core_context.configuration.get_value("mytoken")
+
+        if token:
+            myapi.login(token)
+```
+
+This is a limitation on the current implementation, which might change after https://github.com/vmware/versatile-data-kit/issues/3210
+
 ## Public interfaces
 
 Any backwards compatibility guarantees apply only to public interfaces.
