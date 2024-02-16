@@ -4,15 +4,32 @@ import json
 import logging
 import pathlib
 import re
+import string
 
 from config import CHUNK_OVERLAP
 from config import CHUNK_SIZE
 from config import CHUNKS_JSON_FILE_LOCATION
-from config import CLEANED_DOCUMENTS_JSON_FILE_LOCATION
+from config import DOCUMENTS_JSON_FILE_LOCATION
 from nltk.tokenize import word_tokenize
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
+
+
+def custom_join(tokens):
+    """
+    Joins a list of tokens into a string, adding a space between words
+    but not between a word and following punctuation.
+    """
+    result = ""
+    for i, token in enumerate(tokens):
+        if i == 0:
+            result += token
+        elif token in string.punctuation:
+            result += token
+        else:
+            result += " " + token
+    return result
 
 
 class ChunkerFactory:
@@ -59,13 +76,8 @@ class FixedSizeChunker(Chunker):
             tokens = word_tokenize(doc["data"])
             chunks = [
                 {
-                    "metadata": {
-                        "title": f"{doc['metadata']['title']}",
-                        "id": f"{doc['metadata']['id']}",
-                        "source": f"{doc['metadata']['title']}",
-                        "deleted": f"{doc['metadata']['deleted']}",
-                    },
-                    "data": tokens[i : i + self.chunk_size],
+                    "metadata": doc["metadata"],
+                    "data": custom_join(tokens[i : i + self.chunk_size]),
                 }
                 for i in range(0, len(tokens), self.chunk_size - self.chunk_overlap)
             ]
@@ -88,18 +100,12 @@ class WikiSectionChunker(Chunker):
                 r"\n==+ [^=]+ ==+\n", doc["data"]
             )  # Wiki section headers are identified by ==
             for i, section in enumerate(sections):
-                if section.strip():
-                    chunked_documents.append(
-                        {
-                            "metadata": {
-                                "title": f"{doc['metadata']['title']}",
-                                "id": f"{doc['metadata']['id']}",
-                                "source": f"{doc['metadata']['title']}",
-                                "deleted": f"{doc['metadata']['deleted']}",
-                            },
-                            "data": section.strip(),
-                        }
-                    )
+                chunked_documents.append(
+                    {
+                        "metadata": doc["metadata"],
+                        "data": section,
+                    }
+                )
         return chunked_documents
 
 
@@ -124,7 +130,7 @@ def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
     data_job_dir = pathlib.Path(job_input.get_job_directory())
-    input_json = data_job_dir / CLEANED_DOCUMENTS_JSON_FILE_LOCATION
+    input_json = data_job_dir / DOCUMENTS_JSON_FILE_LOCATION
     output_json = data_job_dir / CHUNKS_JSON_FILE_LOCATION
     chunk_size = CHUNK_SIZE
     chunk_overlap = CHUNK_OVERLAP
