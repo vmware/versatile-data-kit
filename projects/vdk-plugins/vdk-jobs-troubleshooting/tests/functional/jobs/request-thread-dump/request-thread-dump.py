@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 import requests
 from vdk.api.job_input import IJobInput
 

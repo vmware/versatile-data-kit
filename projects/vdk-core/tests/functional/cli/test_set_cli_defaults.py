@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 import click
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_utils import set_defaults_for_all_commands

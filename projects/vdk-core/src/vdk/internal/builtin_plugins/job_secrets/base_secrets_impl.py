@@ -1,6 +1,6 @@
-
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+
 
 def check_valid_secret(k: str, v: str, supported_types=None) -> None:
     """

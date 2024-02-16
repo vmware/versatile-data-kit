@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 from datetime import datetime
 
 from vdk.internal.heartbeat.config import Config

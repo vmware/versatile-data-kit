@@ -1,6 +1,7 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 
+
 def setup_testing_check(check):
     if check == "use_positive_check":
         check = _sample_check_true

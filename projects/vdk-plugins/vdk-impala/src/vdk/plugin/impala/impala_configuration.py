@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 from vdk.internal.core.config import ConfigurationBuilder
 
 IMPALA_HOST = "IMPALA_HOST"

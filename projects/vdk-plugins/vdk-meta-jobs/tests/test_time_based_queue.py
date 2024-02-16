@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 import time
 
 from vdk.plugin.meta_jobs.time_based_queue import TimeBasedQueue

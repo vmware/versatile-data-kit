@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 from typing import List
 
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys

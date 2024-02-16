@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 from decimal import Decimal
 from unittest.mock import call
 from unittest.mock import MagicMock

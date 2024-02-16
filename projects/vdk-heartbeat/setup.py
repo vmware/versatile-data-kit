@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 """
     Setup file for vdk_control_cli.
     Use setup.cfg to configure your project.

@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 """
 The code is adapted from: https://github.com/vuolter/autoupgrade
 """

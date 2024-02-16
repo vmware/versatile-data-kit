@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 import unittest
 
 from vdk.internal.builtin_plugins.job_properties.datajobs_service_properties import (

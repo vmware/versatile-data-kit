@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 import click
 from vdk.internal.control.utils import cli_utils
 from vdk.internal.control.utils import output_printer

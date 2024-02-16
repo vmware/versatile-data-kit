@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 from dataclasses import dataclass
 
 from vdk.internal.builtin_plugins.run.file_based_step import TYPE_PYTHON

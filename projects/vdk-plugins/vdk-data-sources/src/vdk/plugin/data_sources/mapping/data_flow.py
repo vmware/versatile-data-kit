@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 from vdk.api.job_input import IJobInput
 from vdk.plugin.data_sources.factory import SingletonDataSourceFactory
 from vdk.plugin.data_sources.ingester import DataSourceIngester

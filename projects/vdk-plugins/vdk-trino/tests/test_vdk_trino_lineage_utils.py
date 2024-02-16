@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 import json
 
 from vdk.plugin.trino.lineage_utils import _get_input_tables_from_explain
