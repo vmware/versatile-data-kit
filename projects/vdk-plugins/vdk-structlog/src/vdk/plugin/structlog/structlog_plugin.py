@@ -1,7 +1,6 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import os
 import sys
 from typing import List
 from typing import Optional
@@ -18,27 +17,11 @@ from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import CommonStoreKeys
-from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_ENABLED
-from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_HOST
-from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_PORT
-from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_PROTOCOL
-from vdk.plugin.structlog.constants import DETAILED_LOGGING_FORMAT
-from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
-from vdk.plugin.structlog.constants import STRUCTLOG_CONFIG_PRESET
-from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
-from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
-from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
-from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES
-from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_ALL_KEYS
-from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_METADATA_KEY
-from vdk.plugin.structlog.constants import STRUCTLOG_USE_STRUCTLOG
-from vdk.plugin.structlog.constants import SYSLOG_ENABLED_KEY
-from vdk.plugin.structlog.constants import SYSLOG_HOST_KEY
-from vdk.plugin.structlog.constants import SYSLOG_PORT_KEY
-from vdk.plugin.structlog.constants import SYSLOG_PROTOCOL_KEY
 from vdk.plugin.structlog.filters import AttributeAdder
 from vdk.plugin.structlog.formatters import create_formatter
 from vdk.plugin.structlog.log_level_utils import set_non_root_log_levels
+from vdk.plugin.structlog.structlog_config import add_definitions
+from vdk.plugin.structlog.structlog_config import StructlogConfig
 from vdk.plugin.structlog.syslog_config import create_syslog_handler
 
 """
@@ -81,100 +64,11 @@ bound.warning("Something else from vdk_initialize")
 """
 
 
-class StructlogConfig:
-    def __init__(self, configuration: Configuration):
-        presets = {
-            "LOCAL": {
-                STRUCTLOG_USE_STRUCTLOG: configuration.get_value(
-                    STRUCTLOG_USE_STRUCTLOG
-                ),
-                STRUCTLOG_LOGGING_METADATA_KEY: ",".join(
-                    list(JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT.keys())
-                ),
-                STRUCTLOG_LOGGING_FORMAT_KEY: STRUCTLOG_LOGGING_FORMAT_DEFAULT,
-                STRUCTLOG_CONSOLE_LOG_PATTERN: "",
-                STRUCTLOG_CONFIG_PRESET: configuration.get_value(
-                    STRUCTLOG_CONFIG_PRESET
-                ),
-                SYSLOG_HOST_KEY: DEFAULT_SYSLOG_HOST,
-                SYSLOG_PORT_KEY: DEFAULT_SYSLOG_PORT,
-                SYSLOG_PROTOCOL_KEY: DEFAULT_SYSLOG_PROTOCOL,
-                SYSLOG_ENABLED_KEY: DEFAULT_SYSLOG_ENABLED,
-                vdk_config.LOG_LEVEL_VDK.lower(): configuration.get_value(
-                    vdk_config.LOG_LEVEL_VDK.lower()
-                ),
-                vdk_config.LOG_LEVEL_MODULE.lower(): configuration.get_value(
-                    vdk_config.LOG_LEVEL_MODULE.lower()
-                ),
-            },
-            "CLOUD": {
-                STRUCTLOG_USE_STRUCTLOG: configuration.get_value(
-                    STRUCTLOG_USE_STRUCTLOG
-                ),
-                STRUCTLOG_LOGGING_METADATA_KEY: "",
-                STRUCTLOG_LOGGING_FORMAT_KEY: STRUCTLOG_LOGGING_FORMAT_DEFAULT,
-                STRUCTLOG_CONSOLE_LOG_PATTERN: DETAILED_LOGGING_FORMAT,
-                STRUCTLOG_CONFIG_PRESET: configuration.get_value(
-                    STRUCTLOG_CONFIG_PRESET
-                ),
-                SYSLOG_HOST_KEY: DEFAULT_SYSLOG_HOST,
-                SYSLOG_PORT_KEY: DEFAULT_SYSLOG_PORT,
-                SYSLOG_PROTOCOL_KEY: DEFAULT_SYSLOG_PROTOCOL,
-                SYSLOG_ENABLED_KEY: DEFAULT_SYSLOG_ENABLED,
-                vdk_config.LOG_LEVEL_VDK.lower(): configuration.get_value(
-                    vdk_config.LOG_LEVEL_VDK.lower()
-                ),
-                vdk_config.LOG_LEVEL_MODULE.lower(): configuration.get_value(
-                    vdk_config.LOG_LEVEL_MODULE.lower()
-                ),
-            },
-        }
-
-        self._config = presets[configuration.get_value(STRUCTLOG_CONFIG_PRESET)]
-
-        for key in configuration.list_config_keys():
-            if not configuration.is_default(key):
-                self._config[key] = configuration.get_value(key)
-
-    def get_use_structlog(self) -> bool:
-        return self._config[STRUCTLOG_USE_STRUCTLOG]
-
-    def get_structlog_logging_metadata(self) -> str:
-        return self._config[STRUCTLOG_LOGGING_METADATA_KEY]
-
-    def get_structlog_logging_format(self) -> str:
-        return self._config[STRUCTLOG_LOGGING_FORMAT_KEY]
-
-    def get_structlog_console_log_pattern(self) -> str:
-        return self._config[STRUCTLOG_CONSOLE_LOG_PATTERN]
-
-    def get_structlog_config_preset(self) -> str:
-        return self._config[STRUCTLOG_CONFIG_PRESET]
-
-    def get_syslog_host(self) -> str:
-        return self._config[SYSLOG_HOST_KEY]
-
-    def get_syslog_port(self) -> int:
-        return self._config[SYSLOG_PORT_KEY]
-
-    def get_syslog_protocol(self) -> str:
-        return self._config[SYSLOG_PROTOCOL_KEY]
-
-    def get_syslog_enabled(self) -> bool:
-        return self._config[SYSLOG_ENABLED_KEY]
-
-    def get_log_level_vdk(self) -> str:
-        return self._config[vdk_config.LOG_LEVEL_VDK.lower()]
-
-    def get_log_level_module(self) -> str:
-        return self._config[vdk_config.LOG_LEVEL_MODULE.lower()]
-
-
 class StructlogPlugin:
     def __init__(self):
         self._config = None
 
-    def _get_syslog_config(self, context: CoreContext):
+    def _get_syslog_config(self):
         syslog_enabled = self._config.get_syslog_enabled()
         syslog_host = self._config.get_syslog_host()
         syslog_port = self._config.get_syslog_port()
@@ -182,7 +76,7 @@ class StructlogPlugin:
 
         return syslog_enabled, syslog_host, syslog_port, syslog_protocol
 
-    def _create_formatter_and_metadata_filter(self, context: CoreContext):
+    def _create_formatter_and_metadata_filter(self):
         metadata_keys = self._config.get_structlog_logging_metadata()
         logging_formatter = self._config.get_structlog_logging_format()
         custom_format_string = self._config.get_structlog_console_log_pattern()
@@ -204,13 +98,13 @@ class StructlogPlugin:
         for handler in handlers_to_remove:
             root_logger.removeHandler(handler)
 
-    def _configure_root_logger(self, context: CoreContext, formatter, *filters):
+    def _configure_root_logger(self, formatter, *filters):
         self._clear_root_logger_handlers()
         root_logger = logging.getLogger()
 
         handlers = [logging.StreamHandler(sys.stderr)]
 
-        syslog_config = self._get_syslog_config(context)
+        syslog_config = self._get_syslog_config()
         syslog_handler = create_syslog_handler(*syslog_config)
         if syslog_handler:
             handlers.append(syslog_handler)
@@ -223,101 +117,35 @@ class StructlogPlugin:
 
     @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder):
-        config_builder.add(
-            key=STRUCTLOG_LOGGING_METADATA_KEY,
-            default_value=",".join(
-                list(JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT.keys())
-            ),
-            description=(
-                f"Possible values: {STRUCTLOG_LOGGING_METADATA_ALL_KEYS}"
-                "User-defined key-value pairs added to the logger's context will be displayed after the metadata, "
-                "but before the message"
-                "Keys for user-defined key-value pairs have to be added in this config option for the values to be "
-                "displayed in the metadata"
-            ),
-        )
+        add_definitions(config_builder)
 
-        config_builder.add(
-            key=STRUCTLOG_CONSOLE_LOG_PATTERN,
-            default_value="",
-            description="Custom format string for console logging. Leave empty for default format.",
-        )
-
-        config_builder.add(
-            key=STRUCTLOG_LOGGING_FORMAT_KEY,
-            default_value=STRUCTLOG_LOGGING_FORMAT_DEFAULT,
-            description=(
-                f"Controls the logging output format. Possible values: {STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES}"
-            ),
-        )
-
-        config_builder.add(
-            key=SYSLOG_HOST_KEY,
-            default_value=DEFAULT_SYSLOG_HOST,
-            description="Hostname of the Syslog server.",
-        )
-
-        config_builder.add(
-            key=SYSLOG_PORT_KEY,
-            default_value=DEFAULT_SYSLOG_PORT,
-            description="Port of the Syslog server.",
-        )
-
-        config_builder.add(
-            key=SYSLOG_PROTOCOL_KEY,
-            default_value=DEFAULT_SYSLOG_PROTOCOL,
-            description="Syslog protocol (UDP or TCP).",
-        )
-
-        config_builder.add(
-            key=SYSLOG_ENABLED_KEY,
-            default_value=DEFAULT_SYSLOG_ENABLED,
-            description="Enable Syslog logging (True or False).",
-        )
-
-        config_builder.add(
-            key=STRUCTLOG_CONFIG_PRESET,
-            default_value="LOCAL",
-            description="Choose configuration preset. Any config options set together with the preset will override "
-            "the preset options. Available presets: LOCAL, CLOUD",
-        )
-
-        config_builder.add(
-            key=STRUCTLOG_USE_STRUCTLOG,
-            default_value=True,
-            description="Use the structlog logging config instead of using the one in vdk-core",
-        )
-
-    @hookimpl
+    @hookimpl(tryfirst=True)
     def vdk_initialize(self, context: CoreContext):
         self._config = StructlogConfig(context.configuration)
+        if self._config.get_format_init_logs():
+            formatter, metadata_filter = self._create_formatter_and_metadata_filter()
 
-        formatter, metadata_filter = self._create_formatter_and_metadata_filter(context)
+            attempt_id = context.state.get(CommonStoreKeys.ATTEMPT_ID)
+            attempt_id_adder = AttributeAdder("attempt_id", attempt_id)
 
-        attempt_id = context.state.get(CommonStoreKeys.ATTEMPT_ID)
-        attempt_id_adder = AttributeAdder("attempt_id", attempt_id)
+            # Add placeholder values in case of custom format string
+            job_name_adder = AttributeAdder("vdk_job_name", "")
+            step_name_adder = AttributeAdder("vdk_step_name", "")
+            step_type_adder = AttributeAdder("vdk_step_type", "")
 
-        # Add placeholder values in case of custom format string
-        job_name_adder = AttributeAdder("vdk_job_name", "")
-        step_name_adder = AttributeAdder("vdk_step_name", "")
-        step_type_adder = AttributeAdder("vdk_step_type", "")
-
-        self._configure_root_logger(
-            context,
-            formatter,
-            attempt_id_adder,
-            job_name_adder,
-            step_name_adder,
-            step_type_adder,
-            metadata_filter,
-        )
-        self._configure_non_root_log_levels()
+            self._configure_root_logger(
+                formatter,
+                attempt_id_adder,
+                job_name_adder,
+                step_name_adder,
+                step_type_adder,
+                metadata_filter,
+            )
+            self._configure_non_root_log_levels()
 
     @hookimpl(hookwrapper=True)
     def initialize_job(self, context: JobContext) -> None:
-        formatter, metadata_filter = self._create_formatter_and_metadata_filter(
-            context.core_context
-        )
+        formatter, metadata_filter = self._create_formatter_and_metadata_filter()
 
         attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
         attempt_id_adder = AttributeAdder("attempt_id", attempt_id)
@@ -330,7 +158,6 @@ class StructlogPlugin:
         step_type_adder = AttributeAdder("vdk_step_type", "")
 
         self._configure_root_logger(
-            context.core_context,
             formatter,
             attempt_id_adder,
             job_name_adder,
@@ -339,16 +166,13 @@ class StructlogPlugin:
             metadata_filter,
         )
         self._configure_non_root_log_levels()
-        out: HookCallResult
-        out = yield
+        yield
 
         self._clear_root_logger_handlers()
 
     @hookimpl(hookwrapper=True)
     def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
-        formatter, metadata_filter = self._create_formatter_and_metadata_filter(
-            context.core_context
-        )
+        formatter, metadata_filter = self._create_formatter_and_metadata_filter()
 
         attempt_id = context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
         attempt_id_adder = AttributeAdder("attempt_id", attempt_id)
@@ -361,7 +185,6 @@ class StructlogPlugin:
         step_type_adder = AttributeAdder("vdk_step_type", "")
 
         self._configure_root_logger(
-            context.core_context,
             formatter,
             attempt_id_adder,
             job_name_adder,
@@ -371,8 +194,7 @@ class StructlogPlugin:
         )
         self._configure_non_root_log_levels()
 
-        out: HookCallResult
-        out = yield
+        yield
         # do not remove handlers, we need them until the end
 
     @hookimpl(hookwrapper=True)
@@ -401,8 +223,7 @@ class StructlogPlugin:
             # so that step_name and step_type are filtered if necessary
             if metadata_filter:
                 handler.addFilter(metadata_filter)
-        out: HookCallResult
-        out = yield
+        yield
         for handler in root_logger.handlers:
             handler.removeFilter(step_name_adder)
             handler.removeFilter(step_type_adder)

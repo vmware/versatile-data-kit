@@ -23,6 +23,7 @@ from vdk.plugin.structlog.constants import DEFAULT_SYSLOG_PROTOCOL
 from vdk.plugin.structlog.constants import JSON_STRUCTLOG_LOGGING_METADATA_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_CONFIG_PRESET
 from vdk.plugin.structlog.constants import STRUCTLOG_CONSOLE_LOG_PATTERN
+from vdk.plugin.structlog.constants import STRUCTLOG_FORMAT_INIT_LOGS
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_DEFAULT
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_KEY
 from vdk.plugin.structlog.constants import STRUCTLOG_LOGGING_FORMAT_POSSIBLE_VALUES
@@ -248,20 +249,49 @@ def test_structlog_custom_format_vdk_fields():
         os.environ,
         {
             "VDK_STRUCTLOG_FORMAT": "console",
-            "VDK_STRUCTLOG_CONSOLE_CUSTOM_FORMAT": "job_name: %(vdk_job_name)s step_name: %(vdk_step_name)s step_type: %(vdk_step_type)s",
+            "VDK_STRUCTLOG_CONSOLE_CUSTOM_FORMAT": "job_name: %(vdk_job_name)s step_name: %(vdk_step_name)s step_type: %(vdk_step_type)s %(message)s",
+            "VDK_STRUCTLOG_FORMAT_INIT_LOGS": "True",
+            "VDK_LOG_LEVEL_MODULE": "test_structlog=WARNING",
         },
     ):
+        expected = [
+            "job_name: job-with-bound-logger step_name: 10_dummy.py step_type: python Entering "
+            "10_dummy.py#run(...) ...",
+            "job_name: job-with-bound-logger step_name: 10_dummy.py step_type: "
+            "python Log statement with no bound context",
+            "job_name: "
+            "job-with-bound-logger "
+            "step_name: 10_dummy.py "
+            "step_type: python Log "
+            "statement with bound "
+            "context",
+            "job_name: "
+            "job-with"
+            "-bound"
+            "-logger "
+            "step_name: "
+            "10_dummy.py "
+            "step_type: "
+            "python Log "
+            "statement "
+            "with bound "
+            "context and "
+            "extra "
+            "context",
+            "job_name: job-with-bound-logger step_name: 10_dummy.py step_type: python Exiting  "
+            "10_dummy.py#run(...) SUCCESS",
+            "job_name: job-with-bound-logger step_name:  step_type:  Job "
+            "execution result: SUCCESS",
+            "Step results:",
+            "10_dummy.py - " "SUCCESS",
+            "",
+            "",
+        ]
         logs = _run_job_and_get_logs()
         assert logs
-        assert len(logs) == 8
-        assert logs[0] == "job_name: job-with-bound-logger step_name:  step_type: "
-        for i in range(1, 6):
-            assert (
-                logs[i]
-                == "job_name: job-with-bound-logger step_name: 10_dummy.py step_type: python"
-            )
-        assert logs[6] == "job_name: job-with-bound-logger step_name:  step_type: "
-        assert logs[7] == ""
+        assert len(logs) == len(expected)
+        for i, log in enumerate(logs):
+            assert log == expected[i]
 
 
 @pytest.mark.parametrize("log_format", ["console", "json", "ltsv"])
@@ -336,6 +366,8 @@ def test_log_plugin_structlog(log_type, vdk_level, expected_vdk_level):
         .add(STRUCTLOG_LOGGING_METADATA_KEY, metadata_keys)
         .add(STRUCTLOG_LOGGING_FORMAT_KEY, logging_format)
         .add(STRUCTLOG_CONFIG_PRESET, "LOCAL")
+        .add(STRUCTLOG_FORMAT_INIT_LOGS, False)
+        .set_value(STRUCTLOG_FORMAT_INIT_LOGS, True)
         .build()
     )
     core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
@@ -374,7 +406,13 @@ def test_log_plugin_exception_structlog():
         # Mock configuration since we won't be needing any.
 
         store = StateStore()
-        conf = ConfigurationBuilder().add(STRUCTLOG_CONFIG_PRESET, "LOCAL").build()
+        conf = (
+            ConfigurationBuilder()
+            .add(STRUCTLOG_CONFIG_PRESET, "LOCAL")
+            .add(STRUCTLOG_FORMAT_INIT_LOGS, False)
+            .set_value(STRUCTLOG_FORMAT_INIT_LOGS, True)
+            .build()
+        )
         core_context = CoreContext(mock.MagicMock(spec=IPluginRegistry), conf, store)
         with pytest.raises(Exception) as exc_info:
             log_plugin.vdk_initialize(core_context)
