@@ -3,11 +3,14 @@
 import json
 import logging
 import os
+import pathlib
 from datetime import datetime
 
+from common.database_storage import DatabaseStorage
 from confluence_document import ConfluenceDocument
 from langchain_community.document_loaders import ConfluenceLoader
 from vdk.api.job_input import IJobInput
+
 
 log = logging.getLogger(__name__)
 
@@ -109,17 +112,12 @@ class ConfluenceDataSource:
         self.loader = ConfluenceLoader(url=self.confluence_url, token=self.token)
 
     def fetch_confluence_documents(self, cql_query):
-        try:
-            # TODO: think about configurable limits ? or some streaming solution
-            # How do we fit all documents in memory ?
-            raw_documents = self.loader.load(cql=cql_query, limit=50, max_pages=200)
-            return [
-                ConfluenceDocument(doc.metadata, doc.page_content)
-                for doc in raw_documents
-            ]
-        except Exception as e:
-            log.error(f"Error fetching documents from Confluence: {e}")
-            raise e
+        # TODO: think about configurable limits ? or some streaming solution
+        # How do we fit all documents in memory ?
+        raw_documents = self.loader.load(cql=cql_query, limit=50, max_pages=200)
+        return [
+            ConfluenceDocument(doc.metadata, doc.page_content) for doc in raw_documents
+        ]
 
     def fetch_updated_pages_in_confluence_space(
         self, last_date="1900-02-06 17:54", parent_page_id=None
@@ -147,9 +145,10 @@ class ConfluenceDataSource:
 
 
 def get_value(job_input, key: str, default_value=None):
-    return job_input.get_arguments().get(
-        key, job_input.get_property(key, os.environ.get(key.upper(), default_value))
-    )
+    value = os.environ.get(key.upper(), default_value)
+    value = job_input.get_property(key, value)
+    value = job_input.get_secret(key, value)
+    return job_input.get_arguments().get(key, value)
 
 
 def set_property(job_input: IJobInput, key, value):
@@ -165,12 +164,20 @@ def run(job_input: IJobInput):
     token = get_value(job_input, "confluence_token")
     space_key = get_value(job_input, "confluence_space_key")
     parent_page_id = get_value(job_input, "confluence_parent_page_id")
-    last_date = get_value(job_input, "last_date", "1900-01-01 12:00")
-    data_file = get_value(
-        job_input,
-        "data_file",
-        os.path.join(job_input.get_temporary_write_directory(), "confluence_data.json"),
+    last_date = (
+        job_input.get_property(confluence_url, {})
+        .setdefault(space_key, {})
+        .setdefault(parent_page_id, {})
+        .get("last_date", "1900-01-01 12:00")
     )
+    data_file = os.path.join(
+        job_input.get_temporary_write_directory(), "confluence_data.json"
+    )
+    storage_name = get_value(job_input, "storage_name", "confluence_data")
+    storage = DatabaseStorage(get_value(job_input, "storage_connection_string"))
+    # TODO: this is not optimal . We just care about the IDs, we should not need to retrieve everything
+    data = storage.retrieve(storage_name)
+    pathlib.Path(data_file).write_text(data if data else "[]")
 
     confluence_reader = ConfluenceDataSource(confluence_url, token, space_key)
 
@@ -189,3 +196,8 @@ def run(job_input: IJobInput):
         data_file,
         confluence_reader.fetch_all_pages_in_confluence_space(parent_page_id),
     )
+
+    # TODO: it would be better to save each page in separate row.
+    # But that's quick solution for now to pass the data to the next job
+
+    storage.store(storage_name, pathlib.Path(data_file).read_text())
