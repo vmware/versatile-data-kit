@@ -61,6 +61,11 @@ class IngestToPostgres(IIngesterPlugin):
     ) -> (str, list):
         """
         Prepare the SQL query and parameters for bulk insertion.
+        
+        Returns insert into destination table tuple of query and parameters;
+        E.g. for a table dest_table with columns val1, val2 and payload size 2, this method will return:
+        'INSERT INTO dest_table (val1, val2) VALUES (%s, %s)',
+        [('val1', 'val2'), ('val1', 'val2')]
         """
         cursor.execute(f"SELECT * FROM {destination_table} WHERE false")
         columns = [desc[0] for desc in cursor.description]
