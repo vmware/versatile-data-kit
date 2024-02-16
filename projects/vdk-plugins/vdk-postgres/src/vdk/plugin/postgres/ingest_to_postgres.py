@@ -61,7 +61,7 @@ class IngestToPostgres(IIngesterPlugin):
     ) -> (str, list):
         """
         Prepare the SQL query and parameters for bulk insertion.
-        
+
         Returns insert into destination table tuple of query and parameters;
         E.g. for a table dest_table with columns val1, val2 and payload size 2, this method will return:
         'INSERT INTO dest_table (val1, val2) VALUES (%s, %s)',
