@@ -19,7 +19,7 @@
   - "projects/vdk-plugins/vdk-ingest-http/**/*"
   - "projects/vdk-plugins/vdk-ingest-file/**/*"
   - "projects/vdk-plugins/vdk-server/**/*"
-  - "projects/vdk-plugins/vdk-logging-format/**/*"
+  - "projects/vdk-plugins/vdk-structlog/**/*"
 
 
 .build-quickstart-vdk:
@@ -86,6 +86,9 @@ quickstart-vdk-release-acceptance-test:
 release-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
   extends: .release-plugin
 
 release-vdk-image-quickstart-vdk:
@@ -93,5 +96,7 @@ release-vdk-image-quickstart-vdk:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-vdk-image
   rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never

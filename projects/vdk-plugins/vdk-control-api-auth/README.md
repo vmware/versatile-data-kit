@@ -1,7 +1,7 @@
 # vdk-control-api-auth
 
 <a href="https://pypistats.org/packages/vdk-control-api-auth" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-control-api-auth.svg" alt="monthly download count for vdk-control-api-auth">
+        <img src="https://img.shields.io/pypi/dm/vdk-control-api-auth.svg" alt="monthly download count for vdk-control-api-auth"></a>
 
 vdk-control-api-auth is a plugin library that implements authentication
 utilities used by vdk-control-cli and other plugins.

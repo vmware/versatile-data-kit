@@ -1,7 +1,7 @@
 # Versatile Data Kit Control CLI
 
 <a href="https://pypistats.org/packages/vdk-control-cli" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-control-cli.svg" alt="monthly download count for vdk-control-cli">
+        <img src="https://img.shields.io/pypi/dm/vdk-control-cli.svg" alt="monthly download count for vdk-control-cli"></a>
 
 VDK Control CLI is meant for Data Engineers to use to manage the lifecycle of jobs - create, delete, deploy, configure Data Jobs.
 

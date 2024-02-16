@@ -1,7 +1,7 @@
 # Versatile Data Kit Airflow provider
 
 <a href="https://pypistats.org/packages/airflow-provider-vdk" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/airflow-provider-vdk.svg" alt="monthly download count for airflow-provider-vdk">
+        <img src="https://img.shields.io/pypi/dm/airflow-provider-vdk.svg" alt="monthly download count for airflow-provider-vdk"></a>
 
 A set of Airflow operators, sensors and a connection hook intended to help schedule Versatile Data Kit jobs using Apache Airflow.
 

@@ -346,8 +346,8 @@ public class JobImageDeployerV2 {
 
     var jobCommand = jobCommandProvider.getJobCommand(jobName);
 
-    String cpuRequest = jobDeployment.getResources().getCpuRequestCores() + "m";
-    String cpuLimit = jobDeployment.getResources().getCpuLimitCores() + "m";
+    String cpuRequest = Float.toString(jobDeployment.getResources().getCpuRequestCores());
+    String cpuLimit = Float.toString(jobDeployment.getResources().getCpuLimitCores());
     String memoryRequest = jobDeployment.getResources().getMemoryRequestMi() + "Mi";
     String memoryLimit = jobDeployment.getResources().getMemoryLimitMi() + "Mi";
 
@@ -457,7 +457,7 @@ public class JobImageDeployerV2 {
     try {
       if (resources.getCpuRequestCores() == null) {
         String cpu = defaultConfigurations.dataJobRequests().getCpu();
-        resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+        resources.setCpuRequestCores(K8SMemoryConversionUtils.getCpuInCores(cpu));
       }
     } catch (ParseException e) {
       handleResourcesException(e);
@@ -468,7 +468,7 @@ public class JobImageDeployerV2 {
     try {
       if (resources.getCpuLimitCores() == null) {
         String cpu = defaultConfigurations.dataJobLimits().getCpu();
-        resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInFloat(cpu));
+        resources.setCpuLimitCores(K8SMemoryConversionUtils.getCpuInCores(cpu));
       }
     } catch (ParseException e) {
       handleResourcesException(e);

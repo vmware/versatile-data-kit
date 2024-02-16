@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.text.ParseException;
+
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class DataJobDefaultConfigurationsTest {
 
@@ -35,16 +37,16 @@ public class DataJobDefaultConfigurationsTest {
   @Test
   public void testDefaultCpuRequest() throws Exception {
     Assertions.assertEquals(
-        1000,
-        K8SMemoryConversionUtils.getCpuInFloat(
+        1,
+        K8SMemoryConversionUtils.getCpuInCores(
             dataJobDefaultConfigurations.dataJobRequests().getCpu()));
   }
 
   @Test
   public void testDefaultCpuLimit() throws Exception {
     Assertions.assertEquals(
-        2000,
-        K8SMemoryConversionUtils.getCpuInFloat(
+        2,
+        K8SMemoryConversionUtils.getCpuInCores(
             dataJobDefaultConfigurations.dataJobLimits().getCpu()));
   }
 
@@ -76,5 +78,15 @@ public class DataJobDefaultConfigurationsTest {
   @Test
   public void testTiConversion() {
     Assertions.assertEquals(2097152, K8SMemoryConversionUtils.getMemoryInMi(2, "Ti"));
+  }
+
+  @Test
+  public void testCpuMilicoresConversion() throws ParseException {
+    Assertions.assertEquals(1, K8SMemoryConversionUtils.getCpuInCores("1000m"));
+  }
+
+  @Test
+  public void testCpuCoresConversion() throws ParseException {
+    Assertions.assertEquals(1, K8SMemoryConversionUtils.getCpuInCores("1"));
   }
 }

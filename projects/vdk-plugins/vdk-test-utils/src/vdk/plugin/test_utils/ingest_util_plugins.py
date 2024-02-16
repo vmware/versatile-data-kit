@@ -27,6 +27,7 @@ class ConvertPayloadValuesToString(IIngesterPlugin):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
         metadata: IngestionMetadata = None,
+        method: Optional[str] = None,
     ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
         processed_payload = [{k: str(v) for (k, v) in i.items()} for i in payload]
         return processed_payload, metadata
@@ -57,6 +58,7 @@ class AddPayloadSizeAsColumn(IIngesterPlugin):
         destination_table: Optional[str] = None,
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        method: Optional[str] = None,
     ) -> Tuple[List[Dict], Optional[IngestionMetadata]]:
         processed_payloads = []
         start_time = datetime.datetime(year=2022, month=1, day=27, hour=16)
@@ -92,6 +94,7 @@ class AddPayloadSizeAsColumn(IIngesterPlugin):
         destination_table: Optional[str] = None,
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
+        method: Optional[str] = None,
     ) -> Optional[IngestionMetadata]:
         start_time = None
         if metadata:

@@ -1,7 +1,7 @@
 ## Versatile Data Kit Audit Plugin
 
 <a href="https://pypistats.org/packages/vdk-audit" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-audit.svg" alt="monthly download count for vdk-audit">
+        <img src="https://img.shields.io/pypi/dm/vdk-audit.svg" alt="monthly download count for vdk-audit"></a>
 
 Visibility into the actions provides opportunities for test frameworks, logging
 frameworks, and security tools to monitor and optionally limit actions taken by the

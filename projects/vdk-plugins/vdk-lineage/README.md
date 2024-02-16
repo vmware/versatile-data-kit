@@ -1,7 +1,7 @@
 # VDK Lineage
 
 <a href="https://pypistats.org/packages/vdk-lineage" alt="Monthly Downloads">
-        <img src="https://img.shields.io/pypi/dm/vdk-lineage.svg" alt="monthly download count for vdk-lineage">
+        <img src="https://img.shields.io/pypi/dm/vdk-lineage.svg" alt="monthly download count for vdk-lineage"></a>
 
 VDK Lineage plugin provides lineage data (input data -> job -> output data) information and send it to a pre-configured
 destination. The lineage data is send using [OpenLineage standard](https://openlineage.io)
