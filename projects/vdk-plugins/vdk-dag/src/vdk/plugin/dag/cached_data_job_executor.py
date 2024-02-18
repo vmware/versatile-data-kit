@@ -12,6 +12,7 @@ from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.dag.dags import IDataJobExecutor
 from vdk.plugin.dag.dags import TrackableJob
+from vdk.plugin.dag.exception import DagJobExecutionException
 from vdk.plugin.dag.remote_data_job import JobStatus
 
 log = logging.getLogger(__name__)
@@ -91,22 +92,12 @@ class TrackingDataJobExecutor:
         job.details = details
         log.info(
             f"Finished data job {job_name}:\n"
-            f"start_time: {details['start_time']}\n"
-            f"end_time: {details.get('end_time')}\n"
-            f"status: {details['status']}\n"
-            f"message: {details['message']}"
+            f"  start_time: {details['start_time']}\n"
+            f"  end_time: {details.get('end_time')}\n"
+            f"  status: {details['status']}\n"
         )
         if job.status != JobStatus.SUCCEEDED.value and job.fail_dag_on_error:
-            raise UserCodeError(
-                ErrorMessage(
-                    "",
-                    "DAG failed due to a Data Job failure.",
-                    f"Data Job {job_name} failed. See details: {details}",
-                    "The rest of the jobs in the DAG will not be started "
-                    "and the DAG will fail.",
-                    "Investigate the error in the job or re-try again.",
-                )
-            )
+            raise DagJobExecutionException(job_name, details)
 
     @staticmethod
     def __get_printable_details(details):

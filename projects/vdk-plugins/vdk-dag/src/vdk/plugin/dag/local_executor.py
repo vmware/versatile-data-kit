@@ -135,7 +135,8 @@ class LocalDataJob:
             return JobStatus.SUCCEEDED.value
 
     def _update_message_with_summary(self, content: str):
-        self._message = {"summary": json.loads(content), "logs": self._log_file}
+        self._message = json.loads(content)
+        self._message["logs"] = self._log_file
 
 
 class LocalDataJobRunException(Exception):
@@ -158,9 +159,10 @@ class LocalDataJobExecutor(IDataJobExecutor):
         candidates = [
             os.getcwd(),
         ]
+        # TODO: expose this using the plugin configuration mechanisms (which infers also from env. vars among others)
         candidates += [
             part
-            for part in os.environ.get("DAG_LOCAL_RUN_JOB_PATH", "").split(":")
+            for part in os.environ.get("DAGS_LOCAL_RUN_JOB_PATH", "").split(":")
             if part
         ]
 
