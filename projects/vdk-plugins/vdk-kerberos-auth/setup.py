@@ -19,7 +19,10 @@ setuptools.setup(
         "minikerberos==0.2.20",
         "requests-kerberos",
         "pykerberos",
+        "oscrypto @ git+https://github.com/wbond/oscrypto.git#egg=oscrypto==1.3.0",
     ],
+    # readme: https://github.com/wbond/oscrypto/commit/d5f3437ed24257895ae1edd9e503cfb352e635a8
+    dependency_links=["git+https://github.com/wbond/oscrypto.git#egg=oscrypto==1.3.0"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     entry_points={
