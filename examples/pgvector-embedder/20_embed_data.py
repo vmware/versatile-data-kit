@@ -3,6 +3,7 @@
 import json
 import logging
 
+from common.database_storage import DatabaseStorage
 from config import get_value
 from sentence_transformers import SentenceTransformer
 from vdk.api.job_input import IJobInput
@@ -34,13 +35,14 @@ def embed_documents_in_batches(documents):
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    input_json = get_value(job_input, "chunks_file")
     output_embeddings = get_value(job_input, "output_embeddings")
+    storage = DatabaseStorage(get_value(job_input, "storage_connection_string"))
+    storage_name = get_value(job_input, "storage_name", "confluence_data")
 
-    doc_chunks = load_documents(input_json)
-    if doc_chunks:
-        log.info(f"{len(doc_chunks)} chunks loaded and cleaned for embedding.")
-        embeddings = embed_documents_in_batches(doc_chunks)
+    documents = load_documents(storage.retrieve(storage_name))
+    if documents:
+        log.info(f"{len(documents)} chunks loaded and cleaned for embedding.")
+        embeddings = embed_documents_in_batches(documents)
         with open(output_embeddings, "wb") as file:
             import pickle
 
