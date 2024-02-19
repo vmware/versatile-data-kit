@@ -245,6 +245,7 @@ def test_pre_ingestion_operation():
         target=shared_test_values.get("target"),
         collection_id=shared_test_values.get("collection_id"),
         metadata=None,
+        method=shared_test_values.get("method"),
     )
     ingester_base._ingester.ingest_payload.assert_called_once()
 
@@ -276,6 +277,7 @@ def test_pre_ingestion_updated_dynamic_params():
         target=shared_test_values.get("target"),
         collection_id=shared_test_values.get("collection_id"),
         metadata=None,
+        method=shared_test_values.get("method"),
     )
     ingester_base._ingester.ingest_payload.assert_called_with(
         collection_id=shared_test_values.get("collection_id"),
@@ -335,6 +337,7 @@ def test_ingest_payload_and_post_ingestion_operation():
         collection_id=shared_test_values.get("collection_id"),
         metadata=test_ingestion_metadata,
         exception=None,
+        method=shared_test_values.get("method"),
     )
 
 
@@ -361,4 +364,5 @@ def test_post_ingestion_operation_with_exceptions():
         collection_id=shared_test_values.get("collection_id"),
         metadata=None,
         exception=test_exception,
+        method=shared_test_values.get("method"),
     )
