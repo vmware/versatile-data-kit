@@ -1,9 +1,14 @@
 docker<7
 docker-compose
+
+
+# readme: https://github.com/wbond/oscrypto/commit/d5f3437ed24257895ae1edd9e503cfb352e635a8
+https://github.com/wbond/oscrypto/archive/d5f3437ed24257895ae1edd9e503cfb352e635a8.zip
 # Pinned minikerberos because the current implementation is not compatible with 0.3.0+
 # https://github.com/vmware/versatile-data-kit/issues/1169
 pytest
 pytest-docker<2
+
 
 # install earlier version due to https://github.com/yaml/pyyaml/issues/601
 PyYAML==5.3.1
