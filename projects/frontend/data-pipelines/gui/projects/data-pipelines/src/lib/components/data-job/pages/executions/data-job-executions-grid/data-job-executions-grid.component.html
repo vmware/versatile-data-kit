@@ -4,170 +4,170 @@
   -->
 
 <clr-datagrid
-    data-cy="data-pipelines-job-executions-datagrid"
-    class="data-pipelines-job-executions-datagrid"
-    [attr.data-automation]="loading ? null : 'clr-grid-loaded'"
-    [clrDgLoading]="loading"
-    (clrDgRefresh)="gridRefresh($event)"
+  data-cy="data-pipelines-job-executions-datagrid"
+  class="data-pipelines-job-executions-datagrid"
+  [attr.data-automation]="loading ? null : 'clr-grid-loaded'"
+  [clrDgLoading]="loading"
+  (clrDgRefresh)="gridRefresh($event)"
 >
-    <clr-dg-placeholder>We couldn't find any executions!</clr-dg-placeholder>
+  <clr-dg-placeholder>We couldn't find any executions!</clr-dg-placeholder>
 
-    <clr-dg-column
-        data-cy="data-pipelines-job-executions-status-header"
-        [clrDgField]="'status'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['status']"
-        [clrDgSortBy]="'status'"
-        [clrDgSortOrder]="filtersSortManager.sortCriteria['status']"
-        >Status
-        <clr-dg-filter [clrDgFilter]="statusFilter">
-            <lib-data-job-execution-status-filter
-                #statusFilter
-                [property]="'status'"
-                [value]="filtersSortManager.filterCriteria['status']"
-            ></lib-data-job-execution-status-filter>
-        </clr-dg-filter>
-    </clr-dg-column>
-    <clr-dg-column
-        class="grid-column__min-width--s grid-column__max-width--s"
-        data-cy="data-pipelines-job-executions-type-header"
-        [clrDgField]="'type'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['type']"
-        [clrDgSortBy]="'type'"
-        [clrDgSortOrder]="filtersSortManager.sortCriteria['type']"
-        >Type
-        <clr-dg-filter [clrDgFilter]="typeFilter">
-            <lib-data-job-execution-type-filter
-                #typeFilter
-                [property]="'type'"
-                [value]="filtersSortManager.filterCriteria['type']"
-            ></lib-data-job-execution-type-filter>
-        </clr-dg-filter>
-    </clr-dg-column>
-    <clr-dg-column
-        data-cy="data-pipelines-job-executions-duration-header"
-        [clrDgField]="'duration'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['duration']"
-        [clrDgSortBy]="'duration'"
-        [clrDgSortOrder]="filtersSortManager.sortCriteria['duration']"
-        >Duration
-    </clr-dg-column>
-    <clr-dg-column
-        data-cy="data-pipelines-job-executions-start-header"
-        [clrDgField]="'startTime'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['startTime']"
-        [clrDgSortBy]="'startTime'"
-        [clrDgSortOrder]="filtersSortManager.sortCriteria['startTime']"
-        >Start (UTC)
-    </clr-dg-column>
-    <clr-dg-column
-        data-cy="data-pipelines-job-executions-end-header"
-        [clrDgField]="'endTime'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['endTime']"
-        [clrDgSortBy]="'endTime'"
-        [clrDgSortOrder]="filtersSortManager.sortCriteria['endTime']"
-        >End (UTC)
-    </clr-dg-column>
-    <clr-dg-column
-        data-cy="data-pipelines-job-executions-id-header"
-        [clrDgField]="'id'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['id']"
-        [clrDgSortBy]="'id'"
-        [clrDgSortOrder]="filtersSortManager.sortCriteria['id']"
-        >ID
-    </clr-dg-column>
-    <clr-dg-column
-        data-cy="data-pipelines-job-executions-version-header"
-        [clrDgField]="'jobVersion'"
-        [clrFilterValue]="filtersSortManager.filterCriteria['jobVersion']"
-        [clrDgSortBy]="'jobVersion'"
-        [clrDgSortOrder]="filtersSortManager.sortCriteria['jobVersion']"
-        >Version
-    </clr-dg-column>
-    <clr-dg-column class="grid-column__min-width--s grid-column__max-width--s"
-        >Logs</clr-dg-column
+  <clr-dg-column
+    data-cy="data-pipelines-job-executions-status-header"
+    [clrDgField]="'status'"
+    [clrFilterValue]="filtersSortManager.filterCriteria['status']"
+    [clrDgSortBy]="'status'"
+    [clrDgSortOrder]="filtersSortManager.sortCriteria['status']"
+    >Status
+    <clr-dg-filter [clrDgFilter]="statusFilter">
+      <lib-data-job-execution-status-filter
+        #statusFilter
+        [property]="'status'"
+        [value]="filtersSortManager.filterCriteria['status']"
+      ></lib-data-job-execution-status-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+  <clr-dg-column
+    class="grid-column__min-width--s grid-column__max-width--s"
+    data-cy="data-pipelines-job-executions-type-header"
+    [clrDgField]="'type'"
+    [clrFilterValue]="filtersSortManager.filterCriteria['type']"
+    [clrDgSortBy]="'type'"
+    [clrDgSortOrder]="filtersSortManager.sortCriteria['type']"
+    >Type
+    <clr-dg-filter [clrDgFilter]="typeFilter">
+      <lib-data-job-execution-type-filter
+        #typeFilter
+        [property]="'type'"
+        [value]="filtersSortManager.filterCriteria['type']"
+      ></lib-data-job-execution-type-filter>
+    </clr-dg-filter>
+  </clr-dg-column>
+  <clr-dg-column
+    data-cy="data-pipelines-job-executions-duration-header"
+    [clrDgField]="'duration'"
+    [clrFilterValue]="filtersSortManager.filterCriteria['duration']"
+    [clrDgSortBy]="'duration'"
+    [clrDgSortOrder]="filtersSortManager.sortCriteria['duration']"
+    >Duration
+  </clr-dg-column>
+  <clr-dg-column
+    data-cy="data-pipelines-job-executions-start-header"
+    [clrDgField]="'startTime'"
+    [clrFilterValue]="filtersSortManager.filterCriteria['startTime']"
+    [clrDgSortBy]="'startTime'"
+    [clrDgSortOrder]="filtersSortManager.sortCriteria['startTime']"
+    >Start (UTC)
+  </clr-dg-column>
+  <clr-dg-column
+    data-cy="data-pipelines-job-executions-end-header"
+    [clrDgField]="'endTime'"
+    [clrFilterValue]="filtersSortManager.filterCriteria['endTime']"
+    [clrDgSortBy]="'endTime'"
+    [clrDgSortOrder]="filtersSortManager.sortCriteria['endTime']"
+    >End (UTC)
+  </clr-dg-column>
+  <clr-dg-column
+    data-cy="data-pipelines-job-executions-id-header"
+    [clrDgField]="'id'"
+    [clrFilterValue]="filtersSortManager.filterCriteria['id']"
+    [clrDgSortBy]="'id'"
+    [clrDgSortOrder]="filtersSortManager.sortCriteria['id']"
+    >ID
+  </clr-dg-column>
+  <clr-dg-column
+    data-cy="data-pipelines-job-executions-version-header"
+    [clrDgField]="'jobVersion'"
+    [clrFilterValue]="filtersSortManager.filterCriteria['jobVersion']"
+    [clrDgSortBy]="'jobVersion'"
+    [clrDgSortOrder]="filtersSortManager.sortCriteria['jobVersion']"
+    >Version
+  </clr-dg-column>
+  <clr-dg-column class="grid-column__min-width--s grid-column__max-width--s"
+    >Logs</clr-dg-column
+  >
+
+  <clr-dg-row
+    *ngFor="let jobExecution of paginatedJobExecutions; trackBy: trackByFn"
+    [ngClass]="{
+      'data-pipelines-job__execution--highlighted':
+        highlightedExecutionId === jobExecution.id
+    }"
+  >
+    <clr-dg-cell>
+      <lib-data-job-execution-status
+        [jobStatus]="jobExecution.status"
+        [jobMessage]="jobExecution?.message"
+        [showErrorMessage]="true"
+        data-cy="data-pipelines-job-execution-status"
+      ></lib-data-job-execution-status>
+    </clr-dg-cell>
+    <clr-dg-cell
+      class="execution-type-cell grid-column__min-width--s grid-column__max-width--s"
+      data-cy="data-pipelines-job-executions-type-cell"
     >
-
-    <clr-dg-row
-        *ngFor="let jobExecution of paginatedJobExecutions; trackBy: trackByFn"
-        [ngClass]="{'data-pipelines-job__execution--highlighted': highlightedExecutionId === jobExecution.id}"
+      <lib-data-job-execution-type
+        [jobExecution]="jobExecution"
+      ></lib-data-job-execution-type>
+    </clr-dg-cell>
+    <clr-dg-cell data-cy="data-pipelines-job-executions-duration-cell">{{
+      jobExecution.duration
+    }}</clr-dg-cell>
+    <clr-dg-cell data-cy="data-pipelines-job-executions-start-cell">{{
+      jobExecution.startTimeFormatted
+    }}</clr-dg-cell>
+    <clr-dg-cell data-cy="data-pipelines-job-executions-end-cell">{{
+      jobExecution.endTimeFormatted
+    }}</clr-dg-cell>
+    <clr-dg-cell data-cy="data-pipelines-job-executions-id-cell">{{
+      jobExecution.id
+    }}</clr-dg-cell>
+    <clr-dg-cell data-cy="data-pipelines-job-executions-job-version-cell">{{
+      jobExecution.jobVersion | slice: 0 : 8
+    }}</clr-dg-cell>
+    <clr-dg-cell
+      class="text-center grid-column__min-width--s grid-column__max-width--s"
     >
-        <clr-dg-cell>
-            <lib-data-job-execution-status
-                [jobStatus]="jobExecution.status"
-                [jobMessage]="jobExecution?.message"
-                [showErrorMessage]="true"
-                data-cy="data-pipelines-job-execution-status"
-            ></lib-data-job-execution-status>
-        </clr-dg-cell>
-        <clr-dg-cell
-            class="execution-type-cell grid-column__min-width--s grid-column__max-width--s"
-            data-cy="data-pipelines-job-executions-type-cell"
-        >
-            <lib-data-job-execution-type
-                [jobExecution]="jobExecution"
-            ></lib-data-job-execution-type>
-        </clr-dg-cell>
-        <clr-dg-cell data-cy="data-pipelines-job-executions-duration-cell"
-            >{{ jobExecution.duration }}</clr-dg-cell
-        >
-        <clr-dg-cell data-cy="data-pipelines-job-executions-start-cell"
-            >{{ jobExecution.startTimeFormatted }}</clr-dg-cell
-        >
-        <clr-dg-cell data-cy="data-pipelines-job-executions-end-cell"
-            >{{ jobExecution.endTimeFormatted }}</clr-dg-cell
-        >
-        <clr-dg-cell data-cy="data-pipelines-job-executions-id-cell"
-            >{{ jobExecution.id }}</clr-dg-cell
-        >
-        <clr-dg-cell data-cy="data-pipelines-job-executions-job-version-cell"
-            >{{ jobExecution.jobVersion | slice : 0 : 8 }}</clr-dg-cell
-        >
-        <clr-dg-cell
-            class="text-center grid-column__min-width--s grid-column__max-width--s"
-        >
-            <a
-                *ngIf="jobExecution?.logsUrl"
-                class="label-link"
-                [attr.href]="jobExecution.logsUrl"
-                target="_blank"
-                rel="noopener"
-            >
-                <clr-icon
-                    shape="pop-out"
-                    size="15"
-                    title="{{ jobExecution.logsUrl }}"
-                ></clr-icon>
-            </a>
-        </clr-dg-cell>
-        <clr-dg-action-overflow>
-            <button
-                class="action-item"
-                (click)="showDeploymentDetails(jobExecution)"
-            >
-                Deployment Details
-            </button>
-        </clr-dg-action-overflow>
-    </clr-dg-row>
+      <a
+        *ngIf="jobExecution?.logsUrl"
+        class="label-link"
+        [attr.href]="jobExecution.logsUrl"
+        target="_blank"
+        rel="noopener"
+      >
+        <clr-icon
+          shape="pop-out"
+          size="15"
+          title="{{ jobExecution.logsUrl }}"
+        ></clr-icon>
+      </a>
+    </clr-dg-cell>
+    <clr-dg-action-overflow>
+      <button class="action-item" (click)="showDeploymentDetails(jobExecution)">
+        Deployment Details
+      </button>
+    </clr-dg-action-overflow>
+  </clr-dg-row>
 
-    <clr-dg-footer>
-        <clr-dg-pagination
-            #pagination
-            data-cy="data-pipelines-job-executions-datagrid-pagination"
-            [clrDgTotalItems]="paginationTotalItems"
-            [clrDgPageSize]="paginationPageSize"
-            [(clrDgPage)]="paginationPageNumber"
-        >
-            <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]"
-                >Executions per page</clr-dg-page-size
-            >
-            {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of {{
-            pagination.totalItems }} executions
-        </clr-dg-pagination>
-    </clr-dg-footer>
+  <clr-dg-footer>
+    <clr-dg-pagination
+      #pagination
+      data-cy="data-pipelines-job-executions-datagrid-pagination"
+      [clrDgTotalItems]="paginationTotalItems"
+      [clrDgPageSize]="paginationPageSize"
+      [(clrDgPage)]="paginationPageNumber"
+    >
+      <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]"
+        >Executions per page</clr-dg-page-size
+      >
+      {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of
+      {{ pagination.totalItems }} executions
+    </clr-dg-pagination>
+  </clr-dg-footer>
 </clr-datagrid>
 
 <lib-data-job-deployment-details-modal
-    *ngIf="jobDeploymentModalData"
-    [dataJobDeployment]="jobDeploymentModalData"
-    [(openModal)]="openDeploymentDetailsModal"
+  *ngIf="jobDeploymentModalData"
+  [dataJobDeployment]="jobDeploymentModalData"
+  [(openModal)]="openDeploymentDetailsModal"
 ></lib-data-job-deployment-details-modal>

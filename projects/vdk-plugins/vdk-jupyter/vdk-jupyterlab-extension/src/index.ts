@@ -5,43 +5,43 @@
 
 import {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
+  JupyterFrontEndPlugin,
+} from "@jupyterlab/application";
 
-import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { runningVdkOperation, updateVDKMenu } from './commandsAndMenu';
+import { ISettingRegistry } from "@jupyterlab/settingregistry";
+import { runningVdkOperation, updateVDKMenu } from "./commandsAndMenu";
 
-import { FileBrowserModel, IFileBrowserFactory } from '@jupyterlab/filebrowser';
-import { IChangedArgs } from '@jupyterlab/coreutils';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { trackVdkTags } from './vdkTags';
-import { IThemeManager } from '@jupyterlab/apputils';
-import { IDocumentManager } from '@jupyterlab/docmanager';
-import { initVDKConfigCell } from './initVDKConfigCell';
-import { populateNotebook } from './components/ConvertJobToNotebook';
+import { FileBrowserModel, IFileBrowserFactory } from "@jupyterlab/filebrowser";
+import { IChangedArgs } from "@jupyterlab/coreutils";
+import { INotebookTracker } from "@jupyterlab/notebook";
+import { trackVdkTags } from "./vdkTags";
+import { IThemeManager } from "@jupyterlab/apputils";
+import { IDocumentManager } from "@jupyterlab/docmanager";
+import { initVDKConfigCell } from "./initVDKConfigCell";
+import { populateNotebook } from "./components/ConvertJobToNotebook";
 import {
   createStatusButton,
-  createStatusMenu
-} from './components/StatusButton';
+  createStatusMenu,
+} from "./components/StatusButton";
 
 /**
  * Current working directory in Jupyter
  * The variable can be accessed anywhere in the JupyterFrontEndPlugin
  */
-export let workingDirectory: string = '';
+export let workingDirectory: string = "";
 
 /**
  * Initialization data for the vdk-jupyterlab-extension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'vdk-jupyterlab-extension:plugin',
+  id: "vdk-jupyterlab-extension:plugin",
   autoStart: true,
   optional: [
     ISettingRegistry,
     IFileBrowserFactory,
     INotebookTracker,
     IThemeManager,
-    IDocumentManager
+    IDocumentManager,
   ],
   activate: async (
     app: JupyterFrontEnd,
@@ -49,12 +49,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
     factory: IFileBrowserFactory,
     notebookTracker: INotebookTracker,
     themeManager: IThemeManager,
-    docManager: IDocumentManager
+    docManager: IDocumentManager,
   ) => {
     const { commands } = app;
 
     notebookTracker.activeCellChanged.connect((sender, args) => {
-      if (runningVdkOperation !== 'jp-vdk:menu-convert-job-to-notebook') {
+      if (runningVdkOperation !== "jp-vdk:menu-convert-job-to-notebook") {
         initVDKConfigCell(notebookTracker);
       } else {
         //  * Populates notebook with provided content for convert job operation
@@ -69,7 +69,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const fileBrowser = factory.defaultBrowser;
 
     app.restored.then(() => {
-      const topPanel = document.querySelector('#jp-top-panel');
+      const topPanel = document.querySelector("#jp-top-panel");
       if (topPanel) {
         topPanel.appendChild(statusButton.element);
       }
@@ -80,19 +80,19 @@ const plugin: JupyterFrontEndPlugin<void> = {
       docManager,
       fileBrowser,
       notebookTracker,
-      statusButton
+      statusButton,
     );
 
     fileBrowser.model.pathChanged.connect(onPathChanged);
     trackVdkTags(notebookTracker, themeManager);
-  }
+  },
 };
 
 export default plugin;
 
 const onPathChanged = async (
   model: FileBrowserModel,
-  change: IChangedArgs<string>
+  change: IChangedArgs<string>,
 ) => {
   workingDirectory = change.newValue;
 };

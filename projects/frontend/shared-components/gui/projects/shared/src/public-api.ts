@@ -8,19 +8,19 @@
  */
 
 // Utils public APIs.
-export * from './lib/utils/public-api';
+export * from "./lib/utils/public-api";
 
 // Common public APIs.
-export * from './lib/common/public-api';
+export * from "./lib/common/public-api";
 
 // Core/NgRx Modules and public APIs.
-export * from './lib/core/public-api';
+export * from "./lib/core/public-api";
 
 // Shared Module and public APIs.
-export * from './lib/features/public-api';
+export * from "./lib/features/public-api";
 
 // Common components public APIs.
-export * from './lib/commons/public-api';
+export * from "./lib/commons/public-api";
 
 // Utils unit-testing APIs.
-export * from './lib/unit-testing/public-api';
+export * from "./lib/unit-testing/public-api";
