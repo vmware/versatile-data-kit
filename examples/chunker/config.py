@@ -3,5 +3,5 @@
 
 DOCUMENTS_JSON_FILE = "fixed_size_example.json"
 CHUNKS_JSON_FILE = "chunks_example.json"
-CHUNK_SIZE = 16
-CHUNK_OVERLAP = 5
+CHUNK_SIZE = 2048
+CHUNK_OVERLAP = 64
