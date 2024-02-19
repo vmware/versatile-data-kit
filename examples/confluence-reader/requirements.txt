@@ -5,3 +5,5 @@
 atlassian-python-api
 langchain_community
 lxml
+psycopg2-binary
+sqlalchemy

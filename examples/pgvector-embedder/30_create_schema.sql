@@ -16,6 +16,5 @@ CREATE TABLE IF NOT EXISTS public.{destination_metadata_table}
     title TEXT,
     source TEXT,
     data TEXT,
-    deleted BOOLEAN,
-    CONSTRAINT fk_metadata_embeddings FOREIGN KEY (id) REFERENCES public.{destination_embeddings_table}(id)
+    deleted BOOLEAN
 );

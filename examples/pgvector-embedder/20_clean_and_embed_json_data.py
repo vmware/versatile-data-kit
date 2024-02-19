@@ -4,10 +4,8 @@ import json
 import logging
 import re
 
-import nltk
+from common.database_storage import DatabaseStorage
 from config import get_value
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 from sentence_transformers import SentenceTransformer
 from vdk.api.job_input import IJobInput
 
@@ -16,31 +14,16 @@ log = logging.getLogger(__name__)
 
 def clean_text(text):
     """
-    Prepares text for NLP tasks (embedding and RAG) by standardizing its form. It focuses on retaining
-    meaningful words and achieving consistency in their representation. This involves
-    converting to lowercase (uniformity), removing punctuation and stopwords
-    (focusing on relevant words), and lemmatization (reducing words to their base form).
-    Such preprocessing is crucial for effective NLP analysis.
-
+    Prepares text for NLP tasks (embedding and RAG) by standardizing its form.
     :param text: A string containing the text to be processed.
     :return: The processed text as a string.
     """
-    text = text.lower()
-    # remove punctuation and special characters
-    text = re.sub(r"[^\w\s]", "", text)
-    # remove stopwords and lemmatize
-    stop_words = set(stopwords.words("english"))
-    lemmatizer = WordNetLemmatizer()
-    text = " ".join(
-        [lemmatizer.lemmatize(word) for word in text.split() if word not in stop_words]
-    )
     return text
 
 
-def load_and_clean_documents(json_file_path):
+def load_and_clean_documents(content):
     cleaned_documents = []
-    with open(json_file_path, encoding="utf-8") as file:
-        documents = json.load(file)
+    documents = json.loads(content)
 
     for doc in documents:
         if "data" in doc:
@@ -67,28 +50,15 @@ def embed_documents_in_batches(documents):
     return embeddings
 
 
-def setup_nltk(temp_dir):
-    """
-    Set up NLTK by creating a temporary directory for NLTK data and downloading required resources.
-    """
-    nltk_data_path = temp_dir / "nltk_data"
-    nltk_data_path.mkdir(exist_ok=True)
-    nltk.data.path.append(str(nltk_data_path))
-
-    nltk.download("stopwords", download_dir=str(nltk_data_path))
-    nltk.download("wordnet", download_dir=str(nltk_data_path))
-
-
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    input_json = get_value(job_input, "data_file")
     output_embeddings = get_value(job_input, "output_embeddings")
 
-    temp_dir = job_input.get_temporary_write_directory()
-    setup_nltk(temp_dir)
+    storage = DatabaseStorage(get_value(job_input, "storage_connection_string"))
+    storage_name = get_value(job_input, "storage_name", "confluence_data")
 
-    cleaned_documents = load_and_clean_documents(input_json)
+    cleaned_documents = load_and_clean_documents(storage.retrieve(storage_name))
     if cleaned_documents:
         log.info(
             f"{len(cleaned_documents)} documents loaded and cleaned for embedding."
