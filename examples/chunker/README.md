@@ -18,6 +18,11 @@ The following Versatile Data Kit example allows you to chunk document data (in c
 ]
 ```
 
+# Output format
+
+The output format is the same as the input one. The "data" field is the only difference: it now contains a chunk
+of a document instead of the whole document.
+
 # Chunking the data
 
 There is a property chunking_strategy which accounts for the type of chunking to use for the documents.

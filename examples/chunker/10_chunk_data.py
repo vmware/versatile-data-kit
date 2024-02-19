@@ -8,8 +8,8 @@ import string
 
 from config import CHUNK_OVERLAP
 from config import CHUNK_SIZE
-from config import CHUNKS_JSON_FILE_LOCATION
-from config import DOCUMENTS_JSON_FILE_LOCATION
+from config import CHUNKS_JSON_FILE
+from config import DOCUMENTS_JSON_FILE
 from nltk.tokenize import word_tokenize
 from vdk.api.job_input import IJobInput
 
@@ -54,7 +54,7 @@ class ChunkerFactory:
 
 class Chunker:
     """
-    Splits text into chunks.
+    Splits text into chunks. One of the provided options must be chosen.
     """
 
     def chunk(self, documents: dict):
@@ -74,14 +74,16 @@ class FixedSizeChunker(Chunker):
         chunked_documents = []
         for doc in documents:
             tokens = word_tokenize(doc["data"])
-            chunks = [
-                {
-                    "metadata": doc["metadata"],
-                    "data": custom_join(tokens[i : i + self.chunk_size]),
-                }
-                for i in range(0, len(tokens), self.chunk_size - self.chunk_overlap)
-            ]
-            chunked_documents.extend(chunks)
+            for i in range(0, len(tokens), self.chunk_size - self.chunk_overlap):
+                chunk_id = f"{doc['metadata']['id']}_{i // (self.chunk_size - self.chunk_overlap)}"
+                chunk_metadata = doc["metadata"].copy()
+                chunk_metadata["id"] = chunk_id
+                chunked_documents.append(
+                    {
+                        "metadata": chunk_metadata,
+                        "data": custom_join(tokens[i : i + self.chunk_size]),
+                    }
+                )
         return chunked_documents
 
 
@@ -97,13 +99,16 @@ class WikiSectionChunker(Chunker):
         chunked_documents = []
         for doc in documents:
             sections = re.split(
-                r"\n==+ [^=]+ ==+\n", doc["data"]
+                r"==+ [^=]+ ==", doc["data"]
             )  # Wiki section headers are identified by ==
             for i, section in enumerate(sections):
+                chunk_id = f"{doc['metadata']['id']}_{i}"
+                chunk_metadata = doc["metadata"].copy()
+                chunk_metadata["id"] = chunk_id
                 chunked_documents.append(
                     {
-                        "metadata": doc["metadata"],
-                        "data": section,
+                        "metadata": chunk_metadata,
+                        "data": section.strip(),
                     }
                 )
         return chunked_documents
@@ -130,11 +135,11 @@ def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
     data_job_dir = pathlib.Path(job_input.get_job_directory())
-    input_json = data_job_dir / DOCUMENTS_JSON_FILE_LOCATION
-    output_json = data_job_dir / CHUNKS_JSON_FILE_LOCATION
+    input_json = job_input.get_property("data_file", data_job_dir / DOCUMENTS_JSON_FILE)
+    output_json = job_input.get_property("chunks_file", data_job_dir / CHUNKS_JSON_FILE)
+    chunking_strategy = job_input.get_property("chunking_strategy", "fixed")
     chunk_size = CHUNK_SIZE
     chunk_overlap = CHUNK_OVERLAP
-    chunking_strategy = job_input.get_property("chunking_strategy", "fixed")
 
     documents = load_documents(input_json)
     print(documents)

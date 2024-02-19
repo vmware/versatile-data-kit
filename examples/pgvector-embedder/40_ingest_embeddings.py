@@ -25,28 +25,28 @@ def run(job_input: IJobInput):
 
     # TODO: our postgres plugin doesn't support updates (upserts) so updating with same ID fails.
 
-    for i, embedding in enumerate(embeddings):
-        embedding_list = (
-            embedding.tolist() if isinstance(embedding, np.ndarray) else embedding
-        )
-        embedding_payload = {
-            "id": documents[i]["metadata"]["id"],
-            "embedding": embedding_list,
-        }
-        job_input.send_object_for_ingestion(
-            payload=embedding_payload,
-            destination_table=get_value(job_input, "destination_embeddings_table"),
-        )
+    for i, document in enumerate(documents):
+        composite_id = document["metadata"]["id"]
 
-    for document in documents:
         metadata_payload = {
-            "id": document["metadata"]["id"],
+            "id": composite_id,
             "title": document["metadata"]["title"],
-            "data": document["data"],
             "source": document["metadata"]["source"],
+            "data": document["data"],
             "deleted": document["metadata"]["deleted"],
         }
         job_input.send_object_for_ingestion(
             payload=metadata_payload,
             destination_table=get_value(job_input, "destination_metadata_table"),
+        )
+
+        embedding_payload = {
+            "id": composite_id,
+            "embedding": embeddings[i].tolist()
+            if isinstance(embeddings[i], np.ndarray)
+            else embeddings[i],
+        }
+        job_input.send_object_for_ingestion(
+            payload=embedding_payload,
+            destination_table=get_value(job_input, "destination_embeddings_table"),
         )
