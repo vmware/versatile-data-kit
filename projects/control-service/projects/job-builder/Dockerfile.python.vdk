@@ -21,7 +21,7 @@ COPY --chown=$UID:$GID $job_name $job_name/
 # TODO: this would trigger for any change in job even if requirements.txt does not change
 # but there's no COPY_IF_EXISTS command in docker to try copy it.
 ARG requirements_file=requirements.txt
-RUN if [ -f "$job_name/$requirements_file" ]; then pip3 install --disable-pip-version-check -q -r "$job_name/$requirements_file" || ( echo ">requirements_failed<" && exit 1 ) ; fi
+RUN if [ -f "$job_name/$requirements_file" ]; then pip3 install --no-cache-dir --disable-pip-version-check -q -r "$job_name/$requirements_file" || ( echo ">requirements_failed<" && exit 1 ) ; fi
 
 ARG job_githash
 ENV JOB_NAME $job_name
