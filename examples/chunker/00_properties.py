@@ -10,8 +10,8 @@ from vdk.api.job_input import IJobInput
 def run(job_input: IJobInput):
     properties = job_input.get_all_properties()
 
-    data_file = os.path.join(job_input.get_job_directory(), DOCUMENTS_JSON_FILE)
-    chunks_file = os.path.join(job_input.get_job_directory(), CHUNKS_JSON_FILE)
+    data_file = os.path.join("../examples/rag-demo", DOCUMENTS_JSON_FILE)
+    chunks_file = os.path.join("../examples/rag-demo", CHUNKS_JSON_FILE)
     properties.update(
         dict(
             data_file=data_file,

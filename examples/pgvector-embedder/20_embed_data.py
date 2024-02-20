@@ -3,7 +3,6 @@
 import json
 import logging
 
-from common.database_storage import DatabaseStorage
 from config import get_value
 from sentence_transformers import SentenceTransformer
 from vdk.api.job_input import IJobInput
@@ -36,10 +35,9 @@ def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
     output_embeddings = get_value(job_input, "output_embeddings")
-    storage = DatabaseStorage(get_value(job_input, "storage_connection_string"))
-    storage_name = get_value(job_input, "storage_name", "confluence_data")
+    chunks_file = get_value(job_input, "chunks_file")
 
-    documents = load_documents(storage.retrieve(storage_name))
+    documents = load_documents(chunks_file)
     if documents:
         log.info(f"{len(documents)} chunks loaded and cleaned for embedding.")
         embeddings = embed_documents_in_batches(documents)

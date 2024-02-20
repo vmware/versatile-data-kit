@@ -3,14 +3,11 @@
 import json
 import logging
 import os
-import pathlib
 from datetime import datetime
 
-from common.database_storage import DatabaseStorage
 from confluence_document import ConfluenceDocument
 from langchain_community.document_loaders import ConfluenceLoader
 from vdk.api.job_input import IJobInput
-
 
 log = logging.getLogger(__name__)
 
@@ -160,9 +157,11 @@ def set_property(job_input: IJobInput, key, value):
 def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
-    confluence_url = get_value(job_input, "confluence_url")
-    token = get_value(job_input, "confluence_token")
-    space_key = get_value(job_input, "confluence_space_key")
+    confluence_url = get_value(
+        job_input, "confluence_url", "https://yoansalambashev.atlassian.net/"
+    )
+    token = get_value(job_input, "confluence_token", "")
+    space_key = get_value(job_input, "confluence_space_key", "RESEARCH")
     parent_page_id = get_value(job_input, "confluence_parent_page_id")
     last_date = (
         job_input.get_property(confluence_url, {})
@@ -170,17 +169,15 @@ def run(job_input: IJobInput):
         .setdefault(parent_page_id, {})
         .get("last_date", "1900-01-01 12:00")
     )
-    data_file = os.path.join(
-        job_input.get_temporary_write_directory(), "confluence_data.json"
-    )
-    storage_name = get_value(job_input, "storage_name", "confluence_data")
-    storage = DatabaseStorage(get_value(job_input, "storage_connection_string"))
-    # TODO: this is not optimal . We just care about the IDs, we should not need to retrieve everything
-    data = storage.retrieve(storage_name)
-    pathlib.Path(data_file).write_text(data if data else "[]")
+    data_file = os.path.join("../examples/rag-demo", "confluence_data.json")
+    # storage_name = get_value(job_input, "storage_name", "confluence_data")
+    # storage = DatabaseStorage(get_value(job_input, "storage_connection_string"))
+    # # TODO: this is not optimal . We just care about the IDs, we should not need to retrieve everything
+    # data = storage.retrieve(storage_name)
+
+    # pathlib.Path(data_file).write_text(data if data else "[]")
 
     confluence_reader = ConfluenceDataSource(confluence_url, token, space_key)
-
     updated_docs = confluence_reader.fetch_updated_pages_in_confluence_space(
         last_date, parent_page_id
     )
@@ -200,4 +197,4 @@ def run(job_input: IJobInput):
     # TODO: it would be better to save each page in separate row.
     # But that's quick solution for now to pass the data to the next job
 
-    storage.store(storage_name, pathlib.Path(data_file).read_text())
+    # storage.store(storage_name, pathlib.Path(data_file).read_text())

@@ -11,28 +11,29 @@ def run(job_input: IJobInput) -> None:
             team_name="Taurus",
             fail_dag_on_error=True,
             arguments=dict(
-                confluence_url="http://confluence.eng.vmware.com/",
-                confluence_token=job_input.get_secret("confluence_token"),
-                confluence_space_key="TAURUS",
-                confluence_parent_page_id="1105807412",
-                storage_connection_string=job_input.get_secret(
-                    "storage_connection_string"
-                ),
+                confluence_url="https://yoansalambashev.atlassian.net/",
+                confluence_token="",
+                confluence_space_key="RESEARCH",
+                # confluence_parent_page_id="1105807412",
             ),
             depends_on=[],
+        ),
+        dict(
+            job_name="chunker",
+            team_name="Taurus",
+            fail_dag_on_error=True,
+            arguments=dict(),
+            depends_on=["confluence-reader"],
         ),
         dict(
             job_name="pgvector-embedder",
             team_name="Taurus",
             fail_dag_on_error=True,
             arguments=dict(
-                destination_metadata_table="vdk_confluence_metadata",
-                destination_embeddings_table="vdk_confluence_embeddings",
-                storage_connection_string=job_input.get_secret(
-                    "storage_connection_string"
-                ),
+                destination_metadata_table="vdk_confluence_metadata_demo_v1",
+                destination_embeddings_table="vdk_confluence_embeddings_demo_v1",
             ),
-            depends_on=["confluence-reader"],
+            depends_on=["chunker"],
         ),
     ]
 

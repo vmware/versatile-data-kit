@@ -6,7 +6,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from common.storage import IStorage
 from sqlalchemy import Column
 from sqlalchemy import create_engine
 from sqlalchemy import LargeBinary
@@ -15,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.exc import IntegrityError
+from storage import IStorage
 
 
 class DatabaseStorage(IStorage):
