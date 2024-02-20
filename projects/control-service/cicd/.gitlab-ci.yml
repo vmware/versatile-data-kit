@@ -302,12 +302,12 @@ control_service_publish_api_client:
 control_service_deploy_testing_data_pipelines:
   extends: .control_service_deploy_testing_data_pipelines
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: [ projects/control-service/projects/helm_charts/pipelines-control-service/version.txt ]
       when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *control_service_code_change_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *control_service_helm_change_locations
 
 control_service_helm_chart_dry_run:
