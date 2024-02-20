@@ -20,7 +20,6 @@ spec:
       annotations: # merged with additional annotations from TPCS
       labels: # merged with additional labels from TPCS
     spec:
-      parallelism: 3
       activeDeadlineSeconds: 129600
       backoffLimit: 3
       template:
