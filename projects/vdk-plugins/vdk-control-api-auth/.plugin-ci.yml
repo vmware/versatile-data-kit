@@ -16,6 +16,10 @@ build-py311-vdk-control-api-auth:
   extends: .build-vdk-control-api-auth
   image: "python:3.11"
 
+build-py312-vdk-control-api-auth:
+  extends: .build-vdk-control-api-auth
+  image: "python:3.12"
+
 build-vdk-control-api-auth-on-vdk-core-release:
   variables:
     PLUGIN_NAME: vdk-control-api-auth

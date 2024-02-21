@@ -35,6 +35,10 @@ build-py311-quickstart-vdk:
   extends: .build-quickstart-vdk
   image: "python:3.11"
 
+build-py312-quickstart-vdk:
+  extends: .build-quickstart-vdk
+  image: "python:3.12"
+
 quickstart-vdk-release-candidate:
   stage: pre_release
   variables:

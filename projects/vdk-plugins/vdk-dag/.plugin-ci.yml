@@ -16,6 +16,10 @@ build-py311-vdk-dag:
   extends: .build-vdk-dag
   image: "python:3.11"
 
+build-py312-vdk-dag:
+  extends: .build-vdk-dag
+  image: "python:3.12"
+
 release-vdk-dag:
   variables:
     PLUGIN_NAME: vdk-dag

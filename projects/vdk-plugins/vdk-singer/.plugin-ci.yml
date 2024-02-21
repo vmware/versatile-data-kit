@@ -16,6 +16,10 @@ build-py311-vdk-singer:
   extends: .build-vdk-singer
   image: "python:3.11"
 
+build-py312-vdk-singer:
+  extends: .build-vdk-singer
+  image: "python:3.12"
+
 release-vdk-singer:
   variables:
     PLUGIN_NAME: vdk-singer

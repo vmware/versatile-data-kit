@@ -16,6 +16,10 @@ build-py311-vdk-ipython:
   extends: .build-vdk-ipython
   image: "python:3.11"
 
+build-py312-vdk-ipython:
+  extends: .build-vdk-ipython
+  image: "python:3.12"
+
 release-vdk-ipython:
   variables:
     PLUGIN_NAME: vdk-ipython

@@ -16,6 +16,10 @@ build-py311-vdk-gdp-execution-id:
   extends: .build-vdk-gdp-execution-id
   image: "python:3.11"
 
+build-py312-vdk-gdp-execution-id:
+  extends: .build-vdk-gdp-execution-id
+  image: "python:3.12"
+
 build-vdk-gdp-execution-id-on-vdk-core-release:
   variables:
     PLUGIN_NAME: vdk-gdp-execution-id

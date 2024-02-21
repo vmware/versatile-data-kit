@@ -16,6 +16,10 @@ build-py311-vdk-structlog:
   extends: .build-vdk-structlog
   image: "python:3.11"
 
+build-py312-vdk-structlog:
+  extends: .build-vdk-structlog
+  image: "python:3.12"
+
 release-vdk-structlog:
   variables:
     PLUGIN_NAME: vdk-structlog

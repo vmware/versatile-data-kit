@@ -16,6 +16,10 @@ build-py311-vdk-greenplum:
   extends: .build-vdk-greenplum
   image: "python:3.11"
 
+build-py312-vdk-greenplum:
+  extends: .build-vdk-greenplum
+  image: "python:3.12"
+
 release-vdk-greenplum:
   variables:
     PLUGIN_NAME: vdk-greenplum

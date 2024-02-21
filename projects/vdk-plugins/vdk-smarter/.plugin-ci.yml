@@ -16,6 +16,10 @@ build-py311-vdk-smarter:
   extends: .build-vdk-smarter
   image: "python:3.11"
 
+build-py312-vdk-smarter:
+  extends: .build-vdk-smarter
+  image: "python:3.12"
+
 release-vdk-smarter:
   variables:
     PLUGIN_NAME: vdk-smarter

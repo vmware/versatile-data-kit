@@ -16,6 +16,10 @@ build-py311-vdk-ingest-file:
   extends: .build-vdk-ingest-file
   image: "python:3.11"
 
+build-py312-vdk-ingest-file:
+  extends: .build-vdk-ingest-file
+  image: "python:3.12"
+
 release-vdk-ingest-file:
   variables:
     PLUGIN_NAME: vdk-ingest-file

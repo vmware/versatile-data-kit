@@ -16,6 +16,10 @@ build-py311-vdk-csv:
   extends: .build-vdk-csv
   image: "python:3.11"
 
+build-py312-vdk-csv:
+  extends: .build-vdk-csv
+  image: "python:3.12"
+
 build-vdk-csv-on-vdk-core-release:
   variables:
     PLUGIN_NAME: vdk-csv

@@ -24,6 +24,10 @@ build-py311-vdk-kerberos-auth:
   extends: .build-vdk-kerberos-auth
   image: "python:3.11"
 
+build-py312-vdk-kerberos-auth:
+  extends: .build-vdk-kerberos-auth
+  image: "python:3.12"
+
 #build-vdk-kerberos-auth-on-vdk-core-release:
 #  variables:
 #    PLUGIN_NAME: vdk-kerberos-auth

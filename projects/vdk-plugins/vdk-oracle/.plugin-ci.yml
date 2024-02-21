@@ -16,6 +16,10 @@ build-py311-vdk-oracle:
   extends: .build-vdk-oracle
   image: "python:3.11"
 
+build-py312-vdk-oracle:
+  extends: .build-vdk-oracle
+  image: "python:3.12"
+
 release-vdk-oracle:
   variables:
     PLUGIN_NAME: vdk-oracle

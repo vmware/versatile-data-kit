@@ -16,6 +16,10 @@ build-py311-vdk-notebook:
   extends: .build-vdk-notebook
   image: "python:3.11"
 
+build-py312-vdk-notebook:
+  extends: .build-vdk-notebook
+  image: "python:3.12"
+
 release-vdk-notebook:
   variables:
     PLUGIN_NAME: vdk-notebook
