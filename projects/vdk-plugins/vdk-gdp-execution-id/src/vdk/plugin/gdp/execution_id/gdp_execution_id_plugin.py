@@ -34,6 +34,7 @@ class GdpExecutionIdPlugin(IIngesterPlugin):
         target: Optional[str] = None,
         collection_id: Optional[str] = None,
         metadata: Optional[IIngesterPlugin.IngestionMetadata] = None,
+        method: Optional[str] = None,
     ) -> Tuple[List[Dict], Optional[IIngesterPlugin.IngestionMetadata]]:
         for p in payload:
             p.update({self._plugin_config.micro_dimension_name(): self.__execution_id})

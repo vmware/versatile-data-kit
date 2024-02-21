@@ -1,14 +1,13 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+import logging
 import os
 import time
-from functools import partial
 from unittest import mock
 
 import pytest
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_container_is_ready
-from testcontainers.core.waiting_utils import wait_for
 from vdk.plugin.postgres import postgres_plugin
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 
@@ -18,6 +17,8 @@ VDK_POSTGRES_USER = "VDK_POSTGRES_USER"
 VDK_POSTGRES_PASSWORD = "VDK_POSTGRES_PASSWORD"
 VDK_POSTGRES_HOST = "VDK_POSTGRES_HOST"
 VDK_POSTGRES_PORT = "VDK_POSTGRES_PORT"
+
+log = logging.getLogger(__name__)
 
 
 @wait_container_is_ready(Exception)
@@ -59,7 +60,7 @@ def postgres_service(request):
         # wait 2 seconds to make sure the service is up and responsive
         # might be unnecessary but it's out of abundance of caution
         time.sleep(2)
-        print(
+        log.info(
             f"Postgres service started on port {container.get_exposed_port(port)} and host {container.get_container_host_ip()}"
         )
     except Exception as e:
@@ -70,7 +71,7 @@ def postgres_service(request):
 
     def stop_container():
         container.stop()
-        print("Postgres service stopped")
+        log.info("Postgres service stopped")
 
     request.addfinalizer(stop_container)
 

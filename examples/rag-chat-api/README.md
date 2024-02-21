@@ -9,7 +9,7 @@ pip install -r requirements.txt
 
 Then, you need to start the web service:
 ```
-uvicorn private_ai_api:app --reload
+uvicorn chat_api:app --reload
 ```
 
 You can now query the web service through the following command:

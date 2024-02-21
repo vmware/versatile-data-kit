@@ -1,5 +1,0 @@
-atlassian-python-api
-langchain_community
-lxml
-nltk
-sentence-transformers

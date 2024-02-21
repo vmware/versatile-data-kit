@@ -437,9 +437,16 @@ class IngesterBase(IIngester):
                 destination_table: Optional[str] = None
                 target: Optional[str] = None
                 collection_id: Optional[str] = None
+                method: Optional[str] = None
                 try:
                     payload = self._payloads_queue.get()
-                    payload_obj, destination_table, _, target, collection_id = payload
+                    (
+                        payload_obj,
+                        destination_table,
+                        method,
+                        target,
+                        collection_id,
+                    ) = payload
 
                     # If there are any pre-processors set, pass the payload object
                     # through them.
@@ -450,6 +457,7 @@ class IngesterBase(IIngester):
                             target=target,
                             collection_id=collection_id,
                             metadata=ingestion_metadata,
+                            method=method,
                         )
 
                     # Verify payload after pre-processing it, since this preprocessing might be responsible for
@@ -512,6 +520,7 @@ class IngesterBase(IIngester):
                         collection_id=collection_id,
                         metadata=ingestion_metadata,
                         exception=exception,
+                        method=method,
                     )
             except Exception as e:
                 resolvable_by = errors.get_exception_resolvable_by(e)
@@ -575,6 +584,7 @@ class IngesterBase(IIngester):
         target: Optional[str],
         collection_id: Optional[str],
         metadata: Optional[IIngesterPlugin.IngestionMetadata],
+        method: Optional[str],
     ) -> Tuple[List[dict], Optional[IIngesterPlugin.IngestionMetadata]]:
         for plugin in self._pre_processors:
             try:
@@ -584,6 +594,7 @@ class IngesterBase(IIngester):
                     target=target,
                     collection_id=collection_id,
                     metadata=metadata,
+                    method=method,
                 )
             except Exception as e:
                 raise PreProcessPayloadIngestionException(
@@ -611,6 +622,7 @@ class IngesterBase(IIngester):
         collection_id: Optional[str],
         metadata: Optional[IIngesterPlugin.IngestionMetadata],
         exception: Optional[Exception],
+        method: Optional[str],
     ):
         for plugin in self._post_processors:
             try:
@@ -621,6 +633,7 @@ class IngesterBase(IIngester):
                     collection_id=collection_id,
                     metadata=metadata,
                     exception=exception,
+                    method=method,
                 )
             except Exception as e:
                 raise PostProcessPayloadIngestionException(
