@@ -49,7 +49,7 @@ RUN : \
           echo "Installing native dependencies ..." \
           && yum install build-essential gcc glibc-devel git freetype2-devel libpng-devel -y \
           && echo "Installing requirements.txt ..." \
-          && pip install --disable-pip-version-check -q -r "$job_name/$requirements_file"  \
+          && pip install --no-cache-dir --disable-pip-version-check -q -r "$job_name/$requirements_file"  \
           || ( echo ">requirements_failed<" && exit 1 ) \
           && echo "Removing native dependencies ..." \
           && yum autoremove build-essential gcc glibc-devel git unzip -y \
