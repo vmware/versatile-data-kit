@@ -20,3 +20,7 @@ def run(job_input: IJobInput):
         )
     )
     job_input.set_all_properties(properties)
+
+    hf_home = job_input.get_temporary_write_directory() / "hf"
+    hf_home.mkdir(parents=True, exist_ok=True)
+    os.environ["HF_HOME"] = str(hf_home)

@@ -13,9 +13,9 @@ The `ConfluenceDataSource` class is the heart of this data job. It provides a se
 
 These methods make use of the last_modification.txt file to determine the last modification date and track changes in the Confluence space, allowing for efficient data retrieval and management.
 
-## JSON Data Format
+## Output Data Format
 
-The resulting JSON data (confluence_data.json) is generated using the `ConfluenceDocument` class (see confluence_document.py).
+The resulting data is generated using the `ConfluenceDocument` class (see confluence_document.py).
 It follows this structured format:
 
 ```json
