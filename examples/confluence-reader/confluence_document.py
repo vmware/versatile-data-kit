@@ -3,7 +3,7 @@
 
 
 class ConfluenceDocument:
-    def __init__(self, metadata, data, deleted=False):
+    def __init__(self, metadata: dict, data: str, deleted=False):
         """
         Initializes a ConfluenceDocument instance.
 

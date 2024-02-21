@@ -9,7 +9,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from storage import IStorage
+from vdk.plugin.storage.storage import IStorage
 
 
 class FileStorage(IStorage):
