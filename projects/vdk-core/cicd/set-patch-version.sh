@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 
 set_patch_version(){

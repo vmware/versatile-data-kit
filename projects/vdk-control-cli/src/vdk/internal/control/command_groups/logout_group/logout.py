@@ -1,4 +1,4 @@
-# Copyright 2021-2024 VMware, Inc.
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import click
 from vdk.plugin.control_api_auth.auth_config import AuthConfigFolder

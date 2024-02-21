@@ -1,7 +1,8 @@
 /*
- * Copyright 2023-2024 VMware, Inc.
+ * Copyright 2023-2024 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import DownloadJobDialog from '../components/DownloadJob';
 import { render, fireEvent } from '@testing-library/react';
 import { jobData } from '../jobData';

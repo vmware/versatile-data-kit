@@ -1,7 +1,8 @@
 /*
- * Copyright 2021-2024 VMware, Inc.
+ * Copyright 2023-2024 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
+
 export const CONVERT_JOB_TO_NOTEBOOK_BUTTON_LABEL = 'Convert Job To Notebook';
 export const RUN_JOB_BUTTON_LABEL = 'Run Job';
 export const CREATE_DEP_BUTTON_LABEL = 'Create Deployment';
