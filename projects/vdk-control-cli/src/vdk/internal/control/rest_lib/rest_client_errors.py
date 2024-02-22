@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 class ApiClientErrorDecorator:
     def __init__(
-            self, what="Control Service Error", consequences="Operation cannot complete."
+        self, what="Control Service Error", consequences="Operation cannot complete."
     ):
         self.__what = what
         self.__consequences = consequences
@@ -28,24 +28,24 @@ class ApiClientErrorDecorator:
                 error = dict(
                     what=self.__what,
                     why=f"The request has not been applied because it lacks valid authentication credentials. "
-                        f"Error returned by control service is {exception.body}",
+                    f"Error returned by control service is {exception.body}",
                     consequences=self.__consequences,
                     countermeasures="Try to login again using VDK CLI login command."
-                                    "Or set correct api token configuration (see vdk config-help)."
-                                    "Make sure you have permission to execute the given operation."
-                                    "Investigate (google) the error returned by control service."
-                                    "And if all fails try to contact the support team.",
+                    "Or set correct api token configuration (see vdk config-help)."
+                    "Make sure you have permission to execute the given operation."
+                    "Investigate (google) the error returned by control service."
+                    "And if all fails try to contact the support team.",
                 )
             if exception.status == 404:
                 error = dict(
                     what=self.__what,
                     why="The requested resource cannot be found. "
-                        "You may have a spelling mistake or the data job has not been created. "
-                        "Verify that the job team name is spelled correctly in your job's config.ini file.",
+                    "You may have a spelling mistake or the data job has not been created. "
+                    "Verify that the job team name is spelled correctly in your job's config.ini file.",
                     consequences=self.__consequences,
                     countermeasures="Make sure that the data job name and team name are spelled correctly "
-                                    "(it is case-sensitive) . "
-                                    "Make sure you have run `vdk create --cloud` before doing this operation on a data job.",
+                    "(it is case-sensitive) . "
+                    "Make sure you have run `vdk create --cloud` before doing this operation on a data job.",
                 )
 
             return error
@@ -85,7 +85,7 @@ class ApiClientErrorDecorator:
                     why=str(ex),
                     consequence=self.__consequences,
                     countermeasure="Verify that the provided url (--rest-api-url) is valid "
-                                   "and points to the correct host.",
+                    "and points to the correct host.",
                 )
                 raise vdk_ex from ex
             except VDKAuthException as ex:
