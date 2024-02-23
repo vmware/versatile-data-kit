@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import datetime
 import logging
-import sys
 from dataclasses import dataclass
 from typing import Dict
 from typing import List
@@ -63,7 +62,7 @@ class AddPayloadSizeAsColumn(IIngesterPlugin):
         start_time = datetime.datetime(year=2022, month=1, day=27, hour=16)
         metadata = IngestionMetadata({"ingestion_submission_start_time": start_time})
         for i in payload:
-            payload_size = sys.getsizeof(str(i))
+            payload_size = len(str(i))
             i["payload_size"] = payload_size
             processed_payloads.append(i)
 

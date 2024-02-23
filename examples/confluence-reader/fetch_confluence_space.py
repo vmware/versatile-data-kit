@@ -1,75 +1,32 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-import json
 import logging
 import os
-import pathlib
 from datetime import datetime
 
-from common.database_storage import DatabaseStorage
 from confluence_document import ConfluenceDocument
 from langchain_community.document_loaders import ConfluenceLoader
 from vdk.api.job_input import IJobInput
-
+from vdk.plugin.storage.database_storage import DatabaseStorage
 
 log = logging.getLogger(__name__)
 
 
-def read_json_file(file_path):
-    try:
-        with open(file_path) as file:
-            return json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        log.error(f"Error reading JSON file: {e}")
-        return None
+def merge_docs(existing_docs, new_docs) -> list:
+    if existing_docs:
+        existing_docs_dict = {doc.metadata["id"]: doc for doc in existing_docs}
+
+        for doc in new_docs:
+            existing_docs_dict[doc.metadata["id"]] = doc
+        return list(existing_docs_dict.values())
+    else:
+        return new_docs
 
 
-def write_json_file(file_path, data):
-    try:
-        with open(file_path, "w") as file:
-            json.dump(data, file, indent=4)
-    except OSError as e:
-        log.error(f"Error writing JSON file: {e}")
-
-
-def update_saved_documents(file_path, new_docs):
-    existing_docs = read_json_file(file_path) or []
-
-    if (
-        isinstance(existing_docs, list)
-        and existing_docs
-        and isinstance(existing_docs[0], dict)
-    ):
-        existing_docs = [
-            ConfluenceDocument(
-                doc["metadata"], doc["data"], doc["metadata"].get("deleted", False)
-            )
-            for doc in existing_docs
-        ]
-
-    existing_docs_dict = {doc.metadata["id"]: doc for doc in existing_docs}
-
-    for doc in new_docs:
-        existing_docs_dict[doc.metadata["id"]] = doc
-
-    updated_docs_list = list(existing_docs_dict.values())
-
-    serialized_docs = [doc.serialize() for doc in updated_docs_list]
-    write_json_file(file_path, serialized_docs)
-
-
-def flag_deleted_pages(file_path, current_confluence_documents):
-    existing_docs = read_json_file(file_path)
+def flag_deleted_pages(existing_docs, current_confluence_documents):
     if existing_docs is None:
         log.error("Existing documents not found. Exiting.")
         return
-
-    existing_docs = [
-        ConfluenceDocument(
-            doc["metadata"], doc["data"], doc["metadata"].get("deleted", False)
-        )
-        for doc in existing_docs
-    ]
 
     current_page_ids = {doc.metadata["id"] for doc in current_confluence_documents}
 
@@ -79,9 +36,6 @@ def flag_deleted_pages(file_path, current_confluence_documents):
             doc.metadata["deleted"] = True
             num_deleted += 1
     log.info(f"Found {num_deleted} deleted pages.")
-
-    serialized_docs = [doc.serialize() for doc in existing_docs]
-    write_json_file(file_path, serialized_docs)
 
 
 class ConfluenceDataSource:
@@ -170,22 +124,19 @@ def run(job_input: IJobInput):
         .setdefault(parent_page_id, {})
         .get("last_date", "1900-01-01 12:00")
     )
-    data_file = os.path.join(
-        job_input.get_temporary_write_directory(), "confluence_data.json"
-    )
     storage_name = get_value(job_input, "storage_name", "confluence_data")
     storage = DatabaseStorage(get_value(job_input, "storage_connection_string"))
     # TODO: this is not optimal . We just care about the IDs, we should not need to retrieve everything
-    data = storage.retrieve(storage_name)
-    pathlib.Path(data_file).write_text(data if data else "[]")
+    existing_docs = storage.retrieve(storage_name)
+    if existing_docs:
+        existing_docs = [ConfluenceDocument(**doc) for doc in existing_docs]
 
     confluence_reader = ConfluenceDataSource(confluence_url, token, space_key)
-
     updated_docs = confluence_reader.fetch_updated_pages_in_confluence_space(
         last_date, parent_page_id
     )
     log.info(f"Found {len(updated_docs)} updated pages")
-    update_saved_documents(data_file, updated_docs)
+    all_docs = merge_docs(existing_docs, updated_docs)
 
     # This is buggy , it doesn't account for server timezone and local timezone
     # But also assumes that server clock and local clock are synchronized (which they are likely not)
@@ -193,11 +144,13 @@ def run(job_input: IJobInput):
     set_property(job_input, "last_date", datetime.now().strftime("%Y-%m-%d %H:%M"))
 
     flag_deleted_pages(
-        data_file,
+        all_docs,
         confluence_reader.fetch_all_pages_in_confluence_space(parent_page_id),
     )
 
     # TODO: it would be better to save each page in separate row.
     # But that's quick solution for now to pass the data to the next job
 
-    storage.store(storage_name, pathlib.Path(data_file).read_text())
+    log.info(f"Store {len(all_docs)} documents in {storage_name}")
+    # TODO: why not use job_input.send_object_for_ingestion ... it's our ingestion interface
+    storage.store(storage_name, [doc.serialize() for doc in all_docs])

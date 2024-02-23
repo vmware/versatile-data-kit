@@ -8,7 +8,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from common.storage import IStorage
 from sqlalchemy import Column
 from sqlalchemy import create_engine
 from sqlalchemy import LargeBinary
@@ -17,6 +16,7 @@ from sqlalchemy import select
 from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.exc import IntegrityError
+from vdk.plugin.storage.storage import IStorage
 
 
 class DatabaseStorage(IStorage):
@@ -33,6 +33,9 @@ class DatabaseStorage(IStorage):
         self.metadata.create_all(self.engine)
 
     def store(self, name: str, content: Union[str, bytes, Any]) -> None:
+        self.__insert_content(name, content)
+
+    def __insert_content(self, name: str, content: Any):
         serialized_content, content_type = self._serialize_content(content)
         ins = self.table.insert().values(
             name=name, content=serialized_content, content_type=content_type
@@ -52,7 +55,7 @@ class DatabaseStorage(IStorage):
                 conn.execute(upd)
                 conn.commit()
 
-    def retrieve(self, name: str) -> Optional[Union[str, bytes, Any]]:
+    def retrieve(self, name: str) -> Optional[Union[str, bytes, List, Any]]:
         sel = self.table.select().where(self.table.c.name == name)
         with self.engine.connect() as conn:
             result = conn.execute(sel).fetchone()

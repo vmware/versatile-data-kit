@@ -3,7 +3,8 @@
 # The file is optional and can be deleted if no extra library dependencies are necessary.
 
 atlassian-python-api
-langchain_community
+langchain-community
 lxml
 psycopg2-binary
 sqlalchemy
+vdk-storage
