@@ -29,9 +29,9 @@ def get_shared_result_data():
         bool_key=str(True),
         float_key=str(1.23),
         nested=str(dict(key="value")),
-        payload_size=163,
+        payload_size=114,
     )
-    expected_rows_object = {"first": "two", "payload_size": 80, "second": "2"}
+    expected_rows_object = {"first": "two", "payload_size": 31, "second": "2"}
 
     return expected_object, expected_rows_object
 
