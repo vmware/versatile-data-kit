@@ -13,10 +13,6 @@ build-py37-vdk-sqlite:
   extends: .build-vdk-sqlite
   image: "python:3.7"
 
-build-py311-vdk-sqlite:
-  extends: .build-vdk-sqlite
-  image: "python:3.11"
-
 build-py312-vdk-sqlite:
   extends: .build-vdk-sqlite
   image: "python:3.12"

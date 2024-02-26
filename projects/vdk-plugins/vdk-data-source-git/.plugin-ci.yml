@@ -12,10 +12,6 @@ build-py37-vdk-data-source-git:
   extends: .build-vdk-data-source-git
   image: "python:3.7"
 
-build-py311-vdk-data-source-git:
-  extends: .build-vdk-data-source-git
-  image: "python:3.11"
-
 build-py312-vdk-data-source-git:
   extends: .build-vdk-data-source-git
   image: "python:3.12"

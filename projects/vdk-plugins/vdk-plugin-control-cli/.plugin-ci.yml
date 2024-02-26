@@ -12,10 +12,6 @@ build-py37-vdk-plugin-control-cli:
   extends: .build-vdk-plugin-control-cli
   image: "python:3.7"
 
-build-py311-vdk-plugin-control-cli:
-  extends: .build-vdk-plugin-control-cli
-  image: "python:3.11"
-
 build-py312-vdk-plugin-control-cli:
   extends: .build-vdk-plugin-control-cli
   image: "python:3.12"

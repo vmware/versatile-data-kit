@@ -12,10 +12,6 @@ build-py37-vdk-impala:
   extends: .build-vdk-impala
   image: "python:3.7"
 
-build-py311-vdk-impala:
-  extends: .build-vdk-impala
-  image: "python:3.11"
-
 build-py312-vdk-impala:
   extends: .build-vdk-impala
   image: "python:3.12"

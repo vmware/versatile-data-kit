@@ -10,10 +10,6 @@ build-py38-vdk-audit:
   extends: .build-vdk-audit
   image: "python:3.8"
 
-build-py311-vdk-audit:
-  extends: .build-vdk-audit
-  image: "python:3.11"
-
 build-py312-vdk-audit:
   extends: .build-vdk-audit
   image: "python:3.12"

@@ -12,10 +12,6 @@ build-py37-vdk-properties-fs:
   extends: .build-vdk-properties-fs
   image: "python:3.7"
 
-build-py311-vdk-properties-fs:
-  extends: .build-vdk-properties-fs
-  image: "python:3.11"
-
 build-py312-vdk-properties-fs:
   extends: .build-vdk-properties-fs
   image: "python:3.12"

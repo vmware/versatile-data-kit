@@ -12,10 +12,6 @@ build-py37-vdk-greenplum:
   extends: .build-vdk-greenplum
   image: "python:3.7"
 
-build-py311-vdk-greenplum:
-  extends: .build-vdk-greenplum
-  image: "python:3.11"
-
 build-py312-vdk-greenplum:
   extends: .build-vdk-greenplum
   image: "python:3.12"

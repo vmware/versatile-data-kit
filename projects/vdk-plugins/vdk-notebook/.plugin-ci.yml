@@ -12,10 +12,6 @@ build-py37-vdk-notebook:
   extends: .build-vdk-notebook
   image: "python:3.7"
 
-build-py311-vdk-notebook:
-  extends: .build-vdk-notebook
-  image: "python:3.11"
-
 build-py312-vdk-notebook:
   extends: .build-vdk-notebook
   image: "python:3.12"

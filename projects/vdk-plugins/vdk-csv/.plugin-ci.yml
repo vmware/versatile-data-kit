@@ -12,10 +12,6 @@ build-py37-vdk-csv:
   extends: .build-vdk-csv
   image: "python:3.7"
 
-build-py311-vdk-csv:
-  extends: .build-vdk-csv
-  image: "python:3.11"
-
 build-py312-vdk-csv:
   extends: .build-vdk-csv
   image: "python:3.12"

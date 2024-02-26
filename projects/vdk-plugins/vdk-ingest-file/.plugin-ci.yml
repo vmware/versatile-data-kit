@@ -12,10 +12,6 @@ build-py37-vdk-ingest-file:
   extends: .build-vdk-ingest-file
   image: "python:3.7"
 
-build-py311-vdk-ingest-file:
-  extends: .build-vdk-ingest-file
-  image: "python:3.11"
-
 build-py312-vdk-ingest-file:
   extends: .build-vdk-ingest-file
   image: "python:3.12"

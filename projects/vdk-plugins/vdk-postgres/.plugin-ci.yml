@@ -12,10 +12,6 @@ build-py37-vdk-postgres:
   extends: .build-vdk-postgres
   image: "python:3.7"
 
-build-py311-vdk-postgres:
-  extends: .build-vdk-postgres
-  image: "python:3.11"
-
 build-py312-vdk-postgres:
   extends: .build-vdk-postgres
   image: "python:3.12"

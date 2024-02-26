@@ -31,10 +31,6 @@ build-py37-quickstart-vdk:
   extends: .build-quickstart-vdk
   image: "python:3.7"
 
-build-py311-quickstart-vdk:
-  extends: .build-quickstart-vdk
-  image: "python:3.11"
-
 build-py312-quickstart-vdk:
   extends: .build-quickstart-vdk
   image: "python:3.12"

@@ -12,10 +12,6 @@ build-py37-vdk-dag:
   extends: .build-vdk-dag
   image: "python:3.7"
 
-build-py311-vdk-dag:
-  extends: .build-vdk-dag
-  image: "python:3.11"
-
 build-py312-vdk-dag:
   extends: .build-vdk-dag
   image: "python:3.12"
