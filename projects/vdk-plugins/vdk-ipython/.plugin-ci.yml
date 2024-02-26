@@ -12,9 +12,9 @@ build-py37-vdk-ipython:
   extends: .build-vdk-ipython
   image: "python:3.7"
 
-build-py311-vdk-ipython:
+build-py312-vdk-ipython:
   extends: .build-vdk-ipython
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-ipython:
   variables:

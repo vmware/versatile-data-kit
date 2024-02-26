@@ -11,9 +11,9 @@ build-py37-vdk-snowflake:
   extends: .build-vdk-snowflake
   image: "python:3.7"
 
-build-py311-vdk-snowflake:
+build-py312-vdk-snowflake:
   extends: .build-vdk-snowflake
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-snowflake:
   variables:

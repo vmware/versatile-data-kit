@@ -12,9 +12,9 @@ build-py37-vdk-smarter:
   extends: .build-vdk-smarter
   image: "python:3.7"
 
-build-py311-vdk-smarter:
+build-py312-vdk-smarter:
   extends: .build-vdk-smarter
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-smarter:
   variables:

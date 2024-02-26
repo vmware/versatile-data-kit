@@ -12,9 +12,9 @@ build-py37-vdk-meta-jobs:
   extends: .build-vdk-meta-jobs
   image: "python:3.7"
 
-build-py311-vdk-meta-jobs:
+build-py312-vdk-meta-jobs:
   extends: .build-vdk-meta-jobs
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-meta-jobs:
   variables:

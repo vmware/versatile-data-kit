@@ -15,9 +15,9 @@ build-py37-vdk-storage:
   extends: .build-vdk-storage
   image: "python:3.7"
 
-build-py311-vdk-storage:
+build-py312-vdk-storage:
   extends: .build-vdk-storage
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-storage:
   variables:

@@ -12,9 +12,9 @@ build-py37-vdk-test-utils:
   extends: .build-vdk-test-utils
   image: "python:3.7"
 
-build-py311-vdk-test-utils:
+build-py312-vdk-test-utils:
   extends: .build-vdk-test-utils
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-test-utils:
   variables:

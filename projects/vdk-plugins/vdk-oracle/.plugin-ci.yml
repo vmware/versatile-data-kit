@@ -12,9 +12,9 @@ build-py37-vdk-oracle:
   extends: .build-vdk-oracle
   image: "python:3.7"
 
-build-py311-vdk-oracle:
+build-py312-vdk-oracle:
   extends: .build-vdk-oracle
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-oracle:
   variables:

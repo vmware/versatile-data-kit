@@ -15,9 +15,9 @@ build-py37-vdk-confluence-data-source:
   extends: .build-vdk-confluence-data-source
   image: "python:3.7"
 
-build-py311-vdk-confluence-data-source:
+build-py312-vdk-confluence-data-source:
   extends: .build-vdk-confluence-data-source
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-confluence-data-source:
   variables:

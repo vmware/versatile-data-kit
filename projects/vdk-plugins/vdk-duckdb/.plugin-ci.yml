@@ -12,9 +12,9 @@ build-py37-vdk-duckdb:
   extends: .build-vdk-duckdb
   image: "python:3.7"
 
-build-py311-vdk-duckdb:
+build-py312-vdk-duckdb:
   extends: .build-vdk-duckdb
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-duckdb:
   variables:

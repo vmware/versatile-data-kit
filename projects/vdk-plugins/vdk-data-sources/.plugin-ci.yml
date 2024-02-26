@@ -12,9 +12,9 @@ build-py37-vdk-data-sources:
   extends: .build-vdk-data-sources
   image: "python:3.7"
 
-build-py311-vdk-data-sources:
+build-py312-vdk-data-sources:
   extends: .build-vdk-data-sources
-  image: "python:3.11"
+  image: "python:3.12"
 
 release-vdk-data-sources:
   variables:

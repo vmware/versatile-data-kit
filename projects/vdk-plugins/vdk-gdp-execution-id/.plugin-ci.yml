@@ -12,9 +12,9 @@ build-py37-vdk-gdp-execution-id:
   extends: .build-vdk-gdp-execution-id
   image: "python:3.7"
 
-build-py311-vdk-gdp-execution-id:
+build-py312-vdk-gdp-execution-id:
   extends: .build-vdk-gdp-execution-id
-  image: "python:3.11"
+  image: "python:3.12"
 
 build-vdk-gdp-execution-id-on-vdk-core-release:
   variables:

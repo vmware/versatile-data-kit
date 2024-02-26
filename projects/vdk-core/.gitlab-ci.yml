@@ -52,6 +52,10 @@ vdk-core-build_with_py311:
     image: "python:3.11"
     extends: .vdk-core-build
 
+vdk-core-build_with_py312:
+  image: "python:3.12"
+  extends: .vdk-core-build
+
 .vdk-core-simple_func_test:
   services:
     - name: trinodb/trino
@@ -96,6 +100,9 @@ vdk-core-simple_func_test_with_py311:
   image: "python:3.11"
   extends: .vdk-core-simple_func_test
 
+vdk-core-simple_func_test_with_py312:
+  image: "python:3.12"
+  extends: .vdk-core-simple_func_test
 
 vdk-core-release:
   stage: release
