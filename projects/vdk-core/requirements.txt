@@ -3,6 +3,7 @@
 
 -e ../vdk-plugins/vdk-test-utils
 black
+duckdb
 mypy
 pandas
 
@@ -22,4 +23,3 @@ reorder-python-imports
 smtpdfix
 vdk-duckdb
 vdk-sqlite
-duckdb
