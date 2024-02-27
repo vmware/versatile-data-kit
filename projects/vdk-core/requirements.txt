@@ -21,3 +21,4 @@ pytest-sugar
 reorder-python-imports
 smtpdfix
 vdk-sqlite
+vdk-duckdb
