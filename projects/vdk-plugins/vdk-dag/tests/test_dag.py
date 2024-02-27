@@ -15,6 +15,7 @@ from taurus_datajob_api import DataJobExecution
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.dag import dag_plugin
 from vdk.plugin.dag import dag_runner
+from vdk.plugin.dag.exception import DagValidationException
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -436,7 +437,7 @@ class TestDAG:
             self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag(dag_name)
             cli_assert_equal(1, result)
-            self._assert_dag_fails_with_error(result, UserCodeError)
+            self._assert_dag_fails_with_error(result, DagValidationException)
             self.httpserver.stop()
 
     def test_dag_circular_dependency(self):
