@@ -7,9 +7,7 @@ from vdk.api.job_input import IJobInput
 
 def run(job_input: IJobInput):
     job_input.execute_query("CREATE TABLE stocks (date text, symbol text, price real)")
-    job_input.execute_query(
-        "INSERT INTO stocks VALUES ('2020-01-01', 'GOOG', 122.0)"
-    )
+    job_input.execute_query("INSERT INTO stocks VALUES ('2020-01-01', 'GOOG', 122.0)")
     result = job_input.execute_query("SELECT * FROM stocks")
     payload = {
         "date": result[0][0],
