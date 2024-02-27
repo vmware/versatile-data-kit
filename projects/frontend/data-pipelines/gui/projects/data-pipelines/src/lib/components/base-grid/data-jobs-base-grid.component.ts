@@ -683,7 +683,7 @@ export abstract class DataJobsBaseGridComponent
         ) {
             return false;
         }
-        
+
         return (
             this.clrGridUIState.filter.deploymentLastExecutionStatus ===
             this._decodeFilterFromQueryParam('deploymentLastExecutionStatus', routeState.getQueryParam('deploymentLastExecutionStatus'))

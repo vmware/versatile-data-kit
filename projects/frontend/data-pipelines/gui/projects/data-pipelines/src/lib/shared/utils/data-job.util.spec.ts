@@ -183,7 +183,7 @@ describe('DataJobUtil', () => {
                     jobVersion: '002',
                     mode: 'test_mode',
                     vdkVersion: '002',
-                    jobPythonVersion:'3.9-secure',
+                    jobPythonVersion: '3.9-secure',
                     resources: {
                         memoryLimit: 1000,
                         memoryRequest: 1000,
