@@ -1,3 +1,6 @@
+# Copyright 2023-2024 Broadcom
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 import os
 import re
@@ -83,14 +86,14 @@ def _verify_ingest_step():
             "str_col": "str",
             "int_col": "2",
             "bool_col": "0",
-            "dec_col": "1.234"
+            "dec_col": "1.234",
         }
 
         actual_values = {
             "str_col": str_col,
             "int_col": int_col,
             "bool_col": bool_col,
-            "dec_col": dec_col
+            "dec_col": dec_col,
         }
 
         assert actual_values == expected_values
@@ -99,8 +102,6 @@ def _verify_ingest_step():
 def _sql_query(runner, query):
     actual_rs: Result = runner.invoke(
         ["sql-query", "-o", "json", "--query", query],
-        runner=CliRunner(
-            mix_stderr=False
-        ),
+        runner=CliRunner(mix_stderr=False),
     )
     return actual_rs
