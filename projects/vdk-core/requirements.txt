@@ -22,3 +22,4 @@ reorder-python-imports
 smtpdfix
 vdk-duckdb
 vdk-sqlite
+duckdb
