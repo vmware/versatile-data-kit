@@ -23,7 +23,7 @@ def reduce_retries_in_test_http_requests():
     with mock.patch.dict(
         os.environ,
         {
-            "DAG_LOCAL_RUN_JOB_PATH": jobs_path_from_caller_directory(""),
+            "DAGS_LOCAL_RUN_JOB_PATH": jobs_path_from_caller_directory(""),
             "DAGS_DAG_EXECUTION_CHECK_TIME_PERIOD_SECONDS": "0",
             "DAGS_TIME_BETWEEN_STATUS_CHECK_SECONDS": "0",
         },
