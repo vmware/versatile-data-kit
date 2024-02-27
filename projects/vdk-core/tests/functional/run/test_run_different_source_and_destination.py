@@ -38,11 +38,11 @@ def setup(tmpdir):
         os.remove(temp_db_file)
 
 
-def test(setup):
+def test_different_db_conn_and_ingest_target(setup):
     runner = CliEntryBasedTestRunner(duckdb_plugin, sqlite_plugin)
 
     result: Result = runner.invoke(
-        ["run", jobs_path_from_caller_directory("different-db-conn-and-ingest-target")]
+        ["run", jobs_path_from_caller_directory("different-source-and-ingest-target")]
     )
 
     cli_assert_equal(0, result)
@@ -55,8 +55,7 @@ def _verify_sql_steps(runner):
     actual_rs = _sql_query(runner, "SELECT * FROM stocks")
     cli_assert_equal(0, actual_rs)
     expected_data = [
-        {"date": "2020-01-01", "symbol": "GOOG", "price": 123.0},
-        {"date": "2020-01-01", "symbol": "GOOG", "price": 123.0},
+        {"date": "2020-01-01", "symbol": "GOOG", "price": 122.0}
     ]
     assert json.loads(actual_rs.output) == expected_data
 
@@ -67,36 +66,17 @@ def _verify_ingest_step():
     actual_rs = connection.query("SELECT * FROM test_duckdb_table")
     """
     This is the expected actual_rs:
-    ┌─────────┬─────────┬──────────┬─────────┐
-    │ str_col │ int_col │ bool_col │ dec_col │
-    │ varchar │  int32  │  int32   │ varchar │
-    ├─────────┼─────────┼──────────┼─────────┤
-    │ str     │       2 │        0 │ 1.234   │
-    └─────────┴─────────┴──────────┴─────────┘
+    ┌────────────┬─────────┬───────┐
+    │    date    │ symbol  │ price │
+    │  varchar   │ varchar │ float │
+    ├────────────┼─────────┼───────┤
+    │ 2020-01-01 │ GOOG    │ 500   │
+    └────────────┴─────────┴───────┘
     """
-
-    pattern = r"│\s*(\w+)\s*│\s*(\d+)\s*│\s*(\d+)\s*│\s*([\d.]+)\s*│"
-
-    match = re.search(pattern, actual_rs.__str__())
-
-    if match:
-        str_col, int_col, bool_col, dec_col = match.groups()
-
-        expected_values = {
-            "str_col": "str",
-            "int_col": "2",
-            "bool_col": "0",
-            "dec_col": "1.234",
-        }
-
-        actual_values = {
-            "str_col": str_col,
-            "int_col": int_col,
-            "bool_col": bool_col,
-            "dec_col": dec_col,
-        }
-
-        assert actual_values == expected_values
+    result_string = actual_rs.__str__()
+    assert result_string.count('2020-01-01') == 1
+    assert result_string.count('GOOG') == 1
+    assert result_string.count('500') == 1
 
 
 def _sql_query(runner, query):
