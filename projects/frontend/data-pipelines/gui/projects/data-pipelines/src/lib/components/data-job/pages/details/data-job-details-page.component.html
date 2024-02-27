@@ -143,6 +143,21 @@
                         </vdk-form-section-container>
 
                         <vdk-form-section-container
+                            data-cy="data-pipelines-data-job-details-python-version"
+                            class="p-header-section"
+                            sectionName="jobPythonVersion"
+                            [formState]="readFormState"
+                        >
+                            <div class="section-title" style="width: 7rem">
+                                Python version
+                            </div>
+
+                            <div class="form-section-readonly">
+                                <span>{{ jobPythonVersion.value }} </span>
+                            </div>
+                        </vdk-form-section-container>
+
+                        <vdk-form-section-container
                             *ngIf="shouldShowTeamsSection"
                             data-cy="team-form-field"
                             class="p-header-section"
