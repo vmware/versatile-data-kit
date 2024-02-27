@@ -1,6 +1,5 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 import json
 import os
 import re
@@ -54,9 +53,7 @@ def test_different_db_conn_and_ingest_target(setup):
 def _verify_sql_steps(runner):
     actual_rs = _sql_query(runner, "SELECT * FROM stocks")
     cli_assert_equal(0, actual_rs)
-    expected_data = [
-        {"date": "2020-01-01", "symbol": "GOOG", "price": 122.0}
-    ]
+    expected_data = [{"date": "2020-01-01", "symbol": "GOOG", "price": 122.0}]
     assert json.loads(actual_rs.output) == expected_data
 
 
@@ -74,9 +71,9 @@ def _verify_ingest_step():
     └────────────┴─────────┴───────┘
     """
     result_string = actual_rs.__str__()
-    assert result_string.count('2020-01-01') == 1
-    assert result_string.count('GOOG') == 1
-    assert result_string.count('500') == 1
+    assert result_string.count("2020-01-01") == 1
+    assert result_string.count("GOOG") == 1
+    assert result_string.count("500") == 1
 
 
 def _sql_query(runner, query):
