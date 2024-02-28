@@ -482,7 +482,8 @@ export class DataJobDetailsPageComponent
             team: this.jobDetails.team,
             status: ExtractJobStatusPipe.transform(this.jobState?.deployments),
             description: this.jobDetails.description,
-            jobPythonVersion: this.jobState?.deployments && this.jobState?.deployments[0] ? this.jobState?.deployments[0]?.jobPythonVersion : ''
+            jobPythonVersion:
+                this.jobState?.deployments && this.jobState?.deployments[0] ? this.jobState?.deployments[0]?.jobPythonVersion : ''
         });
     }
 
