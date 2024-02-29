@@ -107,8 +107,9 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
                       lastExecutionDuration
                       successfulExecutions
                       failedExecutions
+                      jobPythonVersion
                       executions(pageNumber: 1, pageSize: 10, order: { property: "startTime", direction: DESC }) {
-						id
+						            id
                         status
                         logsUrl
                         message
@@ -155,6 +156,7 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
                     deployments {
                       id
                       enabled
+                      jobPythonVersion
                       executions(pageNumber: 1, pageSize: 10, order: { property: "startTime", direction: DESC }) {
                         id
                         status
@@ -268,6 +270,7 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
                       }
                       vdkVersion
                       status
+                      jobPythonVersion
                     }
                   }
                   totalPages

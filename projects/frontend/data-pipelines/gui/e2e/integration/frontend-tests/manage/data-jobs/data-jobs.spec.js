@@ -403,7 +403,7 @@ describe('Data Jobs Manage Page', { tags: ['@dataPipelines', '@manageDataJobs', 
             dataJobsManagePage.toggleColumnShowHidePanel();
 
             // verify correct options are rendered
-            dataJobsManagePage.getDataGridColumnShowHideOptionsValues().should('have.length', 10).invoke('join', ',').should('eq', 'Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Notifications,Source,Logs');
+            dataJobsManagePage.getDataGridColumnShowHideOptionsValues().should('have.length', 11).invoke('join', ',').should('eq', 'Description,Deployment Status,Python Version,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Notifications,Source,Logs');
 
             // verify column is not checked in toggling menu
             dataJobsManagePage.getDataGridColumnShowHideOption('Notifications').should('exist').should('not.be.checked');

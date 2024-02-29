@@ -70,6 +70,7 @@ export interface DataJobDeploymentDetails extends StatusDetails {
     };
     contacts?: DataJobContactsDetails;
     schedule?: DataJobScheduleDetails;
+    python_version: string;
 }
 
 /**
