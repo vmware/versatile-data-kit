@@ -70,6 +70,7 @@ export class DataJobUtil {
             execution.deployment.mode = jobExecutionDetails.deployment.mode;
             execution.deployment.deployedDate = jobExecutionDetails.deployment.deployed_date;
             execution.deployment.deployedBy = jobExecutionDetails.deployment.deployed_by;
+            execution.deployment.jobPythonVersion = jobExecutionDetails.deployment.python_version;
 
             if (CollectionsUtil.isLiteralObject(jobExecutionDetails.deployment.schedule)) {
                 execution.deployment.schedule.scheduleCron = jobExecutionDetails.deployment.schedule.schedule_cron;

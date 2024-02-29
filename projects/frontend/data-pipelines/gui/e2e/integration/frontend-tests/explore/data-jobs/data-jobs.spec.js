@@ -294,7 +294,7 @@ describe('Data Jobs Explore Page', { tags: ['@dataPipelines', '@exploreDataJobs'
             dataJobsExplorePage.toggleColumnShowHidePanel();
 
             // verify correct options are rendered
-            dataJobsExplorePage.getDataGridColumnShowHideOptionsValues().should('have.length', 9).invoke('join', ',').should('eq', 'Description,Deployment Status,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Source,Logs');
+            dataJobsExplorePage.getDataGridColumnShowHideOptionsValues().should('have.length', 10).invoke('join', ',').should('eq', 'Description,Deployment Status,Python Version,Last Execution Duration,Success rate,Next run (UTC),Last Deployed (UTC),Last Deployed By,Source,Logs');
 
             // verify column is not checked in toggling menu
             dataJobsExplorePage.getDataGridColumnShowHideOption('Last Execution Duration').should('exist').should('not.be.checked');

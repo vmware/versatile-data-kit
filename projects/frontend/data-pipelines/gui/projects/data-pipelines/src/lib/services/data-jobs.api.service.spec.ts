@@ -115,8 +115,9 @@ describe('DataJobsApiService', () => {
                       lastExecutionDuration
                       successfulExecutions
                       failedExecutions
+                      jobPythonVersion
                       executions(pageNumber: 1, pageSize: 10, order: { property: "startTime", direction: DESC }) {
-						id
+						            id
                         status
                         logsUrl
                         message
@@ -180,6 +181,7 @@ describe('DataJobsApiService', () => {
                     deployments {
                       id
                       enabled
+                      jobPythonVersion
                       executions(pageNumber: 1, pageSize: 10, order: { property: "startTime", direction: DESC }) {
                         id
                         status

@@ -76,7 +76,8 @@ export class DataJobsExploreGridComponent extends DataJobsBaseGridComponent impl
                     lastDeployedDate: true,
                     lastDeployedBy: true,
                     source: true,
-                    logsUrl: true
+                    logsUrl: true,
+                    jobPythonVersion: true
                 }
             },
             DataJobsExploreGridComponent.CLASS_NAME
