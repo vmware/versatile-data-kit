@@ -60,15 +60,13 @@ def _verify_ingest_step():
     # TODO: why should we use duckdb connection here instead of vdk, usability gap
     connection = duckdb.connect(os.environ["DUCKDB_DATABASE"])
     actual_rs = connection.query("SELECT * FROM test_duckdb_table")
-    """
-    This is the expected actual_rs:
-    ┌────────────┬─────────┬───────┐
-    │    date    │ symbol  │ price │
-    │  varchar   │ varchar │ float │
-    ├────────────┼─────────┼───────┤
-    │ 2020-01-01 │ GOOG    │ 500   │
-    └────────────┴─────────┴───────┘
-    """
+    # This is the expected actual_rs:
+    # ┌────────────┬─────────┬───────┐
+    # │    date    │ symbol  │ price │
+    # │  varchar   │ varchar │ float │
+    # ├────────────┼─────────┼───────┤
+    # │ 2020-01-01 │ GOOG    │ 500   │
+    # └────────────┴─────────┴───────┘
     result_string = actual_rs.__str__()
     assert result_string.count("2020-01-01") == 1
     assert result_string.count("GOOG") == 1
