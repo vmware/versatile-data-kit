@@ -3,6 +3,7 @@
 
 -e ../vdk-plugins/vdk-test-utils
 black
+duckdb
 mypy
 pandas
 
@@ -20,4 +21,5 @@ pytest-randomly
 pytest-sugar
 reorder-python-imports
 smtpdfix
+vdk-duckdb
 vdk-sqlite
