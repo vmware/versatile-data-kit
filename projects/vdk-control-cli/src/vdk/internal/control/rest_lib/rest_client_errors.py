@@ -7,6 +7,7 @@ import logging
 from taurus_datajob_api import ApiException
 from urllib3.exceptions import HTTPError
 from vdk.internal.control.exception.vdk_exception import VDKException
+from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
 
 log = logging.getLogger(__name__)
 
@@ -87,9 +88,9 @@ class ApiClientErrorDecorator:
                                    "and points to the correct host.",
                 )
                 raise vdk_ex from ex
-            except Exception as ex:
+            except VDKAuthException as ex:
                 log.debug(
-                    f"An gemeral Exception occurred in {fn.__module__}.{fn.__name__}",
+                    f"An authenticatio Exception occurred in {fn.__module__}.{fn.__name__}",
                     f"The Exception class was: {ex}",
                 )
 
