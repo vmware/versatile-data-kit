@@ -151,8 +151,10 @@ class IIngester:
         The data is then processed and sent asynchronously by multiple background threads in parallel
          (the level of parallelism could be controlled by ingester_number_of_worker_threads configuration).
 
+        Alternatively, the same method can be used to send a pandas.DataFrame for ingestion, asynchronously.
+
         Arguments:
-            payload: dict
+            payload: Union[dict, pandas.DataFrame]
                 The passed object will be translated to a row in destination table.
                 Keys of the object are translated to columns in the table and values will populate a single row.
 

@@ -120,7 +120,7 @@ class IngesterBase(IIngester):
 
     def send_object_for_ingestion(
         self,
-        payload:  Union[dict, "pandas.DataFrame"],
+        payload: Union[dict, "pandas.DataFrame"],
         destination_table: Optional[str],
         method: Optional[str],
         target: Optional[str] = None,
@@ -130,18 +130,15 @@ class IngesterBase(IIngester):
         See parent doc
         """
         if self.__object_is_data_frame(payload):
-            column_names = payload.columns.tolist()
-            payload = payload.values.tolist()
-
             return self.send_tabular_data_for_ingestion(
-                rows=payload,
-                column_names=column_names,
+                rows=payload.itertuples(index=False),
+                column_names=payload.columns.tolist(),
                 destination_table=destination_table,
                 method=method,
                 target=target,
                 collection_id=collection_id
             )
-            
+
         if collection_id is None:
             collection_id = "{data_job_name}|{execution_id}".format(
                 data_job_name=self._data_job_name, execution_id=self._op_id
@@ -718,7 +715,7 @@ class IngesterBase(IIngester):
             )
 
     @staticmethod
-    def __object_is_data_frame(obj):
+    def __object_is_data_frame(obj: Union[dict, "pandas.DataFrame"]) -> bool:
         try:
             import pandas
             return isinstance(obj, pandas.DataFrame)

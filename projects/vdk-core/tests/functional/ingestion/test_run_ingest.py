@@ -52,6 +52,10 @@ def test_run_ingest():
     assert ingest_plugin.payloads[1].payload[0] == expected_rows_object
     assert ingest_plugin.payloads[1].destination_table == "tabular_table"
 
+    expected_df_object = {'A': 1, 'B': 2, 'C': 3}
+    assert ingest_plugin.payloads[2].payload[0] == expected_df_object
+    assert ingest_plugin.payloads[2].destination_table == "dataframe_table"
+
 
 def test_run_ingest_fails():
     runner = CliEntryBasedTestRunner(FailingIngestIntoMemoryPlugin())
