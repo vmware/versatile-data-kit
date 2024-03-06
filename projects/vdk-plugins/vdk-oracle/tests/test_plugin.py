@@ -332,11 +332,11 @@ def _verify_ingest_nan_and_none_execution(runner):
         ["oracle-query", "--query", "SELECT * FROM test_table"]
     )
     expected = (
-        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
+        "  ID  STR_DATA    INT_DATA    FLOAT_DATA      BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
         "----  ----------  ----------  ------------  -----------  "
         "-------------------  --------------\n"
-        "   5  string                                             1  2023-11-21 "
+        "   5  string                                          1  2023-11-21 "
         "08:12:53             0.1\n"
     )
     assert check_result.output == expected
