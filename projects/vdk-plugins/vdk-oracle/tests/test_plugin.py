@@ -153,6 +153,14 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_blob(runner)
 
+    def test_oracle_ingest_nan_and_none_table(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("oracle-ingest-nan-job")]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_nan_and_none_execution(runner)
+
 
 def _verify_query_execution(runner):
     check_result = runner.invoke(["oracle-query", "--query", "SELECT * FROM todoitem"])
@@ -315,5 +323,20 @@ def _verify_ingest_blob(runner):
         "But I have promises to keep,\n"
         "And miles to go before I sleep,\n"
         "And miles to go before I sleep.\n"
+    )
+    assert check_result.output == expected
+
+
+def _verify_ingest_nan_and_none_execution(runner):
+    check_result = runner.invoke(
+        ["oracle-query", "--query", "SELECT * FROM test_table"]
+    )
+    expected = (
+        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
+        "TIMESTAMP_DATA         DECIMAL_DATA\n"
+        "----  ----------  ----------  ------------  -----------  "
+        "-------------------  --------------\n"
+        "   5  string              None           None            1  2023-11-21 "
+        "08:12:53             0.1\n"
     )
     assert check_result.output == expected
