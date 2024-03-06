@@ -6,10 +6,11 @@ import queue
 import sys
 import threading
 from collections import defaultdict
-from typing import Iterable, Union
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 from vdk.api.job_input import IIngester
 from vdk.api.plugin.plugin_input import IIngesterPlugin
@@ -136,7 +137,7 @@ class IngesterBase(IIngester):
                 destination_table=destination_table,
                 method=method,
                 target=target,
-                collection_id=collection_id
+                collection_id=collection_id,
             )
 
         if collection_id is None:
@@ -718,6 +719,7 @@ class IngesterBase(IIngester):
     def __object_is_data_frame(obj: Union[dict, "pandas.DataFrame"]) -> bool:
         try:
             import pandas
+
             return isinstance(obj, pandas.DataFrame)
         except ImportError:
             return False
