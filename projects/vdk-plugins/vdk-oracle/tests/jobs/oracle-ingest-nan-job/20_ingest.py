@@ -11,7 +11,7 @@ def run(job_input: IJobInput):
         "id": 5,
         "str_data": "string",
         "int_data": None,
-        "float_data": float('nan'),
+        "float_data": float("nan"),
         "bool_data": True,
         "timestamp_data": datetime.datetime.utcfromtimestamp(1700554373),
         "decimal_data": Decimal(0.1),
