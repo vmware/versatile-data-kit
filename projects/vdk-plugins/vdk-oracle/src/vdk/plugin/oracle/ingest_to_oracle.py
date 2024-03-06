@@ -152,6 +152,9 @@ class IngestToOracle(IIngesterPlugin):
     # TODO: https://github.com/vmware/versatile-data-kit/issues/2929
     # TODO: https://github.com/vmware/versatile-data-kit/issues/2930
     def _cast_to_correct_type(self, table: str, column: str, value: Any) -> Any:
+        if isinstance(value, float) and math.isnan(value):
+            return None
+
         def cast_string_to_type(db_type: str, payload_value: str) -> Any:
             if db_type == "FLOAT" or db_type == "DECIMAL":
                 return float(payload_value)
@@ -168,13 +171,12 @@ class IngestToOracle(IIngesterPlugin):
                 return payload_value.encode("utf-8")
             return payload_value
 
-        if (isinstance(value, float) or isinstance(value, int)) and math.isnan(value):
-            return None
         if isinstance(value, Decimal):
             return float(value)
-        if isinstance(value, str):
+        elif isinstance(value, str):
             col_type = self.table_cache.get_col_type(table, column)
             return cast_string_to_type(col_type, value)
+
         return value
 
     # TODO: Look into potential optimizations
