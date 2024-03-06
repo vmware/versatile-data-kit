@@ -6,7 +6,7 @@ import queue
 import sys
 import threading
 from collections import defaultdict
-from typing import Iterable
+from typing import Iterable, Union
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -120,7 +120,7 @@ class IngesterBase(IIngester):
 
     def send_object_for_ingestion(
         self,
-        payload: dict,
+        payload:  Union[dict, "pandas.DataFrame"],
         destination_table: Optional[str],
         method: Optional[str],
         target: Optional[str] = None,
@@ -129,6 +129,19 @@ class IngesterBase(IIngester):
         """
         See parent doc
         """
+        if self.__object_is_data_frame(payload):
+            column_names = payload.columns.tolist()
+            payload = payload.values.tolist()
+
+            return self.send_tabular_data_for_ingestion(
+                rows=payload,
+                column_names=column_names,
+                destination_table=destination_table,
+                method=method,
+                target=target,
+                collection_id=collection_id
+            )
+            
         if collection_id is None:
             collection_id = "{data_job_name}|{execution_id}".format(
                 data_job_name=self._data_job_name, execution_id=self._op_id
@@ -703,3 +716,11 @@ class IngesterBase(IIngester):
                     resolvable_by=ResolvableBy.USER_ERROR,
                 )
             )
+
+    @staticmethod
+    def __object_is_data_frame(obj):
+        try:
+            import pandas
+            return isinstance(obj, pandas.DataFrame)
+        except ImportError:
+            return False
