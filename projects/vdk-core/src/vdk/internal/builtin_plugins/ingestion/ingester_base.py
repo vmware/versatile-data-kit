@@ -717,9 +717,11 @@ class IngesterBase(IIngester):
 
     @staticmethod
     def __object_is_data_frame(obj: Union[dict, "pandas.DataFrame"]) -> bool:
+        log.debug("Checking if object to be ingested is a DataFrame")
         try:
             import pandas
 
             return isinstance(obj, pandas.DataFrame)
         except ImportError:
+            log.debug("`pandas` package not found in the current environment, object is (probably) not a dataframe")
             return False
