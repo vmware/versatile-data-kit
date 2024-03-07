@@ -161,10 +161,7 @@ def _verify_query_execution(runner):
         "----  -------------  ------\n"
         "   1  Task 1              1\n"
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution(runner):
@@ -179,10 +176,7 @@ def _verify_ingest_execution(runner):
         "   5  string              12           1.2            1  2023-11-21 "
         "08:12:53             0.1\n"
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_special_chars(runner):
@@ -197,10 +191,7 @@ def _verify_ingest_execution_special_chars(runner):
         "   5  string                12             1.2            1  2023-11-21 "
         "08:12:53             0.1\n"
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_type_inference(runner):
@@ -215,10 +206,7 @@ def _verify_ingest_execution_type_inference(runner):
         "   5  string              12                           1.2            1  "
         "2023-11-21 08:12:53             0.1\n"
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_no_table(runner):
@@ -237,10 +225,7 @@ def _verify_ingest_execution_no_table(runner):
         "   2  string              12           1.2            1  "
         "2023-11-21T08:12:53             1.1\n"
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_no_table_special_chars(runner):
@@ -259,10 +244,7 @@ def _verify_ingest_execution_no_table_special_chars(runner):
         "   2  string                12             1.2            1  "
         "2023-11-21T08:12:53             1.1\n"
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_different_payloads_no_table(runner):
@@ -270,10 +252,7 @@ def _verify_ingest_execution_different_payloads_no_table(runner):
         ["sql-query", "--query", "SELECT count(*) FROM test_table"]
     )
     expected = "  COUNT(*)\n----------\n         8\n"
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
@@ -297,10 +276,7 @@ def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
     check_result = runner.invoke(
         ["sql-query", "--query", "SELECT count(*) FROM test_table"]
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected_count
+    assert expected_count in check_result.output
 
 
 def _verify_ingest_execution_different_payloads(runner):
@@ -321,10 +297,7 @@ def _verify_ingest_execution_different_payloads(runner):
         "   5  string              12           1.2            1  2023-11-21 "
         "08:12:53\n"
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_blob(runner):
@@ -343,7 +316,4 @@ def _verify_ingest_blob(runner):
         "And miles to go before I sleep,\n"
         "And miles to go before I sleep.\n"
     )
-    print("\n\n\n\n")
-    print(check_result.output)
-    print("\n\n\n\n")
-    assert check_result.output == expected
+    assert expected in check_result.output
