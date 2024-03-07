@@ -67,11 +67,20 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
 # TODO: https://github.com/vmware/versatile-data-kit/issues/2940
 @click.command(
     name="oracle-query",
-    help="Execute an Oracle query against an Oracle database (should be configured with env variables)",
+    help="DEPRECATED: use sql-query, instead."
+         "Execute an Oracle query against an Oracle database (should be configured with env variables)",
 )
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context
 def oracle_query(ctx: click.Context, query):
+    """
+        Deprecated: "Use sql-query instead"
+
+        oracle-query: kept for compatibility
+        """
+    log.warning(
+        "oracle-query has been deprecated; please use sql-query instead."
+    )
     conf = ctx.obj.configuration
     conn = oracledb.connect(
         user=conf.get_value(ORACLE_USER),
