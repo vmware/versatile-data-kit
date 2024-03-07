@@ -1,0 +1,43 @@
+package com.vmware.taurus.gpu;
+
+import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.gpu.jpa.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.HashSet;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        classes = ControlplaneApplication.class)
+class GpuResourceManagerTest {
+
+
+    @Autowired
+    private GpuConsumingJobRepo gpuConsumingJobRepo;
+
+    @Autowired
+    private GpuResourcesPerTeamRepo gpuResourcesPerTeamRepo;
+
+
+    @Autowired
+    private NodeWithGPURepo nodeWithGPURepo;
+
+
+    @Autowired
+    private  GpuResourceManager  gpuResourceManager;
+
+    @Test
+    public void saveFirstJob(){
+        GpuResourcesPerTeam teamA = gpuResourcesPerTeamRepo.save(new GpuResourcesPerTeam("Team A", 10f, new HashSet<>()));
+        NodeWithGPUs node1 = nodeWithGPURepo.save(new NodeWithGPUs("machine 1", 4, new HashSet<>()));
+
+
+        gpuResourceManager.tryProvisionResources(teamA.getTeamName(), "my first job", 3.0f);
+
+    }
+
+}

@@ -19,6 +19,7 @@ import java.util.Set;
 @Entity
 public class GpuConsumingJob {
     @Id
+    @GeneratedValue
     private Long id;
 
     private String jobName;
