@@ -155,7 +155,7 @@ class OracleTests(TestCase):
 
 
 def _verify_query_execution(runner):
-    check_result = runner.invoke(["oracle-query", "--query", "SELECT * FROM todoitem"])
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM todoitem"])
     expected = (
         "  ID  DESCRIPTION      DONE\n"
         "----  -------------  ------\n"
@@ -166,7 +166,7 @@ def _verify_query_execution(runner):
 
 def _verify_ingest_execution(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
+        ["sql-query", "--query", "SELECT * FROM test_table"]
     )
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
@@ -181,7 +181,7 @@ def _verify_ingest_execution(runner):
 
 def _verify_ingest_execution_special_chars(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
+        ["sql-query", "--query", "SELECT * FROM test_table"]
     )
     expected = (
         "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
@@ -196,7 +196,7 @@ def _verify_ingest_execution_special_chars(runner):
 
 def _verify_ingest_execution_type_inference(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
+        ["sql-query", "--query", "SELECT * FROM test_table"]
     )
     expected = (
         "  ID  STR_DATA      INT_DATA  NAN_INT_DATA      FLOAT_DATA    BOOL_DATA  "
@@ -211,7 +211,7 @@ def _verify_ingest_execution_type_inference(runner):
 
 def _verify_ingest_execution_no_table(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
+        ["sql-query", "--query", "SELECT * FROM test_table"]
     )
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
@@ -230,7 +230,7 @@ def _verify_ingest_execution_no_table(runner):
 
 def _verify_ingest_execution_no_table_special_chars(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
+        ["sql-query", "--query", "SELECT * FROM test_table"]
     )
     expected = (
         "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
@@ -249,7 +249,7 @@ def _verify_ingest_execution_no_table_special_chars(runner):
 
 def _verify_ingest_execution_different_payloads_no_table(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT count(*) FROM test_table"]
+        ["sql-query", "--query", "SELECT count(*) FROM test_table"]
     )
     expected = "  COUNT(*)\n----------\n         8\n"
     assert check_result.output == expected
@@ -257,7 +257,7 @@ def _verify_ingest_execution_different_payloads_no_table(runner):
 
 def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
+        ["sql-query", "--query", "SELECT * FROM test_table"]
     )
 
     actual_columns = check_result.output.split("\n")[0].split()
@@ -274,14 +274,14 @@ def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
 
     expected_count = "  COUNT(*)\n----------\n         8\n"
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT count(*) FROM test_table"]
+        ["sql-query", "--query", "SELECT count(*) FROM test_table"]
     )
     assert check_result.output == expected_count
 
 
 def _verify_ingest_execution_different_payloads(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
+        ["sql-query", "--query", "SELECT * FROM test_table"]
     )
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA\n"
@@ -303,7 +303,7 @@ def _verify_ingest_execution_different_payloads(runner):
 def _verify_ingest_blob(runner):
     check_result = runner.invoke(
         [
-            "oracle-query",
+            "sql-query",
             "--query",
             "SELECT utl_raw.cast_to_varchar2(dbms_lob.substr(blob_data,2000,1)) FROM test_table",
         ]
