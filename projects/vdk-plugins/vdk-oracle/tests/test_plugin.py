@@ -166,9 +166,7 @@ def _verify_query_execution(runner):
 
 
 def _verify_ingest_execution(runner):
-    check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -181,9 +179,7 @@ def _verify_ingest_execution(runner):
 
 
 def _verify_ingest_execution_special_chars(runner):
-    check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -196,9 +192,7 @@ def _verify_ingest_execution_special_chars(runner):
 
 
 def _verify_ingest_execution_type_inference(runner):
-    check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA      INT_DATA  NAN_INT_DATA      FLOAT_DATA    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -211,9 +205,7 @@ def _verify_ingest_execution_type_inference(runner):
 
 
 def _verify_ingest_execution_no_table(runner):
-    check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -230,9 +222,7 @@ def _verify_ingest_execution_no_table(runner):
 
 
 def _verify_ingest_execution_no_table_special_chars(runner):
-    check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -257,15 +247,13 @@ def _verify_ingest_execution_different_payloads_no_table(runner):
 
 
 def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
-    check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
 
     # Skip the log lines until the line with the column headers
     log_lines = check_result.output.strip().split("\n")
     column_header_line_index = next(
         (index for index, line in enumerate(log_lines) if re.match(r"^\s*ID\s+", line)),
-        None
+        None,
     )
     if column_header_line_index is None:
         raise ValueError("Column header line not found in the output.")
@@ -291,9 +279,7 @@ def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
 
 
 def _verify_ingest_execution_different_payloads(runner):
-    check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA\n"
         "----  ----------  ----------  ------------  -----------  "
