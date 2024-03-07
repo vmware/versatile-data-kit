@@ -8,10 +8,12 @@ package com.vmware.taurus.gpu.jpa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface GpuConsumingJobRepo extends JpaRepository<GpuConsumingJob, Long> {
-    void deleteByJobNameAndGpTeamName(String jobName, String teamName);
+    void deleteByJobNameAndGpuResourcesPerTeam_TeamName(String jobName, String teamName);
 
-    @Query("SELECT SUM(g.consumedResources) FROM GpuConsumingJob g WHERE g.gpuResourcesPerTeam.teamName = :teamName")
+    @Query("SELECT COALESCE(SUM(g.consumedResources),0) FROM GpuConsumingJob g WHERE g.gpuResourcesPerTeam.teamName = :teamName")
     Float sumConsumedResourcesByTeam(@Param("teamName") String teamName);
 }
