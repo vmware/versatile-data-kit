@@ -1,6 +1,7 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import os
+import re
 from unittest import mock
 from unittest import TestCase
 
@@ -260,7 +261,17 @@ def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
         ["sql-query", "--query", "SELECT * FROM test_table"]
     )
 
-    actual_columns = check_result.output.split("\n")[0].split()
+    # Skip the log lines until the line with the column headers
+    log_lines = check_result.output.strip().split("\n")
+    column_header_line_index = next(
+        (index for index, line in enumerate(log_lines) if re.match(r"^\s*ID\s+", line)),
+        None
+    )
+    if column_header_line_index is None:
+        raise ValueError("Column header line not found in the output.")
+
+    actual_columns = log_lines[column_header_line_index].split()
+
     expected_columns = [
         "ID",
         "&timestamp_data",
