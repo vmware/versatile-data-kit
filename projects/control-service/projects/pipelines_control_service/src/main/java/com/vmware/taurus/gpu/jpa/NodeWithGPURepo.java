@@ -22,4 +22,3 @@ public interface NodeWithGPURepo extends JpaRepository<NodeWithGPUs, String> {
     List<NodeWithGPUs> findNodesWithAvailableGPUs(@Param("additionalResources") double additionalResources);
 
 }
-
