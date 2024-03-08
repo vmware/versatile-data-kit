@@ -23,6 +23,7 @@ import com.google.ortools.linearsolver.MPVariable;
 
 public interface GpuResourceManager {
 
+
     void jobEnded(String jobName, String teamName);
 
     public List<JobAction> tryProvisionResources(String teamName,String jobName,float amount);

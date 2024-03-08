@@ -42,7 +42,18 @@ class GpuResourceManagerTest {
 
 
         gpuResourceManager.tryProvisionResources(teamA.getTeamName(), "my first job", 3.0f);
-
     }
 
+    @Test
+    public void saveJobWhenOtherTeamIsOverProvisioned(){
+        GpuResourcesPerTeam teamA = gpuResourcesPerTeamRepo.save(new GpuResourcesPerTeam("Team A", 10f, new HashSet<>()));
+        GpuResourcesPerTeam teamb = gpuResourcesPerTeamRepo.save(new GpuResourcesPerTeam("Team B", 4f, new HashSet<>()));
+        NodeWithGPUs node1 = nodeWithGPURepo.save(new NodeWithGPUs("machine 1", 10, new HashSet<>()));
+
+
+        gpuResourceManager.tryProvisionResources(teamb.getTeamName(), "Job 1", 3.0f);
+        gpuResourceManager.tryProvisionResources(teamb.getTeamName(), "Job 2", 3.0f);
+        gpuResourceManager.tryProvisionResources(teamb.getTeamName(), "Job 3", 3.0f);
+        gpuResourceManager.tryProvisionResources(teamA.getTeamName(), "my first job", 3.0f);
+    }
 }

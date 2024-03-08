@@ -25,7 +25,7 @@ public class NodeWithGPUs {
 
     private int deviceCount;
 
-    @OneToMany(mappedBy = "gpuResourcesPerTeam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "nodeWithGPUs", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<GpuConsumingJob> gpuConsumingJobs = new HashSet<>();
 
 

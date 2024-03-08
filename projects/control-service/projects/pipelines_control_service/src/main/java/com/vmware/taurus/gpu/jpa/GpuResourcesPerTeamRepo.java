@@ -14,10 +14,9 @@ import java.util.Optional;
 @Repository
 public interface GpuResourcesPerTeamRepo extends JpaRepository<GpuResourcesPerTeam, String> {
 
-    @Query("SELECT g, (SELECT SUM(j.consumedResources) FROM GpuConsumingJob j WHERE j.gpuResourcesPerTeam = g) AS totalConsumed " +
+    @Query("SELECT g " +
             "FROM GpuResourcesPerTeam g " +
             "GROUP BY g " +
-            "HAVING totalConsumed > g.resources " +
-            "ORDER BY totalConsumed - g.resources DESC")
+            "HAVING (SELECT SUM(j.consumedResources) FROM GpuConsumingJob j WHERE j.gpuResourcesPerTeam = g) > g.resources")
     List<GpuResourcesPerTeam> findTeamsOverusingResources();
 }

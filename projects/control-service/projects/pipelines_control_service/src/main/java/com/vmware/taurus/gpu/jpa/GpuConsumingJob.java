@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -23,15 +24,15 @@ public class GpuConsumingJob {
     private Long id;
 
     private String jobName;
-    private boolean lowPriority;
+    private boolean lowPriority = true;
     private float consumedResources;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "node_name") // This column is added to the GpuConsumingJob table as a foreign key.
     private NodeWithGPUs nodeWithGPUs;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team_name") // This column is added to the GpuConsumingJob table as a foreign key.
     private GpuResourcesPerTeam gpuResourcesPerTeam;
 

@@ -13,6 +13,8 @@ import com.vmware.taurus.gpu.jpa.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,45 +24,45 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class DefaultGpuResourceManager implements GpuResourceManager{
+@Transactional
+public class DefaultGpuResourceManager implements GpuResourceManager {
 
     private final GpuResourcesPerTeamRepo gpuResourcesPerTeamRepo;
     private final GpuConsumingJobRepo gpuConsumingJobRepo;
     private final NodeWithGPURepo nodeWithGPURepo;
 
 
-    @Override
-    public void jobEnded(String jobName, String teamName){
+    public void jobEnded(String jobName, String teamName) {
         gpuConsumingJobRepo.deleteByJobNameAndGpuResourcesPerTeam_TeamName(jobName, teamName);
     }
 
 
     @Override
-    public List<JobAction> tryProvisionResources(String teamName,String jobName,float amount){
+    public List<JobAction> tryProvisionResources(String teamName, String jobName, float amount) {
         float resourcesTotal = gpuResourcesPerTeamRepo.findById(teamName).get().getResources();
 
         Float v = gpuConsumingJobRepo.sumConsumedResourcesByTeam(teamName);
 
-        if(v + amount <= resourcesTotal){
-            List<NodeWithGPUs> nodesWithAvailableGPUs = nodeWithGPURepo.findNodesWithAvailableGPUs(amount);
-            if(!nodesWithAvailableGPUs.isEmpty()) {
-                gpuConsumingJobRepo.save(new GpuConsumingJob(gpuResourcesPerTeamRepo.getReferenceById(teamName),
-                        jobName, amount, nodesWithAvailableGPUs.get(0)));
-                return Arrays.asList(new CreateJob(nodesWithAvailableGPUs.get(0).getName(), jobName));
-            }else{
-//                // cleanup
-//                Map<NodeWithGPUs, List<GpuConsumingJob>> collect = gpuResourcesPerTeamRepo.findTeamsOverusingResources()
-//                        .stream().flatMap(a -> a.getGpuConsumingJobs().stream())
-//                        .filter(GpuConsumingJob::isLowPriority)
-//                        .collect(Collectors.groupingBy(GpuConsumingJob::getNodeWithGPUs))
-//                        .entrySet().stream()
-//                        .filter(a -> checkIfNodeHasClearableSpace(a, resourcesTotal));
-//
-//                );
-            }
+        // Rule 1: if there is free space put it there.
+        List<NodeWithGPUs> nodesWithAvailableGPUs = nodeWithGPURepo.findNodesWithAvailableGPUs(amount);
+        if (!nodesWithAvailableGPUs.isEmpty()) {
+            NodeWithGPUs nodeWithGPUs = nodesWithAvailableGPUs.get(0);
+            gpuConsumingJobRepo.save(new GpuConsumingJob(gpuResourcesPerTeamRepo.getReferenceById(teamName),
+                    jobName, amount, nodeWithGPUs));
+            return Arrays.asList(new CreateJob(nodeWithGPUs.getName(), jobName));
+            // Rule 2: if no free space and not within budget. then its a no-op
+        } else if (v + amount > resourcesTotal) {
+            return Arrays.asList();
+        } else {
+            // Rule 3: if no free space and not within budget. then its a no-op
+            gpuResourcesPerTeamRepo.findTeamsOverusingResources()
+                    .stream().flatMap(a -> a.getGpuConsumingJobs().stream())
+                    .filter(GpuConsumingJob::isLowPriority)
+                    .collect(Collectors.groupingBy(GpuConsumingJob::getNodeWithGPUs))
+                    .entrySet().stream()
+                    .filter(a -> checkIfNodeHasClearableSpace(a, resourcesTotal));
+            return Arrays.asList();
         }
-        throw new UnsupportedOperationException();
-//        gpuConsumingJobRepo.sumConsumedResourcesByTeam(teamName);
     }
 
     private boolean checkIfNodeHasClearableSpace(Map.Entry<NodeWithGPUs, List<GpuConsumingJob>> a, float resourcesTotal) {
@@ -68,38 +70,39 @@ public class DefaultGpuResourceManager implements GpuResourceManager{
                 .collect(Collectors.groupingBy(GpuConsumingJob::getGpuResourcesPerTeam));
 
         MPSolver solver = new MPSolver(
-                "SubsetSumClosest",
-                MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
-        List<MPVariable> allVars = new ArrayList<>();
-        ArrayList<Float> allNums = new ArrayList<>();
+                "FreeSpaceOnNodeFinder", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
+        List<MPVariable> allJobsOnMachine = new ArrayList<>();
+        ArrayList<Float> allResourcesConsumedByJobs = new ArrayList<>();
+
+
         for (Map.Entry<GpuResourcesPerTeam, List<GpuConsumingJob>> gpuResourcesPerTeamListEntry : resourcesForSingleTeamOnSingleNode.entrySet()) {
             float overProvisionedBy = gpuResourcesPerTeamListEntry.getValue().stream()
                     .map(GpuConsumingJob::getConsumedResources).reduce(Float::sum).get() - gpuResourcesPerTeamListEntry.getKey().getResources();
 
-            List<Float> nums = gpuResourcesPerTeamListEntry.getValue().stream().map(GpuConsumingJob::getConsumedResources).toList();
-            List<MPVariable> vars = new ArrayList<>();
-            for (int i = 0; i < nums.size(); i++) {
-                vars.add(solver.makeIntVar(0, 1, gpuResourcesPerTeamListEntry.getKey().getTeamName() + i));
+            List<Float> resourcesConsumedByJobs = gpuResourcesPerTeamListEntry.getValue().stream().map(GpuConsumingJob::getConsumedResources).toList();
+            List<MPVariable> jobsOnMachineForOneTeam = new ArrayList<>();
+            for (int i = 0; i < resourcesConsumedByJobs.size(); i++) {
+                jobsOnMachineForOneTeam.add(solver.makeIntVar(0, 1, gpuResourcesPerTeamListEntry.getKey().getTeamName() + i));
             }
 
-            MPConstraint constraint = solver.makeConstraint(0, Math.min(resourcesTotal, overProvisionedBy));
-            for (int i = 0; i < nums.size(); i++) {
-                constraint.setCoefficient(vars.get(i), nums.get(i));
+            MPConstraint constraint = solver.makeConstraint(0, resourcesTotal);
+            for (int i = 0; i < resourcesConsumedByJobs.size(); i++) {
+                constraint.setCoefficient(jobsOnMachineForOneTeam.get(i), resourcesConsumedByJobs.get(i));
             }
 
-            allNums.addAll(nums);
-            allVars.addAll(vars);
+            allResourcesConsumedByJobs.addAll(resourcesConsumedByJobs);
+            allJobsOnMachine.addAll(jobsOnMachineForOneTeam);
 
         }
 
         MPConstraint constraint = solver.makeConstraint(0, resourcesTotal);
-        for (int i = 0; i < allVars.size(); i++) {
-            constraint.setCoefficient(allVars.get(i), allNums.get(i));
+        for (int i = 0; i < allJobsOnMachine.size(); i++) {
+            constraint.setCoefficient(allJobsOnMachine.get(i), allResourcesConsumedByJobs.get(i));
         }
 
         MPObjective objective = solver.objective();
-        for (int i = 0; i < allVars.size(); i++) {
-            objective.setCoefficient(allVars.get(i), allNums.get(i));
+        for (int i = 0; i < allJobsOnMachine.size(); i++) {
+            objective.setCoefficient(allJobsOnMachine.get(i), allResourcesConsumedByJobs.get(i));
         }
         objective.setMaximization();
 
@@ -109,10 +112,10 @@ public class DefaultGpuResourceManager implements GpuResourceManager{
         if (resultStatus == MPSolver.ResultStatus.OPTIMAL || resultStatus == MPSolver.ResultStatus.FEASIBLE) {
             System.out.println("Solution found!");
             double total = 0;
-            for (int i = 0; i < allVars.size(); ++i) {
-                if (Math.abs(allVars.get(i).solutionValue()) > 0.5) {
-                    System.out.println("Include number: " + allNums.get(i));
-                    total += allNums.get(i);
+            for (int i = 0; i < allJobsOnMachine.size(); ++i) {
+                if (Math.abs(allJobsOnMachine.get(i).solutionValue()) > 0.5) {
+                    System.out.println("Include number: " + allResourcesConsumedByJobs.get(i));
+                    total += allResourcesConsumedByJobs.get(i);
                 }
             }
 
@@ -124,7 +127,7 @@ public class DefaultGpuResourceManager implements GpuResourceManager{
         }
     }
 
-    public void packNodes(){
+    public void packNodes() {
         MPSolver solver = new MPSolver(
                 "BinPackingReshuffle",
                 MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING
