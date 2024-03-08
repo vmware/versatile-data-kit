@@ -163,7 +163,19 @@ class IngestToOracle(IIngesterPlugin):
                     else int(payload_value)
                 )
             if "TIMESTAMP" in db_type:
-                return datetime.datetime.strptime(payload_value, "%Y-%m-%dT%H:%M:%S")
+                try:
+                    return datetime.datetime.strptime(
+                        payload_value, "%Y-%m-%dT%H:%M:%S"
+                    )
+                except ValueError as v:
+                    if len(v.args) > 0 and v.args[0].startswith(
+                        "unconverted data remains:"
+                    ):
+                        return datetime.datetime.strptime(
+                            payload_value, "%Y-%m-%dT%H:%M:%S.%f"
+                        )
+                    else:
+                        raise
             if db_type == "BLOB":
                 return payload_value.encode("utf-8")
             return payload_value

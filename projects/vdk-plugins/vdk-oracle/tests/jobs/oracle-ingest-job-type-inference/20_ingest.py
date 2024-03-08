@@ -11,7 +11,7 @@ def run(job_input):
         "nan_int_data": math.nan,
         "float_data": "1.2",
         "bool_data": "False",
-        "timestamp_data": "2023-11-21T08:12:53",
+        "timestamp_data": "2023-11-21T08:12:53.43726",
         "decimal_data": "0.1",
     }
 
