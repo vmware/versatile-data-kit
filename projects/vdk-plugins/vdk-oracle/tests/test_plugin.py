@@ -1,6 +1,7 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import os
+import re
 from unittest import mock
 from unittest import TestCase
 
@@ -155,19 +156,17 @@ class OracleTests(TestCase):
 
 
 def _verify_query_execution(runner):
-    check_result = runner.invoke(["oracle-query", "--query", "SELECT * FROM todoitem"])
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM todoitem"])
     expected = (
         "  ID  DESCRIPTION      DONE\n"
         "----  -------------  ------\n"
         "   1  Task 1              1\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution(runner):
-    check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -176,13 +175,11 @@ def _verify_ingest_execution(runner):
         "   5  string              12           1.2            1  2023-11-21 "
         "08:12:53             0.1\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_special_chars(runner):
-    check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -191,13 +188,11 @@ def _verify_ingest_execution_special_chars(runner):
         "   5  string                12             1.2            1  2023-11-21 "
         "08:12:53             0.1\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_type_inference(runner):
-    check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA      INT_DATA  NAN_INT_DATA      FLOAT_DATA    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -206,13 +201,11 @@ def _verify_ingest_execution_type_inference(runner):
         "   5  string              12                           1.2            1  "
         "2023-11-21 08:12:53             0.1\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_no_table(runner):
-    check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -225,13 +218,11 @@ def _verify_ingest_execution_no_table(runner):
         "   2  string              12           1.2            1  "
         "2023-11-21T08:12:53             1.1\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_no_table_special_chars(runner):
-    check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -244,23 +235,31 @@ def _verify_ingest_execution_no_table_special_chars(runner):
         "   2  string                12             1.2            1  "
         "2023-11-21T08:12:53             1.1\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_different_payloads_no_table(runner):
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT count(*) FROM test_table"]
+        ["sql-query", "--query", "SELECT count(*) FROM test_table"]
     )
     expected = "  COUNT(*)\n----------\n         8\n"
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
-    check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
 
-    actual_columns = check_result.output.split("\n")[0].split()
+    # Skip the log lines until the line with the column headers
+    log_lines = check_result.output.strip().split("\n")
+    column_header_line_index = next(
+        (index for index, line in enumerate(log_lines) if re.match(r"^\s*ID\s+", line)),
+        None,
+    )
+    if column_header_line_index is None:
+        raise ValueError("Column header line not found in the output.")
+
+    actual_columns = log_lines[column_header_line_index].split()
+
     expected_columns = [
         "ID",
         "&timestamp_data",
@@ -274,15 +273,13 @@ def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
 
     expected_count = "  COUNT(*)\n----------\n         8\n"
     check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT count(*) FROM test_table"]
+        ["sql-query", "--query", "SELECT count(*) FROM test_table"]
     )
-    assert check_result.output == expected_count
+    assert expected_count in check_result.output
 
 
 def _verify_ingest_execution_different_payloads(runner):
-    check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA\n"
         "----  ----------  ----------  ------------  -----------  "
@@ -297,13 +294,13 @@ def _verify_ingest_execution_different_payloads(runner):
         "   5  string              12           1.2            1  2023-11-21 "
         "08:12:53\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_blob(runner):
     check_result = runner.invoke(
         [
-            "oracle-query",
+            "sql-query",
             "--query",
             "SELECT utl_raw.cast_to_varchar2(dbms_lob.substr(blob_data,2000,1)) FROM test_table",
         ]
@@ -316,4 +313,4 @@ def _verify_ingest_blob(runner):
         "And miles to go before I sleep,\n"
         "And miles to go before I sleep.\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
