@@ -19,10 +19,10 @@ from vdk.internal.builtin_plugins.connection.connection_hooks import (
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
+from vdk.internal.builtin_plugins.connection.database_managed_connection import IDatabaseManagedConnection
 from vdk.internal.builtin_plugins.connection.proxy_cursor import ProxyCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.core import errors
-from managed_connection_base import IDatabaseManagedConnection
 
 
 class ManagedCursor(ProxyCursor):
