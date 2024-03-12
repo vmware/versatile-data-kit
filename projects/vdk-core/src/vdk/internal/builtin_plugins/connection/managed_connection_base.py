@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class IDatabaseManagedConnection:
-    def _db_connection_validate_operation(
+    def db_connection_validate_operation(
             self, operation: str, parameters: Optional[Container]
     ) -> None:
         """
@@ -52,7 +52,7 @@ class IDatabaseManagedConnection:
         """
         pass
 
-    def _db_connection_decorate_operation(
+    def db_connection_decorate_operation(
             self, decoration_cursor: DecorationCursor
     ) -> None:
         """
@@ -72,7 +72,7 @@ class IDatabaseManagedConnection:
         """
         pass
 
-    def _db_connection_execute_operation(
+    def db_connection_execute_operation(
             self, execution_cursor: ExecutionCursor
     ) -> Optional[ExecuteOperationResult]:
         """
@@ -93,7 +93,7 @@ class IDatabaseManagedConnection:
                 """
         pass
 
-    def _db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
+    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
         """
         Recovers the operation initiated. Retries made number is auto-incremented.
         If no exception is raised, cursor is considered successfully executed.
