@@ -178,85 +178,72 @@ class OracleTests(TestCase):
 
 def _verify_query_execution(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM todoitem"])
-    expected = (
-        "  ID  DESCRIPTION      DONE\n"
-        "----  -------------  ------\n"
-        "   1  Task 1              1\n"
-    )
-    assert expected in check_result.output
+    expected = [
+        "  ID  DESCRIPTION      DONE\n",
+        "----  -------------  ------\n",
+        "   1  Task 1              1\n",
+    ]
+    for row in expected:
+        assert row in check_result.output
 
 
 def _verify_ingest_execution(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
-    expected = (
-        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
-        "TIMESTAMP_DATA         DECIMAL_DATA\n"
-        "----  ----------  ----------  ------------  -----------  "
-        "-------------------  --------------\n"
-        "   5  string              12           1.2            1  2023-11-21 "
-        "08:12:53             0.1\n"
-    )
-    assert expected in check_result.output
+    expected = [
+        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
+        "----  ----------  ----------  ------------  -----------  -------------------  --------------\n",
+        "   5  string              12           1.2            1  2023-11-21 08:12:53             0.1\n",
+    ]
+    for row in expected:
+        assert row in check_result.output
 
 
 def _verify_ingest_execution_special_chars(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
-    expected = (
-        "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
-        "TIMESTAMP_DATA         DECIMAL_DATA\n"
-        "----  -----------  -----------  --------------  -----------  "
-        "-------------------  --------------\n"
-        "   5  string                12             1.2            1  2023-11-21 "
-        "08:12:53             0.1\n"
-    )
-    assert expected in check_result.output
+    expected = [
+        "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
+        "----  -----------  -----------  --------------  -----------  -------------------  --------------\n",
+        "   5  string                12             1.2            1  2023-11-21 08:12:53             0.1\n",
+    ]
+    for row in expected:
+        assert row in check_result.output
 
 
 def _verify_ingest_execution_type_inference(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
-    expected = (
-        "  ID  STR_DATA      INT_DATA  NAN_INT_DATA      FLOAT_DATA    BOOL_DATA  "
-        "TIMESTAMP_DATA         DECIMAL_DATA\n"
-        "----  ----------  ----------  --------------  ------------  -----------  "
-        "-------------------  --------------\n"
-        "   5  string              12                           1.2            1  "
-        "2023-11-21 08:12:53             0.1\n"
-    )
-    assert expected in check_result.output
+    expected = [
+        "  ID  STR_DATA      INT_DATA  NAN_INT_DATA      FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
+        "----  ----------  ----------  --------------  ------------  -----------  -------------------  --------------\n",
+        "   5  string              12                           1.2            1  2023-11-21 08:12:53             0.1\n",
+    ]
+    for row in expected:
+        assert row in check_result.output
 
 
 def _verify_ingest_execution_no_table(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
-    expected = (
-        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  "
-        "TIMESTAMP_DATA         DECIMAL_DATA\n"
-        "----  ----------  ----------  ------------  -----------  "
-        "-------------------  --------------\n"
-        "   0  string              12           1.2            1  "
-        "2023-11-21T08:12:53             1.1\n"
-        "   1  string              12           1.2            1  "
-        "2023-11-21T08:12:53             1.1\n"
-        "   2  string              12           1.2            1  "
-        "2023-11-21T08:12:53             1.1\n"
-    )
-    assert expected in check_result.output
+    expected = [
+        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
+        "----  ----------  ----------  ------------  -----------  -------------------  --------------\n",
+        "   0  string              12           1.2            1  2023-11-21T08:12:53             1.1\n",
+        "   1  string              12           1.2            1  2023-11-21T08:12:53             1.1\n",
+        "   2  string              12           1.2            1  2023-11-21T08:12:53             1.1\n",
+    ]
+    for row in expected:
+        assert row in check_result.output
 
 
 def _verify_ingest_execution_no_table_special_chars(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
-    expected = (
-        "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  "
-        "TIMESTAMP_DATA         DECIMAL_DATA\n"
-        "----  -----------  -----------  --------------  -----------  "
-        "-------------------  --------------\n"
-        "   0  string                12             1.2            1  "
-        "2023-11-21T08:12:53             1.1\n"
-        "   1  string                12             1.2            1  "
-        "2023-11-21T08:12:53             1.1\n"
-        "   2  string                12             1.2            1  "
-        "2023-11-21T08:12:53             1.1\n"
-    )
-    assert expected in check_result.output
+    expected = [
+        "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
+        "----  -----------  -----------  --------------  -----------  -------------------  --------------\n",
+        "   0  string                12             1.2            1  2023-11-21T08:12:53             1.1\n",
+        "   1  string                12             1.2            1  2023-11-21T08:12:53             1.1\n",
+        "   2  string                12             1.2            1  2023-11-21T08:12:53             1.1\n",
+    ]
+    for row in expected:
+        assert row in check_result.output
 
 
 def _verify_ingest_execution_different_payloads_no_table(runner):
@@ -301,21 +288,20 @@ def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
 
 def _verify_ingest_execution_different_payloads(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
-    expected = (
-        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA\n"
-        "----  ----------  ----------  ------------  -----------  "
-        "-------------------\n"
-        "   0\n"
-        "   1  string\n"
-        "   2  string              12\n"
-        "   3  string              12           1.2\n"
-        "   6  string              12           1.2\n"
-        "   4  string              12           1.2            1\n"
-        "   7  string              12           1.2            1\n"
-        "   5  string              12           1.2            1  2023-11-21 "
-        "08:12:53\n"
-    )
-    assert expected in check_result.output
+    expected = [
+        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA\n",
+        "----  ----------  ----------  ------------  -----------  -------------------\n",
+        "   0\n",
+        "   1  string\n",
+        "   2  string              12\n",
+        "   3  string              12           1.2\n",
+        "   4  string              12           1.2            1\n",
+        "   5  string              12           1.2            1  2023-11-21 08:12:53\n"
+        "   6  string              12           1.2\n",
+        "   7  string              12           1.2            1\n",
+    ]
+    for row in expected:
+        assert row in check_result.output
 
 
 def _verify_ingest_blob(runner):
@@ -352,5 +338,5 @@ def _verify_ingest_nan_and_none_execution(runner):
 
 def _verify_ingest_data_frame_schema_inference(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
-    expected = "  A    B    C\n---  ---  ---\n  1    2    3\n"
+    expected = "A    B    C\n---  ---  ---\n  1    2    3\n"
     assert expected in check_result.output

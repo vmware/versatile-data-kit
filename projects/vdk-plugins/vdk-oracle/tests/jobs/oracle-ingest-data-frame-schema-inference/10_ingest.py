@@ -5,6 +5,6 @@ from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput):
-    df = DataFrame.from_dict({"A": [1], "B": [2], "C": [3]})
+    df = DataFrame.from_dict({"a": [1], "b": [2], "c": [3]})
 
     job_input.send_object_for_ingestion(payload=df, destination_table="test_table")

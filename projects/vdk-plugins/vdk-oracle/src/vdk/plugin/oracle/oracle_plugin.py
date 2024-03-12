@@ -50,7 +50,10 @@ class OraclePlugin:
             ),
         )
         context.ingester.add_ingester_factory_method(
-            "oracle", (lambda: IngestToOracle(context.connections))
+            "oracle",
+            lambda: IngestToOracle(
+                context.connections, conf.oracle_ingest_batch_size()
+            ),
         )
 
 
