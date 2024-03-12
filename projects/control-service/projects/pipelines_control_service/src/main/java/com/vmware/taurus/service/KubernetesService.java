@@ -654,7 +654,10 @@ public abstract class KubernetesService {
             imagePullSecrets);
     V1beta1CronJob nsJob =
         batchV1beta1Api.createNamespacedCronJob(namespace, cronJob, null, null, null, null);
-    log.debug("Created k8s V1beta1 cron job: {}", cronJob);
+    log.warn(
+        "Created k8s V1Beta1 cron job: {} , with "
+            + cronJob.getSpec().getJobTemplate().getSpec().getParallelism(),
+        cronJob);
     log.debug(
         "Created k8s cron job name: {}, api_version:{}, uid:{}, link:{}",
         nsJob.getMetadata().getName(),
@@ -689,9 +692,13 @@ public abstract class KubernetesService {
             jobAnnotations,
             jobLabels,
             imagePullSecrets);
+
     V1CronJob nsJob =
         batchV1Api.createNamespacedCronJob(namespace, cronJob, null, null, null, null);
-    log.debug("Created k8s V1 cron job: {}", cronJob);
+    log.warn(
+        "Created k8s V1 cron job: {} , with "
+            + cronJob.getSpec().getJobTemplate().getSpec().getParallelism(),
+        cronJob);
     log.debug(
         "Created k8s cron job name: {}, api_version: {}, uid:{}, link:{}",
         nsJob.getMetadata().getName(),
@@ -726,7 +733,10 @@ public abstract class KubernetesService {
 
     V1beta1CronJob nsJob =
         batchV1beta1Api.replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
-    log.debug("Updated k8s V1 cron job: {}", cronJob);
+    log.warn(
+        "updated k8s V1 cron job: {} , with "
+            + cronJob.getSpec().getJobTemplate().getSpec().getParallelism(),
+        cronJob);
     log.debug(
         "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,
@@ -760,7 +770,10 @@ public abstract class KubernetesService {
             imagePullSecrets);
     V1CronJob nsJob =
         batchV1Api.replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
-    log.debug("Updated k8s V1 cron job: {}", cronJob);
+    log.warn(
+        "updated k8s V1 cron job: {} , with "
+            + cronJob.getSpec().getJobTemplate().getSpec().getParallelism(),
+        cronJob);
     log.debug(
         "Updated k8s V1 cron job status for name:{}, image:{}, uid:{}, link:{}",
         name,

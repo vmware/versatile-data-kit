@@ -988,6 +988,7 @@ datajobTemplate:
       suspend: false                 # overridden by TPCS
       jobTemplate:
         spec:
+          parallelism: 3
           activeDeadlineSeconds: 43200
           backoffLimit: 3
           template:
