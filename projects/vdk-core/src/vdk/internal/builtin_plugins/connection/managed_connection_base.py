@@ -169,6 +169,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection, IDatabaseManag
                 self._db_con.cursor(*args, **kwargs),
                 self._log,
                 self._connection_hook_spec_factory,
+                self
             )
         return super().cursor()
 
