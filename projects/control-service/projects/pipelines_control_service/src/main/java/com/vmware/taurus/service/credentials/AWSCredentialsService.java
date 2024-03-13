@@ -34,23 +34,23 @@ public class AWSCredentialsService {
 
     if (awsCredentialsServiceConfig.isAssumeIAMRole()) {
       final AWSSecurityTokenService stsClient;
-      if(awsCredentialsServiceConfig.getServiceAccountAccessKeyId().isBlank() &&
-      awsCredentialsServiceConfig.getServiceAccountSecretAccessKey().isBlank()){
+      if (awsCredentialsServiceConfig.getServiceAccountAccessKeyId().isBlank()
+          && awsCredentialsServiceConfig.getServiceAccountSecretAccessKey().isBlank()) {
         stsClient =
-                AWSSecurityTokenServiceClientBuilder.standard()
-                        .withCredentials(new DefaultAWSCredentialsProviderChain())
-                        .build();
+            AWSSecurityTokenServiceClientBuilder.standard()
+                .withCredentials(new DefaultAWSCredentialsProviderChain())
+                .build();
 
-      }else {
+      } else {
         stsClient =
-                AWSSecurityTokenServiceClientBuilder.standard()
-                        .withCredentials(
-                                new AWSStaticCredentialsProvider(
-                                        new BasicAWSCredentials(
-                                                awsCredentialsServiceConfig.getServiceAccountAccessKeyId(),
-                                                awsCredentialsServiceConfig.getServiceAccountSecretAccessKey())))
-                        .withRegion(awsCredentialsServiceConfig.getRegion())
-                        .build();
+            AWSSecurityTokenServiceClientBuilder.standard()
+                .withCredentials(
+                    new AWSStaticCredentialsProvider(
+                        new BasicAWSCredentials(
+                            awsCredentialsServiceConfig.getServiceAccountAccessKeyId(),
+                            awsCredentialsServiceConfig.getServiceAccountSecretAccessKey())))
+                .withRegion(awsCredentialsServiceConfig.getRegion())
+                .build();
       }
       AssumeRoleRequest assumeRequest =
           new AssumeRoleRequest()
