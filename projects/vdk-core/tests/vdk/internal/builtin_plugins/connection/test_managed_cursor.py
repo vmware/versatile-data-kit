@@ -11,7 +11,9 @@ from vdk.internal.builtin_plugins.connection.database_managed_connection import 
     IDatabaseManagedConnection,
 )
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
-from vdk.internal.builtin_plugins.connection.execution_cursor import ExecuteOperationResult
+from vdk.internal.builtin_plugins.connection.execution_cursor import (
+    ExecuteOperationResult,
+)
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor

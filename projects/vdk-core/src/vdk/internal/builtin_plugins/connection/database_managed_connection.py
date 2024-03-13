@@ -1,11 +1,12 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-
 from typing import Container
 from typing import Optional
 
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
-from vdk.internal.builtin_plugins.connection.execution_cursor import ExecuteOperationResult
+from vdk.internal.builtin_plugins.connection.execution_cursor import (
+    ExecuteOperationResult,
+)
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 
