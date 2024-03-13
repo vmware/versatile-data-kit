@@ -137,13 +137,21 @@ class ManagedCursor(ProxyCursor):
         # Check if database decorate operation is overridden by a plugin.
         # Use the overridden method if available.
         # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-        if self.__managed_database_connection and \
-                type(self.__managed_database_connection).db_connection_decorate_operation != IDatabaseManagedConnection.db_connection_decorate_operation:
+        if (
+            self.__managed_database_connection
+            and type(
+                self.__managed_database_connection
+            ).db_connection_decorate_operation
+            != IDatabaseManagedConnection.db_connection_decorate_operation
+        ):
             decorate_operation = (
                 self.__managed_database_connection.db_connection_decorate_operation
             )
 
-        elif self.__connection_hook_spec and self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls():
+        elif (
+            self.__connection_hook_spec
+            and self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
+        ):
             decorate_operation = (
                 self.__connection_hook_spec.db_connection_decorate_operation
             )
@@ -173,13 +181,21 @@ class ManagedCursor(ProxyCursor):
         # Check if database validate operation is overridden by a plugin.
         # Use the overridden method if available.
         # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-        if self.__managed_database_connection \
-                and type(self.__managed_database_connection).db_connection_validate_operation != IDatabaseManagedConnection.db_connection_validate_operation:
+        if (
+            self.__managed_database_connection
+            and type(
+                self.__managed_database_connection
+            ).db_connection_validate_operation
+            != IDatabaseManagedConnection.db_connection_validate_operation
+        ):
             validate_operation = (
                 self.__managed_database_connection.db_connection_validate_operation
             )
 
-        elif self.__connection_hook_spec and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
+        elif (
+            self.__connection_hook_spec
+            and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
+        ):
             validate_operation = (
                 self.__connection_hook_spec.db_connection_validate_operation
             )
@@ -210,8 +226,11 @@ class ManagedCursor(ProxyCursor):
         # Check if database execute operation is overridden by a plugin.
         # Use the overridden method if available.
         # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-        if self.__managed_database_connection\
-                and type(self.__managed_database_connection).db_connection_execute_operation != IDatabaseManagedConnection.db_connection_execute_operation:
+        if (
+            self.__managed_database_connection
+            and type(self.__managed_database_connection).db_connection_execute_operation
+            != IDatabaseManagedConnection.db_connection_execute_operation
+        ):
             result = self.__managed_database_connection.db_connection_execute_operation(
                 execution_cursor=execution_cursor
             )
