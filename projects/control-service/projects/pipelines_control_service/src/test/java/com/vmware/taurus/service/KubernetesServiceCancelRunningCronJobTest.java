@@ -11,7 +11,6 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.ApiResponse;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.V1Status;
 import io.kubernetes.client.openapi.models.V1StatusDetails;
 import org.junit.jupiter.api.Assertions;
@@ -101,7 +100,6 @@ public class KubernetesServiceCancelRunningCronJobTest {
         false,
         new ApiClient(),
         batchV1Api,
-        new BatchV1beta1Api(),
         new JobCommandProvider());
   }
 }

@@ -9,9 +9,8 @@ import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
+import io.kubernetes.client.openapi.models.V1CronJob;
 import io.kubernetes.client.openapi.models.V1JobSpec;
-import io.kubernetes.client.openapi.models.V1beta1CronJob;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,29 +30,25 @@ public class KubernetesServiceStartJobWithArgumentsIT {
 
   @BeforeEach
   public void getMockKubernetesServiceForVdkRunExtraArgsTests() throws Exception {
-
-    BatchV1beta1Api mockBatch = Mockito.mock(BatchV1beta1Api.class);
     BatchV1Api mockBatchV1 = Mockito.mock(BatchV1Api.class);
 
     kubernetesService =
         new DataJobsKubernetesService(
-            "default", false, new ApiClient(), mockBatchV1, mockBatch, new JobCommandProvider());
-    V1beta1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
+            "default", new ApiClient(), mockBatchV1, new JobCommandProvider());
+    V1CronJob internalCronjobTemplate = getValidCronJobForVdkRunExtraArgsTests();
 
     kubernetesService =
         Mockito.spy(
             new DataJobsKubernetesService(
                 "default",
-                false,
                 new ApiClient(),
                 mockBatchV1,
-                mockBatch,
                 new JobCommandProvider()));
     Mockito.doNothing()
         .when(kubernetesService)
         .createNewJob(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
-    Mockito.when(mockBatch.readNamespacedCronJob(any(), any(), any()))
+    Mockito.when(mockBatchV1.readNamespacedCronJob(any(), any(), any()))
         .thenReturn(internalCronjobTemplate);
   }
 
@@ -165,24 +160,22 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     }
   }
 
-  private V1beta1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
+  private V1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
     KubernetesService service =
         new DataJobsKubernetesService(
             "default",
-            false,
             new ApiClient(),
             new BatchV1Api(),
-            new BatchV1beta1Api(),
             new JobCommandProvider());
     // V1betaCronJob initializing snippet copied from tests above, using reflection
-    Method loadInternalV1beta1CronjobTemplate =
-        KubernetesService.class.getDeclaredMethod("loadInternalV1beta1CronjobTemplate");
-    if (loadInternalV1beta1CronjobTemplate == null) {
-      Assertions.fail("The method 'loadInternalV1beta1CronjobTemplate' does not exist.");
+    Method loadInternalV1CronjobTemplate =
+        KubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
+    if (loadInternalV1CronjobTemplate == null) {
+      Assertions.fail("The method 'loadInternalV1CronjobTemplate' does not exist.");
     }
-    loadInternalV1beta1CronjobTemplate.setAccessible(true);
-    V1beta1CronJob internalCronjobTemplate =
-        (V1beta1CronJob) loadInternalV1beta1CronjobTemplate.invoke(service);
+    loadInternalV1CronjobTemplate.setAccessible(true);
+    V1CronJob internalCronjobTemplate =
+        (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
     var container =
         internalCronjobTemplate
             .getSpec()

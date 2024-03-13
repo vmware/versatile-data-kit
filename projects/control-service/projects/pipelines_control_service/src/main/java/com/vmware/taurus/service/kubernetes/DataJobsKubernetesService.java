@@ -15,7 +15,6 @@ import com.vmware.taurus.service.model.JobAnnotation;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1Volume;
 import lombok.extern.slf4j.Slf4j;
@@ -41,18 +40,14 @@ public class DataJobsKubernetesService extends KubernetesService {
 
   public DataJobsKubernetesService(
       @Qualifier("dataJobsNamespace") String namespace,
-      @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
       @Qualifier("deploymentApiClient") ApiClient client,
       @Qualifier("deploymentBatchV1Api") BatchV1Api batchV1Api,
-      @Qualifier("deploymentBatchV1beta1Api") BatchV1beta1Api batchV1beta1Api,
       JobCommandProvider jobCommandProvider) {
     super(
         namespace,
-        k8sSupportsV1CronJob,
         log,
         client,
         batchV1Api,
-        batchV1beta1Api,
         jobCommandProvider);
   }
 
@@ -82,7 +77,6 @@ public class DataJobsKubernetesService extends KubernetesService {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
       createV1CronJob(
           name,
           image,
@@ -94,19 +88,6 @@ public class DataJobsKubernetesService extends KubernetesService {
           jobAnnotations,
           jobLabels,
           imagePullSecrets);
-    } else {
-      createV1beta1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobAnnotations,
-          jobLabels,
-          imagePullSecrets);
-    }
   }
 
   public String getCronJobSha512(
@@ -119,7 +100,6 @@ public class DataJobsKubernetesService extends KubernetesService {
       jobAnnotations.remove(excludeAnnotation.getValue());
     }
 
-    if (getK8sSupportsV1CronJob()) {
       cronJobString =
           v1CronJobFromTemplate(
                   cronJob.getName(),
@@ -132,21 +112,6 @@ public class DataJobsKubernetesService extends KubernetesService {
                   cronJob.getJobLabels(),
                   cronJob.getImagePullSecret())
               .toString();
-    } else {
-      cronJobString =
-          v1beta1CronJobFromTemplate(
-                  cronJob.getName(),
-                  cronJob.getSchedule(),
-                  !cronJob.isEnable(),
-                  cronJob.getJobContainer(),
-                  cronJob.getInitContainer(),
-                  cronJob.getVolumes(),
-                  jobAnnotations,
-                  cronJob.getJobLabels(),
-                  cronJob.getImagePullSecret())
-              .toString();
-    }
-
     return DigestUtils.sha1Hex(cronJobString);
   }
 
@@ -176,7 +141,6 @@ public class DataJobsKubernetesService extends KubernetesService {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
       updateV1CronJob(
           name,
           image,
@@ -188,19 +152,6 @@ public class DataJobsKubernetesService extends KubernetesService {
           jobAnnotations,
           jobLabels,
           imagePullSecrets);
-    } else {
-      updateV1beta1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobAnnotations,
-          jobLabels,
-          imagePullSecrets);
-    }
   }
 
   /**
@@ -234,7 +185,7 @@ public class DataJobsKubernetesService extends KubernetesService {
     }
 
     var v1BetaCronJobs =
-        batchV1beta1Api.listNamespacedCronJob(
+        batchV1Api.listNamespacedCronJob(
             namespace, null, null, null, null, null, null, null, null, null, null);
     var v1BetaCronJobNames =
         v1BetaCronJobs.getItems().stream()
@@ -247,36 +198,8 @@ public class DataJobsKubernetesService extends KubernetesService {
 
   public void deleteCronJob(String name) throws ApiException {
     log.debug("Deleting k8s cron job: {}", name);
-
-    // If the V1 Cronjob API is enabled, we try to delete the cronjob with it and exit the method.
-    // If, however, the cronjob cannot be deleted, this means that it might have been created
-    // with the V1Beta1 API, so we need to try again with the beta API.
-    if (getK8sSupportsV1CronJob()) {
-      try {
-        batchV1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
-        log.debug("Deleted k8s V1 cron job: {}", name);
-        return;
-      } catch (Exception e) {
-        log.debug("An exception occurred while trying to delete cron job. Message was: ", e);
-      }
-    }
-
-    try {
-      batchV1beta1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
-      log.debug("Deleted k8s V1beta1 cron job: {}", name);
-    } catch (JsonSyntaxException e) {
-      if (e.getCause() instanceof IllegalStateException) {
-        IllegalStateException ise = (IllegalStateException) e.getCause();
-        if (ise.getMessage() != null
-            && ise.getMessage().contains("Expected a string but was BEGIN_OBJECT"))
-          log.debug(
-              "Catching exception because of issue"
-                  + " https://github.com/kubernetes-client/java/issues/86",
-              e);
-        else throw e;
-      } else throw e;
-    }
-    log.debug("Deleted k8s cron job: {}", name);
+    batchV1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
+    log.debug("Deleted k8s V1 cron job: {}", name);
   }
 
   public void cancelRunningCronJob(String teamName, String jobName, String executionId)
