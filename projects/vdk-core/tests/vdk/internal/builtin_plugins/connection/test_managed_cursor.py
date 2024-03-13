@@ -283,7 +283,7 @@ def test_no_hook_validation__query_nonvalid__execute(managed_connection):
         managed_database_connection=managed_connection
     )
 
-    managed_connection.db_connection_validate_operation.side_effect = Exception(
+    mock_managed_connection.db_connection_validate_operation.side_effect = Exception(
         "Validation exception"
     )
 
@@ -313,11 +313,11 @@ def test_no_hook_decoration__success__execute(managed_connection):
             f"decorated {managed_operation.get_operation()}"
         )
 
-    managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
+    mock_managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
 
     mock_managed_cursor.execute(_query)
 
-    managed_connection.db_connection_decorate_operation.assert_called_once()
+    mock_managed_connection.db_connection_decorate_operation.assert_called_once()
     calls = [call(f"decorated {_query}")]
     mock_native_cursor.execute.assert_has_calls(calls)
 
@@ -335,14 +335,14 @@ def test_no_hook_decoration__failure__execute(managed_connection):
         managed_database_connection=managed_connection
     )
 
-    managed_connection.db_connection_decorate_operation.side_effect = Exception(
+    mock_managed_connection.db_connection_decorate_operation.side_effect = Exception(
         "Decoration exception"
     )
 
     with pytest.raises(Exception) as e:
         mock_managed_cursor.execute(_query)
 
-    assert True == managed_connection.db_connection_decorate_operation.called
+    assert True == mock_managed_connection.db_connection_decorate_operation.called
     assert "Decoration exception" == e.value.args[0]
     mock_native_cursor.execute.assert_not_called()
 
@@ -372,15 +372,15 @@ def test_no_hook_recovery__success__execute(managed_connection):
         recovery_cursor.retry_operation()
         assert recovery_cursor.get_retries() == 1
 
-    managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
-    managed_connection.db_connection_recover_operation.side_effect = mock_recover
+    mock_managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
+    mock_managed_connection.db_connection_recover_operation.side_effect = mock_recover
 
     exception = Exception()
     mock_native_cursor.execute.side_effect = [exception, None, None]
 
     mock_managed_cursor.execute(_query)
 
-    managed_connection.db_connection_recover_operation.assert_called_once()
+    mock_managed_connection.db_connection_recover_operation.assert_called_once()
     calls = [
         call(f"decorated {_query}"),
         call(f"decorated recovery"),
@@ -412,8 +412,8 @@ def test_no_hook_recovery__failure__execute(managed_connection):
     def mock_recover(recovery_cursor: RecoveryCursor):
         raise Exception("Could not handle execution exception")
 
-    managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
-    managed_connection.db_connection_recover_operation.side_effect = mock_recover
+    mock_managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
+    mock_managed_connection.db_connection_recover_operation.side_effect = mock_recover
 
     exception = Exception()
     mock_native_cursor.execute.side_effect = exception
@@ -422,5 +422,5 @@ def test_no_hook_recovery__failure__execute(managed_connection):
         mock_managed_cursor.execute(_query)
 
     assert "Could not handle execution exception" == e.value.args[0]
-    managed_connection.db_connection_recover_operation.assert_called_once()
+    mock_managed_connection.db_connection_recover_operation.assert_called_once()
     mock_native_cursor.execute.assert_called_once()
