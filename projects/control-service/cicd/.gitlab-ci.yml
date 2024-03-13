@@ -243,7 +243,7 @@ control_service_publish_image:
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew build -x test --info --stacktrace
-    - ./gradlew :pipelines_control_service:dockerTag --info --stacktrace -Pversion=$TAG
+    - ./gradlew :pipelines_control_service:dockerTag --info --stacktrace -Pversion=paul_test
     - docker_push_vdk.sh "versatiledatakit/pipelines-control-service:paul_test"
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
