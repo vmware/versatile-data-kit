@@ -143,7 +143,7 @@ class ManagedCursor(ProxyCursor):
                 self.__managed_database_connection.db_connection_decorate_operation
             )
 
-        elif self.__connection_hook_spec and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
+        elif self.__connection_hook_spec and self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls():
             decorate_operation = (
                 self.__connection_hook_spec.db_connection_decorate_operation
             )
