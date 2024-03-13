@@ -56,16 +56,16 @@ class IDatabaseManagedConnection:
         self, execution_cursor: ExecutionCursor
     ) -> Optional[ExecuteOperationResult]:
         """
-            The method that executes the actual SQL query using execution cursor.
-            For example: let's say we are writing vdk-impala plugin and want to print more debug info
-                which is available from the Impala native cursor (provided by impyla library)
-                    db_connection_execute_operation(execution_cursor: ExecutionCursor) -> Optional[int]:
-                        yield # let the query execute first
-                        c = cast(impala.interface.Cursor, execution_cursor)
-                        log.info(f"Query {execution_cursor.get_managed_operation().get_operation()} debug info:"
-                                f"summary: {c.get_summary()}, profile: {c.get_profile()}")
-            :param execution_cursor: ExecutionCursor
-            A PEP249Cursor implementation purposed for actual query execution.
+        The method that executes the actual SQL query using execution cursor.
+        For example: let's say we are writing vdk-impala plugin and want to print more debug info
+            which is available from the Impala native cursor (provided by impyla library)
+                db_connection_execute_operation(execution_cursor: ExecutionCursor) -> Optional[int]:
+                    yield # let the query execute first
+                    c = cast(impala.interface.Cursor, execution_cursor)
+                    log.info(f"Query {execution_cursor.get_managed_operation().get_operation()} debug info:"
+                            f"summary: {c.get_summary()}, profile: {c.get_profile()}")
+        :param execution_cursor: ExecutionCursor
+        A PEP249Cursor implementation purposed for actual query execution.
         """
         managed_operation = execution_cursor.get_managed_operation()
         if managed_operation.get_parameters():
