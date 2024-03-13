@@ -1,16 +1,21 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
-from typing import Optional, Container
-from unittest.mock import call, Mock
+from typing import Container
+from typing import Optional
+from unittest.mock import call
+from unittest.mock import Mock
 
 import pytest
-
-from vdk.internal.builtin_plugins.connection.database_managed_connection import IDatabaseManagedConnection
+from vdk.internal.builtin_plugins.connection.database_managed_connection import (
+    IDatabaseManagedConnection,
+)
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
-from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor, ExecuteOperationResult
+from vdk.internal.builtin_plugins.connection.execution_cursor import ExecuteOperationResult
+from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
-from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor, populate_mock_managed_cursor_no_hook
+from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor_no_hook
 
 _query = "select 1"
 
@@ -218,17 +223,17 @@ def test_query_timing_failed_query(caplog):
 
 class ManagedDatabaseConnectionTestImpl(IDatabaseManagedConnection):
     def db_connection_validate_operation(
-            self, operation: str, parameters: Optional[Container]
+        self, operation: str, parameters: Optional[Container]
     ) -> None:
         print("Validate called not from Base class")
 
     def db_connection_decorate_operation(
-            self, decoration_cursor: DecorationCursor
+        self, decoration_cursor: DecorationCursor
     ) -> None:
         print("Decorate called not from Base class")
 
     def db_connection_execute_operation(
-            self, execution_cursor: ExecutionCursor
+        self, execution_cursor: ExecutionCursor
     ) -> Optional[ExecuteOperationResult]:
         print("Execute called not from Base class")
 
@@ -244,8 +249,15 @@ def managed_connection():
 def test_no_hook_db_validate_operations(managed_connection):
     managed_connection.db_connection_validate_operation = Mock()
 
-    (mock_native_cursor, mock_managed_cursor, _, _, mock_managed_connection) = populate_mock_managed_cursor_no_hook(
-        managed_database_connection=managed_connection)
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_managed_connection,
+    ) = populate_mock_managed_cursor_no_hook(
+        managed_database_connection=managed_connection
+    )
 
     mock_managed_cursor.execute(_query)
 
@@ -259,10 +271,19 @@ def test_no_hook_db_validate_operations(managed_connection):
 def test_no_hook_validation__query_nonvalid__execute(managed_connection):
     managed_connection.db_connection_validate_operation = Mock()
 
-    (mock_native_cursor, mock_managed_cursor, _, _, mock_managed_connection) = populate_mock_managed_cursor_no_hook(
-        managed_database_connection=managed_connection)
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_managed_connection,
+    ) = populate_mock_managed_cursor_no_hook(
+        managed_database_connection=managed_connection
+    )
 
-    managed_connection.db_connection_validate_operation.side_effect = Exception("Validation exception")
+    managed_connection.db_connection_validate_operation.side_effect = Exception(
+        "Validation exception"
+    )
 
     with pytest.raises(Exception) as e:
         mock_managed_cursor.execute(_query)
@@ -274,8 +295,15 @@ def test_no_hook_validation__query_nonvalid__execute(managed_connection):
 def test_no_hook_decoration__success__execute(managed_connection):
     managed_connection.db_connection_decorate_operation = Mock()
 
-    (mock_native_cursor, mock_managed_cursor, _, _, mock_managed_connection) = populate_mock_managed_cursor_no_hook(
-        managed_database_connection=managed_connection)
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_managed_connection,
+    ) = populate_mock_managed_cursor_no_hook(
+        managed_database_connection=managed_connection
+    )
 
     def mock_decorate(decoration_cursor: DecorationCursor):
         managed_operation = decoration_cursor.get_managed_operation()
@@ -283,9 +311,7 @@ def test_no_hook_decoration__success__execute(managed_connection):
             f"decorated {managed_operation.get_operation()}"
         )
 
-    managed_connection.db_connection_decorate_operation.side_effect = (
-        mock_decorate
-    )
+    managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
 
     mock_managed_cursor.execute(_query)
 
@@ -297,8 +323,15 @@ def test_no_hook_decoration__success__execute(managed_connection):
 def test_no_hook_decoration__failure__execute(managed_connection):
     managed_connection.db_connection_decorate_operation = Mock()
 
-    (mock_native_cursor, mock_managed_cursor, _, _, mock_managed_connection) = populate_mock_managed_cursor_no_hook(
-        managed_database_connection=managed_connection)
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_managed_connection,
+    ) = populate_mock_managed_cursor_no_hook(
+        managed_database_connection=managed_connection
+    )
 
     managed_connection.db_connection_decorate_operation.side_effect = Exception(
         "Decoration exception"
@@ -316,8 +349,15 @@ def test_no_hook_recovery__success__execute(managed_connection):
     managed_connection.db_connection_decorate_operation = Mock()
     managed_connection.db_connection_recover_operation = Mock()
 
-    (mock_native_cursor, mock_managed_cursor, _, _, mock_managed_connection) = populate_mock_managed_cursor_no_hook(
-        managed_database_connection=managed_connection)
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_managed_connection,
+    ) = populate_mock_managed_cursor_no_hook(
+        managed_database_connection=managed_connection
+    )
 
     def mock_decorate(decoration_cursor: DecorationCursor):
         managed_operation = decoration_cursor.get_managed_operation()
@@ -330,9 +370,7 @@ def test_no_hook_recovery__success__execute(managed_connection):
         recovery_cursor.retry_operation()
         assert recovery_cursor.get_retries() == 1
 
-    managed_connection.db_connection_decorate_operation.side_effect = (
-        mock_decorate
-    )
+    managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
     managed_connection.db_connection_recover_operation.side_effect = mock_recover
 
     exception = Exception()
@@ -353,8 +391,15 @@ def test_no_hook_recovery__failure__execute(managed_connection):
     managed_connection.db_connection_decorate_operation = Mock()
     managed_connection.db_connection_recover_operation = Mock()
 
-    (mock_native_cursor, mock_managed_cursor, _, _, mock_managed_connection) = populate_mock_managed_cursor_no_hook(
-        managed_database_connection=managed_connection)
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_managed_connection,
+    ) = populate_mock_managed_cursor_no_hook(
+        managed_database_connection=managed_connection
+    )
 
     def mock_decorate(decoration_cursor: DecorationCursor):
         managed_operation = decoration_cursor.get_managed_operation()
@@ -365,9 +410,7 @@ def test_no_hook_recovery__failure__execute(managed_connection):
     def mock_recover(recovery_cursor: RecoveryCursor):
         raise Exception("Could not handle execution exception")
 
-    managed_connection.db_connection_decorate_operation.side_effect = (
-        mock_decorate
-    )
+    managed_connection.db_connection_decorate_operation.side_effect = mock_decorate
     managed_connection.db_connection_recover_operation.side_effect = mock_recover
 
     exception = Exception()

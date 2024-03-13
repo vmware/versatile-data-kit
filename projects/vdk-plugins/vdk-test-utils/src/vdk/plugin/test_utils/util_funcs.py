@@ -23,7 +23,9 @@ from vdk.internal.builtin_plugins.connection.connection_hooks import (
 from vdk.internal.builtin_plugins.connection.connection_hooks import (
     DefaultConnectionHookImpl,
 )
-from vdk.internal.builtin_plugins.connection.database_managed_connection import IDatabaseManagedConnection
+from vdk.internal.builtin_plugins.connection.database_managed_connection import (
+    IDatabaseManagedConnection,
+)
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
@@ -277,13 +279,13 @@ def populate_mock_managed_cursor_no_hook(
     mock_operation=None,
     mock_parameters=None,
     decoration_operation_callback=None,
-    managed_database_connection: IDatabaseManagedConnection = None
+    managed_database_connection: IDatabaseManagedConnection = None,
 ) -> (
     PEP249Cursor,
     ManagedCursor,
     DecorationCursor,
     RecoveryCursor,
-    IDatabaseManagedConnection
+    IDatabaseManagedConnection,
 ):
     import logging
 
@@ -293,7 +295,7 @@ def populate_mock_managed_cursor_no_hook(
     managed_cursor = ManagedCursor(
         cursor=mock_native_cursor,
         log=logging.getLogger(),
-        managed_database_connection=managed_database_connection
+        managed_database_connection=managed_database_connection,
     )
 
     decoration_cursor = DecorationCursor(mock_native_cursor, None, managed_operation)
@@ -303,7 +305,9 @@ def populate_mock_managed_cursor_no_hook(
             execution_cursor
         )
 
-    managed_database_connection.db_connection_execute_operation = stub_db_connection_execute_operation
+    managed_database_connection.db_connection_execute_operation = (
+        stub_db_connection_execute_operation
+    )
 
     return (
         mock_native_cursor,
@@ -316,5 +320,5 @@ def populate_mock_managed_cursor_no_hook(
             managed_operation=managed_operation,
             decoration_operation_callback=decoration_operation_callback,
         ),
-        managed_database_connection
+        managed_database_connection,
     )

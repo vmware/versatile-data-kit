@@ -16,10 +16,12 @@ from vdk.internal.builtin_plugins.connection.connection_hooks import (
 from vdk.internal.builtin_plugins.connection.connection_hooks import (
     DefaultConnectionHookImpl,
 )
+from vdk.internal.builtin_plugins.connection.database_managed_connection import (
+    IDatabaseManagedConnection,
+)
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
-from vdk.internal.builtin_plugins.connection.database_managed_connection import IDatabaseManagedConnection
 from vdk.internal.builtin_plugins.connection.proxy_cursor import ProxyCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.core import errors
@@ -31,11 +33,11 @@ class ManagedCursor(ProxyCursor):
     """
 
     def __init__(
-            self,
-            cursor: Any,
-            log: logging.Logger = None,
-            connection_hook_spec_factory: ConnectionHookSpecFactory = None,
-            managed_database_connection: IDatabaseManagedConnection = None
+        self,
+        cursor: Any,
+        log: logging.Logger = None,
+        connection_hook_spec_factory: ConnectionHookSpecFactory = None,
+        managed_database_connection: IDatabaseManagedConnection = None,
     ):
         if not log:
             log = logging.getLogger(__name__)
@@ -67,6 +69,7 @@ class ManagedCursor(ProxyCursor):
         # native cursor
         if hasattr(self._cursor, attr):
             if isinstance(getattr(self._cursor, attr), types.MethodType):
+
                 def method(*args, **kwargs):
                     return getattr(self._cursor, attr)(*args, **kwargs)
 
@@ -75,6 +78,7 @@ class ManagedCursor(ProxyCursor):
         # superclass
         if hasattr(super(), attr):
             if isinstance(getattr(super(), attr), types.MethodType):
+
                 def method(*args, **kwargs):
                     return getattr(super(), attr)(*args, **kwargs)
 
@@ -83,7 +87,7 @@ class ManagedCursor(ProxyCursor):
         raise AttributeError
 
     def execute(
-            self, operation: str, parameters: Optional[Container] = None
+        self, operation: str, parameters: Optional[Container] = None
     ) -> None:  # @UnusedVariable
         managed_operation, decoration_cursor = (
             ManagedOperation(operation, parameters),
@@ -130,12 +134,24 @@ class ManagedCursor(ProxyCursor):
     def _decorate_operation(self, managed_operation: ManagedOperation, operation: str):
         decorate_operation = None
 
-        if self.__managed_database_connection and type(self.__managed_database_connection).db_connection_decorate_operation != \
-                IDatabaseManagedConnection.db_connection_decorate_operation:
-            decorate_operation = self.__managed_database_connection.db_connection_decorate_operation
+        if (
+            self.__managed_database_connection
+            and type(
+                self.__managed_database_connection
+            ).db_connection_decorate_operation
+            != IDatabaseManagedConnection.db_connection_decorate_operation
+        ):
+            decorate_operation = (
+                self.__managed_database_connection.db_connection_decorate_operation
+            )
 
-        elif self.__connection_hook_spec and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
-            decorate_operation = self.__connection_hook_spec.db_connection_decorate_operation
+        elif (
+            self.__connection_hook_spec
+            and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
+        ):
+            decorate_operation = (
+                self.__connection_hook_spec.db_connection_decorate_operation
+            )
 
         if decorate_operation:
             self._log.debug("Decorating query:\n%s" % operation)
@@ -143,9 +159,7 @@ class ManagedCursor(ProxyCursor):
                 self._cursor, self._log, managed_operation
             )
             try:
-                decorate_operation(
-                    decoration_cursor=decoration_cursor
-                )
+                decorate_operation(decoration_cursor=decoration_cursor)
             except Exception as e:
                 self._log.error(
                     "\n".join(
@@ -161,12 +175,24 @@ class ManagedCursor(ProxyCursor):
     def _validate_operation(self, operation: str, parameters: Optional[Container]):
         validate_operation = None
 
-        if self.__managed_database_connection and type(self.__managed_database_connection).db_connection_validate_operation != \
-                IDatabaseManagedConnection.db_connection_validate_operation:
-            validate_operation = self.__managed_database_connection.db_connection_validate_operation
+        if (
+            self.__managed_database_connection
+            and type(
+                self.__managed_database_connection
+            ).db_connection_validate_operation
+            != IDatabaseManagedConnection.db_connection_validate_operation
+        ):
+            validate_operation = (
+                self.__managed_database_connection.db_connection_validate_operation
+            )
 
-        elif self.__connection_hook_spec and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
-            validate_operation = self.__connection_hook_spec.db_connection_validate_operation
+        elif (
+            self.__connection_hook_spec
+            and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
+        ):
+            validate_operation = (
+                self.__connection_hook_spec.db_connection_validate_operation
+            )
 
         if validate_operation:
             self._log.debug("Validating query:\n%s" % operation)
@@ -191,8 +217,11 @@ class ManagedCursor(ProxyCursor):
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         execution_cursor = ExecutionCursor(self._cursor, managed_operation, self._log)
 
-        if self.__managed_database_connection and type(self.__managed_database_connection).db_connection_execute_operation != \
-                IDatabaseManagedConnection.db_connection_execute_operation:
+        if (
+            self.__managed_database_connection
+            and type(self.__managed_database_connection).db_connection_execute_operation
+            != IDatabaseManagedConnection.db_connection_execute_operation
+        ):
             result = self.__managed_database_connection.db_connection_execute_operation(
                 execution_cursor=execution_cursor
             )
@@ -228,25 +257,35 @@ class ManagedCursor(ProxyCursor):
 
     def _recover_operation(self, exception, managed_operation):
         # TODO: configurable generic re-try.
-        available_plugin_implementation = self.__managed_database_connection and (type(
-            self.__managed_database_connection).db_connection_recover_operation != IDatabaseManagedConnection.db_connection_recover_operation
-                                           and type(
-                    self.__managed_database_connection).db_connection_decorate_operation != IDatabaseManagedConnection.db_connection_decorate_operation
-                                           )
+        available_plugin_implementation = self.__managed_database_connection and (
+            type(self.__managed_database_connection).db_connection_recover_operation
+            != IDatabaseManagedConnection.db_connection_recover_operation
+            and type(
+                self.__managed_database_connection
+            ).db_connection_decorate_operation
+            != IDatabaseManagedConnection.db_connection_decorate_operation
+        )
 
         if (
-                (not self.__connection_hook_spec
-                 or not self.__connection_hook_spec.db_connection_recover_operation.get_hookimpls())
-                and not available_plugin_implementation
-        ):
+            not self.__connection_hook_spec
+            or not self.__connection_hook_spec.db_connection_recover_operation.get_hookimpls()
+        ) and not available_plugin_implementation:
             raise exception
 
         if available_plugin_implementation:
-            decorate_operation = self.__managed_database_connection.db_connection_decorate_operation
-            recover_operation = self.__managed_database_connection.db_connection_recover_operation
+            decorate_operation = (
+                self.__managed_database_connection.db_connection_decorate_operation
+            )
+            recover_operation = (
+                self.__managed_database_connection.db_connection_recover_operation
+            )
         else:
-            decorate_operation = self.__connection_hook_spec.db_connection_decorate_operation
-            recover_operation = self.__connection_hook_spec.db_connection_recover_operation
+            decorate_operation = (
+                self.__connection_hook_spec.db_connection_decorate_operation
+            )
+            recover_operation = (
+                self.__connection_hook_spec.db_connection_recover_operation
+            )
 
         recovery_cursor = RecoveryCursor(
             self._cursor,

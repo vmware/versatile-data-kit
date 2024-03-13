@@ -19,7 +19,9 @@ from vdk.api.job_input import IManagedConnection
 from vdk.internal.builtin_plugins.connection.connection_hooks import (
     ConnectionHookSpecFactory,
 )
-from vdk.internal.builtin_plugins.connection.database_managed_connection import IDatabaseManagedConnection
+from vdk.internal.builtin_plugins.connection.database_managed_connection import (
+    IDatabaseManagedConnection,
+)
 from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.run import job_input_error_classifier
@@ -29,7 +31,9 @@ from vdk.internal.util.decorators import closing_noexcept_on_close
 logger = logging.getLogger(__name__)
 
 
-class ManagedConnectionBase(PEP249Connection, IManagedConnection, IDatabaseManagedConnection):
+class ManagedConnectionBase(
+    PEP249Connection, IManagedConnection, IDatabaseManagedConnection
+):
     """
     Different database providers can subclass this class to provide raw connection (by implement _connect)
 
@@ -169,7 +173,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection, IDatabaseManag
                 self._db_con.cursor(*args, **kwargs),
                 self._log,
                 self._connection_hook_spec_factory,
-                self
+                self,
             )
         return super().cursor()
 
