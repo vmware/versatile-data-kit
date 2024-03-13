@@ -22,7 +22,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,12 +42,7 @@ public class DataJobsKubernetesService extends KubernetesService {
       @Qualifier("deploymentApiClient") ApiClient client,
       @Qualifier("deploymentBatchV1Api") BatchV1Api batchV1Api,
       JobCommandProvider jobCommandProvider) {
-    super(
-        namespace,
-        log,
-        client,
-        batchV1Api,
-        jobCommandProvider);
+    super(namespace, log, client, batchV1Api, jobCommandProvider);
   }
 
   public void createCronJob(KubernetesService.CronJob cronJob) throws ApiException {
@@ -77,17 +71,17 @@ public class DataJobsKubernetesService extends KubernetesService {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-      createV1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobAnnotations,
-          jobLabels,
-          imagePullSecrets);
+    createV1CronJob(
+        name,
+        image,
+        schedule,
+        enable,
+        jobContainer,
+        initContainer,
+        volumes,
+        jobAnnotations,
+        jobLabels,
+        imagePullSecrets);
   }
 
   public String getCronJobSha512(
@@ -100,18 +94,18 @@ public class DataJobsKubernetesService extends KubernetesService {
       jobAnnotations.remove(excludeAnnotation.getValue());
     }
 
-      cronJobString =
-          v1CronJobFromTemplate(
-                  cronJob.getName(),
-                  cronJob.getSchedule(),
-                  !cronJob.isEnable(),
-                  cronJob.getJobContainer(),
-                  cronJob.getInitContainer(),
-                  cronJob.getVolumes(),
-                  jobAnnotations,
-                  cronJob.getJobLabels(),
-                  cronJob.getImagePullSecret())
-              .toString();
+    cronJobString =
+        v1CronJobFromTemplate(
+                cronJob.getName(),
+                cronJob.getSchedule(),
+                !cronJob.isEnable(),
+                cronJob.getJobContainer(),
+                cronJob.getInitContainer(),
+                cronJob.getVolumes(),
+                jobAnnotations,
+                cronJob.getJobLabels(),
+                cronJob.getImagePullSecret())
+            .toString();
     return DigestUtils.sha1Hex(cronJobString);
   }
 
@@ -141,17 +135,17 @@ public class DataJobsKubernetesService extends KubernetesService {
       Map<String, String> jobLabels,
       List<String> imagePullSecrets)
       throws ApiException {
-      updateV1CronJob(
-          name,
-          image,
-          schedule,
-          enable,
-          jobContainer,
-          initContainer,
-          volumes,
-          jobAnnotations,
-          jobLabels,
-          imagePullSecrets);
+    updateV1CronJob(
+        name,
+        image,
+        schedule,
+        enable,
+        jobContainer,
+        initContainer,
+        volumes,
+        jobAnnotations,
+        jobLabels,
+        imagePullSecrets);
   }
 
   /**

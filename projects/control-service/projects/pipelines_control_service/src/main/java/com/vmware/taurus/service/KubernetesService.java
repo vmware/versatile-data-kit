@@ -51,7 +51,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A facade over Kubernetes (https://en.wikipedia.org/wiki/Facade_pattern) (not complete see
@@ -1286,7 +1285,6 @@ public abstract class KubernetesService {
     }
     return Optional.empty();
   }
-
 
   private void v1checkForMissingEntries(V1CronJob cronjob) {
     V1CronJob internalCronjobTemplate = loadInternalV1CronjobTemplate();

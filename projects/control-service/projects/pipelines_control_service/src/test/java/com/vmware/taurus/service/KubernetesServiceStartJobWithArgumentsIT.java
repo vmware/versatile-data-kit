@@ -40,10 +40,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
     kubernetesService =
         Mockito.spy(
             new DataJobsKubernetesService(
-                "default",
-                new ApiClient(),
-                mockBatchV1,
-                new JobCommandProvider()));
+                "default", new ApiClient(), mockBatchV1, new JobCommandProvider()));
     Mockito.doNothing()
         .when(kubernetesService)
         .createNewJob(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
@@ -163,10 +160,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
   private V1CronJob getValidCronJobForVdkRunExtraArgsTests() throws Exception {
     KubernetesService service =
         new DataJobsKubernetesService(
-            "default",
-            new ApiClient(),
-            new BatchV1Api(),
-            new JobCommandProvider());
+            "default", new ApiClient(), new BatchV1Api(), new JobCommandProvider());
     // V1betaCronJob initializing snippet copied from tests above, using reflection
     Method loadInternalV1CronjobTemplate =
         KubernetesService.class.getDeclaredMethod("loadInternalV1CronjobTemplate");
@@ -174,8 +168,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
       Assertions.fail("The method 'loadInternalV1CronjobTemplate' does not exist.");
     }
     loadInternalV1CronjobTemplate.setAccessible(true);
-    V1CronJob internalCronjobTemplate =
-        (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
+    V1CronJob internalCronjobTemplate = (V1CronJob) loadInternalV1CronjobTemplate.invoke(service);
     var container =
         internalCronjobTemplate
             .getSpec()

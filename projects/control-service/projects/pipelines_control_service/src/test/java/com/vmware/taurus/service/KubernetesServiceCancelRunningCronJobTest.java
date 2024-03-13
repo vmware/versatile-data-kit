@@ -96,10 +96,6 @@ public class KubernetesServiceCancelRunningCronJobTest {
         .thenReturn(response);
 
     return new DataJobsKubernetesService(
-        "default",
-        false,
-        new ApiClient(),
-        batchV1Api,
-        new JobCommandProvider());
+        "default", false, new ApiClient(), batchV1Api, new JobCommandProvider());
   }
 }

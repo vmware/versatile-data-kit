@@ -28,8 +28,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class KubernetesServiceTest {
 
@@ -219,10 +217,7 @@ public class KubernetesServiceTest {
   private static DataJobsKubernetesService newDataJobKubernetesService() {
     return Mockito.spy(
         new DataJobsKubernetesService(
-            "default",
-            new ApiClient(),
-            new BatchV1Api(),
-            new JobCommandProvider()));
+            "default", new ApiClient(), new BatchV1Api(), new JobCommandProvider()));
   }
 
   @Test
@@ -330,7 +325,6 @@ public class KubernetesServiceTest {
   public void testReadJobDeploymentStatuses() {
     var mock = newDataJobKubernetesService();
     List<JobDeploymentStatus> v1TestList = new ArrayList<>();
-
 
     JobDeploymentStatus v1DeploymentStatus = new JobDeploymentStatus();
     v1DeploymentStatus.setEnabled(false);
