@@ -134,21 +134,13 @@ class ManagedCursor(ProxyCursor):
     def _decorate_operation(self, managed_operation: ManagedOperation, operation: str):
         decorate_operation = None
 
-        if (
-            self.__managed_database_connection
-            and type(
-                self.__managed_database_connection
-            ).db_connection_decorate_operation
-            != IDatabaseManagedConnection.db_connection_decorate_operation
-        ):
+        if self.__managed_database_connection and \
+                type(self.__managed_database_connection).db_connection_decorate_operation != IDatabaseManagedConnection.db_connection_decorate_operation:
             decorate_operation = (
                 self.__managed_database_connection.db_connection_decorate_operation
             )
 
-        elif (
-            self.__connection_hook_spec
-            and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
-        ):
+        elif self.__connection_hook_spec and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
             decorate_operation = (
                 self.__connection_hook_spec.db_connection_decorate_operation
             )
@@ -175,21 +167,13 @@ class ManagedCursor(ProxyCursor):
     def _validate_operation(self, operation: str, parameters: Optional[Container]):
         validate_operation = None
 
-        if (
-            self.__managed_database_connection
-            and type(
-                self.__managed_database_connection
-            ).db_connection_validate_operation
-            != IDatabaseManagedConnection.db_connection_validate_operation
-        ):
+        if self.__managed_database_connection \
+                and type(self.__managed_database_connection).db_connection_validate_operation != IDatabaseManagedConnection.db_connection_validate_operation:
             validate_operation = (
                 self.__managed_database_connection.db_connection_validate_operation
             )
 
-        elif (
-            self.__connection_hook_spec
-            and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
-        ):
+        elif self.__connection_hook_spec and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls():
             validate_operation = (
                 self.__connection_hook_spec.db_connection_validate_operation
             )
@@ -217,11 +201,8 @@ class ManagedCursor(ProxyCursor):
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         execution_cursor = ExecutionCursor(self._cursor, managed_operation, self._log)
 
-        if (
-            self.__managed_database_connection
-            and type(self.__managed_database_connection).db_connection_execute_operation
-            != IDatabaseManagedConnection.db_connection_execute_operation
-        ):
+        if self.__managed_database_connection\
+                and type(self.__managed_database_connection).db_connection_execute_operation != IDatabaseManagedConnection.db_connection_execute_operation:
             result = self.__managed_database_connection.db_connection_execute_operation(
                 execution_cursor=execution_cursor
             )
