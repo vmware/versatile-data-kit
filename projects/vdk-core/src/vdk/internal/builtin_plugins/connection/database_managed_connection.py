@@ -19,7 +19,7 @@ class IDatabaseManagedConnection:
         Validates the query and parameters.
 
         For example:
-        _db_connection_validate_operation(operation, parameters):
+        db_connection_validate_operation(operation, parameters):
             if(_max_query_length_limit_exceeded(operation, parameters)):
                 raise Exception("max query length limit exceeded")
 
@@ -40,7 +40,7 @@ class IDatabaseManagedConnection:
         If an exception is raised, the cursor execution will be suspended.
 
         For example:
-        _db_connection_decorate_operation(decoration_cursor: DecorationCursor):
+        db_connection_decorate_operation(decoration_cursor: DecorationCursor):
             managed_operation = decoration_cursor.get_managed_operation()
             managed_operation.set_operation("prefix" +
                                             managed_operation.get_operation())
@@ -55,6 +55,18 @@ class IDatabaseManagedConnection:
     def db_connection_execute_operation(
         self, execution_cursor: ExecutionCursor
     ) -> Optional[ExecuteOperationResult]:
+        """
+            The method that executes the actual SQL query using execution cursor.
+            For example: let's say we are writing vdk-impala plugin and want to print more debug info
+                which is available from the Impala native cursor (provided by impyla library)
+                    db_connection_execute_operation(execution_cursor: ExecutionCursor) -> Optional[int]:
+                        yield # let the query execute first
+                        c = cast(impala.interface.Cursor, execution_cursor)
+                        log.info(f"Query {execution_cursor.get_managed_operation().get_operation()} debug info:"
+                                f"summary: {c.get_summary()}, profile: {c.get_profile()}")
+            :param execution_cursor: ExecutionCursor
+            A PEP249Cursor implementation purposed for actual query execution.
+        """
         managed_operation = execution_cursor.get_managed_operation()
         if managed_operation.get_parameters():
             native_result = execution_cursor.execute(
@@ -70,7 +82,7 @@ class IDatabaseManagedConnection:
         If no exception is raised, cursor is considered successfully executed.
 
         For example:
-        _db_connection_recover_operation(recovery_cursor: RecoveryCursor):
+        db_connection_recover_operation(recovery_cursor: RecoveryCursor):
             while recovery_cursor.get_retries() < MAX_RETRIES:
                 try:
                     recovery_cursor.execute("helper query")
