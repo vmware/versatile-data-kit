@@ -143,7 +143,7 @@ class ManagedCursor(ProxyCursor):
                 self._cursor, self._log, managed_operation
             )
             try:
-                self.__connection_hook_spec.db_connection_decorate_operation(
+                decorate_operation(
                     decoration_cursor=decoration_cursor
                 )
             except Exception as e:
