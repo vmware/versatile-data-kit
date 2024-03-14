@@ -10,6 +10,7 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 from vdk.api.job_input import IIngester
 from vdk.api.plugin.plugin_input import IIngesterPlugin
@@ -120,7 +121,7 @@ class IngesterBase(IIngester):
 
     def send_object_for_ingestion(
         self,
-        payload: dict,
+        payload: Union[dict, "pandas.DataFrame"],
         destination_table: Optional[str],
         method: Optional[str],
         target: Optional[str] = None,
@@ -129,6 +130,16 @@ class IngesterBase(IIngester):
         """
         See parent doc
         """
+        if self.__object_is_data_frame(payload):
+            return self.send_tabular_data_for_ingestion(
+                rows=payload.itertuples(index=False),
+                column_names=payload.columns.tolist(),
+                destination_table=destination_table,
+                method=method,
+                target=target,
+                collection_id=collection_id,
+            )
+
         if collection_id is None:
             collection_id = "{data_job_name}|{execution_id}".format(
                 data_job_name=self._data_job_name, execution_id=self._op_id
@@ -703,3 +714,16 @@ class IngesterBase(IIngester):
                     resolvable_by=ResolvableBy.USER_ERROR,
                 )
             )
+
+    @staticmethod
+    def __object_is_data_frame(obj: Union[dict, "pandas.DataFrame"]) -> bool:
+        log.debug("Checking if object to be ingested is a DataFrame")
+        try:
+            import pandas
+
+            return isinstance(obj, pandas.DataFrame)
+        except ImportError:
+            log.debug(
+                "`pandas` package not found in the current environment, object is (probably) not a dataframe"
+            )
+            return False
