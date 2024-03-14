@@ -19,16 +19,16 @@ VDK_POSTGRES_HOST = "VDK_POSTGRES_HOST"
 VDK_POSTGRES_PORT = "VDK_POSTGRES_PORT"
 
 
-@pytest.mark.usefixtures("postgres_service")
+# @pytest.mark.usefixtures("postgres_service")
 @mock.patch.dict(
     os.environ,
     {
         VDK_DB_DEFAULT_TYPE: "POSTGRES",
-        VDK_POSTGRES_DBNAME: "postgres",
-        VDK_POSTGRES_USER: "postgres",
-        VDK_POSTGRES_PASSWORD: "postgres",
-        VDK_POSTGRES_HOST: "localhost",
-        VDK_POSTGRES_PORT: "5432",
+        VDK_POSTGRES_DBNAME: "dev",
+        VDK_POSTGRES_USER: "admin",
+        VDK_POSTGRES_PASSWORD: "Administrator1",
+        VDK_POSTGRES_HOST: "pygroup.931970533490.us-east-2.redshift-serverless.amazonaws.com",
+        VDK_POSTGRES_PORT: "5439",
     },
 )
 class PostgresUtilsTests(unittest.TestCase):

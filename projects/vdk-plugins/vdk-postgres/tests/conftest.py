@@ -21,18 +21,18 @@ VDK_POSTGRES_PORT = "VDK_POSTGRES_PORT"
 log = logging.getLogger(__name__)
 
 
-@wait_container_is_ready(Exception)
-def wait_for_postgres_to_be_responsive(runner):
-    result = runner.invoke(["postgres-query", "--query", "SELECT 1"])
-    if result.exit_code == 0:
-        return True
-    else:
-        raise ConnectionError(
-            f"Validation query failed with error {str(result.output)}"
-        )
-
-
-@pytest.fixture(scope="session")
+# @wait_container_is_ready(Exception)
+# def wait_for_postgres_to_be_responsive(runner):
+#     result = runner.invoke(["postgres-query", "--query", "SELECT 1"])
+#     if result.exit_code == 0:
+#         return True
+#     else:
+#         raise ConnectionError(
+#             f"Validation query failed with error {str(result.output)}"
+#         )
+#
+#
+# @pytest.fixture(scope="session")
 @mock.patch.dict(
     os.environ,
     {
@@ -56,7 +56,7 @@ def postgres_service(request):
     try:
         container.start()
         runner = CliEntryBasedTestRunner(postgres_plugin)
-        wait_for_postgres_to_be_responsive(runner)
+        # wait_for_postgres_to_be_responsive(runner)
         # wait 2 seconds to make sure the service is up and responsive
         # might be unnecessary but it's out of abundance of caution
         time.sleep(2)

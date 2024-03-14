@@ -20,16 +20,16 @@ VDK_POSTGRES_PORT = "VDK_POSTGRES_PORT"
 VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
 
 
-@pytest.mark.usefixtures("postgres_service")
+# @pytest.mark.usefixtures("postgres_service")
 @mock.patch.dict(
     os.environ,
     {
         VDK_DB_DEFAULT_TYPE: "POSTGRES",
-        VDK_POSTGRES_DBNAME: "postgres",
-        VDK_POSTGRES_USER: "postgres",
-        VDK_POSTGRES_PASSWORD: "postgres",
-        VDK_POSTGRES_HOST: "localhost",
-        VDK_POSTGRES_PORT: "5432",
+        VDK_POSTGRES_DBNAME: "dev",
+        VDK_POSTGRES_USER: "admin",
+        VDK_POSTGRES_PASSWORD: "Administrator1",
+        VDK_POSTGRES_HOST: "pygroup.931970533490.us-east-2.redshift-serverless.amazonaws.com",
+        VDK_POSTGRES_PORT: "5439",
         VDK_INGEST_METHOD_DEFAULT: "POSTGRES",
     },
 )
@@ -37,6 +37,10 @@ class IngestToPostgresTests(TestCase):
     def test_ingest_to_postgres(self):
         runner = CliEntryBasedTestRunner(postgres_plugin)
 
+        query_result = runner.invoke(
+            ["postgres-query", "--query", "DROP TABLE IF EXISTS test_table "]
+        )
+        cli_assert_equal(0, query_result)
         query_result = runner.invoke(
             [
                 "postgres-query",

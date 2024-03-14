@@ -95,6 +95,10 @@ class PostgresConnection(ManagedConnectionBase):
     def _connect(self):
         import psycopg2
 
+        #         return psycopg2.connect(
+        #             f"dbname={self._dbname} host={self._host} port={self._port} user={self._user} password={self._password}"
+        #         )
+
         return psycopg2.connect(
             dsn=self._dsn,
             connection_factory=self._connection_factory,
