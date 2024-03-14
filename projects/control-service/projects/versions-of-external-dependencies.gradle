@@ -17,7 +17,7 @@ project.ext {
             'org.mockito:mockito-core'                                           : 'org.mockito:mockito-core:5.11.0',
             'net.bytebuddy:byte-buddy'                                           : 'net.bytebuddy:byte-buddy:1.14.5',
             'com.fasterxml.jackson.core:jackson-databind'                        : 'com.fasterxml.jackson.core:jackson-databind:2.16.0',
-            'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0',
+            'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'             : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0',
             'org.json:json'                                                      : 'org.json:json:20240303',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.15.1',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.33',
@@ -57,7 +57,7 @@ project.ext {
             'io.swagger.core.v3:swagger-annotations'                             : 'io.swagger.core.v3:swagger-annotations:2.2.14',
             'io.swagger.core.v3:swagger-models'                                  : 'io.swagger.core.v3:swagger-models:2.2.14',
             'io.micrometer:micrometer-core'                                      : 'io.micrometer:micrometer-core:1.12.0',
-            'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.8.0',
+            'com.squareup.okio:okio'                                             : 'com.squareup.okio:okio:3.9.0',
             'org.apache.commons:commons-compress'                                : 'org.apache.commons:commons-compress:1.26.0',
             'org.hibernate:hibernate-jpamodelgen'                                : 'org.hibernate:hibernate-jpamodelgen:5.6.15.Final'
 
