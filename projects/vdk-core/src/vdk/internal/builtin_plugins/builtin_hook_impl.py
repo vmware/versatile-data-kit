@@ -16,6 +16,7 @@ from vdk.internal import vdk_build_info
 from vdk.internal.builtin_plugins.config import vdk_config
 from vdk.internal.builtin_plugins.config.config_help import ConfigHelpPlugin
 from vdk.internal.builtin_plugins.config.log_config import LoggingPlugin
+from vdk.internal.builtin_plugins.config.secrets_config import SecretsConfigPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import CoreConfigDefinitionPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import EnvironmentVarsConfigPlugin
 from vdk.internal.builtin_plugins.config.vdk_config import JobConfigIniPlugin
@@ -130,6 +131,7 @@ def vdk_start(plugin_registry: PluginRegistry, command_line_args: List) -> None:
     # TODO: should be in run package only
     plugin_registry.add_hook_specs(JobRunHookSpecs)
     plugin_registry.load_plugin_with_hooks_impl(JobConfigIniPlugin())
+    plugin_registry.load_plugin_with_hooks_impl(SecretsConfigPlugin())
     plugin_registry.load_plugin_with_hooks_impl(TerminationMessageWriterPlugin())
     plugin_registry.load_plugin_with_hooks_impl(JobRunSummaryOutputPlugin())
     # connection plugins

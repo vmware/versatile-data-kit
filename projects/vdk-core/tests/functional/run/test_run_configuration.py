@@ -13,6 +13,7 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
+from vdk.plugin.test_utils.util_plugins import TestSecretsServiceClient
 
 
 @mock.patch.dict(
@@ -100,3 +101,40 @@ def test_run_config_variables_are_set():
             config_log.config.get_value("other_config")
             == "other-config-from-config-ini"
         )
+
+
+def test_run_secrets_override_config_vars():
+    class DebugConfigLog:
+        def __init__(self):
+            self.config = None
+            self.secrets_client = TestSecretsServiceClient()
+
+        @hookimpl(tryfirst=True)
+        def initialize_job(self, context: JobContext):
+            context.secrets.set_secrets_factory_method(
+                "default", lambda: self.secrets_client
+            )
+            secrets = context.job_input.get_all_secrets()
+            secrets["LOG_EXCEPTION_FORMATTER"] = "plain"
+            secrets["IRRELEVANT_SECRET"] = "not relevant at all"
+            context.job_input.set_all_secrets(secrets)
+
+        @hookimpl(trylast=True)
+        def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
+            self.config = context.core_context.configuration
+            return None  # continue with next hook impl.
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_LOG_EXCEPTION_FORMATTER": "pretty",
+        },
+    ):
+        config_log = DebugConfigLog()
+        runner = CliEntryBasedTestRunner(config_log)
+        result: Result = runner.invoke(["run", util.job_path("simple-job")])
+        cli_assert_equal(0, result)
+        # secrets that match config keys are overridden
+        assert config_log.config.get_value("log_exception_formatter") == "plain"
+        # secrets that do not match any config key do not leak in the config object
+        assert config_log.config.get_value("irrelevant_secret") is None
