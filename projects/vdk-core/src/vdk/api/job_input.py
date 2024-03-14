@@ -150,13 +150,17 @@ class IIngester:
         The method then returns immediately unless ingester_wait_to_finish_after_every_send flag is set to true.
         The data is then processed and sent asynchronously by multiple background threads in parallel
          (the level of parallelism could be controlled by ingester_number_of_worker_threads configuration).
-
-        Alternatively, the same method can be used to send a pandas.DataFrame for ingestion, asynchronously.
+        Users should not modify a payload object after it has been passed to a send_object_for_ingestion call,
+        as this can be thread-unsafe and cause inconsistensies in the data.
 
         Arguments:
             payload: Union[dict, "pandas.DataFrame"]
                 The passed object will be translated to a row in destination table.
                 Keys of the object are translated to columns in the table and values will populate a single row.
+
+                The payload argument can be either a dict or a pandas.DataFrame.
+                The pandas library is an optional dependency; ensure it is installed and included in
+                the job's requirements before deployment.
 
                 Note:
                     This method hides technical complexities around @type and @id
