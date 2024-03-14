@@ -723,5 +723,7 @@ class IngesterBase(IIngester):
 
             return isinstance(obj, pandas.DataFrame)
         except ImportError:
-            log.debug("`pandas` package not found in the current environment, object is (probably) not a dataframe")
+            log.debug(
+                "`pandas` package not found in the current environment, object is (probably) not a dataframe"
+            )
             return False
