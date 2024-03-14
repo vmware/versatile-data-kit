@@ -484,7 +484,7 @@ class Installer:
                         "--name",
                         self.kind_cluster_name,
                         "--image",
-                        "kindest/node:v1.20.15",
+                        "kindest/node:v1.24.17",
                     ],
                     capture_output=True,
                 )
@@ -816,3 +816,4 @@ class Installer:
             else:
                 log.debug("Control Service at http://localhost:8092 is DOWN.")
             return response.status_code < 300
+
