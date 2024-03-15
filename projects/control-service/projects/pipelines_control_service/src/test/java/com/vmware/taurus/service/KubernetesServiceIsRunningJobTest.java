@@ -12,7 +12,6 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.openapi.models.V1Job;
 import io.kubernetes.client.openapi.models.V1JobCondition;
 import io.kubernetes.client.openapi.models.V1JobList;
@@ -96,12 +95,7 @@ public class KubernetesServiceIsRunningJobTest {
 
     KubernetesService kubernetesService =
         new DataJobsKubernetesService(
-            "default",
-            true,
-            new ApiClient(),
-            batchV1Api,
-            new BatchV1beta1Api(),
-            new JobCommandProvider());
+            "default", new ApiClient(), batchV1Api, new JobCommandProvider());
     boolean actualResult = kubernetesService.isRunningJob("test-job");
 
     Assertions.assertEquals(expectedResult, actualResult);

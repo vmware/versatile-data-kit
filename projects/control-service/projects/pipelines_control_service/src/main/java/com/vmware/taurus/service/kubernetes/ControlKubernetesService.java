@@ -11,7 +11,6 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,10 +24,9 @@ public class ControlKubernetesService extends KubernetesService {
   // those should be null/empty when Control service is deployed in k8s hence default is empty
   public ControlKubernetesService(
       @Qualifier("controlNamespace") String namespace,
-      @Value("${datajobs.control.k8s.k8sSupportsV1CronJob}") boolean k8sSupportsV1CronJob,
       @Qualifier("controlApiClient") ApiClient client,
       @Qualifier("controlBatchV1Api") BatchV1Api batchV1Api,
       JobCommandProvider jobCommandProvider) {
-    super(namespace, k8sSupportsV1CronJob, log, client, batchV1Api, null, jobCommandProvider);
+    super(namespace, log, client, batchV1Api, jobCommandProvider);
   }
 }
