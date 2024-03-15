@@ -22,10 +22,10 @@ With the rise in popularity of LLMs and RAG we see VDK as a core component to ge
 
 ## Glossary
 
-LLM: Large language model. The most ubiquitous example of this is chatgpt. It is a specialized type of artificial intelligence (AI) that has been trained on vast amounts of text to understand existing content and generate original content. 
-RAG: Retrival augmented generation. Additional information is passed to the LLM through the prompt. This additional information can help it generate better and more context aware responses. 
-Vector database: A database which supports storing vectors(arrays of numbers) and doing similarity searches between vectors(cosine distance, dot product etc...). 
-PGVector: A postgres extension which enables similarity searches in postgres and a vector datatype. 
+LLM: Large language model. The most ubiquitous example of this is chatgpt. It is a specialized type of artificial intelligence (AI) that has been trained on vast amounts of text to understand existing content and generate original content.
+RAG: Retrival augmented generation. Additional information is passed to the LLM through the prompt. This additional information can help it generate better and more context aware responses.
+Vector database: A database which supports storing vectors(arrays of numbers) and doing similarity searches between vectors(cosine distance, dot product etc...).
+PGVector: A postgres extension which enables similarity searches in postgres and a vector datatype.
 
 
 ## Motivation
