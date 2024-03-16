@@ -69,6 +69,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation versions.'commons-io:commons-io'
     implementation versions.'org.apache.commons:commons-text'
     implementation versions.'net.lingala.zip4j:zip4j'
+    implementation 'com.google.ortools:ortools-java:9.8.3296'
 
     implementation versions.'net.javacrumbs.shedlock:shedlock-spring'
     implementation versions.'net.javacrumbs.shedlock:shedlock-provider-jdbc-template'
