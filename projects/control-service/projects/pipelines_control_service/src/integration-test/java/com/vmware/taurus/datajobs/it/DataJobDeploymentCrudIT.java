@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @TestPropertySource(
     properties = {
-      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
       "datajobs.deployment.configuration.persistence.writeTos=K8S",
       "datajobs.deployment.configuration.persistence.readDataSource=K8S",
       "datajobs.deployment.configuration.synchronization.task.enabled=false"

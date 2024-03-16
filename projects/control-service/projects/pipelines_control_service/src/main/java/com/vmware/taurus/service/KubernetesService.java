@@ -51,7 +51,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A facade over Kubernetes (https://en.wikipedia.org/wiki/Facade_pattern) (not complete see
@@ -193,36 +192,25 @@ public abstract class KubernetesService {
   private Logger log;
   private final ApiClient client;
   protected final BatchV1Api batchV1Api;
-  protected final BatchV1beta1Api batchV1beta1Api;
-  private boolean k8sSupportsV1CronJob;
 
   @Autowired private final JobCommandProvider jobCommandProvider;
 
   /**
    * @param namespace the namespace where the kubernetes operation will act on. leave empty to infer
    *     from kubeconfig
-   * @param k8sSupportsV1CronJob Whether the target K8s cluster supports the V1CronJob API
    * @param log log to use - used in subclasses in order to set classname to subclass.
    */
   protected KubernetesService(
       String namespace,
-      boolean k8sSupportsV1CronJob,
       Logger log,
       ApiClient client,
       BatchV1Api batchV1Api,
-      BatchV1beta1Api batchV1beta1Api,
       JobCommandProvider jobCommandProvider) {
     this.namespace = namespace;
-    this.k8sSupportsV1CronJob = k8sSupportsV1CronJob;
     this.log = log;
     this.client = client;
     this.batchV1Api = batchV1Api;
-    this.batchV1beta1Api = batchV1beta1Api;
     this.jobCommandProvider = jobCommandProvider;
-  }
-
-  protected boolean getK8sSupportsV1CronJob() {
-    return this.k8sSupportsV1CronJob;
   }
 
   private V1CronJob loadV1CronjobTemplate() {
@@ -238,31 +226,6 @@ public abstract class KubernetesService {
     return cronjobTemplate;
   }
 
-  private V1beta1CronJob loadV1beta1CronjobTemplate() {
-    if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.trace("Datajob template file location is not set. Using internal datajob template.");
-      return loadInternalV1beta1CronjobTemplate();
-    }
-    V1beta1CronJob cronjobTemplate = loadConfigurableV1beta1CronjobTemplate();
-    if (cronjobTemplate == null) {
-      return loadInternalV1beta1CronjobTemplate();
-    }
-
-    return cronjobTemplate;
-  }
-
-  private V1beta1CronJob loadInternalV1beta1CronjobTemplate() {
-    try {
-      return loadV1beta1CronjobTemplate(
-          new ClassPathResource(K8S_DATA_JOB_TEMPLATE_RESOURCE).getFile());
-    } catch (Exception e) {
-      // This should never happen unless we are testing locally and we've messed up
-      // with the internal template resource file.
-      throw new RuntimeException(
-          "Unrecoverable error while loading the internal datajob template. Cannot continue.", e);
-    }
-  }
-
   private V1CronJob loadInternalV1CronjobTemplate() {
     try {
       return loadV1CronjobTemplate(
@@ -272,23 +235,6 @@ public abstract class KubernetesService {
       // with the internal template resource file.
       throw new RuntimeException(
           "Unrecoverable error while loading the internal datajob template. Cannot continue.", e);
-    }
-  }
-
-  private V1beta1CronJob loadConfigurableV1beta1CronjobTemplate() {
-    // Check whether to use configurable datajob template at all.
-    if (StringUtils.isEmpty(datajobTemplateFileLocation)) {
-      log.trace("Datajob template file location is not set.");
-      return null;
-    }
-
-    try {
-      // Load the configurable datajob template file.
-      return loadV1beta1CronjobTemplate(
-          new ClassPathResource(datajobTemplateFileLocation).getFile());
-    } catch (Exception e) {
-      log.error("Error while loading the datajob template file.", e);
-      return null;
     }
   }
 
@@ -306,14 +252,6 @@ public abstract class KubernetesService {
       log.error("Error while loading the datajob template file.", e);
       return null;
     }
-  }
-
-  private V1beta1CronJob loadV1beta1CronjobTemplate(File datajobTemplateFile) throws Exception {
-    String cronjobTemplateString = Files.readString(datajobTemplateFile.toPath());
-    // Check whether the string template is a valid datajob template.
-    V1beta1CronJob cronjobTemplate = Yaml.loadAs(cronjobTemplateString, V1beta1CronJob.class);
-
-    return cronjobTemplate;
   }
 
   private V1CronJob loadV1CronjobTemplate(File datajobTemplateFile) throws Exception {
@@ -371,24 +309,7 @@ public abstract class KubernetesService {
    *     Optional if the cron job does not exist or cannot be read
    */
   public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
-    var jobStatus = readV1beta1CronJob(cronJobName);
-
-    return jobStatus.isPresent() ? jobStatus : readV1CronJob(cronJobName);
-  }
-
-  public Optional<JobDeploymentStatus> readV1beta1CronJob(String cronJobName) {
-    log.debug("Reading k8s V1beta1 cron job: {}", cronJobName);
-    V1beta1CronJob cronJob = null;
-    try {
-      cronJob = batchV1beta1Api.readNamespacedCronJob(cronJobName, namespace, null);
-    } catch (ApiException e) {
-      log.warn(
-          "Could not read cron job: {}; reason: {}",
-          cronJobName,
-          new KubernetesException("", e).toString());
-    }
-
-    return mapV1beta1CronJobToDeploymentStatus(cronJob, cronJobName);
+    return readV1CronJob(cronJobName);
   }
 
   public Optional<JobDeploymentStatus> readV1CronJob(String cronJobName) {
@@ -413,33 +334,7 @@ public abstract class KubernetesService {
    *     data
    */
   public List<JobDeploymentStatus> readJobDeploymentStatuses() {
-    if (getK8sSupportsV1CronJob()) {
-      return Stream.concat(
-              readV1CronJobDeploymentStatuses().stream(),
-              readV1beta1CronJobDeploymentStatuses().stream())
-          .collect(Collectors.toList());
-    } else {
-      return readV1beta1CronJobDeploymentStatuses();
-    }
-  }
-
-  public List<JobDeploymentStatus> readV1beta1CronJobDeploymentStatuses() {
-    log.debug("Reading all k8s V1beta1 cron jobs");
-    V1beta1CronJobList cronJobs = null;
-    try {
-      cronJobs =
-          batchV1beta1Api.listNamespacedCronJob(
-              namespace, null, null, null, null, null, null, null, null, null, null);
-    } catch (ApiException e) {
-      log.warn("Failed to read k8s cron jobs: ", new KubernetesException("", e));
-    }
-
-    return cronJobs == null
-        ? Collections.emptyList()
-        : cronJobs.getItems().stream()
-            .map(cronJob -> mapV1beta1CronJobToDeploymentStatus(cronJob, null))
-            .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+    return readV1CronJobDeploymentStatuses();
   }
 
   public List<JobDeploymentStatus> readV1CronJobDeploymentStatuses() {
@@ -469,76 +364,8 @@ public abstract class KubernetesService {
       Map<String, Object> extraJobArguments,
       String jobName)
       throws ApiException {
-    if (getK8sSupportsV1CronJob()) {
-      startNewV1CronJobExecution(
-          cronJobName, executionId, annotations, envs, extraJobArguments, jobName);
-    } else {
-      startNewV1beta1CronJobExecution(
-          cronJobName, executionId, annotations, envs, extraJobArguments, jobName);
-    }
-  }
-
-  private void startNewV1beta1CronJobExecution(
-      String cronJobName,
-      String executionId,
-      Map<String, String> annotations,
-      Map<String, String> envs,
-      Map<String, Object> extraJobArguments,
-      String jobName)
-      throws ApiException {
-    var cron = batchV1beta1Api.readNamespacedCronJob(cronJobName, namespace, null);
-    Optional<V1beta1JobTemplateSpec> jobTemplateSpec =
-        Optional.ofNullable(cron)
-            .map(V1beta1CronJob::getSpec)
-            .map(V1beta1CronJobSpec::getJobTemplate);
-
-    Map<String, String> jobLabels =
-        jobTemplateSpec
-            .map(V1beta1JobTemplateSpec::getMetadata)
-            .map(V1ObjectMeta::getLabels)
-            .orElse(Collections.emptyMap());
-
-    Map<String, String> jobAnnotations =
-        jobTemplateSpec
-            .map(V1beta1JobTemplateSpec::getMetadata)
-            .map(V1ObjectMeta::getAnnotations)
-            .map(
-                v1ObjectMetaAnnotations -> {
-                  v1ObjectMetaAnnotations.putAll(annotations);
-                  return v1ObjectMetaAnnotations;
-                })
-            .orElse(annotations);
-
-    V1JobSpec jobSpec =
-        jobTemplateSpec
-            .map(V1beta1JobTemplateSpec::getSpec)
-            .orElseThrow(
-                () ->
-                    new ApiException(
-                        String.format(
-                            "K8S Cron Job '%s' does not exist or is not properly defined.",
-                            cronJobName)));
-
-    jobSpec.setTtlSecondsAfterFinished(jobTTLAfterFinishedSeconds);
-
-    V1Container v1Container =
-        Optional.ofNullable(jobSpec.getTemplate())
-            .map(V1PodTemplateSpec::getSpec)
-            .map(V1PodSpec::getContainers)
-            .map(v1Containers -> v1Containers.get(0))
-            .orElseThrow(
-                () ->
-                    new ApiException(
-                        String.format("K8S Cron Job '%s' is not properly defined.", cronJobName)));
-    if (!CollectionUtils.isEmpty(envs)) {
-      envs.forEach((name, value) -> v1Container.addEnvItem(new V1EnvVar().name(name).value(value)));
-    }
-
-    if (!CollectionUtils.isEmpty(extraJobArguments)) {
-      addExtraJobArgumentsToVdkContainer(v1Container, extraJobArguments, jobName);
-    }
-
-    createNewJob(executionId, jobSpec, jobLabels, jobAnnotations);
+    startNewV1CronJobExecution(
+        cronJobName, executionId, annotations, envs, extraJobArguments, jobName);
   }
 
   private void startNewV1CronJobExecution(
@@ -628,43 +455,6 @@ public abstract class KubernetesService {
 
   // TODO:  container/volume args are breaking a bit abstraction of KubernetesService by leaking
   // impl. details
-  public void createV1beta1CronJob(
-      String name,
-      String image,
-      String schedule,
-      boolean enable,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobAnnotations,
-      Map<String, String> jobLabels,
-      List<String> imagePullSecrets)
-      throws ApiException {
-    log.debug("Creating k8s V1beta1 cron job name:{}, image:{}", name, image);
-    var cronJob =
-        v1beta1CronJobFromTemplate(
-            name,
-            schedule,
-            !enable,
-            jobContainer,
-            initContainer,
-            volumes,
-            jobAnnotations,
-            jobLabels,
-            imagePullSecrets);
-    V1beta1CronJob nsJob =
-        batchV1beta1Api.createNamespacedCronJob(namespace, cronJob, null, null, null, null);
-    log.debug("Created k8s V1beta1 cron job: {}", cronJob);
-    log.debug(
-        "Created k8s cron job name: {}, api_version:{}, uid:{}, link:{}",
-        nsJob.getMetadata().getName(),
-        nsJob.getApiVersion(),
-        nsJob.getMetadata().getUid(),
-        nsJob.getMetadata().getSelfLink());
-  }
-
-  // TODO:  container/volume args are breaking a bit abstraction of KubernetesService by leaking
-  // impl. details
   public void createV1CronJob(
       String name,
       String image,
@@ -696,41 +486,6 @@ public abstract class KubernetesService {
         "Created k8s cron job name: {}, api_version: {}, uid:{}, link:{}",
         nsJob.getMetadata().getName(),
         nsJob.getApiVersion(),
-        nsJob.getMetadata().getUid(),
-        nsJob.getMetadata().getSelfLink());
-  }
-
-  public void updateV1beta1CronJob(
-      String name,
-      String image,
-      String schedule,
-      boolean enable,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobAnnotations,
-      Map<String, String> jobLabels,
-      List<String> imagePullSecrets)
-      throws ApiException {
-    var cronJob =
-        v1beta1CronJobFromTemplate(
-            name,
-            schedule,
-            !enable,
-            jobContainer,
-            initContainer,
-            volumes,
-            jobAnnotations,
-            jobLabels,
-            imagePullSecrets);
-
-    V1beta1CronJob nsJob =
-        batchV1beta1Api.replaceNamespacedCronJob(name, namespace, cronJob, null, null, null, null);
-    log.debug("Updated k8s V1 cron job: {}", cronJob);
-    log.debug(
-        "Updated k8s V1beta1 cron job status for name:{}, image:{}, uid:{}, link:{}",
-        name,
-        image,
         nsJob.getMetadata().getUid(),
         nsJob.getMetadata().getSelfLink());
   }
@@ -1531,68 +1286,6 @@ public abstract class KubernetesService {
     return Optional.empty();
   }
 
-  // TODO - in the future we want to merge the (1) configurable datajob template
-  //        with the (2) default internal datajob template when something from (1)
-  //        is missing. For now we just check for missing entries in (1) and overwrite
-  //        them with the corresponding entries in (2).
-  private void v1beta1checkForMissingEntries(V1beta1CronJob cronjob) {
-    V1beta1CronJob internalCronjobTemplate = loadInternalV1beta1CronjobTemplate();
-    if (cronjob.getMetadata() == null) {
-      cronjob.setMetadata(internalCronjobTemplate.getMetadata());
-    }
-    V1ObjectMeta metadata = cronjob.getMetadata();
-    if (metadata.getAnnotations() == null) {
-      metadata.setAnnotations(new HashMap<>());
-    }
-    if (cronjob.getSpec() == null) {
-      cronjob.setSpec(internalCronjobTemplate.getSpec());
-    }
-    V1beta1CronJobSpec spec = cronjob.getSpec();
-    if (spec.getJobTemplate() == null) {
-      spec.setJobTemplate(internalCronjobTemplate.getSpec().getJobTemplate());
-    }
-    if (spec.getJobTemplate().getMetadata() == null) {
-      spec.getJobTemplate()
-          .setMetadata(internalCronjobTemplate.getSpec().getJobTemplate().getMetadata());
-    }
-    if (spec.getJobTemplate().getMetadata().getLabels() == null) {
-      spec.getJobTemplate().getMetadata().setLabels(new HashMap<>());
-    }
-    if (spec.getJobTemplate().getMetadata().getAnnotations() == null) {
-      spec.getJobTemplate().getMetadata().setAnnotations(new HashMap<>());
-    }
-    if (spec.getJobTemplate().getSpec() == null) {
-      spec.getJobTemplate().setSpec(internalCronjobTemplate.getSpec().getJobTemplate().getSpec());
-    }
-    if (spec.getJobTemplate().getSpec().getTemplate() == null) {
-      spec.getJobTemplate()
-          .getSpec()
-          .setTemplate(internalCronjobTemplate.getSpec().getJobTemplate().getSpec().getTemplate());
-    }
-    if (spec.getJobTemplate().getSpec().getTemplate().getSpec() == null) {
-      spec.getJobTemplate()
-          .getSpec()
-          .getTemplate()
-          .setSpec(
-              internalCronjobTemplate.getSpec().getJobTemplate().getSpec().getTemplate().getSpec());
-    }
-    if (spec.getJobTemplate().getSpec().getTemplate().getMetadata() == null) {
-      spec.getJobTemplate()
-          .getSpec()
-          .getTemplate()
-          .setMetadata(
-              internalCronjobTemplate
-                  .getSpec()
-                  .getJobTemplate()
-                  .getSpec()
-                  .getTemplate()
-                  .getMetadata());
-    }
-    if (spec.getJobTemplate().getSpec().getTemplate().getMetadata().getLabels() == null) {
-      spec.getJobTemplate().getSpec().getTemplate().getMetadata().setLabels(new HashMap<>());
-    }
-  }
-
   private void v1checkForMissingEntries(V1CronJob cronjob) {
     V1CronJob internalCronjobTemplate = loadInternalV1CronjobTemplate();
     if (cronjob.getMetadata() == null) {
@@ -1649,60 +1342,6 @@ public abstract class KubernetesService {
     if (spec.getJobTemplate().getSpec().getTemplate().getMetadata().getLabels() == null) {
       spec.getJobTemplate().getSpec().getTemplate().getMetadata().setLabels(new HashMap<>());
     }
-  }
-
-  protected V1beta1CronJob v1beta1CronJobFromTemplate(
-      String name,
-      String schedule,
-      boolean suspend,
-      V1Container jobContainer,
-      V1Container initContainer,
-      List<V1Volume> volumes,
-      Map<String, String> jobAnnotations,
-      Map<String, String> jobLabels,
-      List<String> imagePullSecrets) {
-    V1beta1CronJob cronjob = loadV1beta1CronjobTemplate();
-    v1beta1checkForMissingEntries(cronjob);
-    cronjob.getMetadata().setName(name);
-    cronjob.getSpec().setSchedule(schedule);
-    cronjob.getSpec().setSuspend(suspend);
-    cronjob
-        .getSpec()
-        .getJobTemplate()
-        .getSpec()
-        .getTemplate()
-        .getSpec()
-        .setContainers(Collections.singletonList(jobContainer));
-    cronjob
-        .getSpec()
-        .getJobTemplate()
-        .getSpec()
-        .getTemplate()
-        .getSpec()
-        .setInitContainers(Collections.singletonList(initContainer));
-    cronjob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().setVolumes(volumes);
-
-    cronjob.getSpec().getJobTemplate().getMetadata().getAnnotations().putAll(jobAnnotations);
-    cronjob.getSpec().getJobTemplate().getMetadata().getLabels().putAll(jobLabels);
-
-    List<V1LocalObjectReference> imagePullSecretsObj =
-        Optional.ofNullable(imagePullSecrets).stream()
-            .flatMap(secrets -> secrets.stream())
-            .filter(secret -> StringUtils.isNotEmpty(secret))
-            .map(secret -> new V1LocalObjectReferenceBuilder().withName(secret).build())
-            .collect(Collectors.toList());
-
-    if (!CollectionUtils.isEmpty(imagePullSecretsObj)) {
-      cronjob
-          .getSpec()
-          .getJobTemplate()
-          .getSpec()
-          .getTemplate()
-          .getSpec()
-          .setImagePullSecrets(imagePullSecretsObj);
-    }
-
-    return cronjob;
   }
 
   protected V1CronJob v1CronJobFromTemplate(
@@ -1964,68 +1603,6 @@ public abstract class KubernetesService {
         .endMetadata()
         .withData(data)
         .build();
-  }
-
-  private Optional<JobDeploymentStatus> mapV1beta1CronJobToDeploymentStatus(
-      V1beta1CronJob cronJob, String cronJobName) {
-    JobDeploymentStatus deployment = null;
-    String apiVersion = null;
-
-    try {
-      apiVersion = cronJob.getApiVersion();
-    } catch (NullPointerException e) {
-      log.debug("Could not get API version for cronjob {}", cronJobName);
-    }
-
-    if (cronJob != null) {
-      deployment = new JobDeploymentStatus();
-      deployment.setEnabled(!cronJob.getSpec().getSuspend());
-      deployment.setDataJobName(cronJob.getMetadata().getName());
-      deployment.setMode(
-          "release"); // TODO: Get from cron job config when we support testing environments
-      deployment.setCronJobName(
-          cronJobName == null ? cronJob.getMetadata().getName() : cronJobName);
-
-      // all fields until pod spec are required so no need to check for null
-      var annotations = cronJob.getSpec().getJobTemplate().getMetadata().getAnnotations();
-      if (annotations != null) {
-        deployment.setLastDeployedBy(annotations.get(JobAnnotation.DEPLOYED_BY.getValue()));
-        deployment.setLastDeployedDate(annotations.get(JobAnnotation.DEPLOYED_DATE.getValue()));
-        deployment.setPythonVersion(annotations.get(JobAnnotation.PYTHON_VERSION.getValue()));
-      }
-
-      List<V1Container> containers =
-          cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getContainers();
-      if (!containers.isEmpty()) {
-        String image =
-            containers.get(0).getImage(); // TODO: Have 2 containers. 1 for VDK and 1 for the job.
-        deployment.setImageName(image); // TODO do we really need to return image_name?
-      }
-      var initContainers =
-          cronJob.getSpec().getJobTemplate().getSpec().getTemplate().getSpec().getInitContainers();
-      if (!CollectionUtils.isEmpty(initContainers)) {
-        String vdkImage = initContainers.get(0).getImage();
-        deployment.setVdkImageName(vdkImage);
-        deployment.setVdkVersion(DockerImageName.getTag(vdkImage));
-      } else {
-        log.warn("Missing init container for cronjob {}", cronJobName);
-      }
-
-      var labels = cronJob.getSpec().getJobTemplate().getMetadata().getLabels();
-      if (labels == null) {
-        log.warn(
-            "The cronjob of data job '{}' does not have any labels defined.",
-            deployment.getDataJobName());
-      }
-      if (labels != null && labels.containsKey(JobLabel.VERSION.getValue())) {
-        deployment.setGitCommitSha(labels.get(JobLabel.VERSION.getValue()));
-      } else {
-        // Legacy approach to get version:
-        deployment.setGitCommitSha(DockerImageName.getTag(deployment.getImageName()));
-      }
-    }
-
-    return Optional.ofNullable(deployment);
   }
 
   private Optional<JobDeploymentStatus> mapV1CronJobToDeploymentStatus(

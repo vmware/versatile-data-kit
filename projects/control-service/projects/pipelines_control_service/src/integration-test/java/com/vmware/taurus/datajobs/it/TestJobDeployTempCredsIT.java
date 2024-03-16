@@ -53,7 +53,6 @@ import org.springframework.test.web.servlet.MvcResult;
 @Import({TestJobDeployTempCredsIT.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
-      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
       "datajobs.aws.assumeIAMRole=true",
       "datajobs.aws.RoleArn=arn:aws:iam::320807031117:role/svc.ecr-integration-test",
       "datajobs.docker.registryType=ecr",
