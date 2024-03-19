@@ -84,6 +84,7 @@ service:
    # clusterIP
    # additionalLabels:
 
+nginx.enabled: false
 ### Ingress resource parameters
 ingress:
   ## Configure ingress resource to expose the service outside of K8s. The ingress resource will serve as reverse proxy,
@@ -104,15 +105,16 @@ ingress:
   annotations: {}
   # kubernetes.io/ingress.class: nginx
   ## Configure hostname to use in named-based virtual host.
-  ## hosts:
-  ##  - name: "sc-dp-cs-stg.vdp-stg.oc.vmware.com"
-  ##    paths:
-  ## URI path/endpoint to the service
-  ## This should be unique path to instruct the ingress controller which path is served by the downstream service.
-  ## Defaults to '/'
-  ##      - path: /data-jobs
-  ##        serviceName: "{{ .Release.Name }}-svc"
-  ##        servicePort: *controlServicePort
+  hosts:
+   - name: "sc-dp-cs-stg.vdp-stg.oc.vmware.com"
+     paths:
+        - path: ""
+          serviceName: "{{ .Release.Name }}-ui"
+          servicePort: 80
+        - path: "/data-jobs"
+          serviceName: "{{ .Release.Name }}-svc"
+          servicePort: *controlServicePort
+
   ##    tls: true
   ## Provide existing secret which holds TLS certificate/key.
   ## This is will instruct the ingress controller to use specific TLS certificate on this ingress resource. By default,
@@ -120,7 +122,7 @@ ingress:
   ## https://github.com/kubernetes/ingress-nginx/
   ##    tlsSecretName: "tpcs-test-tls-secret"
   ## It is used to associate an Ingress resource with a specific Ingress controller or implementation.
-  className: ""
+  className: "nginx"
 
 # Embedded server settings
 server:
