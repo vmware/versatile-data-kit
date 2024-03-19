@@ -178,22 +178,22 @@ public class DataJobsKubernetesService extends KubernetesService {
       }
     }
 
-    var v1BetaCronJobs =
+    var cronJobs =
         batchV1Api.listNamespacedCronJob(
             namespace, null, null, null, null, null, null, null, null, null, null);
-    var v1BetaCronJobNames =
-        v1BetaCronJobs.getItems().stream()
+    var cronJobNames =
+        cronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
             .collect(Collectors.toSet());
-    log.trace("K8s V1Beta cron jobs: {}", v1BetaCronJobNames);
-    return Stream.concat(v1CronJobNames.stream(), v1BetaCronJobNames.stream())
+    log.trace("K8s cron jobs: {}", cronJobNames);
+    return Stream.concat(v1CronJobNames.stream(), cronJobNames.stream())
         .collect(Collectors.toSet());
   }
 
   public void deleteCronJob(String name) throws ApiException {
     log.debug("Deleting k8s cron job: {}", name);
     batchV1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
-    log.debug("Deleted k8s V1 cron job: {}", name);
+    log.debug("Deleted k8s cron job: {}", name);
   }
 
   public void cancelRunningCronJob(String teamName, String jobName, String executionId)
