@@ -710,7 +710,7 @@ class Installer:
             "--set",
             "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
             "--set",
-            "deploymentBuilderImage.tag=1.2.3"
+            "deploymentBuilderImage.tag=1.2.3",
             "-f",
             self.__current_directory.joinpath("helm-values.yaml"),
         ]
