@@ -52,7 +52,7 @@ operationsUi:
 deploymentBuilderImage:
   registry: registry.hub.docker.com/versatiledatakit
   repository: job-builder
-  tag: "1.2.3"
+  tag: "1.4.1"
   username:
   password:
 
