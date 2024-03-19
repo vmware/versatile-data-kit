@@ -27,8 +27,8 @@ dependencies:
   repository: https://charts.bitnami.com/bitnami
   condition: postgresql.enabled
 - name: cockroachdb
-  version: "3.0.7"
-  repository: "https://charts.helm.sh/stable"
+  version: "12.0.2"
+  repository: "https://charts.cockroachdb.com/"
   condition: cockroachdb.enabled
 - name: ingress-nginx
   version: 4.10.0
