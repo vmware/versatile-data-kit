@@ -1608,15 +1608,8 @@ public abstract class KubernetesService {
   private Optional<JobDeploymentStatus> mapV1CronJobToDeploymentStatus(
       V1CronJob cronJob, String cronJobName) {
     JobDeploymentStatus deployment = null;
-    String apiVersion = null;
 
-    try {
-      apiVersion = cronJob.getApiVersion();
-    } catch (NullPointerException e) {
-      log.debug("Could not get API version for cronjob {}", cronJobName);
-    }
-
-    if (cronJob != null && apiVersion != null && apiVersion.equals("batch/v1")) {
+    if (cronJob != null) {
       deployment = new JobDeploymentStatus();
       deployment.setEnabled(!cronJob.getSpec().getSuspend());
       deployment.setDataJobName(cronJob.getMetadata().getName());
