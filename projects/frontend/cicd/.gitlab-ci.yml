@@ -197,7 +197,7 @@ frontend_quickstart_operability_test:
   before_script:
     - cd projects/frontend/data-pipelines/gui
   script:
-    - export CYPRESS_BASE_URL=http://cicd-control-service-ui:80
+    - export CYPRESS_BASE_URL=http://cicd-vdk-ui:80
     - npm run quickstart-smoke
   retry: !reference [.frontend_retry, retry_options]
   rules:
