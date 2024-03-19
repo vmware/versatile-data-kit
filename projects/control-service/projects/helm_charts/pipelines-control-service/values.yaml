@@ -627,8 +627,6 @@ postgresql:
 ## See https://github.com/cockroachdb/helm-charts/tree/master/cockroachdb
 cockroachdb:
    enabled: true
-   tls:
-    enabled: false
    storage:
       persistentVolume:
          size: 1Gi
