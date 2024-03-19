@@ -1,6 +1,10 @@
 # Versatile Data Kit Service
 Versatile Data Kit is a platform that enables Data Engineers to implement automated pull ingestion (E in ELT) and batch data transformation into a database (T in ELT).
 
+**Note:** These helm charts are intended for production use only. To test a control service deployment locally,
+please install [quickstart-vdk](https://github.com/vmware/versatile-data-kit/wiki/Quickstart-VDK) and use [vdk-server](https://github.
+com/vmware/versatile-data-kit/tree/main/projects/vdk-plugins/vdk-server)
+
 ## Prerequisites
 - Kubernetes 1.24<
 - Helm 3.0
