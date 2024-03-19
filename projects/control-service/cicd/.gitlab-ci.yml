@@ -50,7 +50,7 @@ control_service_test_helm_chart:
   only:
     refs:
       - external_pull_requests
-    changes: *control_service_helm_change_locations
+    changes: *control_service_code_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
@@ -181,7 +181,7 @@ control_service_publish_image:
   only:
     refs:
       - external_pull_requests
-    changes: *control_service_helm_change_locations
+    changes: *control_service_code_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
@@ -228,7 +228,7 @@ control_service_deploy_testing_data_pipelines:
   only:
     refs:
       - external_pull_requests
-    changes: *control_service_helm_change_locations
+    changes: *control_service_code_change_locations
   except:
     changes:
       - projects/control-service/projects/helm_charts/pipelines-control-service/version.txt
