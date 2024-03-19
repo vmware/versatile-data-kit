@@ -17,7 +17,7 @@ setuptools.setup(
     description="DuckDB Plugin for VDK.",
     long_description=pathlib.Path("README.md").read_text(),
     long_description_content_type="text/markdown",
-    install_requires=["vdk-core", "tabulate", "duckdb"],
+    install_requires=["vdk-core", "tabulate"],
     package_dir={"": "src"},
     packages=setuptools.find_namespace_packages(where="src"),
     # This is the only vdk plugin specific part
