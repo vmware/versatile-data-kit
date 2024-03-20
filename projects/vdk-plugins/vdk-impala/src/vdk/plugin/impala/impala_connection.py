@@ -3,9 +3,13 @@
 import logging
 
 from impala.dbapi import connect as impala_connect
+from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
+
+from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
+from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 
 log = logging.getLogger(__name__)
 
@@ -67,3 +71,40 @@ class ImpalaConnection(ManagedConnectionBase):
         )
 
         return conn
+
+    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
+        impala_error_handler = ImpalaErrorHandler(
+            num_retries=self._impala_cfg.retries_on_error(),
+            backoff_seconds=self._impala_cfg.error_backoff_seconds(),
+        )
+
+        if impala_error_handler.handle_error(
+            recovery_cursor.get_exception(), recovery_cursor
+        ):
+            logging.getLogger(__name__).debug(
+                "Error handled successfully! Query execution has succeeded."
+            )
+        else:
+            raise recovery_cursor.get_exception()
+
+    def db_connection_decorate_operation(self, decoration_cursor: DecorationCursor):
+        if self._impala_cfg.sync_ddl():
+            try:
+                decoration_cursor.execute("SET SYNC_DDL=True")
+            except Exception as e:
+                logging.getLogger(__name__).error(
+                    "Failed to execute 'SET SYNC_DDL=True'"
+                )
+                if self._db_default_type.lower() == "impala":
+                    raise e
+        if self._impala_cfg.query_pool():
+            try:
+                decoration_cursor.execute(
+                    f"SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
+                )
+            except Exception as e:
+                logging.getLogger(__name__).error(
+                    f"Failed to execute 'SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
+                )
+                if self._db_default_type.lower() == "impala":
+                    raise e

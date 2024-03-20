@@ -10,8 +10,6 @@ from tabulate import tabulate
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
-from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
-from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
@@ -21,7 +19,6 @@ from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 from vdk.plugin.impala.impala_error_classifier import is_impala_user_error
-from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
 from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineagePlugin
 
 
@@ -136,45 +133,6 @@ class ImpalaPlugin:
                         countermeasures="Review exception for details.",
                     )
                 ) from exception
-
-    @hookimpl
-    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
-        impala_error_handler = ImpalaErrorHandler(
-            num_retries=self._impala_cfg.retries_on_error(),
-            backoff_seconds=self._impala_cfg.error_backoff_seconds(),
-        )
-
-        if impala_error_handler.handle_error(
-            recovery_cursor.get_exception(), recovery_cursor
-        ):
-            logging.getLogger(__name__).debug(
-                "Error handled successfully! Query execution has succeeded."
-            )
-        else:
-            raise recovery_cursor.get_exception()
-
-    @hookimpl(tryfirst=True)
-    def db_connection_decorate_operation(self, decoration_cursor: DecorationCursor):
-        if self._impala_cfg.sync_ddl():
-            try:
-                decoration_cursor.execute("SET SYNC_DDL=True")
-            except Exception as e:
-                logging.getLogger(__name__).error(
-                    "Failed to execute 'SET SYNC_DDL=True'"
-                )
-                if self._db_default_type.lower() == "impala":
-                    raise e
-        if self._impala_cfg.query_pool():
-            try:
-                decoration_cursor.execute(
-                    f"SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
-                )
-            except Exception as e:
-                logging.getLogger(__name__).error(
-                    f"Failed to execute 'SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
-                )
-                if self._db_default_type.lower() == "impala":
-                    raise e
 
 
 @hookimpl
