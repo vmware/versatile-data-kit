@@ -8,7 +8,6 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
-from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
 
 log = logging.getLogger(__name__)
