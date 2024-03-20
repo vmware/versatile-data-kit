@@ -1,14 +1,14 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 #
-#.frontend_publish_docker_image:
-#  image: docker:23.0.1
-#  variables:
-#    DOCKER_DRIVER: overlay2
-#    DOCKER_TLS_CERTDIR: ''
-#    DOCKER_HOST: tcp://localhost:2375
-#  services:
-#    - docker:23.0.1-dind
+.frontend_publish_docker_image:
+  image: docker:23.0.1
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ''
+    DOCKER_HOST: tcp://localhost:2375
+  services:
+    - docker:23.0.1-dind
 #
 #.frontend_shared_components_changes: &frontend_shared_components_locations
 #  - "projects/frontend/cicd/**/*"
