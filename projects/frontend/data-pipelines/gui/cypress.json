@@ -24,7 +24,7 @@
   "env": {
     "hars_folders": "e2e/hars",
     "csp_url": "https://console-stg.cloud.vmware.com",
-    "data_jobs_url": "http://cicd-control-service-svc:8092",
+    "data_jobs_url": "http://cicd-vdk-svc:8092",
     "test_environment": "lib",
     "grepTags": ""
   }
