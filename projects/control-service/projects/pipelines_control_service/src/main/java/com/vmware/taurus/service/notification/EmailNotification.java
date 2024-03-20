@@ -71,6 +71,8 @@ public class EmailNotification {
 
   private void sendEmail(NotificationContent notificationContent, Address[] recipients)
       throws MessagingException {
+    log.info("is email auth enabled " + emailConfiguration.isAuthEnabled());
+    log.info("notification context " + emailConfiguration.isAuthEnabled());
     if (emailConfiguration.isAuthEnabled()) {
       sendAuthenticatedEmail(notificationContent, recipients);
     } else {
