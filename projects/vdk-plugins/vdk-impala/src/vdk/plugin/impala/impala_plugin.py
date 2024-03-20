@@ -10,6 +10,8 @@ from tabulate import tabulate
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
@@ -19,6 +21,7 @@ from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 from vdk.plugin.impala.impala_error_classifier import is_impala_user_error
+from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
 from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineagePlugin
 
 
@@ -39,6 +42,11 @@ def _connection_by_configuration(configuration: ImpalaPluginConfiguration):
         http_path=configuration.http_path(),
         auth_cookie_names=configuration.auth_cookie_names(),
         retries=configuration.retries(),
+        retries_on_error=configuration.retries_on_error(),
+        error_backoff_seconds=configuration.error_backoff_seconds(),
+        sync_ddl=configuration.sync_ddl,
+        query_pool=configuration.query_pool,
+        db_default_type="impala",
     )
 
 
