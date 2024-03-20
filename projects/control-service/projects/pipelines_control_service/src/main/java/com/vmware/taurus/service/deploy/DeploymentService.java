@@ -189,6 +189,8 @@ public class DeploymentService {
 
           saveDeployment(dataJob, jobDeployment);
 
+          log.info("SEND_NOTIFICATION " + sendNotification);
+
           deploymentProgress.completed(dataJob, sendNotification);
         }
       }
