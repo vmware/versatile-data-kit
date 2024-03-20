@@ -61,12 +61,11 @@ def test_secrets_plugin_no_url_configured():
     ):
         runner = CliEntryBasedTestRunner(vdk_plugin_control_cli, secrets_plugin)
 
-        # TODO: Uncomment this after vdk-core release
-        # result: Result = runner.invoke(
-        #     ["run", jobs_path_from_caller_directory("simple-job")]
-        # )
-        # # job that doesn't explicitly use secrets should fail due to secrets overrides in core
-        # cli_assert_equal(1, result)
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("simple-job")]
+        )
+        # job that doesn't explicitly use secrets should fail due to secrets overrides in core
+        cli_assert_equal(1, result)
 
         result: Result = runner.invoke(
             ["run", jobs_path_from_caller_directory("secrets-job")]
