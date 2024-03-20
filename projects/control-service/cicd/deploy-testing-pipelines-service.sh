@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 export TAG=${TAG:-$(git rev-parse --short HEAD)}
 export FRONTEND_TAG=${FRONTEND_TAG:-$(git rev-parse --short HEAD)}
-export RELEASE_NAME=${RELEASE_NAME:-cicd-vdk}
+export RELEASE_NAME=${RELEASE_NAME:-cicd-control-service}
 export VDK_OPTIONS="$SCRIPT_DIR/vdk-options.ini"
 export TPCS_CHART=${TPCS_CHART:-"$SCRIPT_DIR/../projects/helm_charts/pipelines-control-service"}
 export VDK_DOCKER_REGISTRY_URL=${VDK_DOCKER_REGISTRY_URL:-"registry.hub.docker.com/versatiledatakit"}
@@ -65,7 +65,7 @@ fi
 
 # this is the internal hostname of the Control Service.
 # Since all tests (gitlab runners) are installed inside it's easier if we use it.
-export CONTROL_SERVICE_URL=${CONTROL_SERVICE_URL:-"http://cicd-vdk-svc.cicd.svc.cluster.local:8092"}
+export CONTROL_SERVICE_URL=${CONTROL_SERVICE_URL:-"http://cicd-control-service-svc.cicd.svc.cluster.local:8092"}
 # Trino host used by data jobs
 export TRINO_HOST=${TRINO_HOST:-"test-trino.cicd.svc.cluster.local"}
 
@@ -77,12 +77,12 @@ cd $TPCS_CHART || exit
 helm dependency update --kubeconfig=$KUBECONFIG
 
 
-helm_latest_deployment=`helm history  cicd-vdk | tail -1`
+helm_latest_deployment=`helm history  cicd-control-service | tail -1`
 echo $helm_latest_deployment
 if [[ $helm_latest_deployment == *"pending-upgrade"* ]]; then
   echo "Pipeline failed because of an existing deployment in the pending-state.
-  If the problem persists use 'helm history cicd-vdk' to see the last successful deployment.
-  then use 'helm rollback cicd-vdk <revision number>' to rollback to that deployment. then re run this pipeline"
+  If the problem persists use 'helm history cicd-control-service' to see the last successful deployment.
+  then use 'helm rollback cicd-control-service <revision number>' to rollback to that deployment. then re run this pipeline"
   exit 125
 fi
 
@@ -93,7 +93,7 @@ fi
 # We are using here embedded database, and we need to set the storageclass since in our test k8s no default storage class is not set.
 helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $RELEASE_NAME . \
       -f "$TESTING_PIPELINES_SERVICE_VALUES_FILE" \
-      --set image.tag=1017842 \
+      --set image.tag="$TAG" \
       --set operationsUi.image.tag="$FRONTEND_TAG" \
       --set credentials.repository="EMPTY" \
       --set-file vdkOptions=$VDK_OPTIONS_SUBSTITUTED \
@@ -114,4 +114,4 @@ helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $R
       --set deploymentK8sNamespace="cicd-deployment" \
       --set controlK8sNamespace="cicd-control" \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
-      --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-vdk"
+      --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-control-service"

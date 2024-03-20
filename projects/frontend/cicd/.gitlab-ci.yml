@@ -1,6 +1,6 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-#
+
 .frontend_publish_docker_image:
   image: docker:23.0.1
   variables:
@@ -9,264 +9,264 @@
     DOCKER_HOST: tcp://localhost:2375
   services:
     - docker:23.0.1-dind
-#
-#.frontend_shared_components_changes: &frontend_shared_components_locations
-#  - "projects/frontend/cicd/**/*"
-#  - "projects/frontend/shared-components/**/*"
-#
-#.frontend_data_pipelines_changes: &frontend_data_pipelines_locations
-#  - "projects/frontend/cicd/**/*"
-#  - "projects/frontend/data-pipelines/**/*"
-#
-#.frontend_retry:
-#  retry_options:
-#    max: 1
-#    when:
-#      - always
-#
-#frontend-data-pipelines-build:
-#  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
-#  stage: build
-#  needs:
-#    - job: frontend-shared-components-build
-#      optional: true
-#  before_script:
-#    - cd projects/frontend/
-#  script:
-#    # Note: if frontend-shared-components-build is not part of the pipeline and no rc-version exists, $SHARED_RC_VERSION will be empty.
-#    # If $SHARED_RC_VERSION is empty, calling install_data_pipelines.sh will install the latest @versatiledatakit/shared package from registry.
-#    - export SHARED_RC_VERSION=$(./cicd/get_latest_shared_rc_version.sh $CI_PIPELINE_ID)
-#    - ./cicd/install_data_pipelines.sh $SHARED_RC_VERSION
-#  coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
-#  retry: !reference [.retry, retry_options]
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-#      changes: *frontend_shared_components_locations
-#    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-#      changes: *frontend_data_pipelines_locations
-#  artifacts:
-#    when: always
-#    reports:
-#      junit:
-#        - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-ui/*.xml
-#        - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-lib/*.xml
-#    paths:
-#      - projects/frontend/data-pipelines/gui/reports/coverage/
-#      - projects/frontend/data-pipelines/gui/package-lock.json
-#      - projects/frontend/data-pipelines/gui/dist/
-#      - projects/frontend/data-pipelines/gui/node_modules/
-#    expire_in: 1 week
+
+.frontend_shared_components_changes: &frontend_shared_components_locations
+  - "projects/frontend/cicd/**/*"
+  - "projects/frontend/shared-components/**/*"
+
+.frontend_data_pipelines_changes: &frontend_data_pipelines_locations
+  - "projects/frontend/cicd/**/*"
+  - "projects/frontend/data-pipelines/**/*"
+
+.frontend_retry:
+  retry_options:
+    max: 1
+    when:
+      - always
+
+frontend-data-pipelines-build:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
+  stage: build
+  needs:
+    - job: frontend-shared-components-build
+      optional: true
+  before_script:
+    - cd projects/frontend/
+  script:
+    # Note: if frontend-shared-components-build is not part of the pipeline and no rc-version exists, $SHARED_RC_VERSION will be empty.
+    # If $SHARED_RC_VERSION is empty, calling install_data_pipelines.sh will install the latest @versatiledatakit/shared package from registry.
+    - export SHARED_RC_VERSION=$(./cicd/get_latest_shared_rc_version.sh $CI_PIPELINE_ID)
+    - ./cicd/install_data_pipelines.sh $SHARED_RC_VERSION
+  coverage: /^TOTAL\s+\d+\s+\d+\s+(\d+\%)$/
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_data_pipelines_locations
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-ui/*.xml
+        - projects/frontend/data-pipelines/gui/reports/test-results/data-pipelines-lib/*.xml
+    paths:
+      - projects/frontend/data-pipelines/gui/reports/coverage/
+      - projects/frontend/data-pipelines/gui/package-lock.json
+      - projects/frontend/data-pipelines/gui/dist/
+      - projects/frontend/data-pipelines/gui/node_modules/
+    expire_in: 1 week
 
 # TODO: Add the cicd path back to the rule once e2e tests are stabilized
-#frontend-data-pipelines-e2e-tests:
-#  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
-#  stage: pre_release_test
-#  before_script:
-#    - cd projects/frontend/
-#  script:
-#    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN" "$CYPRESS_test_environment" "$CI_PIPELINE_ID" "$CYPRESS_grepTags"
-#  retry: !reference [.retry, retry_options]
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-#      changes: *frontend_shared_components_locations
-#    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-#      changes: *frontend_data_pipelines_locations
-#  artifacts:
-#    when: always
-#    paths:
-#      - projects/frontend/data-pipelines/gui/e2e/videos/
-#      - projects/frontend/data-pipelines/gui/e2e/screenshots/
-#      - projects/frontend/data-pipelines/gui/e2e/hars/
-#      - projects/frontend/data-pipelines/gui/e2e/logs/
-#      - projects/frontend/data-pipelines/gui/e2e/reports/
-#    expire_in: 1 week
-#
-#frontend-data-pipelines-release:
-#  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
-#  stage: release
-#  before_script:
-#    - cd projects/frontend/
-#  script:
-#    - ./cicd/publish_package_npm.sh data-pipelines $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY latest
-#  retry: !reference [.retry, retry_options]
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_shared_components_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_data_pipelines_locations
-#  artifacts:
-#    paths:
-#      - projects/frontend/data-pipelines/gui/package-lock.json
-#    expire_in: 1 week
-#
-#frontend_publish_ui_image:
-#  extends: .images:dind:docker-push-to-vdk-repos
-#  stage: pre_release_image
-#  script:
-#    - cd projects/frontend/data-pipelines/gui
-#    - apk --no-cache add bash git
-#    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
-#    - ../../cicd/publish_image_docker.sh vdk-operations-ui . $CI_PIPELINE_ID
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_shared_components_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_data_pipelines_locations
-#
-#frontend_tag_ui_image_stable:
-#  stage: release_image
-#  before_script:
-#    - cd projects/frontend
-#  script:
-#    - apk --no-cache add bash git
-#    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-#    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
-#    - bash -ex ../../projects/control-service/cicd/tag_image_dockerhub.sh vdk-operations-ui $IMAGE_TAG stable
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_shared_components_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_data_pipelines_locations
-#  extends: .frontend_publish_docker_image
+frontend-data-pipelines-e2e-tests:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
+  stage: pre_release_test
+  before_script:
+    - cd projects/frontend/
+  script:
+    - ./cicd/test_e2e_data_pipelines.sh "$VDK_API_TOKEN" "$CYPRESS_test_environment" "$CI_PIPELINE_ID" "$CYPRESS_grepTags"
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_data_pipelines_locations
+  artifacts:
+    when: always
+    paths:
+      - projects/frontend/data-pipelines/gui/e2e/videos/
+      - projects/frontend/data-pipelines/gui/e2e/screenshots/
+      - projects/frontend/data-pipelines/gui/e2e/hars/
+      - projects/frontend/data-pipelines/gui/e2e/logs/
+      - projects/frontend/data-pipelines/gui/e2e/reports/
+    expire_in: 1 week
 
-#frontend_deploy_testing_data_pipelines:
-#  stage: pre_release_test
-#  needs:
-#    - job: frontend-data-pipelines-e2e-tests
-#      optional: false
-#      artifacts: false
-#  image: docker:23.0.1
-#  script:
-#    - apk --no-cache add bash openssl curl git gettext zip py-pip
-#    - pip install --upgrade pip && pip install awscli
-#    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
-#    - export TAG=latest
-#    - export FRONTEND_TAG=$(git rev-parse --short HEAD)
-#    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-#    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
-#  retry: !reference [.frontend_retry, retry_options]
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_shared_components_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_data_pipelines_locations
-#
-#frontend_heartbeat_test:
-#  stage: pre_release_test
-#  needs:
-#    - job: frontend_deploy_testing_data_pipelines
-#      optional: false
-#      artifacts: false
-#  image: python:3.7
-#  script:
-#    - set -x
-#    - pip install quickstart-vdk
-#    - pip install vdk-heartbeat[trino]
-#    - vdk version
-#    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-#    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
-#    - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
-#    - vdk-heartbeat -f projects/frontend/cicd/ping_frontend_heartbeat_config.ini
-#  retry: !reference [.frontend_retry, retry_options]
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_shared_components_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_data_pipelines_locations
-#
-#frontend_quickstart_operability_test:
-#  stage: pre_release_test
-#  needs:
-#    - job: frontend_heartbeat_test
-#      optional: false
-#      artifacts: false
-#    - job: frontend-data-pipelines-build
-#      optional: false
-#      artifacts: true
-#  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
-#  before_script:
-#    - cd projects/frontend/data-pipelines/gui
-#  script:
-#    - export CYPRESS_BASE_URL=http://cicd-vdk-ui:80
-#    - npm run quickstart-smoke
-#  retry: !reference [.frontend_retry, retry_options]
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_shared_components_locations
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_data_pipelines_locations
-#
-#frontend_publish_test_image:
-#  stage: release_image
-#  script:
-#    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
-#    - cd projects/frontend/cicd
-#    - VERSION_TAG="$(cat version.txt)"
-#    - image_tag="$VDK_DOCKER_REGISTRY_URL/vdk-cicd-base-gui:$VERSION_TAG"
-#    - docker build -t $image_tag .
-#    - docker push $image_tag
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes:
-#        - projects/frontend/cicd/version.txt
-#  extends: .frontend_publish_docker_image
-#
-#frontend-shared-components-build:
-#  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
-#  stage: build
-#  before_script:
-#    - cd projects/frontend/shared-components/gui
-#  script:
-#    - ../../cicd/install_shared.sh
-#    # Note: if this is the first time the pipeline runs and no rc-version exists, $SHARED_RC_INCREMENT will equal 1.
-#    - export SHARED_RC_INCREMENT=$(../../cicd/get_next_shared_rc_version_number.sh $CI_PIPELINE_ID)
-#    - ../../cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID-rc.$SHARED_RC_INCREMENT $NPM_TOKEN $NPM_REGISTRY rc
-#  retry: !reference [.retry, retry_options]
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
-#      changes: *frontend_shared_components_locations
-#  artifacts:
-#    when: always
-#    reports:
-#      junit:
-#        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
-#        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
-#    paths:
-#      - projects/frontend/shared-components/gui/reports/coverage/
-#      - projects/frontend/shared-components/gui/package-lock.json
-#      - projects/frontend/shared-components/gui/dist/
-#      - projects/frontend/shared-components/gui/node_modules/
-#    expire_in: 1 week
-#
-#frontend-shared-components-release:
-#  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
-#  stage: release
-#  before_script:
-#    - cd projects/frontend/
-#  script:
-#    - ./cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY latest
-#  retry: !reference [.retry, retry_options]
-#  rules:
-#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-#      when: never
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *frontend_shared_components_locations
-#  artifacts:
-#    when: always
-#    paths:
-#      - projects/frontend/shared-components/gui/package-lock.json
-#    expire_in: 1 week
+frontend-data-pipelines-release:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
+  stage: release
+  before_script:
+    - cd projects/frontend/
+  script:
+    - ./cicd/publish_package_npm.sh data-pipelines $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY latest
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+  artifacts:
+    paths:
+      - projects/frontend/data-pipelines/gui/package-lock.json
+    expire_in: 1 week
+
+frontend_publish_ui_image:
+  extends: .images:dind:docker-push-to-vdk-repos
+  stage: pre_release_image
+  script:
+    - cd projects/frontend/data-pipelines/gui
+    - apk --no-cache add bash git
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - ../../cicd/publish_image_docker.sh vdk-operations-ui . $CI_PIPELINE_ID
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+
+frontend_tag_ui_image_stable:
+  stage: release_image
+  before_script:
+    - cd projects/frontend
+  script:
+    - apk --no-cache add bash git
+    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - bash -ex ../../projects/control-service/cicd/tag_image_dockerhub.sh vdk-operations-ui $IMAGE_TAG stable
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+  extends: .frontend_publish_docker_image
+
+frontend_deploy_testing_data_pipelines:
+  stage: pre_release_test
+  needs:
+    - job: frontend-data-pipelines-e2e-tests
+      optional: false
+      artifacts: false
+  image: docker:23.0.1
+  script:
+    - apk --no-cache add bash openssl curl git gettext zip py-pip
+    - pip install --upgrade pip && pip install awscli
+    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+    - export TAG=latest
+    - export FRONTEND_TAG=$(git rev-parse --short HEAD)
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - bash -ex ./projects/control-service/cicd/deploy-testing-pipelines-service.sh
+  retry: !reference [.frontend_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+
+frontend_heartbeat_test:
+  stage: pre_release_test
+  needs:
+    - job: frontend_deploy_testing_data_pipelines
+      optional: false
+      artifacts: false
+  image: python:3.7
+  script:
+    - set -x
+    - pip install quickstart-vdk
+    - pip install vdk-heartbeat[trino]
+    - vdk version
+    - export IMAGE_TAG="$(git rev-parse --short HEAD)"
+    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
+    - export VDK_HEARTBEAT_OP_ID="vdkcs-$CI_PIPELINE_ID"
+    - vdk-heartbeat -f projects/frontend/cicd/ping_frontend_heartbeat_config.ini
+  retry: !reference [.frontend_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+
+frontend_quickstart_operability_test:
+  stage: pre_release_test
+  needs:
+    - job: frontend_heartbeat_test
+      optional: false
+      artifacts: false
+    - job: frontend-data-pipelines-build
+      optional: false
+      artifacts: true
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
+  before_script:
+    - cd projects/frontend/data-pipelines/gui
+  script:
+    - export CYPRESS_BASE_URL=http://cicd-control-service-ui:80
+    - npm run quickstart-smoke
+  retry: !reference [.frontend_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
+
+frontend_publish_test_image:
+  stage: release_image
+  script:
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/frontend/cicd
+    - VERSION_TAG="$(cat version.txt)"
+    - image_tag="$VDK_DOCKER_REGISTRY_URL/vdk-cicd-base-gui:$VERSION_TAG"
+    - docker build -t $image_tag .
+    - docker push $image_tag
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/frontend/cicd/version.txt
+  extends: .frontend_publish_docker_image
+
+frontend-shared-components-build:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
+  stage: build
+  before_script:
+    - cd projects/frontend/shared-components/gui
+  script:
+    - ../../cicd/install_shared.sh
+    # Note: if this is the first time the pipeline runs and no rc-version exists, $SHARED_RC_INCREMENT will equal 1.
+    - export SHARED_RC_INCREMENT=$(../../cicd/get_next_shared_rc_version_number.sh $CI_PIPELINE_ID)
+    - ../../cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID-rc.$SHARED_RC_INCREMENT $NPM_TOKEN $NPM_REGISTRY rc
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes: *frontend_shared_components_locations
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
+        - projects/frontend/shared-components/gui/reports/test-results/shared/*.xml
+    paths:
+      - projects/frontend/shared-components/gui/reports/coverage/
+      - projects/frontend/shared-components/gui/package-lock.json
+      - projects/frontend/shared-components/gui/dist/
+      - projects/frontend/shared-components/gui/node_modules/
+    expire_in: 1 week
+
+frontend-shared-components-release:
+  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
+  stage: release
+  before_script:
+    - cd projects/frontend/
+  script:
+    - ./cicd/publish_package_npm.sh shared-components $CI_PIPELINE_ID $NPM_TOKEN $NPM_REGISTRY latest
+  retry: !reference [.retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_shared_components_locations
+  artifacts:
+    when: always
+    paths:
+      - projects/frontend/shared-components/gui/package-lock.json
+    expire_in: 1 week
