@@ -1,6 +1,6 @@
 {
   "/data-jobs": {
-    "target": "http://cicd-control-service-svc:8092",
+    "target": "http://cicd-vdk-svc:8092",
     "changeOrigin": true,
     "secure": false,
     "logLevel": "debug"
