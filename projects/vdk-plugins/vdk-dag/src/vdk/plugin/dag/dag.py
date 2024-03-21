@@ -34,11 +34,11 @@ def get_job_executor(executor_type: str):
 
 class Dag:
     def __init__(
-        self,
-        team_name: str,
-        dags_config: DagPluginConfiguration,
-        job_name: str = None,
-        execution_id: str = None,
+            self,
+            team_name: str,
+            dags_config: DagPluginConfiguration,
+            job_name: str = None,
+            execution_id: str = None,
     ):
         """
         This module deals with all the DAG-related operations such as build and execute.
@@ -68,11 +68,11 @@ class Dag:
             if execution_id is not None:
                 try:
                     self._started_by = (
-                        self._job_executor.execution_type(
-                            job_name, team_name, execution_id
-                        )
-                        + "/"
-                        + job_name
+                            self._job_executor.execution_type(
+                                job_name, team_name, execution_id
+                            )
+                            + "/"
+                            + job_name
                     )
                 except ApiException as e:
                     if e.status == 404:
@@ -145,8 +145,8 @@ class Dag:
 
     def _start_delayed_jobs(self):
         while (
-            len(self._job_executor.get_currently_running_jobs())
-            < self._max_concurrent_running_jobs
+                len(self._job_executor.get_currently_running_jobs())
+                < self._max_concurrent_running_jobs
         ):
             job = self._delayed_starting_jobs.dequeue()
             if job is None:
@@ -198,3 +198,34 @@ class Dag:
                 self._delayed_starting_jobs.enqueue(node)
             else:
                 raise
+
+    def get_job_status(self, job_name: str):
+        """
+        Get job status.
+
+        :param job_name: str - Job name whose status is to be fetched.
+        :return: JobStatus
+        """
+        return self._job_executor.status(job_name)
+
+    def get_all_jobs_execution_status(self):
+        """
+        Fetches the statuses of all jobs in the latest DAG execution.
+
+        :return: Dict[str, JobStatus] - A dictionary where keys are job names and values are their statuses.
+        """
+        all_jobs = self._job_executor.get_all_jobs()
+        all_jobs_status = {job.job_name: self._job_executor.status(job.job_name) for job in all_jobs}
+        return all_jobs_status
+
+    def get_jobs_execution_status(self, job_names: List[str]):
+        """
+        Fetches the execution statuses of specified jobs.
+
+        :param job_names: List[str] - A list of job names whose statuses are to be fetched.
+        :return: Dict[str, JobStatus] - A dictionary where keys are job names from the input list and values are their
+         statuses.
+        """
+        jobs_status = {job_name: self._job_executor.status(job_name) for job_name in job_names}
+        return jobs_status
+

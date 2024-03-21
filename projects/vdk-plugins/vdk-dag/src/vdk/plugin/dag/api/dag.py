@@ -51,3 +51,37 @@ class IDagInput(abc.ABC):
         :return:
         """
         pass
+
+
+class IDagJobStatus(abc.ABC):
+    """
+    This class is responsible for the DAG job status checks.
+    """
+
+    @abstractmethod
+    def get_job_status(self, job_name: str):
+        """
+        Get job status.
+        :return: JobStatus
+        """
+        pass
+
+    @abstractmethod
+    def get_all_jobs_execution_status(self):
+        """
+        Fetches the statuses of all jobs in the latest DAG execution.
+
+        :return: Dict[str, JobStatus] - A dictionary where keys are job names and values are their statuses.
+        """
+        pass
+
+    @abstractmethod
+    def get_jobs_execution_status(self, job_names: List[str]):
+        """
+        Fetches the execution statuses of specified jobs.
+
+        :param job_names: List[str] - A list of job names whose statuses are to be fetched.
+        :return: Dict[str, JobStatus] - A dictionary where keys are job names from the input list and values are their
+         statuses.
+        """
+        pass
