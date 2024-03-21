@@ -111,11 +111,7 @@ class ManagedCursor(ProxyCursor):
                     f"Recovered query {_get_query_duration(query_start_time)}"
                 )
             except Exception as e:
-                # todo: error classification
-                # if job_input_error_classifier.is_user_error(e):
                 blamee = errors.ResolvableBy.USER_ERROR
-                # else:
-                #     blamee = errors.ResolvableBy.PLATFORM_ERROR
                 self._log.info(f"Failed query {_get_query_duration(query_start_time)}")
                 self._log.error(
                     "\n".join(
@@ -154,6 +150,15 @@ class ManagedCursor(ProxyCursor):
         ):
             decorate_operation = (
                 self.__connection_hook_spec.db_connection_decorate_operation
+            )
+
+        # apply any changes @hookimpls to the managed operation
+        if (
+            self.__connection_hook_spec
+            and self.__connection_hook_spec.db_connection_before_operation.get_hookimpls()
+        ):
+            self.__connection_hook_spec.db_connection_before_operation(
+                operation=managed_operation
             )
 
         if decorate_operation:
@@ -271,9 +276,16 @@ class ManagedCursor(ProxyCursor):
         # Use the overridden methods if available.
         # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
 
-        available_plugin_implementation = self.__managed_database_connection and (
-            type(self.__managed_database_connection).db_connection_recover_operation
-            != IDatabaseManagedConnection.db_connection_recover_operation
+        available_recovery_plugin_implementation = (
+            self.__managed_database_connection
+            and (
+                type(self.__managed_database_connection).db_connection_recover_operation
+                != IDatabaseManagedConnection.db_connection_recover_operation
+            )
+        )
+
+        available_decoration_plugin_implementation = (
+            self.__managed_database_connection
             and type(
                 self.__managed_database_connection
             ).db_connection_decorate_operation
@@ -283,22 +295,48 @@ class ManagedCursor(ProxyCursor):
         if (
             not self.__connection_hook_spec
             or not self.__connection_hook_spec.db_connection_recover_operation.get_hookimpls()
-        ) and not available_plugin_implementation:
+        ) and not available_recovery_plugin_implementation:
             raise exception
 
-        if available_plugin_implementation:
+        if available_decoration_plugin_implementation:
             decorate_operation = (
                 self.__managed_database_connection.db_connection_decorate_operation
             )
+        elif (
+            self.__connection_hook_spec
+            and self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
+        ):
+            decorate_operation = (
+                self.__connection_hook_spec.db_connection_decorate_operation
+            )
+        else:
+            decorate_operation = None
+
+        if available_recovery_plugin_implementation:
             recover_operation = (
                 self.__managed_database_connection.db_connection_recover_operation
             )
         else:
-            decorate_operation = (
-                self.__connection_hook_spec.db_connection_decorate_operation
-            )
             recover_operation = (
                 self.__connection_hook_spec.db_connection_recover_operation
+            )
+
+        # apply any changes from @hookimpls to the managed operation
+        if (
+            self.__connection_hook_spec
+            and self.__connection_hook_spec.db_connection_before_operation.get_hookimpls()
+        ):
+            self.__connection_hook_spec.db_connection_before_operation(
+                operation=managed_operation
+            )
+
+        # apply any changes from @hookimpls to the managed operation
+        if (
+            self.__connection_hook_spec
+            and self.__connection_hook_spec.db_connection_on_operation_failure.get_hookimpls()
+        ):
+            self.__connection_hook_spec.db_connection_on_operation_failure(
+                operation=managed_operation
             )
 
         recovery_cursor = RecoveryCursor(

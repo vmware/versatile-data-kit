@@ -5,6 +5,7 @@ from typing import Optional
 
 from vdk.api.plugin.hook_markers import hookspec
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.execution_cursor import (
     ExecuteOperationResult,
 )
@@ -68,6 +69,24 @@ class ConnectionHookSpec:
         :param decoration_cursor: DecorationCursor
             A PEP249Cursor implementation purposed for query and parameters decoration.
             Provides operation details and tooling.
+        :return:
+        """
+        pass
+
+    @hookspec
+    def db_connection_before_operation(self, operation: ManagedOperation) -> None:
+        """
+        Curates the operation and parameters.
+        If an exception is raised, the cursor execution will be suspended.
+
+        For example:
+        @hookimpl
+        db_connection_decorate_operation_restrictive(managed_operation: ManagedOperation):
+            managed_operation.set_operation("prefix" +
+                                             managed_operation.get_operation())
+
+        :param operation: ManagedOperation
+            ManagedOperation object. Provides the operation (usually an SQL expression and some metadata)
         :return:
         """
         pass
@@ -155,6 +174,24 @@ class ConnectionHookSpec:
         :param recovery_cursor: RecoveryCursor
             A PEP249Cursor implementation purposed for query and parameters recovery.
             Provides operation details and tooling.
+        :return:
+        """
+        pass
+
+    @hookspec
+    def db_connection_on_operation_failure(self, operation: ManagedOperation) -> None:
+        """
+        Executes if a database operation fails. Gives the caller a chance to log the error,
+        send metrics or otherwise take action on failure.
+
+        For example:
+        @hookimpl
+        db_connection_on_operation_failure(operation: ManagedOperation):
+            log.error(f"Query {operation.get_operation()} failed. Reporting the incident...")
+            metrics_api.report(operation.get_operation(), operation.get_parameters())
+
+        :param operation: ManagedOperation
+            ManagedOperation object. Provides the operation (usually an SQL expression and some metadata)
         :return:
         """
         pass
