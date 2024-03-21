@@ -23,11 +23,25 @@ public class GraphQLDataJobsFieldsIT extends BaseIT {
 
   @Test
   void testFields() throws Exception {
-    emailNotification.send(new NotificationContent(new JobConfig("teamName", "sfdsf", "sdfdsfs",
-            "jobName", false, 10, "paulm2@vmware.com","paulm2@vmware.com",
-            "paulm2@vmware.com", "paulm2@vmware.com", false, "jobName"),
-            "deplyo", "success",
-            "paul murphy", "paulm2@vmware.com", new ArrayList<>()));
-
+    emailNotification.send(
+        new NotificationContent(
+            new JobConfig(
+                "teamName",
+                "sfdsf",
+                "sdfdsfs",
+                "jobName",
+                false,
+                10,
+                "paulm2@vmware.com",
+                "paulm2@vmware.com",
+                "paulm2@vmware.com",
+                "paulm2@vmware.com",
+                false,
+                "jobName"),
+            "deplyo",
+            "success",
+            "paul murphy",
+            "paulm2@vmware.com",
+            new ArrayList<>()));
   }
 }

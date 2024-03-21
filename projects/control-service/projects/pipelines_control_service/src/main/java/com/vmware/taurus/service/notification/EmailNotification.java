@@ -21,7 +21,6 @@ import com.amazonaws.services.simpleemail.model.*;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 /**
@@ -49,16 +48,20 @@ public class EmailNotification {
     session = Session.getInstance(properties);
   }
 
-
   public void send(NotificationContent notificationContent) throws MessagingException {
-    AmazonSimpleEmailService build = AmazonSimpleEmailServiceClientBuilder.standard()
+    AmazonSimpleEmailService build =
+        AmazonSimpleEmailServiceClientBuilder.standard()
             .withCredentials(new DefaultAWSCredentialsProviderChain())
             .withRegion("us-east-1")
             .build();
-    SendEmailResult sendEmailResult = build.sendEmail(new SendEmailRequest().withSource("paulm2@vmware.com")
-            .withDestination(new Destination(Lists.newArrayList("paulm2@vmware.com")))
-            .withMessage(new Message(new Content("this is a test"),
-                    new Body(new Content("this is a test")))));
+    SendEmailResult sendEmailResult =
+        build.sendEmail(
+            new SendEmailRequest()
+                .withSource("paulm2@vmware.com")
+                .withDestination(new Destination(Lists.newArrayList("paulm2@vmware.com")))
+                .withMessage(
+                    new Message(
+                        new Content("this is a test"), new Body(new Content("this is a test")))));
   }
 
   private void sendEmail(NotificationContent notificationContent, Address[] recipients)
@@ -83,7 +86,8 @@ public class EmailNotification {
     Transport transport = session.getTransport();
     var mimeMessage = prepareMessage(notificationContent);
     try {
-      transport.connect(emailConfiguration.getUsername(), "BFr6/lykIex01+2ESOGRSL0mxXo+zq0MtnS3UAG8SFiF");
+      transport.connect(
+          emailConfiguration.getUsername(), "BFr6/lykIex01+2ESOGRSL0mxXo+zq0MtnS3UAG8SFiF");
       transport.sendMessage(mimeMessage, recipients);
     } finally {
       transport.close();
