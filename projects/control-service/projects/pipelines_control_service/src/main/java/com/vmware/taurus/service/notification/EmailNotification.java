@@ -10,12 +10,18 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.mail.Address;
 import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
+
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
+import com.amazonaws.services.simpleemail.model.*;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,30 +49,16 @@ public class EmailNotification {
     session = Session.getInstance(properties);
   }
 
+
   public void send(NotificationContent notificationContent) throws MessagingException {
-    if (recipientsExist(notificationContent.getRecipients())) {
-      try {
-        sendEmail(notificationContent, notificationContent.getRecipients());
-      } catch (SendFailedException firstException) {
-        log.info(
-            "Following addresses are invalid: {}",
-            concatAddresses(firstException.getInvalidAddresses()));
-        var validUnsentAddresses = firstException.getValidUnsentAddresses();
-        if (recipientsExist(validUnsentAddresses)) {
-          log.info("Retrying unsent valid addresses: {}", concatAddresses(validUnsentAddresses));
-          try {
-            sendEmail(notificationContent, validUnsentAddresses);
-          } catch (SendFailedException retriedException) {
-            log.warn(
-                "\nwhat: {}\nwhy: {}\nconsequence: {}\ncountermeasure: {}",
-                "Unable to send notification to the recipients",
-                retriedException.getMessage(),
-                "Listed recipients won't receive notifications for the job's status",
-                "There might be misconfiguration or outage. Check error message for more details");
-          }
-        }
-      }
-    }
+    AmazonSimpleEmailService build = AmazonSimpleEmailServiceClientBuilder.standard()
+            .withCredentials(new DefaultAWSCredentialsProviderChain())
+            .withRegion("us-east-1")
+            .build();
+    SendEmailResult sendEmailResult = build.sendEmail(new SendEmailRequest().withSource("paulm2@vmware.com")
+            .withDestination(new Destination(Lists.newArrayList("paulm2@vmware.com")))
+            .withMessage(new Message(new Content("this is a test"),
+                    new Body(new Content("this is a test")))));
   }
 
   private void sendEmail(NotificationContent notificationContent, Address[] recipients)
@@ -91,7 +83,7 @@ public class EmailNotification {
     Transport transport = session.getTransport();
     var mimeMessage = prepareMessage(notificationContent);
     try {
-      transport.connect(emailConfiguration.getUsername(), emailConfiguration.getPassword());
+      transport.connect(emailConfiguration.getUsername(), "BFr6/lykIex01+2ESOGRSL0mxXo+zq0MtnS3UAG8SFiF");
       transport.sendMessage(mimeMessage, recipients);
     } finally {
       transport.close();
