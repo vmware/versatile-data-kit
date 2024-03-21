@@ -45,7 +45,7 @@ class DagInput(IDagInput, IDagJobStatus):
     @classmethod
     def get_job_status(cls, job_name: str) -> Optional[JobStatus]:
         """
-        Get job status.
+        Get status of a specified job in the latest DAG execution.
         :return: JobStatus
         """
         if cls._running_dag:
@@ -76,7 +76,7 @@ class DagInput(IDagInput, IDagJobStatus):
         cls, job_names: List[str]
     ) -> Optional[Dict[str, JobStatus]]:
         """
-        Fetches the execution statuses of specified jobs.
+        Fetches the execution statuses of specified jobs in the latest DAG execution.
 
         :param job_names: List[str] - A list of job names whose statuses are to be fetched.
         :return: Dict[str, JobStatus] - A dictionary where keys are job names from the input list and values are their
