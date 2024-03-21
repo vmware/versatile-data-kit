@@ -52,7 +52,7 @@ class DagInput(IDagInput, IDagJobStatus):
             return cls._running_dag.get_job_status(job_name)
         else:
             log.warning(
-                f"Job status cannot be checked since there are no registered DAG runs!"
+                "Job status cannot be checked since there are no registered DAG runs!"
             )
             return None
 
@@ -67,7 +67,7 @@ class DagInput(IDagInput, IDagJobStatus):
             return cls._running_dag.get_all_jobs_execution_status()
         else:
             log.warning(
-                f"Job statuses cannot be checked since there are no registered DAG runs!"
+                "Job statuses cannot be checked since there are no registered DAG runs!"
             )
             return None
 
@@ -86,6 +86,6 @@ class DagInput(IDagInput, IDagJobStatus):
             return cls._running_dag.get_jobs_execution_status(job_names)
         else:
             log.warning(
-                f"Job statuses cannot be checked since there are no registered DAG runs!!"
+                "Job statuses cannot be checked since there are no registered DAG runs!!"
             )
             return None
