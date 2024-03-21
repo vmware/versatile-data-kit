@@ -119,6 +119,20 @@ def run(job_input: IJobInput) -> None:
     DagInput().run_dag(JOBS_RUN_ORDER)
 ```
 
+You can also check the statuses of the jobs after the DAG run using the DagInput API.
+
+```python
+
+
+def run(job_input: IJobInput) -> None:
+    ...
+
+    job_one_status = DagInput().get_status("job1") # get the status of a single job
+    all_statuses = DagInput().get_all_jobs_execution_status() # fetches the statuses of all the jobs in the latest dag execution
+    select_statuses = DagInput().get_jobs_execution_status(["job1", "job3"]) # fetches the execution statuses of job 1 and job 3
+```
+
+
 
 ### Runtime sequencing
 
