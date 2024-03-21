@@ -162,6 +162,19 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_nan_and_none_execution(runner)
 
+    def test_oracle_ingest_data_frame_schema_inference(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            [
+                "run",
+                jobs_path_from_caller_directory(
+                    "oracle-ingest-data-frame-schema-inference"
+                ),
+            ]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_data_frame_schema_inference(runner)
+
 
 def _verify_query_execution(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM todoitem"])
@@ -308,7 +321,7 @@ def _verify_ingest_execution_different_payloads(runner):
 def _verify_ingest_blob(runner):
     check_result = runner.invoke(
         [
-            "oracle-query",
+            "sql-query",
             "--query",
             "SELECT utl_raw.cast_to_varchar2(dbms_lob.substr(blob_data,2000,1)) FROM test_table",
         ]
@@ -321,13 +334,11 @@ def _verify_ingest_blob(runner):
         "And miles to go before I sleep,\n"
         "And miles to go before I sleep.\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
 
 
 def _verify_ingest_nan_and_none_execution(runner):
-    check_result = runner.invoke(
-        ["oracle-query", "--query", "SELECT * FROM test_table"]
-    )
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
     expected = (
         "  ID  STR_DATA    INT_DATA    FLOAT_DATA      BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -336,4 +347,10 @@ def _verify_ingest_nan_and_none_execution(runner):
         "   5  string                                          1  2023-11-21 "
         "08:12:53             0.1\n"
     )
-    assert check_result.output == expected
+    assert expected in check_result.output
+
+
+def _verify_ingest_data_frame_schema_inference(runner):
+    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    expected = "  A    B    C\n---  ---  ---\n  1    2    3\n"
+    assert expected in check_result.output

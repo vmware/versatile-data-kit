@@ -246,6 +246,5 @@ class IngestToOracle(IIngesterPlugin):
         self._add_columns(destination_table, payload)
         self._insert_data(destination_table, payload)
 
-        # TODO: test if we need this commit statement (most probably we don't, the connection already commits after every transaction)
         self.conn.commit()
         return metadata
