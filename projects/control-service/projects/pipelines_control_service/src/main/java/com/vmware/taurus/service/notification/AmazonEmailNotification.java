@@ -13,19 +13,19 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 
 /**
  * The AmazonEmailNotification class is responsible for implementing the email notifications
- * functionality in AWS using SES. The single exposed send method accepts pre-build notification object.
+ * functionality in AWS using SES. The single exposed send method accepts pre-build notification
+ * object.
  *
  * @see DataJobNotification
  * @see NotificationContent
  */
-//@Profile("AWS")
+// @Profile("AWS")
 @Primary
 @Component
 public class AmazonEmailNotification extends EmailNotification {
@@ -36,20 +36,23 @@ public class AmazonEmailNotification extends EmailNotification {
   private final AmazonSimpleEmailService sesClient;
 
   public AmazonEmailNotification(EmailConfiguration emailConfiguration) {
-      super(emailConfiguration);
-      this.region = "us-east-1";
-      this.sesClient = AmazonSimpleEmailServiceClientBuilder.standard()
-              .withCredentials(new DefaultAWSCredentialsProviderChain())
-              .withRegion(this.region)
-              .build();
+    super(emailConfiguration);
+    this.region = "us-east-1";
+    this.sesClient =
+        AmazonSimpleEmailServiceClientBuilder.standard()
+            .withCredentials(new DefaultAWSCredentialsProviderChain())
+            .withRegion(this.region)
+            .build();
   }
 
   @Override
   public void send(NotificationContent notificationContent) throws MessagingException {
-    SendEmailResult sendEmailResult = sesClient.sendEmail(
+    SendEmailResult sendEmailResult =
+        sesClient.sendEmail(
             new SendEmailRequest()
                 .withSource("yoan.salambashev@broadcom.com")
-                .withDestination(new Destination(Lists.newArrayList("yoan.salambashev@broadcom.com")))
+                .withDestination(
+                    new Destination(Lists.newArrayList("yoan.salambashev@broadcom.com")))
                 .withMessage(
                     new Message(
                         new Content("this is a test"), new Body(new Content("this is a test")))));
