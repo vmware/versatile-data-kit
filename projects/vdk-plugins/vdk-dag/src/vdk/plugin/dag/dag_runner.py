@@ -83,7 +83,7 @@ class DagInput(IDagInput, IDagJobStatus):
          statuses.
         """
         if cls._running_dag:
-            cls._running_dag.get_jobs_execution_status(job_names)
+            return cls._running_dag.get_jobs_execution_status(job_names)
         else:
             log.warning(
                 f"Job statuses cannot be checked since there are no registered DAG runs!!"
