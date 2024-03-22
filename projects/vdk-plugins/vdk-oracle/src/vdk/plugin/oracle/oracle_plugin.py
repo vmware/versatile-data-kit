@@ -35,11 +35,6 @@ class OraclePlugin:
     def initialize_job(self, context: JobContext):
         conf = OracleConfiguration(context.core_context.configuration)
         oracle_user, oracle_pass = conf.get_oracle_user(), conf.get_oracle_password()
-        if conf.oracle_use_secrets():
-            # TODO: this will be removed once support for reading configuration from secrets is added in core
-            job_secrets = context.job_input.get_all_secrets()
-            oracle_user = job_secrets.get(ORACLE_USER.lower(), oracle_user)
-            oracle_pass = job_secrets.get(ORACLE_PASSWORD.lower(), oracle_pass)
         context.connections.add_open_connection_factory_method(
             "ORACLE",
             lambda: OracleConnection(
