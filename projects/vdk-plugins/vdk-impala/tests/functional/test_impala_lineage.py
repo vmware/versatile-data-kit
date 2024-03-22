@@ -14,7 +14,7 @@ from vdk.api.lineage.model.sql.model import LineageData
 from vdk.api.lineage.model.sql.model import LineageTable
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.plugin.impala import impala_plugin
-from vdk.plugin.impala.impala_lineage_plugin import LINEAGE_LOGGER_KEY
+from vdk.plugin.impala.impala_lineage import LINEAGE_LOGGER_KEY
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory

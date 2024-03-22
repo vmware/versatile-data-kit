@@ -3,24 +3,24 @@
 import unittest
 
 from vdk.api.lineage.model.sql.model import LineageTable
-from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineagePlugin
+from vdk.plugin.impala.impala_lineage import ImpalaLineage
 
 
 class ImpalaLineagePluginTest(unittest.TestCase):
     def test_get_lineage_table_from_table_name_valid_name(self):
-        actual = ImpalaLineagePlugin._get_lineage_table_from_table_name("schema.table")
+        actual = ImpalaLineage._get_lineage_table_from_table_name("schema.table")
         expected = LineageTable(schema="schema", table="table", catalog=None)
         self.assertEqual(expected, actual)
 
     def test_get_lineage_table_from_table_name_none(self):
-        self.assertIsNone(ImpalaLineagePlugin._get_lineage_table_from_table_name(None))
+        self.assertIsNone(ImpalaLineage._get_lineage_table_from_table_name(None))
 
     def test_does_query_have_lineage(self):
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage("SELECT * FROM table")
+            ImpalaLineage._does_query_have_lineage("SELECT * FROM table")
         )
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "WITH temporaryTable(avgVal) as"
                 "(SELECT avg(Salary)"
                 "from Employee)"
@@ -30,14 +30,14 @@ class ImpalaLineagePluginTest(unittest.TestCase):
             )
         )
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "-- job_name: a-job\n-- op_id: an-op\nINSERT "
                 "INTO TABLE schema.table  /* +SHUFFLE */\n "
                 "SELECT t1.* FROM schema.table"
             )
         )
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "-- job_name: a-job\n"
                 "-- /* +SHUFFLE */ below is a query hint to "
                 "Impala. Do not remove!\n "
@@ -46,52 +46,52 @@ class ImpalaLineagePluginTest(unittest.TestCase):
             )
         )
 
-        self.assertFalse(ImpalaLineagePlugin._does_query_have_lineage("USE database;"))
+        self.assertFalse(ImpalaLineage._does_query_have_lineage("USE database;"))
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage("DROP TABLE table;")
+            ImpalaLineage._does_query_have_lineage("DROP TABLE table;")
         )
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "select 1 -- testing if connection is alive."
             )
         )
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "alter table d2.mobile rename to d3.mobile;"
             )
         )
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "-- job_name: a-job\n"
                 "-- op_id: an-op\n"
                 "select 1 -- Testing if connection is alive."
             )
         )
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "-- job_name: a-job\n" "-- op_id: an-op\n" " DESCRIBE schema.table"
             )
         )
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "-- job_name: a-job\n" "-- op_id: an-op\n" " REFRESH schema.table"
             )
         )
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "CREATE TABLE database_one.table_for_prod "
                 "STORED AS PARQUET AS SELECT * FROM  database_two.table_for_prod;"
             )
         )
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "CREATE TABLE database_one.table_for_prod "
                 "STORED AS PARQUET AS SELECT\n"
                 "* FROM  database_two.table_for_prod;"
             )
         )
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "CREATE TABLE database_one.table_for_prod "
                 "STORED AS PARQUET AS"
                 "WITH temporaryTable(avgVal) as"
@@ -103,12 +103,12 @@ class ImpalaLineagePluginTest(unittest.TestCase):
             )
         )
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "CREATE TABLE database_one.table_for_prod " "STORED AS PARQUET"
             )
         )
         self.assertFalse(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "\n"
                 "-- job_name: job-name\n"
                 "-- op_id: job-name-1665673200-v9nth\n"
@@ -118,7 +118,7 @@ class ImpalaLineagePluginTest(unittest.TestCase):
         )
 
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "\n"
                 "/***\n"
                 "show create table database.incident;\n"
@@ -163,7 +163,7 @@ class ImpalaLineagePluginTest(unittest.TestCase):
             )
         )
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "\n"
                 "-- job_name: just-a-job\n"
                 "-- op_id: just-a-job-1665673200-crhqw\n"
@@ -181,7 +181,7 @@ class ImpalaLineagePluginTest(unittest.TestCase):
             )
         )
         self.assertTrue(
-            ImpalaLineagePlugin._does_query_have_lineage(
+            ImpalaLineage._does_query_have_lineage(
                 "\n"
                 "/***\n"
                 "show create table database_one.table_incidents;\n"
@@ -224,7 +224,7 @@ class ImpalaLineagePluginTest(unittest.TestCase):
     def test_parsing_query_profile(self):
         inputs = {"database_a.table1", "database_b.table2"}
         output = "database_c.table1"
-        result = ImpalaLineagePlugin._parse_inputs_outputs(
+        result = ImpalaLineage._parse_inputs_outputs(
             """
             00:SCAN HDFS [database_a.table1, RANDOM]
             01:SCAN HDFS [database_b.table2 w, RANDOM]

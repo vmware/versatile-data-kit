@@ -22,7 +22,7 @@ from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 from vdk.plugin.impala.impala_error_classifier import is_impala_user_error
-from vdk.plugin.impala.impala_lineage_plugin import LINEAGE_LOGGER_KEY
+from vdk.plugin.impala.impala_lineage import LINEAGE_LOGGER_KEY
 
 
 def _connection_by_configuration(configuration: ImpalaPluginConfiguration, lineage_logger: ILineageLogger = None):

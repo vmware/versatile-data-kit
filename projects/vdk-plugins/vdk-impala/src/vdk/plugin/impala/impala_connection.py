@@ -15,7 +15,7 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
 )
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineage
+from vdk.plugin.impala.impala_lineage import ImpalaLineage
 
 log = logging.getLogger(__name__)
 
