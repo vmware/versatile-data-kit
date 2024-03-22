@@ -13,7 +13,7 @@ from openlineage.client.run import RunState
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.internal.builtin_plugins.config.job_config import JobConfigKeys
-from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.execution_state import ExecutionStateStoreKeys
 from vdk.internal.builtin_plugins.run.job_context import JobContext
@@ -108,14 +108,14 @@ class OpenLineagePlugin:
         return None
 
     @hookimpl(trylast=True)
-    def db_connection_decorate_operation(self, decoration_cursor: DecorationCursor):
+    def db_connection_before_operation(self, operation: ManagedOperation):
         if self.__client:
             # TODO: track properly the run state (start and end of the query)
             # For now it's always complete since we have not easy way to know start/end.
             # TODO: find a way to extract the database connection type (impala vs trino)
             #  and the actual connection (e.g connection URI - be impala-1.foo.com impala-2.foo.com)
             # and record them either as facet or OpenLinage Source
-            query = decoration_cursor.get_managed_operation().get_operation()
+            query = operation.get_operation()
             try:
                 #  TODO: abstract away so there could be multiple lineage loggers (nit just openlineage)
                 self.__client.emit(
