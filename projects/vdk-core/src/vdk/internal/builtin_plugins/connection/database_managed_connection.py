@@ -98,3 +98,20 @@ class IDatabaseManagedConnection:
         :return:
         """
         pass
+
+    def db_connection_after_operation(self, execution_cursor: ExecutionCursor) -> None:
+        """
+        This method runs after the execution of the database operation.
+        It can be used for tasks such as auditing, logging, cleanup, or additional validations.
+
+        For example:
+        db_connection_after_operation(post_operation_cursor):
+             hive_cursor = cast(HiveServer2Cursor, execution_cursor)
+             lineage_data = self._get_lineage_data(hive_cursor)
+             if (lineage_data):
+                    lineage_logger.send(lineage_data)
+
+        :param execution_cursor: ExecutionCursor
+        :return:
+        """
+        pass
