@@ -124,6 +124,15 @@ def test_run_secrets_override_config_vars():
             self.config = context.core_context.configuration
             return None  # continue with next hook impl.
 
+    config_log = DebugConfigLog()
+    runner = CliEntryBasedTestRunner(config_log)
+    result: Result = runner.invoke(["run", util.job_path("simple-job-config-ini")])
+    cli_assert_equal(0, result)
+    # secrets that match config keys are overridden, even if config.ini sets them explicitly
+    assert config_log.config.get_value("log_exception_formatter") == "plain"
+    # secrets that do not match any config key do not leak in the config object
+    assert config_log.config.get_value("irrelevant_secret") is None
+
     with mock.patch.dict(
         os.environ,
         {
@@ -134,7 +143,7 @@ def test_run_secrets_override_config_vars():
         runner = CliEntryBasedTestRunner(config_log)
         result: Result = runner.invoke(["run", util.job_path("simple-job")])
         cli_assert_equal(0, result)
-        # secrets that match config keys are overridden
-        assert config_log.config.get_value("log_exception_formatter") == "plain"
+        # secrets that match config keys but are configured using env variables are NOT overridden
+        assert config_log.config.get_value("log_exception_formatter") == "pretty"
         # secrets that do not match any config key do not leak in the config object
         assert config_log.config.get_value("irrelevant_secret") is None
