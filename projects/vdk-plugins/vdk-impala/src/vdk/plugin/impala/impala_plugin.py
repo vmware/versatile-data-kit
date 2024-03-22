@@ -8,10 +8,11 @@ from typing import List
 import click
 from tabulate import tabulate
 from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
-
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
+from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
@@ -22,10 +23,13 @@ from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 from vdk.plugin.impala.impala_error_classifier import is_impala_user_error
+from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
 from vdk.plugin.impala.impala_lineage import LINEAGE_LOGGER_KEY
 
 
-def _connection_by_configuration(configuration: ImpalaPluginConfiguration, lineage_logger: ILineageLogger = None):
+def _connection_by_configuration(
+    configuration: ImpalaPluginConfiguration, lineage_logger: ILineageLogger = None
+):
     return ImpalaConnection(
         host=configuration.host(),
         port=configuration.port(),
@@ -47,7 +51,7 @@ def _connection_by_configuration(configuration: ImpalaPluginConfiguration, linea
         sync_ddl=configuration.sync_ddl,
         query_pool=configuration.query_pool,
         db_default_type="impala",
-        lineage_logger=lineage_logger
+        lineage_logger=lineage_logger,
     )
 
 
@@ -86,12 +90,12 @@ class ImpalaPlugin:
             "DB_DEFAULT_TYPE"
         )
 
-        self._impala_cfg = ImpalaPluginConfiguration(
-            context.core_context.configuration
-        )
+        self._impala_cfg = ImpalaPluginConfiguration(context.core_context.configuration)
         context.connections.add_open_connection_factory_method(
             "IMPALA",
-            lambda: _connection_by_configuration(self._impala_cfg, self._lineage_logger),
+            lambda: _connection_by_configuration(
+                self._impala_cfg, self._lineage_logger
+            ),
         )
 
         context.templates.add_template(
