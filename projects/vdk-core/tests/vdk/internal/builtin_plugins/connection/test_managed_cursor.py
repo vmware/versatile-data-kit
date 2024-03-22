@@ -7,9 +7,6 @@ from unittest.mock import call
 from unittest.mock import Mock
 
 import pytest
-from vdk.internal.builtin_plugins.connection.connection_hooks import (
-    DefaultConnectionHookImpl,
-)
 from vdk.internal.builtin_plugins.connection.database_managed_connection import (
     IDatabaseManagedConnection,
 )
