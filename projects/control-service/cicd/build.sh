@@ -27,7 +27,7 @@ if ! which java >/dev/null 2>&1 && [ -z "$JAVA_HOME" ]; then
 fi
 
 
-export TAG=${TAG:-$(git rev-parse --short HEAD)}
+export TAG="testses"
 
 set -x
 ./projects/gradlew -p ./projects/model build publishToMavenLocal --info --stacktrace

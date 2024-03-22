@@ -50,7 +50,7 @@ public class AmazonEmailNotification extends EmailNotification {
     SendEmailResult sendEmailResult =
         sesClient.sendEmail(
             new SendEmailRequest()
-                .withSource("yoan.salambashev@broadcom.com")
+                .withSource("paulm2@vmware.com")
                 .withDestination(
                     new Destination(Lists.newArrayList("yoan.salambashev@broadcom.com")))
                 .withMessage(
