@@ -15,9 +15,7 @@ from impala.hiveserver2 import HiveServer2Cursor
 from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
 from vdk.api.lineage.model.sql.model import LineageData
 from vdk.api.lineage.model.sql.model import LineageTable
-from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
-from vdk.internal.core.context import CoreContext
 from vdk.internal.core.statestore import StoreKey
 
 LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("impala-lineage-logger")
@@ -25,7 +23,7 @@ LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("impala-lineage-logger")
 log = logging.getLogger(__name__)
 
 
-class ImpalaLineagePlugin:
+class ImpalaLineage:
     """
     Calculates lineage information from the query plan of executed queries.
     Lineage is calculated only if the query has finished successfully and has resulted actual data read or write from/to
@@ -35,19 +33,9 @@ class ImpalaLineagePlugin:
     def __init__(self, lineage_logger: ILineageLogger = None):
         self._lineage_logger = lineage_logger
 
-    # the purpose of the below hook is to get reference to any registered lineage loggers by other plugins
-    @hookimpl(
-        trylast=True
-    )  # trylast because we want to have any lineage loggers already initialized
-    def vdk_initialize(self, context: CoreContext) -> None:
-        self._lineage_logger = context.state.get(LINEAGE_LOGGER_KEY)
-
-    # the purpose of the below hook is to calculate lineage information after a query has been successfully executed
-    @hookimpl(hookwrapper=True)
-    def db_connection_execute_operation(
+    def db_connection_after_operation(
         self, execution_cursor: ExecutionCursor
-    ) -> Optional[int]:
-        yield  # let the query execute first
+    )  -> None:
         try:
             if self._lineage_logger and sys.version_info < (3, 10):
                 # calculate and send lineage data only if there is a registered lineage logger

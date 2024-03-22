@@ -1,41 +1,49 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import sys
+from typing import cast
 
 from impala.dbapi import connect as impala_connect
+from impala.hiveserver2 import HiveServer2Cursor
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
+
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
+from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineage
 
 log = logging.getLogger(__name__)
 
 
 class ImpalaConnection(ManagedConnectionBase):
     def __init__(
-        self,
-        host="localhost",
-        port=21050,
-        database=None,
-        timeout=None,
-        use_ssl=False,
-        ca_cert=None,
-        auth_mechanism="NOSASL",
-        user=None,
-        password=None,
-        kerberos_service_name="impala",
-        krb_host=None,
-        use_http_transport=False,
-        http_path="",
-        auth_cookie_names=None,
-        retries=3,
-        retries_on_error=3,
-        error_backoff_seconds=30,
-        sync_ddl=None,
-        query_pool=None,
-        db_default_type="impala",
+            self,
+            host="localhost",
+            port=21050,
+            database=None,
+            timeout=None,
+            use_ssl=False,
+            ca_cert=None,
+            auth_mechanism="NOSASL",
+            user=None,
+            password=None,
+            kerberos_service_name="impala",
+            krb_host=None,
+            use_http_transport=False,
+            http_path="",
+            auth_cookie_names=None,
+            retries=3,
+            retries_on_error=3,
+            error_backoff_seconds=30,
+            sync_ddl=None,
+            query_pool=None,
+            db_default_type="impala",
+            lineage_logger: ILineageLogger = None
     ):
         super().__init__(log)
 
@@ -59,6 +67,7 @@ class ImpalaConnection(ManagedConnectionBase):
         self._error_backoff_seconds = error_backoff_seconds
         self._sync_ddl = sync_ddl
         self._query_pool = query_pool
+        self._lineage_logger = lineage_logger
 
     def _connect(self):
         conn = impala_connect(
@@ -88,7 +97,7 @@ class ImpalaConnection(ManagedConnectionBase):
         )
 
         if impala_error_handler.handle_error(
-            recovery_cursor.get_exception(), recovery_cursor
+                recovery_cursor.get_exception(), recovery_cursor
         ):
             logging.getLogger(__name__).debug(
                 "Error handled successfully! Query execution has succeeded."
@@ -115,3 +124,8 @@ class ImpalaConnection(ManagedConnectionBase):
                 )
                 if self._db_default_type.lower() == "impala":
                     raise e
+
+    def db_connection_after_operation(self, execution_cursor: ExecutionCursor) -> None:
+        if self._lineage_logger:
+            impala_lineage = ImpalaLineage(self._lineage_logger)
+            impala_lineage.db_connection_after_operation(execution_cursor)

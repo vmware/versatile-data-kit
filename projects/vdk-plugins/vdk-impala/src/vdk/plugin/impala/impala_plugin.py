@@ -7,25 +7,25 @@ from typing import List
 
 import click
 from tabulate import tabulate
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
+
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
-from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
-from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala.impala_configuration import add_definitions
 from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 from vdk.plugin.impala.impala_error_classifier import is_impala_user_error
-from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineagePlugin
+from vdk.plugin.impala.impala_lineage_plugin import LINEAGE_LOGGER_KEY
 
 
-def _connection_by_configuration(configuration: ImpalaPluginConfiguration):
+def _connection_by_configuration(configuration: ImpalaPluginConfiguration, lineage_logger: ILineageLogger = None):
     return ImpalaConnection(
         host=configuration.host(),
         port=configuration.port(),
@@ -47,6 +47,7 @@ def _connection_by_configuration(configuration: ImpalaPluginConfiguration):
         sync_ddl=configuration.sync_ddl,
         query_pool=configuration.query_pool,
         db_default_type="impala",
+        lineage_logger=lineage_logger
     )
 
 
@@ -59,6 +60,9 @@ def impala_query(ctx: click.Context, query):
 
 
 class ImpalaPlugin:
+    def __init__(self, lineage_logger: ILineageLogger = None):
+        self._lineage_logger = lineage_logger
+
     @staticmethod
     @hookimpl
     def vdk_configure(config_builder: ConfigurationBuilder) -> None:
@@ -69,6 +73,13 @@ class ImpalaPlugin:
     def vdk_command_line(root_command: click.Group):
         root_command.add_command(impala_query)
 
+    # the purpose of the below hook is to get reference to any registered lineage loggers by other plugins
+    @hookimpl(
+        trylast=True
+    )  # trylast because we want to have any lineage loggers already initialized
+    def vdk_initialize(self, context: CoreContext) -> None:
+        self._lineage_logger = context.state.get(LINEAGE_LOGGER_KEY)
+
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         self._db_default_type = context.core_context.configuration.get_value(
@@ -77,10 +88,10 @@ class ImpalaPlugin:
 
         self._impala_cfg = ImpalaPluginConfiguration(
             context.core_context.configuration
-        )  # necessary for the query decoration hook
+        )
         context.connections.add_open_connection_factory_method(
             "IMPALA",
-            lambda: _connection_by_configuration(self._impala_cfg),
+            lambda: _connection_by_configuration(self._impala_cfg, self._lineage_logger),
         )
 
         context.templates.add_template(
@@ -146,9 +157,6 @@ class ImpalaPlugin:
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.load_plugin_with_hooks_impl(ImpalaPlugin(), "impala-plugin")
-    plugin_registry.load_plugin_with_hooks_impl(
-        ImpalaLineagePlugin(), "impala-lineage-plugin"
-    )
 
 
 def get_jobs_parent_directory() -> pathlib.Path:
