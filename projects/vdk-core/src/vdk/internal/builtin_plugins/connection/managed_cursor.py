@@ -103,6 +103,7 @@ class ManagedCursor(ProxyCursor):
             self._log.info(
                 f"Executing query SUCCEEDED. Query {_get_query_duration(query_start_time)}"
             )
+            self._after_operation(managed_operation)
             return result
         except Exception as e:
             try:
@@ -254,6 +255,35 @@ class ManagedCursor(ProxyCursor):
             )
         return result
 
+    def _after_operation(self, managed_operation: ManagedOperation):
+        execution_cursor = ExecutionCursor(self._cursor, managed_operation, self._log)
+
+        if (
+            self.__managed_database_connection
+            and self.__managed_database_connection.db_connection_after_operation
+        ):
+            try:
+                self._log.debug(
+                    "Executing after operation:\n%s" % managed_operation.get_operation()
+                )
+                self.__managed_database_connection.db_connection_after_operation(
+                    execution_cursor=execution_cursor
+                )
+            except Exception as e:
+                self._log.error(
+                    "\n".join(
+                        [
+                            "After query FAILED.",
+                            errors.MSG_WHY_FROM_EXCEPTION(e),
+                        ]
+                    )
+                )
+                errors.report(
+                    errors.ResolvableBy.USER_ERROR,
+                    exception=e,
+                )
+                raise e
+
     def fetchall(self) -> Collection[Collection[Any]]:
         self._log.info("Fetching all results from query ...")
         try:
@@ -353,6 +383,7 @@ class ManagedCursor(ProxyCursor):
                 f"Recovery of query SUCCEEDED "
                 f"after {(recovery_cursor.get_retries())} retries."
             )
+            self._after_operation(managed_operation)
         except Exception as e:
             self._log.debug(
                 f"Recovery of query FAILED "

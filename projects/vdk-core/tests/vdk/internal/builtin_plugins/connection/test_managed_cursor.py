@@ -242,6 +242,11 @@ class ManagedDatabaseConnectionTestImpl(IDatabaseManagedConnection):
     def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
         print("Recover called not from Base class")
 
+    def db_connection_after_operation(
+        self, execution_cursor: ExecutionCursor
+    ) -> Optional[ExecuteOperationResult]:
+        print("After called")
+
 
 @pytest.fixture
 def managed_connection():
@@ -424,3 +429,22 @@ def test_no_hook_recovery__failure__execute(managed_connection):
     assert "Could not handle execution exception" == e.value.args[0]
     mock_managed_connection.db_connection_recover_operation.assert_called_once()
     mock_native_cursor.execute.assert_called_once()
+
+
+def test_db_after_operations(managed_connection):
+    managed_connection.db_connection_after_operation = Mock()
+
+    (
+        mock_native_cursor,
+        mock_managed_cursor,
+        _,
+        _,
+        mock_managed_connection,
+    ) = populate_mock_managed_cursor_no_hook(
+        managed_database_connection=managed_connection
+    )
+
+    mock_managed_cursor.execute(_query)
+
+    mock_native_cursor.execute.assert_called_once()
+    mock_managed_connection.db_connection_after_operation.assert_called_once()
