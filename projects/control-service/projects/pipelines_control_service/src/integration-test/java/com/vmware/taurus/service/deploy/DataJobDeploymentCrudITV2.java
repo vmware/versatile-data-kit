@@ -51,7 +51,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({DataJobDeploymentCrudITV2.TaskExecutorConfig.class})
 @TestPropertySource(
     properties = {
-      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
       "datajobs.deployment.configuration.synchronization.task.enabled=true",
       "datajobs.deployment.configuration.synchronization.task.initial.delay.ms=1000000",
       // Setting this value to 1000000 effectively disables the scheduled execution of

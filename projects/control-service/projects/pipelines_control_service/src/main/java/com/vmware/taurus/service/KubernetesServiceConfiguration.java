@@ -7,7 +7,6 @@ package com.vmware.taurus.service;
 
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
-import io.kubernetes.client.openapi.apis.BatchV1beta1Api;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -46,12 +45,6 @@ public class KubernetesServiceConfiguration {
   public BatchV1Api deploymentBatchV1Api(
       @Qualifier("deploymentApiClient") ApiClient deploymentApiClient) {
     return new BatchV1Api(deploymentApiClient);
-  }
-
-  @Bean
-  public BatchV1beta1Api deploymentBatchV1beta1Api(
-      @Qualifier("deploymentApiClient") ApiClient deploymentApiClient) {
-    return new BatchV1beta1Api(deploymentApiClient);
   }
 
   @Bean

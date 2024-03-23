@@ -35,11 +35,6 @@ class OraclePlugin:
     def initialize_job(self, context: JobContext):
         conf = OracleConfiguration(context.core_context.configuration)
         oracle_user, oracle_pass = conf.get_oracle_user(), conf.get_oracle_password()
-        if conf.oracle_use_secrets():
-            # TODO: this will be removed once support for reading configuration from secrets is added in core
-            job_secrets = context.job_input.get_all_secrets()
-            oracle_user = job_secrets.get(ORACLE_USER.lower(), oracle_user)
-            oracle_pass = job_secrets.get(ORACLE_PASSWORD.lower(), oracle_pass)
         context.connections.add_open_connection_factory_method(
             "ORACLE",
             lambda: OracleConnection(
@@ -55,7 +50,10 @@ class OraclePlugin:
             ),
         )
         context.ingester.add_ingester_factory_method(
-            "oracle", (lambda: IngestToOracle(context.connections))
+            "oracle",
+            lambda: IngestToOracle(
+                context.connections, conf.oracle_ingest_batch_size()
+            ),
         )
 
 
@@ -67,11 +65,18 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
 # TODO: https://github.com/vmware/versatile-data-kit/issues/2940
 @click.command(
     name="oracle-query",
-    help="Execute an Oracle query against an Oracle database (should be configured with env variables)",
+    help="DEPRECATED: use sql-query, instead."
+    "Execute an Oracle query against an Oracle database (should be configured with env variables)",
 )
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context
 def oracle_query(ctx: click.Context, query):
+    """
+    Deprecated: "Use sql-query instead"
+
+    oracle-query: kept for compatibility
+    """
+    log.warning("oracle-query has been deprecated; please use sql-query instead.")
     conf = ctx.obj.configuration
     conn = oracledb.connect(
         user=conf.get_value(ORACLE_USER),

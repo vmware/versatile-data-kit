@@ -5,10 +5,7 @@
 
 package com.vmware.taurus.service.credentials;
 
-import com.amazonaws.auth.AWSSessionCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider;
+import com.amazonaws.auth.*;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
@@ -36,16 +33,25 @@ public class AWSCredentialsService {
     this.awsCredentialsServiceConfig = awsCredentialsServiceConfig;
 
     if (awsCredentialsServiceConfig.isAssumeIAMRole()) {
-      AWSSecurityTokenService stsClient =
-          AWSSecurityTokenServiceClientBuilder.standard()
-              .withCredentials(
-                  new AWSStaticCredentialsProvider(
-                      new BasicAWSCredentials(
-                          awsCredentialsServiceConfig.getServiceAccountAccessKeyId(),
-                          awsCredentialsServiceConfig.getServiceAccountSecretAccessKey())))
-              .withRegion(awsCredentialsServiceConfig.getRegion())
-              .build();
+      final AWSSecurityTokenService stsClient;
+      if (awsCredentialsServiceConfig.getServiceAccountAccessKeyId().isBlank()
+          && awsCredentialsServiceConfig.getServiceAccountSecretAccessKey().isBlank()) {
+        stsClient =
+            AWSSecurityTokenServiceClientBuilder.standard()
+                .withCredentials(new DefaultAWSCredentialsProviderChain())
+                .build();
 
+      } else {
+        stsClient =
+            AWSSecurityTokenServiceClientBuilder.standard()
+                .withCredentials(
+                    new AWSStaticCredentialsProvider(
+                        new BasicAWSCredentials(
+                            awsCredentialsServiceConfig.getServiceAccountAccessKeyId(),
+                            awsCredentialsServiceConfig.getServiceAccountSecretAccessKey())))
+                .withRegion(awsCredentialsServiceConfig.getRegion())
+                .build();
+      }
       AssumeRoleRequest assumeRequest =
           new AssumeRoleRequest()
               .withRoleArn(awsCredentialsServiceConfig.getRoleArn())

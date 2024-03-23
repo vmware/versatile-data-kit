@@ -484,7 +484,7 @@ class Installer:
                         "--name",
                         self.kind_cluster_name,
                         "--image",
-                        "kindest/node:v1.20.15",
+                        "kindest/node:v1.24.17",
                     ],
                     capture_output=True,
                 )
@@ -709,6 +709,8 @@ class Installer:
             "datajobTemplate.template.spec.successfulJobsHistoryLimit=5",
             "--set",
             "datajobTemplate.template.spec.failedJobsHistoryLimit=5",
+            "--set",
+            "deploymentBuilderImage.tag=1.2.3",
             "-f",
             self.__current_directory.joinpath("helm-values.yaml"),
         ]

@@ -19,6 +19,7 @@ ORACLE_HOST = "ORACLE_HOST"
 ORACLE_PORT = "ORACLE_PORT"
 ORACLE_SID = "ORACLE_SID"
 ORACLE_SERVICE_NAME = "ORACLE_SERVICE_NAME"
+ORACLE_INGEST_BATCH_SIZE = "ORACLE_INGEST_BATCH_SIZE"
 
 
 class OracleConfiguration:
@@ -54,6 +55,9 @@ class OracleConfiguration:
 
     def oracle_thick_mode_lib_dir(self) -> Optional[str]:
         return self.__config.get_value(ORACLE_THICK_MODE_LIB_DIR)
+
+    def oracle_ingest_batch_size(self) -> Optional[int]:
+        return int(self.__config.get_value(ORACLE_INGEST_BATCH_SIZE))
 
     @staticmethod
     def add_definitions(config_builder: ConfigurationBuilder):
@@ -121,4 +125,9 @@ class OracleConfiguration:
             "This option is ignored if ORACLE_THICK_MODE is false."
             "Before setting this follow instruction in "
             "https://python-oracledb.readthedocs.io/en/latest/user_guide/initialization.html#enablingthick ",
+        )
+        config_builder.add(
+            key=ORACLE_INGEST_BATCH_SIZE,
+            default_value=100,
+            description="Batch size when ingesting records into Oracle.",
         )
