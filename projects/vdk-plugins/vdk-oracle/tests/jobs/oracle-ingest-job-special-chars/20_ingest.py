@@ -16,5 +16,5 @@ def run(job_input):
     }
 
     job_input.send_object_for_ingestion(
-        payload=payload_with_types, destination_table="test_table"
+        payload=payload_with_types, destination_table="ingest_special_chars"
     )

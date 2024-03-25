@@ -126,7 +126,13 @@ class IngestToOracle(IIngesterPlugin):
         all_columns = {
             _normalize_identifier(col) for row in payload for col in row.keys()
         }
-        new_columns = all_columns - existing_columns.keys()
+        diff_columns = all_columns - existing_columns.keys()
+        new_columns = [
+            col
+            for col in diff_columns
+            if col.upper() not in existing_columns.keys()
+            and col.lower() not in existing_columns.keys()
+        ]
         column_defs = []
         if new_columns:
             for col in new_columns:
@@ -225,15 +231,22 @@ class IngestToOracle(IIngesterPlugin):
 
         parameters = []
         for obj in payload:
-            row = tuple(
-                self._cast_to_correct_type(
-                    destination_table, column.lower(), obj.get(column.lower())
-                )
-                for column in columns
-            )
+            row = []
+            for column in columns:
+                val, col = self._match_column_to_row_key(obj, column)
+                row.append(self._cast_to_correct_type(destination_table, col, val))
             parameters.append(row)
 
         return query, parameters
+
+    def _match_column_to_row_key(self, row, column):
+        if column in row:
+            return row[column], column
+        if column.lower() in row:
+            return row[column.lower()], column.lower()
+        if column.upper() in row:
+            return row[column.upper()], column.upper()
+        return None, column
 
     def ingest_payload(
         self,

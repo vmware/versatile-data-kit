@@ -15,4 +15,6 @@ def run(job_input):
         "decimal_data": "0.1",
     }
 
-    job_input.send_object_for_ingestion(payload=payload, destination_table="test_table")
+    job_input.send_object_for_ingestion(
+        payload=payload, destination_table="ingest_type_inference"
+    )

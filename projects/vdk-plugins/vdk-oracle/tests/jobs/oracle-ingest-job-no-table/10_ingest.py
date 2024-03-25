@@ -44,5 +44,5 @@ def run(job_input):
         ],
     ]
     job_input.send_tabular_data_for_ingestion(
-        rows=row_data, column_names=col_names, destination_table="test_table"
+        rows=row_data, column_names=col_names, destination_table="ingest_no_table"
     )
