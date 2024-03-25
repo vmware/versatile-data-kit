@@ -1,4 +1,4 @@
-create table test_table (
+create table ingest_type_inference (
     id number,
     str_data varchar2(255),
     int_data number,
