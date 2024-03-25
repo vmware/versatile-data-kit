@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './status';
-export * from './string';
-export * from './type';
+export * from "./status";
+export * from "./string";
+export * from "./type";
