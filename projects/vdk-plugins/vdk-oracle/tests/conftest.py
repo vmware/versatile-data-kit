@@ -18,7 +18,7 @@ VDK_LOG_EXECUTION_RESULT = "VDK_LOG_EXECUTION_RESULT"
 VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
 
 
-@pytest.fixture(scope="session")
+# @pytest.fixture(scope="session")
 @mock.patch.dict(
     os.environ,
     {

@@ -1,4 +1,4 @@
-create table test_table (
-    id number,
-    blob_data BLOB,
-    primary key(id))
+CREATE TABLE TEST_TABLE (
+    ID NUMBER,
+    BLOB_DATA BLOB,
+    PRIMARY KEY(ID))

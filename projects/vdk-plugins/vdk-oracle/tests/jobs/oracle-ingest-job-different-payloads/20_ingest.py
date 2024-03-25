@@ -6,53 +6,53 @@ import datetime
 def run(job_input):
     payloads = [
         {
-            "id": 0,
+            "ID": 0,
         },
         {
-            "id": 1,
-            "str_data": "string",
+            "ID": 1,
+            "STR_DATA": "string",
         },
         {
-            "id": 2,
-            "str_data": "string",
-            "int_data": 12,
+            "ID": 2,
+            "STR_DATA": "string",
+            "INT_DATA": 12,
         },
         {
-            "id": 3,
-            "str_data": "string",
-            "int_data": 12,
-            "float_data": 1.2,
+            "ID": 3,
+            "STR_DATA": "string",
+            "INT_DATA": 12,
+            "FLOAT_DATA": 1.2,
         },
         {
-            "id": 4,
-            "str_data": "string",
-            "int_data": 12,
-            "float_data": 1.2,
-            "bool_data": True,
+            "ID": 4,
+            "STR_DATA": "string",
+            "INT_DATA": 12,
+            "FLOAT_DATA": 1.2,
+            "BOOL_DATA": True,
         },
         {
-            "id": 5,
-            "str_data": "string",
-            "int_data": 12,
-            "float_data": 1.2,
-            "bool_data": True,
-            "timestamp_data": datetime.datetime.utcfromtimestamp(1700554373),
+            "ID": 5,
+            "STR_DATA": "string",
+            "INT_DATA": 12,
+            "FLOAT_DATA": 1.2,
+            "BOOL_DATA": True,
+            "TIMESTAMP_DATA": datetime.datetime.utcfromtimestamp(1700554373),
         },
         {
-            "id": 6,
-            "str_data": "string",
-            "int_data": 12,
-            "float_data": 1.2,
+            "ID": 6,
+            "STR_DATA": "string",
+            "INT_DATA": 12,
+            "FLOAT_DATA": 1.2,
         },
         {
-            "id": 7,
-            "str_data": "string",
-            "int_data": 12,
-            "float_data": 1.2,
-            "bool_data": True,
+            "ID": 7,
+            "STR_DATA": "string",
+            "INT_DATA": 12,
+            "FLOAT_DATA": 1.2,
+            "BOOL_DATA": True,
         },
     ]
     for payload in payloads:
         job_input.send_object_for_ingestion(
-            payload=payload, destination_table="test_table"
+            payload=payload, destination_table="TEST_TABLE"
         )

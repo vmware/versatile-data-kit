@@ -18,23 +18,6 @@ from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 log = logging.getLogger(__name__)
 
 
-# Functions for escaping special characters
-def _is_plain_identifier(identifier: str) -> bool:
-    # https://docs.oracle.com/en/error-help/db/ora-00904/
-    # Alphanumeric that doesn't start with a number
-    # Can contain and start with $, # and _
-    regex = "^[A-Za-z\\$#_][0-9A-Za-z\\$#_]*$"
-    return bool(re.fullmatch(regex, identifier))
-
-
-def _normalize_identifier(identifier: str) -> str:
-    return identifier.upper() if _is_plain_identifier(identifier) else identifier
-
-
-def _escape_special_chars(value: str) -> str:
-    return value if _is_plain_identifier(value) else f'"{value}"'
-
-
 class TableCache:
     def __init__(self, cursor: ManagedCursor):
         self._tables: Dict[str, Dict[str, str]] = {}
@@ -42,14 +25,14 @@ class TableCache:
 
     def cache_columns(self, table: str) -> None:
         # exit if the table columns have already been cached
-        if table.upper() in self._tables and self._tables[table.upper()]:
+        if table in self._tables and self._tables[table]:
             return
         try:
             self._cursor.execute(
-                f"SELECT column_name, data_type, data_scale FROM user_tab_columns WHERE table_name = '{table.upper()}'"
+                f"SELECT column_name, data_type, data_scale FROM user_tab_columns WHERE table_name = '{table}'"
             )
             result = self._cursor.fetchall()
-            self._tables[table.upper()] = {
+            self._tables[table] = {
                 col: ("DECIMAL" if data_type == "NUMBER" and data_scale else data_type)
                 for (col, data_type, data_scale) in result
             }
@@ -60,28 +43,25 @@ class TableCache:
             )
 
     def get_columns(self, table: str) -> Dict[str, str]:
-        return self._tables[table.upper()]
+        return self._tables[table]
 
     def update_from_col_defs(self, table: str, col_defs) -> None:
-        self._tables[table.upper()].update(col_defs)
+        self._tables[table].update(col_defs)
 
     def get_col_type(self, table: str, col: str) -> str:
-        return self._tables.get(table.upper()).get(
-            col.upper() if _is_plain_identifier(col) else col
-        )
+        return self._tables.get(table).get(col)
 
     def table_exists(self, table: str) -> bool:
-        if table.upper() in self._tables:
+        if table in self._tables:
             return True
 
         self._cursor.execute(
-            f"SELECT COUNT(*) FROM user_tables WHERE table_name = :1",
-            [table.upper()],
+            f"SELECT COUNT(*) FROM user_tables WHERE table_name = '{table}'",
         )
         exists = bool(self._cursor.fetchone()[0])
 
         if exists:
-            self._tables[table.upper()] = {}
+            self._tables[table] = {}
 
         return exists
 
@@ -110,22 +90,17 @@ class IngestToOracle(IIngesterPlugin):
 
     def _create_table(self, table_name: str, row: Dict[str, Any]) -> None:
         column_defs = [
-            f"{_escape_special_chars(col)} {self._get_oracle_type(row[col])}"
-            for col in row.keys()
+            f'"{col}" {self._get_oracle_type(row[col])}' for col in row.keys()
         ]
-        create_table_sql = (
-            f"CREATE TABLE {table_name.upper()} ({', '.join(column_defs)})"
-        )
+        create_table_sql = f'CREATE TABLE "{table_name}" ({", ".join(column_defs)})'
         self.cursor.execute(create_table_sql)
 
     def _add_columns(self, table_name: str, payload: List[Dict[str, Any]]) -> None:
-        self.table_cache.cache_columns(table_name)
+        # self.table_cache.cache_columns(table_name)
         existing_columns = self.table_cache.get_columns(table_name)
 
         # Find unique new columns from all rows in the payload
-        all_columns = {
-            _normalize_identifier(col) for row in payload for col in row.keys()
-        }
+        all_columns = {col for row in payload for col in row.keys()}
         new_columns = all_columns - existing_columns.keys()
         column_defs = []
         if new_columns:
@@ -140,13 +115,8 @@ class IngestToOracle(IIngesterPlugin):
                 )
                 column_defs.append((col, column_type))
 
-            string_defs = [
-                f"{_escape_special_chars(col_def[0])} {col_def[1]}"
-                for col_def in column_defs
-            ]
-            alter_sql = (
-                f"ALTER TABLE {table_name.upper()} ADD ({', '.join(string_defs)})"
-            )
+            string_defs = [f'"{col_def[0]}" {col_def[1]}' for col_def in column_defs]
+            alter_sql = f'ALTER TABLE "{table_name}" ADD ({", ".join(string_defs)})'
             self.cursor.execute(alter_sql)
             self.table_cache.update_from_col_defs(table_name, column_defs)
 
@@ -218,29 +188,23 @@ class IngestToOracle(IIngesterPlugin):
         [('val1', 'val2'), ('val1', 'val2')]
         """
         columns = self.table_cache.get_columns(destination_table)
-        query_columns = [_escape_special_chars(col) for col in columns]
+        query_columns = [f'"{col}"' for col in columns]
 
         placeholders = ", ".join(f":{i}" for i in range(len(columns)))
-        query = f"INSERT INTO {destination_table} ({', '.join(query_columns)}) VALUES ({placeholders})"
+        query = f'INSERT INTO "{destination_table}" ({", ".join(query_columns)}) VALUES ({placeholders})'
 
         parameters = []
         for obj in payload:
             row = []
             for column in columns:
-                val, col = self._match_col_to_val(obj, column)
-                row.append(self._cast_to_correct_type(destination_table, col, val))
+                row.append(
+                    self._cast_to_correct_type(
+                        destination_table, column, obj.get(column)
+                    )
+                )
             parameters.append(row)
 
         return query, parameters
-
-    def _match_col_to_val(self, payload_row, column):
-        if column in payload_row:
-            return payload_row[column], column
-        if column.lower() in payload_row:
-            return payload_row[column.lower()], column.lower()
-        if column.upper() in payload_row:
-            return payload_row[column.upper()], column.upper()
-        return None, column
 
     def ingest_payload(
         self,

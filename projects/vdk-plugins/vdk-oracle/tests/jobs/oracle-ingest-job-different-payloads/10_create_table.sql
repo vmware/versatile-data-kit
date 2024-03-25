@@ -1,8 +1,8 @@
-create table test_table (
-    id number,
-    str_data varchar2(255),
-    int_data number,
-    float_data float,
-    bool_data number(1),
-    timestamp_data timestamp,
-    primary key(id))
+create table TEST_TABLE (
+    ID NUMBER,
+    STR_DATA VARCHAR2(255),
+    INT_DATA NUMBER,
+    FLOAT_DATA FLOAT,
+    BOOL_DATA NUMBER(1),
+    TIMESTAMP_DATA TIMESTAMP,
+    PRIMARY KEY(ID))
