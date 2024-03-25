@@ -1,9 +1,9 @@
-create table test_table (
-    id number,
-    "@str_data" varchar2(255),
-    "%int_data" number,
-    "*float*data*" float,
-    bool_data number(1),
-    timestamp_data timestamp,
-    decimal_data decimal(14,8),
+create table TEST_TABLE (
+    ID number,
+    "@STR_DATA" varchar2(255),
+    "%INT_DATA" number,
+    "*FLOAT*DATA*" float,
+    BOOL_DATA number(1),
+    TIMESTAMP_DATA timestamp,
+    DECIMAL_DATA decimal(14,8),
     primary key(id))

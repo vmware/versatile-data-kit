@@ -5,14 +5,14 @@ import math
 
 def run(job_input):
     payload = {
-        "id": "5",
-        "str_data": "string",
-        "int_data": "12",
-        "nan_int_data": math.nan,
-        "float_data": "1.2",
-        "bool_data": "False",
-        "timestamp_data": "2023-11-21T08:12:53.43726",
-        "decimal_data": "0.1",
+        "ID": "5",
+        "STR_DATA": "string",
+        "INT_DATA": "12",
+        "NAN_INT_DATA": math.nan,
+        "FLOAT_DATA": "1.2",
+        "BOOL_DATA": "False",
+        "TIMESTAMP_DATA": "2023-11-21T08:12:53.43726",
+        "DECIMAL_DATA": "0.1",
     }
 
-    job_input.send_object_for_ingestion(payload=payload, destination_table="test_table")
+    job_input.send_object_for_ingestion(payload=payload, destination_table="TEST_TABLE")
