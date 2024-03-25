@@ -16,9 +16,7 @@ class ImpalaLineagePluginTest(unittest.TestCase):
         self.assertIsNone(ImpalaLineage._get_lineage_table_from_table_name(None))
 
     def test_does_query_have_lineage(self):
-        self.assertTrue(
-            ImpalaLineage._does_query_have_lineage("SELECT * FROM table")
-        )
+        self.assertTrue(ImpalaLineage._does_query_have_lineage("SELECT * FROM table"))
         self.assertTrue(
             ImpalaLineage._does_query_have_lineage(
                 "WITH temporaryTable(avgVal) as"
@@ -47,9 +45,7 @@ class ImpalaLineagePluginTest(unittest.TestCase):
         )
 
         self.assertFalse(ImpalaLineage._does_query_have_lineage("USE database;"))
-        self.assertFalse(
-            ImpalaLineage._does_query_have_lineage("DROP TABLE table;")
-        )
+        self.assertFalse(ImpalaLineage._does_query_have_lineage("DROP TABLE table;"))
         self.assertFalse(
             ImpalaLineage._does_query_have_lineage(
                 "select 1 -- testing if connection is alive."
