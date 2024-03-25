@@ -225,15 +225,22 @@ class IngestToOracle(IIngesterPlugin):
 
         parameters = []
         for obj in payload:
-            row = tuple(
-                self._cast_to_correct_type(
-                    destination_table, column.lower(), obj.get(column.lower())
-                )
-                for column in columns
-            )
+            row = []
+            for column in columns:
+                val, col = self._match_col_to_val(obj, column)
+                row.append(self._cast_to_correct_type(destination_table, col, val))
             parameters.append(row)
 
         return query, parameters
+
+    def _match_col_to_val(self, payload_row, column):
+        if column in payload_row:
+            return payload_row[column], column
+        if column.lower() in payload_row:
+            return payload_row[column.lower()], column.lower()
+        if column.upper() in payload_row:
+            return payload_row[column.upper()], column.upper()
+        return None, column
 
     def ingest_payload(
         self,
