@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './interfaces';
-export * from './taurus-base.component';
+export * from "./interfaces";
+export * from "./taurus-base.component";

@@ -4,35 +4,34 @@
   -->
 
 <div *ngIf="quickFilters && quickFilters.length" class="quick-filters">
-    <div *ngIf="showFiltersLabel" class="quick-filters__title">
-        <span>QUICK FILTERS:</span>
-    </div>
+  <div *ngIf="showFiltersLabel" class="quick-filters__title">
+    <span>QUICK FILTERS:</span>
+  </div>
 
-    <div class="quick-filters__list" data-cy="data-pipelines-quick-filters">
-        <span
-            *ngFor="let filter of quickFilters; trackBy: trackByFn"
-            class="quick-filters__list-item label tag"
-            tabindex="0"
-            aria-disabled="false"
-            role="button"
-            [ngClass]="{
-                'label-light-blue':
-                    filter === activatedFilter && !disableActionableElements,
-                'label-grey':
-                    filter !== activatedFilter || disableActionableElements,
-                clickable: !disableActionableElements,
-                disabled: disableActionableElements
-            }"
-            (keydown.enter)="changeFilter(filter)"
-            (click)="changeFilter(filter)"
-        >
-            <clr-icon
-                *ngIf="filter.icon"
-                libSetAttributes
-                [attributes]="filter.icon"
-            ></clr-icon>
+  <div class="quick-filters__list" data-cy="data-pipelines-quick-filters">
+    <span
+      *ngFor="let filter of quickFilters; trackBy: trackByFn"
+      class="quick-filters__list-item label tag"
+      tabindex="0"
+      aria-disabled="false"
+      role="button"
+      [ngClass]="{
+        'label-light-blue':
+          filter === activatedFilter && !disableActionableElements,
+        'label-grey': filter !== activatedFilter || disableActionableElements,
+        clickable: !disableActionableElements,
+        disabled: disableActionableElements
+      }"
+      (keydown.enter)="changeFilter(filter)"
+      (click)="changeFilter(filter)"
+    >
+      <clr-icon
+        *ngIf="filter.icon"
+        libSetAttributes
+        [attributes]="filter.icon"
+      ></clr-icon>
 
-            <span>{{ filter.label }}</span>
-        </span>
-    </div>
+      <span>{{ filter.label }}</span>
+    </span>
+  </div>
 </div>
