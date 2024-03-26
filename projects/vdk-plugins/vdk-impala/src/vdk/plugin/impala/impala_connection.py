@@ -3,12 +3,15 @@
 import logging
 
 from impala.dbapi import connect as impala_connect
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
+from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
+from vdk.plugin.impala.impala_lineage import ImpalaLineage
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +39,7 @@ class ImpalaConnection(ManagedConnectionBase):
         sync_ddl=None,
         query_pool=None,
         db_default_type="impala",
+        lineage_logger: ILineageLogger = None,
     ):
         super().__init__(log)
 
@@ -59,6 +63,7 @@ class ImpalaConnection(ManagedConnectionBase):
         self._error_backoff_seconds = error_backoff_seconds
         self._sync_ddl = sync_ddl
         self._query_pool = query_pool
+        self._lineage_logger = lineage_logger
 
     def _connect(self):
         conn = impala_connect(
@@ -115,3 +120,8 @@ class ImpalaConnection(ManagedConnectionBase):
                 )
                 if self._db_default_type.lower() == "impala":
                     raise e
+
+    def db_connection_after_operation(self, execution_cursor: ExecutionCursor) -> None:
+        if self._lineage_logger:
+            impala_lineage = ImpalaLineage(self._lineage_logger)
+            impala_lineage.calculate_lineage(execution_cursor)
