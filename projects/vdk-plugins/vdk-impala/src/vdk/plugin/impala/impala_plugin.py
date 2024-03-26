@@ -42,6 +42,11 @@ def _connection_by_configuration(configuration: ImpalaPluginConfiguration):
         http_path=configuration.http_path(),
         auth_cookie_names=configuration.auth_cookie_names(),
         retries=configuration.retries(),
+        retries_on_error=configuration.retries_on_error(),
+        error_backoff_seconds=configuration.error_backoff_seconds(),
+        sync_ddl=configuration.sync_ddl,
+        query_pool=configuration.query_pool,
+        db_default_type="impala",
     )
 
 
@@ -136,45 +141,6 @@ class ImpalaPlugin:
                         countermeasures="Review exception for details.",
                     )
                 ) from exception
-
-    @hookimpl
-    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
-        impala_error_handler = ImpalaErrorHandler(
-            num_retries=self._impala_cfg.retries_on_error(),
-            backoff_seconds=self._impala_cfg.error_backoff_seconds(),
-        )
-
-        if impala_error_handler.handle_error(
-            recovery_cursor.get_exception(), recovery_cursor
-        ):
-            logging.getLogger(__name__).debug(
-                "Error handled successfully! Query execution has succeeded."
-            )
-        else:
-            raise recovery_cursor.get_exception()
-
-    @hookimpl(tryfirst=True)
-    def db_connection_decorate_operation(self, decoration_cursor: DecorationCursor):
-        if self._impala_cfg.sync_ddl():
-            try:
-                decoration_cursor.execute("SET SYNC_DDL=True")
-            except Exception as e:
-                logging.getLogger(__name__).error(
-                    "Failed to execute 'SET SYNC_DDL=True'"
-                )
-                if self._db_default_type.lower() == "impala":
-                    raise e
-        if self._impala_cfg.query_pool():
-            try:
-                decoration_cursor.execute(
-                    f"SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
-                )
-            except Exception as e:
-                logging.getLogger(__name__).error(
-                    f"Failed to execute 'SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
-                )
-                if self._db_default_type.lower() == "impala":
-                    raise e
 
 
 @hookimpl

@@ -4,7 +4,11 @@ import abc
 from abc import abstractmethod
 from dataclasses import dataclass
 from dataclasses import field
+from typing import Dict
 from typing import List
+from typing import Optional
+
+from vdk.plugin.dag.remote_data_job import JobStatus
 
 
 @dataclass
@@ -49,5 +53,41 @@ class IDagInput(abc.ABC):
 
         :param dag: the DAG job to be run
         :return:
+        """
+        pass
+
+
+class IDagJobStatus(abc.ABC):
+    """
+    This class is responsible for the DAG job status checks.
+    """
+
+    @abstractmethod
+    def get_job_status(self, job_name: str) -> Optional[JobStatus]:
+        """
+        Get job status.
+        :return: JobStatus
+        """
+        pass
+
+    @abstractmethod
+    def get_all_jobs_execution_status(self) -> Optional[Dict[str, JobStatus]]:
+        """
+        Fetches the statuses of all jobs in the latest DAG execution.
+
+        :return: Dict[str, JobStatus] - A dictionary where keys are job names and values are their statuses.
+        """
+        pass
+
+    @abstractmethod
+    def get_jobs_execution_status(
+        self, job_names: List[str]
+    ) -> Optional[Dict[str, JobStatus]]:
+        """
+        Fetches the execution statuses of specified jobs.
+
+        :param job_names: List[str] - A list of job names whose statuses are to be fetched.
+        :return: Dict[str, JobStatus] - A dictionary where keys are job names from the input list and values are their
+         statuses.
         """
         pass
