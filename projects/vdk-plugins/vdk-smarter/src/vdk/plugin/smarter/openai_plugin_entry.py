@@ -7,10 +7,10 @@ from typing import List
 import openai
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import IPluginRegistry
-from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
-from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
+from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
+
 
 log = logging.getLogger(__name__)
 
@@ -83,16 +83,11 @@ class OpenAiPlugin:
         return review
 
     @hookimpl
-    def db_connection_decorate_operation(
-        self, decoration_cursor: DecorationCursor
-    ) -> None:
+    def db_connection_before_operation(self, operation: ManagedOperation) -> None:
         if self._review_enabled:
             try:
-                managed_operation = decoration_cursor.get_managed_operation()
-                review = self._review_sql_query(managed_operation.get_operation())
-                log.info(
-                    f"Query:\n{managed_operation.get_operation()}\n\nReview:\n{review}\n"
-                )
+                review = self._review_sql_query(operation.get_operation())
+                log.info(f"Query:\n{operation.get_operation()}\n\nReview:\n{review}\n")
             except Exception as e:
                 log.error(f"Failed to review SQL query: {e}")
 
