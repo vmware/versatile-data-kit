@@ -70,11 +70,14 @@ class EmailNotification(INotification):
         :param body: The email job
         """
         valid_recipients = ",".join(self._get_valid_recipients())
+        log.info("Valid recipients: {}", valid_recipients)
         if valid_recipients:
             email_message = self._build_message(subject, body, valid_recipients)
+            log.info("Sending message...")
             self._send_message(email_message)
         else:
             valid_cc = ",".join(self._get_valid_cc())
+            log.info("Valid CC: {}", valid_cc)
             if valid_cc:
                 logging.getLogger(__name__).warning(
                     "No valid recipient address is given"
@@ -88,6 +91,7 @@ class EmailNotification(INotification):
                     + body,
                     valid_cc,
                 )
+                log.info("Sending message with CC...")
                 self._send_message(email_message)
             elif (not valid_cc) and self._cc:
                 logging.getLogger(__name__).warning(
@@ -270,6 +274,7 @@ class InfraErrorEmailNotificationMessageBuilder(EmailNotificationMessageBuilder)
 
 class SuccessEmailNotificationMessageBuilder(EmailNotificationMessageBuilder):
     def build(self, exec_type, msg="", op_id=""):
+        log.info("SuccessEmailNotificationMessageBuilder:build")
         additional_info = self._get_job_log_chunk(op_id)
         subject = self._get_subject("success", exec_type)
         html_body = self.NOTIFICATION_MSG_TEMPLATE.format(
