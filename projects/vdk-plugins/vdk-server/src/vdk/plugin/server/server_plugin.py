@@ -4,12 +4,24 @@
 VDK Server plugin script.
 """
 import logging
+from typing import Callable
 
 import click
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.plugin.server.installer import Installer
 
 log = logging.getLogger(__name__)
+
+
+# wrap a vdk-server command to account for any uncaught exceptions
+def uncaught_exception_wrapper(server_command: Callable):
+    try:
+        server_command()
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        log.info(tb)
+        log.info("Uncaught exception during installation: " + str(e))
 
 
 @click.command(
@@ -71,9 +83,9 @@ def server(install, uninstall, status):
     else:
         installer = Installer()
         if install:
-            installer.install()
+            uncaught_exception_wrapper(installer.install)
         elif uninstall:
-            installer.uninstall()
+            uncaught_exception_wrapper(installer.uninstall)
         else:
             installer.check_status()
 
