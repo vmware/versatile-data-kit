@@ -1,11 +1,8 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import sys
-from typing import cast
 
 from impala.dbapi import connect as impala_connect
-from impala.hiveserver2 import HiveServer2Cursor
 from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
