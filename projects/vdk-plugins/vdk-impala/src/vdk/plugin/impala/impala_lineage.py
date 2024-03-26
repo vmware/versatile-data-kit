@@ -33,7 +33,7 @@ class ImpalaLineage:
     def __init__(self, lineage_logger: ILineageLogger = None):
         self._lineage_logger = lineage_logger
 
-    def db_connection_after_operation(self, execution_cursor: ExecutionCursor) -> None:
+    def calculate_lineage(self, execution_cursor: ExecutionCursor) -> None:
         try:
             if self._lineage_logger and sys.version_info < (3, 10):
                 # calculate and send lineage data only if there is a registered lineage logger

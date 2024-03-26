@@ -124,4 +124,4 @@ class ImpalaConnection(ManagedConnectionBase):
     def db_connection_after_operation(self, execution_cursor: ExecutionCursor) -> None:
         if self._lineage_logger:
             impala_lineage = ImpalaLineage(self._lineage_logger)
-            impala_lineage.db_connection_after_operation(execution_cursor)
+            impala_lineage.calculate_lineage(execution_cursor)
