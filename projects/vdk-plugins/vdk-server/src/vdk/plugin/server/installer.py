@@ -63,7 +63,6 @@ class Installer:
         log.info(
             f"Starting installation of Versatile Data Kit Control Service (this may take several minutes)"
         )
-        raise Exception("install fail")
         self.__create_kind_cluster()
         self.__create_docker_registry_container()
         self.__create_git_server_container()
