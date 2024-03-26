@@ -19,6 +19,7 @@ def uncaught_exception_wrapper(server_command: Callable):
         server_command()
     except Exception as e:
         import traceback
+
         tb = traceback.format_exc()
         log.info(tb)
         log.info("Uncaught exception during installation: " + str(e))
