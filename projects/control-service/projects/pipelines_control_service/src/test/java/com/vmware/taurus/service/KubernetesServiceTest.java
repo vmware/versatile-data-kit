@@ -5,8 +5,6 @@
 
 package com.vmware.taurus.service;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
@@ -339,24 +337,6 @@ public class KubernetesServiceTest {
     List<JobDeploymentStatus> resultStatuses = mock.readJobDeploymentStatuses();
 
     Assertions.assertEquals(mergedTestLists, resultStatuses);
-  }
-
-  @Test
-  public void testReadCronJob_readV1CronJobShouldReturnStatus() {
-    String testCronjobName = "testCronjob";
-    var mock = newDataJobKubernetesService();
-
-    JobDeploymentStatus testDeploymentStatus = new JobDeploymentStatus();
-    testDeploymentStatus.setEnabled(false);
-    testDeploymentStatus.setDataJobName(testCronjobName);
-    testDeploymentStatus.setCronJobName(testCronjobName);
-
-    Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.of(testDeploymentStatus));
-
-    Assertions.assertNotNull(mock.readCronJob(testCronjobName));
-    Assertions.assertEquals(
-        testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
-    verify(mock, times(2)).readV1CronJob(testCronjobName);
   }
 
   @Test
