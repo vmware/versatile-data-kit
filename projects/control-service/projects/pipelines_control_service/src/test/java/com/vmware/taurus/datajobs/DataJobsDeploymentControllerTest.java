@@ -36,38 +36,38 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(
-        classes = {ControlplaneApplication.class},
-        properties = {"datajobs.control.k8s.k8sSupportsV1CronJob=true"})
+    classes = {ControlplaneApplication.class},
+    properties = {"datajobs.control.k8s.k8sSupportsV1CronJob=true"})
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class DataJobsDeploymentControllerTest {
 
-    @Autowired protected MockMvc mockMvc;
-    @Autowired protected JobsService jobService;
+  @Autowired protected MockMvc mockMvc;
+  @Autowired protected JobsService jobService;
 
-    @MockBean(name = "deploymentBatchV1Api")
-    private BatchV1Api batchV1Api;
+  @MockBean(name = "deploymentBatchV1Api")
+  private BatchV1Api batchV1Api;
 
-    @SpyBean private DataJobsKubernetesService dataJobsKubernetesService;
+  @SpyBean private DataJobsKubernetesService dataJobsKubernetesService;
 
-    @Test
-    public void whenKubernetesIsUnavailableTheControlPlaneShouldReturnAnErrorInsteadOfSayingNoJobs()
-            throws Exception {
-        Mockito.doNothing().when(dataJobsKubernetesService).saveSecretData(any(), any());
-        //   This exception encompasses random exceptions from k8s but also version incompatibility
-        // issues.
-        Mockito.when(batchV1Api.readNamespacedCronJob(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenThrow(new ApiException("", null, 500, null, ""));
+  @Test
+  public void whenKubernetesIsUnavailableTheControlPlaneShouldReturnAnErrorInsteadOfSayingNoJobs()
+      throws Exception {
+    Mockito.doNothing().when(dataJobsKubernetesService).saveSecretData(any(), any());
+    //   This exception encompasses random exceptions from k8s but also version incompatibility
+    // issues.
+    Mockito.when(batchV1Api.readNamespacedCronJob(Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenThrow(new ApiException("", null, 500, null, ""));
 
-        mockMvc
-                .perform(
-                        post("/data-jobs/for-team/team-name/jobs")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(
-                                        new ObjectMapper()
-                                                .writeValueAsString(new DataJob("job-name", "desc", new DataJobConfig()))))
-                .andExpect(status().is(201));
-        mockMvc
-                .perform(get("/data-jobs/for-team/team-name/jobs/job-name/deployments"))
-                .andExpect(status().is(503));
-    }
+    mockMvc
+        .perform(
+            post("/data-jobs/for-team/team-name/jobs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    new ObjectMapper()
+                        .writeValueAsString(new DataJob("job-name", "desc", new DataJobConfig()))))
+        .andExpect(status().is(201));
+    mockMvc
+        .perform(get("/data-jobs/for-team/team-name/jobs/job-name/deployments"))
+        .andExpect(status().is(503));
+  }
 }
