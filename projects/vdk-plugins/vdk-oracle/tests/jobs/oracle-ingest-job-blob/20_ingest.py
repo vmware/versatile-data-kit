@@ -14,5 +14,5 @@ And miles to go before I sleep.
     }
 
     job_input.send_object_for_ingestion(
-        payload=payload_with_blob, destination_table="test_table"
+        payload=payload_with_blob, destination_table="oracle_ingest_blob"
     )

@@ -18,5 +18,7 @@ def run(job_input: IJobInput):
     }
 
     job_input.send_object_for_ingestion(
-        payload=payload_with_types, destination_table="test_table", method="oracle"
+        payload=payload_with_types,
+        destination_table="ingest_nan_table",
+        method="oracle",
     )

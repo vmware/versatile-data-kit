@@ -54,5 +54,5 @@ def run(job_input):
     ]
     for payload in payloads:
         job_input.send_object_for_ingestion(
-            payload=payload, destination_table="test_table"
+            payload=payload, destination_table="ingest_different_payloads_no_table"
         )
