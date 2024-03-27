@@ -52,8 +52,7 @@ public class AmazonEmailNotification extends EmailNotification {
         sesClient.sendEmail(
             new SendEmailRequest()
                 .withSource("paulm2@vmware.com")
-                .withDestination(
-                    new Destination(Lists.newArrayList("paulm2@vmware.com")))
+                .withDestination(new Destination(Lists.newArrayList("paulm2@vmware.com")))
                 .withMessage(
                     new Message(
                         new Content("this is a test"), new Body(new Content("this is a test")))));
