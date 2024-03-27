@@ -38,7 +38,8 @@ public class AmazonEmailNotification extends EmailNotification {
 
   private final String region;
 
-  public AmazonEmailNotification(EmailConfiguration emailConfiguration, @Value("datajobs.aws.roleArn") String roleArn) {
+  public AmazonEmailNotification(
+      EmailConfiguration emailConfiguration, @Value("datajobs.aws.roleArn") String roleArn) {
     super(emailConfiguration);
     log.info("Constructing AmazonEmailNotification class");
     this.region = "us-east-1";
@@ -49,15 +50,17 @@ public class AmazonEmailNotification extends EmailNotification {
   public void send(NotificationContent notificationContent) throws MessagingException {
     String roleSessionName = "email-session";
 
-    STSAssumeRoleSessionCredentialsProvider credentialsProvider = new STSAssumeRoleSessionCredentialsProvider
-            .Builder(this.roleArn, roleSessionName)
-            .withStsClient(AWSSecurityTokenServiceClientBuilder.standard()
+    STSAssumeRoleSessionCredentialsProvider credentialsProvider =
+        new STSAssumeRoleSessionCredentialsProvider.Builder(this.roleArn, roleSessionName)
+            .withStsClient(
+                AWSSecurityTokenServiceClientBuilder.standard()
                     .withCredentials(new DefaultAWSCredentialsProviderChain())
                     .withRegion(this.region)
                     .build())
             .build();
 
-    AmazonSimpleEmailService sesClient = AmazonSimpleEmailServiceClientBuilder.standard()
+    AmazonSimpleEmailService sesClient =
+        AmazonSimpleEmailServiceClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(credentialsProvider.getCredentials()))
             .withRegion(this.region)
             .build();
