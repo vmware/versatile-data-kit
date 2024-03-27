@@ -179,7 +179,9 @@ class ConnectionHookSpec:
         pass
 
     @hookspec
-    def db_connection_on_operation_failure(self, operation: ManagedOperation) -> None:
+    def db_connection_on_operation_failure(
+        self, operation: ManagedOperation, exception: Exception
+    ) -> None:
         """
         Executes if a database operation fails. Gives the caller a chance to log the error,
         send metrics or otherwise take action on failure.
@@ -192,6 +194,8 @@ class ConnectionHookSpec:
 
         :param operation: ManagedOperation
             ManagedOperation object. Provides the operation (usually an SQL expression and some metadata)
+        :param exception: Exception
+            the exception that was thrown
         :return:
         """
         pass
