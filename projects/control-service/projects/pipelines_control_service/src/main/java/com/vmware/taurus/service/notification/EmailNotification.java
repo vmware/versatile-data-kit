@@ -36,6 +36,7 @@ public class EmailNotification {
   private final EmailConfiguration emailConfiguration;
 
   public EmailNotification(EmailConfiguration emailConfiguration) {
+    log.info("Constructing EmailNotification class");
     this.emailConfiguration = emailConfiguration;
     Properties properties = System.getProperties();
     properties.putAll(emailConfiguration.smtpWithPrefix());
@@ -44,6 +45,7 @@ public class EmailNotification {
   }
 
   public void send(NotificationContent notificationContent) throws MessagingException {
+    log.info("Send EmailNotification");
     if (recipientsExist(notificationContent.getRecipients())) {
       try {
         sendEmail(notificationContent, notificationContent.getRecipients());
