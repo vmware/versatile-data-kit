@@ -30,7 +30,6 @@ import java.util.Arrays;
  * @see DataJobNotification
  * @see NotificationContent
  */
-
 @Profile("amazon_ses")
 @Primary
 @Component
@@ -50,14 +49,17 @@ public class AmazonSesEmailNotification implements EmailNotification {
   public void send(NotificationContent notificationContent) throws MessagingException {
     String roleSessionName = "email-session";
 
-    STSAssumeRoleSessionCredentialsProvider credentialsProvider = new STSAssumeRoleSessionCredentialsProvider.Builder(roleArn, roleSessionName)
-            .withStsClient(AWSSecurityTokenServiceClientBuilder.standard()
+    STSAssumeRoleSessionCredentialsProvider credentialsProvider =
+        new STSAssumeRoleSessionCredentialsProvider.Builder(roleArn, roleSessionName)
+            .withStsClient(
+                AWSSecurityTokenServiceClientBuilder.standard()
                     .withCredentials(new DefaultAWSCredentialsProviderChain())
                     .withRegion(this.region)
                     .build())
             .build();
 
-    var sesClient = AmazonSimpleEmailServiceClientBuilder.standard()
+    var sesClient =
+        AmazonSimpleEmailServiceClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(credentialsProvider.getCredentials()))
             .withRegion(this.region)
             .build();
@@ -66,11 +68,16 @@ public class AmazonSesEmailNotification implements EmailNotification {
         sesClient.sendEmail(
             new SendEmailRequest()
                 .withSource(notificationContent.getSender().toString())
-
-                .withDestination(new Destination(Lists.newArrayList(Arrays.stream(notificationContent.getRecipients()).map(InternetAddress::toString).toList())))
+                .withDestination(
+                    new Destination(
+                        Lists.newArrayList(
+                            Arrays.stream(notificationContent.getRecipients())
+                                .map(InternetAddress::toString)
+                                .toList())))
                 .withMessage(
                     new Message(
-                        new Content(notificationContent.getSubject()), new Body(new Content(notificationContent.getContent())))));
+                        new Content(notificationContent.getSubject()),
+                        new Body(new Content(notificationContent.getContent())))));
     log.info("Email sent using Amazon SES. Message ID: {}", sendEmailResult.getMessageId());
   }
 }
