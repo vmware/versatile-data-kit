@@ -17,7 +17,7 @@ import com.vmware.taurus.ControlplaneApplication;
 @SpringBootTest(classes = ControlplaneApplication.class)
 public class EmailNotificationTest {
 
-  @Autowired private EmailNotification emailNotification;
+  @Autowired private DefaultEmailNotification emailNotification;
 
   @Test
   public void testConcatAddresses_nullAddresses_shouldReturnNull() {
