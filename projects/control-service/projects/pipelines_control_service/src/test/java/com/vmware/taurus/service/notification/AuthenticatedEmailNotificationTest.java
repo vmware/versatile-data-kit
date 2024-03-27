@@ -50,7 +50,7 @@ public class AuthenticatedEmailNotificationTest {
 
     this.dataJobNotification =
         new DataJobNotification(
-            new EmailNotification(emailPropertiesConfiguration),
+            new DefaultEmailNotification(emailPropertiesConfiguration),
             "Example Name",
             TEST_USER,
             Collections.singletonList("cc@dummy.com"));
