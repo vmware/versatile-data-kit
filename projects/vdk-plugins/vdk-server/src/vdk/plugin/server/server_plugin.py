@@ -56,26 +56,28 @@ log = logging.getLogger(__name__)
     help="Returns whether a local Control Service is currently installed.",
 )
 def server(install, uninstall, status):
-    flags = 0
-    if install:
-        flags += 1
-    if uninstall:
-        flags += 1
-    if status:
-        flags += 1
-
-    if flags != 1:
-        click.echo(
-            "Exactly one of --install, --uninstall, or --status options should be specified"
-        )
-    else:
-        installer = Installer()
+    try:
+        flags = 0
         if install:
-            installer.install()
-        elif uninstall:
-            installer.uninstall()
+            flags += 1
+        if uninstall:
+            flags += 1
+        if status:
+            flags += 1
+        if flags != 1:
+            click.echo(
+                "Exactly one of --install, --uninstall, or --status options should be specified"
+            )
         else:
-            installer.check_status()
+            installer = Installer()
+            if install:
+                installer.install()
+            elif uninstall:
+                installer.uninstall()
+            else:
+                installer.check_status()
+    except Exception as e:
+        log.exception("VDK CLI command failed")
 
 
 @hookimpl
