@@ -64,11 +64,11 @@ def test_secrets_plugin_no_url_configured():
         result: Result = runner.invoke(
             ["run", jobs_path_from_caller_directory("simple-job")]
         )
-        # job that do not use secrets should succeed
-        cli_assert_equal(0, result)
+        # job that doesn't explicitly use secrets should fail due to secrets overrides in core
+        cli_assert_equal(1, result)
 
         result: Result = runner.invoke(
             ["run", jobs_path_from_caller_directory("secrets-job")]
         )
-        # but jobs that do use secrets should fail.
+        # job that explicitly uses secrets should also fail
         cli_assert_equal(1, result)

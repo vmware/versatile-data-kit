@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 @TestPropertySource(
     properties = {
-      "datajobs.control.k8s.k8sSupportsV1CronJob=true",
       "datajobs.deployment.configuration.persistence.writeTos=DB",
       "datajobs.deployment.configuration.persistence.readDataSource=DB",
       "datajobs.deployment.configuration.synchronization.task.enabled=true",

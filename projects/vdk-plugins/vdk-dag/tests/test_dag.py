@@ -501,3 +501,36 @@ class TestDAG:
             and req.path.split("/jobs/")[1].split("/")[0] == job_name
         ]
         return job_post_req[0].json["args"]
+
+    def test_dag_specified_status_check(self):
+        dag = "dag-specified-status-checks"
+        self._set_up(dag_name=dag)
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
+            result = self._run_dag(dag)
+            cli_assert_equal(0, result)
+            assert "Job 1 status was fetched. Status: succeeded" in result.output
+            assert (
+                "Job 2 and 3 statuses were fetched. Statuses: {'job2': 'succeeded', 'job3': 'succeeded'}"
+                in result.output
+            )
+            self.httpserver.stop()
+
+    def test_dag_all_status_check(self):
+        dag = "dag-all-status-check"
+        self._set_up(dag_name=dag)
+        with mock.patch.dict(
+            os.environ,
+            self.env_vars,
+        ):
+            self.runner = CliEntryBasedTestRunner(dag_plugin)
+            result = self._run_dag(dag)
+            cli_assert_equal(0, result)
+            assert (
+                "All job statuses were fetched. Status: {'job1': 'succeeded', 'job2': 'succeeded', 'job3': 'succeeded', 'job4': 'succeeded'} "
+                in result.output
+            )
+            self.httpserver.stop()
