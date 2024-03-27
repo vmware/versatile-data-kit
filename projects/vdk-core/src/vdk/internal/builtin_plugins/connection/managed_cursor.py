@@ -366,7 +366,7 @@ class ManagedCursor(ProxyCursor):
             and self.__connection_hook_spec.db_connection_on_operation_failure.get_hookimpls()
         ):
             self.__connection_hook_spec.db_connection_on_operation_failure(
-                operation=managed_operation
+                operation=managed_operation, exception=exception
             )
 
         recovery_cursor = RecoveryCursor(
