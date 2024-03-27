@@ -44,6 +44,18 @@ hookimpl - <vdk.internal.builtin_plugins.job_secrets.secrets_api_plugin.SecretsA
 hookimpl - <vdk.internal.builtin_plugins.connection.connection_plugin.QueryDecoratorPlugin object at 0x1284ebc90> #  again?
 hookimpl - <vdk.plugin.impala.impala_plugin.ImpalaPlugin object at 0x127d00b90> # why not trylast? 
 
+When we change vdk_start in vdk-impala, we get this:
+[<HookImpl plugin_name='140155530124544', plugin=<vdk.internal.builtin_plugins.config.secrets_config.SecretsConfigPlugin object at 0x7f7880961d00>>, 
+<HookImpl plugin_name='140156326890752', plugin=<vdk.plugin.test_utils.util_plugins.TestPropertiesPlugin object at 0x7f78b013cd00>>, 
+<HookImpl plugin_name='impala-plugin', plugin=<vdk.plugin.impala.impala_plugin.ImpalaPlugin object at 0x7f78b97ac9d0>>,
+<HookImpl plugin_name='140156484632736', plugin=<vdk.internal.builtin_plugins.config.log_config.LoggingPlugin object at 0x7f78b97ac0a0>>,
+<HookImpl plugin_name='140156484635232', plugin=<vdk.internal.builtin_plugins.job_properties.properties_api_plugin.PropertiesApiPlugin object at 0x7f78b97aca60>>, 
+<HookImpl plugin_name='140156484635952', plugin=<vdk.internal.builtin_plugins.job_secrets.secrets_api_plugin.SecretsApiPlugin object at 0x7f78b97acd30>>, 
+<HookImpl plugin_name='140155530099152', plugin=<vdk.internal.builtin_plugins.connection.connection_plugin.QueryDecoratorPlugin object at 0x7f788095b9d0>>, 
+<HookImpl plugin_name='140155792708848', plugin=<vdk.internal.builtin_plugins.run.execution_tracking.ExecutionTrackingPlugin object at 0x7f78903cd4f0>>,
+<HookImpl plugin_name='DataJobDefaultHookImplPlugin', plugin=<vdk.internal.builtin_plugins.run.data_job.DataJobDefaultHookImplPlugin object at 0x7f78903cd5e0>>]
+
+
 # run_job
 
 hookimpl(hookwrapper=True) - <vdk.internal.builtin_plugins.run.summary_output.JobRunSummaryOutputPlugin object at 0x127d01010>
@@ -65,6 +77,14 @@ hookimpl - [staticmethod] <vdk.internal.builtin_plugins.connection.query_command
 hookimpl - [staticmethod] <vdk.plugin.impala.impala_plugin.ImpalaPlugin object at 0x12849eb10>
 hookimpl(tryfirst=True) - <module 'vdk.internal.builtin_plugins.builtin_hook_impl' from '/Users/hduygu/...>
 
+
+When we change vdk_start in vdk-impala, we get this:
+[<HookImpl plugin_name='impala-plugin', plugin=<vdk.plugin.impala.impala_plugin.ImpalaPlugin object at 0x7f78b97ac9d0>>,
+<HookImpl plugin_name='140155792597776', plugin=<vdk.internal.builtin_plugins.debug.debug.DebugPlugins object at 0x7f78903b2310>>, 
+<HookImpl plugin_name='140156484632688', plugin=<vdk.internal.builtin_plugins.config.config_help.ConfigHelpPlugin object at 0x7f78b97ac070>>,
+<HookImpl plugin_name='140155530099056', plugin=<vdk.internal.builtin_plugins.connection.query_command_plugin.QueryCommandPlugin object at 0x7f788095b970>>, 
+<HookImpl plugin_name='core-plugin', plugin=<module 'vdk.internal.builtin_plugins.builtin_hook_impl' from '/Users/hduygu/....>>]
+
 # vdk_configure - look here https://github.com/vmware/versatile-data-kit/blob/a45ee03578188b0445a823fdfe80a8a41f102ecf/projects/vdk-core/src/vdk/internal/builtin_plugins/builtin_hook_impl.py#L119
 
 hookimpl(trylast=True) - <vdk.internal.builtin_plugins.config.vdk_config.EnvironmentVarsConfigPlugin object at 0x127ce3490>
@@ -79,6 +99,21 @@ hookimpl(tryfirst=True) - <vdk.internal.builtin_plugins.job_properties.propertie
 hookimpl(tryfirst=True) - <vdk.internal.builtin_plugins.job_secrets.secrets_api_plugin.SecretsApiPlugin object at 0x127d01550>
 hookimpl(tryfirst=True) - <vdk.internal.builtin_plugins.config.vdk_config.JobConfigIniPlugin object at 0x127d00250>
 hookimpl(tryfirst=True) - <vdk.internal.builtin_plugins.termination_message.writer.TerminationMessageWriterPlugin object at 0x127d01150>
+
+When we change vdk_start in vdk-impala, we get this:
+[<HookImpl plugin_name='140156484635328', plugin=<vdk.internal.builtin_plugins.config.vdk_config.EnvironmentVarsConfigPlugin object at 0x7f78b97acac0>>,
+<HookImpl plugin_name='impala-plugin', plugin=<vdk.plugin.impala.impala_plugin.ImpalaPlugin object at 0x7f78b97ac9d0>>, 
+<HookImpl plugin_name='140156484632736', plugin=<vdk.internal.builtin_plugins.config.log_config.LoggingPlugin object at 0x7f78b97ac0a0>>,
+<HookImpl plugin_name='140155530124160', plugin=<vdk.internal.builtin_plugins.run.summary_output.JobRunSummaryOutputPlugin object at 0x7f7880961b80>>,
+<HookImpl plugin_name='140156484635184', plugin=<vdk.internal.builtin_plugins.config.vdk_config.CoreConfigDefinitionPlugin object at 0x7f78b97aca30>>, 
+<HookImpl plugin_name='140156484633120', plugin=<vdk.internal.builtin_plugins.version.new_version_check_plugin.NewVersionCheckPlugin object at 0x7f78b97ac220>>,
+<HookImpl plugin_name='140156484634848', plugin=<vdk.internal.builtin_plugins.notification.notification.NotificationPlugin object at 0x7f78b97ac8e0>>,
+<HookImpl plugin_name='140156484634944', plugin=<vdk.internal.builtin_plugins.ingestion.ingester_configuration_plugin.IngesterConfigurationPlugin object at 0x7f78b97ac940>>,
+<HookImpl plugin_name='140156484635232', plugin=<vdk.internal.builtin_plugins.job_properties.properties_api_plugin.PropertiesApiPlugin object at 0x7f78b97aca60>>,
+<HookImpl plugin_name='140156484635952', plugin=<vdk.internal.builtin_plugins.job_secrets.secrets_api_plugin.SecretsApiPlugin object at 0x7f78b97acd30>>,
+<HookImpl plugin_name='140156484635616', plugin=<vdk.internal.builtin_plugins.config.vdk_config.JobConfigIniPlugin object at 0x7f78b97acbe0>>, 
+<HookImpl plugin_name='140155530125120', plugin=<vdk.internal.builtin_plugins.termination_message.writer.TerminationMessageWriterPlugin object at 0x7f7880961f40>>]
+
 
 # vdk_exit
 
