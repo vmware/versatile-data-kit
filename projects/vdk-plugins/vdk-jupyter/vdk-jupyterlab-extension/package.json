@@ -102,7 +102,7 @@
     "@testing-library/react": "12.1.5",
     "@types/enzyme": "3.10.12",
     "@types/jest": "27.5.2",
-    "@types/scheduler": "0.23.0",
+    "@types/scheduler": "0.16.2",
     "@typescript-eslint/eslint-plugin": "4.8.1",
     "@typescript-eslint/parser": "4.8.1",
     "babel-jest": "27.5.1",
