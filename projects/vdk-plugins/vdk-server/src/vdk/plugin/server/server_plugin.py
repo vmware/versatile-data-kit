@@ -13,16 +13,7 @@ from vdk.plugin.server.installer import Installer
 log = logging.getLogger(__name__)
 
 
-# wrap a vdk-server command to account for any uncaught exceptions
-def uncaught_exception_wrapper(server_command: Callable):
-    try:
-        server_command()
-    except Exception as e:
-        import traceback
 
-        tb = traceback.format_exc()
-        log.info(tb)
-        log.info("Uncaught exception during installation: " + str(e))
 
 
 @click.command(
@@ -69,27 +60,29 @@ def uncaught_exception_wrapper(server_command: Callable):
     help="Returns whether a local Control Service is currently installed.",
 )
 def server(install, uninstall, status):
-    flags = 0
-    if install:
-        flags += 1
-    if uninstall:
-        flags += 1
-    if status:
-        flags += 1
-
-    if flags != 1:
-        click.echo(
-            "Exactly one of --install, --uninstall, or --status options should be specified"
-        )
-    else:
-        installer = Installer()
+    try:
+        flags = 0
         if install:
-            uncaught_exception_wrapper(installer.install)
-        elif uninstall:
-            uncaught_exception_wrapper(installer.uninstall)
+            flags += 1
+        if uninstall:
+            flags += 1
+        if status:
+            flags += 1
+        if flags != 1:
+            click.echo(
+                "Exactly one of --install, --uninstall, or --status options should be specified"
+            )
         else:
-            installer.check_status()
-
+            raise Exception("paul test")
+            installer = Installer()
+            if install:
+                installer.install()
+            elif uninstall:
+                installer.uninstall()
+            else:
+                installer.check_status()
+    except Exception as e:
+        log.exception("VDK CLI command failed")
 
 @hookimpl
 def vdk_command_line(root_command: click.Group):
