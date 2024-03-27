@@ -74,8 +74,11 @@ class OperationFailureSqLite3MemoryDbPlugin:
             self._counter += 1
 
     @hookimpl(trylast=True)
-    def db_connection_on_operation_failure(self, operation: ManagedOperation) -> None:
+    def db_connection_on_operation_failure(
+        self, operation: ManagedOperation, exception: Exception
+    ) -> None:
         log.info(f"Operation {operation.get_operation()} went horribly wrong")
+        log.exception(exception)
 
 
 @mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
@@ -117,7 +120,11 @@ def test_on_failure_hook():
         "INSERT INTO stocks VALUES ('2020-01-01', 'GOOG', Syntax error )\n"
         " went horribly wrong\n"
     )
+
+    expected_exception_on_failure = 'near "error": syntax error'
+
     assert expected_on_failure in result.output
+    assert expected_exception_on_failure in result.output
 
     # Make sure the before hook was called for the on-failure operation
     expected_before = "Operation -- count: 2"
