@@ -61,7 +61,7 @@
     "@types/react": "17.0.53",
     "@jupyterlab/rendermime": "3.6.7",
     "@jupyterlab/rendermime-interfaces": "3.6.7",
-    "@jupyterlab/services": "6.6.3"
+    "@jupyterlab/services": "6.6.7"
   },
   "dependencies": {
     "@jupyterlab/application": "3.6.7",
