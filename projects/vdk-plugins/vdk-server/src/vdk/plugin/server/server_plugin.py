@@ -69,7 +69,6 @@ def server(install, uninstall, status):
                 "Exactly one of --install, --uninstall, or --status options should be specified"
             )
         else:
-            raise Exception("paul test")
             installer = Installer()
             if install:
                 installer.install()
