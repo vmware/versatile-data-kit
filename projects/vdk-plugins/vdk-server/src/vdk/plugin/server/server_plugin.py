@@ -13,9 +13,6 @@ from vdk.plugin.server.installer import Installer
 log = logging.getLogger(__name__)
 
 
-
-
-
 @click.command(
     name="server",
     help="Installs (and runs) or uninstalls a local Control Service."
@@ -83,6 +80,7 @@ def server(install, uninstall, status):
                 installer.check_status()
     except Exception as e:
         log.exception("VDK CLI command failed")
+
 
 @hookimpl
 def vdk_command_line(root_command: click.Group):
