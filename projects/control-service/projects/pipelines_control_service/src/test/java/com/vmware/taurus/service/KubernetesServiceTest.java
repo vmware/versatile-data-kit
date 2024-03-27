@@ -5,8 +5,6 @@
 
 package com.vmware.taurus.service;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
@@ -340,7 +338,6 @@ public class KubernetesServiceTest {
 
     Assertions.assertEquals(mergedTestLists, resultStatuses);
   }
-
 
   @Test
   public void testQuantityToMbConversionMegabytes() throws Exception {
