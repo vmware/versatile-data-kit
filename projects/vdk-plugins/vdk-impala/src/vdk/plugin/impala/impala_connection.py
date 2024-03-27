@@ -102,7 +102,7 @@ class ImpalaConnection(ManagedConnectionBase):
             raise recovery_cursor.get_exception()
 
     def db_connection_decorate_operation(self, decoration_cursor: DecorationCursor):
-        if self._sync_ddl():
+        if self._sync_ddl:
             try:
                 decoration_cursor.execute("SET SYNC_DDL=True")
             except Exception as e:
@@ -111,7 +111,7 @@ class ImpalaConnection(ManagedConnectionBase):
                 )
                 if self._db_default_type.lower() == "impala":
                     raise e
-        if self._query_pool():
+        if self._query_pool:
             try:
                 decoration_cursor.execute(f"SET REQUEST_POOL='{self._query_pool()}'")
             except Exception as e:
