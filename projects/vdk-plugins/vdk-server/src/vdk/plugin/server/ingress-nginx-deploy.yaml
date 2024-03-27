@@ -401,8 +401,8 @@ spec:
               readOnly: true
           resources:
             requests:
-              cpu: 100m
-              memory: 90Mi
+              cpu: 0
+              memory: 0
       nodeSelector:
         ingress-ready: 'true'
         kubernetes.io/os: linux
