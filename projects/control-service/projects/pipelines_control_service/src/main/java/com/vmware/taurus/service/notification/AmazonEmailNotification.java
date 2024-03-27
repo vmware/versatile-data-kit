@@ -36,6 +36,7 @@ public class AmazonEmailNotification extends EmailNotification {
 
   public AmazonEmailNotification(EmailConfiguration emailConfiguration) {
     super(emailConfiguration);
+    log.info("Constructing AmazonEmailNotification class");
     this.region = "us-east-1";
     this.sesClient =
         AmazonSimpleEmailServiceClientBuilder.standard()
@@ -46,6 +47,7 @@ public class AmazonEmailNotification extends EmailNotification {
 
   @Override
   public void send(NotificationContent notificationContent) throws MessagingException {
+    log.info("Send AmazonEmailNotification");
     SendEmailResult sendEmailResult =
         sesClient.sendEmail(
             new SendEmailRequest()
