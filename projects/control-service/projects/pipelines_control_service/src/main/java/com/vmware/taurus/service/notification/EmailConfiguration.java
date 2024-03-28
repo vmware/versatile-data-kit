@@ -24,7 +24,7 @@ public class EmailConfiguration {
 
   @Bean
   @Primary
-  @ConditionalOnProperty(name = "mail.smtp.user", havingValue = "arn:aws:")
+  @ConditionalOnProperty(name = "mail.smtp.user", havingValue = "^arn:aws:")
   public AmazonSesEmailNotification amazonSesEmailNotification() {
     return new AmazonSesEmailNotification(this);
   }
