@@ -14,9 +14,6 @@ import com.amazonaws.services.simpleemail.model.*;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -30,9 +27,6 @@ import java.util.Arrays;
  * @see DataJobNotification
  * @see NotificationContent
  */
-@Profile("amazon_ses")
-@Primary
-@Component
 public class AmazonSesEmailNotification implements EmailNotification {
 
   static Logger log = LoggerFactory.getLogger(AmazonSesEmailNotification.class);

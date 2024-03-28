@@ -7,7 +7,6 @@ package com.vmware.taurus.service.notification;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
  * @see DataJobNotification
  * @see NotificationContent
  */
-@Component
 public class DefaultEmailNotification implements EmailNotification {
 
   static Logger log = LoggerFactory.getLogger(DefaultEmailNotification.class);
