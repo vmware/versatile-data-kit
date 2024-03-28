@@ -6,11 +6,9 @@ import math
 import re
 from decimal import Decimal
 from typing import Any
-from typing import Collection
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Set
 
 from vdk.api.plugin.plugin_input import PEP249Connection
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
@@ -89,10 +87,13 @@ class TableCache:
 
 
 class IngestToOracle(IIngesterPlugin):
-    def __init__(self, connections: ManagedConnectionRouter):
+    def __init__(
+        self, connections: ManagedConnectionRouter, ingest_batch_size: int = 100
+    ):
         self.conn: PEP249Connection = connections.open_connection("ORACLE").connect()
         self.cursor: ManagedCursor = self.conn.cursor()
         self.table_cache: TableCache = TableCache(self.cursor)  # New cache for columns
+        self.ingest_batch_size = ingest_batch_size
 
     @staticmethod
     def _get_oracle_type(value: Any) -> str:
@@ -191,40 +192,48 @@ class IngestToOracle(IIngesterPlugin):
 
         return value
 
-    # TODO: Look into potential optimizations
-    # TODO: https://github.com/vmware/versatile-data-kit/issues/2931
     def _insert_data(self, table_name: str, payload: List[Dict[str, Any]]) -> None:
         if not payload:
             return
 
-        # group dicts by key set
-        batches = {}
-        for p in payload:
-            batch = frozenset(p.keys())
-            if batch not in batches:
-                batches[batch] = []
-            batches[batch].append(p)
+        def split(lst, n):
+            """Yield successive n-sized chunks from lst."""
+            for i in range(0, len(lst), n):
+                yield lst[i : i + n]
 
-        # create queries for groups of dicts with the same key set
-        queries = []
-        batch_data = []
-        for column_names, batch in batches.items():
-            columns = list(column_names)
-            query_columns = [_escape_special_chars(col) for col in columns]
-            insert_sql = f"INSERT INTO {table_name} ({', '.join(query_columns)}) VALUES ({', '.join([':' + str(i + 1) for i in range(len(query_columns))])})"
-            queries.append(insert_sql)
-            temp_data = []
-            for row in batch:
-                temp = [
-                    self._cast_to_correct_type(table_name, col, row[col])
-                    for col in columns
-                ]
-                temp_data.append(temp)
-            batch_data.append(temp_data)
+        query, params = self._populate_query_parameters_tuple(table_name, payload)
+        batches = list(split(params, self.ingest_batch_size))
+        for batch in batches:
+            self.cursor.executemany(query, batch)
 
-        # batch execute queries for dicts with the same key set
-        for i in range(len(queries)):
-            self.cursor.executemany(queries[i], batch_data[i])
+    def _populate_query_parameters_tuple(
+        self, destination_table: str, payload: List[dict]
+    ) -> (str, list):
+        """
+        Prepare the SQL query and parameters for bulk insertion.
+
+        Returns insert into destination table tuple of query and parameters;
+        E.g. for a table dest_table with columns val1, val2 and payload size 2, this method will return:
+        'INSERT INTO dest_table (val1, val2) VALUES (:0, :1)',
+        [('val1', 'val2'), ('val1', 'val2')]
+        """
+        columns = self.table_cache.get_columns(destination_table)
+        query_columns = [_escape_special_chars(col) for col in columns]
+
+        placeholders = ", ".join(f":{i}" for i in range(len(columns)))
+        query = f"INSERT INTO {destination_table} ({', '.join(query_columns)}) VALUES ({placeholders})"
+
+        parameters = []
+        for obj in payload:
+            row = tuple(
+                self._cast_to_correct_type(
+                    destination_table, column.lower(), obj.get(column.lower())
+                )
+                for column in columns
+            )
+            parameters.append(row)
+
+        return query, parameters
 
     def ingest_payload(
         self,
@@ -246,6 +255,5 @@ class IngestToOracle(IIngesterPlugin):
         self._add_columns(destination_table, payload)
         self._insert_data(destination_table, payload)
 
-        # TODO: test if we need this commit statement (most probably we don't, the connection already commits after every transaction)
         self.conn.commit()
         return metadata

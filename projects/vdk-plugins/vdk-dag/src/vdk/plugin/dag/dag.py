@@ -198,3 +198,37 @@ class Dag:
                 self._delayed_starting_jobs.enqueue(node)
             else:
                 raise
+
+    def get_job_status(self, job_name: str):
+        """
+        Get job status.
+
+        :param job_name: str - Job name whose status is to be fetched.
+        :return: JobStatus
+        """
+        return self._job_executor.status(job_name)
+
+    def get_all_jobs_execution_status(self):
+        """
+        Fetches the statuses of all jobs in the latest DAG execution.
+
+        :return: Dict[str, JobStatus] - A dictionary where keys are job names and values are their statuses.
+        """
+        all_jobs = self._job_executor.get_all_jobs()
+        all_jobs_status = {
+            job.job_name: self._job_executor.status(job.job_name) for job in all_jobs
+        }
+        return all_jobs_status
+
+    def get_jobs_execution_status(self, job_names: List[str]):
+        """
+        Fetches the execution statuses of specified jobs.
+
+        :param job_names: List[str] - A list of job names whose statuses are to be fetched.
+        :return: Dict[str, JobStatus] - A dictionary where keys are job names from the input list and values are their
+         statuses.
+        """
+        jobs_status = {
+            job_name: self._job_executor.status(job_name) for job_name in job_names
+        }
+        return jobs_status

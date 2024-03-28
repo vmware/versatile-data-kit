@@ -7,6 +7,7 @@ from typing import List
 
 import click
 from tabulate import tabulate
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.api.plugin.plugin_registry import IPluginRegistry
@@ -15,6 +16,7 @@ from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCurs
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala.impala_configuration import add_definitions
@@ -22,10 +24,12 @@ from vdk.plugin.impala.impala_configuration import ImpalaPluginConfiguration
 from vdk.plugin.impala.impala_connection import ImpalaConnection
 from vdk.plugin.impala.impala_error_classifier import is_impala_user_error
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.impala.impala_lineage_plugin import ImpalaLineagePlugin
+from vdk.plugin.impala.impala_lineage import LINEAGE_LOGGER_KEY
 
 
-def _connection_by_configuration(configuration: ImpalaPluginConfiguration):
+def _connection_by_configuration(
+    configuration: ImpalaPluginConfiguration, lineage_logger: ILineageLogger = None
+):
     return ImpalaConnection(
         host=configuration.host(),
         port=configuration.port(),
@@ -42,6 +46,12 @@ def _connection_by_configuration(configuration: ImpalaPluginConfiguration):
         http_path=configuration.http_path(),
         auth_cookie_names=configuration.auth_cookie_names(),
         retries=configuration.retries(),
+        retries_on_error=configuration.retries_on_error(),
+        error_backoff_seconds=configuration.error_backoff_seconds(),
+        sync_ddl=configuration.sync_ddl,
+        query_pool=configuration.query_pool,
+        db_default_type="impala",
+        lineage_logger=lineage_logger,
     )
 
 
@@ -54,6 +64,9 @@ def impala_query(ctx: click.Context, query):
 
 
 class ImpalaPlugin:
+    def __init__(self, lineage_logger: ILineageLogger = None):
+        self._lineage_logger = lineage_logger
+
     @staticmethod
     @hookimpl
     def vdk_configure(config_builder: ConfigurationBuilder) -> None:
@@ -64,18 +77,25 @@ class ImpalaPlugin:
     def vdk_command_line(root_command: click.Group):
         root_command.add_command(impala_query)
 
+    # the purpose of the below hook is to get reference to any registered lineage loggers by other plugins
+    @hookimpl(
+        trylast=True
+    )  # trylast because we want to have any lineage loggers already initialized
+    def vdk_initialize(self, context: CoreContext) -> None:
+        self._lineage_logger = context.state.get(LINEAGE_LOGGER_KEY)
+
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         self._db_default_type = context.core_context.configuration.get_value(
             "DB_DEFAULT_TYPE"
         )
 
-        self._impala_cfg = ImpalaPluginConfiguration(
-            context.core_context.configuration
-        )  # necessary for the query decoration hook
+        self._impala_cfg = ImpalaPluginConfiguration(context.core_context.configuration)
         context.connections.add_open_connection_factory_method(
             "IMPALA",
-            lambda: _connection_by_configuration(self._impala_cfg),
+            lambda: _connection_by_configuration(
+                self._impala_cfg, self._lineage_logger
+            ),
         )
 
         context.templates.add_template(
@@ -137,52 +157,10 @@ class ImpalaPlugin:
                     )
                 ) from exception
 
-    @hookimpl
-    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
-        impala_error_handler = ImpalaErrorHandler(
-            num_retries=self._impala_cfg.retries_on_error(),
-            backoff_seconds=self._impala_cfg.error_backoff_seconds(),
-        )
-
-        if impala_error_handler.handle_error(
-            recovery_cursor.get_exception(), recovery_cursor
-        ):
-            logging.getLogger(__name__).debug(
-                "Error handled successfully! Query execution has succeeded."
-            )
-        else:
-            raise recovery_cursor.get_exception()
-
-    @hookimpl(tryfirst=True)
-    def db_connection_decorate_operation(self, decoration_cursor: DecorationCursor):
-        if self._impala_cfg.sync_ddl():
-            try:
-                decoration_cursor.execute("SET SYNC_DDL=True")
-            except Exception as e:
-                logging.getLogger(__name__).error(
-                    "Failed to execute 'SET SYNC_DDL=True'"
-                )
-                if self._db_default_type.lower() == "impala":
-                    raise e
-        if self._impala_cfg.query_pool():
-            try:
-                decoration_cursor.execute(
-                    f"SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
-                )
-            except Exception as e:
-                logging.getLogger(__name__).error(
-                    f"Failed to execute 'SET REQUEST_POOL='{self._impala_cfg.query_pool()}'"
-                )
-                if self._db_default_type.lower() == "impala":
-                    raise e
-
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.load_plugin_with_hooks_impl(ImpalaPlugin(), "impala-plugin")
-    plugin_registry.load_plugin_with_hooks_impl(
-        ImpalaLineagePlugin(), "impala-lineage-plugin"
-    )
 
 
 def get_jobs_parent_directory() -> pathlib.Path:
