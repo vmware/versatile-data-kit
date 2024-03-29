@@ -5,11 +5,11 @@
 
 package com.vmware.taurus.service.notification;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,21 +17,21 @@ import java.util.Map;
 @Configuration
 public class EmailConfiguration {
 
+  static Logger log = LoggerFactory.getLogger(AmazonSesEmailNotification.class);
+
   private final String MAIL_SMTP_PASSWORD = "mail.smtp.password";
   private final String MAIL_SMTP_USER = "mail.smtp.user";
   private final String MAIL_SMTP_AUTH = "mail.smtp.auth";
   private final String TRANSPORT_PROTOCOL = "transport.protocol";
 
   @Bean
-  @Primary
-  @ConditionalOnProperty(name = "mail.smtp.user", havingValue = "^arn:aws:")
-  public AmazonSesEmailNotification amazonSesEmailNotification() {
-    return new AmazonSesEmailNotification(this);
-  }
-
-  @Bean
-  public DefaultEmailNotification defaultEmailNotification() {
-    return new DefaultEmailNotification(this);
+  public EmailNotification emailNotification() {
+    log.info("mail smtp user: {}", this.mail().get("mail.smtp.user"));
+    if (this.mail().get("mail.smtp.user").startsWith("arn:aws:")) {
+      return new AmazonSesEmailNotification(this);
+    } else {
+      return new DefaultEmailNotification(this);
+    }
   }
 
   @Bean
