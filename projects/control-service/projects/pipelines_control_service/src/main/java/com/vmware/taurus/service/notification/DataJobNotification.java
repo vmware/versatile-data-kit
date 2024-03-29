@@ -57,14 +57,6 @@ public class DataJobNotification {
 
   public void notifyJobDeploySuccess(JobConfig jobConfig) {
     try {
-      log.info(
-          "Notifying Job Deploy Success, deploy stage: {}, success status: {}, owner name: {},"
-              + " owner email: {}, ccEmails: {}",
-          DEPLOY_STAGE,
-          SUCCESS_STATUS,
-          ownerName,
-          ownerEmail,
-          ccEmails);
       NotificationContent notificationContent =
           new NotificationContent(
               jobConfig, DEPLOY_STAGE, SUCCESS_STATUS, ownerName, ownerEmail, ccEmails);
@@ -79,14 +71,6 @@ public class DataJobNotification {
   // TODO: Potentially split to infrastructure and user error if possible
   public void notifyJobDeployError(JobConfig jobConfig, String errorName, String errorBody) {
     try {
-      log.info(
-          "Notifying Job Deploy Error, deploy stage: {}, success status: {}, owner name: {}, owner"
-              + " email: {}, ccEmails: {}",
-          DEPLOY_STAGE,
-          SUCCESS_STATUS,
-          ownerName,
-          ownerEmail,
-          ccEmails);
       NotificationContent notificationContent =
           new NotificationContent(
               jobConfig,

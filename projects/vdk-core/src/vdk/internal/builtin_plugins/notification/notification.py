@@ -46,14 +46,8 @@ def _notify(error_overall, user_error, configuration, state, job_name):
 
     job_log_url_template = notification_cfg.get_job_log_url_pattern()
     cc = notification_cfg.get_email_cc_list()
-    if cc:
-        print("cc: {}", cc)
     sender = notification_cfg.get_sender()
-    if sender:
-        print("sender: {}", sender)
     smtp_cfg = SmtpConfiguration(configuration)
-    if smtp_cfg:
-        print("smtp cfg: {}", smtp_cfg)
 
     if not error_overall:
         recipients = __get_list(
@@ -78,7 +72,6 @@ def _notify(error_overall, user_error, configuration, state, job_name):
                 JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR.value
             )
         )
-        print("recipients: {}", recipients)
         if recipients:
             subject, body = notification_base.UserErrorEmailNotificationMessageBuilder(
                 job_name, job_log_url_template
@@ -86,7 +79,6 @@ def _notify(error_overall, user_error, configuration, state, job_name):
             notification_base.EmailNotification(
                 recipients=recipients, cc=cc, smtp_cfg=smtp_cfg, sender=sender
             ).notify(subject, body)
-            print(f"notification sent; subject: {subject}, body: {body}")
         else:
             log.debug(
                 "No recipients configured to send on user error. No notification is sent"

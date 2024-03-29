@@ -27,9 +27,9 @@ if ! which java >/dev/null 2>&1 && [ -z "$JAVA_HOME" ]; then
 fi
 
 
-export TAG="testses"
+export TAG=${TAG:-$(git rev-parse --short HEAD)}
 
 set -x
 ./projects/gradlew -p ./projects/model build publishToMavenLocal --info --stacktrace
 ./projects/gradlew -p ./projects build jacocoTestReport -x integrationTest --info --stacktrace
-./projects/gradlew -p ./projects :pipelines_control_service:docker --info --stacktrace -Pversion="testses"
+./projects/gradlew -p ./projects :pipelines_control_service:docker --info --stacktrace -Pversion=$TAG
