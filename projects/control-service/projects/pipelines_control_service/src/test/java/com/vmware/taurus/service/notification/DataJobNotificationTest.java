@@ -40,7 +40,7 @@ public class DataJobNotificationTest {
 
     this.dataJobNotification =
         new DataJobNotification(
-            new EmailNotification(emailPropertiesConfiguration),
+            new DefaultEmailNotification(emailPropertiesConfiguration),
             "Example Name",
             "your_username@vmware.com",
             Collections.singletonList("cc@dummy.com"));
