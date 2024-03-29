@@ -26,8 +26,12 @@ public class EmailConfiguration {
 
   @Bean
   public EmailNotification emailNotification() {
-    log.info("mail smtp user: {}", this.mail().get("mail.smtp.user"));
-    if (this.mail().get("mail.smtp.user").startsWith("arn:aws:")) {
+    log.info("starting the logging of the map");
+    for (Map.Entry<String, String> entry : this.smtpWithPrefix().entrySet()) {
+      log.info(entry.getKey() + ": " + entry.getValue());
+    }
+    log.info("ending the logging of the map");
+    if (this.smtpWithPrefix().get("mail.smtp.user").startsWith("arn:aws:")) {
       return new AmazonSesEmailNotification(this);
     } else {
       return new DefaultEmailNotification(this);
