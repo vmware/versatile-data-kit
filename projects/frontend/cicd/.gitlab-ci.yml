@@ -136,10 +136,6 @@ frontend_tag_ui_image_stable:
 
 frontend_deploy_testing_data_pipelines:
   stage: pre_release_test
-  needs:
-    - job: frontend-data-pipelines-e2e-tests
-      optional: false
-      artifacts: false
   image: docker:23.0.1
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
