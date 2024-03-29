@@ -34,7 +34,6 @@ public class AmazonSesEmailNotification implements EmailNotification {
   private final String region;
 
   public AmazonSesEmailNotification(EmailConfiguration emailConfiguration) {
-    log.info("Constructing AmazonEmailNotification class");
     this.region = emailConfiguration.smtpWithPrefix().get("mail.smtp.host");
     this.roleArn = emailConfiguration.getUsername();
   }
@@ -57,7 +56,7 @@ public class AmazonSesEmailNotification implements EmailNotification {
             .withCredentials(new AWSStaticCredentialsProvider(credentialsProvider.getCredentials()))
             .withRegion(this.region)
             .build();
-    log.info("Send AmazonEmailNotification");
+    log.debug("Send AmazonSesEmailNotification");
     SendEmailResult sendEmailResult =
         sesClient.sendEmail(
             new SendEmailRequest()

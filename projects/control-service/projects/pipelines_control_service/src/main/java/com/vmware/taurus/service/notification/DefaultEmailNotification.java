@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
- * The EmailNotification class is responsible for implementing the email notifications
+ * The DefaultEmailNotification class is responsible for implementing the email notifications
  * functionality. The single exposed send method accepts pre-build notification object.
  *
  * @see DataJobNotification
@@ -31,7 +31,6 @@ public class DefaultEmailNotification implements EmailNotification {
   private final EmailConfiguration emailConfiguration;
 
   public DefaultEmailNotification(EmailConfiguration emailConfiguration) {
-    log.info("Constructing EmailNotification class");
     this.emailConfiguration = emailConfiguration;
     Properties properties = System.getProperties();
     properties.putAll(emailConfiguration.smtpWithPrefix());
@@ -40,7 +39,7 @@ public class DefaultEmailNotification implements EmailNotification {
   }
 
   public void send(NotificationContent notificationContent) throws MessagingException {
-    log.info("Send EmailNotification");
+    log.debug("Send DefaultEmailNotification");
     if (recipientsExist(notificationContent.getRecipients())) {
       try {
         sendEmail(notificationContent, notificationContent.getRecipients());
