@@ -71,7 +71,7 @@ public class AmazonSesEmailNotification implements EmailNotification {
                 .withMessage(
                     new Message(
                         new Content(notificationContent.getSubject()),
-                        new Body(new Content(notificationContent.getContent())))));
+                        new Body().withHtml(new Content(notificationContent.getContent())))));
     log.info("Email sent using Amazon SES. Message ID: {}", sendEmailResult.getMessageId());
   }
 }
