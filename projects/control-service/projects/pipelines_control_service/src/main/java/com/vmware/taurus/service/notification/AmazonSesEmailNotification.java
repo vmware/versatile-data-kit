@@ -31,11 +31,11 @@ public class AmazonSesEmailNotification implements EmailNotification {
 
   static Logger log = LoggerFactory.getLogger(AmazonSesEmailNotification.class);
   private final String roleArn;
-  private String region;
+  private final String region;
 
   public AmazonSesEmailNotification(EmailConfiguration emailConfiguration) {
     log.info("Constructing AmazonEmailNotification class");
-    this.region = emailConfiguration.mail().get("mail.smtp.host");
+    this.region = emailConfiguration.smtpWithPrefix().get("mail.smtp.host");
     this.roleArn = emailConfiguration.getUsername();
   }
 
