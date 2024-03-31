@@ -90,7 +90,7 @@ class ApiClientErrorDecorator:
                 raise vdk_ex from ex
             except VDKAuthException as ex:
                 log.debug(
-                    f"An authenticatio Exception occurred in {fn.__module__}.{fn.__name__}",
+                    f"An authentication Exception occurred in {fn.__module__}.{fn.__name__}",
                     f"The Exception class was: {ex}",
                 )
 
@@ -98,7 +98,20 @@ class ApiClientErrorDecorator:
                     what=self.__what,
                     why=str(ex),
                     consequence=self.__consequences,
-                    countermeasure="Authentication Error and needs to be logged in again",
+                    countermeasure="Authentication Error and requires a user login again",
+                )
+                raise vdk_ex from ex
+            except Exception as ex:
+                log.debug(
+                    f"An general Exception occurred in {fn.__module__}.{fn.__name__}",
+                    f"The Exception class was: {ex}",
+                )
+
+                vdk_ex = VDKException(
+                    what=self.__what,
+                    why=str(ex),
+                    consequence=self.__consequences,
+                    countermeasure="General Exception has occurred and needs to be addressed!",
                 )
                 raise vdk_ex from ex
 
