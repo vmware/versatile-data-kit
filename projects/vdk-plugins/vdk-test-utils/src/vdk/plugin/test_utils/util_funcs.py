@@ -301,7 +301,7 @@ def populate_mock_managed_cursor_no_hook(
     decoration_cursor = DecorationCursor(mock_native_cursor, None, managed_operation)
 
     def stub_db_connection_execute_operation(execution_cursor: ExecutionCursor):
-        return DefaultConnectionHookImpl().db_connection_execute_operation(
+        return IDatabaseManagedConnection().db_connection_execute_operation(
             execution_cursor
         )
 
