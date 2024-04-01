@@ -49,6 +49,10 @@ class ManagedCursor(ProxyCursor):
             )
 
         self.__managed_database_connection = managed_database_connection
+        if not self.__managed_database_connection:
+            self.__managed_database_connection = (
+                IDatabaseManagedConnection()
+            )  # default implementations
 
     def __getattr__(self, attr):
         """
@@ -93,7 +97,7 @@ class ManagedCursor(ProxyCursor):
             ManagedOperation(operation, parameters),
             None,
         )
-        if self.__connection_hook_spec or self.__managed_database_connection:
+        if self.__managed_database_connection:
             self._validate_operation(operation, parameters)
             self._decorate_operation(managed_operation, operation)
 
@@ -129,30 +133,6 @@ class ManagedCursor(ProxyCursor):
                 raise e
 
     def _decorate_operation(self, managed_operation: ManagedOperation, operation: str):
-        decorate_operation = None
-
-        # Check if database decorate operation is overridden by a plugin.
-        # Use the overridden method if available.
-        # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-        if (
-            self.__managed_database_connection
-            and type(
-                self.__managed_database_connection
-            ).db_connection_decorate_operation
-            != IDatabaseManagedConnection.db_connection_decorate_operation
-        ):
-            decorate_operation = (
-                self.__managed_database_connection.db_connection_decorate_operation
-            )
-
-        elif (
-            self.__connection_hook_spec
-            and self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
-        ):
-            decorate_operation = (
-                self.__connection_hook_spec.db_connection_decorate_operation
-            )
-
         # apply any changes @hookimpls to the managed operation
         if (
             self.__connection_hook_spec
@@ -162,13 +142,15 @@ class ManagedCursor(ProxyCursor):
                 operation=managed_operation
             )
 
-        if decorate_operation:
+        if self.__managed_database_connection:
             self._log.debug("Decorating query:\n%s" % operation)
             decoration_cursor = DecorationCursor(
                 self._cursor, self._log, managed_operation
             )
             try:
-                decorate_operation(decoration_cursor=decoration_cursor)
+                self.__managed_database_connection.db_connection_decorate_operation(
+                    decoration_cursor=decoration_cursor
+                )
             except Exception as e:
                 self._log.error(
                     "\n".join(
@@ -182,34 +164,12 @@ class ManagedCursor(ProxyCursor):
                 raise e
 
     def _validate_operation(self, operation: str, parameters: Optional[Container]):
-        validate_operation = None
-
-        # Check if database validate operation is overridden by a plugin.
-        # Use the overridden method if available.
-        # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-        if (
-            self.__managed_database_connection
-            and type(
-                self.__managed_database_connection
-            ).db_connection_validate_operation
-            != IDatabaseManagedConnection.db_connection_validate_operation
-        ):
-            validate_operation = (
-                self.__managed_database_connection.db_connection_validate_operation
-            )
-
-        elif (
-            self.__connection_hook_spec
-            and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
-        ):
-            validate_operation = (
-                self.__connection_hook_spec.db_connection_validate_operation
-            )
-
-        if validate_operation:
+        if self.__managed_database_connection:
             self._log.debug("Validating query:\n%s" % operation)
             try:
-                validate_operation(operation=operation, parameters=parameters)
+                self.__managed_database_connection.db_connection_validate_operation(
+                    operation=operation, parameters=parameters
+                )
             except Exception as e:
                 self._log.error(
                     "\n".join(
@@ -229,31 +189,11 @@ class ManagedCursor(ProxyCursor):
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         execution_cursor = ExecutionCursor(self._cursor, managed_operation, self._log)
 
-        # Check if database execute operation is overridden by a plugin.
-        # Use the overridden method if available.
-        # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-        if (
-            self.__managed_database_connection
-            and type(self.__managed_database_connection).db_connection_execute_operation
-            != IDatabaseManagedConnection.db_connection_execute_operation
-        ):
+        if self.__managed_database_connection:
             result = self.__managed_database_connection.db_connection_execute_operation(
                 execution_cursor=execution_cursor
             )
-
-        elif self.__connection_hook_spec:
-            result = self.__connection_hook_spec.db_connection_execute_operation(
-                execution_cursor=execution_cursor
-            )
-        else:
-            self._log.debug(
-                "No connection hook spec defined. "
-                "Will invoke standard cursor execute implementation."
-            )
-            result = DefaultConnectionHookImpl().db_connection_execute_operation(
-                execution_cursor
-            )
-        return result
+            return result
 
     def _after_operation(self, managed_operation: ManagedOperation):
         execution_cursor = ExecutionCursor(self._cursor, managed_operation, self._log)
@@ -301,55 +241,8 @@ class ManagedCursor(ProxyCursor):
 
     def _recover_operation(self, exception, managed_operation):
         # TODO: configurable generic re-try.
-
-        # Check if database recover and decorate operations are overridden by a plugin.
-        # Use the overridden methods if available.
-        # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-
-        available_recovery_plugin_implementation = (
-            self.__managed_database_connection
-            and (
-                type(self.__managed_database_connection).db_connection_recover_operation
-                != IDatabaseManagedConnection.db_connection_recover_operation
-            )
-        )
-
-        available_decoration_plugin_implementation = (
-            self.__managed_database_connection
-            and type(
-                self.__managed_database_connection
-            ).db_connection_decorate_operation
-            != IDatabaseManagedConnection.db_connection_decorate_operation
-        )
-
-        if (
-            not self.__connection_hook_spec
-            or not self.__connection_hook_spec.db_connection_recover_operation.get_hookimpls()
-        ) and not available_recovery_plugin_implementation:
+        if not self.__managed_database_connection:
             raise exception
-
-        if available_decoration_plugin_implementation:
-            decorate_operation = (
-                self.__managed_database_connection.db_connection_decorate_operation
-            )
-        elif (
-            self.__connection_hook_spec
-            and self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
-        ):
-            decorate_operation = (
-                self.__connection_hook_spec.db_connection_decorate_operation
-            )
-        else:
-            decorate_operation = None
-
-        if available_recovery_plugin_implementation:
-            recover_operation = (
-                self.__managed_database_connection.db_connection_recover_operation
-            )
-        else:
-            recover_operation = (
-                self.__connection_hook_spec.db_connection_recover_operation
-            )
 
         # apply any changes from @hookimpls to the managed operation
         if (
@@ -374,11 +267,13 @@ class ManagedCursor(ProxyCursor):
             self._log,
             exception,
             managed_operation,
-            decorate_operation,
+            self.__managed_database_connection.db_connection_decorate_operation,
         )
         self._log.debug(f"Recovery of query {managed_operation.get_operation()}")
         try:
-            recover_operation(recovery_cursor=recovery_cursor)
+            self.__managed_database_connection.db_connection_recover_operation(
+                recovery_cursor=recovery_cursor
+            )
             self._log.debug(
                 f"Recovery of query SUCCEEDED "
                 f"after {(recovery_cursor.get_retries())} retries."
