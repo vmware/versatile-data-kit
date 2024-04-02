@@ -122,16 +122,24 @@ def run(job_input: IJobInput) -> None:
 You can also check the statuses of the jobs after the DAG run using the DagInput API.
 
 ```python
-
-
+from vdk.plugin.dag.remote_data_job import JobStatus
+.....
 def run(job_input: IJobInput) -> None:
     ...
 
     job_one_status = DagInput().get_status("job1") # get the status of a single job
     all_statuses = DagInput().get_all_jobs_execution_status() # fetches the statuses of all the jobs in the latest dag execution
     select_statuses = DagInput().get_jobs_execution_status(["job1", "job3"]) # fetches the execution statuses of job 1 and job 3
-```
 
+    # example usage
+    if job_one_status == JobStatus.SUCCEEDED.value:
+        log.info(f"Job 1 status was executed successfully! ")
+    if select_statuses.get("job3") == JobStatus.SUCCEEDED.value:
+        log.info(f"Job 3 status was executed successfully! ")
+    if all_statuses.get("job3") != JobStatus.USER_ERROR.value:
+        log.info("Job 3 does not end with User Error")
+```
+You can find all available job statuses [here](https://github.com/vmware/versatile-data-kit/blob/1b305f94374425eccbac09e6fe95c1845fba4037/projects/vdk-plugins/vdk-dag/src/vdk/plugin/dag/remote_data_job.py#L29).
 
 
 ### Runtime sequencing
