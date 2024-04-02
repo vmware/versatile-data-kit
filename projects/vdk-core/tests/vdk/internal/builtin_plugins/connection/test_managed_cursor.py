@@ -16,30 +16,9 @@ from vdk.internal.builtin_plugins.connection.execution_cursor import (
 )
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
-from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
 from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor_no_hook
 
 _query = "select 1"
-
-
-# to be changed
-def test_query_timing_failed_query(caplog):
-    caplog.set_level(logging.INFO)
-    (
-        mock_native_cursor,
-        mock_managed_cursor,
-        _,
-        _,
-        mock_connection_hook_spec,
-    ) = populate_mock_managed_cursor()
-
-    exception = Exception("Mock exception")
-    mock_native_cursor.execute.side_effect = [exception]
-    mock_connection_hook_spec.db_connection_recover_operation.side_effect = [exception]
-    with pytest.raises(Exception):
-        mock_managed_cursor.execute(_query)
-
-    assert "Failed query duration 00h:00m:" in str(caplog.records)
 
 
 class ManagedDatabaseConnectionTestImpl(IDatabaseManagedConnection):

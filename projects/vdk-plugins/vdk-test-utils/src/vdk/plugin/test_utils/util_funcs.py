@@ -298,6 +298,11 @@ def populate_mock_managed_cursor_no_hook(
         managed_database_connection=managed_database_connection,
     )
 
+    if not managed_database_connection:
+        managed_database_connection = (
+            IDatabaseManagedConnection()
+        )  # default behaviour is added
+
     decoration_cursor = DecorationCursor(mock_native_cursor, None, managed_operation)
 
     def stub_db_connection_execute_operation(execution_cursor: ExecutionCursor):
