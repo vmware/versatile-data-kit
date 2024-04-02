@@ -21,34 +21,9 @@ from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor_no_hoo
 _query = "select 1"
 
 
-class ManagedDatabaseConnectionTestImpl(IDatabaseManagedConnection):
-    def db_connection_validate_operation(
-        self, operation: str, parameters: Optional[Container]
-    ) -> None:
-        print("Validate called not from Base class")
-
-    def db_connection_decorate_operation(
-        self, decoration_cursor: DecorationCursor
-    ) -> None:
-        print("Decorate called not from Base class")
-
-    def db_connection_execute_operation(
-        self, execution_cursor: ExecutionCursor
-    ) -> Optional[ExecuteOperationResult]:
-        print("Execute called not from Base class")
-
-    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
-        print("Recover called not from Base class")
-
-    def db_connection_after_operation(
-        self, execution_cursor: ExecutionCursor
-    ) -> Optional[ExecuteOperationResult]:
-        print("After called")
-
-
 @pytest.fixture
 def managed_connection():
-    return ManagedDatabaseConnectionTestImpl()
+    return IDatabaseManagedConnection()
 
 
 def test_no_hook_db_validate_operations(managed_connection):
@@ -145,7 +120,7 @@ def test_no_hook_decoration__failure__execute(managed_connection):
     with pytest.raises(Exception) as e:
         mock_managed_cursor.execute(_query)
 
-    assert True == mock_managed_connection.db_connection_decorate_operation.called
+    assert mock_managed_connection.db_connection_decorate_operation.called is True
     assert "Decoration exception" == e.value.args[0]
     mock_native_cursor.execute.assert_not_called()
 
