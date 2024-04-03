@@ -88,18 +88,18 @@ def run_job(self, context: JobContext):
 entry_points={ 'vdk.plugin.run': ['name_of_plugin = myproject.pluginmodule'] }
 ```
 
-#### Good to know before using hooks: 
+#### Good to know before using hooks:
 - Execution order
-  
+
 By default, hook implementations follow a Last-In, First-Out (LIFO) execution order. This means the last registered hook is executed first. Hooks marked with historic=True deviate from the standard LIFO order. Instead, they operate on a First-In, First-Out (FIFO) basis. This unique behavior ensures that a historic hook is executed immediately after its registration. An example of such usage is within vdk_start, commonly employed for registering plugin classes that contain hook implementations. This mechanism is designed to ensure that essential setup hooks run in the expected order.
 - Handling prioritization conflicts
-  
+
  In vdk-core, numerous hooks are annotated with tryfirst or trylast markers. These markers are critical for managing execution priority among various hook implementations. If you encounter unexpected behavior, it's likely due to the execution order of plugin hook implementations versus core hooks. A practical approach to diagnosing and resolving such issues involves debugging with a sample data job. This process will allow you to observe the execution order and adjust your hook's prioritization marker (tryfirst, trylast) accordingly to achieve the desired operational flow.
 - Document hook dependencies
-  
+
  Clearly document any dependencies or expected execution order among your hooks. This will aid in future debugging efforts and facilitate a clearer understanding for new developers.
 For instance, should you employ trylast=True in vdk_initialize, it's advisable to annotate its necessity within a docstring or comment.
-Example: 
+Example:
 ```python
    @hookimpl(
         trylast=True
