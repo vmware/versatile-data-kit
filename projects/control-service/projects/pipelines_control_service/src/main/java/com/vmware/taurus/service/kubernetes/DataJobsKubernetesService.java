@@ -22,7 +22,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ import java.util.stream.Stream;
  * this environment and all other necessary resources that are used only during the execution of a
  * data job should be create in this kubernetes.
  */
-//@Service
+// @Service
 @Slf4j
 public class DataJobsKubernetesService extends KubernetesService {
 
@@ -160,9 +159,7 @@ public class DataJobsKubernetesService extends KubernetesService {
     Set<String> v1CronJobNames = Collections.emptySet();
 
     try {
-      var v1CronJobs =
-          batchV1Api.listNamespacedCronJob(
-              namespace).execute();
+      var v1CronJobs = batchV1Api.listNamespacedCronJob(namespace).execute();
       v1CronJobNames =
           v1CronJobs.getItems().stream()
               .map(j -> j.getMetadata().getName())
@@ -178,9 +175,7 @@ public class DataJobsKubernetesService extends KubernetesService {
       }
     }
 
-    var cronJobs =
-        batchV1Api.listNamespacedCronJob(
-            namespace).execute();
+    var cronJobs = batchV1Api.listNamespacedCronJob(namespace).execute();
     var cronJobNames =
         cronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
@@ -206,8 +201,7 @@ public class DataJobsKubernetesService extends KubernetesService {
         namespace);
     try {
       var operationResponse =
-          batchV1Api.deleteNamespacedJob(
-              executionId, namespace).executeWithHttpInfo();
+          batchV1Api.deleteNamespacedJob(executionId, namespace).executeWithHttpInfo();
       // Status of the operation. One of: "Success" or "Failure"
       if (operationResponse == null || operationResponse.getStatusCode() == 404) {
         log.info(

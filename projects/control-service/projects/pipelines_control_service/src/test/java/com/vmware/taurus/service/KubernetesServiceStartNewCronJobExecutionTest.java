@@ -206,14 +206,11 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
   private KubernetesService mockKubernetesService(String jobName, V1CronJob result)
       throws ApiException {
     BatchV1Api batchV1Api = Mockito.mock(BatchV1Api.class);
-    Mockito.when(
-            batchV1Api.readNamespacedCronJob(
-                Mockito.eq(jobName), Mockito.isNull()).execute())
+    Mockito.when(batchV1Api.readNamespacedCronJob(Mockito.eq(jobName), Mockito.isNull()).execute())
         .thenReturn(result);
 
     Mockito.when(
-            batchV1Api.readNamespacedCronJob(
-                Mockito.eq(jobName), Mockito.anyString()).execute())
+            batchV1Api.readNamespacedCronJob(Mockito.eq(jobName), Mockito.anyString()).execute())
         .thenReturn(result);
     DataJobsKubernetesService spy =
         Mockito.spy(
