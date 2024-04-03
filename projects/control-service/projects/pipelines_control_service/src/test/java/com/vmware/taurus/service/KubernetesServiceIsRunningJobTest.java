@@ -18,7 +18,10 @@ import io.kubernetes.client.openapi.models.V1JobList;
 import io.kubernetes.client.openapi.models.V1JobStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import static org.mockito.ArgumentMatchers.any;
 
 public class KubernetesServiceIsRunningJobTest {
 
@@ -77,21 +80,14 @@ public class KubernetesServiceIsRunningJobTest {
 
   private void assertResponseValid(V1JobList response, boolean expectedResult) throws ApiException {
 
-    BatchV1Api batchV1Api = Mockito.mock(BatchV1Api.class);
+    var batchV1Api = Mockito.mock(BatchV1Api.class);
+    var mock = Mockito.mock(BatchV1Api.APIlistNamespacedJobRequest.class);
+    Mockito.when(mock.execute()).thenReturn(response);
+    Mockito.when(mock.labelSelector(any())).thenReturn(mock);
     Mockito.when(
             batchV1Api.listNamespacedJob(
-                Mockito.anyString(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.anyString(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull(),
-                Mockito.isNull()))
-        .thenReturn(response);
+                Mockito.anyString()))
+        .thenReturn(mock);
 
     KubernetesService kubernetesService =
         new DataJobsKubernetesService(

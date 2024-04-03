@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
  * Kubernetes service used for serving system tasks of the Control Service. For example helper jobs
  * to deploy data jobs. Generally it's fine if it's the same as where the Control service runs.
  */
-@Service
+//@Service
 @Slf4j
 public class ControlKubernetesService extends KubernetesService {
 

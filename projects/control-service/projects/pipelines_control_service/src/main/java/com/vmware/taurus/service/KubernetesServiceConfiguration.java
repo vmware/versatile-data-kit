@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -54,12 +55,14 @@ public class KubernetesServiceConfiguration {
   }
 
   @Bean
+  @Profile("!mockKubernetes")
   public ApiClient controlApiClient(@Value("${datajobs.control.k8s.kubeconfig:}") String kubeconfig)
       throws Exception {
     return getClient(kubeconfig);
   }
 
   @Bean
+  @Profile("!mockKubernetes")
   public BatchV1Api controlBatchV1Api(@Qualifier("controlApiClient") ApiClient apiClient) {
     return new BatchV1Api(apiClient);
   }

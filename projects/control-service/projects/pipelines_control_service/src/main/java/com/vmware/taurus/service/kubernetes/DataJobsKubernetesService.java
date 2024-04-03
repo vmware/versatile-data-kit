@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * this environment and all other necessary resources that are used only during the execution of a
  * data job should be create in this kubernetes.
  */
-@Service
+//@Service
 @Slf4j
 public class DataJobsKubernetesService extends KubernetesService {
 
@@ -162,7 +162,7 @@ public class DataJobsKubernetesService extends KubernetesService {
     try {
       var v1CronJobs =
           batchV1Api.listNamespacedCronJob(
-              namespace, null, null, null, null, null, null, null, null, null, null);
+              namespace).execute();
       v1CronJobNames =
           v1CronJobs.getItems().stream()
               .map(j -> j.getMetadata().getName())
@@ -180,7 +180,7 @@ public class DataJobsKubernetesService extends KubernetesService {
 
     var cronJobs =
         batchV1Api.listNamespacedCronJob(
-            namespace, null, null, null, null, null, null, null, null, null, null);
+            namespace).execute();
     var cronJobNames =
         cronJobs.getItems().stream()
             .map(j -> j.getMetadata().getName())
@@ -192,7 +192,7 @@ public class DataJobsKubernetesService extends KubernetesService {
 
   public void deleteCronJob(String name) throws ApiException {
     log.debug("Deleting k8s cron job: {}", name);
-    batchV1Api.deleteNamespacedCronJob(name, namespace, null, null, null, null, null, null);
+    batchV1Api.deleteNamespacedCronJob(name, namespace).execute();
     log.debug("Deleted k8s cron job: {}", name);
   }
 
@@ -206,8 +206,8 @@ public class DataJobsKubernetesService extends KubernetesService {
         namespace);
     try {
       var operationResponse =
-          batchV1Api.deleteNamespacedJobWithHttpInfo(
-              executionId, namespace, null, null, null, null, "Foreground", null);
+          batchV1Api.deleteNamespacedJob(
+              executionId, namespace).executeWithHttpInfo();
       // Status of the operation. One of: "Success" or "Failure"
       if (operationResponse == null || operationResponse.getStatusCode() == 404) {
         log.info(
