@@ -115,7 +115,7 @@ control_service_integration_test:
 control_service_test_helm_chart:
   stage: build
   script:
-    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+    - export DESIRED_VERSION=v3.14.3 # helm version 3.14.3
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     - cd projects/control-service/projects/helm_charts/pipelines-control-service
     - helm dependency update
@@ -291,7 +291,7 @@ control_service_publish_api_client:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
     - pip install --upgrade pip && pip install awscli
     - export FRONTEND_TAG=latest
-    - export DESIRED_VERSION=v3.12.0 # helm version
+    - export DESIRED_VERSION=v3.14.3 # helm version
     - curl -LO https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl
     - chmod +x ./kubectl
     - mv ./kubectl /usr/bin/kubectl
@@ -351,7 +351,7 @@ control_service_release:
   script:
     - apk --no-cache add bash openssl curl git
     - export IMAGE_TAG="$(git rev-parse --short HEAD)"
-    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+    - export DESIRED_VERSION=v3.14.3 # helm version 3.14.3
     - export CHART_NAME=pipelines-control-service
     - export CHART_VERSION="$(cat projects/control-service/projects/helm_charts/$CHART_NAME/version.txt | grep -o '^[0-9]\+\.[0-9]\+').$CI_PIPELINE_ID"
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash

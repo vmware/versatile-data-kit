@@ -145,7 +145,7 @@ frontend_deploy_testing_data_pipelines:
   script:
     - apk --no-cache add bash openssl curl git gettext zip py-pip
     - pip install --upgrade pip && pip install awscli
-    - export DESIRED_VERSION=v3.11.3 # helm version 3.11.3
+    - export DESIRED_VERSION=v3.14.3 # helm version 3.14.3
     - export TAG=latest
     - export FRONTEND_TAG=$(git rev-parse --short HEAD)
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash

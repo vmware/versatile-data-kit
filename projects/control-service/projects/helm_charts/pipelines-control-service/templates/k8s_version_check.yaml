@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-version-check"
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: version-check
+          image: bitnami/kubectl
+          command: ["sh", "-c"]
+          args:
+            - |
+              #!/bin/sh
+              K8S_VERSION=$(kubectl version --short=true -o json | jq -r '.serverVersion.gitVersion')
+              MINOR=$(echo $K8S_VERSION | cut -d'.' -f2)
+              if [ $MAJOR -eq 1 -a $MINOR -lt 24 ]; then
+                echo "Cluster version $K8S_VERSION is less than the required 1.24"
+                exit 1
+              else
+                echo "Cluster version $K8S_VERSION meets the requirement"
+              fi
