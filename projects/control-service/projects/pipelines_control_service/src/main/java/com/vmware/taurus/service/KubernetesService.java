@@ -310,17 +310,20 @@ public abstract class KubernetesService {
    */
   public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
     log.debug("Reading k8s V1 cron job: {}", cronJobName);
-    V1CronJob cronJob = null;
     try {
-      cronJob = batchV1Api.readNamespacedCronJob(cronJobName, namespace, null);
+      return mapV1CronJobToDeploymentStatus(
+          batchV1Api.readNamespacedCronJob(cronJobName, namespace, null), cronJobName);
     } catch (ApiException e) {
-      log.warn(
-          "Could not read cron job: {}; reason: {}",
-          cronJobName,
-          new KubernetesException("", e).toString());
+      if (e.getCode() == 404) {
+        log.warn(
+            "Could not read cron job: {}; reason: {}",
+            cronJobName,
+            new KubernetesException("", e).toString());
+        return Optional.empty();
+      } else {
+        throw new KubernetesException("", e);
+      }
     }
-
-    return mapV1CronJobToDeploymentStatus(cronJob, cronJobName);
   }
 
   /**
