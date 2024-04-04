@@ -9,7 +9,7 @@ from unittest.mock import patch
 from impala.error import HiveServer2Error
 from impala.error import OperationalError
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import create_mock_managed_cursor
 
 
 @patch("time.sleep", return_value=None)
@@ -44,7 +44,8 @@ Root cause: ConnectException: Connection refused"""
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=self._failed_to_open_exception,
             mock_operation=original_query,
             decoration_operation_callback=mock_decoration,
@@ -70,7 +71,8 @@ Root cause: ConnectException: Connection refused"""
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
         # This test was changed because it started failing due to a change of the Impala error handling, which was
@@ -95,7 +97,8 @@ Root cause: RemoteException: Path name not found: /user/hive/warehouse/starshot_
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=initial_error, mock_operation=self._query
         )
 
@@ -122,7 +125,8 @@ Root cause: RemoteException: Path name not found: /user/hive/warehouse/starshot_
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=initial_error, mock_operation=self._query
         )
 
@@ -147,7 +151,8 @@ Root cause: RemoteException: Path name not found: /user/hive/warehouse/starshot_
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=initial_error, mock_operation=self._query
         )
 
@@ -164,7 +169,7 @@ Error(2): No such file or directory
 Root cause: RemoteException: Path name not found: /user/hive/warehouse/starshot_csp_jira_dw.db/csp_customfieldoption/554fce0f545e17a0-739e2bfa0000006f_954094502_data.0.parq"""
         initial_error = OperationalError(error_message)
         error_handler = ImpalaErrorHandler(logging.getLogger(), num_retries=1)
-        _, _, _, mock_recovery_cursor, _ = populate_mock_managed_cursor(
+        _, _, _, mock_recovery_cursor, _, _ = create_mock_managed_cursor(
             mock_exception_to_recover=initial_error, mock_operation=self._query
         )
 
@@ -186,7 +191,8 @@ Root cause: RemoteException: Path name not found: /user/hive/warehouse/starshot_
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=initial_error, mock_operation=self._query
         )
         mock_native_cursor.execute.side_effect = secondary_error
