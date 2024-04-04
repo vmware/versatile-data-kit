@@ -5,9 +5,6 @@
 
 package com.vmware.taurus.service;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
@@ -28,6 +25,8 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+
+import static org.mockito.Mockito.*;
 
 public class KubernetesServiceTest {
 
@@ -332,13 +331,10 @@ public class KubernetesServiceTest {
     v1DeploymentStatus.setCronJobName("v1TestJob");
     v1TestList.add(v1DeploymentStatus);
 
-    var mergedTestLists = v1TestList;
-
-    Mockito.when(mock.readV1CronJobDeploymentStatuses()).thenReturn(v1TestList);
-    Mockito.when(mock.readJobDeploymentStatuses()).thenCallRealMethod();
+    doReturn(v1TestList).when(mock).readV1CronJobDeploymentStatuses();
     List<JobDeploymentStatus> resultStatuses = mock.readJobDeploymentStatuses();
 
-    Assertions.assertEquals(mergedTestLists, resultStatuses);
+    Assertions.assertEquals(v1TestList, resultStatuses);
   }
 
   @Test
@@ -351,7 +347,7 @@ public class KubernetesServiceTest {
     testDeploymentStatus.setDataJobName(testCronjobName);
     testDeploymentStatus.setCronJobName(testCronjobName);
 
-    Mockito.when(mock.readV1CronJob(testCronjobName)).thenReturn(Optional.of(testDeploymentStatus));
+    doReturn(Optional.of(testDeploymentStatus)).when(mock).readV1CronJob(testCronjobName);
 
     Assertions.assertNotNull(mock.readCronJob(testCronjobName));
     Assertions.assertEquals(
