@@ -29,4 +29,3 @@ data class DeleteJob(val jobUniqueIdentifier: JobUniqueIdentifier) : JobAction {
 data class ProvisionResourceRequest(val jobUniqueIdentifier: JobUniqueIdentifier, val amount: Float){
     val teamName = jobUniqueIdentifier.teamName
 }
-
