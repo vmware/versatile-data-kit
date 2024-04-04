@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service;
 
-
 import com.vmware.taurus.service.deploy.JobCommandProvider;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.model.JobAnnotation;
