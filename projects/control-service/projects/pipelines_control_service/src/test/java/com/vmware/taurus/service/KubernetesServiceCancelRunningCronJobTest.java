@@ -84,11 +84,8 @@ public class KubernetesServiceCancelRunningCronJobTest {
     var mock = Mockito.mock(BatchV1Api.APIdeleteNamespacedJobRequest.class);
     Mockito.when(mock.executeWithHttpInfo()).thenReturn(response);
     BatchV1Api batchV1Api = Mockito.mock(BatchV1Api.class);
-    Mockito.when(
-            batchV1Api
-                .deleteNamespacedJob(Mockito.anyString(), Mockito.anyString())).thenReturn(
-                    mock
-            )
+    Mockito.when(batchV1Api.deleteNamespacedJob(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(mock)
         .thenReturn(mock);
 
     return new DataJobsKubernetesService(
