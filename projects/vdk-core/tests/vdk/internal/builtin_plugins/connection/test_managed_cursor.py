@@ -4,14 +4,9 @@ import logging
 from typing import Container
 from typing import Optional
 from unittest.mock import call
-from unittest.mock import MagicMock
 from unittest.mock import Mock
 
 import pytest
-from vdk.api.plugin.connection_hook_spec import ConnectionHookSpec
-from vdk.internal.builtin_plugins.connection.connection_hooks import (
-    ConnectionHookSpecFactory,
-)
 from vdk.internal.builtin_plugins.connection.database_managed_connection import (
     IDatabaseManagedConnection,
 )
@@ -21,11 +16,6 @@ from vdk.internal.builtin_plugins.connection.execution_cursor import (
     ExecuteOperationResult,
 )
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
-from vdk.internal.builtin_plugins.connection.managed_connection_base import (
-    ManagedConnectionBase,
-)
-from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
-from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.plugin.test_utils.util_funcs import create_mock_managed_cursor
 from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor_no_hook
@@ -40,7 +30,7 @@ def test_validation__query_valid__execute():
         _,
         _,
         mock_connection_hook_spec,
-        mock_managed_connection,
+        _,
     ) = create_mock_managed_cursor()
 
     mock_managed_cursor.execute(_query)
@@ -79,7 +69,7 @@ def test_before_operation__success__execute():
         _,
         _,
         mock_connection_hook_spec,
-        mock_managed_connection,
+        _,
     ) = create_mock_managed_cursor()
 
     def mock_before_hook(operation: ManagedOperation):
@@ -103,7 +93,7 @@ def test_before_operation__failure__execute():
         _,
         _,
         mock_connection_hook_spec,
-        mock_managed_connection,
+        _,
     ) = create_mock_managed_cursor()
 
     mock_connection_hook_spec.db_connection_before_operation.side_effect = Exception(
@@ -213,7 +203,7 @@ def test_query_timing_failed_query(caplog):
         mock_managed_cursor,
         _,
         _,
-        mock_connection_hook_spec,
+        _,
         mock_managed_connection,
     ) = create_mock_managed_cursor()
 
@@ -226,34 +216,9 @@ def test_query_timing_failed_query(caplog):
     assert "Failed query duration 00h:00m:" in str(caplog.records)
 
 
-class ManagedDatabaseConnectionTestImpl(IDatabaseManagedConnection):
-    def db_connection_validate_operation(
-        self, operation: str, parameters: Optional[Container]
-    ) -> None:
-        print("Validate called not from Base class")
-
-    def db_connection_decorate_operation(
-        self, decoration_cursor: DecorationCursor
-    ) -> None:
-        print("Decorate called not from Base class")
-
-    def db_connection_execute_operation(
-        self, execution_cursor: ExecutionCursor
-    ) -> Optional[ExecuteOperationResult]:
-        print("Execute called not from Base class")
-
-    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
-        print("Recover called not from Base class")
-
-    def db_connection_after_operation(
-        self, execution_cursor: ExecutionCursor
-    ) -> Optional[ExecuteOperationResult]:
-        print("After called")
-
-
 @pytest.fixture
 def managed_connection():
-    return ManagedDatabaseConnectionTestImpl()
+    return IDatabaseManagedConnection()
 
 
 def test_no_hook_db_validate_operations(managed_connection):
