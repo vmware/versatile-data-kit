@@ -309,19 +309,15 @@ public abstract class KubernetesService {
    *     Optional if the cron job does not exist or cannot be read
    */
   public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
-    return readV1CronJob(cronJobName);
-  }
-
-  public Optional<JobDeploymentStatus> readV1CronJob(String cronJobName) {
     log.debug("Reading k8s V1 cron job: {}", cronJobName);
     V1CronJob cronJob = null;
     try {
       cronJob = batchV1Api.readNamespacedCronJob(cronJobName, namespace, null);
     } catch (ApiException e) {
       log.warn(
-          "Could not read cron job: {}; reason: {}",
-          cronJobName,
-          new KubernetesException("", e).toString());
+              "Could not read cron job: {}; reason: {}",
+              cronJobName,
+              new KubernetesException("", e).toString());
     }
 
     return mapV1CronJobToDeploymentStatus(cronJob, cronJobName);
