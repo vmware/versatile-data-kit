@@ -27,7 +27,8 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
 from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
-from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor_no_hook, create_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import create_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor_no_hook
 
 _query = "select 1"
 
