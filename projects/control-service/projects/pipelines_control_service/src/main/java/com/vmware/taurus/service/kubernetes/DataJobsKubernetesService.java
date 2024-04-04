@@ -22,6 +22,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ import java.util.stream.Stream;
  * this environment and all other necessary resources that are used only during the execution of a
  * data job should be create in this kubernetes.
  */
-// @Service
+@Service
 @Slf4j
 public class DataJobsKubernetesService extends KubernetesService {
 

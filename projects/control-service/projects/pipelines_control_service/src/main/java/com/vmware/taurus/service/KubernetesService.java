@@ -1191,9 +1191,7 @@ public abstract class KubernetesService {
     log.debug("Deleting k8s pods for job: {}", name);
     var status =
         new CoreV1Api(client)
-            .deleteCollectionNamespacedPod(
-                // confirm label selector here
-                namespace)
+            .deleteCollectionNamespacedPod(namespace)
             .labelSelector("job-name=" + name)
             .execute();
     log.debug("Deleted k8s pods for job: {}, status: {}", name, status);
