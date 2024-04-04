@@ -309,10 +309,6 @@ public abstract class KubernetesService {
    *     Optional if the cron job does not exist or cannot be read
    */
   public Optional<JobDeploymentStatus> readCronJob(String cronJobName) {
-    return readV1CronJob(cronJobName);
-  }
-
-  public Optional<JobDeploymentStatus> readV1CronJob(String cronJobName) {
     log.debug("Reading k8s V1 cron job: {}", cronJobName);
     V1CronJob cronJob = null;
     try {
