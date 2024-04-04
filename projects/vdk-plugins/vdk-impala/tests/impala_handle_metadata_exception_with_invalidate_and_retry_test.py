@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from impala.error import HiveServer2Error
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import create_mock_managed_cursor
 
 
 @patch("time.sleep", return_value=None)
@@ -16,13 +16,7 @@ def test_AnalysisException_could_not_resolve_table_reference(patched_time_sleep)
     exception = HiveServer2Error(error_message)
 
     error_handler = ImpalaErrorHandler(logging.getLogger(), num_retries=1)
-    (
-        mock_native_cursor,
-        _,
-        _,
-        mock_recovery_cursor,
-        _,
-    ) = populate_mock_managed_cursor(
+    (mock_native_cursor, _, _, mock_recovery_cursor, _, _) = create_mock_managed_cursor(
         mock_exception_to_recover=exception, mock_operation=_query
     )
     error_handler.handle_error(
@@ -41,13 +35,7 @@ def test_AlreadyExistsException_table_already_exists(patched_time_sleep):
     error_message = "AlreadyExistsException: Table test_table already exists"
     exception = HiveServer2Error(error_message)
     original_query = "CREATE TABLE test_schema.test_table AS SELECT * FROM test_mart.view_test_table;"
-    (
-        mock_native_cursor,
-        _,
-        _,
-        mock_recovery_cursor,
-        _,
-    ) = populate_mock_managed_cursor(
+    (mock_native_cursor, _, _, mock_recovery_cursor, _, _) = create_mock_managed_cursor(
         mock_exception_to_recover=exception, mock_operation=original_query
     )
 
@@ -72,7 +60,7 @@ def test_AlreadyExistsException_view_already_exists(patched_time_sleep):
         "SELECT * "
         "FROM test_mart.view_test_table;"
     )
-    (mock_native_cursor, _, _, mock_recovery_cursor, _) = populate_mock_managed_cursor(
+    (mock_native_cursor, _, _, mock_recovery_cursor, _, _) = create_mock_managed_cursor(
         mock_exception_to_recover=exception, mock_operation=original_query
     )
 
