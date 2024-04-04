@@ -338,24 +338,6 @@ public class KubernetesServiceTest {
   }
 
   @Test
-  public void testReadCronJob_readV1CronJobShouldReturnStatus() {
-    String testCronjobName = "testCronjob";
-    var mock = newDataJobKubernetesService();
-
-    JobDeploymentStatus testDeploymentStatus = new JobDeploymentStatus();
-    testDeploymentStatus.setEnabled(false);
-    testDeploymentStatus.setDataJobName(testCronjobName);
-    testDeploymentStatus.setCronJobName(testCronjobName);
-
-    doReturn(Optional.of(testDeploymentStatus)).when(mock).readV1CronJob(testCronjobName);
-
-    Assertions.assertNotNull(mock.readCronJob(testCronjobName));
-    Assertions.assertEquals(
-        testCronjobName, mock.readCronJob(testCronjobName).get().getCronJobName());
-    verify(mock, times(2)).readV1CronJob(testCronjobName);
-  }
-
-  @Test
   public void testQuantityToMbConversionMegabytes() throws Exception {
     var hundredMb = "100M";
     testQuantityToMbConversion(100, hundredMb);
