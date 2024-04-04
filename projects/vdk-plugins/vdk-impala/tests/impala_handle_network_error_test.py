@@ -7,7 +7,7 @@ from unittest.mock import patch
 from impala.error import HiveServer2Error
 from impala.error import OperationalError
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import create_mock_managed_cursor
 
 
 @patch("time.sleep", return_value=None)
@@ -27,7 +27,8 @@ class ImpalaHandleNetworkErrorTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
         error_handler.handle_error(
@@ -48,7 +49,8 @@ class ImpalaHandleNetworkErrorTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
         error_handler.handle_error(
@@ -69,7 +71,8 @@ class ImpalaHandleNetworkErrorTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
         error_handler.handle_error(
@@ -90,7 +93,8 @@ class ImpalaHandleNetworkErrorTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
         error_handler.handle_error(
@@ -115,7 +119,8 @@ class ImpalaHandleNetworkErrorTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
         error_handler.handle_error(
@@ -136,7 +141,8 @@ class ImpalaHandleNetworkErrorTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
         error_handler.handle_error(

@@ -8,7 +8,7 @@ import pytest
 from impala.error import OperationalError
 from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import create_mock_managed_cursor
 
 
 @patch("time.sleep", return_value=None)
@@ -22,7 +22,7 @@ class ImpalaHandlePoolError(unittest.TestCase):
         exception = OperationalError(error_message)
 
         error_handler = ImpalaErrorHandler(logging.getLogger(), num_retries=1)
-        _, _, _, mock_recovery_cursor, _ = populate_mock_managed_cursor(
+        _, _, _, mock_recovery_cursor, _, _ = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
 
@@ -37,7 +37,7 @@ class ImpalaHandlePoolError(unittest.TestCase):
         exception = OperationalError(error_message)
 
         error_handler = ImpalaErrorHandler(logging.getLogger(), num_retries=1)
-        _, _, _, mock_recovery_cursor, _ = populate_mock_managed_cursor(
+        _, _, _, mock_recovery_cursor, _, _ = create_mock_managed_cursor(
             mock_exception_to_recover=exception, mock_operation=self._query
         )
 
