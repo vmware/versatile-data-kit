@@ -64,7 +64,8 @@ public class PrivateBuilderDockerRepoIT extends BaseIT {
                           builderImage.substring(0, builderImage.lastIndexOf("/")),
                           dataJobsBuilderRegistrySecretContent))
                   .withType("kubernetes.io/dockerconfigjson")
-                  .build()).execute();
+                  .build())
+          .execute();
     } catch (ApiException e) {
       if (e.getCode() == 409) { // Value already exists in k8s.
         return;
