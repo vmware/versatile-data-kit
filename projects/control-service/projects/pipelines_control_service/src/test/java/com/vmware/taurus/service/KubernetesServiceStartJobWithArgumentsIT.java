@@ -47,8 +47,7 @@ public class KubernetesServiceStartJobWithArgumentsIT {
 
     var mock = Mockito.mock(BatchV1Api.APIreadNamespacedCronJobRequest.class);
     Mockito.when(mock.execute()).thenReturn(internalCronjobTemplate);
-    Mockito.when(mockBatchV1.readNamespacedCronJob(any(), any()))
-            .thenReturn(mock);
+    Mockito.when(mockBatchV1.readNamespacedCronJob(any(), any())).thenReturn(mock);
   }
 
   @Test

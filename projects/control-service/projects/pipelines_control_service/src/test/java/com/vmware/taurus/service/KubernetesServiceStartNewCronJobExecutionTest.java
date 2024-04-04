@@ -44,9 +44,11 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
                     "test-name"));
 
     Assertions.assertTrue(
-            exception.getMessage().contains(
-        String.format("K8S Cron Job '%s' does not exist or is not properly defined.", jobName))
-        );
+        exception
+            .getMessage()
+            .contains(
+                String.format(
+                    "K8S Cron Job '%s' does not exist or is not properly defined.", jobName)));
   }
 
   @Test
@@ -71,8 +73,9 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
                     "test-name"));
 
     Assertions.assertTrue(
-            exception.getMessage().contains(String.format("K8S Cron Job '%s' is not properly defined.", jobName))
-        );
+        exception
+            .getMessage()
+            .contains(String.format("K8S Cron Job '%s' is not properly defined.", jobName)));
   }
 
   @Test
@@ -212,8 +215,7 @@ public class KubernetesServiceStartNewCronJobExecutionTest {
     Mockito.when(batchV1Api.readNamespacedCronJob(Mockito.eq(jobName), Mockito.isNull()))
         .thenReturn(mock);
 
-    Mockito.when(
-            batchV1Api.readNamespacedCronJob(Mockito.eq(jobName), Mockito.anyString()))
+    Mockito.when(batchV1Api.readNamespacedCronJob(Mockito.eq(jobName), Mockito.anyString()))
         .thenReturn(mock);
     DataJobsKubernetesService spy =
         Mockito.spy(
