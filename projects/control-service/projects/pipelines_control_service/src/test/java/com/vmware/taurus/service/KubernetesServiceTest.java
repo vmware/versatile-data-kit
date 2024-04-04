@@ -27,6 +27,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
+import static org.mockito.Mockito.*;
+
 public class KubernetesServiceTest {
 
   @Test
@@ -330,13 +332,10 @@ public class KubernetesServiceTest {
     v1DeploymentStatus.setCronJobName("v1TestJob");
     v1TestList.add(v1DeploymentStatus);
 
-    var mergedTestLists = v1TestList;
-
-    Mockito.when(mock.readV1CronJobDeploymentStatuses()).thenReturn(v1TestList);
-    Mockito.when(mock.readJobDeploymentStatuses()).thenCallRealMethod();
+    doReturn(v1TestList).when(mock).readV1CronJobDeploymentStatuses();
     List<JobDeploymentStatus> resultStatuses = mock.readJobDeploymentStatuses();
 
-    Assertions.assertEquals(mergedTestLists, resultStatuses);
+    Assertions.assertEquals(v1TestList, resultStatuses);
   }
 
   @Test
