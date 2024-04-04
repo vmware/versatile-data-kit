@@ -315,9 +315,9 @@ public abstract class KubernetesService {
       cronJob = batchV1Api.readNamespacedCronJob(cronJobName, namespace, null);
     } catch (ApiException e) {
       log.warn(
-              "Could not read cron job: {}; reason: {}",
-              cronJobName,
-              new KubernetesException("", e).toString());
+          "Could not read cron job: {}; reason: {}",
+          cronJobName,
+          new KubernetesException("", e).toString());
     }
 
     return mapV1CronJobToDeploymentStatus(cronJob, cronJobName);
