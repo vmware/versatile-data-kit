@@ -631,7 +631,7 @@ cockroachdb:
     enabled: false
    storage:
       persistentVolume:
-         size: 1Gi
+         size: 5Gi
    statefulset:
       replicas: 3
       resources:

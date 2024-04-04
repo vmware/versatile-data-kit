@@ -9,7 +9,7 @@ import impala
 from impala.error import HiveServer2Error
 from impala.error import OperationalError
 from vdk.plugin.impala.impala_error_handler import ImpalaErrorHandler
-from vdk.plugin.test_utils.util_funcs import populate_mock_managed_cursor
+from vdk.plugin.test_utils.util_funcs import create_mock_managed_cursor
 
 
 @patch("time.sleep", return_value=None)
@@ -29,7 +29,8 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=self._query
         )
         mock_native_cursor.execute.side_effect = test_exception
@@ -52,7 +53,8 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=self._query
         )
         mock_native_cursor.execute.side_effect = test_exception
@@ -75,7 +77,8 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=self._query
         )
 
@@ -97,7 +100,8 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=self._query
         )
         mock_native_cursor.execute.side_effect = [None, test_exception]
@@ -124,7 +128,8 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=original_exception_fixed_by_other_handler,
             mock_operation=self._query,
         )
@@ -153,7 +158,8 @@ class ImpalaErrorHandlerTest(unittest.TestCase):
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=self._query
         )
         mock_native_cursor.execute.side_effect = [None, new_exception]
@@ -177,7 +183,8 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=self._query
         )
 
@@ -204,7 +211,8 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception_table_1, mock_operation=self._query
         )
         mock_native_cursor.execute.side_effect = [
@@ -234,7 +242,8 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=self._query
         )
         # we must not re-try but re-raise caught exception.
@@ -264,7 +273,8 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=original_query
         )
         mock_native_cursor.execute.side_effect = [new_exception, None]
@@ -290,7 +300,8 @@ Query(0842bccde0974578:6fd468a200000000): Limit=2.00 GB Reservation=1.78 GB Rese
             _,
             mock_recovery_cursor,
             _,
-        ) = populate_mock_managed_cursor(
+            _,
+        ) = create_mock_managed_cursor(
             mock_exception_to_recover=test_exception, mock_operation=self._query
         )
         mock_native_cursor.execute.side_effect = [
