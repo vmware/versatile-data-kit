@@ -16,7 +16,6 @@ class DefaultGpuResourceManager(
     val optimalNodePacker: OptimalNodePacker
 ) : GpuResourceManager {
 
-
     companion object {
         init {
             Loader.loadNativeLibraries()
