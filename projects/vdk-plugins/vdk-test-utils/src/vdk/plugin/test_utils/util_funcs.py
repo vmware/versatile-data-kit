@@ -29,6 +29,9 @@ from vdk.internal.builtin_plugins.connection.database_managed_connection import 
 from vdk.internal.builtin_plugins.connection.decoration_cursor import DecorationCursor
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
+from vdk.internal.builtin_plugins.connection.managed_connection_base import (
+    ManagedConnectionBase,
+)
 from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
@@ -321,4 +324,64 @@ def populate_mock_managed_cursor_no_hook(
             decoration_operation_callback=decoration_operation_callback,
         ),
         managed_database_connection,
+    )
+
+
+def create_mock_managed_cursor(
+    mock_exception_to_recover=None,
+    mock_operation=None,
+    mock_parameters=None,
+    before_operation_callback=None,
+    decoration_operation_callback=None,
+) -> (
+    PEP249Cursor,
+    ManagedCursor,
+    DecorationCursor,
+    RecoveryCursor,
+    ConnectionHookSpec,
+    ManagedConnectionBase,
+):
+    import logging
+
+    managed_operation = ManagedOperation(mock_operation, mock_parameters)
+    mock_connection_hook_spec = MagicMock(spec=ConnectionHookSpec)
+    connection_hook_spec_factory = MagicMock(spec=ConnectionHookSpecFactory)
+    connection_hook_spec_factory.get_connection_hook_spec.return_value = (
+        mock_connection_hook_spec
+    )
+    mock_native_cursor = MagicMock(spec=PEP249Cursor)
+    mock_managed_connection = MagicMock(spec=ManagedConnectionBase)
+
+    managed_cursor = ManagedCursor(
+        cursor=mock_native_cursor,
+        log=logging.getLogger(),
+        connection_hook_spec_factory=connection_hook_spec_factory,
+        managed_database_connection=mock_managed_connection,
+    )
+
+    decoration_cursor = DecorationCursor(mock_native_cursor, None, managed_operation)
+    recovery_cursor = RecoveryCursor(
+        native_cursor=mock_native_cursor,
+        log=logging.getLogger(),
+        exception=mock_exception_to_recover,
+        managed_operation=managed_operation,
+        decoration_operation_callback=decoration_operation_callback,
+    )
+
+    def stub_db_connection_execute_operation(execution_cursor: ExecutionCursor):
+        return IDatabaseManagedConnection().db_connection_execute_operation(
+            execution_cursor
+        )
+
+    mock_managed_connection.db_connection_execute_operation = (
+        stub_db_connection_execute_operation
+    )
+
+    return (
+        mock_native_cursor,
+        managed_cursor,
+        decoration_cursor,
+        recovery_cursor,
+        mock_connection_hook_spec,
+        mock_managed_connection,
     )
