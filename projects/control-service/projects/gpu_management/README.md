@@ -92,7 +92,7 @@ $Max[\sum_{i}^{jobs}\sum_{j}^{machines} presentOnNode_{ij}]$
 
 However we want to ensure that we don't move too many jobs around.
 Moving and ML training job from one machine to another will cause some loss of work.
-To encourage the system to avoid moving jobs there is a configurable parameter called jobPortability. 
+To encourage the system to avoid moving jobs there is a configurable parameter called jobPortability.
 The value of jobPortability is (0,1].
 Now the formula looks like:
 
