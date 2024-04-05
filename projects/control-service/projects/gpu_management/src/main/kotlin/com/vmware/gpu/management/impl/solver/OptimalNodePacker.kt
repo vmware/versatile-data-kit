@@ -50,17 +50,20 @@ class OptimalNodePacker(@Value("\${gpu.management.job_portability:0.7}")val jobP
 
         // Constraint 1:
         // Each item can only be in one node at most.
-        for (j in 0 until x[0].reshuffleData.size) {
-            if (x[0].reshuffleData[j].job.jobIsEligibleFoDeletion) {
-                solver.createConstraint(x.map { it.reshuffleData[j].variable * 1.0f }.mustBeLessThanOrEqual(1.0f))
-            } else {
-                solver.createConstraint(x.map { it.reshuffleData[j].variable * 1.0f }.mustBeExactly(1.0f))
-            }
-        }
+        (0 until x[0].reshuffleData.size)
+            .filter { x[0].reshuffleData[it].job.jobIsEligibleFoDeletion }
+            .forEach { j -> solver.createConstraint(x.map { it.reshuffleData[j].variable * 1.0f }.mustBeLessThanOrEqual(1.0f)) }
+
 
         // Constraint 2:
+        // If a team is under budget or a job is marked as high priority then we need to ensure it is running after the re shuffle
+        (0 until x[0].reshuffleData.size)
+            .filterNot { x[0].reshuffleData[it].job.jobIsEligibleFoDeletion }
+            .forEach { j -> solver.createConstraint(x.map { it.reshuffleData[j].variable * 1.0f }.mustBeExactly(1.0f)) }
+
+        // Constraint 3:
         // We can't exceed the amount of resources on a single machine
-        for (j in x) {
+        x.forEach { j ->
             solver.createConstraint(j.reshuffleData.map {
                 it.variable * it.job.consumedResources
             }.mustBeLessThanOrEqual(j.totalDevices.toFloat()))
