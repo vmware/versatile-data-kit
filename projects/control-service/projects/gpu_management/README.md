@@ -90,7 +90,7 @@ If a variable represents a job running on a machine we want to maximise the amou
 
 $Max[\sum^{jobs}\sum^{machines} presentOnMachine_{ij}]$
 
-This would seem like a sensible 
+This would seem like a sensible
 
 
 
