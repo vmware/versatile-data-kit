@@ -93,9 +93,4 @@ $Max[\sum_{i=1}^{jobs}\sum_{j=1}^{machines} presentOnMachine_i_j]$
 
 
 
-
-
-We need to write the problem of putting jobs on nodes as a set of linear constraints and a linear objective function.
-
-
 Linear objective function.

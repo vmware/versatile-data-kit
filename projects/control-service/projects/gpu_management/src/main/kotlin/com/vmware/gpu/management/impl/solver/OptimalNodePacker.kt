@@ -4,6 +4,7 @@ import com.vmware.gpu.management.jpa.NodeWithGPUs
 import com.google.ortools.linearsolver.MPSolver
 import com.google.ortools.linearsolver.MPVariable
 import com.vmware.gpu.management.api.*
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 data class JobForSolver(
@@ -27,7 +28,7 @@ data class JobAndAssociatedVariable(val variable: MPVariable, val job: JobForSol
 
 
 @Component
-class OptimalNodePacker {
+class OptimalNodePacker(@Value("\${gpu.management.job_portability:0.7}")val jobPortability: Double) {
 
     fun reshuffleToFit(
         allJobs: List<JobForSolver>,
@@ -69,7 +70,7 @@ class OptimalNodePacker {
         val resultStatus = solver.maximize(
             x.flatMap { a ->
                 a.reshuffleData.map {
-                    it.variable * if (a.nodeName == it.job.nodeItCurrentlyLivesOn) 1.0 else 0.7
+                    it.variable * if (a.nodeName == it.job.nodeItCurrentlyLivesOn) 1.0 else jobPortability
                 }
             })
 
