@@ -109,11 +109,11 @@ public class ExecutionDataFetcher {
 
       Page<DataJobExecution> dataJobExecutionsResult =
           findAllExecutions(dataJobExecutionQueryVariables, null);
-      List<com.vmware.taurus.controlplane.model.data.DataJobExecution> dataJobExecutions =
+      List<com.vmware.taurus.service.graphql.model.DataJobExecution> dataJobExecutions =
           dataJobExecutionsResult.getContent().stream()
               .map(
                   dataJobExecution ->
-                      ToApiModelConverter.jobExecutionToConvert(
+                      ToApiModelConverter.convertToDataJobExecution(
                           dataJobExecution, jobExecutionLogsUrlBuilder.build(dataJobExecution)))
               .collect(Collectors.toList());
 
