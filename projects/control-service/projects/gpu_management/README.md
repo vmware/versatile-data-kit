@@ -85,7 +85,7 @@ job_1___machine_3*job_1_required_resources + job_2___machine_3*job_2_required_re
 
 
 #### Objective function
-$\sum_{i=1}^{n} f(i)
+$\sum_{i=1}^{n} f(i)$
 
 
 
