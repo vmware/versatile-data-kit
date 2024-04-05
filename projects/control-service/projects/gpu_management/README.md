@@ -88,8 +88,9 @@ job_1___machine_3*job_1_required_resources + job_2___machine_3*job_2_required_re
 Broadly speaking we want to optimize for it to run the maximum amount of jobs.
 If a variable represents a job running on a machine we want to maximise the amount of these variables set.
 
-$Max[\sum_{i=1}^{jobs}\sum_{j=1}^{machines} presentOnMachine_{ij}]$
+$Max[\sum^{jobs}\sum^{machines} presentOnMachine_{ij}]$
 
+This would seem like a sensible 
 
 
 
