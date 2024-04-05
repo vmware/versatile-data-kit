@@ -48,7 +48,7 @@ class OptimalNodePacker(@Value("\${gpu.management.job_portability:0.7}")val jobP
             )
         }
 
-        // Constraints
+        // Constraint 1:
         // Each item can only be in one node at most.
         for (j in 0 until x[0].reshuffleData.size) {
             if (x[0].reshuffleData[j].job.jobIsEligibleFoDeletion) {
@@ -58,7 +58,7 @@ class OptimalNodePacker(@Value("\${gpu.management.job_portability:0.7}")val jobP
             }
         }
 
-        // Constraints
+        // Constraint 2:
         // We can't exceed the amount of resources on a single machine
         for (j in x) {
             solver.createConstraint(j.reshuffleData.map {
