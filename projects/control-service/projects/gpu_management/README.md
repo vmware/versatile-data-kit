@@ -23,7 +23,7 @@ To reshuffle the jobs we use a linear programming solver.
 Linear programming is an optimization technique for a system of linear constraints and a linear objective function.
 
 Before you can use linear programming we need to decide what the variables are for our system.
-In our case we will create a list of variables where each one represents if a node is on that machine. 
+In our case we will create a list of variables where each one represents if a node is on that machine.
 1 => the job is running on the node. 0 => job is not running on the node
 For example if there are 6 jobs and 3 machines our variables will look like.
 
@@ -34,13 +34,13 @@ For example if there are 6 jobs and 3 machines our variables will look like.
 | Machine 3 | ❌(0)  | ❌(0) | ❌(0) | ❌(0) | ✅(1) |  ❌(0)  |
 
 
-In this case we have 18 (jobs*nodes) variables. 
+In this case we have 18 (jobs*nodes) variables.
 
 
 Next we need to decide on the constraints of our system.
 
 
-#### Constraint 1: 
+#### Constraint 1:
 A job can only exist on a single machine.
 It would be senseless to deploy a job to more than one machine.
 
@@ -62,17 +62,17 @@ job_6___machine_1 + job_6___machine_2 + job_6___machine_3 <= 1
 
 
 #### Constraint 2
-The total number of jobs on a machine must be less than the amount of resources available on that machine. 
+The total number of jobs on a machine must be less than the amount of resources available on that machine.
 For this we are going to multiply the variable by the amount of resources in consumes.
 For this example we will say:
 1. All machines have 10 devices.
 2. Job 1,2,3 need 4 devices and job 4,5,6 need 6 devices
 
 
-|               | Job 1  | Job 2 | Job 3 | Job 4  | Job 5 | Job 6 | constraint 2:<rb/> Row must be less than number of devices | 
+|               | Job 1  | Job 2 | Job 3 | Job 4  | Job 5 | Job 6 | constraint 2:<rb/> Row must be less than number of devices |
 |---------------|--------|--|--|--------|--|--|-----------------------------------------------------------|
 | Machine 1 (devices == 10) | ✅(1*4) | ❌(0*4) |  ✅(1*4) | ❌(0*6) | ❌(0*6) | ❌(0*6) | 8 devices consumed                                        |
-| Machine 2 (devices == 10)    | ❌(0*4)   | ❌(0*4) | ❌(0*4) | ✅(1*6)   | ❌(0*6) | ❌(0*6) | 6 devices consumed                                        | 
+| Machine 2 (devices == 10)    | ❌(0*4)   | ❌(0*4) | ❌(0*4) | ✅(1*6)   | ❌(0*6) | ❌(0*6) | 6 devices consumed                                        |
 | Machine 3 (devices == 10)    | ❌(0*4)   | ❌(0*4) | ❌(0*4) | ❌(0*6)   |  ✅(1*6) | ❌(0*6) | 6 devices consumed                                                         |
 
 
@@ -90,7 +90,7 @@ $\sum_{i=1}^{n} f(i)
 
 
 Broadly speaking we want to optimize for it to run the maximum amount of jobs
-If a variable represents a job running on a machine we ant 
+If a variable represents a job running on a machine we ant
 
 
 
@@ -101,16 +101,3 @@ We need to write the problem of putting jobs on nodes as a set of linear constra
 
 
 Linear objective function.
-
-
-
-
-
-
-
-
-
-
-
-
-
