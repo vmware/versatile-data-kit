@@ -93,11 +93,7 @@ $Max[\sum_{i}^{jobs}\sum_{j}^{machines} presentOnNode_{ij}]$
 However we want to ensure that we don't move too many jobs around.
 Moving and ML training job from one machine to another will cause some loss of work.
 
-$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines}
-\begin{cases}
-presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode, \\
-presentOnMachine_{ij}*jobPortability & \text{otherwise.}
-\end{cases}]$
+$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode, \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$
 
 
 Linear objective function.
