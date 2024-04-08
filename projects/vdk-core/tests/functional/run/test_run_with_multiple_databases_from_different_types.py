@@ -35,7 +35,7 @@ def setup(tmpdir):
         os.remove(temp_db_file)
 
 
-def test_different_db_conn_and_ingest_target(setup):
+def test_multiple_dbs_from_different_type(setup):
     runner = CliEntryBasedTestRunner(duckdb_plugin, sqlite_plugin)
 
     result: Result = runner.invoke(
