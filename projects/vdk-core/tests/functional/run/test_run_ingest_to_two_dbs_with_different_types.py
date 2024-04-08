@@ -41,7 +41,10 @@ def test_ingest_to_two_dbs_with_different_types(setup):
     runner = CliEntryBasedTestRunner(duckdb_plugin, sqlite_plugin)
 
     result: Result = runner.invoke(
-        ["run", jobs_path_from_caller_directory("ingest_to_two_dbs_with_different_types")]
+        [
+            "run",
+            jobs_path_from_caller_directory("ingest_to_two_dbs_with_different_types"),
+        ]
     )
 
     cli_assert_equal(0, result)

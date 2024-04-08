@@ -1,3 +1,6 @@
+# Copyright 2023-2024 Broadcom
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 
 from vdk.api.job_input import IJobInput
@@ -11,7 +14,10 @@ def run(job_input: IJobInput):
     }
 
     job_input.send_object_for_ingestion(
-        payload=duck_db_payload, destination_table="test_duckdb_table", method="duckdb", target=os.getenv("DUCKDB_DATABASE")
+        payload=duck_db_payload,
+        destination_table="test_duckdb_table",
+        method="duckdb",
+        target=os.getenv("DUCKDB_DATABASE"),
     )
 
     duck_db_payload = {
@@ -35,5 +41,8 @@ def run(job_input: IJobInput):
     }
 
     job_input.send_object_for_ingestion(
-        payload=sqlite_payload, destination_table="stocks", method="sqlite", target=os.getenv("VDK_SQLITE_FILE")
+        payload=sqlite_payload,
+        destination_table="stocks",
+        method="sqlite",
+        target=os.getenv("VDK_SQLITE_FILE"),
     )
