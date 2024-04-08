@@ -94,8 +94,12 @@ def test_run_dbapi_connection_no_such_db_type():
         cli_assert_equal(1, result)
         assert "VdkConfigurationError" in result.output
         assert (
-            "configuration variable for DB_DEFAULT_TYPE has invalid value"
+            "You tried to open a connection to database with type sqlite_memory, which does not exist."
             in result.output
+        )
+        assert (
+                "Please check your environment whether the vdk plugin for the sqlite_memory exists."
+                in result.output
         )
 
 

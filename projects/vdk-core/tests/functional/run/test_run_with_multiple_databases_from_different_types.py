@@ -77,5 +77,9 @@ def _verify_duckdb_query(runner):
     assert result_string.count("2021-01-01") == 1
     assert result_string.count("BOOB") == 1
     assert result_string.count("123.0") == 1
+    # check whether sqlite data is here, it should not be
+    assert result_string.count("2020-01-01") == 0
+    assert result_string.count("GOOG") == 0
+    assert result_string.count("122.0") == 0
 
 
