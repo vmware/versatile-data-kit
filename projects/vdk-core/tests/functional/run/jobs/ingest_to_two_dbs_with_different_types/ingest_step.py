@@ -11,7 +11,19 @@ def run(job_input: IJobInput):
     }
 
     job_input.send_object_for_ingestion(
-        payload=duck_db_payload, destination_table="test_duckdb_table", method="duckdb", target=os.getenv("DUCKDB_DATABSE")
+        payload=duck_db_payload, destination_table="test_duckdb_table", method="duckdb", target=os.getenv("DUCKDB_DATABASE")
+    )
+
+    duck_db_payload = {
+        "date": "2022-01-01",
+        "symbol": "TOOT",
+        "price": 124.0,
+    }
+
+    # we do not need to specify the target here since DUCKDB is set as default with nv var VDK_INGEST_TARGET_DEFAULT
+
+    job_input.send_object_for_ingestion(
+        payload=duck_db_payload, destination_table="test_duckdb_table", method="duckdb"
     )
 
     job_input.execute_query("CREATE TABLE stocks (date text, symbol text, price real)")
