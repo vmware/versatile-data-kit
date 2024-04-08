@@ -97,7 +97,7 @@ class IDatabaseManagedConnection:
             Provides operation details and tooling.
         :return:
         """
-        pass
+        raise recovery_cursor.get_exception()
 
     def db_connection_after_operation(self, execution_cursor: ExecutionCursor) -> None:
         """

@@ -37,7 +37,7 @@ class BeforeOperationSqLite3MemoryDbPlugin:
 
     @hookimpl(trylast=True)
     def db_connection_before_operation(self, operation: ManagedOperation):
-        log.info(f"Changing operation {operation.get_operation()}")
+        log.info(f"{operation.get_operation()} was changed")
 
 
 class OperationFailureSqLite3MemoryDbPlugin:
@@ -95,8 +95,9 @@ def test_before_operation_hook():
 
     cli_assert_equal(0, result)
     expected = (
-        "Changing operation CREATE TABLE stocks\n"
+        "CREATE TABLE stocks\n"
         "        (date text, symbol text, price real)\n"
+        " was changed\n"
     )
     assert expected in result.output
 

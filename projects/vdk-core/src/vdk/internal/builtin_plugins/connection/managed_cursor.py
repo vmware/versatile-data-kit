@@ -129,31 +129,11 @@ class ManagedCursor(ProxyCursor):
                 raise e
 
     def _decorate_operation(self, managed_operation: ManagedOperation, operation: str):
-        decorate_operation = None
+        decorate_operation = (
+            self.__managed_database_connection.db_connection_decorate_operation
+        )
 
-        # Check if database decorate operation is overridden by a plugin.
-        # Use the overridden method if available.
-        # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-        if (
-            self.__managed_database_connection
-            and type(
-                self.__managed_database_connection
-            ).db_connection_decorate_operation
-            != IDatabaseManagedConnection.db_connection_decorate_operation
-        ):
-            decorate_operation = (
-                self.__managed_database_connection.db_connection_decorate_operation
-            )
-
-        elif (
-            self.__connection_hook_spec
-            and self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
-        ):
-            decorate_operation = (
-                self.__connection_hook_spec.db_connection_decorate_operation
-            )
-
-        # apply any changes @hookimpls to the managed operation
+        # apply any changes from @hookimpls to the managed operation
         if (
             self.__connection_hook_spec
             and self.__connection_hook_spec.db_connection_before_operation.get_hookimpls()
@@ -182,77 +162,48 @@ class ManagedCursor(ProxyCursor):
                 raise e
 
     def _validate_operation(self, operation: str, parameters: Optional[Container]):
-        validate_operation = None
+        hook_validate_operation = None
 
-        # Check if database validate operation is overridden by a plugin.
-        # Use the overridden method if available.
-        # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
+        db_validate_operation = (
+            self.__managed_database_connection.db_connection_validate_operation
+        )
+
         if (
-            self.__managed_database_connection
-            and type(
-                self.__managed_database_connection
-            ).db_connection_validate_operation
-            != IDatabaseManagedConnection.db_connection_validate_operation
-        ):
-            validate_operation = (
-                self.__managed_database_connection.db_connection_validate_operation
-            )
-
-        elif (
             self.__connection_hook_spec
             and self.__connection_hook_spec.db_connection_validate_operation.get_hookimpls()
         ):
-            validate_operation = (
+            hook_validate_operation = (
                 self.__connection_hook_spec.db_connection_validate_operation
             )
 
-        if validate_operation:
-            self._log.debug("Validating query:\n%s" % operation)
-            try:
-                validate_operation(operation=operation, parameters=parameters)
-            except Exception as e:
-                self._log.error(
-                    "\n".join(
-                        [
-                            "Validating query FAILED.",
-                            errors.MSG_WHY_FROM_EXCEPTION(e),
-                        ]
-                    )
+        self._log.debug("Validating query:\n%s" % operation)
+        try:
+            if hook_validate_operation:
+                hook_validate_operation(operation=operation, parameters=parameters)
+            if db_validate_operation:
+                db_validate_operation(operation=operation, parameters=parameters)
+        except Exception as e:
+            self._log.error(
+                "\n".join(
+                    [
+                        "Validating query FAILED.",
+                        errors.MSG_WHY_FROM_EXCEPTION(e),
+                    ]
                 )
-                errors.report(
-                    errors.ResolvableBy.USER_ERROR,
-                    exception=e,
-                )
-                raise e
+            )
+            errors.report(
+                errors.ResolvableBy.USER_ERROR,
+                exception=e,
+            )
+            raise e
 
     def _execute_operation(self, managed_operation: ManagedOperation):
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         execution_cursor = ExecutionCursor(self._cursor, managed_operation, self._log)
 
-        # Check if database execute operation is overridden by a plugin.
-        # Use the overridden method if available.
-        # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-        if (
-            self.__managed_database_connection
-            and type(self.__managed_database_connection).db_connection_execute_operation
-            != IDatabaseManagedConnection.db_connection_execute_operation
-        ):
-            result = self.__managed_database_connection.db_connection_execute_operation(
-                execution_cursor=execution_cursor
-            )
-
-        elif self.__connection_hook_spec:
-            result = self.__connection_hook_spec.db_connection_execute_operation(
-                execution_cursor=execution_cursor
-            )
-        else:
-            self._log.debug(
-                "No connection hook spec defined. "
-                "Will invoke standard cursor execute implementation."
-            )
-            result = DefaultConnectionHookImpl().db_connection_execute_operation(
-                execution_cursor
-            )
+        result = self.__managed_database_connection.db_connection_execute_operation(
+            execution_cursor=execution_cursor
+        )
         return result
 
     def _after_operation(self, managed_operation: ManagedOperation):
@@ -302,54 +253,12 @@ class ManagedCursor(ProxyCursor):
     def _recover_operation(self, exception, managed_operation):
         # TODO: configurable generic re-try.
 
-        # Check if database recover and decorate operations are overridden by a plugin.
-        # Use the overridden methods if available.
-        # Otherwise, verify the presence of hooks; if absent, use the default hook implementation.
-
-        available_recovery_plugin_implementation = (
-            self.__managed_database_connection
-            and (
-                type(self.__managed_database_connection).db_connection_recover_operation
-                != IDatabaseManagedConnection.db_connection_recover_operation
-            )
+        decorate_operation = (
+            self.__managed_database_connection.db_connection_decorate_operation
         )
-
-        available_decoration_plugin_implementation = (
-            self.__managed_database_connection
-            and type(
-                self.__managed_database_connection
-            ).db_connection_decorate_operation
-            != IDatabaseManagedConnection.db_connection_decorate_operation
+        recover_operation = (
+            self.__managed_database_connection.db_connection_recover_operation
         )
-
-        if (
-            not self.__connection_hook_spec
-            or not self.__connection_hook_spec.db_connection_recover_operation.get_hookimpls()
-        ) and not available_recovery_plugin_implementation:
-            raise exception
-
-        if available_decoration_plugin_implementation:
-            decorate_operation = (
-                self.__managed_database_connection.db_connection_decorate_operation
-            )
-        elif (
-            self.__connection_hook_spec
-            and self.__connection_hook_spec.db_connection_decorate_operation.get_hookimpls()
-        ):
-            decorate_operation = (
-                self.__connection_hook_spec.db_connection_decorate_operation
-            )
-        else:
-            decorate_operation = None
-
-        if available_recovery_plugin_implementation:
-            recover_operation = (
-                self.__managed_database_connection.db_connection_recover_operation
-            )
-        else:
-            recover_operation = (
-                self.__connection_hook_spec.db_connection_recover_operation
-            )
 
         # apply any changes from @hookimpls to the managed operation
         if (
