@@ -81,5 +81,3 @@ def _verify_duckdb_query(runner):
     assert result_string.count("2020-01-01") == 0
     assert result_string.count("GOOG") == 0
     assert result_string.count("122.0") == 0
-
-

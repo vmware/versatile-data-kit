@@ -98,8 +98,8 @@ def test_run_dbapi_connection_no_such_db_type():
             in result.output
         )
         assert (
-                "Please check your environment whether the vdk plugin for the sqlite_memory exists."
-                in result.output
+            "Please check your environment whether the vdk plugin for the sqlite_memory exists."
+            in result.output
         )
 
 

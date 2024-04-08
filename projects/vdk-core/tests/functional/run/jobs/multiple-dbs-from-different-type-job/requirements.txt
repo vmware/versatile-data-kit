@@ -2,5 +2,5 @@
 # See https://pip.readthedocs.io/en/stable/user_guide/#requirements-files
 # The file is optional and can be deleted if no extra library dependencies are necessary.
 
-vdk-sqlite
 vdk-duckdb
+vdk-sqlite
