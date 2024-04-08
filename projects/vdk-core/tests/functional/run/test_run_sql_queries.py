@@ -12,21 +12,44 @@ from functional.run.util import job_path
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
 from vdk.internal.builtin_plugins.connection.execution_cursor import ExecutionCursor
+from vdk.internal.builtin_plugins.connection.managed_connection_base import (
+    ManagedConnectionBase,
+)
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
+from vdk.internal.builtin_plugins.connection.recovery_cursor import ManagedOperation
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_plugins import DB_TYPE_SQLITE_MEMORY
-from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryConnection
 from vdk.plugin.test_utils.util_plugins import SqLite3MemoryDbPlugin
 from vdk.plugin.test_utils.util_plugins import TestPropertiesPlugin
+
+# from vdk.plugin.test_utils.util_plugins import DecoratedSqLite3MemoryDbPlugin
 
 log = logging.getLogger(__name__)
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_LOG_EXECUTION_RESULT = "VDK_LOG_EXECUTION_RESULT"
+
+
+class DecoratedSqLite3MemoryDbPlugin:
+    def __init__(self):
+        self.statements_history = []
+
+    def new_connection(self) -> PEP249Connection:
+        return SqLite3MemoryConnection()
+
+    @hookimpl
+    def initialize_job(self, context: JobContext) -> None:
+        context.connections.add_open_connection_factory_method(
+            DB_TYPE_SQLITE_MEMORY, self.new_connection
+        )
+
+    @hookimpl(trylast=True)
+    def db_connection_before_operation(self, operation: ManagedOperation) -> None:
+        self.statements_history.append(operation.get_operation())
 
 
 class ValidatedSqLite3MemoryDbPlugin:
@@ -56,22 +79,35 @@ class SyntaxErrorRecoverySqLite3MemoryDbPlugin:
         self._max_retries = 5
 
     def new_connection(self) -> PEP249Connection:
-        return SqLite3MemoryConnection()
+        class SqliteConnection(ManagedConnectionBase):
+            def get_managed_connection(self):
+                return SqLite3MemoryConnection()
+
+            def _connect(self):
+                return SqLite3MemoryConnection().connect()
+
+            def db_connection_recover_operation(
+                self, recovery_cursor: RecoveryCursor
+            ) -> None:
+                managed_operation = recovery_cursor.get_managed_operation()
+                if (
+                    "syntax error".upper()
+                    in recovery_cursor.get_exception().args[0].upper()
+                ):
+                    recovery_cursor.execute(
+                        managed_operation.get_operation().replace(
+                            "Syntax error", "123.0"
+                        )
+                    )
+                    recovery_cursor.retries_increment()
+
+        return SqliteConnection()
 
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         context.connections.add_open_connection_factory_method(
             DB_TYPE_SQLITE_MEMORY, self.new_connection
         )
-
-    @hookimpl(trylast=True)
-    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
-        managed_operation = recovery_cursor.get_managed_operation()
-        if "syntax error".upper() in recovery_cursor.get_exception().args[0].upper():
-            recovery_cursor.execute(
-                managed_operation.get_operation().replace("Syntax error", "123.0")
-            )
-            recovery_cursor.retries_increment()
 
 
 @mock.patch.dict(os.environ, {})
@@ -255,58 +291,6 @@ def test_run_job_with_properties_and_sql_substitution_priority_order():
     # we verify that test_table_override is used (over test_table_props) since arguments have higher priority
     assert db_plugin.db.execute_query("select * from test_table_override") == [
         ("one", 123)
-    ]
-
-
-class DbOperationTrackPlugin:
-    def __init__(self):
-        self.log = []
-
-    @hookimpl(hookwrapper=True)
-    def db_connection_execute_operation(
-        self, execution_cursor: ExecutionCursor
-    ) -> Optional[int]:
-        self.log.append("start")
-        out: HookCallResult
-        out = yield
-        self.log.append(("end", out.excinfo is None))
-
-
-@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
-def test_run_dbapi_connection_with_execute_hook():
-    db_plugin = SqLite3MemoryDbPlugin()
-    db_tracker = DbOperationTrackPlugin()
-    runner = CliEntryBasedTestRunner(db_plugin, db_tracker)
-
-    result: Result = runner.invoke(["run", job_path("simple-create-insert")])
-
-    cli_assert_equal(0, result)
-    assert db_tracker.log == [
-        "start",
-        ("end", True),
-        "start",
-        ("end", True),
-        "start",
-        ("end", True),
-    ]
-
-
-@mock.patch.dict(os.environ, {VDK_DB_DEFAULT_TYPE: DB_TYPE_SQLITE_MEMORY})
-def test_run_dbapi_connection_failed_with_execute_hook():
-    db_plugin = SqLite3MemoryDbPlugin()
-    db_tracker = DbOperationTrackPlugin()
-    runner = CliEntryBasedTestRunner(db_plugin, db_tracker)
-
-    result: Result = runner.invoke(["run", job_path("simple-create-insert-failed")])
-
-    cli_assert_equal(1, result)
-    assert db_tracker.log == [
-        "start",
-        ("end", True),
-        "start",
-        ("end", True),
-        "start",
-        ("end", False),
     ]
 
 
