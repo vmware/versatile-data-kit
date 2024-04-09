@@ -4,6 +4,6 @@ click
 
 testcontainers
 trino
+typing-extensions
 vdk-core
 vdk-test-utils
-typing-extensions
