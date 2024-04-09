@@ -1,0 +1,25 @@
+Title User wants to deploy job when cluster has available space and team has budget
+
+note over ML Engineer: Wants to deploy a\n job1 which needs 2 devices.
+
+participantgroup #lightgreen **Same Java Runtime**
+participant VDK
+participant GPU management service
+end
+
+database Database
+
+ML Engineer->VDK: vdk execute -\-start -n job -t team
+
+VDK->GPU management service: tryProvisionResources(jobTeamId, amountOfResources)
+
+GPU management service->Database: Checks to see if there is anywhere to put this job \nChecks to see does this users team have available budget
+
+Database->GPU management service: Machine 4 has space to run the job on\nTeam has budget
+
+GPU management service->VDK: List<JobActions>\n[CreateJob{name=job1,machine=machine_4}]
+
+VDK->VDK: Creates a yaml file to run this job. \nExplicitly set the node to run on to be machine4\nDeploy it
+
+
+VDK->k8s cluster: Deploy job to k8s

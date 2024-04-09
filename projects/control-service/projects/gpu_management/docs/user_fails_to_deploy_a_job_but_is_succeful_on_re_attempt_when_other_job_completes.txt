@@ -1,0 +1,62 @@
+Title User fails to deploy a job but is succeful on re attempt when other job completes
+
+
+
+participant ML Engineer
+participantgroup #lightgreen **Same Java Runtime**
+participant VDK
+participant GPU management service
+end
+
+
+
+database Database
+
+activate k8s cluster
+note over k8s cluster: Job 2 is running and consuming all the free resources on the cluster
+
+
+note over ML Engineer: Wants to deploy a\n job which needs 2 devices.
+
+ML Engineer->VDK: vdk execute -\-start -n job1 -t 'Team A'
+
+
+VDK->GPU management service: tryProvisionResources(jobTeamId, amountOfResources)
+
+GPU management service->Database: Checks to see if there is anywhere to put this job \nChecks to see does this users team have available budget
+
+Database->GPU management service: No nodes with free resources \nTeam has no budget
+
+GPU management service->VDK: Throws TeamHasNoBudgetException
+
+VDK->VDK: Catches the exception, doesn't deploy the job.
+
+VDK->ML Engineer: returns a 400 and an message explaining that \nwe can't run their job because their team is over budget
+
+
+
+==Enough time passes for job 2 to complete==
+
+note over k8s cluster: Job 2 ends
+deactivate k8s cluster
+
+k8s cluster->VDK: Job2 is finished
+VDK->GPU management service: jobFinished(jobTeamId)
+GPU management service->Database: mark resoruces as released 
+
+
+
+ML Engineer->VDK: vdk execute -\-start -n job -t team
+
+VDK->GPU management service: tryProvisionResources(jobTeamId, amountOfResources)
+
+GPU management service->Database: Checks to see if there is anywhere to put this job \nChecks to see does this users team have available budget
+
+Database->GPU management service: Machine 4 has space to run the job on\nTeam has budget
+
+GPU management service->VDK: List<JobActions>\n[CreateJob{name=job1,machine=machine_4}]
+
+VDK->VDK: Creates a yaml file to run this job. \nExplicitly set the node to run on to be machine4\nDeploy it
+
+
+VDK->k8s cluster: Deploy job to k8s
