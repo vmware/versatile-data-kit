@@ -35,11 +35,11 @@ I have written them down simplest to most complex below:
 3. There is no space to run the job even though the team has budget
 
 
-1 is trivial to handle. We simply throw an exception that the customer doesn't have budget to run their job. 
+1 is trivial to handle. We simply throw an exception that the customer doesn't have budget to run their job.
 
-2 is also very simple. There is space to run a job. We don't even check the teams budget. We just deploy their job. 
+2 is also very simple. There is space to run a job. We don't even check the teams budget. We just deploy their job.
 However when deploying their job we ensure that we always choose the smallest amount of free space which will let the job.
-By doing this we ensure that we cause as little fragmentation across the system as possible. 
+By doing this we ensure that we cause as little fragmentation across the system as possible.
 
 3 is much more complex to handle and is described fully in the next section Reshuffle
 
