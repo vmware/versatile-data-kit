@@ -1,0 +1,23 @@
+Title User wants to deploy job even though his team is over budget
+
+
+
+note over ML Engineer: Wants to deploy a\n job which needs 2 devices.
+
+participantgroup #lightgreen **Same Java Runtime**
+participant VDK
+participant GPU management service
+end
+
+ML Engineer->VDK: deploy my job
+
+VDK->GPU management service: User from Team A wants to deploy a job
+
+GPU management service->Database: Checks to see if there is anywhere to put this job \nChecks to see does this users team have available budget
+
+Database->GPU management service: No nodes with free resources \nTeam has no budget
+
+GPU management service->VDK: Throws an exception, job can't be deployed because user's team has no budget
+
+
+VDK->ML Engineer: returns a 400 and an message explaining that \nwe can't run their job because their team is over budget
