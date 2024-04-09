@@ -1,7 +1,7 @@
 # A project for Efficient Management of GPUs
 
 
-## Overview 
+## Overview
 This project contains java library that can be used to manage GPU resources between teams and jobs.
 Also contained in this project is a UI for monitoring the current GPU consumption, per machine and per team.
 
