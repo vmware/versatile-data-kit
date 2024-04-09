@@ -25,10 +25,30 @@ Also contained in this project is a UI for monitoring the current GPU consumptio
 
 ## Algorithm Implementation
 
+The Goal of this system is to maximize the amount of jobs that the cluster can run while also honouring the budgets given to teams.
+The algorithm runs whenever someone is looking to run a new job.
+
+Broadly speaking the algorithm can be broken down into 3 flows.
+I have written them down simplest to most complex below:
+1. There is no space to run the job and the team doesn't have budget to run a job
+2. There is space to run the job
+3. There is no space to run the job even though the team has budget
 
 
+1 is trivial to handle. We simply throw an exception that the customer doesn't have budget to run their job. 
+
+2 is also very simple. There is space to run a job. We don't even check the teams budget. We just deploy their job. 
+However when deploying their job we ensure that we always choose the smallest amount of free space which will let the job.
+By doing this we ensure that we cause as little fragmentation across the system as possible. 
+
+3 is much more complex to handle and is described fully in the next section Reshuffle
 
 ### Reshuffle
+**Remember a reshuffle would be caused because we are trying to deploy a job which has budget but no physical space.
+
+For all the examples below assume we are trying to push another job onto the cluster**
+
+
 To reshuffle the jobs we use a linear programming solver.
 Linear programming is an optimization technique for a system of linear constraints and a linear objective function.
 
