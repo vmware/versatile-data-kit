@@ -76,7 +76,7 @@ Team  has two jobs running; Job 4 and Job 5. Both of these consume 2 device whic
 
 
 Here was add a constraint that all these jobs will still running at the end of the reshuffle.
-The absence of a value in the last row indicates no constraint on that column. 
+The absence of a value in the last row indicates no constraint on that column.
 
 |                               | Job 1/Team A | Job 2/Team A | Job 3/Team A/High Priority | Job 4/Team B | Job 5/Team B | Job 6/Team B |
 |-------------------------------|-------------|--|----------------------------|--------------|--------------|-------------|
