@@ -147,5 +147,3 @@ Now the formula looks like:
 
 jobPortability at 0.1 indicates jobs are not very portable.
 When jobPortability is set to 0.1 it is better to keep one job running where it is running than kill it to allow 9 jobs to take its place.
-
-
