@@ -1,4 +1,4 @@
-# VDK GPU Management integration
+# VDK/GPU Management integration
 
 ## Prerequisite knowledge
 
@@ -52,14 +52,14 @@ This is the most basic happy path. A user wants to deploy a job and they have th
 
 ![dd](user_wants_to_deploy_job_when_free_space_and_team_has_budget.svg)
 
-# Scenario 2: User Wants To Deploy Job Even Though Team Is Over Budget
+## Scenario 2: User Wants To Deploy Job Even Though Team Is Over Budget
 
 This is  the most basic error path. A user wants to deploy a job but they don't have the resources in their budget and their is none free on the cluster
 
 ![ddf](user_wants_to_deploy_job_even_though_team_is_over_budget.svg)
 
 
-# Scenario 3: User fails to deploy but is succesful on reattempt when other job completes
+## Scenario 3: User fails to deploy but is succesful on reattempt when other job completes
 
 This example is almost an accumulation of the last 2 scenarios.
 This example shows how jobs completing are handled.
