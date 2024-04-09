@@ -129,8 +129,9 @@ job_1___machine_3*job_1_required_resources + job_2___machine_3*job_2_required_re
 #### Objective function
 Broadly speaking we want to optimize for it to run the maximum amount of jobs.
 If a variable represents a job running on a machine we want to maximise the amount of these variables set.
+![$Max[\sum_{i}^{jobs}\sum_{j}^{machines} presentOnNode_{ij}]$](docs/white_without_job_portability.svg#gh-dark-mode-only)
+![$Max[\sum_{i}^{jobs}\sum_{j}^{machines} presentOnNode_{ij}]$](docs/black_without_job_portability.svg#gh-light-mode-only)
 
-[//]: # ($Max[\sum_{i}^{jobs}\sum_{j}^{machines} presentOnNode_{ij}]$)
 
 However we want to ensure that we don't move too many jobs around.
 Moving and ML training job from one machine to another will cause some loss of work.
@@ -140,9 +141,11 @@ Now the formula looks like:
 
 
 
-![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/CodeCogsEqn.svg#gh-dark-mode-only)
-![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/black.svg#gh-light-mode-only)
+![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/white_complete_formula.svg#gh-dark-mode-only)
+![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/black_complete_formula.svg#gh-light-mode-only)
 
 
 jobPortability at 0.1 indicates jobs are not very portable.
 When jobPortability is set to 0.1 it is better to keep one job running where it is running than kill it to allow 9 jobs to take its place.
+
+
