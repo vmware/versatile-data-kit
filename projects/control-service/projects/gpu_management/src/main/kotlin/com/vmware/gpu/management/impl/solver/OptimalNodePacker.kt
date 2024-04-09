@@ -95,7 +95,7 @@ class OptimalNodePacker(@Value("\${gpu.management.job_portability:0.7}")val jobP
                 moveJob.map(MoveJob::jobUniqueIdentifier).contains(it.jobUniqueIdentifier)
             }
         } else {
-            throw Exception("Unable to place job even though the team has budget. This is most likely a result of the total sum of all team budgets exceeding the total capacity or bad fragmentation")
+            throw IllegalStateException("Unable to place job even though the team has budget. This is most likely a result of the total sum of all team budgets exceeding the total capacity or bad fragmentation")
         }
     }
 }

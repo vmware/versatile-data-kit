@@ -63,7 +63,7 @@ class DefaultGpuResourceManager(
                 provisionResourceRequest.teamName
             ).get().resources
         ) {
-            mutableListOf()
+            throw NoAvailableBudgetException()
         } else {
             // Rule 3: run linear optimization
             reshuffleToFit(provisionResourceRequest)

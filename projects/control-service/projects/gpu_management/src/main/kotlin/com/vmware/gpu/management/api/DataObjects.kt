@@ -23,3 +23,5 @@ data class DeleteJob(val jobUniqueIdentifier: JobUniqueIdentifier) : JobAction {
 data class ProvisionResourceRequest(val jobUniqueIdentifier: JobUniqueIdentifier, val amount: Float){
     val teamName = jobUniqueIdentifier.teamName
 }
+
+class NoAvailableBudgetException: Exception("Team has no budget available to deploy a job")
