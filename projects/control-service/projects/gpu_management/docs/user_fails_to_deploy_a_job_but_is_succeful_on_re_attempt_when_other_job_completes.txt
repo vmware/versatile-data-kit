@@ -42,7 +42,7 @@ deactivate k8s cluster
 
 k8s cluster->VDK: Job2 is finished
 VDK->GPU management service: jobFinished(jobTeamId)
-GPU management service->Database: mark resoruces as released 
+GPU management service->Database: mark resoruces as released
 
 
 
