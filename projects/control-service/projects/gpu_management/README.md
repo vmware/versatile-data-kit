@@ -12,7 +12,7 @@ Initial setup.
 8. Choose databases from the top row, choose 'demo' update the credentials to be your local postgres database
 9. choose the GPU Management Dashboard
 10. ./gradlew build
-11. Run a test and wath how jobs are moved between machines through the UI
+11. Run a test and watch how jobs are moved between machines through the UI
 
 
 
