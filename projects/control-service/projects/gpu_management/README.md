@@ -1,7 +1,13 @@
 # A project for Efficient Management of GPUs
 
 
-Initial setup.
+## Overview 
+This project contains java library that can be used to manage GPU resources between teams and jobs.
+Also contained in this project is a UI for monitoring the current GPU consumption, per machine and per team.
+
+## Monitoring UI Setup
+
+
 1. Install postgres if not already installed
 2. Update the application.properties with the postgres connection details for this instance.
 3. Download the metabase oss jar from here: https://www.metabase.com/docs/latest/installation-and-operation/running-the-metabase-jar-file
