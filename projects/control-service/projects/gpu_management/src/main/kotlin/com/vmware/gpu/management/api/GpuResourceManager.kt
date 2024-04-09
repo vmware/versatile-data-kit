@@ -8,4 +8,3 @@ interface GpuResourceManager {
     fun markJobPriority(jobUniqueIdentifier: JobUniqueIdentifier, priority: Boolean)
     fun tryProvisionResources(jobUniqueIdentifier: JobUniqueIdentifier, amount: Float): List<JobAction>
 }
-
