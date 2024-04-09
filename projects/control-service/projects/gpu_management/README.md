@@ -9,7 +9,7 @@ Also contained in this project is a UI for monitoring the current GPU consumptio
 
 
 1. Install postgres if not already installed
-   1. docker run --name some-postgres -e POSTGRES_PASSWOR='' -d postgres -p 5432:5432
+   1. https://hub.docker.com/_/postgres
 2. Update the application.properties with the postgres connection details for this instance.
 3. Download the metabase oss jar from here: https://www.metabase.com/docs/latest/installation-and-operation/running-the-metabase-jar-file
 4. startup metabase with `java -jar metabase.jar`
