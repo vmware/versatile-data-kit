@@ -98,9 +98,8 @@ Now the formula looks like:
 
 
 
-
-![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/CodeCogsEqn.svg#gh-light-mode-only)
-![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/black.svg#gh-dark-mode-only)
+![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/CodeCogsEqn.svg#gh-dark-mode-only)
+![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/black.svg#gh-light-mode-only)
 
 
 jobPortability at 0.1 indicates jobs are not very portable.
