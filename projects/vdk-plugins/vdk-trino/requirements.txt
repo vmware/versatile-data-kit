@@ -6,3 +6,4 @@ testcontainers
 trino
 vdk-core
 vdk-test-utils
+typing-extensions
