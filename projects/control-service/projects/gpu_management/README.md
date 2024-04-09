@@ -97,7 +97,7 @@ The value of jobPortability is (0,1].
 Now the formula looks like:
 
 
- 
+
 
 ![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/CodeCogsEqn.svg#gh-light-mode-only)
 ![$Maximize[\sum_{i}^{jobs}\sum_{j}^{machines} \begin{cases} presentOnMachine_{ij} & \text{if } jobAlreadyPresentOnNode \\ presentOnMachine_{ij}*jobPortability & \text{otherwise.} \end{cases}]$](docs/black.svg#gh-dark-mode-only)
