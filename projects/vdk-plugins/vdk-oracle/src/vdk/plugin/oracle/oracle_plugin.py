@@ -27,16 +27,22 @@ log = logging.getLogger(__name__)
 
 
 class OraclePlugin:
+    def __init__(self, name: str = None):
+        self.__name = name
+        if not self.__name:
+            self.__name = "ORACLE"
+
     @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder):
-        OracleConfiguration.add_definitions(config_builder)
+        OracleConfiguration.add_definitions(config_builder, self.__name)
+        config_builder.list_config_keys()
 
     @hookimpl(trylast=True)
     def initialize_job(self, context: JobContext):
         conf = OracleConfiguration(context.core_context.configuration)
         oracle_user, oracle_pass = conf.get_oracle_user(), conf.get_oracle_password()
         context.connections.add_open_connection_factory_method(
-            "ORACLE",
+            self.__name,
             lambda: OracleConnection(
                 oracle_user,
                 oracle_pass,
@@ -50,7 +56,7 @@ class OraclePlugin:
             ),
         )
         context.ingester.add_ingester_factory_method(
-            "oracle",
+            self.__name,
             lambda: IngestToOracle(
                 context.connections, conf.oracle_ingest_batch_size()
             ),
@@ -59,7 +65,8 @@ class OraclePlugin:
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
-    plugin_registry.load_plugin_with_hooks_impl(OraclePlugin(), "OraclePlugin")
+    plugin_registry.load_plugin_with_hooks_impl(OraclePlugin(), "FirstOraclePlugin")
+    plugin_registry.load_plugin_with_hooks_impl(OraclePlugin("oracle2"), "SecondOraclePlugin")
 
 
 # TODO: https://github.com/vmware/versatile-data-kit/issues/2940

@@ -1,0 +1,16 @@
+So what if we can create named plugins and register them in vdk_start again.
+We should also be able to pass the configuration values like this.
+For example OraclePlugin("oracle1", config)
+And when creating the env, conf variables in the plugins itself to use the the plugin name that was passed.
+So instead of vdk_oracle_password we should get it to vdk_oracle1_password.
+
+We should get vdk_<plugin_class_name>_password to vdk_<plugin_name>_password.
+
+In this way we will be able to register it at the right time in vdk_configure with different names and we will be able to use the same 
+configuration builder. 
+This will lead to no changes in the current vdk-core. 
+The default way should be like this-> if no name is gives the plugin uses  "oracle" "impala", etc. 
+
+
+
+

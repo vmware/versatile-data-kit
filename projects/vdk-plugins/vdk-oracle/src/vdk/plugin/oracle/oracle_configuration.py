@@ -9,17 +9,35 @@ from typing import Optional
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 
-ORACLE_USER = "ORACLE_USER"
-ORACLE_PASSWORD = "ORACLE_PASSWORD"
-ORACLE_USE_SECRETS = "ORACLE_USE_SECRETS"
-ORACLE_THICK_MODE = "ORACLE_THICK_MODE"
-ORACLE_THICK_MODE_LIB_DIR = "ORACLE_THICK_MODE_LIB_DIR"
-ORACLE_CONNECTION_STRING = "ORACLE_CONNECTION_STRING"
-ORACLE_HOST = "ORACLE_HOST"
-ORACLE_PORT = "ORACLE_PORT"
-ORACLE_SID = "ORACLE_SID"
-ORACLE_SERVICE_NAME = "ORACLE_SERVICE_NAME"
-ORACLE_INGEST_BATCH_SIZE = "ORACLE_INGEST_BATCH_SIZE"
+ORACLE_USER = "_USER"
+ORACLE_PASSWORD = "_PASSWORD"
+ORACLE_USE_SECRETS = "_USE_SECRETS"
+ORACLE_THICK_MODE = "_THICK_MODE"
+ORACLE_THICK_MODE_LIB_DIR = "_THICK_MODE_LIB_DIR"
+ORACLE_CONNECTION_STRING = "_CONNECTION_STRING"
+ORACLE_HOST = "_HOST"
+ORACLE_PORT = "_PORT"
+ORACLE_SID = "_SID"
+ORACLE_SERVICE_NAME = "_SERVICE_NAME"
+ORACLE_INGEST_BATCH_SIZE = "_INGEST_BATCH_SIZE"
+
+
+def prepend_name_to_oracle_vars(name: str):
+    global ORACLE_USER, ORACLE_PASSWORD, ORACLE_USE_SECRETS, ORACLE_THICK_MODE, \
+        ORACLE_THICK_MODE_LIB_DIR, ORACLE_CONNECTION_STRING, ORACLE_HOST, \
+        ORACLE_PORT, ORACLE_SID, ORACLE_SERVICE_NAME, ORACLE_INGEST_BATCH_SIZE
+
+    ORACLE_USER = f"{name}_{ORACLE_USER}"
+    ORACLE_PASSWORD = f"{name}_{ORACLE_PASSWORD}"
+    ORACLE_USE_SECRETS = f"{name}_{ORACLE_USE_SECRETS}"
+    ORACLE_THICK_MODE = f"{name}_{ORACLE_THICK_MODE}"
+    ORACLE_THICK_MODE_LIB_DIR = f"{name}_{ORACLE_THICK_MODE_LIB_DIR}"
+    ORACLE_CONNECTION_STRING = f"{name}_{ORACLE_CONNECTION_STRING}"
+    ORACLE_HOST = f"{name}_{ORACLE_HOST}"
+    ORACLE_PORT = f"{name}_{ORACLE_PORT}"
+    ORACLE_SID = f"{name}_{ORACLE_SID}"
+    ORACLE_SERVICE_NAME = f"{name}_{ORACLE_SERVICE_NAME}"
+    ORACLE_INGEST_BATCH_SIZE = f"{name}_{ORACLE_INGEST_BATCH_SIZE}"
 
 
 class OracleConfiguration:
@@ -60,7 +78,9 @@ class OracleConfiguration:
         return int(self.__config.get_value(ORACLE_INGEST_BATCH_SIZE))
 
     @staticmethod
-    def add_definitions(config_builder: ConfigurationBuilder):
+    def add_definitions(config_builder: ConfigurationBuilder, name: str = None):
+        if name:
+            prepend_name_to_oracle_vars(name)
         config_builder.add(
             key=ORACLE_USER,
             default_value=None,
