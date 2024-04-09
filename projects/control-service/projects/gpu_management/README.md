@@ -12,9 +12,10 @@ Also contained in this project is a UI for monitoring the current GPU consumptio
    1. https://hub.docker.com/_/postgres
 2. Update the application.properties with the postgres connection details for this instance.
 3. Download the metabase oss jar from here: https://www.metabase.com/docs/latest/installation-and-operation/running-the-metabase-jar-file
-4. startup metabase with `java -jar metabase.jar`
+4. From within the gpu_management folder, startup metabase with `java -jar metabase.jar`
 5. Go to http://localhost:3000
 6. login with gpuManager@gpus.com and pw: gpu123
+   1. If the credentials don't work then step 4 was not run in the correct folder.
 7. click settings in top right corner, choose admin setting
 8. Choose databases from the top row, choose 'demo' update the credentials to be your local postgres database
 9. choose the GPU Management Dashboard
