@@ -5,6 +5,8 @@
 This project contains java library that can be used to manage GPU resources between teams and jobs.
 Also contained in this project is a UI for monitoring the current GPU consumption, per machine and per team.
 
+Please go over this document for a complete breakdown of what the goals are: https://github.com/vmware/versatile-data-kit/wiki/GPU-Resource-Management-on-the-VDK
+
 ## Monitoring UI Setup
 
 
