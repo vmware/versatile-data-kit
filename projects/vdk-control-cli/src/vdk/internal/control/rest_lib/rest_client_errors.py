@@ -98,7 +98,7 @@ class ApiClientErrorDecorator:
                     what=self.__what,
                     why=str(ex),
                     consequence=self.__consequences,
-                    countermeasure="Authentication Error and requires a user login again",
+                    countermeasure="Authentication Error and requires a user login again !",
                 )
                 raise vdk_ex from ex
             except Exception as ex:
