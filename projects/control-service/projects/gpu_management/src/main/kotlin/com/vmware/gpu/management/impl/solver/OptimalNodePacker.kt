@@ -1,9 +1,11 @@
 package com.vmware.gpu.management.impl.solver
 
-import com.vmware.gpu.management.jpa.NodeWithGPUs
 import com.google.ortools.linearsolver.MPSolver
 import com.google.ortools.linearsolver.MPVariable
 import com.vmware.gpu.management.api.*
+import com.vmware.gpu.management.jpa.NodeWithGPUs
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -30,10 +32,11 @@ data class JobAndAssociatedVariable(val variable: MPVariable, val job: JobForSol
 @Component
 class OptimalNodePacker(@Value("\${gpu.management.job_portability:0.7}")val jobPortability: Double) {
 
+
     fun reshuffleToFit(
         allJobs: List<JobForSolver>,
         nodes: List<NodeWithGPUs>
-    ): List<JobAction> {
+    ): List<JobAction>? {
 
         val solver = MPSolver(
             "NodeReshuffle",
@@ -95,7 +98,7 @@ class OptimalNodePacker(@Value("\${gpu.management.job_portability:0.7}")val jobP
                 moveJob.map(MoveJob::jobUniqueIdentifier).contains(it.jobUniqueIdentifier)
             }
         } else {
-            throw IllegalStateException("Unable to place job even though the team has budget. This is most likely a result of the total sum of all team budgets exceeding the total capacity or bad fragmentation")
+            return null
         }
     }
 }

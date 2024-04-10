@@ -1,5 +1,6 @@
 package com.vmware.gpu.management.jpa
 
+import com.vmware.gpu.management.api.DeviceType
 import com.vmware.gpu.management.api.JobUniqueIdentifier
 import jakarta.persistence.*
 import jakarta.transaction.Transactional
@@ -45,8 +46,12 @@ class GpuConsumingJob(
 @Repository
 interface GpuConsumingJobRepo : JpaRepository<GpuConsumingJob, String> {
 
-    @Query("SELECT COALESCE(SUM(g.consumedResources),0) FROM GpuConsumingJob g WHERE g.gpuResourcesPerTeam.teamName = :teamName")
-    fun sumConsumedResourcesByTeam(@Param("teamName") teamName: String): Float
+    @Query("SELECT COALESCE(SUM(g.consumedResources),0) FROM GpuConsumingJob g " +
+            "WHERE g.gpuResourcesPerTeam.teamName = :teamName AND g.nodeWithGPUs.deviceType = :deviceType")
+    fun sumConsumedResourcesByTeam(@Param("teamName") teamName: String, deviceType: DeviceType): Float
+
+
+    fun findByNodeWithGPUsDeviceType(deviceType: DeviceType): List<GpuConsumingJob>
 
     @Transactional
     @Modifying

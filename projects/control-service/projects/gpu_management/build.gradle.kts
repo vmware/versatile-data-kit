@@ -25,8 +25,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.google.ortools:ortools-java:9.8.3296")
+    implementation("io.kubernetes:client-java:20.0.1")
+    implementation("io.kubernetes:client-java-api-fluent:20.0.1")
+
     runtimeOnly("org.postgresql:postgresql")
-    implementation("com.h2database:h2:2.2.220")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

@@ -11,6 +11,7 @@ interface GpuResourceManager {
     fun jobEnded(jobUniqueIdentifier: JobUniqueIdentifier)
     /**
      * Marks a job's priority status. High priority jobs will never be killed in order to accommodate other jobs.
+     * But it is subject to restarts during a reshuffle
      */
     fun markJobPriority(jobUniqueIdentifier: JobUniqueIdentifier, priority: Boolean)
     /**
@@ -20,5 +21,5 @@ interface GpuResourceManager {
      *          This might involve deleting some jobs which belong to over budget teams and moving jobs to other machines to more effectively pack
      */
     @Throws(NoAvailableBudgetException::class)
-    fun tryProvisionResources(jobUniqueIdentifier: JobUniqueIdentifier, amount: Float): List<JobAction>
+    fun tryProvisionResources(jobUniqueIdentifier: JobUniqueIdentifier, deviceRequirements: DeviceRequirements): List<JobAction>
 }
