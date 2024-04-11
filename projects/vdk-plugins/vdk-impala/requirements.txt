@@ -1,3 +1,4 @@
 
 testcontainers
+typing-extensions
 vdk-test-utils

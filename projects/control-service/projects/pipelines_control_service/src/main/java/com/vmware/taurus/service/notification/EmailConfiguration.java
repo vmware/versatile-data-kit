@@ -5,11 +5,12 @@
 
 package com.vmware.taurus.service.notification;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class EmailConfiguration {
@@ -18,6 +19,15 @@ public class EmailConfiguration {
   private final String MAIL_SMTP_USER = "mail.smtp.user";
   private final String MAIL_SMTP_AUTH = "mail.smtp.auth";
   private final String TRANSPORT_PROTOCOL = "transport.protocol";
+
+  @Bean
+  public EmailNotification emailNotification() {
+    if (this.smtpWithPrefix().get("mail.smtp.user").startsWith("arn:aws:")) {
+      return new AmazonSesEmailNotification(this);
+    } else {
+      return new DefaultEmailNotification(this);
+    }
+  }
 
   @Bean
   @ConfigurationProperties(prefix = "mail")
