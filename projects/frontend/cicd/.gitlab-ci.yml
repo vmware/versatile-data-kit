@@ -109,13 +109,12 @@ frontend_publish_ui_image:
     - apk --no-cache add bash git
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
     - ../../cicd/publish_image_docker.sh vdk-operations-ui . $CI_PIPELINE_ID
+    - export VDK_DOCKER_REGISTRY_URL=ghcr.io/versatile-data-kit-dev/dp
+    - docker login $VDK_DOCKER_REGISTRY_URL --username $CICD_GIT_USER --password $CICD_GIT_PASSWORD
+    - bash -ex ../../cicd/publish_image_docker.sh vdk-operations-ui . $CI_PIPELINE_ID
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *frontend_data_pipelines_locations
 
 frontend_tag_ui_image_stable:
   stage: release_image
