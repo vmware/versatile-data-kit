@@ -163,7 +163,7 @@ Generate default JDBC credentials for local embedded database instance (Cockroac
 {{- if and (not .Values.cockroachdb.enabled) .Values.postgresql.enabled -}}
 USERNAME: {{ default "postgres" .Values.database.username | b64enc | quote }}
 PASSWORD: {{ default "" .Values.database.password | b64enc | quote }}
-JDBC: {{ default (printf "jdbc:postgresql://%s-postgresql-public:5432/postgres?sslmode=disable" .Release.Name) .Values.database.jdbcUrl | b64enc |quote }}
+JDBC: {{ default (printf "jdbc:postgresql://%s-postgresql:5432/%s?sslmode=disable" .Release.Name .Values.postgresql.auth.database) .Values.database.jdbcUrl | b64enc |quote }}
 {{- else -}}
 USERNAME: {{ default "root" .Values.database.username | b64enc | quote }}
 PASSWORD: {{ default "" .Values.database.password | b64enc | quote }}

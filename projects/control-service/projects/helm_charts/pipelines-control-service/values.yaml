@@ -599,8 +599,15 @@ datajobsresourcequota:
 ## Configuration for a PostgreSQL embedded database, set postgresql.enabled to false if you want to use external database
 ## See https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
-  enabled: false
+  enabled: true
+  image:
+    tag: 15.6.0-debian-12-r14
   architecture: standalone  # replication
+  auth:
+    username: "testuser"
+    postgresPassword: "testpass"
+    password: "testpass"
+    database: "testdb"
 #  readReplicas:
 #    replicaCount: 2
 #    resources:
@@ -626,7 +633,7 @@ postgresql:
 ## Configuration for a CockroachDB embedded database, set cockroachdb.enabled to false if you want to use external database
 ## See https://github.com/cockroachdb/helm-charts/tree/master/cockroachdb
 cockroachdb:
-   enabled: true
+   enabled: false
    tls:
     enabled: false
    storage:
@@ -663,9 +670,9 @@ database:
    ## The secret should contain keys: JDBC, USERNAME, PASSWORD
    externalSecretName: ""
    ## Alternatively provide JDBC url, username and password. externalSecretName takes precedence if both are set.
-   jdbcUrl: ""
-   username: ""
-   password: ""
+   jdbcUrl: "jdbc:postgresql://vdk-postgresql:5432/testdb?sslmode=disable"
+   username: "testuser"
+   password: "testpass"
 ## Prometheus exporter configuration
 ##
 metrics:
