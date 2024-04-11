@@ -113,8 +113,12 @@ frontend_publish_ui_image:
     - docker login $VDK_DOCKER_REGISTRY_URL --username $CICD_GIT_USER --password $CICD_GIT_PASSWORD
     - bash -ex ../../cicd/publish_image_docker.sh vdk-operations-ui . $CI_PIPELINE_ID
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *frontend_shared_components_locations
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *frontend_data_pipelines_locations
 
 frontend_tag_ui_image_stable:
   stage: release_image
