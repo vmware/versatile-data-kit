@@ -20,7 +20,8 @@ def test_sqlite_plugin(tmpdir):
         os.environ,
         {
             "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": str(tmpdir) + "vdk-sqlite.db",
+            "VDK_TEST_SQLITE_FILE": str(tmpdir) + "vdk-test-sqlite.db",
+            "VDK_PROD_SQLITE_FILE": str(tmpdir) + "vdk-prod-sqlite.db",
         },
     ):
         runner = CliEntryBasedTestRunner(sqlite_plugin)

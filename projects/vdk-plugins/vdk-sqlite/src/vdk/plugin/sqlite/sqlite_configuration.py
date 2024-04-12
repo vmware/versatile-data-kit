@@ -6,6 +6,7 @@ import tempfile
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 
+SQLITE_MULTIPLE_DB = "SQLITE_MULTIPLE_DB"
 SQLITE_FILE = "SQLITE_FILE"
 SQLITE_INGEST_AUTO_CREATE_TABLE_ENABLED = "SQLITE_INGEST_AUTO_CREATE_TABLE_ENABLED"
 
@@ -20,8 +21,21 @@ class SQLiteConfiguration:
     def get_sqlite_file(self) -> pathlib.Path:
         return pathlib.Path(self.__config.get_value(SQLITE_FILE))
 
+    def get_sqlite_multiple_db(self) -> bool:
+        return self.__config.get_value(SQLITE_MULTIPLE_DB)
 
-def add_definitions(config_builder: ConfigurationBuilder):
+
+def add_default_definitions(config_builder: ConfigurationBuilder):
+    config_builder.add(
+        key=SQLITE_MULTIPLE_DB,
+        default_value="",
+        is_sensitive=False,
+        description="Add names of the SQLite Databases you want to register."
+                    "Example: SQLITE_MULTIPLE_DB=prod_db,test_db"
+                    "If you use multiple databases you need to use all the SQLite config options with db name "
+                    "prefix: "
+                    "<db_name>_SQLITE_FILE, (example: PROD_DB_SQLITE_FILE and TEST_DB_SQLITE_FILE) ",
+    )
     config_builder.add(
         key=SQLITE_FILE,
         default_value=str(
@@ -35,3 +49,5 @@ def add_definitions(config_builder: ConfigurationBuilder):
         description="If set to true, auto create table if it does not exists during ingestion."
         "This is only applicable when ingesting data into sqlite (ingest method is sqlite).",
     )
+
+
