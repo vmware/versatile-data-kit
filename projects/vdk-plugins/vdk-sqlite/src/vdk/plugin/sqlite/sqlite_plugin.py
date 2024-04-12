@@ -13,8 +13,9 @@ from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.util.decorators import closing_noexcept_on_close
 from vdk.plugin.sqlite import sqlite_configuration
 from vdk.plugin.sqlite.ingest_to_sqlite import IngestToSQLite
-from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration, SQLITE_FILE, \
-    SQLITE_INGEST_AUTO_CREATE_TABLE_ENABLED
+from vdk.plugin.sqlite.sqlite_configuration import SQLITE_FILE
+from vdk.plugin.sqlite.sqlite_configuration import SQLITE_INGEST_AUTO_CREATE_TABLE_ENABLED
+from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
 from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
 
 log = logging.getLogger(__name__)
@@ -36,7 +37,9 @@ def initialize_job(context: JobContext) -> None:
     if len(multiple_dbs) == 0:
         context.connections.add_open_connection_factory_method(
             "SQLITE",
-            lambda: SQLiteConnection(pathlib.Path(conf.get_sqlite_file())).new_connection(),
+            lambda: SQLiteConnection(
+                pathlib.Path(conf.get_sqlite_file())
+            ).new_connection(),
         )
 
         context.ingester.add_ingester_factory_method(
@@ -55,10 +58,14 @@ def initialize_job(context: JobContext) -> None:
 
             new_builder = ConfigurationBuilder()
             # here we need to add descriptions for all the conf
-            new_builder.add(key=SQLITE_FILE,
-                            default_value=pathlib.Path(_get_config_or_env(curr_db_file_key)))
-            new_builder.add(key=SQLITE_INGEST_AUTO_CREATE_TABLE_ENABLED,
-                            default_value=_get_config_or_env(curr_db_ingest_auto_key))
+            new_builder.add(
+                key=SQLITE_FILE,
+                default_value=pathlib.Path(_get_config_or_env(curr_db_file_key)),
+            )
+            new_builder.add(
+                key=SQLITE_INGEST_AUTO_CREATE_TABLE_ENABLED,
+                default_value=_get_config_or_env(curr_db_ingest_auto_key),
+            )
 
             # we need to handle secrets as well for example in oracle -> user and password
 
@@ -66,7 +73,9 @@ def initialize_job(context: JobContext) -> None:
 
             context.connections.add_open_connection_factory_method(
                 db.upper(),
-                lambda: SQLiteConnection(pathlib.Path(new_config.get_sqlite_file())).new_connection(),
+                lambda: SQLiteConnection(
+                    pathlib.Path(new_config.get_sqlite_file())
+                ).new_connection(),
             )
 
             context.ingester.add_ingester_factory_method(

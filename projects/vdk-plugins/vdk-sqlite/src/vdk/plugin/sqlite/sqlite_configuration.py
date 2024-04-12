@@ -31,10 +31,10 @@ def add_default_definitions(config_builder: ConfigurationBuilder):
         default_value="",
         is_sensitive=False,
         description="Add names of the SQLite Databases you want to register."
-                    "Example: SQLITE_MULTIPLE_DB=prod_db,test_db"
-                    "If you use multiple databases you need to use all the SQLite config options with db name "
-                    "prefix: "
-                    "<db_name>_SQLITE_FILE, (example: PROD_DB_SQLITE_FILE and TEST_DB_SQLITE_FILE) ",
+        "Example: SQLITE_MULTIPLE_DB=prod_db,test_db"
+        "If you use multiple databases you need to use all the SQLite config options with db name "
+        "prefix: "
+        "<db_name>_SQLITE_FILE, (example: PROD_DB_SQLITE_FILE and TEST_DB_SQLITE_FILE) ",
     )
     config_builder.add(
         key=SQLITE_FILE,
@@ -49,5 +49,3 @@ def add_default_definitions(config_builder: ConfigurationBuilder):
         description="If set to true, auto create table if it does not exists during ingestion."
         "This is only applicable when ingesting data into sqlite (ingest method is sqlite).",
     )
-
-
