@@ -246,6 +246,9 @@ control_service_publish_image:
     - ./gradlew :pipelines_control_service:dockerTag --info --stacktrace -Pversion=$TAG
     - docker_push_vdk.sh "versatiledatakit/pipelines-control-service:$TAG"
     - docker_push_vdk.sh "versatiledatakit/pipelines-control-service:latest"
+    - export VDK_DOCKER_REGISTRY_URL=ghcr.io/versatile-data-kit-dev/dp
+    - docker login $VDK_DOCKER_REGISTRY_URL --username $CICD_GIT_USER --password $CICD_GIT_PASSWORD
+    - docker_push_vdk.sh "pipelines-control-service:latest"
   retry: !reference [.control_service_retry, retry_options]
   artifacts:
     when: always

@@ -5,6 +5,7 @@ pandas
 pytest
 pytest-httpserver
 testcontainers
+typing-extensions
 vdk-core
 vdk-plugin-control-cli
 vdk-test-utils
