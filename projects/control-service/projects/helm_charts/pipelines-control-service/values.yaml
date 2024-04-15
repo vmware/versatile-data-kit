@@ -604,10 +604,10 @@ postgresql:
     tag: 15.6.0-debian-12-r14
   architecture: standalone  # replication
   auth:
-    username: "testuser"
-    postgresPassword: "testpass"
-    password: "testpass"
-    database: "testdb"
+    username: "pguser"
+    postgresPassword: "pgpass"
+    password: "pgpass"
+    database: "pgdb"
 #  readReplicas:
 #    replicaCount: 2
 #    resources:
@@ -670,9 +670,9 @@ database:
    ## The secret should contain keys: JDBC, USERNAME, PASSWORD
    externalSecretName: ""
    ## Alternatively provide JDBC url, username and password. externalSecretName takes precedence if both are set.
-   jdbcUrl: "jdbc:postgresql://vdk-postgresql:5432/testdb?sslmode=disable"
-   username: "testuser"
-   password: "testpass"
+   jdbcUrl: ""
+   username: "pguser"
+   password: "pgpass"
 ## Prometheus exporter configuration
 ##
 metrics:

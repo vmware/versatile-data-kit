@@ -34,10 +34,6 @@ spec:
         # https://helm.sh/docs/howto/charts_tips_and_tricks Automatically Roll Deployments
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
     spec:
-      initContainers:
-        - name: wait-for-postgres
-          image: busybox:latest
-          command: [ 'sh', '-c', 'until nc -z -w 2 vdk-postgresql 5432; do echo waiting for postgresql; sleep 2; done;' ]
       {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ template "pipelines-control-service.serviceAccountName" . }}
       {{- end }}
