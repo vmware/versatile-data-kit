@@ -88,7 +88,10 @@ public class AWSCredentialsService {
     var accessKeyId = serviceAccountCredentials.getAWSAccessKeyId();
     var secretAccessKey = serviceAccountCredentials.getAWSSecretKey();
     var sessionToken = serviceAccountCredentials.getSessionToken();
-
+    System.out.println("Test gitlab code commit access");
+    System.out.println(accessKeyId);
+    System.out.println(secretAccessKey);
+    System.out.println(sessionToken);
     return new AWSCredentialsDTO(
         secretAccessKey, accessKeyId, sessionToken, awsCredentialsServiceConfig.getRegion());
   }
