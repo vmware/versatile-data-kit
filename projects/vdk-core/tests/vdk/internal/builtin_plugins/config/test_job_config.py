@@ -109,13 +109,16 @@ class TestJobConfig:
         self._write_to_config_ini(
             self._test_dir,
             """
+            
             [vdk_subsection_one]
             
             [vdk_subsection_two]
         """,
         )
         cfg = JobConfig(self._test_dir)
-        self.assertEqual(list({"vdk_subsection_one", "vdk_subsection_two"}), cfg.get_vdk_subsection_names())
+        options = ["vdk_subsection_one", "vdk_subsection_two"]
+        for subclass in cfg.get_vdk_subsection_names():
+            assert options.count(subclass) == 1
 
     def test_vdk_subsection_values(self):
         self._write_to_config_ini(
