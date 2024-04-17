@@ -21,9 +21,9 @@ dependencies:
   repository: https://charts.bitnami.com/bitnami
   tags:
     - bitnami-common
-  version: 1.x.x
+  version: 2.x.x
 - name: postgresql
-  version: "12.0.0"
+  version: "15.2.2"
   repository: https://charts.bitnami.com/bitnami
   condition: postgresql.enabled
 - name: cockroachdb
