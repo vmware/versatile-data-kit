@@ -173,7 +173,9 @@ class JobConfig:
         Returns a list of subsection names.
         """
         subsection_names = [
-            section for section in self._config_ini.sections() if section.startswith('vdk_')
+            section
+            for section in self._config_ini.sections()
+            if section.startswith("vdk_")
         ]
         return subsection_names
 

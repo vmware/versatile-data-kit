@@ -109,9 +109,9 @@ class TestJobConfig:
         self._write_to_config_ini(
             self._test_dir,
             """
-            
+
             [vdk_subsection_one]
-            
+
             [vdk_subsection_two]
         """,
         )
@@ -126,7 +126,7 @@ class TestJobConfig:
             """
             [vdk]
             not_to_be_fetched=a
-            
+
             [vdk_subsection]
             a=b
             c=d
