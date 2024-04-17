@@ -175,6 +175,47 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_data_frame_schema_inference(runner)
 
+    def test_oracle_ingest_job_case_insensitive(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            [
+                "run",
+                jobs_path_from_caller_directory("oracle-ingest-job-case-insensitive"),
+            ]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_case_insensitive(runner)
+
+    def test_oracle_ingest_job_mixed_case_no_inference(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            [
+                "run",
+                jobs_path_from_caller_directory(
+                    "oracle-ingest-job-mixed-case-no-inference"
+                ),
+            ]
+        )
+        cli_assert_equal(1, result)
+        assert (
+            "is neither upper, nor lower-case. This could lead to unexpected results when ingesting data. Aborting."
+            in result.output
+        )
+
+    def test_oracle_ingest_job_mixed_case_error(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            [
+                "run",
+                jobs_path_from_caller_directory("oracle-ingest-job-mixed-case-error"),
+            ]
+        )
+        cli_assert_equal(1, result)
+        assert (
+            "Identifier Id is neither upper, nor lower-case. This could lead to unexpected results when ingesting "
+            "data. Aborting.\n" in result.output
+        )
+
 
 def _verify_query_execution(runner):
     check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM todoitem"])
@@ -188,7 +229,9 @@ def _verify_query_execution(runner):
 
 
 def _verify_ingest_execution(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM oracle_ingest"]
+    )
     expected = [
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
         "----  ----------  ----------  ------------  -----------  -------------------  --------------\n",
@@ -199,7 +242,9 @@ def _verify_ingest_execution(runner):
 
 
 def _verify_ingest_execution_special_chars(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM ingest_special_chars"]
+    )
     expected = [
         "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
         "----  -----------  -----------  --------------  -----------  -------------------  --------------\n",
@@ -210,7 +255,9 @@ def _verify_ingest_execution_special_chars(runner):
 
 
 def _verify_ingest_execution_type_inference(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM ingest_type_inference"]
+    )
     expected = [
         "  ID  STR_DATA      INT_DATA  NAN_INT_DATA      FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
         "----  ----------  ----------  --------------  ------------  -----------  -------------------  --------------\n",
@@ -221,7 +268,9 @@ def _verify_ingest_execution_type_inference(runner):
 
 
 def _verify_ingest_execution_no_table(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM ingest_no_table"]
+    )
     expected = [
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
         "----  ----------  ----------  ------------  -----------  -------------------  --------------\n",
@@ -234,7 +283,9 @@ def _verify_ingest_execution_no_table(runner):
 
 
 def _verify_ingest_execution_no_table_special_chars(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM no_table_special_chars"]
+    )
     expected = [
         "  ID  @str_data      %int_data    *float*data*    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
         "----  -----------  -----------  --------------  -----------  -------------------  --------------\n",
@@ -248,14 +299,24 @@ def _verify_ingest_execution_no_table_special_chars(runner):
 
 def _verify_ingest_execution_different_payloads_no_table(runner):
     check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT count(*) FROM test_table"]
+        [
+            "sql-query",
+            "--query",
+            "SELECT count(*) FROM ingest_different_payloads_no_table",
+        ]
     )
     expected = "  COUNT(*)\n----------\n         8\n"
     assert expected in check_result.output
 
 
 def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        [
+            "sql-query",
+            "--query",
+            "SELECT * FROM ingest_different_payloads_no_table_special_chars",
+        ]
+    )
 
     # Skip the log lines until the line with the column headers
     log_lines = check_result.output.strip().split("\n")
@@ -281,13 +342,19 @@ def _verify_ingest_execution_different_payloads_no_table_special_chars(runner):
 
     expected_count = "  COUNT(*)\n----------\n         8\n"
     check_result = runner.invoke(
-        ["sql-query", "--query", "SELECT count(*) FROM test_table"]
+        [
+            "sql-query",
+            "--query",
+            "SELECT count(*) FROM ingest_different_payloads_no_table_special_chars",
+        ]
     )
     assert expected_count in check_result.output
 
 
 def _verify_ingest_execution_different_payloads(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM ingest_different_payloads"]
+    )
     expected = [
         "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA\n",
         "----  ----------  ----------  ------------  -----------  -------------------\n",
@@ -309,7 +376,7 @@ def _verify_ingest_blob(runner):
         [
             "sql-query",
             "--query",
-            "SELECT utl_raw.cast_to_varchar2(dbms_lob.substr(blob_data,2000,1)) FROM test_table",
+            "SELECT utl_raw.cast_to_varchar2(dbms_lob.substr(blob_data,2000,1)) FROM oracle_ingest_blob",
         ]
     )
     expected = (
@@ -324,7 +391,9 @@ def _verify_ingest_blob(runner):
 
 
 def _verify_ingest_nan_and_none_execution(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM ingest_nan_table"]
+    )
     expected = (
         "  ID  STR_DATA    INT_DATA    FLOAT_DATA      BOOL_DATA  "
         "TIMESTAMP_DATA         DECIMAL_DATA\n"
@@ -337,6 +406,38 @@ def _verify_ingest_nan_and_none_execution(runner):
 
 
 def _verify_ingest_data_frame_schema_inference(runner):
-    check_result = runner.invoke(["sql-query", "--query", "SELECT * FROM test_table"])
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM data_frame_schema_inference"]
+    )
     expected = "A    B    C\n---  ---  ---\n  1    2    3\n"
+    assert expected in check_result.output
+
+
+def _verify_ingest_case_insensitive(runner):
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM oracle_ingest_case_insensitive"]
+    )
+    expected = (
+        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA\n"
+        "----  ----------  ----------  ------------  -----------  "
+        "-------------------\n"
+        "   1  string              12           1.2            1  2023-11-21 "
+        "08:12:53\n"
+        "   2  string              12           1.2            1  2023-11-21 "
+        "08:12:53\n"
+        "   3  string              12           1.2            1  2023-11-21 "
+        "08:12:53\n"
+    )
+    assert expected in check_result.output
+
+
+def _verify_ingest_wrong_case(runner):
+    check_result = runner.invoke(
+        [
+            "sql-query",
+            "--query",
+            "SELECT COUNT(*) FROM user_tables where table_name='oracle_ingest_mixed_case_no_inference'",
+        ]
+    )
+    expected = "  COUNT(*)\n" "----------\n" "         0\n"
     assert expected in check_result.output
