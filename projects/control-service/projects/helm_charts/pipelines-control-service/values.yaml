@@ -599,8 +599,15 @@ datajobsresourcequota:
 ## Configuration for a PostgreSQL embedded database, set postgresql.enabled to false if you want to use external database
 ## See https://github.com/bitnami/charts/tree/main/bitnami/postgresql
 postgresql:
-  enabled: false
+  enabled: true
+  image:
+    tag: 15.6.0-debian-12-r14
   architecture: standalone  # replication
+  auth:
+    username: ""
+    postgresPassword: ""
+    password: ""
+    database: ""
 #  readReplicas:
 #    replicaCount: 2
 #    resources:
@@ -626,7 +633,7 @@ postgresql:
 ## Configuration for a CockroachDB embedded database, set cockroachdb.enabled to false if you want to use external database
 ## See https://github.com/cockroachdb/helm-charts/tree/master/cockroachdb
 cockroachdb:
-   enabled: true
+   enabled: false
    tls:
     enabled: false
    storage:
