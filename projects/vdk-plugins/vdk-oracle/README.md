@@ -142,6 +142,63 @@ def run(job_input):
 
     job_input.send_object_for_ingestion(payload=payload, destination_table="test_table")
 ```
+
+#### Case Sensitivity
+
+**vdk-oracle supports only lower-case and upper-case payload keys.** Oracle is case-insensitive by default. This is a
+challenge when ingesting payloads and doing type and schema inference, so we've opted for the simplest solution to
+avoid confusion on the user side.
+
+**Valid Ingestion**
+
+```python
+def run(job_input):
+    payload = {
+        "id": "5",
+        "str_data": "string",
+        "int_data": "12",
+        "float_data": "1.2",
+        "bool_data": "False",
+        "timestamp_data": "2023-11-21T08:12:53",
+        "decimal_data": "0.1",
+    }
+
+    job_input.send_object_for_ingestion(payload=payload, destination_table="test_table")
+```
+
+```python
+def run(job_input):
+    payload = {
+        "ID": "5",
+        "STR_DATA": "string",
+        "INT_DATA": "12",
+        "FLOAT_DATA": "1.2",
+        "BOOL_DATA": "False",
+        "TIMESTAMP_DATA": "2023-11-21T08:12:53",
+        "DECIMAL_DATA": "0.1",
+    }
+
+    job_input.send_object_for_ingestion(payload=payload, destination_table="TEST_TABLE")
+```
+
+**Invalid ingestion**
+
+Will infer the schema, but won't insert correctly.
+
+```python
+def run(job_input):
+    payload = {
+        "Id": "5",
+        "Str_Data": "string",
+        "Int_Data": "12",
+        "Float_Data": "1.2",
+        "Bool_Data": "False",
+        "Timestamp_Data": "2023-11-21T08:12:53",
+        "Decimal_Data": "0.1",
+    }
+    job_input.send_object_for_ingestion(payload=payload, destination_table="test_table")
+```
+
 ### Build and testing
 
 ```

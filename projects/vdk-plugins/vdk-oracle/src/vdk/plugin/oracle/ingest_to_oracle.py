@@ -6,6 +6,7 @@ import math
 import re
 from decimal import Decimal
 from typing import Any
+from typing import Collection
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -14,8 +15,22 @@ from vdk.api.plugin.plugin_input import PEP249Connection
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.connection.managed_cursor import ManagedCursor
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
+from vdk.internal.core.errors import UserCodeError
 
 log = logging.getLogger(__name__)
+
+
+class VdkOracleException(UserCodeError):
+    pass
+
+
+def _verify_identifiers(identifiers: Collection[str]):
+    for identifier in identifiers:
+        if not (identifier.isupper() or identifier.islower()):
+            raise Exception(
+                f"Identifier {identifier} is neither upper, nor lower-case. This could "
+                f"lead to unexpected results when ingesting data. Aborting."
+            )
 
 
 # Functions for escaping special characters
@@ -109,6 +124,7 @@ class IngestToOracle(IIngesterPlugin):
         return type_mappings.get(type(value), "VARCHAR2(255)")
 
     def _create_table(self, table_name: str, row: Dict[str, Any]) -> None:
+        _verify_identifiers(row.keys())
         column_defs = [
             f"{_escape_special_chars(col)} {self._get_oracle_type(row[col])}"
             for col in row.keys()
@@ -127,6 +143,7 @@ class IngestToOracle(IIngesterPlugin):
             _normalize_identifier(col) for row in payload for col in row.keys()
         }
         new_columns = all_columns - existing_columns.keys()
+        _verify_identifiers(new_columns)
         column_defs = []
         if new_columns:
             for col in new_columns:
@@ -218,6 +235,7 @@ class IngestToOracle(IIngesterPlugin):
         [('val1', 'val2'), ('val1', 'val2')]
         """
         columns = self.table_cache.get_columns(destination_table)
+        _verify_identifiers(columns)
         query_columns = [_escape_special_chars(col) for col in columns]
 
         placeholders = ", ".join(f":{i}" for i in range(len(columns)))
@@ -225,15 +243,23 @@ class IngestToOracle(IIngesterPlugin):
 
         parameters = []
         for obj in payload:
-            row = tuple(
-                self._cast_to_correct_type(
-                    destination_table, column.lower(), obj.get(column.lower())
-                )
-                for column in columns
-            )
+            row = []
+            _verify_identifiers(obj.keys())
+            for column in columns:
+                val, col = self._match_column_to_row_key(obj, column)
+                row.append(self._cast_to_correct_type(destination_table, col, val))
             parameters.append(row)
 
         return query, parameters
+
+    def _match_column_to_row_key(self, row, column):
+        if column in row:
+            return row[column], column
+        if column.lower() in row:
+            return row[column.lower()], column.lower()
+        if column.upper() in row:
+            return row[column.upper()], column.upper()
+        return None, column
 
     def ingest_payload(
         self,
