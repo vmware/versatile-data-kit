@@ -64,8 +64,10 @@ class JobInput(IJobInput):
 
     # Connections
 
-    def get_managed_connection(self) -> ManagedConnectionBase:
-        return self.__managed_connection_builder.open_default_connection()
+    def get_managed_connection(self, database: str = None) -> ManagedConnectionBase:
+        if not database:
+            return self.__managed_connection_builder.open_default_connection()
+        return self.__managed_connection_builder.open_connection(dbtype=database)
 
     def get_arguments(self) -> dict:
         return self.__job_arguments.get_arguments()
@@ -116,13 +118,13 @@ class JobInput(IJobInput):
 
         return query
 
-    def execute_query(self, sql: str):
+    def execute_query(self, sql: str, database: str = None):
         if not sql or not sql.strip():
             raise UserCodeError("Trying to execute an empty SQL query.")
 
         query = self._substitute_query_params(sql)
 
-        connection = self.get_managed_connection()
+        connection = self.get_managed_connection(database)
         return connection.execute_query(query)
 
     def send_object_for_ingestion(
