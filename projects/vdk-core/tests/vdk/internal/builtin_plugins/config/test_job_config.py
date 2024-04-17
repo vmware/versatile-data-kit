@@ -105,6 +105,37 @@ class TestJobConfig:
         cfg = JobConfig(self._test_dir)
         self.assertEqual({"a": "b"}, cfg.get_vdk_options())
 
+    def test_get_vdk_subsection_names(self):
+        self._write_to_config_ini(
+            self._test_dir,
+            """
+
+            [vdk_subsection_one]
+
+            [vdk_subsection_two]
+        """,
+        )
+        cfg = JobConfig(self._test_dir)
+        options = ["vdk_subsection_one", "vdk_subsection_two"]
+        for subclass in cfg.get_vdk_subsection_names():
+            assert options.count(subclass) == 1
+
+    def test_vdk_subsection_values(self):
+        self._write_to_config_ini(
+            self._test_dir,
+            """
+            [vdk]
+            not_to_be_fetched=a
+
+            [vdk_subsection]
+            a=b
+            c=d
+        """,
+        )
+        cfg = JobConfig(self._test_dir)
+        values = cfg.get_vdk_subsection_values("vdk_subsection")
+        self.assertEqual({"a": "b", "c": "d"}, values)
+
     def test_set_team(self):
         self._perform_set_team_test("my_unique_team_name")
 
