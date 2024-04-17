@@ -121,13 +121,17 @@ class TestJobConfig:
         self._write_to_config_ini(
             self._test_dir,
             """
+            [vdk]
+            not_to_be_fetched=a
+            
             [vdk_subsection]
             a=b
             c=d
         """,
         )
         cfg = JobConfig(self._test_dir)
-        self.assertEqual({"a": "b", "c": "d"}, cfg.get_vdk_subsection_values("vdk_subsection"))
+        values = cfg.get_vdk_subsection_values("vdk_subsection")
+        self.assertEqual({"a": "b", "c": "d"}, values)
 
     def test_set_team(self):
         self._perform_set_team_test("my_unique_team_name")
