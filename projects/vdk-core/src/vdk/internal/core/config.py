@@ -73,85 +73,110 @@ class ConfigEntry:
 @dataclass(frozen=True)
 class Configuration:
     """
-    The immutable configuration for an application, organized by sections.
+    Immutable configuration organized by sections, supporting optional section specification for key searches
+    in non-prefixed sections.
 
-    Each section contains configuration entries defined by the ConfigEntry dataclass,
-    allowing complex configuration setups with multiple sections, each potentially having
-    overlapping key names but distinct settings.
+    Each section contains configuration entries defined by the ConfigEntry dataclass, enabling complex
+    configurations setups with optional simpler access patterns when section prefixes are well-defined.
 
     Attributes:
-        __sections (Dict[str, Dict[ConfigKey, ConfigEntry]]): A dictionary where each key is a section name
-                                                        and each value is another dictionary mapping
-                                                        configuration keys to ConfigEntry instances.
+        __sections (Dict[str, Dict[str, ConfigEntry]]): A dictionary where each key represents a section name
+        and each value is a dictionary of configuration keys to ConfigEntry instances.
     """
-    __sections: Dict[str, Dict[ConfigKey, ConfigEntry]] = field(default_factory=dict)
+    __sections: Dict[str, Dict[str, ConfigEntry]] = field(default_factory=dict)
 
-    def get_value(self, section: str, key: str) -> Optional[Any]:
+    def get_value(self, key: str, section: Optional[str] = None) -> Optional[Any]:
         """
-        Retrieve the current value of a configuration key within a specified section.
+        Retrieve the current value of a configuration key, optionally searching only within a specific section or
+        across all non-prefixed sections if no section is provided.
 
         Args:
-            section (str): The name of the section.
-            key (str): The configuration key.
+            key (str): The configuration key to search for.
+            section (Optional[str]): The specific section to search within. If None, searches across all sections
+            not starting with 'vdk_'. This is kept for backwards compatibility.
 
         Returns:
-            Any: The current value of the configuration key if it exists, None otherwise.
+            Optional[Any]: The current value of the configuration key if found, otherwise None.
         """
-        section = _normalize_config_string(section)
         key = _normalize_config_string(key)
-        return self.__sections.get(section, {}).get(key, ConfigEntry()).value
+        if section is None:
+            for sec, entries in self.__sections.items():
+                if not sec.startswith("vdk_") and key in entries:
+                    return entries[key].value
+            return None
+        else:
+            section = _normalize_config_string(section)
+            return self.__sections.get(section, {}).get(key, ConfigEntry()).value
 
-    def get_required_value(self, section: str, key: str) -> Any:
+    def get_required_value(self, key: str, section: Optional[str] = None) -> Any:
         """
-        Retrieve the current value of a configuration key within a specified section and raise
-        an error if it is not set.
+        Retrieve the required value of a configuration key, optionally from a specific section or
+        across all non-prefixed sections, raising an error if the key is not found.
 
         Args:
-            section (str): The name of the section.
             key (str): The configuration key.
+            section (Optional[str]): The section from which to retrieve the value. If None, searches across
+            all non-'vdk_' prefixed sections. This check is kept for backwards compatibility.
 
         Returns:
-            Any: The current value of the configuration key.
+            Any: The value of the configuration key.
 
         Raises:
-            ValueError: If the configuration key is not set.
+            ValueError: If the configuration key is missing from the specified section or non-prefixed sections.
         """
-        section = _normalize_config_string(section)
-        key = _normalize_config_string(key)
-        value = self.get_value(section, key)
+        value = self.get_value(key, section)
         if value is None:
-            raise ValueError(f"Required configuration {key} in section {section} is missing.")
+            if section:
+                raise ValueError(f"Required configuration {key} in section {section} is missing.")
+            else:
+                raise ValueError(f"Required configuration {key} is missing in non-vdk prefixed sections.")
         return value
 
-    def get_description(self, section: str, key: str) -> Optional[str]:
+    def get_description(self, key: str, section: Optional[str] = None) -> Optional[str]:
         """
-        Retrieve the description of a configuration key within a specified section.
+        Retrieve the description of a configuration key, optionally from a specific section or
+        across all non-prefixed sections.
 
         Args:
-            section (str): The name of the section.
             key (str): The configuration key.
+            section (Optional[str]): The section to search within.
+            If None, searches across all non-'vdk_' prefixed sections. This check is kept for backwards compatibility.
 
         Returns:
-            Optional[str]: The description of the configuration key if it exists, None otherwise.
+            Optional[str]: The description of the configuration key if it exists, otherwise None.
         """
-        section = _normalize_config_string(section)
         key = _normalize_config_string(key)
-        return self.__sections.get(section, {}).get(key, ConfigEntry()).description
+        if section is None:
+            for sec, entries in self.__sections.items():
+                if not sec.startswith("vdk_") and key in entries:
+                    return entries[key].description
+            return None
+        else:
+            section = _normalize_config_string(section)
+            return self.__sections.get(section, {}).get(key, ConfigEntry()).description
 
-    def is_sensitive(self, section: str, key: str) -> bool:
+    def is_sensitive(self, key: str, section: Optional[str] = None) -> bool:
         """
-        Check if a configuration key within a specified section is marked as sensitive.
+        Check if a configuration key within a specified section or across all non-prefixed sections
+        is marked as sensitive.
 
         Args:
-            section (str): The name of the section.
             key (str): The configuration key.
+            section (Optional[str]): The section to search within.
+            If None, searches across all non-'vdk_' prefixed sections. This check is kept for backwards compatibility.
 
         Returns:
             bool: True if the configuration key is marked as sensitive, False otherwise.
         """
-        section = _normalize_config_string(section)
         key = _normalize_config_string(key)
-        return self.__sections.get(section, {}).get(key, ConfigEntry()).sensitive
+        if section is None:
+            for sec, entries in self.__sections.items():
+                if not sec.startswith("vdk_") and key in entries:
+                    return entries[key].sensitive
+            return False
+        else:
+            section = _normalize_config_string(section)
+            return self.__sections.get(section, {}).get(key, ConfigEntry()).sensitive
 
 
 @dataclass
