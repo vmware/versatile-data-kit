@@ -162,6 +162,33 @@ class JobConfig:
         else:
             return {}
 
+    def get_all_sections(self):
+        """Return a list of section names, excluding [DEFAULT]"""
+        return self._config_ini.sections()
+
+    def get_vdk_subsection_names(self):
+        """
+        Retrieves the names of all subsections under the 'vdk' main section from the config.ini file.
+        Subsections are identified by the pattern 'vdk_<string>'.
+        Returns a list of subsection names.
+        """
+        subsection_names = [
+            section for section in self._config_ini.sections() if section.startswith('vdk_') and section != 'vdk'
+        ]
+        return subsection_names
+
+    def get_vdk_subsection_values(self, subsection_name):
+        """
+        Given a subsection name under 'vdk', returns all key-value pairs from that subsection.
+        Subsections are identified by the pattern 'vdk_<string>'.
+        If the subsection does not exist, it returns an empty dictionary.
+
+        :param subsection_name: The name of the subsection (e.g., 'vdk_my_oracle')
+        """
+        if subsection_name in self._config_ini.sections():
+            return dict(self._config_ini[subsection_name])
+        return {}
+
     def _get_value(self, section, key):
         if self._config_ini.has_option(section, key):
             return self._config_ini.get(section, key)

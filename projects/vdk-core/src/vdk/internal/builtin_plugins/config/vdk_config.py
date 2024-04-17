@@ -284,3 +284,16 @@ It can be overridden by environment variables configuration (set by operators in
 
             for key, value in job_config.get_vdk_options().items():
                 config_builder.set_value(key, value)
+
+            for subsection in job_config.get_vdk_subsection_names():
+                for key, value in job_config.get_vdk_subsection_values(subsection).items():
+                    # TODO: after the configuration builder is changed, we need to pass the subsection as
+                    #  section not as key
+                    config_builder.add(
+                        key=subsection + "_" + key,
+                        default_value=""
+                    )
+                    config_builder.set_value(
+                        key=subsection + "_" + key,
+                        value=value
+                    )
