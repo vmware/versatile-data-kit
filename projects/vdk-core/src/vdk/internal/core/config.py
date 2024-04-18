@@ -6,7 +6,7 @@ import logging
 
 from vdk.internal.core.errors import VdkConfigurationError
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 # Consider ConfigValue should be primitive type perhaps? and not just any object
 ConfigValue = Any
@@ -178,6 +178,34 @@ class Configuration:
             section = _normalize_config_string(section)
             return self.__sections.get(section, {}).get(key, ConfigEntry()).sensitive
 
+    def list_sections(self) -> List[str]:
+        """
+        List all section names in the configuration.
+
+        Returns:
+            List[str]: A list of all section names currently defined in the configuration.
+        """
+        return list(self.__sections.keys())
+
+    def list_keys_in_section(self, section: str) -> List[str]:
+        """
+        List all keys within a specified section of the configuration.
+
+        Args:
+            section (str): The name of the section from which to list keys.
+
+        Returns:
+            List[str]: A list of all configuration keys within the specified section.
+             Returns an empty list if the section does not exist.
+
+        Raises:
+            ValueError: If the specified section does not exist in the configuration.
+        """
+        section = _normalize_config_string(section)
+        if section in self.__sections:
+            return list(self.__sections[section].keys())
+        raise ValueError(f"Section '{section}' does not exist in the configuration.")
+
 
 @dataclass
 class ConfigurationBuilder:
@@ -194,11 +222,12 @@ class ConfigurationBuilder:
     """
     __sections: Dict[str, Dict[ConfigKey, ConfigEntry]] = field(default_factory=dict)
 
-    def add(self, section: str, key: str, default_value: Optional[Any] = None, description: Optional[str] = None,
-            is_sensitive: bool = False) -> 'ConfigurationBuilder':
+    def add(self, key: str, section: Optional[str] = "vdk", default_value: Optional[Any] = None,
+            description: Optional[str] = None, is_sensitive: bool = False) -> 'ConfigurationBuilder':
         """
         Adds a configuration key with its associated properties to a specified section. If the section does not
         already exist, it is created.
+        If no section is specified, it adds the configuration to the vdk section.
 
         Args:
             section (str): The name of the section to which the configuration key will be added.
@@ -248,7 +277,7 @@ class ConfigurationBuilder:
             sensitive=is_sensitive
         )
 
-    def set_value(self, section: str, key: str, value: Any) -> 'ConfigurationBuilder':
+    def set_value(self, key: str, value: Any, section: Optional[str] = "vdk") -> 'ConfigurationBuilder':
         """
         Sets or updates the value for a specific configuration key within a designated section.
 
@@ -280,5 +309,3 @@ class ConfigurationBuilder:
             Configuration: The constructed immutable configuration object, ready to be used within the application.
         """
         return Configuration(__sections=self.__sections)
-
-
