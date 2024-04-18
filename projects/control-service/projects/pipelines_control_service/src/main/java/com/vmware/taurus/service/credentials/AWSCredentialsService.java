@@ -10,6 +10,8 @@ import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
 import java.util.UUID;
+
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +28,7 @@ public class AWSCredentialsService {
   public record AWSCredentialsDTO(
       String awsSecretAccessKey, String awsAccessKeyId, String awsSessionToken, String region) {}
 
+  @Getter
   private STSAssumeRoleSessionCredentialsProvider credentialsProvider;
   private AWSCredentialsServiceConfig awsCredentialsServiceConfig;
 
@@ -88,10 +91,7 @@ public class AWSCredentialsService {
     var accessKeyId = serviceAccountCredentials.getAWSAccessKeyId();
     var secretAccessKey = serviceAccountCredentials.getAWSSecretKey();
     var sessionToken = serviceAccountCredentials.getSessionToken();
-    System.out.println("Test gitlab code commit access");
-    System.out.println(accessKeyId);
-    System.out.println(secretAccessKey);
-    System.out.println(sessionToken);
+
     return new AWSCredentialsDTO(
         secretAccessKey, accessKeyId, sessionToken, awsCredentialsServiceConfig.getRegion());
   }
