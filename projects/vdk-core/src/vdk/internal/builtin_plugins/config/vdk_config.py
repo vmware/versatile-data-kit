@@ -187,7 +187,7 @@ Configuration for cloud execution is done in 'config.ini' file or the vdk cli.
             description=description,
         )
 
-        config_keys = config_builder.list_config_keys()
+        config_keys = config_builder.list_config_keys_from_main_sections()  # TODO: make it work with all sections
         log.debug(
             f"Founds config keys: {config_keys}. Will check if environment variable is set for any"
         )
@@ -289,7 +289,5 @@ It can be overridden by environment variables configuration (set by operators in
                 for key, value in job_config.get_vdk_subsection_values(
                     subsection
                 ).items():
-                    # TODO: after the configuration builder is changed, we need to pass the subsection as
-                    #  section not as key
-                    config_builder.add(key=subsection + "_" + key, default_value="")
-                    config_builder.set_value(key=subsection + "_" + key, value=value)
+                    config_builder.add(key=key, default_value="", section=subsection)
+                    config_builder.set_value(key=key, value=value, section=subsection)

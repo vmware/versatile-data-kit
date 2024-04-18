@@ -358,6 +358,46 @@ class ConfigurationBuilder:
         self.__sections[section][key].value = value
         return self
 
+    def list_config_keys_from_main_sections(self) -> List[str]:
+        """
+        List all configuration keys from sections that do not start with 'vdk_'.
+        The vdk_ are considered subsections of vdk.
+
+        Returns:
+            List[str]: A list of all configuration keys in non-'vdk_' prefixed sections.
+        """
+        keys = []
+        for section, entries in self.__sections.items():
+            if not section.startswith("vdk_"):
+                keys.extend(entries.keys())
+        return list(keys)
+
+    def list_config_keys_for_section(self, section: str) -> List[str]:
+        """
+        List all keys within a specified section of the configuration.
+
+        Args:
+            section (str): The name of the section from which to list keys.
+
+        Returns:
+            List[str]: A list of all configuration keys within the specified section.
+            Raises ValueError if the section does not exist.
+        """
+        section = _normalize_config_string(section)
+        if section in self.__sections:
+            return list(self.__sections[section].keys())
+        else:
+            raise ValueError(f"Section '{section}' does not exist.")
+
+    def list_all_section_names(self) -> List[str]:
+        """
+        List all section names in the configuration.
+
+        Returns:
+            List[str]: A list of all section names currently defined in the configuration.
+        """
+        return list(self.__sections.keys())
+
     def build(self) -> 'Configuration':
         """
         Finalizes the building process and constructs an immutable Configuration object from the accumulated data.
