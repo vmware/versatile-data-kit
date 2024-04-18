@@ -284,8 +284,7 @@ public class JobExecutionService {
       ExecutionResult executionResult) {
 
     if (StringUtils.isBlank(jobExecution.getExecutionId())) {
-      log.warn(
-          "Could not store Data Job execution due to the missing execution id: {}", jobExecution);
+      log.warn("Could not store Data Job execution due to missing execution id: {}", jobExecution);
       return Optional.empty();
     }
 
