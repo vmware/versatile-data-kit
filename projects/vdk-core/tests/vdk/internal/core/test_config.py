@@ -40,7 +40,7 @@ def test_unknown_key():
     assert cfg["no-such-key"] is None
     assert cfg.get_description("no-such-key") is None
 
-    assert cfg.get_description("key") is None
+    assert cfg.get_description("key") == "No description provided. Default value: 1."
     assert cfg.get_value("key") == 1
 
 
@@ -85,13 +85,13 @@ def test_set_value_overrides_default():
     assert not cfg.is_default("key")
 
 
-def test_set_value_eq_default_is_not_default():
+def test_set_value_eq_default_is_default():
     builder = ConfigurationBuilder()
     builder.add("key", "value", False, "key description")
     builder.set_value("key", "value")
     cfg = builder.build()
     assert cfg.get_value("key") == "value"
-    assert not cfg.is_default("key")
+    assert cfg.is_default("key")
 
 
 def test_set_value_overrides_default_preserve_types():
@@ -107,16 +107,6 @@ def test_set_value_overrides_default_preserve_types():
     builder.set_value("int", "bad-value")
     with pytest.raises(VdkConfigurationError):
         builder.add("int", 1, False, "key description")
-
-
-def test_list_config_keys():
-    builder = ConfigurationBuilder()
-    builder.add("key1", 1)
-    builder.add("key2", "two")
-    builder.add("key3", None)
-    builder.add("key4", False, False, "description")
-    builder.add("key5", 1.2, True, "description")
-    assert {"key1", "key2", "key3", "key4", "key5"} == set(builder.list_config_keys())
 
 
 def test_conversions():

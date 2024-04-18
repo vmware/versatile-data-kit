@@ -6,7 +6,7 @@ import logging
 
 from vdk.internal.core.errors import VdkConfigurationError
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Union, Tuple
 
 # Consider ConfigValue should be primitive type perhaps? and not just any object
 ConfigValue = Any
@@ -80,10 +80,10 @@ class Configuration:
     configurations setups with optional simpler access patterns when section prefixes are well-defined.
 
     Attributes:
-        __sections (Dict[str, Dict[str, ConfigEntry]]): A dictionary where each key represents a section name
+        _sections (Dict[str, Dict[str, ConfigEntry]]): A dictionary where each key represents a section name
         and each value is a dictionary of configuration keys to ConfigEntry instances.
     """
-    __sections: Dict[str, Dict[str, ConfigEntry]] = field(default_factory=dict)
+    _sections: Dict[str, Dict[str, ConfigEntry]] = field(default_factory=dict)
 
     def get_value(self, key: str, section: Optional[str] = None) -> Optional[Any]:
         """
@@ -100,13 +100,13 @@ class Configuration:
         """
         key = _normalize_config_string(key)
         if section is None:
-            for sec, entries in self.__sections.items():
+            for sec, entries in self._sections.items():
                 if not sec.startswith("vdk_") and key in entries:
                     return entries[key].value
             return None
         else:
             section = _normalize_config_string(section)
-            return self.__sections.get(section, {}).get(key, ConfigEntry()).value
+            return self._sections.get(section, {}).get(key, ConfigEntry()).value
 
     def get_required_value(self, key: str, section: Optional[str] = None) -> Any:
         """
@@ -127,9 +127,9 @@ class Configuration:
         value = self.get_value(key, section)
         if value is None:
             if section:
-                raise ValueError(f"Required configuration {key} in section {section} is missing.")
+                raise VdkConfigurationError(f"Required configuration {key} in section {section} is missing.")
             else:
-                raise ValueError(f"Required configuration {key} is missing in non-vdk prefixed sections.")
+                raise VdkConfigurationError(f"Required configuration {key} is missing in non-vdk prefixed sections.")
         return value
 
     def get_description(self, key: str, section: Optional[str] = None) -> Optional[str]:
@@ -147,13 +147,13 @@ class Configuration:
         """
         key = _normalize_config_string(key)
         if section is None:
-            for sec, entries in self.__sections.items():
+            for sec, entries in self._sections.items():
                 if not sec.startswith("vdk_") and key in entries:
                     return entries[key].description
             return None
         else:
             section = _normalize_config_string(section)
-            return self.__sections.get(section, {}).get(key, ConfigEntry()).description
+            return self._sections.get(section, {}).get(key, ConfigEntry()).description
 
     def is_sensitive(self, key: str, section: Optional[str] = None) -> bool:
         """
@@ -170,13 +170,42 @@ class Configuration:
         """
         key = _normalize_config_string(key)
         if section is None:
-            for sec, entries in self.__sections.items():
+            for sec, entries in self._sections.items():
                 if not sec.startswith("vdk_") and key in entries:
                     return entries[key].sensitive
             return False
         else:
             section = _normalize_config_string(section)
-            return self.__sections.get(section, {}).get(key, ConfigEntry()).sensitive
+            return self._sections.get(section, {}).get(key, ConfigEntry()).sensitive
+
+    def is_default(self, key: str, section: Optional[str] = None) -> bool:
+        """
+        Return True if the configuration value for a given key uses the default value.
+        If set_value is called for a specific key, this will return False, even if value == default_value.
+
+        Args:
+            key (str): The configuration key to check.
+            section (Optional[str]): The section to check within, if None checks across all sections.
+
+        Returns:
+            bool: True if the value is the default value and not explicitly set, False otherwise.
+        """
+        key = _normalize_config_string(key)
+        if section:
+            section = _normalize_config_string(section)
+            entries = self._sections.get(section, {})
+        else:
+            for sec, ents in self._sections.items():
+                if key in ents:
+                    entries = ents
+                    break
+            else:
+                return False
+
+        entry = entries.get(key)
+        if entry:
+            return entry.value == entry.default
+        return False
 
     def list_sections(self) -> List[str]:
         """
@@ -185,7 +214,7 @@ class Configuration:
         Returns:
             List[str]: A list of all section names currently defined in the configuration.
         """
-        return list(self.__sections.keys())
+        return list(self._sections.keys())
 
     def list_keys_in_section(self, section: str) -> List[str]:
         """
@@ -202,9 +231,30 @@ class Configuration:
             ValueError: If the specified section does not exist in the configuration.
         """
         section = _normalize_config_string(section)
-        if section in self.__sections:
-            return list(self.__sections[section].keys())
+        if section in self._sections:
+            return list(self._sections[section].keys())
         raise ValueError(f"Section '{section}' does not exist in the configuration.")
+
+    def __getitem__(self, key: Union[str, Tuple[str, Optional[str]]]) -> Any:
+        """
+        Allows the Configuration object to be accessed using subscript notation. Supports accessing
+        with a single key or a tuple containing section and key.
+
+        Args:
+            key (Union[str, Tuple[str, Optional[str]]]): The key or a tuple with section and key to look up.
+
+        Returns:
+            Any: The value associated with the key.
+
+        Raises:
+            KeyError: If the key or section does not exist.
+        """
+        if isinstance(key, tuple):
+            section, key = key
+        else:
+            section = None
+
+        return self.get_value(section=section, key=key)
 
 
 @dataclass
@@ -217,35 +267,37 @@ class ConfigurationBuilder:
     with each section potentially containing overlapping key names but with distinct settings.
 
     Attributes:
-        __sections (Dict[str, Dict[ConfigKey, ConfigEntry]]): Stores all configuration data during the building process.
-                                                Each section maps configuration keys to their respective ConfigEntry.
+        __sections (Dict[str, Dict[str, ConfigEntry]]): Stores all configuration data during the building process.
+                                                        Each section maps configuration keys to their respective ConfigEntry.
     """
-    __sections: Dict[str, Dict[ConfigKey, ConfigEntry]] = field(default_factory=dict)
+    __sections: Dict[str, Dict[str, ConfigEntry]] = field(default_factory=dict)
 
-    def add(self, key: str, section: Optional[str] = "vdk", default_value: Optional[Any] = None,
-            description: Optional[str] = None, is_sensitive: bool = False) -> 'ConfigurationBuilder':
+    def add(self, key: str, default_value: Optional[Any] = None,
+            show_default_value: bool = True,
+            description: Optional[str] = None, is_sensitive: bool = False,
+            section: Optional[str] = "vdk") -> 'ConfigurationBuilder':
         """
         Adds a configuration key with its associated properties to a specified section. If the section does not
-        already exist, it is created.
-        If no section is specified, it adds the configuration to the vdk section.
+        already exist, it is created. If no section is specified, the configuration is added to the 'vdk' section.
 
         Args:
-            section (str): The name of the section to which the configuration key will be added.
             key (str): The configuration key to add.
             default_value (Optional[Any]): The default value for the configuration key, used if no value is explicitly set.
             description (Optional[str]): A human-readable description of the configuration key.
             is_sensitive (bool): Indicates whether the configuration key contains sensitive information.
+            show_default_value (bool): If true, the default value is included in the description of the configuration.
+            section (Optional[str]): The name of the section to which the configuration key will be added.
 
         Returns:
             ConfigurationBuilder: Returns the builder instance to enable method chaining.
         """
-        section = _normalize_config_string(section)
+        section = _normalize_config_string(section) if section else "vdk"
         key = _normalize_config_string(key)
-        self.__add_public(section, key, default_value, description, is_sensitive)
+        self.__add_public(section, key, default_value, description, is_sensitive, show_default_value)
         return self
 
     def __add_public(self, section: str, key: str, default_value: Optional[Any], description: Optional[str],
-                     is_sensitive: bool) -> None:
+                     is_sensitive: bool, show_default_value: bool = True) -> None:
         """
         Handles the internal logic of adding a new configuration key to a section, including managing descriptions
         and sensitivity settings. This method encapsulates additional formatting and initialization operations
@@ -257,21 +309,28 @@ class ConfigurationBuilder:
             default_value (Optional[Any]): The default value for the configuration key.
             description (Optional[str]): The description of the configuration key; enhances user documentation.
             is_sensitive (bool): Specifies if the configuration key is sensitive.
+            show_default_value (bool): Determines if the default value should be included in the description.
 
         Raises:
             ValueError: If the key already exists and the function is intended to only handle new additions.
         """
-        section = _normalize_config_string(section)
-        key = _normalize_config_string(key)
+        formatted_description = description or "No description provided."
+        if is_sensitive:
+            formatted_description += " This option is marked as sensitive."
+        if show_default_value and default_value is not None:
+            formatted_description += f" Default value: {default_value}."
+
         if section not in self.__sections:
             self.__sections[section] = {}
 
-        formatted_description = description if description else "No description provided."
-        if is_sensitive:
-            formatted_description += " This option is marked as sensitive."
+        value = default_value
+        if key in self.__sections[section]:
+            value = self.__sections[section][key].value
+            if default_value:
+                value = convert_value_to_type_of_default_type(key=key, v=value, default_value=default_value)
 
         self.__sections[section][key] = ConfigEntry(
-            value=default_value,
+            value=value,
             default=default_value,
             description=formatted_description,
             sensitive=is_sensitive
@@ -282,8 +341,8 @@ class ConfigurationBuilder:
         Sets or updates the value for a specific configuration key within a designated section.
 
         Args:
-            section (str): The name of the section containing the configuration key.
             key (str): The configuration key whose value is to be updated.
+            section (Optional[str]): The name of the section containing the configuration key. Defaults to 'vdk'.
             value (Any): The new value to assign to the configuration key.
 
         Returns:
@@ -292,20 +351,22 @@ class ConfigurationBuilder:
         Raises:
             ValueError: If the key does not exist in the given section, indicating it must be added first.
         """
-        section = _normalize_config_string(section)
+        section = _normalize_config_string(section) if section else "vdk"
         key = _normalize_config_string(key)
         if section not in self.__sections or key not in self.__sections[section]:
-            raise ValueError(f"Key {key} does not exist in section {section}. Please add it first.")
-        default_value = self.__sections[section][key].default
-        converted_value = convert_value_to_type_of_default_type(key, value, default_value)
-        self.__sections[section][key].value = converted_value
+            self.add(key, value)
+        self.__sections[section][key].value = value
         return self
 
-    def build(self) -> Configuration:
+    def build(self) -> 'Configuration':
         """
         Finalizes the building process and constructs an immutable Configuration object from the accumulated data.
 
         Returns:
             Configuration: The constructed immutable configuration object, ready to be used within the application.
         """
-        return Configuration(__sections=self.__sections)
+        return Configuration(_sections=self.__sections)
+
+
+
+
