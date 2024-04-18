@@ -108,6 +108,20 @@ class Configuration:
             section = _normalize_config_string(section)
             return self._sections.get(section, {}).get(key, ConfigEntry()).value
 
+    def override_value(self, key: ConfigKey, value: Any, section: str = None):
+        key = _normalize_config_string(key)
+        if section is None:
+            for sec, entries in self._sections.items():
+                if not sec.startswith("vdk_") and key in entries:
+                    entries[key].value = value
+        else:
+            section = _normalize_config_string(section)
+            if section in self._sections and key in self._sections[section].keys():
+                self._sections[section][key].value = value
+            else:
+                raise VdkConfigurationError("The value you are trying to override is not existing. "
+                                            f"Check the {section} section and {key} key, again!")
+
     def get_required_value(self, key: str, section: Optional[str] = None) -> Any:
         """
         Retrieve the required value of a configuration key, optionally from a specific section or
@@ -248,6 +262,10 @@ class Configuration:
             if not section.startswith("vdk_"):
                 keys.extend(entries.keys())
         return list(keys)
+
+    def list_config_keys(self) -> List[str]:
+        # this is used in many plugins to be removed after the change in plugins is done
+        return self.list_config_keys_from_main_sections()
 
     def __getitem__(self, key: Union[str, Tuple[str, Optional[str]]]) -> Any:
         """
