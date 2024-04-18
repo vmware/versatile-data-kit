@@ -235,6 +235,20 @@ class Configuration:
             return list(self._sections[section].keys())
         raise ValueError(f"Section '{section}' does not exist in the configuration.")
 
+    def list_config_keys_from_main_sections(self) -> List[str]:
+        """
+        List all configuration keys from sections that do not start with 'vdk_'.
+        The vdk_ are considered subsections of vdk.
+
+        Returns:
+            List[str]: A list of all configuration keys in non-'vdk_' prefixed sections.
+        """
+        keys = []
+        for section, entries in self._sections.items():
+            if not section.startswith("vdk_"):
+                keys.extend(entries.keys())
+        return list(keys)
+
     def __getitem__(self, key: Union[str, Tuple[str, Optional[str]]]) -> Any:
         """
         Allows the Configuration object to be accessed using subscript notation. Supports accessing
