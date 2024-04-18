@@ -12,14 +12,16 @@ from vdk.internal.builtin_plugins.job_secrets.secrets_router import (
     SecretsRouter,
 )
 from vdk.internal.core import errors
-from vdk.internal.core.config import Configuration
+from vdk.internal.core.config import Configuration, ConfigEntry
 from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 
 
 def test_routing():
-    router = SecretsRouter("foo", Configuration({}, {JobConfigKeys.TEAM: "test-team"}))
+    entry = ConfigEntry(value="test-team")
+    section = {"owner": {JobConfigKeys.TEAM: entry}}
+    router = SecretsRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=ISecretsServiceClient)
     router.set_secrets_factory_method("default", lambda: mock_client)
 
@@ -31,7 +33,8 @@ def test_routing():
 
 
 def test_routing_error():
-    router = SecretsRouter("foo", Configuration({}, {}))
+    section = {}
+    router = SecretsRouter("foo", Configuration(section))
 
     def raise_error():
         raise AttributeError("dummy exception")
@@ -43,14 +46,16 @@ def test_routing_error():
 
 
 def test_routing_empty_error():
-    router = SecretsRouter("foo", Configuration({}, {}))
+    router = SecretsRouter("foo", Configuration({}))
 
     with pytest.raises(VdkConfigurationError):
         router.set_all_secrets({"a": "b"})
 
 
 def test_routing_choose_single_registered():
-    router = SecretsRouter("foo", Configuration({}, {"team": "test-team"}))
+    entry = ConfigEntry(value="test-team")
+    section = {"owner": {JobConfigKeys.TEAM: entry}}
+    router = SecretsRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=ISecretsServiceClient)
     router.set_secrets_factory_method("foo", lambda: mock_client)
 
@@ -59,7 +64,9 @@ def test_routing_choose_single_registered():
 
 
 def test_routing_choose_default_type_chosen():
-    router = SecretsRouter("foo", Configuration({}, {"secrets_default_type": "foo"}))
+    entry = ConfigEntry(value="foo")
+    section = {"vdk": {"secrets_default_type": entry}}
+    router = SecretsRouter("foo", Configuration(section))
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
     bar_mock_client = MagicMock(spec=ISecretsServiceClient)
     router.set_secrets_factory_method("foo", lambda: foo_mock_client)
@@ -71,7 +78,7 @@ def test_routing_choose_default_type_chosen():
 
 
 def test_routing_choose_too_many_choices():
-    router = SecretsRouter("foo", Configuration({}, {}))
+    router = SecretsRouter("foo", Configuration({}))
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
     bar_mock_client = MagicMock(spec=ISecretsServiceClient)
     router.set_secrets_factory_method("foo", lambda: foo_mock_client)
@@ -82,15 +89,20 @@ def test_routing_choose_too_many_choices():
 
 
 def test_preprocessing_sequence_success():
+    sections = {
+        "vdk": {
+            "secrets_default_type": ConfigEntry(value="foo"),
+            "secrets_write_preprocess_sequence": ConfigEntry(value="bar1,bar2")
+        },
+        "owner": {
+            JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
+        }
+
+    }
     router = SecretsRouter(
         "foo",
         Configuration(
-            {},
-            {
-                JobConfigKeys.TEAM: "test-team",
-                "secrets_default_type": "foo",
-                "secrets_write_preprocess_sequence": "bar1,bar2",
-            },
+            sections
         ),
     )
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
@@ -109,15 +121,20 @@ def test_preprocessing_sequence_success():
 
 
 def test_preprocessing_sequence_success_outerscope_immutable():
+    sections = {
+        "vdk": {
+            "secrets_default_type": ConfigEntry(value="foo"),
+            "secrets_write_preprocess_sequence": ConfigEntry(value="bar")
+        },
+        "owner": {
+            JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
+        }
+
+    }
     router = SecretsRouter(
         "foo",
         Configuration(
-            {},
-            {
-                JobConfigKeys.TEAM: "test-team",
-                "secrets_default_type": "foo",
-                "secrets_write_preprocess_sequence": "bar",
-            },
+           sections
         ),
     )
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
@@ -135,15 +152,20 @@ def test_preprocessing_sequence_success_outerscope_immutable():
 
 
 def test_preprocessing_sequence_error():
+    sections = {
+        "vdk": {
+            "secrets_default_type": ConfigEntry(value="foo"),
+            "secrets_write_preprocess_sequence": ConfigEntry(value="bar")
+        },
+        "owner": {
+            JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
+        }
+
+    }
     router = SecretsRouter(
         "foo",
         Configuration(
-            {},
-            {
-                JobConfigKeys.TEAM: "test-team",
-                "secrets_default_type": "foo",
-                "secrets_write_preprocess_sequence": "bar",
-            },
+           sections
         ),
     )
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
@@ -155,20 +177,23 @@ def test_preprocessing_sequence_error():
     with pytest.raises(WritePreProcessSecretsException) as exc_info:
         router.set_all_secrets({"a": "b"})
         assert (
-            errors.get_exception_resolvable_by(exc_info.value)
-            == ResolvableBy.USER_ERROR
+                errors.get_exception_resolvable_by(exc_info.value)
+                == ResolvableBy.USER_ERROR
         )
 
 
 def test_preprocessing_sequence_misconfigured():
+    sections = {
+        "vdk": {
+            "secrets_default_type": ConfigEntry(value="foo"),
+            "secrets_write_preprocess_sequence": ConfigEntry(value="bar")
+        },
+
+    }
     router = SecretsRouter(
         "foo",
         Configuration(
-            {},
-            {
-                "secrets_default_type": "foo",
-                "secrets_write_preprocess_sequence": "bar",
-            },
+            sections
         ),
     )
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
