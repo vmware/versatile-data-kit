@@ -19,8 +19,7 @@ from vdk.internal.core.errors import VdkConfigurationError
 
 
 def test_routing():
-    entry = ConfigEntry(value="test-team")
-    section = {"owner": {JobConfigKeys.TEAM: entry}}
+    section = {"owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
     router = SecretsRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=ISecretsServiceClient)
     router.set_secrets_factory_method("default", lambda: mock_client)
