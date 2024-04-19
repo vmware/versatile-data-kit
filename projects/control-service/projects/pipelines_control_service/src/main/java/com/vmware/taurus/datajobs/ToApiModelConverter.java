@@ -218,34 +218,34 @@ public class ToApiModelConverter {
   }
 
   public static com.vmware.taurus.service.graphql.model.DataJobExecution convertToDataJobExecution(
-          com.vmware.taurus.service.model.DataJobExecution jobExecutionToConvert, String logsUrl) {
+      com.vmware.taurus.service.model.DataJobExecution jobExecutionToConvert, String logsUrl) {
     return new com.vmware.taurus.service.graphql.model.DataJobExecution()
-            .id(jobExecutionToConvert.getId())
-            .jobName(jobExecutionToConvert.getDataJob().getName())
-            .type(fetchTypeEnum(jobExecutionToConvert.getType()))
-            .status(fetchStatusEnum(jobExecutionToConvert.getStatus()))
-            .message(jobExecutionToConvert.getMessage())
-            .opId(jobExecutionToConvert.getOpId())
-            .startTime(jobExecutionToConvert.getStartTime())
-            .endTime(jobExecutionToConvert.getEndTime())
-            .startedBy(jobExecutionToConvert.getStartedBy())
-            .logsUrl(logsUrl)
-            .deployment(
-                    new com.vmware.taurus.service.graphql.model.DataJobDeployment()
-                            .vdkVersion(jobExecutionToConvert.getVdkVersion())
-                            .jobVersion(jobExecutionToConvert.getJobVersion())
-                            .jobPythonVersion(jobExecutionToConvert.getJobPythonVersion())
-                            .schedule(
-                                    new com.vmware.taurus.service.graphql.model.DataJobSchedule()
-                                            .scheduleCron(jobExecutionToConvert.getJobSchedule()))
-                            .resources(fetchJobResources(jobExecutionToConvert))
-                            .deployedBy(jobExecutionToConvert.getLastDeployedBy())
-                            .deployedDate(jobExecutionToConvert.getLastDeployedDate())
-                            // TODO [miroslavi] get the following properties from the database once we introduce
-                            // the deployments
-                            .id(com.vmware.taurus.service.graphql.model.DataJobMode.RELEASE.getValue())
-                            .mode(com.vmware.taurus.service.graphql.model.DataJobMode.RELEASE)
-                            .enabled(true));
+        .id(jobExecutionToConvert.getId())
+        .jobName(jobExecutionToConvert.getDataJob().getName())
+        .type(fetchTypeEnum(jobExecutionToConvert.getType()))
+        .status(fetchStatusEnum(jobExecutionToConvert.getStatus()))
+        .message(jobExecutionToConvert.getMessage())
+        .opId(jobExecutionToConvert.getOpId())
+        .startTime(jobExecutionToConvert.getStartTime())
+        .endTime(jobExecutionToConvert.getEndTime())
+        .startedBy(jobExecutionToConvert.getStartedBy())
+        .logsUrl(logsUrl)
+        .deployment(
+            new com.vmware.taurus.service.graphql.model.DataJobDeployment()
+                .vdkVersion(jobExecutionToConvert.getVdkVersion())
+                .jobVersion(jobExecutionToConvert.getJobVersion())
+                .jobPythonVersion(jobExecutionToConvert.getJobPythonVersion())
+                .schedule(
+                    new com.vmware.taurus.service.graphql.model.DataJobSchedule()
+                        .scheduleCron(jobExecutionToConvert.getJobSchedule()))
+                .resources(fetchJobResources(jobExecutionToConvert))
+                .deployedBy(jobExecutionToConvert.getLastDeployedBy())
+                .deployedDate(jobExecutionToConvert.getLastDeployedDate())
+                // TODO [miroslavi] get the following properties from the database once we introduce
+                // the deployments
+                .id(com.vmware.taurus.service.graphql.model.DataJobMode.RELEASE.getValue())
+                .mode(com.vmware.taurus.service.graphql.model.DataJobMode.RELEASE)
+                .enabled(true));
   }
 
   // Public for testing purposes
@@ -260,8 +260,9 @@ public class ToApiModelConverter {
         return null;
     }
   }
+
   public static com.vmware.taurus.service.graphql.model.DataJobExecution.TypeEnum fetchTypeEnum(
-          ExecutionType type) {
+      ExecutionType type) {
     switch (type) {
       case MANUAL:
         return com.vmware.taurus.service.graphql.model.DataJobExecution.TypeEnum.MANUAL;
@@ -300,7 +301,7 @@ public class ToApiModelConverter {
   }
 
   public static com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum fetchStatusEnum(
-          ExecutionStatus status) {
+      ExecutionStatus status) {
     if (status == null) {
       return null;
     }
@@ -334,12 +335,12 @@ public class ToApiModelConverter {
     dataJobResources.setMemoryRequest(job.getResourcesMemoryRequest());
 
     return dataJobResources;
-  }  
-  
+  }
+
   private static com.vmware.taurus.service.graphql.model.DataJobResources fetchJobResources(
       com.vmware.taurus.service.model.DataJobExecution job) {
-    com.vmware.taurus.service.graphql.model.DataJobResources dataJobResources = 
-            new com.vmware.taurus.service.graphql.model.DataJobResources();
+    com.vmware.taurus.service.graphql.model.DataJobResources dataJobResources =
+        new com.vmware.taurus.service.graphql.model.DataJobResources();
     dataJobResources.setCpuLimit(job.getResourcesCpuLimit());
     dataJobResources.setCpuRequest(job.getResourcesCpuRequest());
     dataJobResources.setMemoryLimit(job.getResourcesMemoryLimit());
