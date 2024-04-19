@@ -8,10 +8,6 @@ from vdk.internal.core.errors import VdkConfigurationError
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, List, Union, Tuple
 
-# Consider ConfigValue should be primitive type perhaps? and not just any object
-ConfigValue = Any
-ConfigKey = str
-
 log = logging.getLogger(__name__)
 
 
@@ -108,7 +104,7 @@ class Configuration:
             section = _normalize_config_string(section)
             return self._sections.get(section, {}).get(key, ConfigEntry()).value
 
-    def override_value(self, key: ConfigKey, value: Any, section: str = None):
+    def override_value(self, key: str, value: Any, section: str = None):
         key = _normalize_config_string(key)
         if section is None:
             for sec, entries in self._sections.items():
