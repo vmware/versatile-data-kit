@@ -23,16 +23,18 @@ class TestTerminationMessageWriterPlugin(unittest.TestCase):
         self.termination_plugin = TerminationMessageWriterPlugin()
         configuration_builder = ConfigurationBuilder()
         self.termination_plugin.vdk_configure(configuration_builder)
-
+        configuration_builder.add(
+            key="TERMINATION_MESSAGE_WRITER_OUTPUT_FILE",
+            default_value="filename.txt",
+            section="vdk"
+        )
+        configuration_builder.add(
+            key=vdk_config.LOG_CONFIG,
+            default_value="local",
+            section="vdk"
+        )
         self.configuration = (
-            configuration_builder.add(
-                key="TERMINATION_MESSAGE_WRITER_OUTPUT_FILE",
-                default_value="filename.txt",
-            )
-            .add(
-                key=vdk_config.LOG_CONFIG,
-                default_value="local",
-            )
+            configuration_builder
             .build()
         )
 

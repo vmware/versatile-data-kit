@@ -325,11 +325,12 @@ class ConfigurationBuilder:
         """
         section = _normalize_config_string(section) if section else "vdk"
         key = _normalize_config_string(key)
-        self.__add_public(section, key, default_value, description, is_sensitive, show_default_value)
+        self.__add_public(section, key, default_value, None, description, is_sensitive, show_default_value)
         return self
 
-    def __add_public(self, section: str, key: str, default_value: Optional[Any], description: Optional[str],
-                     is_sensitive: bool, show_default_value: bool = True) -> None:
+    def __add_public(self, section: str, key: str, default_value: Optional[Any], value: Optional[Any],
+                     description: Optional[str],
+                     is_sensitive: bool = False, show_default_value: bool = True) -> None:
         """
         Handles the internal logic of adding a new configuration key to a section, including managing descriptions
         and sensitivity settings. This method encapsulates additional formatting and initialization operations
@@ -355,11 +356,12 @@ class ConfigurationBuilder:
         if section not in self.__sections:
             self.__sections[section] = {}
 
-        value = default_value
-        if key in self.__sections[section]:
-            value = self.__sections[section][key].value
-            if default_value:
-                value = convert_value_to_type_of_default_type(key=key, v=value, default_value=default_value)
+        value = value if value else default_value
+        if key in self.__sections[section] and value == default_value:
+            if self.__sections[section][key].value != self.__sections[section][key].default:
+                value = self.__sections[section][key].value
+        if default_value:
+            value = convert_value_to_type_of_default_type(key=key, v=value, default_value=default_value)
 
         self.__sections[section][key] = ConfigEntry(
             value=value,
@@ -383,10 +385,10 @@ class ConfigurationBuilder:
         Raises:
             ValueError: If the key does not exist in the given section, indicating it must be added first.
         """
-        section = _normalize_config_string(section) if section else "vdk"
+        section = _normalize_config_string(section)
         key = _normalize_config_string(key)
         if section not in self.__sections or key not in self.__sections[section]:
-            self.add(key, value)
+            self.__add_public(section=section, key=key, default_value=None, value=value, description="")
         self.__sections[section][key].value = value
         return self
 
