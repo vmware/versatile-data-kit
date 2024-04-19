@@ -113,5 +113,15 @@ helm upgrade --install --debug ${HELM_EXTRA_ARGUMENTS} --wait --timeout 10m0s $R
       --set security.authorizationEnabled=false \
       --set deploymentK8sNamespace="cicd-deployment" \
       --set controlK8sNamespace="cicd-control" \
+      --set cockroachdb.enabled=false \
+      --set database.jdbcUrl=jdbc:postgresql://$RELEASE_NAME-postgresql:5432/pgdb?sslmode=disable \
+      --set database.username=pguser \
+      --set database.password=pgpass \
+      --set postgresql.enabled=true \
+      --set postgresql.image.tag=15.6.0-debian-12-r14 \
+      --set postgresql.auth.username=pguser \
+      --set postgresql.auth.password=pgpass \
+      --set postgresql.auth.postgresPassword=pgpass \
+      --set postgresql.auth.database=pgdb \
       --set extraEnvVars.LOGGING_LEVEL_COM_VMWARE_TAURUS=DEBUG \
       --set extraEnvVars.DATAJOBS_TELEMETRY_WEBHOOK_ENDPOINT="https://vcsa.vmware.com/ph-stg/api/hyper/send?_c=taurus.v0&_i=cicd-vdk"
