@@ -116,7 +116,7 @@ def config_help(ctx: click.Context) -> None:
         description = configuration.get_description(k)
         if description:
             if k.startswith("__config_provider__"):
-                name = k[len("__config_provider__"):].strip()
+                name = k[len("__config_provider__") :].strip()
                 providers_descriptions[name] = description
             else:
                 vars_to_descriptions[k] = description

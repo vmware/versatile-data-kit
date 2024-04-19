@@ -7,7 +7,8 @@ import pytest
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IngesterBase
 from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRouter
-from vdk.internal.core.config import Configuration, ConfigEntry
+from vdk.internal.core.config import ConfigEntry
+from vdk.internal.core.config import Configuration
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import StateStore

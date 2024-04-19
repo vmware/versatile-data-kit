@@ -8,11 +8,11 @@ from vdk.internal.core.errors import VdkConfigurationError
 @pytest.mark.parametrize(
     "key, default_value, show_default_value, description",
     (
-            ("int_key", 1, True, "int key"),
-            ("bool_key", True, False, "bool key"),
-            ("array_key", [], None, None),
-            ("str_key", "string", None, None),
-            ("str_key", None, None, None),
+        ("int_key", 1, True, "int key"),
+        ("bool_key", True, False, "bool key"),
+        ("array_key", [], None, None),
+        ("str_key", "string", None, None),
+        ("str_key", None, None, None),
     ),
 )
 def test_add(key, default_value, show_default_value, description):
@@ -62,10 +62,10 @@ def test_key_case_insensitive():
 @pytest.mark.parametrize(
     "key, value",
     (
-            ("int_key", 1),
-            ("bool_key", True),
-            ("array_key", []),
-            ("str_key", "string"),
+        ("int_key", 1),
+        ("bool_key", True),
+        ("array_key", []),
+        ("str_key", "string"),
     ),
 )
 def test_set_value(key, value):
@@ -117,11 +117,17 @@ def test_set_value_overrides_default_preserve_types():
         ("section2", "key1", 300, "Description for key1 in section2"),
         ("section2", "key2", 400, "Description for key2 in section2"),
         ("section3", "key1", 500, "Description for key1 in section3"),
-    ]
+    ],
 )
 def test_add_with_sections(section, key, value, description):
     builder = ConfigurationBuilder()
-    builder.add(key=key, default_value=value, show_default_value=False, description=description, section=section)
+    builder.add(
+        key=key,
+        default_value=value,
+        show_default_value=False,
+        description=description,
+        section=section,
+    )
     config = builder.build()
 
     assert config.get_value(key, section) == value
@@ -165,7 +171,7 @@ def test_sensitive_keys_across_sections():
     [
         ("default_section", "overwrite_key", 150, 250, False),
         ("default_section", "single_key", 350, 350, True),
-    ]
+    ],
 )
 def test_overwrite_values(section, key, initial_value, new_value, expected_default):
     builder = ConfigurationBuilder()
@@ -207,7 +213,7 @@ def test_missing_key_across_sections():
 
 @pytest.mark.parametrize(
     "key, value, section",
-    [("user_setting", True, "user_prefs"), ("system_setting", False, "system_configs")]
+    [("user_setting", True, "user_prefs"), ("system_setting", False, "system_configs")],
 )
 def test_add_multiple_keys_same_name_different_sections(key, value, section):
     builder = ConfigurationBuilder()
@@ -220,6 +226,7 @@ def test_add_multiple_keys_same_name_different_sections(key, value, section):
 # sections starting with vdk_ are considered subsections for vdk and are handled differenly
 # that's why we introduce separate tests for them
 
+
 @pytest.mark.parametrize(
     "section, key, value, expected",
     [
@@ -227,7 +234,7 @@ def test_add_multiple_keys_same_name_different_sections(key, value, section):
         ("vdk_prod_db", "connection_string", "prod-server-url", "prod-server-url"),
         ("vdk_test_db", "max_connections", 10, 10),
         ("vdk_prod_db", "max_connections", 100, 100),
-    ]
+    ],
 )
 def test_add_and_retrieve_db_configurations(section, key, value, expected):
     builder = ConfigurationBuilder()

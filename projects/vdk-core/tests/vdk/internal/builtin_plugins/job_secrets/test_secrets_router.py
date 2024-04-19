@@ -12,7 +12,8 @@ from vdk.internal.builtin_plugins.job_secrets.secrets_router import (
     SecretsRouter,
 )
 from vdk.internal.core import errors
-from vdk.internal.core.config import Configuration, ConfigEntry
+from vdk.internal.core.config import ConfigEntry
+from vdk.internal.core.config import Configuration
 from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
@@ -91,18 +92,15 @@ def test_preprocessing_sequence_success():
     sections = {
         "vdk": {
             "secrets_default_type": ConfigEntry(value="foo"),
-            "secrets_write_preprocess_sequence": ConfigEntry(value="bar1,bar2")
+            "secrets_write_preprocess_sequence": ConfigEntry(value="bar1,bar2"),
         },
         "owner": {
             JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
-        }
-
+        },
     }
     router = SecretsRouter(
         "foo",
-        Configuration(
-            sections
-        ),
+        Configuration(sections),
     )
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
     bar1_mock_client = MagicMock(spec=ISecretsServiceClient)
@@ -123,18 +121,15 @@ def test_preprocessing_sequence_success_outerscope_immutable():
     sections = {
         "vdk": {
             "secrets_default_type": ConfigEntry(value="foo"),
-            "secrets_write_preprocess_sequence": ConfigEntry(value="bar")
+            "secrets_write_preprocess_sequence": ConfigEntry(value="bar"),
         },
         "owner": {
             JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
-        }
-
+        },
     }
     router = SecretsRouter(
         "foo",
-        Configuration(
-           sections
-        ),
+        Configuration(sections),
     )
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
     bar_mock_client = MagicMock(spec=ISecretsServiceClient)
@@ -154,18 +149,15 @@ def test_preprocessing_sequence_error():
     sections = {
         "vdk": {
             "secrets_default_type": ConfigEntry(value="foo"),
-            "secrets_write_preprocess_sequence": ConfigEntry(value="bar")
+            "secrets_write_preprocess_sequence": ConfigEntry(value="bar"),
         },
         "owner": {
             JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
-        }
-
+        },
     }
     router = SecretsRouter(
         "foo",
-        Configuration(
-           sections
-        ),
+        Configuration(sections),
     )
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
     bar_mock_client = MagicMock(spec=ISecretsServiceClient)
@@ -176,8 +168,8 @@ def test_preprocessing_sequence_error():
     with pytest.raises(WritePreProcessSecretsException) as exc_info:
         router.set_all_secrets({"a": "b"})
         assert (
-                errors.get_exception_resolvable_by(exc_info.value)
-                == ResolvableBy.USER_ERROR
+            errors.get_exception_resolvable_by(exc_info.value)
+            == ResolvableBy.USER_ERROR
         )
 
 
@@ -185,15 +177,12 @@ def test_preprocessing_sequence_misconfigured():
     sections = {
         "vdk": {
             "secrets_default_type": ConfigEntry(value="foo"),
-            "secrets_write_preprocess_sequence": ConfigEntry(value="bar")
+            "secrets_write_preprocess_sequence": ConfigEntry(value="bar"),
         },
-
     }
     router = SecretsRouter(
         "foo",
-        Configuration(
-            sections
-        ),
+        Configuration(sections),
     )
     foo_mock_client = MagicMock(spec=ISecretsServiceClient)
     router.set_secrets_factory_method("foo", lambda: foo_mock_client)

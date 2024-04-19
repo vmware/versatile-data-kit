@@ -10,7 +10,8 @@ from vdk.internal.builtin_plugins.job_properties.properties_router import (
 )
 from vdk.internal.builtin_plugins.run.data_job import JobArguments
 from vdk.internal.builtin_plugins.run.job_input import JobInput
-from vdk.internal.core.config import Configuration, ConfigurationBuilder
+from vdk.internal.core.config import Configuration
+from vdk.internal.core.config import ConfigurationBuilder
 
 
 def _get_properties_in_memory():

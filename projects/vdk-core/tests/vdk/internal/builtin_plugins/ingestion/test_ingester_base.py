@@ -15,7 +15,8 @@ from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
     IngesterConfiguration,
 )
 from vdk.internal.core import errors
-from vdk.internal.core.config import Configuration, ConfigurationBuilder
+from vdk.internal.core.config import Configuration
+from vdk.internal.core.config import ConfigurationBuilder
 
 shared_test_values = {
     "test_payload1": {"key1": "val1", "key2": "val2", "key3": "val3"},

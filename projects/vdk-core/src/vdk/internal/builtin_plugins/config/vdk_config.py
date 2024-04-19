@@ -187,7 +187,9 @@ Configuration for cloud execution is done in 'config.ini' file or the vdk cli.
             description=description,
         )
 
-        config_keys = config_builder.list_config_keys_from_main_sections()  # TODO: make it work with all sections
+        config_keys = (
+            config_builder.list_config_keys_from_main_sections()
+        )  # TODO: make it work with all sections
         log.debug(
             f"Founds config keys: {config_keys}. Will check if environment variable is set for any"
         )
