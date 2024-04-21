@@ -188,7 +188,9 @@ deploymentGitPassword: ""
 # Credentials with read and write access to the Git repository.
 uploadGitReadWriteUsername: ""
 uploadGitReadWritePassword: ""
-
+# Code commit properties
+deploymentCodeCommitAwsAssumeIamRole: false
+deploymentGitRemoteCodeCommitUrl: ""
 # List of file types that are allowed to be uploaded.
 # It is comma separated list with file types. For example "image/png,text/plain"
 # Only base type can be specified as well, then all files with that base type are allowed.

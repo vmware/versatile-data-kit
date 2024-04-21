@@ -95,6 +95,10 @@ spec:
               value: "{{ .Values.deploymentEcrAwsServiceAccountSecretAccessKey }}"
             - name: DATAJOBS_AWS_ROLE_ARN
               value: "{{ .Values.deploymentEcrAwsRoleArn }}"
+            - name: DATAJOBS_CC_AWS_ASSUME_IAM_ROLE
+              value: "{{ .Values.deploymentCodeCommitAwsAssumeIamRole}}"
+            - name: GIT_GRC_URL
+              value: "{{ .Values.deploymentGitRemoteCodeCommitUrl}}"
             - name: DATAJOBS_AWS_DEFAULT_SESSION_DURATION_SECONDS
               value: "{{ .Values.deploymentEcrAwsDefaultSessionDurationSeconds }}"
             - name: DOCKER_REGISTRY_TYPE

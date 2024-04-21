@@ -38,6 +38,12 @@ public class JobImageBuilder {
   @Value("${datajobs.git.url}")
   private String gitRepo;
 
+  @Value("${datajobs.git.cc.grc}")
+  private String gitCCRepo;
+
+  @Value("${datajobs.git.assumeIAMRole}")
+  boolean assumeCodeCommitIAMRole;
+
   @Value("${datajobs.git.username}")
   private String gitUsername;
 
@@ -197,6 +203,20 @@ public class JobImageBuilder {
             registryUsername,
             registryPassword,
             builderAwsSessionToken);
+    if(assumeCodeCommitIAMRole){
+      args = Arrays.asList(
+                builderAwsAccessKeyId,
+                builderAwsSecretAccessKey,
+                awsRegion,
+                dockerRepositoryUrl,
+                "",
+                "",
+                gitCCRepo,
+                registryType,
+                registryUsername,
+                registryPassword,
+                builderAwsSessionToken);
+    }
     var envs = getBuildParameters(dataJob, desiredDataJobDeployment);
     String builderImage =
         supportedPythonVersions.getBuilderImage(desiredDataJobDeployment.getPythonVersion());

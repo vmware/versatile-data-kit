@@ -216,6 +216,21 @@ control_service_publish_job_builder_image:
       changes:
         - projects/control-service/projects/job-builder/version.txt
 
+control_service_publish_job_builder_codecommit_image:
+  extends: .images:dind:docker-push-to-vdk-repos
+  stage: publish_artifacts
+  script:
+    - apk add --no-cache bash
+    - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"
+    - cd projects/control-service/projects/job-builder-code-commit
+    - bash -ex ./publish-vdk-job-builder.sh
+  retry: !reference [.control_service_retry, retry_options]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - projects/control-service/projects/job-builder/version.txt
 
 control_service_publish_job_builder_secure_image:
   extends: control_service_publish_job_builder_image
