@@ -260,8 +260,9 @@ public class ToApiModelConverter {
         return null;
     }
   }
+
   public static com.vmware.taurus.service.graphql.model.DataJobExecution.TypeEnum fetchTypeEnum(
-          ExecutionType type) {
+      ExecutionType type) {
     switch (type) {
       case MANUAL:
         return com.vmware.taurus.service.graphql.model.DataJobExecution.TypeEnum.MANUAL;
@@ -300,7 +301,7 @@ public class ToApiModelConverter {
   }
 
   public static com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum fetchStatusEnum(
-          ExecutionStatus status) {
+      ExecutionStatus status) {
     if (status == null) {
       return null;
     }
@@ -334,12 +335,12 @@ public class ToApiModelConverter {
     dataJobResources.setMemoryRequest(job.getResourcesMemoryRequest());
 
     return dataJobResources;
-  }  
-  
+  }
+
   private static com.vmware.taurus.service.graphql.model.DataJobResources fetchJobResources(
       com.vmware.taurus.service.model.DataJobExecution job) {
-    com.vmware.taurus.service.graphql.model.DataJobResources dataJobResources = 
-            new com.vmware.taurus.service.graphql.model.DataJobResources();
+    com.vmware.taurus.service.graphql.model.DataJobResources dataJobResources =
+        new com.vmware.taurus.service.graphql.model.DataJobResources();
     dataJobResources.setCpuLimit(job.getResourcesCpuLimit());
     dataJobResources.setCpuRequest(job.getResourcesCpuRequest());
     dataJobResources.setMemoryLimit(job.getResourcesMemoryLimit());

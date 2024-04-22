@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 
 @Component
 public class JobFieldStrategyByJobPythonVersion extends FieldStrategy<V2DataJob> {
-    
+
   private static final Comparator<V2DataJob> COMPARATOR_DEFAULT =
       Comparator.comparing(
           e -> e.getDeployments().stream().findFirst().orElseThrow().getJobPythonVersion(),
