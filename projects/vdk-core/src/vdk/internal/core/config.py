@@ -403,7 +403,7 @@ class ConfigurationBuilder:
             )
             description = str(description)
 
-        formatted_description = description or "No description provided."
+        formatted_description = description
         if is_sensitive:
             formatted_description += " This option is marked as sensitive."
         if show_default_value and default_value is not None:
@@ -450,7 +450,12 @@ class ConfigurationBuilder:
                 value=value,
                 description="",
             )
-        self.__sections[section][key].value = value
+
+        if self.__sections[section][key].default is not None:
+            self.__sections[section][key].value = convert_value_to_type_of_default_type(key=key, v=value,
+                                                                                 default_value= self.__sections[section][key].default)
+        else:
+            self.__sections[section][key].value = value
         return self
 
     def list_config_keys_from_main_sections(self) -> list[str]:
