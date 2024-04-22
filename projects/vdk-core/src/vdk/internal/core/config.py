@@ -387,17 +387,8 @@ class ConfigurationBuilder:
         if section not in self.__sections:
             self.__sections[section] = {}
 
-        value = value if value else default_value
-        if key in self.__sections[section] and value == default_value:
-            if (
-                self.__sections[section][key].value
-                != self.__sections[section][key].default
-            ):
-                value = self.__sections[section][key].value
-        if default_value:
-            value = convert_value_to_type_of_default_type(
-                key=key, v=value, default_value=default_value
-            )
+        if not value:
+            value = default_value
 
         self.__sections[section][key] = ConfigEntry(
             value=value,
