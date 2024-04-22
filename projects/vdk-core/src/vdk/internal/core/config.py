@@ -341,15 +341,25 @@ class ConfigurationBuilder:
         """
         section = _normalize_config_string(section) if section else "vdk"
         key = _normalize_config_string(key)
-        self.__add_public(
-            section,
-            key,
-            default_value,
-            None,
-            description,
-            is_sensitive,
-            show_default_value,
-        )
+        if section in self.__sections and key in self.__sections[section].keys()\
+                and self.__sections[section][key].value != self.__sections[section][key].default:
+            self.__sections[section][key].description = description
+            self.__sections[section][key].default = default_value
+            self.__sections[section][key].sensitive = is_sensitive
+            self.set_value(key=key, value=convert_value_to_type_of_default_type(
+                key=key,
+                v=self.__sections[section][key].value,
+                default_value=default_value), section=section)
+        else:
+            self.__add_public(
+                section,
+                key,
+                default_value,
+                None,
+                description,
+                is_sensitive,
+                show_default_value,
+            )
         return self
 
     def __add_public(
@@ -396,6 +406,7 @@ class ConfigurationBuilder:
             description=formatted_description,
             sensitive=is_sensitive,
         )
+
 
     def set_value(
         self, key: str, value: Any, section: str | None = "vdk"
