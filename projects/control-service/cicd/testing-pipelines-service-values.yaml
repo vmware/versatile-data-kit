@@ -8,3 +8,22 @@ resources:
   requests:
     cpu: 1000m
     memory: 2000Mi
+
+cockroachdb:
+  enabled: false
+
+database:
+  jdbcUrl: jdbc:postgresql://cicd-vdk-postgresql:5432/pgdb?sslmode=disable
+  username: pguser
+  password: pgpass
+
+postgresql:
+  enabled: true
+  image:
+    tag: 15.6.0-debian-12-r14
+  architecture: standalone  # replication
+  auth:
+    username: "pguser"
+    postgresPassword: "pgpass"
+    password: "pgpass"
+    database: "pgdb"
