@@ -12,8 +12,6 @@ from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
 log = logging.getLogger(__name__)
 
 
-
-
 class ApiClientErrorDecorator:
     def __init__(
         self, what="Control Service Error", consequences="Operation cannot complete."
