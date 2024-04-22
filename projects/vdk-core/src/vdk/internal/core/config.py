@@ -343,12 +343,17 @@ class ConfigurationBuilder:
         key = _normalize_config_string(key)
         if not description:
             description = "No description provided."
-        if section in self.__sections and key in self.__sections[section].keys()\
-                and self.__sections[section][key].value != self.__sections[section][key].default:
-            preserved_value = value=convert_value_to_type_of_default_type(
+        if (
+            section in self.__sections
+            and key in self.__sections[section].keys()
+            and self.__sections[section][key].value
+            != self.__sections[section][key].default
+        ):
+            preserved_value = value = convert_value_to_type_of_default_type(
                 key=key,
                 v=self.__sections[section][key].value,
-                default_value=default_value)
+                default_value=default_value,
+            )
             self.__add_public(
                 section,
                 key,
@@ -422,7 +427,6 @@ class ConfigurationBuilder:
             sensitive=is_sensitive,
         )
 
-
     def set_value(
         self, key: str, value: Any, section: str | None = "vdk"
     ) -> ConfigurationBuilder:
@@ -446,14 +450,15 @@ class ConfigurationBuilder:
             self.__add_public(
                 section=section,
                 key=key,
-                default_value=None, # it should be = value
+                default_value=None,  # it should be = value
                 value=value,
                 description="",
             )
 
         if self.__sections[section][key].default is not None:
-            self.__sections[section][key].value = convert_value_to_type_of_default_type(key=key, v=value,
-                                                                                 default_value= self.__sections[section][key].default)
+            self.__sections[section][key].value = convert_value_to_type_of_default_type(
+                key=key, v=value, default_value=self.__sections[section][key].default
+            )
         else:
             self.__sections[section][key].value = value
         return self
