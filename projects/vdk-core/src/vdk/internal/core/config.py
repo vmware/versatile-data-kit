@@ -446,7 +446,7 @@ class ConfigurationBuilder:
             self.__add_public(
                 section=section,
                 key=key,
-                default_value=None,
+                default_value=None, # it should be = value
                 value=value,
                 description="",
             )
