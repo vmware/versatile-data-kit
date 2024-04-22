@@ -7,8 +7,11 @@ import logging
 from taurus_datajob_api import ApiException
 from urllib3.exceptions import HTTPError
 from vdk.internal.control.exception.vdk_exception import VDKException
+from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
 
 log = logging.getLogger(__name__)
+
+
 
 
 class ApiClientErrorDecorator:
