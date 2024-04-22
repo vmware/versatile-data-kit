@@ -397,6 +397,12 @@ class ConfigurationBuilder:
         Raises:
             ValueError: If the key already exists and the function is intended to only handle new additions.
         """
+        if not isinstance(description, str):
+            log.warning(
+                f"Description for key {key} is not of type string. Converting to type string."
+            )
+            description = str(description)
+
         formatted_description = description or "No description provided."
         if is_sensitive:
             formatted_description += " This option is marked as sensitive."
