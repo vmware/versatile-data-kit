@@ -19,6 +19,8 @@ public enum JobFieldStrategyBy {
   JOB_NAME("jobName", "content/jobName"),
   DEPLOYMENT("deployments", "content/deployments"),
   DEPLOYMENT_ENABLED("deployments.enabled", "content/deployments/enabled"),
+  DEPLOYMENT_JOBPYTHONVERSION(
+      "deployments.jobPythonVersion", "content/deployments/jobPythonVersion"),
   DEPLOYMENT_EXECUTIONS("deployments.executions", "content/deployments/executions"),
   DEPLOYMENT_LAST_EXECUTION_STATUS(
       "deployments.lastExecutionStatus", "content/deployments/lastExecutionStatus"),

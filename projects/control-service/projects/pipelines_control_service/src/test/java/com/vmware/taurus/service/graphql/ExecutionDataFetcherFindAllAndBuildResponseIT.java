@@ -12,8 +12,8 @@ import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionFilter;
 import com.vmware.taurus.service.graphql.model.DataJobExecutionOrder;
 import com.vmware.taurus.service.graphql.model.DataJobPage;
+import com.vmware.taurus.service.graphql.model.DataJobExecution;
 import com.vmware.taurus.service.model.DataJob;
-import com.vmware.taurus.service.model.DataJobExecution;
 import com.vmware.taurus.service.model.ExecutionStatus;
 import graphql.GraphQLException;
 import graphql.schema.DataFetcher;
@@ -89,10 +89,10 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
     RepositoryUtil.createDataJobExecution(
         jobExecutionRepository, "test-execution-id-1", actualDataJob, ExecutionStatus.CANCELLED);
-    DataJobExecution expectedJobExecution1 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
-    DataJobExecution expectedJobExecution2 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution2 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-3",
@@ -107,10 +107,8 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
     when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
         .thenReturn(
             List.of(
-                com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING
-                    .toString(),
-                com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.SUBMITTED
-                    .toString()));
+                DataJobExecution.StatusEnum.RUNNING.toString(),
+                DataJobExecution.StatusEnum.SUBMITTED.toString()));
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
 
     DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
@@ -136,14 +134,14 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
         actualDataJob,
         ExecutionStatus.CANCELLED,
         now.minusMinutes(2));
-    DataJobExecution expectedJobExecution1 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-2",
             actualDataJob,
             ExecutionStatus.RUNNING,
             now.minusMinutes(1));
-    DataJobExecution expectedJobExecution2 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution2 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-3",
@@ -184,7 +182,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
         ExecutionStatus.CANCELLED,
         now.minusMinutes(2),
         now.minusMinutes(2));
-    DataJobExecution expectedJobExecution1 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-2",
@@ -192,7 +190,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
             ExecutionStatus.RUNNING,
             now.minusMinutes(1),
             now.minusMinutes(1));
-    DataJobExecution expectedJobExecution2 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution2 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-3",
@@ -234,7 +232,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
         ExecutionStatus.CANCELLED,
         now.minusMinutes(2),
         now.minusMinutes(2));
-    DataJobExecution expectedJobExecution1 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-2",
@@ -261,10 +259,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
         .thenReturn(now.minusMinutes(1));
     when(filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD)).thenReturn(now.minusMinutes(1));
     when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
-        .thenReturn(
-            List.of(
-                com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING
-                    .toString()));
+        .thenReturn(List.of(DataJobExecution.StatusEnum.RUNNING.toString()));
 
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
 
@@ -282,22 +277,22 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
   public void testFindAllAndBuildResponse_orderByEndTime_shouldReturnResult() throws Exception {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-    DataJobExecution expectedJobExecution1 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-1",
             actualDataJob,
             ExecutionStatus.CANCELLED);
-    DataJobExecution expectedJobExecution2 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution2 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
-    DataJobExecution expectedJobExecution3 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution3 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-3",
             actualDataJob,
             ExecutionStatus.SUBMITTED);
-    DataJobExecution expectedJobExecution4 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution4 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-4",
@@ -358,16 +353,16 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
       throws Exception {
     DataJob actualDataJob = RepositoryUtil.createDataJob(jobsRepository);
 
-    DataJobExecution expectedJobExecution1 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution1 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-1",
             actualDataJob,
             ExecutionStatus.CANCELLED);
-    DataJobExecution expectedJobExecution2 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution2 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository, "test-execution-id-2", actualDataJob, ExecutionStatus.RUNNING);
-    DataJobExecution expectedJobExecution3 =
+    com.vmware.taurus.service.model.DataJobExecution expectedJobExecution3 =
         RepositoryUtil.createDataJobExecution(
             jobExecutionRepository,
             "test-execution-id-3",
@@ -699,9 +694,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
   }
 
   private void assertExecutionsEquals(
-      DataJobExecution expectedJobExecution, Object actualJobExecutionObject) {
-    com.vmware.taurus.controlplane.model.data.DataJobExecution actualJobExecution =
-        (com.vmware.taurus.controlplane.model.data.DataJobExecution) actualJobExecutionObject;
+      com.vmware.taurus.service.model.DataJobExecution expectedJobExecution,
+      Object actualJobExecutionObject) {
+    DataJobExecution actualJobExecution = (DataJobExecution) actualJobExecutionObject;
 
     Assertions.assertEquals(expectedJobExecution.getId(), actualJobExecution.getId());
     Assertions.assertEquals(expectedJobExecution.getStartTime(), actualJobExecution.getStartTime());
