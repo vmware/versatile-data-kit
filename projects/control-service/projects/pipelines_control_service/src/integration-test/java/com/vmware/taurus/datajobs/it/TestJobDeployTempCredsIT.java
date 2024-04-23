@@ -185,7 +185,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
         .untilAsserted(
             () ->
                 Assertions.assertTrue(
-                        ecrRegistryInterface.checkEcrImageExists(jobUri, credentialsDTO)));
+                    ecrRegistryInterface.checkEcrImageExists(jobUri, credentialsDTO)));
 
     String jobDeploymentName = JobImageDeployer.getCronJobName(TEST_JOB_NAME);
 
@@ -212,7 +212,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
         .untilAsserted(
             () ->
                 Assertions.assertTrue(
-                        ecrRegistryInterface.checkEcrImageExists(jobUri, credentialsDTO)));
+                    ecrRegistryInterface.checkEcrImageExists(jobUri, credentialsDTO)));
 
     // Making sure only one image present, even though job was redeployed.
     DescribeImagesRequest countImagesRequest =

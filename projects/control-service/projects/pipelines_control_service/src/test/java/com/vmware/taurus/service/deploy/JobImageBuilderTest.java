@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.AWSCredentialsService;
-import com.vmware.taurus.service.credentials.AWSCredentialsService.AWSCredentialsDTO;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
@@ -36,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -169,8 +167,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExists_buildSkipped()
       throws InterruptedException, ApiException, IOException {
-    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_IMAGE_NAME)))
-        .thenReturn(true);
+    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_IMAGE_NAME))).thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -340,8 +337,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExistsAndEqualPythonVersions_shouldSkipBuild()
       throws InterruptedException, ApiException, IOException {
-    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_IMAGE_NAME)))
-            .thenReturn(true);
+    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_IMAGE_NAME))).thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
