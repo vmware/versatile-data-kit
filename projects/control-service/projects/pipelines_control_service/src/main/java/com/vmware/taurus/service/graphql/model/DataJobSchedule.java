@@ -5,9 +5,6 @@
 
 package com.vmware.taurus.service.graphql.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.Objects;
 
 public class DataJobSchedule {

@@ -107,10 +107,8 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
     when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
         .thenReturn(
             List.of(
-                DataJobExecution.StatusEnum.RUNNING
-                    .toString(),
-                DataJobExecution.StatusEnum.SUBMITTED
-                    .toString()));
+                DataJobExecution.StatusEnum.RUNNING.toString(),
+                DataJobExecution.StatusEnum.SUBMITTED.toString()));
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
 
     DataFetcher<Object> allAndBuildResponse = executionDataFetcher.findAllAndBuildResponse();
@@ -261,10 +259,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
         .thenReturn(now.minusMinutes(1));
     when(filterRaw.get(DataJobExecutionFilter.END_TIME_GTE_FIELD)).thenReturn(now.minusMinutes(1));
     when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
-        .thenReturn(
-            List.of(
-                DataJobExecution.StatusEnum.RUNNING
-                    .toString()));
+        .thenReturn(List.of(DataJobExecution.StatusEnum.RUNNING.toString()));
 
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
 
@@ -699,9 +694,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
   }
 
   private void assertExecutionsEquals(
-      com.vmware.taurus.service.model.DataJobExecution expectedJobExecution, Object actualJobExecutionObject) {
-    DataJobExecution actualJobExecution =
-        (DataJobExecution) actualJobExecutionObject;
+      com.vmware.taurus.service.model.DataJobExecution expectedJobExecution,
+      Object actualJobExecutionObject) {
+    DataJobExecution actualJobExecution = (DataJobExecution) actualJobExecutionObject;
 
     Assertions.assertEquals(expectedJobExecution.getId(), actualJobExecution.getId());
     Assertions.assertEquals(expectedJobExecution.getStartTime(), actualJobExecution.getStartTime());
