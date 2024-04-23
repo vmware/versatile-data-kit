@@ -54,6 +54,8 @@ public class JobImageBuilderTest {
 
   @Mock private DockerRegistryService dockerRegistryService;
 
+  @Mock private JfrogRegistryInterface jfrogRegistryInterface;
+
   @Mock private DeploymentNotificationHelper notificationHelper;
 
   @Mock private KubernetesResources kubernetesResources;
@@ -70,11 +72,8 @@ public class JobImageBuilderTest {
   public void setUp() {
     ReflectionTestUtils.setField(jobImageBuilder, "dockerRepositoryUrl", "test-docker-repository");
     ReflectionTestUtils.setField(jobImageBuilder, "gitDataJobsBranch", "branch");
-    ReflectionTestUtils.setField(jobImageBuilder, "registryType", "generic");
+    ReflectionTestUtils.setField(jobImageBuilder, "registryType", "jfrog");
     ReflectionTestUtils.setField(jobImageBuilder, "builderJobExtraArgs", "");
-
-    when(awsCredentialsService.createTemporaryCredentials())
-        .thenReturn(new AWSCredentialsDTO("test", "test", "test", "test"));
 
     JobConfig jobConfig = new JobConfig();
     jobConfig.setDbDefaultType(TEST_DB_DEFAULT_TYPE);
@@ -128,8 +127,6 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_builderRunning_oldBuilderDeleted()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
-        .thenReturn(false);
     when(kubernetesService.listJobs())
         .thenReturn(Set.of(TEST_BUILDER_IMAGE_NAME), Collections.emptySet());
     var builderJobResult =
@@ -172,7 +169,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExists_buildSkipped()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
+    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_IMAGE_NAME)))
         .thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
@@ -343,8 +340,8 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExistsAndEqualPythonVersions_shouldSkipBuild()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
-        .thenReturn(true);
+    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_IMAGE_NAME)))
+            .thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
