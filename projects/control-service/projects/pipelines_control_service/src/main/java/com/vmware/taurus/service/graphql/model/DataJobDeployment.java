@@ -1,3 +1,8 @@
+/*
+ * Copyright 2023-2024 Broadcom
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package com.vmware.taurus.service.graphql.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +13,6 @@ import java.util.Objects;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-@Schema(name = "DataJobDeployment", description = "A deployment of the Data Job")
 public class DataJobDeployment {
   private String vdkVersion;
   private String jobVersion;
@@ -29,12 +33,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(
-      name = "vdk_version",
-      example = "2.1",
-      description = "A specific VDK version to use",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("vdk_version")
   public String getVdkVersion() {
     return this.vdkVersion;
   }
@@ -48,12 +46,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(
-      name = "job_version",
-      example = "11a403ba",
-      description = "Job version (can be Git commit)",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("job_version")
   public String getJobVersion() {
     return this.jobVersion;
   }
@@ -67,13 +59,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(
-      name = "python_version",
-      example = "3.9",
-      description =
-          "A python release version (supported by the service) to be used for job deployments.",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("python_version")
   public String getJobPythonVersion() {
     return this.jobPythonVersion;
   }
@@ -87,8 +72,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(name = "mode", requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("mode")
   public DataJobMode getMode() {
     return this.mode;
   }
@@ -102,19 +85,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(
-      name = "id",
-      example = "release",
-      description =
-          "String that identifies a single deployment of a Data Job. Currently only one single"
-              + " deployment per Data Job is possible.<br> In the future:<br> It's recommended to"
-              + " use following ids - development, testing, production. However users are free to"
-              + " come up with their own. For example, this enables the creation of 3 different"
-              + " deployments, using the same Data Job code:<br> `development  deployment "
-              + " --deployment-id development`<br> `testing deployment  --deployment-id"
-              + " testing`<br> `production deployment  --deployment-id prod` ",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("id")
   public String getId() {
     return this.id;
   }
@@ -128,12 +98,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(
-      name = "enabled",
-      example = "false",
-      description = "Enable/disable flag",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("enabled")
   public Boolean getEnabled() {
     return this.enabled;
   }
@@ -147,12 +111,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(
-      name = "deployed_by",
-      example = "auserov@example.mail.com",
-      description = "User or service that deployed the Data Job",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("deployed_by")
   public String getDeployedBy() {
     return this.deployedBy;
   }
@@ -166,11 +124,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(
-      name = "deployed_date",
-      description = "The Data Job deployment date",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("deployed_date")
   public OffsetDateTime getDeployedDate() {
     return this.deployedDate;
   }
@@ -184,8 +137,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(name = "schedule", requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("schedule")
   public DataJobSchedule getSchedule() {
     return this.schedule;
   }
@@ -199,8 +150,6 @@ public class DataJobDeployment {
     return this;
   }
 
-  @Schema(name = "resources", requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("resources")
   public DataJobResources getResources() {
     return this.resources;
   }

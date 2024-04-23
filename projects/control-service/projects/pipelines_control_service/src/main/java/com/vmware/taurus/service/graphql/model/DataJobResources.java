@@ -1,3 +1,8 @@
+/*
+ * Copyright 2023-2024 Broadcom
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package com.vmware.taurus.service.graphql.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -5,9 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.Objects;
 
-@Schema(
-    name = "DataJobResources",
-    description = "Resource cofiguration of a data Data Job Deployment.")
+
 public class DataJobResources {
   private Float cpuRequest;
   private Float cpuLimit;
@@ -19,12 +22,6 @@ public class DataJobResources {
     return this;
   }
 
-  @Schema(
-      name = "cpu_request",
-      example = "10",
-      description = "Initial CPU shares in deciCores (1 dCore = 0.1 Core = 100 mCores)",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("cpu_request")
   public Float getCpuRequest() {
     return this.cpuRequest;
   }
@@ -38,12 +35,6 @@ public class DataJobResources {
     return this;
   }
 
-  @Schema(
-      name = "cpu_limit",
-      example = "20",
-      description = "Max CPU shares in deciCores (1 dCore = 0.1 Core = 100 mCores)",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("cpu_limit")
   public Float getCpuLimit() {
     return this.cpuLimit;
   }
@@ -57,12 +48,6 @@ public class DataJobResources {
     return this;
   }
 
-  @Schema(
-      name = "memory_request",
-      example = "1024",
-      description = "Initial Memory in MiB.",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("memory_request")
   public Integer getMemoryRequest() {
     return this.memoryRequest;
   }
@@ -76,12 +61,6 @@ public class DataJobResources {
     return this;
   }
 
-  @Schema(
-      name = "memory_limit",
-      example = "2048",
-      description = "Max Memory in MiB.",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("memory_limit")
   public Integer getMemoryLimit() {
     return this.memoryLimit;
   }

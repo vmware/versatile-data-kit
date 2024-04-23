@@ -1,3 +1,8 @@
+/*
+ * Copyright 2023-2024 Broadcom
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package com.vmware.taurus.service.graphql.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -10,7 +15,6 @@ import java.util.Objects;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-@Schema(name = "DataJobExecution", description = "Executions of a Data Job")
 public class DataJobExecution {
   private String id;
   private String jobName;
@@ -36,12 +40,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "id",
-      example = "starshot-processing-vmc-fact-daily-2018623174356",
-      description = "Data Job Execution ID",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("id")
   public String getId() {
     return this.id;
   }
@@ -55,12 +53,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "job_name",
-      example = "starshot-processing-vmc-fact-daily",
-      description = "Data Job name",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("job_name")
   public String getJobName() {
     return this.jobName;
   }
@@ -74,12 +66,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "status",
-      example = "submitted",
-      description = "The current status",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("status")
   public DataJobExecution.StatusEnum getStatus() {
     return this.status;
   }
@@ -93,12 +79,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "type",
-      example = "scheduled",
-      description = "Execution type - manual or scheduled",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("type")
   public DataJobExecution.TypeEnum getType() {
     return this.type;
   }
@@ -112,11 +92,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "start_time",
-      description = "Start of execution",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("start_time")
   public OffsetDateTime getStartTime() {
     return this.startTime;
   }
@@ -130,11 +105,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "end_time",
-      description = "Start of execution",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("end_time")
   public OffsetDateTime getEndTime() {
     return this.endTime;
   }
@@ -148,14 +118,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "started_by",
-      example = "schedule/runtime",
-      description =
-          "User or service that started the execution (e.g manual/auserov@example.mail.com or"
-              + " scheduled/runtime)",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("started_by")
   public String getStartedBy() {
     return this.startedBy;
   }
@@ -169,16 +131,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "logs_url",
-      example = "http://logs/jobs?filter=job-name",
-      description =
-          "URL link to persisted logs in central location. Logs generally should be available for"
-              + " longer time. The link is available only if operators have configured it during"
-              + " installation of Control Service. During install operators can configure logs to"
-              + " be persisted to log aggregator service whose link can be exposed here. ",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("logs_url")
   public String getLogsUrl() {
     return this.logsUrl;
   }
@@ -192,11 +144,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "message",
-      description = "Message (usually error) during execution",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("message")
   public String getMessage() {
     return this.message;
   }
@@ -210,11 +157,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(
-      name = "op_id",
-      description = "Operation id used for tracing calls between different services",
-      requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("op_id")
   public String getOpId() {
     return this.opId;
   }
@@ -228,8 +170,6 @@ public class DataJobExecution {
     return this;
   }
 
-  @Schema(name = "deployment", requiredMode = RequiredMode.NOT_REQUIRED)
-  @JsonProperty("deployment")
   public DataJobDeployment getDeployment() {
     return this.deployment;
   }
