@@ -26,41 +26,41 @@ class OracleConfiguration:
     def __init__(self, configuration: Configuration):
         self.__config = configuration
 
-    def get_oracle_user(self) -> str:
-        return self.__config.get_value(ORACLE_USER)
+    def get_oracle_user(self, section: Optional[str]) -> str:
+        return self.__config.get_value(key=ORACLE_USER, section=section)
 
-    def get_oracle_password(self) -> str:
-        return self.__config.get_value(ORACLE_PASSWORD)
+    def get_oracle_password(self, section: Optional[str]) -> str:
+        return self.__config.get_value(key=ORACLE_PASSWORD, section=section)
 
-    def get_oracle_connection_string(self) -> str:
-        return self.__config.get_value(ORACLE_CONNECTION_STRING)
+    def get_oracle_connection_string(self, section: Optional[str]) -> str:
+        return self.__config.get_value(key=ORACLE_CONNECTION_STRING, section=section)
 
-    def get_oracle_host(self) -> str:
-        return self.__config.get_value(ORACLE_HOST)
+    def get_oracle_host(self, section: Optional[str]) -> str:
+        return self.__config.get_value(key=ORACLE_HOST, section=section)
 
-    def get_oracle_port(self) -> int:
-        return int(self.__config.get_value(ORACLE_PORT))
+    def get_oracle_port(self, section: Optional[str]) -> int:
+        return int(self.__config.get_value(key=ORACLE_PORT, section=section))
 
-    def get_oracle_sid(self) -> str:
-        return self.__config.get_value(ORACLE_SID)
+    def get_oracle_sid(self, section: Optional[str]) -> str:
+        return self.__config.get_value(key=ORACLE_SID, section=section)
 
-    def get_oracle_service_name(self) -> str:
-        return self.__config.get_value(ORACLE_SERVICE_NAME)
+    def get_oracle_service_name(self, section: Optional[str]) -> str:
+        return self.__config.get_value(key=ORACLE_SERVICE_NAME, section=section)
 
-    def oracle_use_secrets(self) -> bool:
-        return self.__config.get_value(ORACLE_USE_SECRETS)
+    def oracle_use_secrets(self, section: Optional[str]) -> bool:
+        return self.__config.get_value(key=ORACLE_USE_SECRETS, section=section)
 
-    def oracle_thick_mode(self) -> bool:
-        return self.__config.get_value(ORACLE_THICK_MODE)
+    def oracle_thick_mode(self, section: Optional[str]) -> bool:
+        return self.__config.get_value(key=ORACLE_THICK_MODE, section=section)
 
-    def oracle_thick_mode_lib_dir(self) -> Optional[str]:
-        return self.__config.get_value(ORACLE_THICK_MODE_LIB_DIR)
+    def oracle_thick_mode_lib_dir(self, section: Optional[str]) -> Optional[str]:
+        return self.__config.get_value(key=ORACLE_THICK_MODE_LIB_DIR, section=section)
 
-    def oracle_ingest_batch_size(self) -> Optional[int]:
-        return int(self.__config.get_value(ORACLE_INGEST_BATCH_SIZE))
+    def oracle_ingest_batch_size(self, section: Optional[str]) -> Optional[int]:
+        return int(self.__config.get_value(key=ORACLE_INGEST_BATCH_SIZE, section=section))
 
     @staticmethod
-    def add_definitions(config_builder: ConfigurationBuilder):
+    def add_default_definitions(config_builder: ConfigurationBuilder):
         config_builder.add(
             key=ORACLE_USER,
             default_value=None,
