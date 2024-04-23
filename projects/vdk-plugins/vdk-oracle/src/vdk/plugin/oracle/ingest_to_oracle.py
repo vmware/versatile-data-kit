@@ -103,9 +103,9 @@ class TableCache:
 
 class IngestToOracle(IIngesterPlugin):
     def __init__(
-        self, connections: ManagedConnectionRouter, ingest_batch_size: int = 100
+        self,connection_name: str, connections: ManagedConnectionRouter, ingest_batch_size: int = 100
     ):
-        self.conn: PEP249Connection = connections.open_connection("ORACLE").connect()
+        self.conn: PEP249Connection = connections.open_connection(connection_name).connect()
         self.cursor: ManagedCursor = self.conn.cursor()
         self.table_cache: TableCache = TableCache(self.cursor)  # New cache for columns
         self.ingest_batch_size = ingest_batch_size
