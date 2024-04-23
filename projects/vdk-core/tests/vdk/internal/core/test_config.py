@@ -40,7 +40,7 @@ def test_unknown_key():
     assert cfg["no-such-key"] is None
     assert cfg.get_description("no-such-key") is None
 
-    assert cfg.get_description("key") is None
+    assert cfg.get_description("key") == "No description provided. Default value: 1."
     assert cfg.get_value("key") == 1
 
 
@@ -85,13 +85,13 @@ def test_set_value_overrides_default():
     assert not cfg.is_default("key")
 
 
-def test_set_value_eq_default_is_not_default():
+def test_set_value_eq_default_is_default():
     builder = ConfigurationBuilder()
     builder.add("key", "value", False, "key description")
     builder.set_value("key", "value")
     cfg = builder.build()
     assert cfg.get_value("key") == "value"
-    assert not cfg.is_default("key")
+    assert cfg.is_default("key")
 
 
 def test_set_value_overrides_default_preserve_types():
@@ -109,14 +109,158 @@ def test_set_value_overrides_default_preserve_types():
         builder.add("int", 1, False, "key description")
 
 
-def test_list_config_keys():
+@pytest.mark.parametrize(
+    "section, key, value, description",
+    [
+        ("section1", "key1", 100, "Description for key1 in section1"),
+        ("section1", "key2", 200, "Description for key2 in section1"),
+        ("section2", "key1", 300, "Description for key1 in section2"),
+        ("section2", "key2", 400, "Description for key2 in section2"),
+        ("section3", "key1", 500, "Description for key1 in section3"),
+    ],
+)
+def test_add_with_sections(section, key, value, description):
     builder = ConfigurationBuilder()
-    builder.add("key1", 1)
-    builder.add("key2", "two")
-    builder.add("key3", None)
-    builder.add("key4", False, False, "description")
-    builder.add("key5", 1.2, True, "description")
-    assert {"key1", "key2", "key3", "key4", "key5"} == set(builder.list_config_keys())
+    builder.add(
+        key=key,
+        default_value=value,
+        show_default_value=False,
+        description=description,
+        section=section,
+    )
+    config = builder.build()
+
+    assert config.get_value(key, section) == value
+    assert config.get_description(key, section) == description
+    assert config.is_default(key, section)
+
+
+def test_non_existent_section():
+    builder = ConfigurationBuilder()
+    builder.add("key1", 100, section="existent")
+    config = builder.build()
+
+    assert config.get_value("key1", "nonexistent") is None
+
+
+def test_section_isolation():
+    builder = ConfigurationBuilder()
+    builder.add("key1", 100, section="section1")
+    builder.add("key1", 200, section="section2")
+    config = builder.build()
+
+    assert config.get_value("key1", "section1") == 100
+    assert config.get_value("key1", "section2") == 200
+
+    assert config.list_keys_in_section("section1") == ["key1"]
+    assert config.list_keys_in_section("section2") == ["key1"]
+
+
+def test_sensitive_keys_across_sections():
+    builder = ConfigurationBuilder()
+    builder.add("key1", "password123", is_sensitive=True, section="secure")
+    builder.add("key1", "not-sensitive", is_sensitive=False, section="general")
+    config = builder.build()
+
+    assert config.is_sensitive("key1", "secure")
+    assert not config.is_sensitive("key1", "general")
+
+
+@pytest.mark.parametrize(
+    "section, key, initial_value, new_value, expected_default",
+    [
+        ("default_section", "overwrite_key", 150, 250, False),
+        ("default_section", "single_key", 350, 350, True),
+    ],
+)
+def test_overwrite_values(section, key, initial_value, new_value, expected_default):
+    builder = ConfigurationBuilder()
+    builder.add(key, initial_value, section=section)
+    builder.set_value(key, new_value, section=section)
+    config = builder.build()
+
+    assert config.get_value(key, section) == new_value
+    assert config.is_default(key, section) == expected_default
+
+
+def test_list_sections_and_keys():
+    builder = ConfigurationBuilder()
+    builder.add("key1", 100, section="section1")
+    builder.add("key2", 200, section="section1")
+    builder.add("key3", 300, section="section2")
+    config = builder.build()
+
+    assert set(config.list_sections()) == {"section1", "section2"}
+    assert set(config.list_keys_in_section("section1")) == {"key1", "key2"}
+    assert set(config.list_keys_in_section("section2")) == {"key3"}
+
+
+def test_get_value_without_section():  # it should work with all sections but vdk subsections following: vdk_<string>
+    builder = ConfigurationBuilder()
+    builder.add("global_key", "global_value", section="global")
+    config = builder.build()
+
+    assert config.get_value("global_key") == "global_value"
+
+
+def test_missing_key_across_sections():
+    builder = ConfigurationBuilder()
+    builder.add("unique_key", 123, section="unique_section")
+    config = builder.build()
+
+    assert config.get_value("nonexistent_key") is None
+
+
+@pytest.mark.parametrize(
+    "key, value, section",
+    [("user_setting", True, "user_prefs"), ("system_setting", False, "system_configs")],
+)
+def test_add_multiple_keys_same_name_different_sections(key, value, section):
+    builder = ConfigurationBuilder()
+    builder.add(key, value, section=section)
+    config = builder.build()
+
+    assert config.get_value(key, section) == value
+
+
+# sections starting with vdk_ are considered subsections for vdk and are handled differenly
+# that's why we introduce separate tests for them
+
+
+@pytest.mark.parametrize(
+    "section, key, value, expected",
+    [
+        ("vdk_test_db", "connection_string", "test-server-url", "test-server-url"),
+        ("vdk_prod_db", "connection_string", "prod-server-url", "prod-server-url"),
+        ("vdk_test_db", "max_connections", 10, 10),
+        ("vdk_prod_db", "max_connections", 100, 100),
+    ],
+)
+def test_add_and_retrieve_db_configurations(section, key, value, expected):
+    builder = ConfigurationBuilder()
+    builder.add(key, value, section=section)
+    config = builder.build()
+
+    assert config.get_value(key, section) == expected
+
+
+def test_ensure_environment_isolation():
+    builder = ConfigurationBuilder()
+    builder.add("timeout", 30, section="vdk_test_db")
+    builder.add("timeout", 300, section="vdk_prod_db")
+    config = builder.build()
+
+    assert config.get_value("timeout", "vdk_test_db") == 30
+    assert config.get_value("timeout", "vdk_prod_db") == 300
+
+
+def test_access_db_config_without_section_specified():
+    builder = ConfigurationBuilder()
+    builder.add("cache_enabled", True, section="vdk_test_db")
+    config = builder.build()
+
+    # no access to options in vdk subsections without specifying the subsection
+    assert config.get_value("cache_enabled") is None
 
 
 def test_conversions():

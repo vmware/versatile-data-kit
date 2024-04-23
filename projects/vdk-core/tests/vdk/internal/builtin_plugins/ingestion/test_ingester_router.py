@@ -7,6 +7,7 @@ import pytest
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IngesterBase
 from vdk.internal.builtin_plugins.ingestion.ingester_router import IngesterRouter
+from vdk.internal.core.config import ConfigEntry
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
@@ -15,15 +16,17 @@ from vdk.internal.core.statestore import StateStore
 
 def create_ingester_router(configs) -> IngesterRouter:
     config_key_value_pairs = {
-        "ingester_number_of_worker_threads": 1,
-        "ingester_payload_size_bytes_threshold": 100,
-        "ingester_objects_queue_size": 1,
-        "ingester_payloads_queue_size": 1,
-        "ingester_log_upload_errors": False,
-        "ingestion_payload_aggregator_timeout_seconds": 2,
+        "ingester_number_of_worker_threads": ConfigEntry(value=1),
+        "ingester_payload_size_bytes_threshold": ConfigEntry(value=100),
+        "ingester_objects_queue_size": ConfigEntry(value=1),
+        "ingester_payloads_queue_size": ConfigEntry(value=1),
+        "ingester_log_upload_errors": ConfigEntry(value=False),
+        "ingestion_payload_aggregator_timeout_seconds": ConfigEntry(value=2),
     }
-    config_key_value_pairs.update(configs)
-    test_config = Configuration({}, config_key_value_pairs, {})
+    for i in configs.keys():
+        config_key_value_pairs[i] = ConfigEntry(configs[i])
+    section = {"vdk": config_key_value_pairs}
+    test_config = Configuration(section)
     state_store = MagicMock(spec=StateStore)
     return IngesterRouter(test_config, state_store)
 

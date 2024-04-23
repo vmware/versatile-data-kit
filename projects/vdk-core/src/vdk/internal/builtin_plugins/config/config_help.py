@@ -112,7 +112,7 @@ def config_help(ctx: click.Context) -> None:
 
     vars_to_descriptions = {}
     providers_descriptions = {}
-    for k in configuration.list_config_keys():
+    for k in configuration.list_config_keys_from_main_sections():
         description = configuration.get_description(k)
         if description:
             if k.startswith("__config_provider__"):

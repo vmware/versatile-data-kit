@@ -11,10 +11,12 @@ from vdk.internal.builtin_plugins.job_properties.properties_router import (
 from vdk.internal.builtin_plugins.run.data_job import JobArguments
 from vdk.internal.builtin_plugins.run.job_input import JobInput
 from vdk.internal.core.config import Configuration
+from vdk.internal.core.config import ConfigurationBuilder
 
 
 def _get_properties_in_memory():
-    router = PropertiesRouter("foo", Configuration({}, {}))
+    test_config_builder = ConfigurationBuilder()
+    router = PropertiesRouter("foo", cfg=test_config_builder.build())
     router.set_properties_factory_method(
         "default", lambda: InMemPropertiesServiceClient()
     )
