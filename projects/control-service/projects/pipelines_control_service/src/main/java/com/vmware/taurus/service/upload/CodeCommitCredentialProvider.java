@@ -11,7 +11,7 @@ import org.springframework.cloud.config.server.support.AwsCodeCommitCredentialPr
 import org.springframework.stereotype.Component;
 
 @Component
-public class CodeCommitCredentialProvider {
+public class CodeCommitCredentialProvider implements VCSCredentialsProvider {
     private final AWSCredentialsService awsCredentialsService;
 
     public CodeCommitCredentialProvider(AWSCredentialsService awsCredentialsService) {

@@ -3,11 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Copyright 2023-2024 Broadcom
- * SPDX-License-Identifier: Apache-2.0
- */
-
 package com.vmware.taurus.service.upload;
 
 import static com.vmware.taurus.service.upload.FileUtils.createTempDir;
@@ -56,9 +51,7 @@ public class JobUploadTest {
   File remoteRepositoryDir;
   private Git remoteGit;
 
-  @Mock private GitCredentialsProvider gitCredentialsProvider;
-
-  @Mock private CodeCommitCredentialProvider codeCommitCredentialProvider;
+  @Mock private VCSCredentialsProvider gitCredentialsProvider;
 
   private GitWrapper gitWrapper;
 
@@ -92,9 +85,7 @@ public class JobUploadTest {
     jobUpload =
         new JobUpload(
             null,
-            false,
             gitCredentialsProvider,
-            codeCommitCredentialProvider,
             gitWrapper,
             featureFlags,
             authorizationProvider,
@@ -263,9 +254,7 @@ public class JobUploadTest {
     jobUpload =
         new JobUpload(
             createTempDir("DIFFERENT_DIRECTORY_TEST").toFile().toString(),
-            false,
             gitCredentialsProvider,
-            codeCommitCredentialProvider,
             gitWrapper,
             featureFlags,
             authorizationProvider,

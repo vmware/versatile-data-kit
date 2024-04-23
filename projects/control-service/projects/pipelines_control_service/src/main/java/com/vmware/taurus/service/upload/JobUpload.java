@@ -35,7 +35,7 @@ public class JobUpload {
   private static final Logger log = LoggerFactory.getLogger(JobUpload.class);
 
   private final String datajobsTempStorageFolder;
-  private final CredentialsProvider credentialsProvider;
+  private final VCSCredentialsProvider gitCredentialsProvider;
   private final GitWrapper gitWrapper;
   private final FeatureFlags featureFlags;
   private final AuthorizationProvider authorizationProvider;
@@ -45,27 +45,19 @@ public class JobUpload {
   @Autowired
   public JobUpload(
       @Value("${datajobs.temp.storage.folder:}") String datajobsTempStorageFolder,
-      @Value("${datajobs.git.assumeIAMRole}") boolean assumeCodeCommitIAMRole,
-      GitCredentialsProvider gitCredentialsProvider,
-      CodeCommitCredentialProvider codeCommitProvider,
+      VCSCredentialsProvider gitCredentialsProvider,
       GitWrapper gitWrapper,
       FeatureFlags featureFlags,
       AuthorizationProvider authorizationProvider,
       JobUploadAllowListValidator jobUploadAllowListValidator,
       JobUploadFilterListValidator jobUploadFilterListValidator) {
     this.datajobsTempStorageFolder = datajobsTempStorageFolder;
+    this.gitCredentialsProvider = gitCredentialsProvider;
     this.gitWrapper = gitWrapper;
     this.featureFlags = featureFlags;
     this.authorizationProvider = authorizationProvider;
     this.jobUploadAllowListValidator = jobUploadAllowListValidator;
     this.jobUploadFilterListValidator = jobUploadFilterListValidator;
-
-    if(assumeCodeCommitIAMRole){
-      this.credentialsProvider = codeCommitProvider.getProvider();
-    }
-    else{
-      this.credentialsProvider = gitCredentialsProvider.getProvider();
-    }
   }
 
   /**
@@ -75,6 +67,7 @@ public class JobUpload {
    * @return resource containing data job content in a zip format.
    */
   public Optional<Resource> getDataJob(String jobName) {
+    CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
     try (var tempDirPath =
         new EphemeralFile(datajobsTempStorageFolder, jobName, "get data job source")) {
       Git git =
@@ -122,6 +115,7 @@ public class JobUpload {
   public String publishDataJob(String jobName, Resource resource, String reason) {
     log.debug("Publish datajob to git {}", jobName);
     String jobVersion;
+    CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
     try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "deploy")) {
       File jobFolder =
           FileUtils.unzipDataJob(resource, new File(tempDirPath.toFile(), "job"), jobName);
@@ -161,6 +155,7 @@ public class JobUpload {
    * @param reason reason specified by user for deleting the data job
    */
   public void deleteDataJob(String jobName, String reason) {
+    CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
     try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "delete")) {
       Git git =
           gitWrapper.cloneJobRepository(
