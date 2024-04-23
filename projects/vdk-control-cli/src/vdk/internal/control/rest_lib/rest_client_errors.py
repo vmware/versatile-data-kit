@@ -7,6 +7,7 @@ import logging
 from taurus_datajob_api import ApiException
 from urllib3.exceptions import HTTPError
 from vdk.internal.control.exception.vdk_exception import VDKException
+from vdk.plugin.control_api_auth.auth_exception import VDKAuthException
 
 log = logging.getLogger(__name__)
 
@@ -85,6 +86,32 @@ class ApiClientErrorDecorator:
                     consequence=self.__consequences,
                     countermeasure="Verify that the provided url (--rest-api-url) is valid "
                     "and points to the correct host.",
+                )
+                raise vdk_ex from ex
+            except VDKAuthException as ex:
+                log.debug(
+                    f"An authentication Exception occurred in {fn.__module__}.{fn.__name__}",
+                    f"The Exception class was: {ex}",
+                )
+
+                vdk_ex = VDKException(
+                    what=self.__what,
+                    why=str(ex),
+                    consequence=self.__consequences,
+                    countermeasure="Authentication Error and requires a user login again !",
+                )
+                raise vdk_ex from ex
+            except Exception as ex:
+                log.debug(
+                    f"An general Exception occurred in {fn.__module__}.{fn.__name__}",
+                    f"The Exception class was: {ex}",
+                )
+
+                vdk_ex = VDKException(
+                    what=self.__what,
+                    why=str(ex),
+                    consequence=self.__consequences,
+                    countermeasure="General Exception has occurred and needs to be addressed!",
                 )
                 raise vdk_ex from ex
 
