@@ -12,6 +12,7 @@ from vdk.internal.builtin_plugins.job_properties.properties_router import (
     PropertiesRouter,
 )
 from vdk.internal.core import errors
+from vdk.internal.core.config import ConfigEntry
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.core.errors import UserCodeError
@@ -19,9 +20,8 @@ from vdk.internal.core.errors import VdkConfigurationError
 
 
 def test_routing():
-    router = PropertiesRouter(
-        "foo", Configuration({}, {JobConfigKeys.TEAM: "test-team"})
-    )
+    section = {"owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
+    router = PropertiesRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("default", lambda: mock_client)
 
@@ -33,7 +33,7 @@ def test_routing():
 
 
 def test_routing_error():
-    router = PropertiesRouter("foo", Configuration({}, {}))
+    router = PropertiesRouter("foo", Configuration({}))
 
     def raise_error():
         raise AttributeError("dummy exception")
@@ -45,14 +45,15 @@ def test_routing_error():
 
 
 def test_routing_empty_error():
-    router = PropertiesRouter("foo", Configuration({}, {}))
+    router = PropertiesRouter("foo", Configuration({}))
 
     with pytest.raises(VdkConfigurationError):
         router.set_all_properties({"a": "b"})
 
 
 def test_routing_choose_single_registered():
-    router = PropertiesRouter("foo", Configuration({}, {"team": "test-team"}))
+    section = {"owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
+    router = PropertiesRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("foo", lambda: mock_client)
 
@@ -61,9 +62,8 @@ def test_routing_choose_single_registered():
 
 
 def test_routing_choose_default_type_chosen():
-    router = PropertiesRouter(
-        "foo", Configuration({}, {"properties_default_type": "foo"})
-    )
+    section = {"vdk": {"properties_default_type": ConfigEntry(value="foo")}}
+    router = PropertiesRouter("foo", Configuration(section))
     foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
     bar_mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("foo", lambda: foo_mock_client)
@@ -75,7 +75,7 @@ def test_routing_choose_default_type_chosen():
 
 
 def test_routing_choose_too_many_choices():
-    router = PropertiesRouter("foo", Configuration({}, {}))
+    router = PropertiesRouter("foo", Configuration({}))
     foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
     bar_mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("foo", lambda: foo_mock_client)
@@ -86,17 +86,14 @@ def test_routing_choose_too_many_choices():
 
 
 def test_preprocessing_sequence_success():
-    router = PropertiesRouter(
-        "foo",
-        Configuration(
-            {},
-            {
-                JobConfigKeys.TEAM: "test-team",
-                "properties_default_type": "foo",
-                "properties_write_preprocess_sequence": "bar1,bar2",
-            },
-        ),
-    )
+    sections = {
+        "owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")},
+        "vdk": {
+            "properties_default_type": ConfigEntry(value="foo"),
+            "properties_write_preprocess_sequence": ConfigEntry(value="bar1,bar2"),
+        },
+    }
+    router = PropertiesRouter("foo", Configuration(sections))
     foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
     bar1_mock_client = MagicMock(spec=IPropertiesServiceClient)
     bar1_mock_client.write_properties.return_value = {"a1": "b1"}
@@ -117,16 +114,16 @@ def test_preprocessing_sequence_success():
 
 
 def test_preprocessing_sequence_success_outerscope_immutable():
+    sections = {
+        "owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")},
+        "vdk": {
+            "properties_default_type": ConfigEntry(value="foo"),
+            "properties_write_preprocess_sequence": ConfigEntry(value="bar"),
+        },
+    }
     router = PropertiesRouter(
         "foo",
-        Configuration(
-            {},
-            {
-                JobConfigKeys.TEAM: "test-team",
-                "properties_default_type": "foo",
-                "properties_write_preprocess_sequence": "bar",
-            },
-        ),
+        Configuration(sections),
     )
     foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
     bar_mock_client = MagicMock(spec=IPropertiesServiceClient)
@@ -145,16 +142,16 @@ def test_preprocessing_sequence_success_outerscope_immutable():
 
 
 def test_preprocessing_sequence_error():
+    sections = {
+        "owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")},
+        "vdk": {
+            "properties_default_type": ConfigEntry(value="foo"),
+            "properties_write_preprocess_sequence": ConfigEntry(value="bar"),
+        },
+    }
     router = PropertiesRouter(
         "foo",
-        Configuration(
-            {},
-            {
-                JobConfigKeys.TEAM: "test-team",
-                "properties_default_type": "foo",
-                "properties_write_preprocess_sequence": "bar",
-            },
-        ),
+        Configuration(sections),
     )
     foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
     bar_mock_client = MagicMock(spec=IPropertiesServiceClient)
@@ -171,16 +168,13 @@ def test_preprocessing_sequence_error():
 
 
 def test_preprocessing_sequence_misconfigured():
-    router = PropertiesRouter(
-        "foo",
-        Configuration(
-            {},
-            {
-                "properties_default_type": "foo",
-                "properties_write_preprocess_sequence": "bar",
-            },
-        ),
-    )
+    sections = {
+        "vdk": {
+            "properties_default_type": ConfigEntry(value="foo"),
+            "properties_write_preprocess_sequence": ConfigEntry(value="bar"),
+        }
+    }
+    router = PropertiesRouter("foo", Configuration(sections))
     foo_mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("foo", lambda: foo_mock_client)
 

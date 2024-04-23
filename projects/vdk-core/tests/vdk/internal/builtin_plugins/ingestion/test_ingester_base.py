@@ -16,6 +16,7 @@ from vdk.internal.builtin_plugins.ingestion.ingester_configuration import (
 )
 from vdk.internal.core import errors
 from vdk.internal.core.config import Configuration
+from vdk.internal.core.config import ConfigurationBuilder
 
 shared_test_values = {
     "test_payload1": {"key1": "val1", "key2": "val2", "key3": "val3"},
@@ -42,7 +43,11 @@ def create_ingester_base(kwargs=None, config_dict=None, ingester=None) -> Ingest
     }
     if config_dict is not None:
         config_key_value_pairs.update(config_dict)
-    test_config = Configuration(None, config_key_value_pairs, {})
+    test_config_builder = ConfigurationBuilder()
+    for k, v in config_key_value_pairs.items():
+        test_config_builder.add(key=k, default_value=v)
+
+    test_config = test_config_builder.build()
 
     return IngesterBase(
         data_job_name="test_job",
