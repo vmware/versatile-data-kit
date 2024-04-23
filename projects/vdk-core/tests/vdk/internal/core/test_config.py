@@ -190,17 +190,19 @@ def test_list_sections_and_keys():
     builder.add("key3", 300, section="section2")
     config = builder.build()
 
-    assert set(config.list_sections()) == {"section1", "section2"}
+    assert set(config.list_sections()) == {"vdk", "section1", "section2"}
     assert set(config.list_keys_in_section("section1")) == {"key1", "key2"}
     assert set(config.list_keys_in_section("section2")) == {"key3"}
+    assert set(config.list_keys_in_section("vdk")) == set()
 
 
-def test_get_value_without_section():  # it should work with all sections but vdk subsections following: vdk_<string>
+def test_get_value_without_section():  # fetch from the vdk section by default
     builder = ConfigurationBuilder()
-    builder.add("global_key", "global_value", section="global")
+    builder.add("main_key", "section_value", section="local")
+    builder.add("main_key", "main_value")
     config = builder.build()
 
-    assert config.get_value("global_key") == "global_value"
+    assert config.get_value("main_key") == "main_value"
 
 
 def test_missing_key_across_sections():
@@ -208,7 +210,8 @@ def test_missing_key_across_sections():
     builder.add("unique_key", 123, section="unique_section")
     config = builder.build()
 
-    assert config.get_value("nonexistent_key") is None
+    nevalue = config.get_value("nonexistent_key")
+    assert nevalue is None
 
 
 @pytest.mark.parametrize(

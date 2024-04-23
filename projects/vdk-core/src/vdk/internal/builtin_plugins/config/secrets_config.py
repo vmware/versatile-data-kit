@@ -36,6 +36,23 @@ class SecretsConfigPlugin:
         for key, value in secrets.items():
             env_var = self._get_env_var(key, upper_cased_env)
             # override only if there is no corresponding environment variable
+            overridden_in_section = False
             if env_var is None:
-                log.info(f"Overriding config {key} with secret")
-                context.core_context.configuration.override_value(key, value)
+                sections = [
+                    section
+                    for section in context.core_context.configuration.list_sections()
+                    if section != "vdk"
+                ]
+                # try to match the secret to a specific config section and override it
+                for section in sections:
+                    if section.lower() in key.lower():
+                        log.info(f"Overriding config {key} with secret")
+                        context.core_context.configuration.override_value(
+                            key, value, section
+                        )
+                        overridden_in_section = True
+                        break
+
+                # if it wasn't overridden in a section, override it in the main section
+                if not overridden_in_section:
+                    context.core_context.configuration.override_value(key, value)

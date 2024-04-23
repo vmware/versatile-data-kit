@@ -173,7 +173,7 @@ class JobConfig:
         Returns a list of subsection names.
         """
         subsection_names = [
-            section
+            section.replace("vdk_", "")
             for section in self._config_ini.sections()
             if section.startswith("vdk_")
         ]
@@ -187,8 +187,8 @@ class JobConfig:
 
         :param subsection_name: The name of the subsection (e.g., 'vdk_my_oracle')
         """
-        if subsection_name in self._config_ini.sections():
-            return dict(self._config_ini[subsection_name])
+        if f"vdk_{subsection_name}" in self._config_ini.sections():
+            return dict(self._config_ini[f"vdk_{subsection_name}"])
         return {}
 
     def _get_value(self, section, key):

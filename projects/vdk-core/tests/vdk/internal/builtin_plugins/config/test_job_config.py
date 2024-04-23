@@ -116,7 +116,7 @@ class TestJobConfig:
         """,
         )
         cfg = JobConfig(self._test_dir)
-        options = ["vdk_subsection_one", "vdk_subsection_two"]
+        options = ["subsection_one", "subsection_two"]
         for subclass in cfg.get_vdk_subsection_names():
             assert options.count(subclass) == 1
 
@@ -133,7 +133,7 @@ class TestJobConfig:
         """,
         )
         cfg = JobConfig(self._test_dir)
-        values = cfg.get_vdk_subsection_values("vdk_subsection")
+        values = cfg.get_vdk_subsection_values("subsection")
         self.assertEqual({"a": "b", "c": "d"}, values)
 
     def test_set_team(self):
