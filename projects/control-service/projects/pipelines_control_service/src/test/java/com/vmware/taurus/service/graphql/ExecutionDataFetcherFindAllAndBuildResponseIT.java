@@ -107,9 +107,9 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
     when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
         .thenReturn(
             List.of(
-                com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING
+                 com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum.RUNNING
                     .toString(),
-                com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.SUBMITTED
+                com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum.SUBMITTED
                     .toString()));
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
 
@@ -263,7 +263,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
     when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
         .thenReturn(
             List.of(
-                com.vmware.taurus.controlplane.model.data.DataJobExecution.StatusEnum.RUNNING
+                    com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum.RUNNING
                     .toString()));
 
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
@@ -700,8 +700,8 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
 
   private void assertExecutionsEquals(
       DataJobExecution expectedJobExecution, Object actualJobExecutionObject) {
-    com.vmware.taurus.controlplane.model.data.DataJobExecution actualJobExecution =
-        (com.vmware.taurus.controlplane.model.data.DataJobExecution) actualJobExecutionObject;
+    com.vmware.taurus.service.graphql.model.DataJobExecution actualJobExecution =
+        (com.vmware.taurus.service.graphql.model.DataJobExecution) actualJobExecutionObject;
 
     Assertions.assertEquals(expectedJobExecution.getId(), actualJobExecution.getId());
     Assertions.assertEquals(expectedJobExecution.getStartTime(), actualJobExecution.getStartTime());
