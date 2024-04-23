@@ -107,7 +107,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
     when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
         .thenReturn(
             List.of(
-                 com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum.RUNNING
+                com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum.RUNNING
                     .toString(),
                 com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum.SUBMITTED
                     .toString()));
@@ -263,7 +263,7 @@ public class ExecutionDataFetcherFindAllAndBuildResponseIT {
     when(filterRaw.get(DataJobExecutionFilter.STATUS_IN_FIELD))
         .thenReturn(
             List.of(
-                    com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum.RUNNING
+                com.vmware.taurus.service.graphql.model.DataJobExecution.StatusEnum.RUNNING
                     .toString()));
 
     when(dataFetchingEnvironment.getArguments()).thenReturn(Map.of(FILTER_FIELD, filterRaw));
