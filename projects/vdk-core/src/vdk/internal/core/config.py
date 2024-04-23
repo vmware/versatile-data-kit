@@ -6,11 +6,6 @@ import logging
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from vdk.internal.core.errors import VdkConfigurationError
 
@@ -349,7 +344,7 @@ class ConfigurationBuilder:
             and self.__sections[section][key].value
             != self.__sections[section][key].default
         ):
-            preserved_value = value = convert_value_to_type_of_default_type(
+            preserved_value = convert_value_to_type_of_default_type(
                 key=key,
                 v=self.__sections[section][key].value,
                 default_value=default_value,
