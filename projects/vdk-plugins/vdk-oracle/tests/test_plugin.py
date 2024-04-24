@@ -7,6 +7,9 @@ from unittest import TestCase
 
 import pytest
 from click.testing import Result
+from testcontainers.core.container import DockerContainer
+from testcontainers.core.waiting_utils import wait_for_logs
+
 from vdk.plugin.oracle import oracle_plugin
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -69,13 +72,39 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)
 
+    import os
+    from testcontainers.core.container import DockerContainer
+    from testcontainers.core.waiting_utils import wait_for_logs
+
+    ORACLE_IMAGE = "container-registry.oracle.com/database/free:latest"
+    ORACLE_PASSWORD = "Gr0mh3llscr3am"  # Consider secure handling of passwords
+
     def test_oracle_ingest_multiple_conn(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("oracle-ingest-multiple-conn-job")]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution(runner)
+        port = 1522  # Port for this specific test
+        ORACLE_IMAGE = "container-registry.oracle.com/database/free:latest"
+        container = DockerContainer(ORACLE_IMAGE)
+        container.with_bind_ports(port, port)
+        container.with_env("ORACLE_PWD", "Gr0mh3llscr3am" )
+        container.with_env("ORACLE_CHARACTERSET", "UTF8")
+
+        try:
+            container.start()
+            print(f"Oracle DB started on port {port} at {container.get_container_host_ip()}")
+
+            # Proceed with the test using the runner
+            runner = CliEntryBasedTestRunner(oracle_plugin)
+            result = runner.invoke(["run", jobs_path_from_caller_directory("oracle-ingest-multiple-conn-job")])
+            cli_assert_equal(0, result)
+            _verify_ingest_execution(runner)
+
+        except Exception as e:
+            print(f"Failed to start Oracle DB: {e}")
+            print(f"Container logs: {container.get_logs()}")
+            raise e
+
+        finally:
+            container.stop()
+            print("Oracle DB stopped")
 
     def test_oracle_ingest_existing_table_special_chars(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
