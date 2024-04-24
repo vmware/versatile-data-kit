@@ -35,34 +35,36 @@ class OraclePlugin:
     def initialize_job(self, context: JobContext):
         conf = OracleConfiguration(context.core_context.configuration)
         for section in context.core_context.configuration.list_sections():
-            if section == "vdk":
-                connection_name = "oracle"
-            else:
-                connection_name = section.lstrip("vdk_")
-            oracle_user, oracle_pass = conf.get_oracle_user(section), conf.get_oracle_password(section)
-            context.connections.add_open_connection_factory_method(
-                connection_name.capitalize(),
-                lambda: OracleConnection(
-                    oracle_user,
-                    oracle_pass,
-                    conf.get_oracle_connection_string(section),
-                    host=conf.get_oracle_host(section),
-                    port=conf.get_oracle_port(section),
-                    sid=conf.get_oracle_sid(section),
-                    service_name=conf.get_oracle_service_name(section),
-                    thick_mode=conf.oracle_thick_mode(section),
-                    thick_mode_lib_dir=conf.oracle_thick_mode_lib_dir(section),
-                ),
-            )
-            context.ingester.add_ingester_factory_method(
-                connection_name.lower(),
-                lambda: IngestToOracle(
-                    connection_name=connection_name.capitalize(),
-                    connections=context.connections,
-                    ingest_batch_size=conf.oracle_ingest_batch_size(section)
-                ),
-            )
+            if section.startswith("vdk"):
+                if section == "vdk":
+                    connection_name = "oracle"
+                else:
+                    connection_name = section.lstrip("vdk_")
 
+                oracle_user, oracle_pass = conf.get_oracle_user(section), conf.get_oracle_password(section)
+
+                context.connections.add_open_connection_factory_method(
+                    connection_name.capitalize(),
+                    lambda: OracleConnection(
+                        oracle_user,
+                        oracle_pass,
+                        conf.get_oracle_connection_string(section),
+                        host=conf.get_oracle_host(section),
+                        port=conf.get_oracle_port(section),
+                        sid=conf.get_oracle_sid(section),
+                        service_name=conf.get_oracle_service_name(section),
+                        thick_mode=conf.oracle_thick_mode(section),
+                        thick_mode_lib_dir=conf.oracle_thick_mode_lib_dir(section),
+                    ),
+                )
+                context.ingester.add_ingester_factory_method(
+                    connection_name.lower(),
+                    lambda: IngestToOracle(
+                        connection_name=connection_name.capitalize(),
+                        connections=context.connections,
+                        ingest_batch_size=conf.oracle_ingest_batch_size(section)
+                    ),
+                )
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
