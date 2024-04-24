@@ -22,6 +22,20 @@ ORACLE_SERVICE_NAME = "ORACLE_SERVICE_NAME"
 ORACLE_INGEST_BATCH_SIZE = "ORACLE_INGEST_BATCH_SIZE"
 
 
+def parse_boolean(value):
+    true_values = ['true', '1', 'yes', 'on']
+    false_values = ['false', '0', 'no', 'off']
+
+    str_value = str(value).strip().lower()
+
+    if str_value in true_values:
+        return True
+    elif str_value in false_values:
+        return False
+    else:
+        raise ValueError(f"Invalid boolean value: {value}")
+
+
 class OracleConfiguration:
     def __init__(self, configuration: Configuration):
         self.__config = configuration
@@ -51,7 +65,7 @@ class OracleConfiguration:
         return self.__config.get_value(key=ORACLE_USE_SECRETS, section=section)
 
     def oracle_thick_mode(self, section: Optional[str]) -> bool:
-        return self.__config.get_value(key=ORACLE_THICK_MODE, section=section)
+        return parse_boolean(self.__config.get_value(key=ORACLE_THICK_MODE, section=section))
 
     def oracle_thick_mode_lib_dir(self, section: Optional[str]) -> Optional[str]:
         return self.__config.get_value(key=ORACLE_THICK_MODE_LIB_DIR, section=section)
