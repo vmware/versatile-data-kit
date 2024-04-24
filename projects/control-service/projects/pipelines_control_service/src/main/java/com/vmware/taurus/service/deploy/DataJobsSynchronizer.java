@@ -77,12 +77,14 @@ public class DataJobsSynchronizer {
 
     UUID syncId = UUID.randomUUID();
     log.info("[{}] Data job deployments synchronization has started.", syncId);
-    log.info("[{}] DataJobsSynchronizerTaskExecutor [pool size = {}, active threads = {}, queue size = {}, queue capacity = {}]",
-            syncId,
-            dataJobsSynchronizerTaskExecutor.getPoolSize(),
-            dataJobsSynchronizerTaskExecutor.getActiveCount(),
-            dataJobsSynchronizerTaskExecutor.getQueueSize(),
-            dataJobsSynchronizerTaskExecutor.getQueueCapacity());
+    log.info(
+        "[{}] DataJobsSynchronizerTaskExecutor [pool size = {}, active threads = {}, queue size ="
+            + " {}, queue capacity = {}]",
+        syncId,
+        dataJobsSynchronizerTaskExecutor.getPoolSize(),
+        dataJobsSynchronizerTaskExecutor.getActiveCount(),
+        dataJobsSynchronizerTaskExecutor.getQueueSize(),
+        dataJobsSynchronizerTaskExecutor.getQueueCapacity());
 
     Map<String, DataJob> dataJobsFromDBMap =
         StreamSupport.stream(jobsService.findAllDataJobs().spliterator(), false)
@@ -94,9 +96,10 @@ public class DataJobsSynchronizer {
           deploymentService.findAllActualDeploymentNamesFromKubernetes();
     } catch (KubernetesException e) {
       log.error(
-          "[{}] Skipping data job deployment synchronization because deployment names cannot be loaded"
-              + " from Kubernetes.",
-          syncId, e);
+          "[{}] Skipping data job deployment synchronization because deployment names cannot be"
+              + " loaded from Kubernetes.",
+          syncId,
+          e);
       dataJobSynchronizerMonitor.countSynchronizerFailures();
       return;
     }
@@ -219,13 +222,15 @@ public class DataJobsSynchronizer {
   private void waitForSynchronizationCompletion(CountDownLatch countDownLatch, UUID syncId) {
     try {
       log.debug(
-          "[{}] Waiting for data job deployments' synchronization to complete. This process may take"
-              + " some time...", syncId);
+          "[{}] Waiting for data job deployments' synchronization to complete. This process may"
+              + " take some time...",
+          syncId);
       countDownLatch.await();
       log.info("[{}] Data job deployments synchronization has successfully completed.", syncId);
       dataJobSynchronizerMonitor.countSuccessfulSynchronizerInvocation();
     } catch (InterruptedException e) {
-      log.error("[{}] An error occurred during the data job deployments' synchronization", syncId, e);
+      log.error(
+          "[{}] An error occurred during the data job deployments' synchronization", syncId, e);
       dataJobSynchronizerMonitor.countSynchronizerFailures();
     }
   }
