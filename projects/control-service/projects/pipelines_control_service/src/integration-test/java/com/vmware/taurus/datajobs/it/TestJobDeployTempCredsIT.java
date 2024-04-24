@@ -161,7 +161,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
 
     var jobUri = dockerRegistryService.dataJobImage(TEST_JOB_NAME, testJobVersionSha);
 
-    Assertions.assertFalse(dockerRegistryService.dataJobImageExists(jobUri, credentialsDTO));
+    Assertions.assertFalse(ecrRegistryInterface.checkEcrImageExists(jobUri, credentialsDTO));
 
     Assertions.assertFalse(StringUtils.isBlank(testJobVersionSha));
 
@@ -185,7 +185,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
         .untilAsserted(
             () ->
                 Assertions.assertTrue(
-                    dockerRegistryService.dataJobImageExists(jobUri, credentialsDTO)));
+                    ecrRegistryInterface.checkEcrImageExists(jobUri, credentialsDTO)));
 
     String jobDeploymentName = JobImageDeployer.getCronJobName(TEST_JOB_NAME);
 
@@ -212,7 +212,7 @@ public class TestJobDeployTempCredsIT extends BaseIT {
         .untilAsserted(
             () ->
                 Assertions.assertTrue(
-                    dockerRegistryService.dataJobImageExists(jobUri, credentialsDTO)));
+                    ecrRegistryInterface.checkEcrImageExists(jobUri, credentialsDTO)));
 
     // Making sure only one image present, even though job was redeployed.
     DescribeImagesRequest countImagesRequest =

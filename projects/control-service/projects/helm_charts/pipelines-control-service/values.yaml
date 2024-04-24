@@ -271,6 +271,15 @@ deploymentDockerRegistryUsernameReadOnly: ""
 deploymentDockerRegistryPasswordReadOnly: ""
 
 
+## [Required if deploymentDockerRegistryType=jfrog]
+## Connection settings for the Jfrog artifactory instance, used to check if a data job image already exists
+## These credentials might be different from the Docker Registry Username and Password as long as they have
+## permissions to do searches in the docker repository from Jfrog Artifactory where data jobs images are stored
+jfrogArtifactoryUrl: ""
+jfrogArtifactoryUsername: ""
+jfrogArtifactoryPassword: ""
+jfrogArtifactoryRepo: ""
+
 ## The registry and associated credentials needed to pull the vdk sdk image.
 ## These are stored in a kubernetes secret.
 ## IMPORTANT: The registry should be the same as the one specified in the deploymentSupportedPythonVersions

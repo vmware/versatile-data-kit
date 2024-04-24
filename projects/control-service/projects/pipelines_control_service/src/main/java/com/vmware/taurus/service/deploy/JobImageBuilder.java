@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,7 @@ public class JobImageBuilder {
 
   private static final String REGISTRY_TYPE_ECR = "ecr";
   private static final String REGISTRY_TYPE_GENERIC = "generic";
+  private static final String REGISTRY_TYPE_JFROG = "jfrog";
 
   @Value("${datajobs.git.url}")
   private String gitRepo;
@@ -90,6 +92,7 @@ public class JobImageBuilder {
   private final AWSCredentialsService awsCredentialsService;
   private final SupportedPythonVersions supportedPythonVersions;
   private final EcrRegistryInterface ecrRegistryInterface;
+  private final JfrogRegistryInterface jfrogRegistryInterface;
 
   public JobImageBuilder(
       ControlKubernetesService controlKubernetesService,
@@ -98,7 +101,8 @@ public class JobImageBuilder {
       KubernetesResources kubernetesResources,
       AWSCredentialsService awsCredentialsService,
       SupportedPythonVersions supportedPythonVersions,
-      EcrRegistryInterface ecrRegistryInterface) {
+      EcrRegistryInterface ecrRegistryInterface,
+      @Autowired(required = false) JfrogRegistryInterface jfrogRegistryInterface) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
@@ -107,6 +111,7 @@ public class JobImageBuilder {
     this.awsCredentialsService = awsCredentialsService;
     this.supportedPythonVersions = supportedPythonVersions;
     this.ecrRegistryInterface = ecrRegistryInterface;
+    this.jfrogRegistryInterface = jfrogRegistryInterface;
   }
 
   /**
@@ -131,21 +136,14 @@ public class JobImageBuilder {
       ActualDataJobDeployment actualDataJobDeployment,
       Boolean sendNotification)
       throws ApiException, IOException, InterruptedException {
-    // TODO: refactor and hide AWS details behind DockerRegistryService?
-    var credentials = awsCredentialsService.createTemporaryCredentials();
-
-    String builderAwsSecretAccessKey = credentials.awsSecretAccessKey();
-    String builderAwsAccessKeyId = credentials.awsAccessKeyId();
-    String builderAwsSessionToken = credentials.awsSessionToken();
-    String awsRegion = credentials.region();
 
     log.trace("Build data job image for job {}. Image name: {}", dataJob.getName(), imageName);
     if (!StringUtils.isBlank(registryType)) {
       if (unsupportedRegistryType(registryType)) {
         log.warn(
             String.format(
-                "Unsupported registry type: %s available options %s/%s",
-                registryType, REGISTRY_TYPE_ECR, REGISTRY_TYPE_GENERIC));
+                "Unsupported registry type: %s available options %s/%s/%s",
+                registryType, REGISTRY_TYPE_ECR, REGISTRY_TYPE_GENERIC, REGISTRY_TYPE_JFROG));
         return false;
       }
     }
@@ -155,14 +153,43 @@ public class JobImageBuilder {
       return false;
     }
 
+    String awsRegion;
+    String builderAwsSecretAccessKey;
+    String builderAwsAccessKeyId;
+    String builderAwsSessionToken;
+
     // Rebuild the image if the Python version changes but the gitCommitSha remains the same.
-    if ((actualDataJobDeployment == null
-            || desiredDataJobDeployment
-                .getPythonVersion()
-                .equals(actualDataJobDeployment.getPythonVersion()))
-        && dockerRegistryService.dataJobImageExists(imageName, credentials)) {
-      log.trace("Data Job image {} already exists and nothing else to do.", imageName);
-      return true;
+    if (registryType.equalsIgnoreCase(REGISTRY_TYPE_ECR)) {
+      var credentials = awsCredentialsService.createTemporaryCredentials();
+      builderAwsSecretAccessKey = credentials.awsSecretAccessKey();
+      builderAwsAccessKeyId = credentials.awsAccessKeyId();
+      builderAwsSessionToken = credentials.awsSessionToken();
+      awsRegion = credentials.region();
+      if ((actualDataJobDeployment == null
+              || desiredDataJobDeployment
+                  .getPythonVersion()
+                  .equals(actualDataJobDeployment.getPythonVersion()))
+          && ecrRegistryInterface.checkEcrImageExists(imageName, credentials)) {
+        log.trace("Data Job image {} already exists and nothing else to do.", imageName);
+        return true;
+      }
+    } else {
+      builderAwsSecretAccessKey = REGISTRY_TYPE_GENERIC;
+      builderAwsAccessKeyId = REGISTRY_TYPE_GENERIC;
+      builderAwsSessionToken = REGISTRY_TYPE_GENERIC;
+      awsRegion = REGISTRY_TYPE_GENERIC;
+
+      // Check if the image exists in the Jfrog artifactory
+      if (registryType.equalsIgnoreCase(REGISTRY_TYPE_JFROG)
+          && jfrogRegistryInterface != null
+          && (actualDataJobDeployment == null
+              || desiredDataJobDeployment
+                  .getPythonVersion()
+                  .equals(actualDataJobDeployment.getPythonVersion()))
+          && jfrogRegistryInterface.checkJfrogImageExists(imageName)) {
+        log.trace("Data Job image {} already exists and nothing else to do.", imageName);
+        return true;
+      }
     }
 
     String builderJobName = getBuilderJobName(desiredDataJobDeployment.getDataJobName());
@@ -309,7 +336,8 @@ public class JobImageBuilder {
 
   private boolean unsupportedRegistryType(String registry) {
     return !registry.equalsIgnoreCase(REGISTRY_TYPE_GENERIC)
-        && !registry.equalsIgnoreCase(REGISTRY_TYPE_ECR);
+        && !registry.equalsIgnoreCase(REGISTRY_TYPE_ECR)
+        && !registry.equalsIgnoreCase(REGISTRY_TYPE_JFROG);
   }
 
   private static String getBuilderJobName(String dataJobName) {

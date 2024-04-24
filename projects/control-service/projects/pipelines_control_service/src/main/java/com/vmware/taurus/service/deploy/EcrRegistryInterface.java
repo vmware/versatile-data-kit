@@ -108,7 +108,8 @@ public class EcrRegistryInterface {
     } catch (ImageNotFoundException | RepositoryNotFoundException e) {
       log.info("Could not find image due to " + e);
     } catch (Exception e) {
-      log.warn("Failed to check if image exists and will assume it doesn't exist. Exception: " + e);
+      log.warn(
+          "Failed to check if image exists and will assume it doesn't exist. Exception: " + e, e);
     }
     return imageExists;
   }

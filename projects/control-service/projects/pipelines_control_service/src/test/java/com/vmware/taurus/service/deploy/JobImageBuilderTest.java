@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 import com.vmware.taurus.service.KubernetesService;
 import com.vmware.taurus.service.credentials.AWSCredentialsService;
-import com.vmware.taurus.service.credentials.AWSCredentialsService.AWSCredentialsDTO;
 import com.vmware.taurus.service.kubernetes.ControlKubernetesService;
 import com.vmware.taurus.service.model.ActualDataJobDeployment;
 import com.vmware.taurus.service.model.DataJob;
@@ -36,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -54,6 +52,8 @@ public class JobImageBuilderTest {
 
   @Mock private DockerRegistryService dockerRegistryService;
 
+  @Mock private JfrogRegistryInterface jfrogRegistryInterface;
+
   @Mock private DeploymentNotificationHelper notificationHelper;
 
   @Mock private KubernetesResources kubernetesResources;
@@ -70,11 +70,8 @@ public class JobImageBuilderTest {
   public void setUp() {
     ReflectionTestUtils.setField(jobImageBuilder, "dockerRepositoryUrl", "test-docker-repository");
     ReflectionTestUtils.setField(jobImageBuilder, "gitDataJobsBranch", "branch");
-    ReflectionTestUtils.setField(jobImageBuilder, "registryType", "generic");
+    ReflectionTestUtils.setField(jobImageBuilder, "registryType", "jfrog");
     ReflectionTestUtils.setField(jobImageBuilder, "builderJobExtraArgs", "");
-
-    when(awsCredentialsService.createTemporaryCredentials())
-        .thenReturn(new AWSCredentialsDTO("test", "test", "test", "test"));
 
     JobConfig jobConfig = new JobConfig();
     jobConfig.setDbDefaultType(TEST_DB_DEFAULT_TYPE);
@@ -128,8 +125,6 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_builderRunning_oldBuilderDeleted()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
-        .thenReturn(false);
     when(kubernetesService.listJobs())
         .thenReturn(Set.of(TEST_BUILDER_IMAGE_NAME), Collections.emptySet());
     var builderJobResult =
@@ -172,8 +167,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExists_buildSkipped()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
-        .thenReturn(true);
+    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_IMAGE_NAME))).thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);
@@ -343,8 +337,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExistsAndEqualPythonVersions_shouldSkipBuild()
       throws InterruptedException, ApiException, IOException {
-    when(dockerRegistryService.dataJobImageExists(eq(TEST_IMAGE_NAME), Mockito.any()))
-        .thenReturn(true);
+    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_IMAGE_NAME))).thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
     jobDeployment.setDataJobName(TEST_JOB_NAME);

@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -45,9 +44,7 @@ public class DockerRegistryService {
   }
 
   // TODO: Implement
-  public boolean dataJobImageExists(
-      String imageName, AWSCredentialsService.AWSCredentialsDTO awsCredentialsDTO) {
-    return registryType.equalsIgnoreCase("ecr")
-        && ecrRegistryInterface.checkEcrImageExists(imageName, awsCredentialsDTO);
+  public boolean dataJobImageExists(String imageName) {
+    return false;
   }
 }
