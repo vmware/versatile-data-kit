@@ -18,7 +18,7 @@ import org.jfrog.filespecs.FileSpec;
 import java.util.List;
 
 /**
- * This class is used to provide interface methods between an Amazon Elastic Container Registry and
+ * This class is used to provide interface methods between an Jfrog Artifactory Container Registry and
  * the control service.
  */
 @Service
