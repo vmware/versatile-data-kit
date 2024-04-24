@@ -95,14 +95,14 @@ public class JobImageBuilder {
   private final JfrogRegistryInterface jfrogRegistryInterface;
 
   public JobImageBuilder(
-          ControlKubernetesService controlKubernetesService,
-          DockerRegistryService dockerRegistryService,
-          DeploymentNotificationHelper notificationHelper,
-          KubernetesResources kubernetesResources,
-          AWSCredentialsService awsCredentialsService,
-          SupportedPythonVersions supportedPythonVersions,
-          EcrRegistryInterface ecrRegistryInterface,
-          @Autowired(required = false) JfrogRegistryInterface jfrogRegistryInterface) {
+      ControlKubernetesService controlKubernetesService,
+      DockerRegistryService dockerRegistryService,
+      DeploymentNotificationHelper notificationHelper,
+      KubernetesResources kubernetesResources,
+      AWSCredentialsService awsCredentialsService,
+      SupportedPythonVersions supportedPythonVersions,
+      EcrRegistryInterface ecrRegistryInterface,
+      @Autowired(required = false) JfrogRegistryInterface jfrogRegistryInterface) {
 
     this.controlKubernetesService = controlKubernetesService;
     this.dockerRegistryService = dockerRegistryService;
@@ -141,9 +141,9 @@ public class JobImageBuilder {
     if (!StringUtils.isBlank(registryType)) {
       if (unsupportedRegistryType(registryType)) {
         log.warn(
-                String.format(
-                        "Unsupported registry type: %s available options %s/%s/%s",
-                        registryType, REGISTRY_TYPE_ECR, REGISTRY_TYPE_GENERIC, REGISTRY_TYPE_JFROG));
+            String.format(
+                "Unsupported registry type: %s available options %s/%s/%s",
+                registryType, REGISTRY_TYPE_ECR, REGISTRY_TYPE_GENERIC, REGISTRY_TYPE_JFROG));
         return false;
       }
     }
@@ -159,7 +159,7 @@ public class JobImageBuilder {
     String builderAwsSessionToken;
 
     // Rebuild the image if the Python version changes but the gitCommitSha remains the same.
-    if (registryType.equalsIgnoreCase(REGISTRY_TYPE_ECR)){
+    if (registryType.equalsIgnoreCase(REGISTRY_TYPE_ECR)) {
       var credentials = awsCredentialsService.createTemporaryCredentials();
       builderAwsSecretAccessKey = credentials.awsSecretAccessKey();
       builderAwsAccessKeyId = credentials.awsAccessKeyId();
@@ -167,9 +167,9 @@ public class JobImageBuilder {
       awsRegion = credentials.region();
       if ((actualDataJobDeployment == null
               || desiredDataJobDeployment
-              .getPythonVersion()
-              .equals(actualDataJobDeployment.getPythonVersion()))
-              && ecrRegistryInterface.checkEcrImageExists(imageName, credentials)) {
+                  .getPythonVersion()
+                  .equals(actualDataJobDeployment.getPythonVersion()))
+          && ecrRegistryInterface.checkEcrImageExists(imageName, credentials)) {
         log.trace("Data Job image {} already exists and nothing else to do.", imageName);
         return true;
       }
@@ -182,9 +182,9 @@ public class JobImageBuilder {
       if (registryType.equalsIgnoreCase(REGISTRY_TYPE_JFROG) && jfrogRegistryInterface != null){
         if ((actualDataJobDeployment == null
                 || desiredDataJobDeployment
-                .getPythonVersion()
-                .equals(actualDataJobDeployment.getPythonVersion()))
-                && jfrogRegistryInterface.checkJfrogImageExists(imageName)) {
+                    .getPythonVersion()
+                    .equals(actualDataJobDeployment.getPythonVersion()))
+            && jfrogRegistryInterface.checkJfrogImageExists(imageName)) {
           log.trace("Data Job image {} already exists and nothing else to do.", imageName);
           return true;
         }

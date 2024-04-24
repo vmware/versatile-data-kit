@@ -5,8 +5,6 @@
 
 package com.vmware.taurus.service.deploy;
 
-import com.vmware.taurus.exception.ExternalSystemError;
-import com.vmware.taurus.service.credentials.AWSCredentialsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,10 +14,8 @@ import org.jfrog.artifactory.client.Artifactory;
 import org.jfrog.artifactory.client.ArtifactoryClientBuilder;
 import org.jfrog.artifactory.client.model.AqlItem;
 import org.jfrog.filespecs.FileSpec;
-import org.jfrog.filespecs.entities.InvalidFileSpecException;
 
 import java.util.List;
-
 
 /**
  * This class is used to provide interface methods between an Amazon Elastic Container Registry and
@@ -30,45 +26,52 @@ import java.util.List;
 @ConditionalOnProperty(name = "datajobs.docker.registryType", havingValue = "jfrog")
 public class JfrogRegistryInterface {
 
-    //    String artifactoryUrl = "https://build-artifactory.eng.vmware.com/artifactory";
-    @Value("${datajobs.jfrog.artifactory.url}")
-    private String artifactoryUrl;
+  //    String artifactoryUrl = "https://build-artifactory.eng.vmware.com/artifactory";
+  @Value("${datajobs.jfrog.artifactory.url}")
+  private String artifactoryUrl;
 
-    @Value("${datajobs.jfrog.artifactory.username}")
-    private String artifactoryUsername;
+  @Value("${datajobs.jfrog.artifactory.username}")
+  private String artifactoryUsername;
 
-    @Value("${datajobs.jfrog.artifactory.password}")
-    private String artifactoryPassword;
+  @Value("${datajobs.jfrog.artifactory.password}")
+  private String artifactoryPassword;
 
-    @Value("${datajobs.jfrog.artifactory.repo}")
-    private String artifactoryDockerRepoName;
+  @Value("${datajobs.jfrog.artifactory.repo}")
+  private String artifactoryDockerRepoName;
 
-    public boolean checkJfrogImageExists(String imageName) {
-        boolean imageExists = false;
+  public boolean checkJfrogImageExists(String imageName) {
+    boolean imageExists = false;
 
-        String artifactName = imageName.replace(":", "/");
+    String artifactName = imageName.replace(":", "/");
 
-        ArtifactoryClientBuilder artifactoryClientBuilder = ArtifactoryClientBuilder.create()
-                .setUrl(artifactoryUrl)
-                .setUsername(artifactoryUsername)
-                .setPassword(artifactoryPassword);
+    ArtifactoryClientBuilder artifactoryClientBuilder =
+        ArtifactoryClientBuilder.create()
+            .setUrl(artifactoryUrl)
+            .setUsername(artifactoryUsername)
+            .setPassword(artifactoryPassword);
 
-        // Create Artifactory client
-        List<AqlItem> repoPaths;
-        try (Artifactory artifactory = artifactoryClientBuilder.build()) {
+    // Create Artifactory client
+    List<AqlItem> repoPaths;
+    try (Artifactory artifactory = artifactoryClientBuilder.build()) {
 
-            // Docker image path
-            String fileSpecJson = String.format("{\"files\": [{\"pattern\": \"%s/%s/manifest.json\"}]}", artifactoryDockerRepoName, artifactName);
-            FileSpec fileSpec = FileSpec.fromString(fileSpecJson);
-            repoPaths = artifactory.searches()
-                    .repositories(artifactoryDockerRepoName)
-                    .artifactsByFileSpec(fileSpec);
-            if (!repoPaths.isEmpty()) {
-                imageExists = true;
-            }
-        } catch (Exception e) {
-            log.error("Failed to check if image exists and will assume it doesn't exist. Exception: " + e, e);
-        }
-        return imageExists;
+      // Docker image path
+      String fileSpecJson =
+          String.format(
+              "{\"files\": [{\"pattern\": \"%s/%s/manifest.json\"}]}",
+              artifactoryDockerRepoName, artifactName);
+      FileSpec fileSpec = FileSpec.fromString(fileSpecJson);
+      repoPaths =
+          artifactory
+              .searches()
+              .repositories(artifactoryDockerRepoName)
+              .artifactsByFileSpec(fileSpec);
+      if (!repoPaths.isEmpty()) {
+        imageExists = true;
+      }
+    } catch (Exception e) {
+      log.error(
+          "Failed to check if image exists and will assume it doesn't exist. Exception: " + e, e);
     }
+    return imageExists;
+  }
 }
