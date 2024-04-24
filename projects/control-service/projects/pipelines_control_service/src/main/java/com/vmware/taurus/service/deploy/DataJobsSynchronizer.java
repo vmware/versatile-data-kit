@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -68,13 +69,20 @@ public class DataJobsSynchronizer {
           "${datajobs.deployment.configuration.synchronization.task.interval.ms:1000}",
       initialDelayString =
           "${datajobs.deployment.configuration.synchronization.task.initial.delay.ms:10000}")
-  @SchedulerLock(name = "synchronizeDataJobsTask")
+  @SchedulerLock(name = "synchronizeDataJobsTask", lockAtMostFor = "24h")
   public void synchronizeDataJobs() {
     if (!validateConfiguration()) {
       return;
     }
 
-    log.info("Data job deployments synchronization has started.");
+    UUID syncId = UUID.randomUUID();
+    log.info("[{}] Data job deployments synchronization has started.", syncId);
+    log.info("[{}] DataJobsSynchronizerTaskExecutor [pool size = {}, active threads = {}, queue size = {}, queue capacity = {}]",
+            syncId,
+            dataJobsSynchronizerTaskExecutor.getPoolSize(),
+            dataJobsSynchronizerTaskExecutor.getActiveCount(),
+            dataJobsSynchronizerTaskExecutor.getQueueSize(),
+            dataJobsSynchronizerTaskExecutor.getQueueCapacity());
 
     Map<String, DataJob> dataJobsFromDBMap =
         StreamSupport.stream(jobsService.findAllDataJobs().spliterator(), false)
@@ -86,9 +94,9 @@ public class DataJobsSynchronizer {
           deploymentService.findAllActualDeploymentNamesFromKubernetes();
     } catch (KubernetesException e) {
       log.error(
-          "Skipping data job deployment synchronization because deployment names cannot be loaded"
+          "[{}] Skipping data job deployment synchronization because deployment names cannot be loaded"
               + " from Kubernetes.",
-          e);
+          syncId, e);
       dataJobSynchronizerMonitor.countSynchronizerFailures();
       return;
     }
@@ -110,6 +118,7 @@ public class DataJobsSynchronizer {
     CountDownLatch countDownLatch =
         new CountDownLatch(
             dataJobsFromDBMap.size() + actualDataJobDeploymentsThatShouldBeDeleted.size());
+    log.info("[{}] CountDownLatch size = {}", syncId, countDownLatch.getCount());
 
     // Synchronizes deployments that have associated existing data jobs with them.
     // In this scenario, the deployment creation or updating has been requested.
@@ -130,7 +139,7 @@ public class DataJobsSynchronizer {
         finalDataJobDeploymentNamesFromKubernetes,
         countDownLatch);
 
-    waitForSynchronizationCompletion(countDownLatch);
+    waitForSynchronizationCompletion(countDownLatch, syncId);
   }
 
   private void synchronizeDataJobs(
@@ -207,16 +216,16 @@ public class DataJobsSynchronizer {
     return valid;
   }
 
-  private void waitForSynchronizationCompletion(CountDownLatch countDownLatch) {
+  private void waitForSynchronizationCompletion(CountDownLatch countDownLatch, UUID syncId) {
     try {
       log.debug(
-          "Waiting for data job deployments' synchronization to complete. This process may take"
-              + " some time...");
+          "[{}] Waiting for data job deployments' synchronization to complete. This process may take"
+              + " some time...", syncId);
       countDownLatch.await();
-      log.info("Data job deployments synchronization has successfully completed.");
+      log.info("[{}] Data job deployments synchronization has successfully completed.", syncId);
       dataJobSynchronizerMonitor.countSuccessfulSynchronizerInvocation();
     } catch (InterruptedException e) {
-      log.error("An error occurred during the data job deployments' synchronization", e);
+      log.error("[{}] An error occurred during the data job deployments' synchronization", syncId, e);
       dataJobSynchronizerMonitor.countSynchronizerFailures();
     }
   }
