@@ -72,11 +72,17 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)
 
-    def test_oracle_ingest_multiple_conn(self):
+    def test_oracle_ingest_two_db_conn(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
-        result = runner.invoke(["run", jobs_path_from_caller_directory("oracle-ingest-multiple-conn-job")])
+        result = runner.invoke(["run", jobs_path_from_caller_directory("oracle-ingest-two-db-conn-job")])
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)
+
+    def test_oracle_ingest_three_db_conn(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result = runner.invoke(["run", jobs_path_from_caller_directory("oracle-ingest-three-db-conn-job")])
+        cli_assert_equal(0, result)
+        _verify_two_ingest_execution(runner)
 
     def test_oracle_ingest_existing_table_special_chars(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
@@ -450,3 +456,17 @@ def _verify_ingest_wrong_case(runner):
     )
     expected = "  COUNT(*)\n" "----------\n" "         0\n"
     assert expected in check_result.output
+
+
+def _verify_two_ingest_execution(runner):
+    check_result = runner.invoke(
+        ["sql-query", "--query", "SELECT * FROM oracle_ingest"]
+    )
+    expected = [
+        "  ID  STR_DATA      INT_DATA    FLOAT_DATA    BOOL_DATA  TIMESTAMP_DATA         DECIMAL_DATA\n",
+        "----  ----------  ----------  ------------  -----------  -------------------  --------------\n",
+        "   5  string              12           1.2            1  2023-11-21 08:12:53             0.1\n",
+        "   6  string              12           1.2            1  2023-11-21 08:12:53             0.1\n",
+    ]
+    for row in expected:
+        assert row in check_result.output
