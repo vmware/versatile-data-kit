@@ -179,15 +179,13 @@ public class JobImageBuilder {
       builderAwsSessionToken = REGISTRY_TYPE_GENERIC;
       awsRegion = REGISTRY_TYPE_GENERIC;
 
-      if (registryType.equalsIgnoreCase(REGISTRY_TYPE_JFROG) && jfrogRegistryInterface != null) {
-        if ((actualDataJobDeployment == null
-                || desiredDataJobDeployment
-                    .getPythonVersion()
-                    .equals(actualDataJobDeployment.getPythonVersion()))
-            && jfrogRegistryInterface.checkJfrogImageExists(imageName)) {
+      if (registryType.equalsIgnoreCase(REGISTRY_TYPE_JFROG) &&
+              jfrogRegistryInterface != null &&
+              (actualDataJobDeployment == null ||
+                      desiredDataJobDeployment.getPythonVersion().equals(actualDataJobDeployment.getPythonVersion())) &&
+              jfrogRegistryInterface.checkJfrogImageExists(imageName)) {
           log.trace("Data Job image {} already exists and nothing else to do.", imageName);
           return true;
-        }
       }
     }
 

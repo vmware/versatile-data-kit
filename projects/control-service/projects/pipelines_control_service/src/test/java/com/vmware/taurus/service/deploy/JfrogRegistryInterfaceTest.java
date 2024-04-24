@@ -35,7 +35,6 @@ class JfrogRegistryInterfaceTest {
   @InjectMocks private JfrogRegistryInterface jfrogRegistryInterface;
 
   private final String imageName = "test-image:latest";
-  private final String artifactName = "test-image/latest";
 
   @BeforeEach
   void setUp() {
