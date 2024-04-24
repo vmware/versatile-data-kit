@@ -179,7 +179,7 @@ public class JobImageBuilder {
       builderAwsSessionToken = REGISTRY_TYPE_GENERIC;
       awsRegion = REGISTRY_TYPE_GENERIC;
 
-      if (registryType.equalsIgnoreCase(REGISTRY_TYPE_JFROG)){
+      if (registryType.equalsIgnoreCase(REGISTRY_TYPE_JFROG) && jfrogRegistryInterface != null){
         if ((actualDataJobDeployment == null
                 || desiredDataJobDeployment
                 .getPythonVersion()

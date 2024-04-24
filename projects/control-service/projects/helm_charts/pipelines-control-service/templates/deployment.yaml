@@ -358,6 +358,16 @@ spec:
             - name: DATAJOBS_VAULT_SIZE_LIMIT_BYTES
               value: "{{ .Values.secrets.vault.sizeLimitBytes }}"
             {{- end }}
+            {{- if eq .Values.deploymentDockerRegistryType  "jfrog"}}
+            - name: JFROG_ARTIFACTORY_URL
+              value: "{{ .Values.jfrogArtifactoryUrl }}"
+            - name: JFROG_ARTIFACTORY_USERNAME
+              value: "{{ .Values.jfrogArtifactoryUsername }}"
+            - name: JFROG_ARTIFACTORY_PASSWORD
+              value: "{{ .Values.jfrogArtifactoryPassword }}"
+            - name: JFROG_ARTIFACTORY_REPO
+              value: "{{ .Values.jfrogArtifactoryRepo }}"
+            {{- end }}
 
 
 {{- if .Values.extraVars }}
