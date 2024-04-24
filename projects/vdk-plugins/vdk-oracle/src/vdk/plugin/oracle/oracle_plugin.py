@@ -48,6 +48,8 @@ class OraclePlugin:
                 oracle_sid = conf.get_oracle_sid(section)
                 oracle_service_name = conf.get_oracle_service_name(section)
                 oracle_thick_mode = conf.oracle_thick_mode(section)
+                if oracle_thick_mode == "False":
+                    oracle_thick_mode = False
                 oracle_thick_mode_lib_dir = conf.oracle_thick_mode_lib_dir(section)
                 ingest_batch_size = conf.oracle_ingest_batch_size(section) or 100
 
