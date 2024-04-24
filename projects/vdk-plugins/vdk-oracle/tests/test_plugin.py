@@ -69,6 +69,14 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)
 
+    def test_oracle_ingest_multiple_conn(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("oracle-ingest-multiple-conn-job")]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_execution(runner)
+
     def test_oracle_ingest_existing_table_special_chars(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
         result: Result = runner.invoke(
