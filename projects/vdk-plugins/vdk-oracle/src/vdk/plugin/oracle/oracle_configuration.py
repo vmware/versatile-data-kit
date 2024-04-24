@@ -57,7 +57,10 @@ class OracleConfiguration:
         return self.__config.get_value(key=ORACLE_THICK_MODE_LIB_DIR, section=section)
 
     def oracle_ingest_batch_size(self, section: Optional[str]) -> Optional[int]:
-        return int(self.__config.get_value(key=ORACLE_INGEST_BATCH_SIZE, section=section))
+        if self.__config.get_value(key=ORACLE_INGEST_BATCH_SIZE, section=section):
+            return int(self.__config.get_value(key=ORACLE_INGEST_BATCH_SIZE, section=section))
+        else:
+            return None
 
     @staticmethod
     def add_default_definitions(config_builder: ConfigurationBuilder):

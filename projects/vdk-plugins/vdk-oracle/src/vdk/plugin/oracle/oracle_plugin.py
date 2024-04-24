@@ -42,40 +42,53 @@ class OraclePlugin:
                     connection_name = section.lstrip("vdk_")
 
                 oracle_user, oracle_pass = conf.get_oracle_user(section), conf.get_oracle_password(section)
+                oracle_conn_string = conf.get_oracle_connection_string(section)
+                oracle_host = conf.get_oracle_host(section)
+                oracle_port = conf.get_oracle_port(section)
+                oracle_sid = conf.get_oracle_sid(section)
+                oracle_service_name = conf.get_oracle_service_name(section)
+                oracle_thick_mode = conf.oracle_thick_mode(section)
+                oracle_thick_mode_lib_dir = conf.oracle_thick_mode_lib_dir(section)
+                ingest_batch_size = conf.oracle_ingest_batch_size(section) or 100
 
                 context.connections.add_open_connection_factory_method(
                     connection_name.capitalize(),
-                    lambda: OracleConnection(
-                        oracle_user,
-                        oracle_pass,
-                        conf.get_oracle_connection_string(section),
-                        host=conf.get_oracle_host(section),
-                        port=conf.get_oracle_port(section),
-                        sid=conf.get_oracle_sid(section),
-                        service_name=conf.get_oracle_service_name(section),
-                        thick_mode=conf.oracle_thick_mode(section),
-                        thick_mode_lib_dir=conf.oracle_thick_mode_lib_dir(section),
-                    ),
+                    lambda user=oracle_user, password=oracle_pass, conn_str=oracle_conn_string, host=oracle_host,
+                           port=oracle_port, sid=oracle_sid, service_name=oracle_service_name,
+                           thick_mode=oracle_thick_mode, thick_mode_lib_dir=oracle_thick_mode_lib_dir:
+                    OracleConnection(
+                        user,
+                        password,
+                        conn_str,
+                        host=host,
+                        port=port,
+                        sid=sid,
+                        service_name=service_name,
+                        thick_mode=thick_mode,
+                        thick_mode_lib_dir=thick_mode_lib_dir,
+                    )
                 )
                 context.ingester.add_ingester_factory_method(
                     connection_name.lower(),
-                    lambda: IngestToOracle(
-                        connection_name=connection_name.capitalize(),
-                        connections=context.connections,
-                        ingest_batch_size=conf.oracle_ingest_batch_size(section)
-                    ),
+                    lambda conn_name=connection_name.capitalize(), connections=context.connections,
+                           batch_size=ingest_batch_size:
+                    IngestToOracle(
+                        connection_name=conn_name,
+                        connections=connections,
+                        ingest_batch_size=batch_size
+                    )
                 )
+
 
 @hookimpl
 def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
     plugin_registry.load_plugin_with_hooks_impl(OraclePlugin(), "OraclePlugin")
 
 
-# TODO: https://github.com/vmware/versatile-data-kit/issues/2940
 @click.command(
     name="oracle-query",
     help="DEPRECATED: use sql-query, instead."
-    "Execute an Oracle query against an Oracle database (should be configured with env variables)",
+         "Execute an Oracle query against an Oracle database (should be configured with env variables)",
 )
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context
@@ -88,7 +101,7 @@ def oracle_query(ctx: click.Context, query):
     log.warning("oracle-query has been deprecated; please use sql-query instead.")
     conf = ctx.obj.configuration
     conn = oracledb.connect(
-        user=conf.get_value(ORACLE_USER),
+        user=conf.get_value(key=ORACLE_USER),
         password=conf.get_value(ORACLE_PASSWORD),
         dsn=conf.get_value(ORACLE_CONNECTION_STRING),
     )
