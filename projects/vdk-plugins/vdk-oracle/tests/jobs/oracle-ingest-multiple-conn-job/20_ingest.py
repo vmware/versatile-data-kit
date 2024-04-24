@@ -8,7 +8,7 @@ from vdk.api.job_input import IJobInput
 
 def run(job_input: IJobInput):
     payload_with_types = {
-        "id": 6,
+        "id": 5,
         "str_data": "string",
         "int_data": 12,
         "float_data": 1.2,
