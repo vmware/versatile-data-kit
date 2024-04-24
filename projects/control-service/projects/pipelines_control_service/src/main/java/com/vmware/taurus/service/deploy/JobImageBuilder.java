@@ -179,6 +179,7 @@ public class JobImageBuilder {
       builderAwsSessionToken = REGISTRY_TYPE_GENERIC;
       awsRegion = REGISTRY_TYPE_GENERIC;
 
+      // Check if the image exists in the Jfrog artifactory
       if (registryType.equalsIgnoreCase(REGISTRY_TYPE_JFROG)
           && jfrogRegistryInterface != null
           && (actualDataJobDeployment == null
