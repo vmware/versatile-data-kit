@@ -30,7 +30,7 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         key="POSTGRES_DSN",
         default_value=None,
         description="libpq connection string, "
-        "https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING",
+                    "https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING",
     )
     config_builder.add(
         key="POSTGRES_DBNAME", default_value=None, description="Database name"
@@ -43,7 +43,7 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
         key="POSTGRES_HOST",
         default_value=None,
         description="The host we need to connect to, defaulting to "
-        "UNIX socket, https://www.psycopg.org/docs/module.html",
+                    "UNIX socket, https://www.psycopg.org/docs/module.html",
     )
     config_builder.add(
         key="POSTGRES_PORT",
@@ -56,7 +56,7 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
 def initialize_job(context: JobContext) -> None:
     for section in context.core_context.configuration.list_sections():
         if section == "vdk":
-            connection_name = "postgres"
+            connection_name = "postgres"  # the default database
         else:
             connection_name = section.lstrip("vdk_")
 
@@ -71,24 +71,26 @@ def initialize_job(context: JobContext) -> None:
         host = context.core_context.configuration.get_value("POSTGRES_HOST", section)
         port = context.core_context.configuration.get_value("POSTGRES_PORT", section)
 
-        context.connections.add_open_connection_factory_method(
-            connection_name.lower(),
-            lambda psql_dsn=dsn, psql_dbname=dbname, psql_user=user, psql_psswrd=password, psql_host=host, psql_port=port: PostgresConnection(
-                dsn=psql_dsn,
-                dbname=psql_dbname,
-                user=psql_user,
-                password=psql_psswrd,
-                host=psql_host,
-                port=psql_port,
-            ),
-        )
-        context.ingester.add_ingester_factory_method(
-            connection_name.lower(),
-            lambda conn_name=connection_name.lower(), connections=context.connections: IngestToPostgres(
-                connection_name=conn_name,
-                connections=connections,
-            ),
-        )
+        if dbname and user and password and host and port:
+            context.connections.add_open_connection_factory_method(
+                connection_name.lower(),
+                lambda psql_dsn=dsn, psql_dbname=dbname, psql_user=user, psql_psswrd=password, psql_host=host,
+                       psql_port=port: PostgresConnection(
+                    dsn=psql_dsn,
+                    dbname=psql_dbname,
+                    user=psql_user,
+                    password=psql_psswrd,
+                    host=psql_host,
+                    port=psql_port,
+                ),
+            )
+            context.ingester.add_ingester_factory_method(
+                connection_name.lower(),
+                lambda conn_name=connection_name.lower(), connections=context.connections: IngestToPostgres(
+                    connection_name=conn_name,
+                    connections=connections,
+                ),
+            )
 
 
 @hookimpl
