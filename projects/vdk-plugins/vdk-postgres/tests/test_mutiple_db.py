@@ -50,6 +50,22 @@ class IngestToMultipleDB(TestCase):
 
         cli_assert_equal(0, ingest_job_result)
 
+        # the query works only with the default database
+        check_result = runner.invoke(
+            ["postgres-query", "--query", "SELECT * FROM multiple_default_db_test"]
+        )
+
+        assert check_result.stdout == (
+            "--------------  --------------  --  ----  ----\n"
+            "some_test_data  more_test_data  11  3.14  True\n"
+            "some_test_data  more_test_data  11  3.14  True\n"
+            "some_test_data  more_test_data  11  3.14  True\n"
+            "some_test_data  more_test_data  11  3.14  True\n"
+            "some_test_data  more_test_data  11  3.14  True\n"
+            "--------------  --------------  --  ----  ----\n"
+        )
+
+        # checking the second database
         connection = PostgresConnection(
             dbname="postgres",
             user="postgres",
@@ -60,12 +76,8 @@ class IngestToMultipleDB(TestCase):
 
         result = connection.execute_query("SELECT * FROM multiple_db_test")
 
-        assert result == (
-            "--------------  --------------  --  ----  ----\n"
-            "some_test_data  more_test_data  11  3.14  True\n"
-            "some_test_data  more_test_data  11  3.14  True\n"
-            "some_test_data  more_test_data  11  3.14  True\n"
-            "some_test_data  more_test_data  11  3.14  True\n"
-            "some_test_data  more_test_data  11  3.14  True\n"
-            "--------------  --------------  --  ----  ----\n"
-        )
+        assert result == [('some_test_data', 'more_test_data', 12, 3.14, False),
+                          ('some_test_data', 'more_test_data', 12, 3.14, False),
+                          ('some_test_data', 'more_test_data', 12, 3.14, False),
+                          ('some_test_data', 'more_test_data', 12, 3.14, False),
+                          ('some_test_data', 'more_test_data', 12, 3.14, False)]
