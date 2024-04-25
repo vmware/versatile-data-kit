@@ -70,7 +70,7 @@ class OraclePlugin:
                 )
                 context.ingester.add_ingester_factory_method(
                     connection_name.lower(),
-                    lambda conn_name=connection_name.capitalize(), connections=context.connections,
+                    lambda conn_name=connection_name.lower(), connections=context.connections,
                            batch_size=ingest_batch_size:
                     IngestToOracle(
                         connection_name=conn_name,
