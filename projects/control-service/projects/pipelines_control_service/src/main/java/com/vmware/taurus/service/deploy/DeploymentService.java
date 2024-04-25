@@ -262,11 +262,11 @@ public class DeploymentService {
   }
 
   private boolean deploymentExistsOrInProgress(String dataJobName) {
-    /* 
+    /*
     return jobImageBuilder.isBuildingJobInProgress(dataJobName)
         || readDeployment(dataJobName).isPresent();
     */
-    return true;        
+    return true;
   }
 
   private void setPythonVersionIfNull(JobDeployment oldDeployment, JobDeployment newDeployment) {
