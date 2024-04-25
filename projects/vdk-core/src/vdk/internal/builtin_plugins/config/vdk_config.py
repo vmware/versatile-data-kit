@@ -169,6 +169,34 @@ class EnvironmentVarsConfigPlugin:
 
     @hookimpl(trylast=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
+        def remove_duplicate_keys(env):
+            keys = list(env.keys())
+            for k in keys:
+                if k.startswith("VDK_"):
+                    key_no_prefix = k.replace("VDK_", "")
+                    if key_no_prefix in env:
+                        env.pop(key_no_prefix, None)
+
+        def override_config_keys(section, env):
+            if section == "vdk":
+                config_keys = config_builder.list_config_keys_from_main_sections()
+            else:
+                config_keys = config_builder.list_config_keys_for_section(section)
+
+            for k in env:
+                config_key = (
+                    k.replace("VDK_", "").replace(f"{section.upper()}_", "").lower()
+                )
+                variants = [
+                    config_key,
+                    config_key.replace("_", "."),
+                    config_key.replace("_", "-"),
+                ]
+                for variant in variants:
+                    if variant in config_keys:
+                        config_builder.set_value(variant, env[k], section)
+                        break
+
         """
         Infer config values from environment variables.
         """
@@ -187,26 +215,39 @@ Configuration for cloud execution is done in 'config.ini' file or the vdk cli.
             description=description,
         )
 
-        config_keys = (
-            config_builder.list_config_keys_from_main_sections()
-        )  # TODO: make it work with all sections
-        log.debug(
-            f"Founds config keys: {config_keys}. Will check if environment variable is set for any"
-        )
+        # get all the subsections
+        sections = [
+            section
+            for section in config_builder.build().list_sections()
+            if section != "vdk"
+        ]
+
         upper_cased_env = {k.upper(): v for k, v in os.environ.items()}
-        for key in config_keys:
-            normalized_key_with_vdk_prefix = VDK_ + self.__normalize_key(key)
-            normalized_key = self.__normalize_key(key)
-            value = upper_cased_env.get(normalized_key)
-            value_with_vdk_prefix = upper_cased_env.get(normalized_key_with_vdk_prefix)
-            if value_with_vdk_prefix is not None:
-                log.debug(
-                    f"Found environment variable {normalized_key_with_vdk_prefix} for key {key}"
-                )
-                config_builder.set_value(key, value_with_vdk_prefix)
-            elif value is not None:
-                log.debug(f"Found environment variable {normalized_key} for key {key}")
-                config_builder.set_value(key, value)
+
+        section_envs = {}
+
+        for section in sections:
+            section_envs[section] = {}
+            # match each subsection with env variables
+            # and record the env-variables per section
+            for k, v in upper_cased_env.items():
+                if section.upper() in k:
+                    section_envs[section][k] = v
+            # remove matched env variables from the main env dict
+            for k in section_envs[section].keys():
+                upper_cased_env.pop(k, None)
+
+            # remove the duplicate keys, e.g. use VDK_{SECTION}_{OPTION} over {SECTION}_{OPTION}
+            remove_duplicate_keys(section_envs[section])
+
+        # remove the duplicate keys, e.g. use VDK_{OPTION} over {OPTION}
+        remove_duplicate_keys(upper_cased_env)
+
+        for section in sections:
+            override_config_keys(section, section_envs[section])
+
+        override_config_keys("vdk", upper_cased_env)
+        print("")
 
 
 class JobConfigIniPlugin:

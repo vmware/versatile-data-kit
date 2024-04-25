@@ -51,7 +51,7 @@ def test_execute_sql(tmpdir: py.path.local):
         )
         cli_assert_equal(0, result)
         expected_stdout = (
-            "date        symbol      price\n"
+            "\ndate        symbol      price\n"
             "----------  --------  -------\n"
             "2020-01-01  GOOG          123\n"
             "2020-01-01  GOOG          123\n"

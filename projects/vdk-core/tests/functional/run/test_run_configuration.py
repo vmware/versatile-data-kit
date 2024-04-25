@@ -10,6 +10,7 @@ from functional.run import util
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
+from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.statestore import CommonStoreKeys
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
@@ -147,3 +148,70 @@ def test_run_secrets_override_config_vars():
         assert config_log.config.get_value("log_exception_formatter") == "pretty"
         # secrets that do not match any config key do not leak in the config object
         assert config_log.config.get_value("irrelevant_secret") is None
+
+
+def test_run_secrets_override_config_vars_section():
+    class DebugConfigLog:
+        def __init__(self):
+            self.config = None
+            self.secrets_client = TestSecretsServiceClient()
+
+        @hookimpl
+        def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
+            config_builder.add(key="config_option", default_value="")
+            config_builder.add(key="config_option", default_value="", section="first")
+
+        @hookimpl(tryfirst=True)
+        def initialize_job(self, context: JobContext):
+            context.secrets.set_secrets_factory_method(
+                "default", lambda: self.secrets_client
+            )
+            secrets = context.job_input.get_all_secrets()
+            secrets["FIRST_CONFIG_OPTION"] = "from_section"
+            secrets["CONFIG_OPTION"] = "from_default"
+            secrets["IRRELEVANT_SECRET"] = "not relevant at all"
+            context.job_input.set_all_secrets(secrets)
+
+        @hookimpl(trylast=True)
+        def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
+            self.config = context.core_context.configuration
+            return None  # continue with next hook impl.
+
+    config_log = DebugConfigLog()
+    runner = CliEntryBasedTestRunner(config_log)
+    result: Result = runner.invoke(
+        ["run", util.job_path("simple-job-config-ini-sections")]
+    )
+    cli_assert_equal(0, result)
+
+    # secrets that match config keys in the default section are overridden, even if config.ini sets them explicitly
+    assert config_log.config.get_value("config_option") == "from_default"
+    # secrets that match config keys in a section are overridden, even if config.ini sets them explicitly
+    assert (
+        config_log.config.get_value("config_option", section="first") == "from_section"
+    )
+    # secrets that do not match any config key do not leak in the config object
+    assert config_log.config.get_value("irrelevant_secret") is None
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_CONFIG_OPTION": "from_default_env_var",
+            "VDK_FIRST_CONFIG_OPTION": "from_first_env_var",
+        },
+    ):
+        config_log = DebugConfigLog()
+        runner = CliEntryBasedTestRunner(config_log)
+        result: Result = runner.invoke(["run", util.job_path("simple-job")])
+        cli_assert_equal(0, result)
+
+        # secrets that match config keys in the default section are overridden, even if config.ini sets them explicitly
+        assert config_log.config.get_value("config_option") == "from_default_env_var"
+        # secrets that match config keys in a section are overridden, even if config.ini sets them explicitly
+        assert (
+            config_log.config.get_value("config_option", section="first")
+            == "from_first_env_var"
+        )
+        # secrets that do not match any config key do not leak in the config object
+        assert config_log.config.get_value("irrelevant_secret") is None
+        # secrets that match config keys but are configured using env variables are NOT overridden
