@@ -16,17 +16,23 @@ def run(job_input: IJobInput):
         "timestamp_data": datetime.datetime.utcfromtimestamp(1700554373),
         "decimal_data": Decimal(0.1),
     }
-    print("\n\n\n\n\n")
+
+    # first ingest into default database
+    job_input.send_object_for_ingestion(
+        payload=payload_with_types, destination_table="oracle_ingest", method="oracle", target="oracle"
+    )
+
+
     query = """
     begin
-    execute immediate 'drop table oracle_ingest';
+    execute immediate 'drop table oracle_ingest_second';
     exception when others then if sqlcode <> -942 then raise; end if;
     end;
     """
-    print(job_input.execute_query(sql=query, database="oracle_one"))
-    print("\n\n\n\n\n")
+    job_input.execute_query(sql=query, database="oracle_one")
+
     query = """
-    create table oracle_ingest (
+    create table oracle_ingest_second (
     id number,
     str_data varchar2(255),
     int_data number,
@@ -36,8 +42,18 @@ def run(job_input: IJobInput):
     decimal_data decimal(14,8),
     primary key(id))
     """
-    print(job_input.execute_query(sql=query, database="oracle_one"))
+    job_input.execute_query(sql=query, database="oracle_one")
+
+    payload_with_types = {
+        "id": 6,
+        "str_data": "string",
+        "int_data": 13,
+        "float_data": 1.2,
+        "bool_data": True,
+        "timestamp_data": datetime.datetime.utcfromtimestamp(1700554373),
+        "decimal_data": Decimal(0.1),
+    }
 
     job_input.send_object_for_ingestion(
-        payload=payload_with_types, destination_table="oracle_ingest", method="oracle_one", target="oracle_one"
+        payload=payload_with_types, destination_table="oracle_ingest_second", method="oracle_one", target="oracle_one"
     )
