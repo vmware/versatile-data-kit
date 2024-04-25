@@ -41,11 +41,14 @@ class OraclePlugin:
                 else:
                     connection_name = section.lstrip("vdk_")
 
+                # for validation
                 oracle_user, oracle_pass = conf.get_oracle_user(section), conf.get_oracle_password(section)
                 oracle_conn_string = conf.get_oracle_connection_string(section)
                 oracle_host = conf.get_oracle_host(section)
                 oracle_port = conf.get_oracle_port(section)
                 oracle_sid = conf.get_oracle_sid(section)
+
+                # optional
                 oracle_service_name = conf.get_oracle_service_name(section)
                 oracle_thick_mode = conf.oracle_thick_mode(section)
                 oracle_thick_mode_lib_dir = conf.oracle_thick_mode_lib_dir(section)

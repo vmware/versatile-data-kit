@@ -31,11 +31,16 @@ VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
     },
 )
 def oracle_db(request):
-    port = 1521
     password = os.environ[ORACLE_PASSWORD]
     container = (
         DockerContainer(ORACLE_IMAGE)
-        .with_bind_ports(port, port)
+        .with_bind_ports(1521, 1521)
+        .with_env("ORACLE_PWD", password)
+        .with_env("ORACLE_CHARACTERSET", "UTF8")
+    )
+    container_2 = (
+        DockerContainer(ORACLE_IMAGE)
+        .with_bind_ports(1521, 1523)
         .with_env("ORACLE_PWD", password)
         .with_env("ORACLE_CHARACTERSET", "UTF8")
     )
@@ -48,8 +53,24 @@ def oracle_db(request):
         )
         time.sleep(2)
         print(
-            f"Oracle db started on port {container.get_exposed_port(port)} and host {container.get_container_host_ip()}"
+            f"Oracle db started on port {container.get_exposed_port(1521)} and host {container.get_container_host_ip()}"
         )
+        try:
+            container_2.start()
+            wait_for_logs(
+                container_2,
+                "DATABASE IS READY TO USE",
+                timeout=120,
+            )
+            time.sleep(2)
+            print(
+                f"Oracle db started on port {container_2.get_exposed_port(1521)} and host"
+                f" {container_2.get_container_host_ip()}"
+            )
+        except Exception as e:
+            print(f"Failed to start Oracle DB: {e}")
+            print(f"Container logs: {container_2.get_logs()}")
+            raise e
     except Exception as e:
         print(f"Failed to start Oracle DB: {e}")
         print(f"Container logs: {container.get_logs()}")
@@ -57,8 +78,8 @@ def oracle_db(request):
 
     def stop_container():
         container.stop()
+        container_2.stop()
         print("Oracle DB stopped")
 
     request.addfinalizer(stop_container)
-
     return container

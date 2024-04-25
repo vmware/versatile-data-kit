@@ -17,7 +17,26 @@ def run(job_input: IJobInput):
         "decimal_data": Decimal(0.1),
     }
     print("\n\n\n\n\n")
-    print(job_input.execute_query(sql="select * from oracle_ingest", database="oracle_one"))
+    query = """
+    begin
+    execute immediate 'drop table oracle_ingest';
+    exception when others then if sqlcode <> -942 then raise; end if;
+    end;
+    """
+    print(job_input.execute_query(sql=query, database="oracle_one"))
+    print("\n\n\n\n\n")
+    query = """
+    create table oracle_ingest (
+    id number,
+    str_data varchar2(255),
+    int_data number,
+    float_data float,
+    bool_data number(1),
+    timestamp_data timestamp,
+    decimal_data decimal(14,8),
+    primary key(id))
+    """
+    print(job_input.execute_query(sql=query, database="oracle_one"))
 
     job_input.send_object_for_ingestion(
         payload=payload_with_types, destination_table="oracle_ingest", method="oracle_one", target="oracle_one"
