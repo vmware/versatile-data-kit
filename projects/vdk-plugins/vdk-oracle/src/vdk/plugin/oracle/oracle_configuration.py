@@ -23,8 +23,8 @@ ORACLE_INGEST_BATCH_SIZE = "ORACLE_INGEST_BATCH_SIZE"
 
 
 def parse_boolean(value):
-    true_values = ['true', '1', 'yes', 'on']
-    false_values = ['false', '0', 'no', 'off']
+    true_values = ["true", "1", "yes", "on"]
+    false_values = ["false", "0", "no", "off"]
 
     str_value = str(value).strip().lower()
 
@@ -65,14 +65,18 @@ class OracleConfiguration:
         return self.__config.get_value(key=ORACLE_USE_SECRETS, section=section)
 
     def oracle_thick_mode(self, section: Optional[str]) -> bool:
-        return parse_boolean(self.__config.get_value(key=ORACLE_THICK_MODE, section=section))
+        return parse_boolean(
+            self.__config.get_value(key=ORACLE_THICK_MODE, section=section)
+        )
 
     def oracle_thick_mode_lib_dir(self, section: Optional[str]) -> Optional[str]:
         return self.__config.get_value(key=ORACLE_THICK_MODE_LIB_DIR, section=section)
 
     def oracle_ingest_batch_size(self, section: Optional[str]) -> Optional[int]:
         if self.__config.get_value(key=ORACLE_INGEST_BATCH_SIZE, section=section):
-            return int(self.__config.get_value(key=ORACLE_INGEST_BATCH_SIZE, section=section))
+            return int(
+                self.__config.get_value(key=ORACLE_INGEST_BATCH_SIZE, section=section)
+            )
         else:
             return None
 
