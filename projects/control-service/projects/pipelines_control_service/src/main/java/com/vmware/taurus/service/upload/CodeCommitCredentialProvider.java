@@ -18,6 +18,7 @@ public class CodeCommitCredentialProvider implements VCSCredentialsProvider {
         this.awsCredentialsService = awsCredentialsService;
     }
 
+    @Override
     public CredentialsProvider getProvider() {
         AwsCodeCommitCredentialProvider codeCommitCredentialProvider = new AwsCodeCommitCredentialProvider();
         codeCommitCredentialProvider.setAwsCredentialProvider(awsCredentialsService.getCredentialsProvider());

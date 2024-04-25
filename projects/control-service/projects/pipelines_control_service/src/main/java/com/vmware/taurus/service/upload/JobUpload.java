@@ -14,6 +14,7 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
@@ -35,7 +36,7 @@ public class JobUpload {
   private static final Logger log = LoggerFactory.getLogger(JobUpload.class);
 
   private final String datajobsTempStorageFolder;
-  private final VCSCredentialsProvider gitCredentialsProvider;
+  private final VCSCredentialsProvider vcsCredentialsProvider;
   private final GitWrapper gitWrapper;
   private final FeatureFlags featureFlags;
   private final AuthorizationProvider authorizationProvider;
@@ -45,14 +46,14 @@ public class JobUpload {
   @Autowired
   public JobUpload(
       @Value("${datajobs.temp.storage.folder:}") String datajobsTempStorageFolder,
-      VCSCredentialsProvider gitCredentialsProvider,
+      @Qualifier("credentialsProvider") VCSCredentialsProvider vcsCredentialsProvider,
       GitWrapper gitWrapper,
       FeatureFlags featureFlags,
       AuthorizationProvider authorizationProvider,
       JobUploadAllowListValidator jobUploadAllowListValidator,
       JobUploadFilterListValidator jobUploadFilterListValidator) {
     this.datajobsTempStorageFolder = datajobsTempStorageFolder;
-    this.gitCredentialsProvider = gitCredentialsProvider;
+    this.vcsCredentialsProvider = vcsCredentialsProvider;
     this.gitWrapper = gitWrapper;
     this.featureFlags = featureFlags;
     this.authorizationProvider = authorizationProvider;
@@ -67,7 +68,7 @@ public class JobUpload {
    * @return resource containing data job content in a zip format.
    */
   public Optional<Resource> getDataJob(String jobName) {
-    CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
+    CredentialsProvider credentialsProvider = vcsCredentialsProvider.getProvider();
     try (var tempDirPath =
         new EphemeralFile(datajobsTempStorageFolder, jobName, "get data job source")) {
       Git git =
@@ -115,7 +116,7 @@ public class JobUpload {
   public String publishDataJob(String jobName, Resource resource, String reason) {
     log.debug("Publish datajob to git {}", jobName);
     String jobVersion;
-    CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
+    CredentialsProvider credentialsProvider = vcsCredentialsProvider.getProvider();
     try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "deploy")) {
       File jobFolder =
           FileUtils.unzipDataJob(resource, new File(tempDirPath.toFile(), "job"), jobName);
@@ -155,7 +156,7 @@ public class JobUpload {
    * @param reason reason specified by user for deleting the data job
    */
   public void deleteDataJob(String jobName, String reason) {
-    CredentialsProvider credentialsProvider = gitCredentialsProvider.getProvider();
+    CredentialsProvider credentialsProvider = vcsCredentialsProvider.getProvider();
     try (var tempDirPath = new EphemeralFile(datajobsTempStorageFolder, jobName, "delete")) {
       Git git =
           gitWrapper.cloneJobRepository(

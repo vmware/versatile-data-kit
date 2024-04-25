@@ -28,7 +28,7 @@ public class CredentialProviderConfig {
         }
     }
 
-    @Bean
+    @Bean(name="credentialsProvider")
     public VCSCredentialsProvider credentialsProvider() {
         return credentialsProvider;
     }
