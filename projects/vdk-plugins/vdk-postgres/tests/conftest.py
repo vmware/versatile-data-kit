@@ -52,6 +52,11 @@ def postgres_service(request):
         .with_bind_ports(port, port)
         .with_env("POSTGRES_PASSWORD", os.environ[VDK_POSTGRES_PASSWORD])
     )
+    container_2 = (
+        DockerContainer("postgres:latest")
+        .with_bind_ports(5433, 5433)
+        .with_env("POSTGRES_PASSWORD", os.environ[VDK_POSTGRES_PASSWORD])
+    )
 
     try:
         container.start()
@@ -63,14 +68,21 @@ def postgres_service(request):
         log.info(
             f"Postgres service started on port {container.get_exposed_port(port)} and host {container.get_container_host_ip()}"
         )
+        container_2.start()
+        log.info(
+            f"Postgres service started on port {container_2.get_exposed_port(5433)} and host "
+            f"{container.get_container_host_ip()}"
+        )
     except Exception as e:
         raise RuntimeError(
             f"Failed to start Postgres service: {e}\n"
             f"Container logs: {container.get_logs()}"
+            f"Container 2 logs: {container_2.get_logs()}"
         ) from e
 
     def stop_container():
         container.stop()
+        container_2.stop()
         log.info("Postgres service stopped")
 
     request.addfinalizer(stop_container)
