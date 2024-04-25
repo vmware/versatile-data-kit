@@ -36,17 +36,23 @@ class OraclePlugin:
         conf = OracleConfiguration(context.core_context.configuration)
         for section in context.core_context.configuration.list_sections():
             if section == "vdk":
-                connection_name = "oracle" # the default database
+                connection_name = "oracle"  # the default database
             else:
                 connection_name = section.lstrip("vdk_")
 
-            oracle_user, oracle_pass = conf.get_oracle_user(section), conf.get_oracle_password(section)
+            oracle_user, oracle_pass = conf.get_oracle_user(
+                section
+            ), conf.get_oracle_password(section)
             oracle_conn_string = conf.get_oracle_connection_string(section)
             oracle_host = conf.get_oracle_host(section)
             oracle_port = conf.get_oracle_port(section)
             oracle_sid = conf.get_oracle_sid(section)
 
-            if oracle_user and oracle_pass and (oracle_conn_string or (oracle_host and oracle_port and oracle_sid)):
+            if (
+                oracle_user
+                and oracle_pass
+                and (oracle_conn_string or (oracle_host and oracle_port and oracle_sid))
+            ):
                 oracle_service_name = conf.get_oracle_service_name(section)
                 oracle_thick_mode = conf.oracle_thick_mode(section)
                 oracle_thick_mode_lib_dir = conf.oracle_thick_mode_lib_dir(section)
@@ -54,10 +60,7 @@ class OraclePlugin:
 
                 context.connections.add_open_connection_factory_method(
                     connection_name.lower(),
-                    lambda user=oracle_user, password=oracle_pass, conn_str=oracle_conn_string, host=oracle_host,
-                           port=oracle_port, sid=oracle_sid, service_name=oracle_service_name,
-                           thick_mode=oracle_thick_mode, thick_mode_lib_dir=oracle_thick_mode_lib_dir:
-                    OracleConnection(
+                    lambda user=oracle_user, password=oracle_pass, conn_str=oracle_conn_string, host=oracle_host, port=oracle_port, sid=oracle_sid, service_name=oracle_service_name, thick_mode=oracle_thick_mode, thick_mode_lib_dir=oracle_thick_mode_lib_dir: OracleConnection(
                         user,
                         password,
                         conn_str,
@@ -67,19 +70,16 @@ class OraclePlugin:
                         service_name=service_name,
                         thick_mode=thick_mode,
                         thick_mode_lib_dir=thick_mode_lib_dir,
-                    )
+                    ),
                 )
                 context.ingester.add_ingester_factory_method(
                     connection_name.lower(),
-                    lambda conn_name=connection_name.lower(), connections=context.connections,
-                           batch_size=ingest_batch_size:
-                    IngestToOracle(
+                    lambda conn_name=connection_name.lower(), connections=context.connections, batch_size=ingest_batch_size: IngestToOracle(
                         connection_name=conn_name,
                         connections=connections,
-                        ingest_batch_size=batch_size
-                    )
+                        ingest_batch_size=batch_size,
+                    ),
                 )
-
 
 
 @hookimpl
@@ -90,7 +90,7 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
 @click.command(
     name="oracle-query",
     help="DEPRECATED: use sql-query, instead."
-         "Execute an Oracle query against an Oracle database (should be configured with env variables)",
+    "Execute an Oracle query against an Oracle database (should be configured with env variables)",
 )
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context

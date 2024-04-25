@@ -19,9 +19,11 @@ def run(job_input: IJobInput):
 
     # first ingest into default database
     job_input.send_object_for_ingestion(
-        payload=payload_with_types, destination_table="oracle_ingest", method="oracle", target="oracle"
+        payload=payload_with_types,
+        destination_table="oracle_ingest",
+        method="oracle",
+        target="oracle",
     )
-
 
     query = """
     begin
@@ -55,5 +57,8 @@ def run(job_input: IJobInput):
     }
 
     job_input.send_object_for_ingestion(
-        payload=payload_with_types, destination_table="oracle_ingest_second", method="oracle_one", target="oracle_one"
+        payload=payload_with_types,
+        destination_table="oracle_ingest_second",
+        method="oracle_one",
+        target="oracle_one",
     )
