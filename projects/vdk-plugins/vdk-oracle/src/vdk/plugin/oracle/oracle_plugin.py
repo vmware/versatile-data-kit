@@ -35,20 +35,18 @@ class OraclePlugin:
     def initialize_job(self, context: JobContext):
         conf = OracleConfiguration(context.core_context.configuration)
         for section in context.core_context.configuration.list_sections():
-            if section.startswith("vdk"):
-                if section == "vdk":
-                    connection_name = "oracle"
-                else:
-                    connection_name = section.lstrip("vdk_")
+            if section == "vdk":
+                connection_name = "oracle" # the default database
+            else:
+                connection_name = section.lstrip("vdk_")
 
-                # for validation
-                oracle_user, oracle_pass = conf.get_oracle_user(section), conf.get_oracle_password(section)
-                oracle_conn_string = conf.get_oracle_connection_string(section)
-                oracle_host = conf.get_oracle_host(section)
-                oracle_port = conf.get_oracle_port(section)
-                oracle_sid = conf.get_oracle_sid(section)
+            oracle_user, oracle_pass = conf.get_oracle_user(section), conf.get_oracle_password(section)
+            oracle_conn_string = conf.get_oracle_connection_string(section)
+            oracle_host = conf.get_oracle_host(section)
+            oracle_port = conf.get_oracle_port(section)
+            oracle_sid = conf.get_oracle_sid(section)
 
-                # optional
+            if oracle_user and oracle_pass and (oracle_conn_string or (oracle_host and oracle_port and oracle_sid)):
                 oracle_service_name = conf.get_oracle_service_name(section)
                 oracle_thick_mode = conf.oracle_thick_mode(section)
                 oracle_thick_mode_lib_dir = conf.oracle_thick_mode_lib_dir(section)
@@ -81,6 +79,7 @@ class OraclePlugin:
                         ingest_batch_size=batch_size
                     )
                 )
+
 
 
 @hookimpl
