@@ -66,11 +66,11 @@ public class GraphQLExecutionsLogsUrlIT extends BaseIT {
     String logsUrlTemplate =
         MessageFormat.format(
             LOGS_URL_TEMPLATE,
-            "{{start_time}}",
-            "{{end_time}}",
-            "{{job_name}}",
-            "{{op_id}}",
-            "{{execution_id}}");
+            "{start_time}",
+            "{end_time}",
+            "{job_name}",
+            "{op_id}",
+            "{execution_id}");
     registry.add("datajobs.executions.logsUrl.template", () -> logsUrlTemplate);
     registry.add("datajobs.executions.logsUrl.dateFormat", () -> "unix");
     registry.add(

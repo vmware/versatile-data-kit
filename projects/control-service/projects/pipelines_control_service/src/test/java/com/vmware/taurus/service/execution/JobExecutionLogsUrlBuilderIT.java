@@ -94,9 +94,9 @@ public class JobExecutionLogsUrlBuilderIT {
 
   @Test
   public void testBuild_extraParamAndDataFormatUnix_shouldReturnLogsUrl() {
-    String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(0, 0) + "{{abc}}";
+    String expectedLogsUrl = buildExpectedLogsUrlDateFormatUnix(0, 0) + "{abc}";
     assertLogsUrlValid(
-        LOGS_URL_TEMPLATE_RAW + "{{abc}}",
+        LOGS_URL_TEMPLATE_RAW + "{abc}",
         JobExecutionLogsUrlBuilder.UNIX_DATE_FORMAT,
         expectedLogsUrl);
   }
