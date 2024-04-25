@@ -4,9 +4,9 @@ import logging
 from typing import List
 from typing import Optional
 
+from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Cursor
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
-from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
 from vdk.internal.util.decorators import closing_noexcept_on_close
 
@@ -18,8 +18,9 @@ class IngestToPostgres(IIngesterPlugin):
     Create a new ingestion mechanism for ingesting to a database
     """
 
-    def __init__(self, context: JobContext):
-        self._context = context
+    def __init__(self, connection_name: str, connections: ManagedConnectionRouter,):
+        self._connection_name = connection_name
+        self._connections = connections
 
     def ingest_payload(
         self,
@@ -39,7 +40,7 @@ class IngestToPostgres(IIngesterPlugin):
         )
 
         # this is managed connection, no need to close it here.
-        connection = self._context.connections.open_connection("POSTGRES")
+        connection = self._connections.open_connection(self._connection_name)
         with closing_noexcept_on_close(connection.cursor()) as cursor:
             query, parameters = self._populate_query_parameters_tuple(
                 destination_table, cursor, payload

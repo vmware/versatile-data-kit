@@ -10,7 +10,7 @@ from vdk.plugin.postgres.ingest_to_postgres import IngestToPostgres
 from vdk.plugin.postgres.postgres_connection import PostgresConnection
 
 
-def _connection_by_configuration(configuration: Configuration):
+def _connection_by_default_configuration(configuration: Configuration):
     return PostgresConnection(
         dsn=configuration.get_value("POSTGRES_DSN"),
         dbname=configuration.get_value("POSTGRES_DBNAME"),
@@ -54,13 +54,40 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
 
 @hookimpl
 def initialize_job(context: JobContext) -> None:
-    context.connections.add_open_connection_factory_method(
-        "POSTGRES",
-        lambda: _connection_by_configuration(context.core_context.configuration),
-    )
-    context.ingester.add_ingester_factory_method(
-        "POSTGRES", lambda: IngestToPostgres(context)
-    )
+    for section in context.core_context.configuration.list_sections():
+        if section == "vdk":
+                connection_name = "postgres"
+        else:
+                connection_name = section.lstrip("vdk_")
+
+        dsn=context.core_context.configuration.get_value("POSTGRES_DSN", section)
+        dbname=context.core_context.configuration.get_value("POSTGRES_DBNAME", section)
+        user=context.core_context.configuration.get_value("POSTGRES_USER", section)
+        password=context.core_context.configuration.get_value("POSTGRES_PASSWORD", section)
+        host=context.core_context.configuration.get_value("POSTGRES_HOST", section)
+        port=context.core_context.configuration.get_value("POSTGRES_PORT", section)
+
+        context.connections.add_open_connection_factory_method(
+                connection_name.lower(),
+                lambda psql_dsn=dsn, psql_dbname=dbname, psql_user=user, psql_psswrd=password,
+                psql_host=host, psql_port=port:
+                PostgresConnection(
+                    dsn=psql_dsn,
+                    dbname=psql_dbname,
+                    user=psql_user,
+                    password=psql_psswrd,
+                    host=psql_host,
+                    port=psql_port,
+                )
+            )
+        context.ingester.add_ingester_factory_method(
+                connection_name.lower(),
+                lambda conn_name=connection_name.lower(), connections=context.connections:
+                IngestToPostgres(
+                    connection_name=conn_name,
+                    connections=connections,
+                )
+            )
 
 
 @hookimpl
@@ -74,6 +101,6 @@ def vdk_command_line(root_command: click.Group):
 def postgres_query(ctx: click.Context, query):
     click.echo(
         tabulate(
-            _connection_by_configuration(ctx.obj.configuration).execute_query(query)
+            _connection_by_default_configuration(ctx.obj.configuration).execute_query(query)
         )
     )
