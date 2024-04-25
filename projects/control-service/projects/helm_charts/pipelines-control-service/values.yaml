@@ -84,7 +84,9 @@ service:
    # clusterIP
    # additionalLabels:
 
-nginx.enabled: false
+nginx:
+  enabled: false
+
 ### Ingress resource parameters
 ingress:
   ## Configure ingress resource to expose the service outside of K8s. The ingress resource will serve as reverse proxy,
