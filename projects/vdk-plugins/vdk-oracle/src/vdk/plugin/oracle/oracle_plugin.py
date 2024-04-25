@@ -52,7 +52,7 @@ class OraclePlugin:
                 ingest_batch_size = conf.oracle_ingest_batch_size(section) or 100
 
                 context.connections.add_open_connection_factory_method(
-                    connection_name.capitalize(),
+                    connection_name.lower(),
                     lambda user=oracle_user, password=oracle_pass, conn_str=oracle_conn_string, host=oracle_host,
                            port=oracle_port, sid=oracle_sid, service_name=oracle_service_name,
                            thick_mode=oracle_thick_mode, thick_mode_lib_dir=oracle_thick_mode_lib_dir:
