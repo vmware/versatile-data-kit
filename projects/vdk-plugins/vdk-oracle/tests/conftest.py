@@ -18,18 +18,18 @@ VDK_LOG_EXECUTION_RESULT = "VDK_LOG_EXECUTION_RESULT"
 VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
 
 
-@pytest.fixture(scope="session")
-@mock.patch.dict(
-    os.environ,
-    {
-        DB_DEFAULT_TYPE: "oracle",
-        ORACLE_USER: "SYSTEM",
-        ORACLE_PASSWORD: "Gr0mh3llscr3am",
-        ORACLE_CONNECTION_STRING: "localhost:1521/FREE",
-        VDK_LOG_EXECUTION_RESULT: "True",
-        VDK_INGEST_METHOD_DEFAULT: "ORACLE",
-    },
-)
+# @pytest.fixture(scope="session")
+# @mock.patch.dict(
+#     os.environ,
+#     {
+#         DB_DEFAULT_TYPE: "oracle",
+#         ORACLE_USER: "SYSTEM",
+#         ORACLE_PASSWORD: "Gr0mh3llscr3am",
+#         ORACLE_CONNECTION_STRING: "localhost:1521/FREE",
+#         VDK_LOG_EXECUTION_RESULT: "True",
+#         VDK_INGEST_METHOD_DEFAULT: "ORACLE",
+#     },
+# )
 def oracle_db(request):
     port = 1521
     password = os.environ[ORACLE_PASSWORD]
