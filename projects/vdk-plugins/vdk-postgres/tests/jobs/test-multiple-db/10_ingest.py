@@ -4,10 +4,12 @@ from vdk.api.job_input import IJobInput
 
 
 def run(job_input: IJobInput):
-    job_input.execute_query(sql="CREATE TABLE multiple_db_test "
-                                "(some_data varchar, more_data varchar, "
-                                "int_data bigint, float_data real, bool_data boolean)",
-                            database="postgres_second")
+    job_input.execute_query(
+        sql="CREATE TABLE multiple_db_test "
+        "(some_data varchar, more_data varchar, "
+        "int_data bigint, float_data real, bool_data boolean)",
+        database="postgres_second",
+    )
 
     payload = {
         "some_data": "some_test_data",
@@ -19,5 +21,8 @@ def run(job_input: IJobInput):
 
     for _ in range(5):
         job_input.send_object_for_ingestion(
-            payload=payload, destination_table="multiple_db_test", method="postgres_second", target="postgres_second"
+            payload=payload,
+            destination_table="multiple_db_test",
+            method="postgres_second",
+            target="postgres_second",
         )

@@ -18,7 +18,11 @@ class IngestToPostgres(IIngesterPlugin):
     Create a new ingestion mechanism for ingesting to a database
     """
 
-    def __init__(self, connection_name: str, connections: ManagedConnectionRouter,):
+    def __init__(
+        self,
+        connection_name: str,
+        connections: ManagedConnectionRouter,
+    ):
         self._connection_name = connection_name
         self._connections = connections
 

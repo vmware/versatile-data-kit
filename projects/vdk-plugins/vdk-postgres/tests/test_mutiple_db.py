@@ -7,11 +7,10 @@ from unittest import TestCase
 
 import pytest
 from vdk.plugin.postgres import postgres_plugin
+from vdk.plugin.postgres.postgres_connection import PostgresConnection
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import get_test_job_path
-
-from vdk.plugin.postgres.postgres_connection import PostgresConnection
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
 VDK_POSTGRES_DBNAME = "VDK_POSTGRES_DBNAME"
@@ -52,12 +51,12 @@ class IngestToMultipleDB(TestCase):
         cli_assert_equal(0, ingest_job_result)
 
         connection = PostgresConnection(
-                    dbname="postgres",
-                    user="postgres",
-                    password="postgres",
-                    host="localhost",
-                    port=5433,
-                )
+            dbname="postgres",
+            user="postgres",
+            password="postgres",
+            host="localhost",
+            port=5433,
+        )
 
         result = connection.execute_query("SELECT * FROM multiple_db_test")
 
