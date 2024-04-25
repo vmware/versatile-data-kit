@@ -38,15 +38,15 @@ import com.vmware.taurus.service.model.DataJobExecution;
  *
  * Example:
  * "https://log-insight-url/li/query/stream?query=%C2%A7%C2%A7%C2%A7AND%C2%A7%C2%A7%C2%A7%C2%
- * A7{{start_time}}%C2%A7{{end_time}}%C2%A7true%C2%A7COUNT%C2%A7text:CONTAINS:{{execution_id}}*"
+ * A7{start_time}%C2%A7{end_time}%C2%A7true%C2%A7COUNT%C2%A7text:CONTAINS:{execution_id}*"
  */
 @Slf4j
 @Component
 public class JobExecutionLogsUrlBuilder {
 
   // Default for testing purposes
-  static final String VAR_PREFIX = "{{";
-  static final String VAR_SUFFIX = "}}";
+  static final String VAR_PREFIX = "{";
+  static final String VAR_SUFFIX = "}";
 
   static final String EXECUTION_ID_VAR = "execution_id";
   static final String OP_ID_VAR = "op_id";
