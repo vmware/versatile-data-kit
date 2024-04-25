@@ -54,7 +54,7 @@ def postgres_service(request):
     )
     container_2 = (
         DockerContainer("postgres:latest")
-        .with_bind_ports(5433, 5433)
+        .with_bind_ports(5432, 5433)
         .with_env("POSTGRES_PASSWORD", os.environ[VDK_POSTGRES_PASSWORD])
     )
 
@@ -66,11 +66,11 @@ def postgres_service(request):
         # might be unnecessary but it's out of abundance of caution
         time.sleep(2)
         log.info(
-            f"Postgres service started on port {container.get_exposed_port(port)} and host {container.get_container_host_ip()}"
+            f"Postgres service started on port {container.get_exposed_port(5432)} and host {container.get_container_host_ip()}"
         )
         container_2.start()
         log.info(
-            f"Postgres service started on port {container_2.get_exposed_port(5433)} and host "
+            f"Postgres service started on port {container_2.get_exposed_port(5432)} and host "
             f"{container.get_container_host_ip()}"
         )
     except Exception as e:
