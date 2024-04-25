@@ -76,8 +76,10 @@ class IngestToMultipleDB(TestCase):
 
         result = connection.execute_query("SELECT * FROM multiple_db_test")
 
-        assert result == [('some_test_data', 'more_test_data', 12, 3.14, False),
-                          ('some_test_data', 'more_test_data', 12, 3.14, False),
-                          ('some_test_data', 'more_test_data', 12, 3.14, False),
-                          ('some_test_data', 'more_test_data', 12, 3.14, False),
-                          ('some_test_data', 'more_test_data', 12, 3.14, False)]
+        assert result == [
+            ("some_test_data", "more_test_data", 12, 3.14, False),
+            ("some_test_data", "more_test_data", 12, 3.14, False),
+            ("some_test_data", "more_test_data", 12, 3.14, False),
+            ("some_test_data", "more_test_data", 12, 3.14, False),
+            ("some_test_data", "more_test_data", 12, 3.14, False),
+        ]

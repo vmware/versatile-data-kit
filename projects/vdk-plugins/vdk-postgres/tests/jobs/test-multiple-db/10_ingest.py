@@ -6,8 +6,8 @@ from vdk.api.job_input import IJobInput
 def run(job_input: IJobInput):
     job_input.execute_query(
         sql="CREATE TABLE multiple_default_db_test "
-            "(some_data varchar, more_data varchar, "
-            "int_data bigint, float_data real, bool_data boolean)",
+        "(some_data varchar, more_data varchar, "
+        "int_data bigint, float_data real, bool_data boolean)",
         database="postgres",
     )
 
