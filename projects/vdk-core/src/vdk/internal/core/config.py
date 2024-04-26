@@ -27,6 +27,8 @@ def convert_value_to_type_of_default_type(key: str, v: Any, default_value: Any) 
     Raises:
         VdkConfigurationError: If the value cannot be converted to the required type or if an invalid value is provided for a boolean.
     """
+    if v is None:
+        return None
     if default_value is not None:
         if isinstance(default_value, bool):
             allowed_values = ["true", "false", "1", "0", "yes", "no", "y", "n"]
