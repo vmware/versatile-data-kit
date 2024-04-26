@@ -41,7 +41,7 @@ if [ "$registry_type" = "ecr" ] || [ "$registry_type" = "ECR" ] ; then
     aws ecr describe-repositories --region $aws_region --repository-names $repository_prefix/${DATA_JOB_NAME} ||
         aws ecr create-repository --region $aws_region --repository-name $repository_prefix/${DATA_JOB_NAME}
     echo '{ "credsStore": "ecr-login" }' > ~/.docker/config.json
-elif [ "$registry_type" = "generic" ] || [ "$registry_type" = "GENERIC" ]; then
+elif [ "$registry_type" = "generic" ] || [ "$registry_type" = "GENERIC" ] || [ "$registry_type" = "jfrog" ] || [ "$registry_type" = "JFROG" ]; then
     export auth=$(echo -n $registry_username:$registry_password | base64 -w 0)
 cat > ~/.docker/config.json <<- EOM
 {

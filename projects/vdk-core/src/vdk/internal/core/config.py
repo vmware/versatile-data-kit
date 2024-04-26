@@ -82,7 +82,13 @@ class Configuration:
         and each value is a dictionary of configuration keys to ConfigEntry instances.
     """
 
-    _sections: dict[str, dict[str, ConfigEntry]] = field(default_factory=dict)
+    def __init__(self, sections: dict[str, dict[str, ConfigEntry]]):
+        if sections:
+            if "vdk" not in sections:
+                sections["vdk"] = {}
+            object.__setattr__(self, "_sections", sections)
+        else:
+            object.__setattr__(self, "_sections", {"vdk": {}})
 
     def get_value(self, key: str, section: str | None = None) -> Any | None:
         """
@@ -97,22 +103,20 @@ class Configuration:
         Returns:
             Optional[Any]: The current value of the configuration key if found, otherwise None.
         """
-        key = _normalize_config_string(key)
+        key = _normalize_config_string(key).replace(f"{section}_", "")
         if section is None:
-            for sec, entries in self._sections.items():
-                if not sec.startswith("vdk_") and key in entries:
-                    return entries[key].value
+            if key in self._sections["vdk"]:
+                return self._sections["vdk"][key].value
             return None
         else:
             section = _normalize_config_string(section)
             return self._sections.get(section, {}).get(key, ConfigEntry()).value
 
     def override_value(self, key: str, value: Any, section: str = None):
-        key = _normalize_config_string(key)
+        key = _normalize_config_string(key).replace(f"{section}_", "")
         if section is None:
-            for sec, entries in self._sections.items():
-                if not sec.startswith("vdk_") and key in entries:
-                    entries[key].value = value
+            if key in self._sections["vdk"]:
+                self._sections["vdk"][key].value = value
         else:
             section = _normalize_config_string(section)
             if section in self._sections and key in self._sections[section].keys():
@@ -164,12 +168,12 @@ class Configuration:
         Returns:
             Optional[str]: The description of the configuration key if it exists, otherwise None.
         """
-        key = _normalize_config_string(key)
+        key = _normalize_config_string(key).replace(f"{section}_", "")
         if section is None:
-            for sec, entries in self._sections.items():
-                if not sec.startswith("vdk_") and key in entries:
-                    return entries[key].description
-            return None
+            if key in self._sections["vdk"]:
+                return self._sections["vdk"].get(key, ConfigEntry()).description
+            else:
+                return None
         else:
             section = _normalize_config_string(section)
             return self._sections.get(section, {}).get(key, ConfigEntry()).description
@@ -187,11 +191,10 @@ class Configuration:
         Returns:
             bool: True if the configuration key is marked as sensitive, False otherwise.
         """
-        key = _normalize_config_string(key)
+        key = _normalize_config_string(key).replace(f"{section}_", "")
         if section is None:
-            for sec, entries in self._sections.items():
-                if not sec.startswith("vdk_") and key in entries:
-                    return entries[key].sensitive
+            if key in self._sections["vdk"]:
+                return self._sections["vdk"][key].sensitive
             return False
         else:
             section = _normalize_config_string(section)
@@ -308,7 +311,8 @@ class ConfigurationBuilder:
                                                         Each section maps configuration keys to their respective ConfigEntry.
     """
 
-    __sections: dict[str, dict[str, ConfigEntry]] = field(default_factory=dict)
+    def __init__(self):
+        self.__sections = {"vdk": {}}
 
     def add(
         self,
@@ -466,11 +470,7 @@ class ConfigurationBuilder:
         Returns:
             List[str]: A list of all configuration keys in non-'vdk_' prefixed sections.
         """
-        keys = []
-        for section, entries in self.__sections.items():
-            if not section.startswith("vdk_"):
-                keys.extend(entries.keys())
-        return list(keys)
+        return list(self.__sections["vdk"].keys())
 
     def list_config_keys_for_section(self, section: str) -> list[str]:
         """
@@ -505,4 +505,4 @@ class ConfigurationBuilder:
         Returns:
             Configuration: The constructed immutable configuration object, ready to be used within the application.
         """
-        return Configuration(_sections=self.__sections)
+        return Configuration(sections=self.__sections)

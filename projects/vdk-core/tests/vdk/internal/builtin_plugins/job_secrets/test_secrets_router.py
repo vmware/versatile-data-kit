@@ -20,7 +20,7 @@ from vdk.internal.core.errors import VdkConfigurationError
 
 
 def test_routing():
-    section = {"owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
+    section = {"vdk": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
     router = SecretsRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=ISecretsServiceClient)
     router.set_secrets_factory_method("default", lambda: mock_client)
@@ -54,7 +54,7 @@ def test_routing_empty_error():
 
 def test_routing_choose_single_registered():
     entry = ConfigEntry(value="test-team")
-    section = {"owner": {JobConfigKeys.TEAM: entry}}
+    section = {"vdk": {JobConfigKeys.TEAM: entry}}
     router = SecretsRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=ISecretsServiceClient)
     router.set_secrets_factory_method("foo", lambda: mock_client)
@@ -93,8 +93,6 @@ def test_preprocessing_sequence_success():
         "vdk": {
             "secrets_default_type": ConfigEntry(value="foo"),
             "secrets_write_preprocess_sequence": ConfigEntry(value="bar1,bar2"),
-        },
-        "owner": {
             JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
         },
     }
@@ -122,8 +120,6 @@ def test_preprocessing_sequence_success_outerscope_immutable():
         "vdk": {
             "secrets_default_type": ConfigEntry(value="foo"),
             "secrets_write_preprocess_sequence": ConfigEntry(value="bar"),
-        },
-        "owner": {
             JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
         },
     }

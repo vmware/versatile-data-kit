@@ -39,7 +39,7 @@ if [ "$registry_type" = "ecr" ] || [ "$registry_type" = "ECR" ] ; then
       export AWS_SESSION_TOKEN="$aws_session_token"
     fi
     echo '{ "credsStore": "ecr-login" }' > /kaniko/.docker/config.json
-elif [ "$registry_type" = "generic" ] || [ "$registry_type" = "GENERIC" ]; then
+elif [ "$registry_type" = "generic" ] || [ "$registry_type" = "GENERIC" ] || [ "$registry_type" = "jfrog" ] || [ "$registry_type" = "JFROG" ]; then
     export auth=$(echo -n $registry_username:$registry_password | base64 -w 0)
 cat > /kaniko/.docker/config.json <<- EOM
 {

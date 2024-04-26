@@ -20,7 +20,7 @@ from vdk.internal.core.errors import VdkConfigurationError
 
 
 def test_routing():
-    section = {"owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
+    section = {"vdk": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
     router = PropertiesRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("default", lambda: mock_client)
@@ -52,7 +52,7 @@ def test_routing_empty_error():
 
 
 def test_routing_choose_single_registered():
-    section = {"owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
+    section = {"vdk": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")}}
     router = PropertiesRouter("foo", Configuration(section))
     mock_client = MagicMock(spec=IPropertiesServiceClient)
     router.set_properties_factory_method("foo", lambda: mock_client)
@@ -87,10 +87,10 @@ def test_routing_choose_too_many_choices():
 
 def test_preprocessing_sequence_success():
     sections = {
-        "owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")},
         "vdk": {
             "properties_default_type": ConfigEntry(value="foo"),
             "properties_write_preprocess_sequence": ConfigEntry(value="bar1,bar2"),
+            JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
         },
     }
     router = PropertiesRouter("foo", Configuration(sections))
@@ -115,10 +115,10 @@ def test_preprocessing_sequence_success():
 
 def test_preprocessing_sequence_success_outerscope_immutable():
     sections = {
-        "owner": {JobConfigKeys.TEAM: ConfigEntry(value="test-team")},
         "vdk": {
             "properties_default_type": ConfigEntry(value="foo"),
             "properties_write_preprocess_sequence": ConfigEntry(value="bar"),
+            JobConfigKeys.TEAM: ConfigEntry(value="test-team"),
         },
     }
     router = PropertiesRouter(
