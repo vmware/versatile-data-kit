@@ -13,9 +13,8 @@ TRINO_PASSWORD = "TRINO_PASSWORD"
 TRINO_USE_SSL = "TRINO_USE_SSL"
 TRINO_SSL_VERIFY = "TRINO_SSL_VERIFY"
 TRINO_TIMEOUT_SECONDS = "TRINO_TIMEOUT_SECONDS"
+TRINO_LINEAGE_LOGGER_KEY = "TRINO_LINEAGE_LOGGER_KEY"
 TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY = "TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
-
-trino_templates_data_to_target_strategy: str = ""
 
 
 class TrinoConfiguration:
@@ -49,54 +48,63 @@ class TrinoConfiguration:
     def timeout_seconds(self) -> int:
         return cast(int, self.__config.get_value(TRINO_TIMEOUT_SECONDS))
 
+    def lineage_logger_key(self):
+        return self.__config.get_value(TRINO_LINEAGE_LOGGER_KEY)
+
     def templates_data_to_target_strategy(self) -> str:
         return cast(
             str, self.__config.get_value(TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY)
         )
 
-
-def add_definitions(config_builder):
-    """
-    Here we define what configuration settings are needed for trino with reasonable defaults
-    """
-    config_builder.add(
-        key=TRINO_HOST,
-        default_value="localhost",
-        description="The host we need to connect.",
-    )
-    config_builder.add(
-        key=TRINO_PORT, default_value=28080, description="The port to connect to"
-    )
-    config_builder.add(
-        key=TRINO_USE_SSL,
-        default_value=True,
-        description="Set if database connection uses SSL",
-    )
-    config_builder.add(
-        key=TRINO_SSL_VERIFY,
-        default_value=True,
-        description="Verify the SSL certificate",
-    )
-    config_builder.add(
-        key=TRINO_SCHEMA, default_value="default", description="The database schema"
-    )
-    config_builder.add(
-        key=TRINO_CATALOG, default_value="memory", description="The database catalog"
-    )
-    config_builder.add(key=TRINO_USER, default_value="unknown", description="User name")
-    config_builder.add(
-        key=TRINO_PASSWORD, default_value=None, description="User password"
-    )
-    config_builder.add(
-        key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY,
-        default_value="INSERT_SELECT",
-        description="What strategy is used when moving data from source table to target table in templates."
-        "Possible values are:\n"
-        "INSERT_SELECT - target is created, data from source is inserted into target, source is dropped;\n"
-        "RENAME - source is renamed to target;\n",
-    )
-    config_builder.add(
-        key=TRINO_TIMEOUT_SECONDS,
-        default_value=None,
-        description="The trino query timeout in seconds.",
-    )
+    @staticmethod
+    def add_definitions(config_builder):
+        """
+        Here we define what configuration settings are needed for trino with reasonable defaults
+        """
+        config_builder.add(
+            key=TRINO_HOST,
+            default_value="localhost",
+            description="The host we need to connect.",
+        )
+        config_builder.add(
+            key=TRINO_PORT, default_value=28080, description="The port to connect to"
+        )
+        config_builder.add(
+            key=TRINO_USE_SSL,
+            default_value=True,
+            description="Set if database connection uses SSL",
+        )
+        config_builder.add(
+            key=TRINO_SSL_VERIFY,
+            default_value=True,
+            description="Verify the SSL certificate",
+        )
+        config_builder.add(
+            key=TRINO_SCHEMA, default_value="default", description="The database schema"
+        )
+        config_builder.add(
+            key=TRINO_CATALOG, default_value="memory", description="The database catalog"
+        )
+        config_builder.add(key=TRINO_USER, default_value="unknown", description="User name")
+        config_builder.add(
+            key=TRINO_PASSWORD, default_value=None, description="User password"
+        )
+        config_builder.add(
+            key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY,
+            default_value="INSERT_SELECT",
+            description="What strategy is used when moving data from source table to target table in templates."
+                        "Possible values are:\n"
+                        "INSERT_SELECT - target is created, data from source is inserted into target, source is "
+                        "dropped;\n"
+                        "RENAME - source is renamed to target;\n",
+        )
+        config_builder.add(
+            key=TRINO_TIMEOUT_SECONDS,
+            default_value=None,
+            description="The trino query timeout in seconds.",
+        )
+        config_builder.add(
+            key=TRINO_LINEAGE_LOGGER_KEY,
+            default_value="",
+            description="The trino lineage logger key.",
+        )

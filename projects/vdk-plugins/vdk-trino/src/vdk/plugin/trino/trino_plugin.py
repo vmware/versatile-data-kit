@@ -3,137 +3,119 @@
 import logging
 import os
 import pathlib
-from typing import Callable
 
 import click
 import requests
 from tabulate import tabulate
 from trino.exceptions import TrinoUserError
-from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult
-from vdk.internal.builtin_plugins.connection.pep249.interfaces import PEP249Connection
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
-from vdk.internal.core.context import CoreContext
-from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
-from vdk.internal.core.statestore import ImmutableStoreKey
-from vdk.internal.core.statestore import StoreKey
-from vdk.plugin.trino import trino_config
 from vdk.plugin.trino.ingest_to_trino import IngestToTrino
-from vdk.plugin.trino.trino_config import TrinoConfiguration
+from vdk.plugin.trino.trino_config import TrinoConfiguration, TRINO_HOST, TRINO_PORT, TRINO_PASSWORD, TRINO_USER, \
+    TRINO_SCHEMA, TRINO_CATALOG, TRINO_USE_SSL, TRINO_SSL_VERIFY, TRINO_TIMEOUT_SECONDS
 from vdk.plugin.trino.trino_connection import TrinoConnection
 
 log = logging.getLogger(__name__)
 
 
-@hookimpl(tryfirst=True)
-def vdk_configure(config_builder: ConfigurationBuilder) -> None:
-    trino_config.add_definitions(config_builder)
+class TrinoPlugin:
+    @hookimpl(tryfirst=True)
+    def vdk_configure(self, config_builder: ConfigurationBuilder):
+        TrinoConfiguration.add_definitions(config_builder)
 
-
-LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")
-
-TrinoConnectionFunc = Callable[[], PEP249Connection]
-CONNECTION_FUNC_KEY = ImmutableStoreKey[TrinoConnectionFunc]("trino-connection-method")
-
-
-@hookimpl
-def vdk_initialize(context: CoreContext) -> None:
-    configuration = TrinoConfiguration(context.configuration)
-
-    def new_connection() -> PEP249Connection:
-        connection = TrinoConnection(
-            host=configuration.host(),
-            port=configuration.port(),
-            schema=configuration.schema(),
-            catalog=configuration.catalog(),
-            user=configuration.user(),
-            password=configuration.password(),
-            use_ssl=configuration.use_ssl(),
-            ssl_verify=configuration.ssl_verify(),
-            timeout_seconds=configuration.timeout_seconds(),
-            lineage_logger=context.state.get(LINEAGE_LOGGER_KEY),
+    @hookimpl(trylast=True)
+    def initialize_job(self, context: JobContext):
+        trino_conf = TrinoConfiguration(context.core_context.configuration)
+        context.connections.add_open_connection_factory_method(
+            "TRINO",
+            lambda conf=trino_conf: TrinoConnection(
+                host=conf.host(),
+                port=conf.port(),
+                schema=conf.schema(),
+                catalog=conf.catalog(),
+                user=conf.user(),
+                password=conf.password(),
+                use_ssl=conf.use_ssl(),
+                ssl_verify=conf.ssl_verify(),
+                timeout_seconds=conf.timeout_seconds(),
+                lineage_logger=conf.lineage_logger_key()
+            ),
         )
-        return connection
 
-    context.state.set(CONNECTION_FUNC_KEY, new_connection)
+        context.templates.add_template(
+            "scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
+        )
 
-    trino_config.trino_templates_data_to_target_strategy = (
-        configuration.templates_data_to_target_strategy()
-    )
+        context.templates.add_template(
+            "scd2", pathlib.Path(get_job_path("load/dimension/scd2"))
+        )
 
+        context.templates.add_template(
+            "periodic_snapshot", pathlib.Path(get_job_path("load/fact/periodic_snapshot"))
+        )
 
-@hookimpl
-def initialize_job(context: JobContext) -> None:
-    context.connections.add_open_connection_factory_method(
-        "TRINO", context.core_context.state.get(CONNECTION_FUNC_KEY)
-    )
+        context.ingester.add_ingester_factory_method(
+            "trino",
+            lambda: IngestToTrino(context)
+        )
 
-    context.templates.add_template(
-        "scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
-    )
-
-    context.templates.add_template(
-        "scd2", pathlib.Path(get_job_path("load/dimension/scd2"))
-    )
-
-    context.templates.add_template(
-        "periodic_snapshot", pathlib.Path(get_job_path("load/fact/periodic_snapshot"))
-    )
-
-    context.ingester.add_ingester_factory_method(
-        "trino", (lambda: IngestToTrino(context))
-    )
-
-
-@hookimpl(hookwrapper=True, tryfirst=True)
-def run_step(context: JobContext, step: Step) -> None:
-    out: HookCallResult
-    out = yield
-    if out.excinfo:
-        exc_type, exc_value, exc_traceback = out.excinfo
-        if isinstance(exc_value, TrinoUserError):
-            raise UserCodeError(ErrorMessage()) from exc_value
-    if out.get_result():
-        step_result: StepResult = out.get_result()
-        if isinstance(step_result.exception, requests.exceptions.ConnectionError):
-            raise VdkConfigurationError(
-                ErrorMessage(
-                    summary="Trino query failed",
-                    what="Trino query failed with connectivity error",
-                    why=f"Error message was: {step_result.exception}. "
-                    f"Likely the query has a configuration error that needs to be address."
-                    f" See above error message for more details.",
-                    consequences="The SQL query will fail and the job step likely will fail.",
-                    countermeasures="Please fix the error and try again. "
-                    "Verify the current trino configuration with vdk config-help.",
-                ),
-            ) from step_result.exception
-        if isinstance(step_result.exception, TrinoUserError):
-            raise UserCodeError(
-                ErrorMessage(
-                    summary="Trino query failed",
-                    what="Trino query failed with user error",
-                    why=f"Error message was: {step_result.exception.message}. "
-                    f"Likely the query has an syntax error that needs to be addressed."
-                    f" See above error message for more details.",
-                    consequences="The SQL query will fail and the job step likely will fail.",
-                    countermeasures="Please fix the error and try again.",
-                )
-            ) from step_result.exception
+        @hookimpl(hookwrapper=True, tryfirst=True)
+        def run_step(context: JobContext, step: Step) -> None:
+            out: HookCallResult
+            out = yield
+            if out.excinfo:
+                exc_type, exc_value, exc_traceback = out.excinfo
+                if isinstance(exc_value, TrinoUserError):
+                    raise UserCodeError() from exc_value
+            if out.get_result():
+                step_result: StepResult = out.get_result()
+                if isinstance(step_result.exception, requests.exceptions.ConnectionError):
+                    raise VdkConfigurationError(
+                        "Trino query failed",
+                        "Trino query failed with connectivity error",
+                        f"Error message was: {step_result.exception}. "
+                        "Likely the query has a configuration error that needs to be address."
+                        " See above error message for more details.",
+                        "The SQL query will fail and the job step likely will fail.",
+                        "Please fix the error and try again. "
+                        "Verify the current trino configuration with vdk config-help.",
+                    ) from step_result.exception
+                if isinstance(step_result.exception, TrinoUserError):
+                    raise UserCodeError(
+                        "Trino query failed",
+                        "Trino query failed with user error",
+                        f"Error message was: {step_result.exception.message}. "
+                        "Likely the query has an syntax error that needs to be addressed."
+                        " See above error message for more details.",
+                        "The SQL query will fail and the job step likely will fail.",
+                        "Please fix the error and try again.",
+                    ) from step_result.exception
 
 
 @click.command(name="trino-query", help="Execute a SQL query against a Trino database.")
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context
 def trino_query(ctx: click.Context, query):
-    with ctx.obj.state.get(CONNECTION_FUNC_KEY)() as conn:
-        res = conn.execute_query(query)
+    conf = ctx.obj.configuration
+    conn = TrinoConnection(
+        host=conf.get_value(TRINO_HOST),
+        port=conf.get_value(TRINO_PORT),
+        schema=conf.get_value(TRINO_SCHEMA),
+        catalog=conf.get_value(TRINO_CATALOG),
+        user=conf.get_value(TRINO_USER),
+        password=conf.get_value(TRINO_PASSWORD),
+        use_ssl=conf.get_value(TRINO_USE_SSL),
+        ssl_verify=conf.get_value(TRINO_SSL_VERIFY),
+        timeout_seconds=conf.get_value(TRINO_TIMEOUT_SECONDS)
+    ),
+    with conn as connection:
+        res = connection.execute_query(query)
         click.echo(tabulate(res))
 
 
