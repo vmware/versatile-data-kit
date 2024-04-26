@@ -3,13 +3,14 @@
 import logging
 import os
 import pathlib
+from typing import List
 
 import click
 import requests
 from tabulate import tabulate
 from trino.exceptions import TrinoUserError
 from vdk.api.plugin.hook_markers import hookimpl
-from vdk.api.plugin.plugin_registry import HookCallResult
+from vdk.api.plugin.plugin_registry import HookCallResult, IPluginRegistry
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
@@ -98,6 +99,11 @@ class TrinoPlugin:
                     ) from step_result.exception
 
 
+@hookimpl
+def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
+    plugin_registry.load_plugin_with_hooks_impl(TrinoPlugin(), "TrinoPlugin")
+
+
 @click.command(name="trino-query", help="Execute a SQL query against a Trino database.")
 @click.option("-q", "--query", type=click.STRING, required=True)
 @click.pass_context
@@ -113,10 +119,12 @@ def trino_query(ctx: click.Context, query):
         use_ssl=conf.get_value(TRINO_USE_SSL),
         ssl_verify=conf.get_value(TRINO_SSL_VERIFY),
         timeout_seconds=conf.get_value(TRINO_TIMEOUT_SECONDS)
-    ),
-    with conn as connection:
+    )
+
+    with conn._connect() as connection:
         res = connection.execute_query(query)
         click.echo(tabulate(res))
+        connection.close()
 
 
 @hookimpl
