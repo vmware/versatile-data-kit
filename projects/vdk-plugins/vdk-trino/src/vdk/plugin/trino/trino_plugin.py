@@ -15,8 +15,10 @@ from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
 from vdk.internal.core.config import ConfigurationBuilder
+from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
+from vdk.plugin.trino import trino_config
 from vdk.plugin.trino.ingest_to_trino import IngestToTrino
 from vdk.plugin.trino.trino_config import TrinoConfiguration, TRINO_HOST, TRINO_PORT, TRINO_PASSWORD, TRINO_USER, \
     TRINO_SCHEMA, TRINO_CATALOG, TRINO_USE_SSL, TRINO_SSL_VERIFY, TRINO_TIMEOUT_SECONDS
@@ -30,9 +32,17 @@ class TrinoPlugin:
     def vdk_configure(self, config_builder: ConfigurationBuilder):
         TrinoConfiguration.add_definitions(config_builder)
 
+    @hookimpl
+    def vdk_initialize(self, context: CoreContext) -> None:
+        configuration = TrinoConfiguration(context.configuration)
+        trino_config.trino_templates_data_to_target_strategy = (
+            configuration.templates_data_to_target_strategy()
+        )
+
     @hookimpl(trylast=True)
     def initialize_job(self, context: JobContext):
         trino_conf = TrinoConfiguration(context.core_context.configuration)
+
         context.connections.add_open_connection_factory_method(
             "TRINO",
             lambda conf=trino_conf: TrinoConnection(

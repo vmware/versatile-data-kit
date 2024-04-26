@@ -16,6 +16,8 @@ TRINO_TIMEOUT_SECONDS = "TRINO_TIMEOUT_SECONDS"
 TRINO_LINEAGE_LOGGER_KEY = "TRINO_LINEAGE_LOGGER_KEY"
 TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY = "TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
 
+trino_templates_data_to_target_strategy: str = ""
+
 
 class TrinoConfiguration:
     def __init__(self, config: Configuration) -> None:
