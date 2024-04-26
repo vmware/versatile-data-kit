@@ -31,7 +31,7 @@ Set a default database in config.ini like this:
 [vdk]
 postgres_dbname=postgres
 postgres_user=postgres
-postgres_password:postgres
+postgres_password=postgres
 postgres_host=localhost
 postgres_port=5433
 
@@ -53,14 +53,14 @@ Here's an example config.ini with an additional database:
 [vdk]
 postgres_dbname=postgres
 postgres_user=postgres
-postgres_password:postgres
+postgres_password=postgres
 postgres_host=localhost
 postgres_port=5432
 
 [vdk_postgres_second]
 postgres_dbname=postgres_second
 postgres_user=postgres
-postgres_password:postgres
+postgres_password=postgres
 postgres_host=localhost
 postgres_port=5433
 
