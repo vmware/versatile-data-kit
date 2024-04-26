@@ -106,11 +106,13 @@ class Configuration:
         key = _normalize_config_string(key).replace(f"{section}_", "")
         if section is None:
             if key in self._sections["vdk"]:
-                return self._sections["vdk"][key].value
+                entry = self._sections.get("vdk", {}).get(key, ConfigEntry())
+                return entry.default if entry.value is None else entry.value
             return None
         else:
             section = _normalize_config_string(section)
-            return self._sections.get(section, {}).get(key, ConfigEntry()).value
+            entry = self._sections.get(section, {}).get(key, ConfigEntry())
+            return entry.default if entry.value is None else entry.value
 
     def override_value(self, key: str, value: Any, section: str = None):
         key = _normalize_config_string(key).replace(f"{section}_", "")
@@ -212,22 +214,16 @@ class Configuration:
         Returns:
             bool: True if the value is the default value and not explicitly set, False otherwise.
         """
-        key = _normalize_config_string(key)
+
+        key = _normalize_config_string(key).replace(f"{section}_", "")
         if section:
             section = _normalize_config_string(section)
             entries = self._sections.get(section, {})
         else:
-            for sec, ents in self._sections.items():
-                if key in ents:
-                    entries = ents
-                    break
-            else:
-                return False
+            entries = self._sections.get("vdk", {})
 
         entry = entries.get(key)
-        if entry:
-            return entry.value == entry.default
-        return False
+        return entry is not None and entry.value is None
 
     def list_sections(self) -> list[str]:
         """
@@ -419,12 +415,20 @@ class ConfigurationBuilder:
         if not value:
             value = default_value
 
-        self.__sections[section][key] = ConfigEntry(
-            value=value,
-            default=default_value,
-            description=formatted_description,
-            sensitive=is_sensitive,
-        )
+        if value == default_value:
+            self.__sections[section][key] = ConfigEntry(
+                value=None,
+                default=default_value,
+                description=formatted_description,
+                sensitive=is_sensitive,
+            )
+        else:
+            self.__sections[section][key] = ConfigEntry(
+                value=value,
+                default=default_value,
+                description=formatted_description,
+                sensitive=is_sensitive,
+            )
 
     def set_value(
         self, key: str, value: Any, section: str | None = "vdk"

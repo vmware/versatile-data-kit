@@ -26,7 +26,7 @@ def test_ingest_cell(sqlite_ip, capsys):
     to="d1"
     """
     sqlite_ip.get_ipython().run_cell(query)
-    assert capsys.readouterr().out == ""
+    assert capsys.readouterr().out == "\n"
 
     select_query = """
     %%vdksql
