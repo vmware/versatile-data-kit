@@ -42,8 +42,6 @@ public class JfrogRegistryInterface {
   public boolean checkJfrogImageExists(String imageName) {
     boolean imageExists = false;
 
-    String artifactName = imageName.replace(":", "/");
-
     ArtifactoryClientBuilder artifactoryClientBuilder =
         ArtifactoryClientBuilder.create()
             .setUrl(artifactoryUrl)
@@ -58,7 +56,7 @@ public class JfrogRegistryInterface {
       String fileSpecJson =
           String.format(
               "{\"files\": [{\"pattern\": \"%s/%s/manifest.json\"}]}",
-              artifactoryDockerRepoName, artifactName);
+              artifactoryDockerRepoName, imageName);
       FileSpec fileSpec = FileSpec.fromString(fileSpecJson);
       repoPaths =
           artifactory
