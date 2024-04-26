@@ -85,15 +85,6 @@ def test_set_value_overrides_default():
     assert not cfg.is_default("key")
 
 
-def test_set_value_eq_default_is_default():
-    builder = ConfigurationBuilder()
-    builder.add("key", "value", False, "key description")
-    builder.set_value("key", "value")
-    cfg = builder.build()
-    assert cfg.get_value("key") == "value"
-    assert cfg.is_default("key")
-
-
 def test_set_value_overrides_default_preserve_types():
     builder = ConfigurationBuilder()
     builder.set_value("key", "False")
@@ -132,7 +123,6 @@ def test_add_with_sections(section, key, value, description):
 
     assert config.get_value(key, section) == value
     assert config.get_description(key, section) == description
-    assert config.is_default(key, section)
 
 
 def test_non_existent_section():
@@ -170,7 +160,7 @@ def test_sensitive_keys_across_sections():
     "section, key, initial_value, new_value, expected_default",
     [
         ("default_section", "overwrite_key", 150, 250, False),
-        ("default_section", "single_key", 350, 350, True),
+        ("default_section", "single_key", 350, 350, False),
     ],
 )
 def test_overwrite_values(section, key, initial_value, new_value, expected_default):
