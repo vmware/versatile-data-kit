@@ -213,7 +213,7 @@ spec:
             - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_QUEUE_CAPACITY
               value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.queueCapacity }}"
             - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_KEEP_ALIVE_S
-              value: "{{ .Values.datajob.deployment.configuration.synchronizationTask.keepAliveSeconds }}"
+              value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.keepAliveSeconds }}"
 
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
