@@ -55,7 +55,7 @@ postgres_dbname=postgres
 postgres_user=postgres
 postgres_password:postgres
 postgres_host=localhost
-postgres_port=5432 
+postgres_port=5432
 
 [vdk_postgres_second]
 postgres_dbname=postgres_second
