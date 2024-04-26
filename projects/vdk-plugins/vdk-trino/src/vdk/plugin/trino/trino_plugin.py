@@ -63,7 +63,7 @@ class TrinoPlugin:
 
         context.ingester.add_ingester_factory_method(
             "trino",
-            lambda: IngestToTrino(context)
+            lambda: IngestToTrino(connection_name="trino", connections=context.connections)
         )
 
         @hookimpl(hookwrapper=True, tryfirst=True)
