@@ -114,9 +114,6 @@ class ManagedConnectionBase(
 
         return self
 
-    # def get_managed_connection(self) -> PEP249Connection:
-    #     return self
-
     def execute_query(self, query: str) -> List[List[Any]]:
         """
         Execute SQL query.

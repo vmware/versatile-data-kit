@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
+import pathlib
 from unittest import mock
 
 import duckdb
@@ -10,6 +11,7 @@ from click.testing import CliRunner
 from click.testing import Result
 from vdk.plugin.duckdb import duckdb_plugin
 from vdk.plugin.sqlite import sqlite_plugin
+from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -25,6 +27,8 @@ def setup(tmpdir):
         {
             "VDK_DB_DEFAULT_TYPE": "SQLITE",
             "VDK_SQLITE_FILE": str(tmpdir) + "vdk-sqlite.db",
+            "VDK_FIRST_SQLITE_SQLITE_FILE": str(tmpdir) + "vdk-first-sqlite.db",
+            "VDK_SECOND_SQLITE_SQLITE_FILE": str(tmpdir) + "vdk-second-sqlite.db",
             "DUCKDB_DATABASE": temp_db_file,
             "DUCKDB_INGEST_AUTO_CREATE_TABLE_ENABLED": "true",
         },
@@ -46,6 +50,63 @@ def test_multiple_dbs_from_different_type(setup):
 
     _verify_sqlite_query(runner)
     _verify_duckdb_query(runner)
+
+
+def test_multiple_dbs_from_same_type_sql(setup):
+    runner = CliEntryBasedTestRunner(duckdb_plugin, sqlite_plugin)
+
+    result: Result = runner.invoke(
+        ["run", jobs_path_from_caller_directory("multiple-dbs-from-same-type-sql-job")]
+    )
+
+    cli_assert_equal(0, result)
+    _verify_sqlite_query(runner)
+
+    first_conn = SQLiteConnection(
+        pathlib.Path(os.environ.get("VDK_FIRST_SQLITE_SQLITE_FILE"))
+    )
+    second_conn = SQLiteConnection(
+        pathlib.Path(os.environ.get("VDK_SECOND_SQLITE_SQLITE_FILE"))
+    )
+
+    named_result = (
+        first_conn.new_connection().cursor().execute("SELECT * FROM stocks").fetchall()
+    )
+    assert "VOOV" in named_result[0]
+    named_result = (
+        second_conn.new_connection().cursor().execute("SELECT * FROM stocks").fetchall()
+    )
+    assert "LOOL" in named_result[0]
+
+
+def test_multiple_dbs_from_same_type_python(setup):
+    runner = CliEntryBasedTestRunner(duckdb_plugin, sqlite_plugin)
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            jobs_path_from_caller_directory("multiple-dbs-from-same-type-python-job"),
+        ]
+    )
+
+    cli_assert_equal(0, result)
+    _verify_sqlite_query(runner)
+
+    first_conn = SQLiteConnection(
+        pathlib.Path(os.environ.get("VDK_FIRST_SQLITE_SQLITE_FILE"))
+    )
+    second_conn = SQLiteConnection(
+        pathlib.Path(os.environ.get("VDK_SECOND_SQLITE_SQLITE_FILE"))
+    )
+
+    named_result = (
+        first_conn.new_connection().cursor().execute("SELECT * FROM stocks").fetchall()
+    )
+    assert "VOOV" in named_result[0]
+    named_result = (
+        second_conn.new_connection().cursor().execute("SELECT * FROM stocks").fetchall()
+    )
+    assert "LOOL" in named_result[0]
 
 
 def _verify_sqlite_query(runner):

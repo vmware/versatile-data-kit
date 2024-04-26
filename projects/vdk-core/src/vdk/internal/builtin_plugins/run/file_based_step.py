@@ -4,6 +4,7 @@ import importlib.util
 import inspect
 import logging
 import pathlib
+import re
 import sys
 from typing import Callable
 from typing import List
@@ -52,9 +53,19 @@ class StepFuncFactory:
     @staticmethod
     def run_sql_step(step: Step, job_input: IJobInput) -> bool:
         """ """
+        databases = []
+        query = []
         with open(step.file_path, encoding="utf8") as sql_file:
-            sql = sql_file.read()
-        job_input.execute_query(sql)
+            for line in sql_file.readlines():
+                if re.match(r"\[(.*?)\]", line.rstrip()):
+                    databases.append(line.rstrip().replace("[", "").replace("]", ""))
+                else:
+                    query.append(line)
+        if databases:
+            for database in databases:
+                job_input.execute_query(sql="".join(query), database=database)
+        else:
+            job_input.execute_query(sql="".join(query))
         return True
 
     @staticmethod
