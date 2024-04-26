@@ -206,6 +206,15 @@ spec:
               value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.intervalMs }}"
             - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_INITIAL_DELAY_MS
               value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.initialDelayMs }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_CORE_POOL_SIZE
+              value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.corePoolSize }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_MAX_POOL_SIZE
+              value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.maxPoolSize }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_QUEUE_CAPACITY
+              value: "{{ .Values.dataJob.deployment.configuration.synchronizationTask.queueCapacity }}"
+            - name: DATAJOBS_DEPLOYMENT_CONFIGURATION_SYNCHRONIZATION_TASK_KEEP_ALIVE_S
+              value: "{{ .Values.datajob.deployment.configuration.synchronization.task.keepAliveSeconds }}"
+
             - name: KRB5_CONFIG
               value: "/etc/secrets/krb5.conf"
             - name: VDK_OPTIONS_INI
