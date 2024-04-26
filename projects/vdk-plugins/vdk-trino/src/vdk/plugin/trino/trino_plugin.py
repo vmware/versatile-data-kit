@@ -121,7 +121,7 @@ def trino_query(ctx: click.Context, query):
         timeout_seconds=conf.get_value(TRINO_TIMEOUT_SECONDS)
     )
 
-    with conn._connect() as connection:
+    with conn as connection:
         res = connection.execute_query(query)
         click.echo(tabulate(res))
         connection.close()
