@@ -199,16 +199,16 @@ def run(job_input):
     job_input.send_object_for_ingestion(payload=payload, destination_table="test_table")
 ```
 
-### Multiple Oracle Database 
+### Multiple Oracle Database
 
 #### Configuring Multiple Oracle Databases
 
 To manage multiple Oracle database connections within a data job,
-always configure the default database in the `[vdk]` section of the `config.ini` file. 
+always configure the default database in the `[vdk]` section of the `config.ini` file.
 This section should contain the primary connection details that the application will use by default.
 
-For each additional Oracle database, 
-add a new section following the pattern `vdk_<name>`, where `<name>` is a unique identifier for each database connection. 
+For each additional Oracle database,
+add a new section following the pattern `vdk_<name>`, where `<name>` is a unique identifier for each database connection.
 These additional sections must also include all necessary Oracle connection details.
 
 #### Example `config.ini` with Multiple Oracle Databases
