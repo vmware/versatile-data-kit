@@ -167,7 +167,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExists_buildSkipped()
       throws InterruptedException, ApiException, IOException {
-    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_JOB_NAME + ":test-commit")))
+    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_JOB_NAME + "/test-commit")))
         .thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
@@ -338,7 +338,7 @@ public class JobImageBuilderTest {
   @Test
   public void buildImage_imageExistsAndEqualPythonVersions_shouldSkipBuild()
       throws InterruptedException, ApiException, IOException {
-    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_JOB_NAME + ":test-commit")))
+    when(jfrogRegistryInterface.checkJfrogImageExists(eq(TEST_JOB_NAME + "/test-commit")))
         .thenReturn(true);
 
     DesiredDataJobDeployment jobDeployment = new DesiredDataJobDeployment();
