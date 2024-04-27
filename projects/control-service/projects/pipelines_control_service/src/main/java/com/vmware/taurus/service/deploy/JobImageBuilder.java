@@ -187,7 +187,7 @@ public class JobImageBuilder {
                   .getPythonVersion()
                   .equals(actualDataJobDeployment.getPythonVersion()))
           && jfrogRegistryInterface.checkJfrogImageExists(
-              dataJob.getName() + ":" + desiredDataJobDeployment.getGitCommitSha())) {
+              dataJob.getName() + "/" + desiredDataJobDeployment.getGitCommitSha())) {
         log.trace("Data Job image {} already exists and nothing else to do.", imageName);
         return true;
       }
