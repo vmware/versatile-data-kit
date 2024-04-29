@@ -1138,6 +1138,15 @@ dataJob:
         # The data job deployments' synchronization task  initial delay is the period (expressed in milliseconds) between control service
         # start and the first time a synchronization process is started by the control service instance
         initialDelayMs: 10000
+        # The core pool size of the ThreadPoolExecutor for synchronizing data job deployments.
+        corePoolSize: 5
+        # The maximum pool size of the ThreadPoolExecutor for synchronizing data job deployments.
+        maxPoolSize: 10
+        # The queue capacity of the ThreadPoolExecutor for synchronizing data job deployments.
+        queueCapacity: 4000
+        # The keep alive seconds of the ThreadPoolExecutor for synchronizing data job deployments.
+        keepAliveSeconds: 120
+
     jobImagePullPolicy: "IfNotPresent"
     initContainer:
       ## Resources set on Data Job initContainer

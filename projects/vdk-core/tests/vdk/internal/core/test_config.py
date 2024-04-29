@@ -288,6 +288,12 @@ def test_conversions():
     )
     assertEqual(1, config.convert_value_to_type_of_default_type("somekey", "1", 2))
 
+    assertEqual(None, config.convert_value_to_type_of_default_type("somekey", None, 2))
+    assertEqual(
+        None,
+        config.convert_value_to_type_of_default_type("somekey", None, "something"),
+    )
+
     from vdk.internal.core.errors import VdkConfigurationError
 
     with pytest.raises(VdkConfigurationError):  # cannot convert 'x' to int

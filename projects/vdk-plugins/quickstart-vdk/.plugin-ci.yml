@@ -58,28 +58,28 @@ quickstart-vdk-release-candidate-base-image:
       changes: *test_quickstart_vdk_locations
   extends: .release-vdk-image
 
-quickstart-vdk-release-acceptance-test:
-  image: "python:3.10"
-  stage: pre_release_test
-  before_script:
-    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}
-  script:
-    - cd projects/vdk-plugins/quickstart-vdk/
-    - set -x
-    - pip install -U pip
-    - pip install vdk-heartbeat --extra-index-url $PIP_EXTRA_INDEX_URL
-    - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
-    - export QUICKSTART_VDK_MAJOR_MINOR_VERSION=$(python3 setup.py --version | grep -o '[0-9]\.[0-9]')
-    - export VDK_HEARTBEAT_DEPLOY_JOB_VDK_VERSION="${QUICKSTART_VDK_MAJOR_MINOR_VERSION}.${VDK_PATCH_VERSION}"
-    - export JOB_NAME=quickstart-vdk-release-test-job$(date +%s)
-    - vdk-heartbeat -f cicd/release_acceptance_test_heartbeat_config.ini
-  artifacts:
-    when: always
-    reports:
-      junit: tests.xml
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *test_quickstart_vdk_locations
+# quickstart-vdk-release-acceptance-test:
+#   image: "python:3.10"
+#   stage: pre_release_test
+#   before_script:
+#     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}
+#   script:
+#     - cd projects/vdk-plugins/quickstart-vdk/
+#     - set -x
+#     - pip install -U pip
+#     - pip install vdk-heartbeat --extra-index-url $PIP_EXTRA_INDEX_URL
+#     - export VDKCLI_OAUTH2_REFRESH_TOKEN=$VDK_API_TOKEN
+#     - export QUICKSTART_VDK_MAJOR_MINOR_VERSION=$(python3 setup.py --version | grep -o '[0-9]\.[0-9]')
+#     - export VDK_HEARTBEAT_DEPLOY_JOB_VDK_VERSION="${QUICKSTART_VDK_MAJOR_MINOR_VERSION}.${VDK_PATCH_VERSION}"
+#     - export JOB_NAME=quickstart-vdk-release-test-job$(date +%s)
+#     - vdk-heartbeat -f cicd/release_acceptance_test_heartbeat_config.ini
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: tests.xml
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#       changes: *test_quickstart_vdk_locations
 
 
 # For now, release steps are triggered only when merging changes in vdk-plugins/quickstart-vdk

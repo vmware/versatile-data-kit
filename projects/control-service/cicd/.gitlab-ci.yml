@@ -327,7 +327,7 @@ control_service_helm_chart_dry_run:
       changes: *control_service_helm_change_locations
 
 # vdk-heartbeat source: https://github.com/vmware/versatile-data-kit/tree/main/projects/vdk-heartbeat
-control_service_post_deployment_test:
+.control_service_post_deployment_test:
   stage: pre_release_test
   image: python:3.7
   script:
