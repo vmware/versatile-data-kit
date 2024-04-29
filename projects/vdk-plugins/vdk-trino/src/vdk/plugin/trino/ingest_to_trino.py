@@ -8,7 +8,6 @@ from typing import Optional
 from typing import Type
 
 from trino.dbapi import Cursor
-
 from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
@@ -110,12 +109,12 @@ class IngestToTrino(IIngesterPlugin):
         except Exception as e:
             raise UserCodeError(
                 "Cannot ingest payload.",
-                    f"The value of the passed with field key (or column name) {key} is not expected type. "
-                    f"Expected field type is {value_type}. ",
-                    f"We could not convert the value to that type. Error is {e}",
-                    f"In order to ensure that we do not overwrite with bad value, "
-                    f"the operation aborts.",
-                    "Inspect the job code and fix the passed data column names or dictionary keys",
+                f"The value of the passed with field key (or column name) {key} is not expected type. "
+                f"Expected field type is {value_type}. ",
+                f"We could not convert the value to that type. Error is {e}",
+                f"In order to ensure that we do not overwrite with bad value, "
+                f"the operation aborts.",
+                "Inspect the job code and fix the passed data column names or dictionary keys",
             ) from e
 
     @staticmethod

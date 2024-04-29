@@ -3,16 +3,17 @@
 import logging
 import os
 import pathlib
-from typing import List, Optional
+from typing import List
+from typing import Optional
 
 import click
 import requests
 from tabulate import tabulate
 from trino.exceptions import TrinoUserError
 from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
-
 from vdk.api.plugin.hook_markers import hookimpl
-from vdk.api.plugin.plugin_registry import HookCallResult, IPluginRegistry
+from vdk.api.plugin.plugin_registry import HookCallResult
+from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.builtin_plugins.run.step import Step
@@ -23,8 +24,16 @@ from vdk.internal.core.errors import VdkConfigurationError
 from vdk.internal.core.statestore import StoreKey
 from vdk.plugin.trino import trino_config
 from vdk.plugin.trino.ingest_to_trino import IngestToTrino
-from vdk.plugin.trino.trino_config import TrinoConfiguration, TRINO_HOST, TRINO_PORT, TRINO_PASSWORD, TRINO_USER, \
-    TRINO_SCHEMA, TRINO_CATALOG, TRINO_USE_SSL, TRINO_SSL_VERIFY, TRINO_TIMEOUT_SECONDS
+from vdk.plugin.trino.trino_config import TRINO_CATALOG
+from vdk.plugin.trino.trino_config import TRINO_HOST
+from vdk.plugin.trino.trino_config import TRINO_PASSWORD
+from vdk.plugin.trino.trino_config import TRINO_PORT
+from vdk.plugin.trino.trino_config import TRINO_SCHEMA
+from vdk.plugin.trino.trino_config import TRINO_SSL_VERIFY
+from vdk.plugin.trino.trino_config import TRINO_TIMEOUT_SECONDS
+from vdk.plugin.trino.trino_config import TRINO_USE_SSL
+from vdk.plugin.trino.trino_config import TRINO_USER
+from vdk.plugin.trino.trino_config import TrinoConfiguration
 from vdk.plugin.trino.trino_connection import TrinoConnection
 
 log = logging.getLogger(__name__)
@@ -63,7 +72,7 @@ class TrinoPlugin:
                 use_ssl=conf.use_ssl(),
                 ssl_verify=conf.ssl_verify(),
                 timeout_seconds=conf.timeout_seconds(),
-                lineage_logger=context.core_context.state.get(LINEAGE_LOGGER_KEY)
+                lineage_logger=context.core_context.state.get(LINEAGE_LOGGER_KEY),
             ),
         )
 
@@ -76,12 +85,15 @@ class TrinoPlugin:
         )
 
         context.templates.add_template(
-            "periodic_snapshot", pathlib.Path(get_job_path("load/fact/periodic_snapshot"))
+            "periodic_snapshot",
+            pathlib.Path(get_job_path("load/fact/periodic_snapshot")),
         )
 
         context.ingester.add_ingester_factory_method(
             "trino",
-            lambda: IngestToTrino(connection_name="trino", connections=context.connections)
+            lambda: IngestToTrino(
+                connection_name="trino", connections=context.connections
+            ),
         )
 
         @hookimpl(hookwrapper=True, tryfirst=True)
@@ -94,7 +106,9 @@ class TrinoPlugin:
                     raise UserCodeError() from exc_value
             if out.get_result():
                 step_result: StepResult = out.get_result()
-                if isinstance(step_result.exception, requests.exceptions.ConnectionError):
+                if isinstance(
+                    step_result.exception, requests.exceptions.ConnectionError
+                ):
                     raise VdkConfigurationError(
                         "Trino query failed",
                         "Trino query failed with connectivity error",
@@ -137,7 +151,7 @@ def trino_query(ctx: click.Context, query):
         use_ssl=conf.get_value(TRINO_USE_SSL),
         ssl_verify=conf.get_value(TRINO_SSL_VERIFY),
         timeout_seconds=conf.get_value(TRINO_TIMEOUT_SECONDS),
-        lineage_logger=ctx.obj.state.get(LINEAGE_LOGGER_KEY)
+        lineage_logger=ctx.obj.state.get(LINEAGE_LOGGER_KEY),
     )
 
     with conn as connection:
