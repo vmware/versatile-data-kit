@@ -8,6 +8,7 @@ from typing import Optional
 from typing import Type
 
 from trino.dbapi import Cursor
+from vdk.internal.builtin_plugins.connection.impl.router import ManagedConnectionRouter
 from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core import errors
@@ -22,8 +23,9 @@ class IngestToTrino(IIngesterPlugin):
     Create a new ingestion mechanism for ingesting to a Trino database
     """
 
-    def __init__(self, context: JobContext):
-        self.context = context
+    def __init__(self, connection_name: str, connections: ManagedConnectionRouter):
+        self._connection_name = connection_name
+        self._connections = connections
 
     def ingest_payload(
         self,
@@ -55,7 +57,7 @@ class IngestToTrino(IIngesterPlugin):
             f"collection_id: {collection_id}"
         )
 
-        with self.context.connections.open_connection("TRINO").connect() as conn:
+        with self._connections.open_connection(self._connection_name).connect() as conn:
             cur = conn.cursor()
             self._ingest_payload(destination_table, cur, payload)
 
@@ -106,15 +108,13 @@ class IngestToTrino(IIngesterPlugin):
                 return value_type(new_value)
         except Exception as e:
             raise UserCodeError(
-                ErrorMessage(
-                    "Cannot ingest payload.",
-                    f"The value of the passed with field key (or column name) {key} is not expected type. "
-                    f"Expected field type is {value_type}. ",
-                    f"We could not convert the value to that type. Error is {e}",
-                    f"In order to ensure that we do not overwrite with bad value, "
-                    f"the operation aborts.",
-                    "Inspect the job code and fix the passed data column names or dictionary keys",
-                )
+                "Cannot ingest payload.",
+                f"The value of the passed with field key (or column name) {key} is not expected type. "
+                f"Expected field type is {value_type}. ",
+                f"We could not convert the value to that type. Error is {e}",
+                f"In order to ensure that we do not overwrite with bad value, "
+                f"the operation aborts.",
+                "Inspect the job code and fix the passed data column names or dictionary keys",
             ) from e
 
     @staticmethod
