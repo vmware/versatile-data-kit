@@ -13,7 +13,6 @@ TRINO_PASSWORD = "TRINO_PASSWORD"
 TRINO_USE_SSL = "TRINO_USE_SSL"
 TRINO_SSL_VERIFY = "TRINO_SSL_VERIFY"
 TRINO_TIMEOUT_SECONDS = "TRINO_TIMEOUT_SECONDS"
-TRINO_LINEAGE_LOGGER_KEY = "TRINO_LINEAGE_LOGGER_KEY"
 TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY = "TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
 
 trino_templates_data_to_target_strategy: str = ""
@@ -49,9 +48,6 @@ class TrinoConfiguration:
 
     def timeout_seconds(self) -> int:
         return cast(int, self.__config.get_value(TRINO_TIMEOUT_SECONDS))
-
-    def lineage_logger_key(self):
-        return self.__config.get_value(TRINO_LINEAGE_LOGGER_KEY)
 
     def templates_data_to_target_strategy(self) -> str:
         return cast(
@@ -104,9 +100,4 @@ class TrinoConfiguration:
             key=TRINO_TIMEOUT_SECONDS,
             default_value=None,
             description="The trino query timeout in seconds.",
-        )
-        config_builder.add(
-            key=TRINO_LINEAGE_LOGGER_KEY,
-            default_value="",
-            description="The trino lineage logger key.",
         )

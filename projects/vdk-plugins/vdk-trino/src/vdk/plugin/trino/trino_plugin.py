@@ -3,12 +3,14 @@
 import logging
 import os
 import pathlib
-from typing import List
+from typing import List, Optional
 
 import click
 import requests
 from tabulate import tabulate
 from trino.exceptions import TrinoUserError
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
+
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_registry import HookCallResult, IPluginRegistry
 from vdk.internal.builtin_plugins.run.execution_results import StepResult
@@ -18,6 +20,7 @@ from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.internal.core.errors import UserCodeError
 from vdk.internal.core.errors import VdkConfigurationError
+from vdk.internal.core.statestore import StoreKey
 from vdk.plugin.trino import trino_config
 from vdk.plugin.trino.ingest_to_trino import IngestToTrino
 from vdk.plugin.trino.trino_config import TrinoConfiguration, TRINO_HOST, TRINO_PORT, TRINO_PASSWORD, TRINO_USER, \
@@ -25,6 +28,8 @@ from vdk.plugin.trino.trino_config import TrinoConfiguration, TRINO_HOST, TRINO_
 from vdk.plugin.trino.trino_connection import TrinoConnection
 
 log = logging.getLogger(__name__)
+
+LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")
 
 
 class TrinoPlugin:
@@ -55,7 +60,7 @@ class TrinoPlugin:
                 use_ssl=conf.use_ssl(),
                 ssl_verify=conf.ssl_verify(),
                 timeout_seconds=conf.timeout_seconds(),
-                lineage_logger=conf.lineage_logger_key()
+                lineage_logger=context.core_context.state.get(LINEAGE_LOGGER_KEY),
             ),
         )
 
