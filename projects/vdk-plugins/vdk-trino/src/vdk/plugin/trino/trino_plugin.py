@@ -4,7 +4,6 @@ import logging
 import os
 import pathlib
 from typing import List
-from typing import Optional
 
 import click
 import requests
