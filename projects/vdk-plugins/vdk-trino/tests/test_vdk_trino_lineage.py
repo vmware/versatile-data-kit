@@ -23,7 +23,7 @@ class TestConfigPlugin:
     def __init__(self, lineage_logger: ILineageLogger):
         self.lineage_logger = lineage_logger
 
-    @hookimpl
+    @hookimpl(tryfirst=True)
     def vdk_initialize(self, context):
         context.state.set(LINEAGE_LOGGER_KEY, self.lineage_logger)
 

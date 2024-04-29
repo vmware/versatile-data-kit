@@ -33,11 +33,14 @@ LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")
 
 
 class TrinoPlugin:
+    def __init__(self, lineage_logger: ILineageLogger = None):
+        self._lineage_logger = lineage_logger
+
     @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder):
         TrinoConfiguration.add_definitions(config_builder)
 
-    @hookimpl
+    @hookimpl(trylast=True)
     def vdk_initialize(self, context: CoreContext) -> None:
         configuration = TrinoConfiguration(context.configuration)
         trino_config.trino_templates_data_to_target_strategy = (
@@ -60,7 +63,7 @@ class TrinoPlugin:
                 use_ssl=conf.use_ssl(),
                 ssl_verify=conf.ssl_verify(),
                 timeout_seconds=conf.timeout_seconds(),
-                lineage_logger=context.core_context.state.get(LINEAGE_LOGGER_KEY),
+                lineage_logger=context.core_context.state.get(LINEAGE_LOGGER_KEY)
             ),
         )
 
@@ -133,7 +136,8 @@ def trino_query(ctx: click.Context, query):
         password=conf.get_value(TRINO_PASSWORD),
         use_ssl=conf.get_value(TRINO_USE_SSL),
         ssl_verify=conf.get_value(TRINO_SSL_VERIFY),
-        timeout_seconds=conf.get_value(TRINO_TIMEOUT_SECONDS)
+        timeout_seconds=conf.get_value(TRINO_TIMEOUT_SECONDS),
+        lineage_logger=ctx.obj.state.get(LINEAGE_LOGGER_KEY)
     )
 
     with conn as connection:
