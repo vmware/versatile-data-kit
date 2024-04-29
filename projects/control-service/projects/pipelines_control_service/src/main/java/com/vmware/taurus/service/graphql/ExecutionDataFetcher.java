@@ -54,7 +54,7 @@ import static com.vmware.taurus.service.graphql.model.DataJobExecutionQueryVaria
 /**
  * Data fetcher class for Data Job Executions
  *
- * <p>Data fetchers are classes that provides to graphql api the needed data while it modify the
+ * Data fetchers are classes that provides to graphql api the needed data while it modify the
  * source data: By providing list of data jobs it alter each job and attach its execution while
  * reading requested information from graphql query to specify how many executions, are they sorted
  * by specific field, etc.
