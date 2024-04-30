@@ -78,7 +78,7 @@ class OracleConfiguration:
                 self.__config.get_value(key=ORACLE_INGEST_BATCH_SIZE, section=section)
             )
         else:
-            return None
+            return 100
 
     @staticmethod
     def add_default_definitions(config_builder: ConfigurationBuilder):
