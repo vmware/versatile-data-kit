@@ -23,9 +23,9 @@ class DecoratorsPlugin:
     @hookimpl
     def initialize_job(self, context: JobContext) -> None:
         def decorator_execute_query(original_func):
-            def wrapper(query_statement, *args, **kwargs):
-                self.queries.append(query_statement)
-                return original_func(query_statement, *args, **kwargs)
+            def wrapper(sql, *args, **kwargs):
+                self.queries.append(sql)
+                return original_func(sql, *args, **kwargs)
 
             return wrapper
 
