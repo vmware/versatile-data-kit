@@ -56,7 +56,7 @@ class OraclePlugin:
                 oracle_service_name = conf.get_oracle_service_name(section)
                 oracle_thick_mode = conf.oracle_thick_mode(section)
                 oracle_thick_mode_lib_dir = conf.oracle_thick_mode_lib_dir(section)
-                ingest_batch_size = conf.oracle_ingest_batch_size(section) or 100
+                ingest_batch_size = conf.oracle_ingest_batch_size(section)
 
                 context.connections.add_open_connection_factory_method(
                     connection_name.lower(),

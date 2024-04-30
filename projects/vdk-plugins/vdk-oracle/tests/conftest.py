@@ -51,7 +51,7 @@ def oracle_db(request):
             "DATABASE IS READY TO USE",
             timeout=120,
         )
-        time.sleep(2)
+        time.sleep(10)
         print(
             f"Oracle db started on port {container.get_exposed_port(1521)} and host {container.get_container_host_ip()}"
         )
@@ -62,7 +62,7 @@ def oracle_db(request):
                 "DATABASE IS READY TO USE",
                 timeout=120,
             )
-            time.sleep(2)
+            time.sleep(10)
             print(
                 f"Oracle db started on port {container_2.get_exposed_port(1521)} and host"
                 f" {container_2.get_container_host_ip()}"
