@@ -1,5 +1,6 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+import copy
 import logging
 import pathlib
 
@@ -28,14 +29,20 @@ def vdk_configure(config_builder: ConfigurationBuilder) -> None:
 @hookimpl
 def initialize_job(context: JobContext) -> None:
     conf = SQLiteConfiguration(context.core_context.configuration)
-    context.connections.add_open_connection_factory_method(
-        "SQLITE",
-        lambda: SQLiteConnection(pathlib.Path(conf.get_sqlite_file())).new_connection(),
-    )
+    names = {
+        section: conf.get_sqlite_file(section)
+        for section in context.core_context.configuration.list_sections()
+    }
+    names["sqlite"] = conf.get_sqlite_file()
+    for name, file in names.items():
+        context.connections.add_open_connection_factory_method(
+            name.upper(),
+            lambda newfile=file: SQLiteConnection(sqlite_file=newfile).new_connection(),
+        )
 
-    context.ingester.add_ingester_factory_method(
-        "sqlite", (lambda: IngestToSQLite(conf))
-    )
+        context.ingester.add_ingester_factory_method(
+            name.lower(), lambda newconf=conf: IngestToSQLite(newconf)
+        )
 
 
 @click.command(
