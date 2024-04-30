@@ -53,10 +53,6 @@ export VDK_INGEST_METHOD_DEFAULT=TRINO
 
 Then, from inside the run function in a Python step, you can use the `send_object_for_ingestion` or `send_tabular_data_for_ingestion` methods to ingest your data.
 
-Based on your request, I'll add a section for handling multiple Trino database connections within your data job configurations to the Trino README. This will be similar to how it's done for Oracle in your provided example.
-
----
-
 ### Multiple Trino Database Connections
 
 #### Configuring Multiple Trino Databases
