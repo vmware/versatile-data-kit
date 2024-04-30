@@ -14,11 +14,14 @@ class SQLiteConfiguration:
     def __init__(self, configuration: Configuration):
         self.__config = configuration
 
-    def get_auto_create_table_enabled(self) -> bool:
-        return self.__config.get_value(SQLITE_INGEST_AUTO_CREATE_TABLE_ENABLED)
+    def get_auto_create_table_enabled(self, section: str = "vdk") -> bool:
+        return self.__config.get_value(
+            SQLITE_INGEST_AUTO_CREATE_TABLE_ENABLED, section=section
+        )
 
-    def get_sqlite_file(self) -> pathlib.Path:
-        return pathlib.Path(self.__config.get_value(SQLITE_FILE))
+    def get_sqlite_file(self, section: str = "vdk") -> pathlib.Path:
+        path = self.__config.get_value(SQLITE_FILE, section=section)
+        return pathlib.Path(path)
 
 
 def add_definitions(config_builder: ConfigurationBuilder):
