@@ -52,6 +52,75 @@ export VDK_INGEST_METHOD_DEFAULT=TRINO
 ```
 
 Then, from inside the run function in a Python step, you can use the `send_object_for_ingestion` or `send_tabular_data_for_ingestion` methods to ingest your data.
+
+### Multiple Trino Database Connections
+
+#### Configuring Multiple Trino Databases
+
+To effectively manage multiple Trino database connections within a data job, configure the default database in the `[vdk]` section of the `config.ini` file. This section should contain the primary connection details that the application will use by default.
+
+For each additional Trino database, add a new section following the pattern `vdk_<name>`, where `<name>` is a unique identifier for each database connection. These additional sections must also include all necessary Trino connection details.
+
+#### Example `config.ini` with Multiple Trino Databases
+
+```ini
+[vdk]
+trino_user=user
+trino_password=password
+trino_host=localhost
+trino_port=28080
+trino_schema=default
+trino_catalog=memory
+trino_use_ssl=True
+
+[vdk_trino_reports]
+trino_user=reports_user
+trino_password=reports_password
+trino_host=reports_host
+trino_port=28081
+trino_schema=reports
+trino_catalog=memory
+trino_use_ssl=False
+```
+
+You can specify which database to use in your data job by referencing the specific section name.
+
+```python
+def run(job_input):
+
+    # Querying the default Trino database
+    default_query = "SELECT * FROM default_table"
+    job_input.execute_query(sql=default_query, database="trino") # database option can be omitted
+
+    # Querying the reports Trino database
+    reports_query = "SELECT * FROM reports_table"
+    job_input.execute_query(sql=reports_query, database="trino_reports") # database is mandatory; if omitted query will be executed against default db
+```
+
+#### Ingestion into Multiple Trino Databases
+
+For data ingestion, you can also specify the target database to ensure the data is sent to the correct Trino instance.
+
+```python
+def run(job_input):
+
+    # Ingest data into the default database
+    payload_default = {"col1": "value1", "col2": "value2"}
+    job_input.send_object_for_ingestion(
+        payload=payload_default,
+        destination_table="default_table",
+        method="trino"
+    )
+
+    # Ingest data into the reports database
+    payload_reports = {"col1": "value3", "col2": "value4"}
+    job_input.send_object_for_ingestion(
+        payload=payload_reports,
+        destination_table="reports_table",
+        method="trino_reports"
+    )
+```
+
 # Configuration
 
 Run vdk config-help - search for those prefixed with "TRINO_" to see what configuration options are available.

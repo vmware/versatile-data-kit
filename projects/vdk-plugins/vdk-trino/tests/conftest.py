@@ -32,24 +32,35 @@ def trino_service(request):
     # os.system("ss -lntu")
     port = int(os.environ[VDK_TRINO_PORT])
     container = DockerContainer(TRINO_IMAGE).with_bind_ports(port, port)
+    container_2 = DockerContainer(TRINO_IMAGE).with_bind_ports(port, 8081)
     try:
         container.start()
         # following instructions in https://hub.docker.com/r/trinodb/trino
         # Wait for the following message log line:
         wait_for_logs(container, "SERVER STARTED", timeout=120)
         # wait 2 seconds to make sure the service is up and responsive
-        # might be unnecessary but it's out of abundance of caution
+        # might be unnecessary, but it's out of abundance of caution
         time.sleep(2)
         print(
             f"Trino service started on port {container.get_exposed_port(port)} and host {container.get_container_host_ip()}"
         )
+        container_2.start()
+        wait_for_logs(container_2, "SERVER STARTED", timeout=120)
+        time.sleep(2)
+        print(
+            f"Trino service started on port {container_2.get_exposed_port(port)} "
+            f"and host {container_2.get_container_host_ip()}"
+        )
+
     except Exception as e:
         print(f"Failed to start Trino service: {e}")
         print(f"Container logs: {container.get_logs()}")
+        print(f"Container 2 logs: {container.get_logs()}")
         raise e
 
     def stop_container():
         container.stop()
+        container_2.stop()
         print("Trino service stopped")
 
     request.addfinalizer(stop_container)
