@@ -80,6 +80,4 @@ class IngestToTrinoTests(TestCase):
 
         result = conn.execute_query("SELECT * FROM secondary_test_table")
 
-        assert result == [['string', 13, 1.2, False, Decimal('3.20')]]
-
-
+        assert result == [["string", 13, 1.2, False, Decimal("3.20")]]
