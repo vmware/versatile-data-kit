@@ -29,29 +29,35 @@ class TrinoConfiguration:
         return cast(int, self.__config.get_required_value(key=TRINO_PORT, section=section))
 
     def schema(self, section: Optional[str]) -> str:
-        return cast(str, self.__config.get_value(key=TRINO_SCHEMA, section=section))
+        return cast(str, self.__config.get_value(key=TRINO_SCHEMA, section=section)) or "default"
 
     def catalog(self, section: Optional[str]) -> str:
-        return cast(str, self.__config.get_value(key=TRINO_CATALOG, section=section))
+        return cast(str, self.__config.get_value(key=TRINO_CATALOG, section=section)) or "memory"
 
     def user(self, section: Optional[str]) -> str:
-        return cast(str, self.__config.get_required_value(key=TRINO_USER, section=section))
+        return cast(str, self.__config.get_required_value(key=TRINO_USER, section=section)) or "unknown"
 
     def password(self, section: Optional[str]) -> str:
-        return cast(str, self.__config.get_value(key=TRINO_PASSWORD, section=section))
+        return cast(str, self.__config.get_value(key=TRINO_PASSWORD, section=section)) if self.__config.get_value(
+            key=TRINO_PASSWORD, section=section) is not None else None
 
     def use_ssl(self, section: Optional[str]) -> bool:
-        return cast(bool, self.__config.get_value(key=TRINO_USE_SSL, section=section))
+        return cast(bool, self.__config.get_value(key=TRINO_USE_SSL, section=section)) if (
+                self.__config.get_value(key=TRINO_USE_SSL, section=section) is not None) else True
 
     def ssl_verify(self, section: Optional[str]) -> bool:
-        return cast(bool, self.__config.get_value(key=TRINO_SSL_VERIFY, section=section))
+        return cast(bool, self.__config.get_value(key=TRINO_SSL_VERIFY, section=section)) if (
+                self.__config.get_value(key=TRINO_SSL_VERIFY, section=section) is not None) else True
 
     def timeout_seconds(self, section: Optional[str]) -> int:
-        return cast(int, self.__config.get_value(key=TRINO_TIMEOUT_SECONDS, section=section))
+        return cast(int, self.__config.get_value(key=TRINO_TIMEOUT_SECONDS, section=section)) if (
+                self.__config.get_value(key=TRINO_TIMEOUT_SECONDS, section=section) is not None) else None
 
     def templates_data_to_target_strategy(self, section: Optional[str]) -> str:
         return cast(
-            str, self.__config.get_value(key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY, section=section)
+            str, self.__config.get_value(key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY, section=section) if (
+                self.__config.get_value(key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY, section=section) is not None)
+            else "INSERT_SELECT"
         )
 
     @staticmethod
