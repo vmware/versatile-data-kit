@@ -95,10 +95,10 @@ class TrinoConfiguration:
             key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY,
             default_value="INSERT_SELECT",
             description="What strategy is used when moving data from source table to target table in templates."
-            "Possible values are:\n"
-            "INSERT_SELECT - target is created, data from source is inserted into target, source is "
-            "dropped;\n"
-            "RENAME - source is renamed to target;\n",
+                        "Possible values are:\n"
+                        "INSERT_SELECT - target is created, data from source is inserted into target, source is "
+                        "dropped;\n"
+                        "RENAME - source is renamed to target;\n",
         )
         config_builder.add(
             key=TRINO_TIMEOUT_SECONDS,
