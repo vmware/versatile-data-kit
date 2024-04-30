@@ -1,6 +1,7 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import os
+import pathlib
 from unittest import mock
 
 from click.testing import Result
@@ -9,6 +10,7 @@ from vdk.internal.core.errors import UserCodeError
 from vdk.plugin.sqlite import sqlite_plugin
 from vdk.plugin.sqlite.ingest_to_sqlite import IngestToSQLite
 from vdk.plugin.sqlite.sqlite_configuration import SQLiteConfiguration
+from vdk.plugin.sqlite.sqlite_connection import SQLiteConnection
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -37,6 +39,31 @@ def test_sqlite_plugin(tmpdir):
 
         cli_assert_equal(0, actual_rs)
         assert "GOOG" in actual_rs.output
+
+
+def test_sqlite_plugin_multiple(tmpdir):
+    with mock.patch.dict(
+        os.environ,
+        {
+            "VDK_FIRSTDB_SQLITE_FILE": str(tmpdir) + "first.db",
+            "VDK_SECONDDB_SQLITE_FILE": str(tmpdir) + "second.db",
+        },
+    ):
+        runner = CliEntryBasedTestRunner(sqlite_plugin)
+
+        result: Result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("python-job-multiple")]
+        )
+
+        cli_assert_equal(0, result)
+
+        conn = SQLiteConnection(pathlib.Path(str(tmpdir) + "first.db"))
+        res = conn.new_connection().cursor().execute("SELECT * FROM stocks").fetchall()
+        assert "GOOG" in res[0]
+
+        conn = SQLiteConnection(pathlib.Path(str(tmpdir) + "second.db"))
+        res = conn.new_connection().cursor().execute("SELECT * FROM stocks").fetchall()
+        assert "VROOM" in res[0]
 
 
 def test_sqlite_ingestion(tmpdir):

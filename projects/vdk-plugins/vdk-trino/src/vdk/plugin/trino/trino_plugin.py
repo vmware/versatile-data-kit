@@ -52,28 +52,12 @@ class TrinoPlugin:
     def vdk_initialize(self, context: CoreContext) -> None:
         configuration = TrinoConfiguration(context.configuration)
         trino_config.trino_templates_data_to_target_strategy = (
-            configuration.templates_data_to_target_strategy()
+            configuration.templates_data_to_target_strategy(None)
         )
 
     @hookimpl(trylast=True)
     def initialize_job(self, context: JobContext):
         trino_conf = TrinoConfiguration(context.core_context.configuration)
-
-        context.connections.add_open_connection_factory_method(
-            "TRINO",
-            lambda conf=trino_conf: TrinoConnection(
-                host=conf.host(),
-                port=conf.port(),
-                schema=conf.schema(),
-                catalog=conf.catalog(),
-                user=conf.user(),
-                password=conf.password(),
-                use_ssl=conf.use_ssl(),
-                ssl_verify=conf.ssl_verify(),
-                timeout_seconds=conf.timeout_seconds(),
-                lineage_logger=context.core_context.state.get(LINEAGE_LOGGER_KEY),
-            ),
-        )
 
         context.templates.add_template(
             "scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
@@ -88,12 +72,47 @@ class TrinoPlugin:
             pathlib.Path(get_job_path("load/fact/periodic_snapshot")),
         )
 
-        context.ingester.add_ingester_factory_method(
-            "trino",
-            lambda: IngestToTrino(
-                connection_name="trino", connections=context.connections
-            ),
-        )
+        for section in context.core_context.configuration.list_sections():
+            if section == "vdk":
+                connection_name = "trino"  # the default database
+            else:
+                connection_name = section.lstrip("vdk_")
+
+            host = trino_conf.host(section)
+            port = trino_conf.port(section)
+
+            if host and port:
+                schema = trino_conf.schema(section)
+                catalog = trino_conf.catalog(section)
+                user = trino_conf.user(section)
+                password = trino_conf.password(section)
+                use_ssl = trino_conf.use_ssl(section)
+                ssl_verify = trino_conf.ssl_verify(section)
+                timeout_seconds = trino_conf.timeout_seconds(section)
+                lineage_logger = context.core_context.state.get(LINEAGE_LOGGER_KEY)
+
+                context.connections.add_open_connection_factory_method(
+                    connection_name.lower(),
+                    lambda t_host=host, t_port=port, t_schema=schema, t_catalog=catalog, t_user=user, t_password=password, t_use_ssl=use_ssl, t_ssl_verify=ssl_verify, t_timeout=timeout_seconds, t_lineage_logger=lineage_logger: TrinoConnection(
+                        host=t_host,
+                        port=t_port,
+                        schema=t_schema,
+                        catalog=t_catalog,
+                        user=t_user,
+                        password=t_password,
+                        use_ssl=t_use_ssl,
+                        ssl_verify=t_ssl_verify,
+                        timeout_seconds=t_timeout,
+                        lineage_logger=t_lineage_logger,
+                    ),
+                )
+
+                context.ingester.add_ingester_factory_method(
+                    connection_name.lower(),
+                    lambda connections=context.connections, name=connection_name.lower(): IngestToTrino(
+                        connection_name=name, connections=connections
+                    ),
+                )
 
         @hookimpl(hookwrapper=True, tryfirst=True)
         def run_step(context: JobContext, step: Step) -> None:
