@@ -1,6 +1,6 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-from typing import cast
+from typing import cast, Optional
 
 from vdk.internal.core.config import Configuration
 
@@ -22,36 +22,36 @@ class TrinoConfiguration:
     def __init__(self, config: Configuration) -> None:
         self.__config = config
 
-    def host(self) -> str:
-        return cast(str, self.__config.get_required_value(TRINO_HOST))
+    def host(self, section: Optional[str]) -> str:
+        return cast(str, self.__config.get_required_value(key=TRINO_HOST, section=section))
 
-    def port(self) -> int:
-        return cast(int, self.__config.get_required_value(TRINO_PORT))
+    def port(self, section: Optional[str]) -> int:
+        return cast(int, self.__config.get_required_value(key=TRINO_PORT, section=section))
 
-    def schema(self) -> str:
-        return cast(str, self.__config.get_value(TRINO_SCHEMA))
+    def schema(self, section: Optional[str]) -> str:
+        return cast(str, self.__config.get_value(key=TRINO_SCHEMA, section=section))
 
-    def catalog(self) -> str:
-        return cast(str, self.__config.get_value(TRINO_CATALOG))
+    def catalog(self, section: Optional[str]) -> str:
+        return cast(str, self.__config.get_value(key=TRINO_CATALOG, section=section))
 
-    def user(self) -> str:
-        return cast(str, self.__config.get_required_value(TRINO_USER))
+    def user(self, section: Optional[str]) -> str:
+        return cast(str, self.__config.get_required_value(key=TRINO_USER, section=section))
 
-    def password(self) -> str:
-        return cast(str, self.__config.get_value(TRINO_PASSWORD))
+    def password(self, section: Optional[str]) -> str:
+        return cast(str, self.__config.get_value(key=TRINO_PASSWORD, section=section))
 
-    def use_ssl(self) -> bool:
-        return cast(bool, self.__config.get_value(TRINO_USE_SSL))
+    def use_ssl(self, section: Optional[str]) -> bool:
+        return cast(bool, self.__config.get_value(key=TRINO_USE_SSL, section=section))
 
-    def ssl_verify(self) -> bool:
-        return cast(bool, self.__config.get_value(TRINO_SSL_VERIFY))
+    def ssl_verify(self, section: Optional[str]) -> bool:
+        return cast(bool, self.__config.get_value(key=TRINO_SSL_VERIFY, section=section))
 
-    def timeout_seconds(self) -> int:
-        return cast(int, self.__config.get_value(TRINO_TIMEOUT_SECONDS))
+    def timeout_seconds(self, section: Optional[str]) -> int:
+        return cast(int, self.__config.get_value(key=TRINO_TIMEOUT_SECONDS, section=section))
 
-    def templates_data_to_target_strategy(self) -> str:
+    def templates_data_to_target_strategy(self, section: Optional[str]) -> str:
         return cast(
-            str, self.__config.get_value(TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY)
+            str, self.__config.get_value(key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY, section=section)
         )
 
     @staticmethod
