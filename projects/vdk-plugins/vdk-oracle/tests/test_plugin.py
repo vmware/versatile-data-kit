@@ -73,6 +73,7 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)
 
+    @pytest.mark.usefixtures("oracle_db_container_2")
     def test_oracle_ingest_two_db_conn(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
         result = runner.invoke(

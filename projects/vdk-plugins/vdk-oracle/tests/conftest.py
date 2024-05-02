@@ -38,12 +38,6 @@ def oracle_db(request):
         .with_env("ORACLE_PWD", password)
         .with_env("ORACLE_CHARACTERSET", "UTF8")
     )
-    container_2 = (
-        DockerContainer(ORACLE_IMAGE)
-        .with_bind_ports(1521, 1523)
-        .with_env("ORACLE_PWD", password)
-        .with_env("ORACLE_CHARACTERSET", "UTF8")
-    )
     try:
         container.start()
         wait_for_logs(
@@ -55,22 +49,6 @@ def oracle_db(request):
         print(
             f"Oracle db started on port {container.get_exposed_port(1521)} and host {container.get_container_host_ip()}"
         )
-        try:
-            container_2.start()
-            wait_for_logs(
-                container_2,
-                "DATABASE IS READY TO USE",
-                timeout=120,
-            )
-            time.sleep(10)
-            print(
-                f"Oracle db started on port {container_2.get_exposed_port(1521)} and host"
-                f" {container_2.get_container_host_ip()}"
-            )
-        except Exception as e:
-            print(f"Failed to start Oracle DB: {e}")
-            print(f"Container logs: {container_2.get_logs()}")
-            raise e
     except Exception as e:
         print(f"Failed to start Oracle DB: {e}")
         print(f"Container logs: {container.get_logs()}")
@@ -78,8 +56,33 @@ def oracle_db(request):
 
     def stop_container():
         container.stop()
-        container_2.stop()
         print("Oracle DB stopped")
 
     request.addfinalizer(stop_container)
     return container
+
+
+@pytest.fixture(scope="function")
+def oracle_db_container_2(request):
+    password = "Gr0mh3llscr3am"
+    container_2 = DockerContainer(ORACLE_IMAGE)
+    container_2.with_bind_ports(1521, 1523)
+    container_2.with_env("ORACLE_PWD", password)
+    container_2.with_env("ORACLE_CHARACTERSET", "UTF8")
+
+    try:
+        container_2.start()
+        wait_for_logs(container_2, "DATABASE IS READY TO USE", timeout=120)
+        time.sleep(2)
+        print(f"Second Oracle DB container started on {container_2.get_exposed_port(1521)}")
+    except Exception as e:
+        print(f"Failed to start the second Oracle DB container: {e}")
+        print("Container logs:", container_2.get_logs())
+        raise e
+
+    def stop_container():
+        container_2.stop()
+        print("Second Oracle DB container stopped")
+
+    request.addfinalizer(stop_container)
+    return container_2
