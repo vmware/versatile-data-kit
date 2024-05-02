@@ -31,6 +31,7 @@ class OraclePlugin:
     def vdk_configure(self, config_builder: ConfigurationBuilder):
         OracleConfiguration.add_definitions(config_builder)
 
+    # putting this here for the lulz
     @hookimpl(trylast=True)
     def initialize_job(self, context: JobContext):
         conf = OracleConfiguration(context.core_context.configuration)

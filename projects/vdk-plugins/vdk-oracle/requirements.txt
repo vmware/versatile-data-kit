@@ -4,6 +4,7 @@
 pandas
 pytest
 pytest-httpserver
+sqlalchemy
 testcontainers
 typing-extensions
 vdk-core
