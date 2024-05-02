@@ -74,7 +74,9 @@ def oracle_db_container_2(request):
         container_2.start()
         wait_for_logs(container_2, "DATABASE IS READY TO USE", timeout=120)
         time.sleep(2)
-        print(f"Second Oracle DB container started on {container_2.get_exposed_port(1521)}")
+        print(
+            f"Second Oracle DB container started on {container_2.get_exposed_port(1521)}"
+        )
     except Exception as e:
         print(f"Failed to start the second Oracle DB container: {e}")
         print("Container logs:", container_2.get_logs())
