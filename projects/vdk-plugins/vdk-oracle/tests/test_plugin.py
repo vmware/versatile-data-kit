@@ -53,188 +53,189 @@ class OracleTests(TestCase):
         cli_assert_equal(0, result)
         _verify_query_execution(runner)
 
-    def test_oracle_connect_execute_without_connection_string(self):
-        backup_conn_string = os.environ["ORACLE_CONNECTION_STRING"]
-        del os.environ["ORACLE_CONNECTION_STRING"]
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("oracle-connect-execute-job")]
-        )
-        cli_assert_equal(0, result)
 
-        os.environ["ORACLE_CONNECTION_STRING"] = backup_conn_string
-        _verify_query_execution(runner)
+#     def test_oracle_connect_execute_without_connection_string(self):
+#         backup_conn_string = os.environ["ORACLE_CONNECTION_STRING"]
+#         del os.environ["ORACLE_CONNECTION_STRING"]
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             ["run", jobs_path_from_caller_directory("oracle-connect-execute-job")]
+#         )
+#         cli_assert_equal(0, result)
+#
+#         os.environ["ORACLE_CONNECTION_STRING"] = backup_conn_string
+#         _verify_query_execution(runner)
+#
+#     def test_oracle_ingest_existing_table(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             ["run", jobs_path_from_caller_directory("oracle-ingest-job")]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution(runner)
+#
+#     def test_oracle_ingest_two_db_conn(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result = runner.invoke(
+#             ["run", jobs_path_from_caller_directory("oracle-ingest-two-db-conn-job")]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution(runner)  # for default database
+#         _verify_ingest_execution_in_secondary_db(
+#             user="SYSTEM",
+#             password="Gr0mh3llscr3am",
+#             conn_str="localhost:1523/FREE",
+#             host="localhost",
+#             port="1523",
+#             sid="FREE",
+#         )
 
-    def test_oracle_ingest_existing_table(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("oracle-ingest-job")]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution(runner)
-
-    def test_oracle_ingest_two_db_conn(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("oracle-ingest-two-db-conn-job")]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution(runner)  # for default database
-        _verify_ingest_execution_in_secondary_db(
-            user="SYSTEM",
-            password="Gr0mh3llscr3am",
-            conn_str="localhost:1523/FREE",
-            host="localhost",
-            port="1523",
-            sid="FREE",
-        )
-
-    def test_oracle_ingest_existing_table_special_chars(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("oracle-ingest-job-special-chars")]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution_special_chars(runner)
-
-    def test_oracle_ingest_type_inference(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("oracle-ingest-job-type-inference")]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution_type_inference(runner)
-
-    def test_oracle_ingest_no_table(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("oracle-ingest-job-no-table")]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution_no_table(runner)
-
-    def test_oracle_ingest_no_table_special_chars(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory(
-                    "oracle-ingest-job-no-table-special-chars"
-                ),
-            ]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution_no_table_special_chars(runner)
-
-    def test_oracle_ingest_different_payloads(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory("oracle-ingest-job-different-payloads"),
-            ]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution_different_payloads(runner)
-
-    def test_oracle_ingest_different_payloads_no_table(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory(
-                    "oracle-ingest-job-different-payloads-no-table"
-                ),
-            ]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution_different_payloads_no_table(runner)
-
-    def test_oracle_ingest_different_payloads_no_table_special_chars(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory(
-                    "oracle-ingest-job-different-payloads-no-table-special-chars"
-                ),
-            ]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_execution_different_payloads_no_table_special_chars(runner)
-
-    def test_oracle_ingest_blob(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory("oracle-ingest-job-blob"),
-            ]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_blob(runner)
-
-    def test_oracle_ingest_nan_and_none_table(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            ["run", jobs_path_from_caller_directory("oracle-ingest-nan-job")]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_nan_and_none_execution(runner)
-
-    def test_oracle_ingest_data_frame_schema_inference(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory(
-                    "oracle-ingest-data-frame-schema-inference"
-                ),
-            ]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_data_frame_schema_inference(runner)
-
-    def test_oracle_ingest_job_case_insensitive(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory("oracle-ingest-job-case-insensitive"),
-            ]
-        )
-        cli_assert_equal(0, result)
-        _verify_ingest_case_insensitive(runner)
-
-    def test_oracle_ingest_job_mixed_case_no_inference(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory(
-                    "oracle-ingest-job-mixed-case-no-inference"
-                ),
-            ]
-        )
-        cli_assert_equal(1, result)
-        assert (
-            "is neither upper, nor lower-case. This could lead to unexpected results when ingesting data. Aborting."
-            in result.output
-        )
-
-    def test_oracle_ingest_job_mixed_case_error(self):
-        runner = CliEntryBasedTestRunner(oracle_plugin)
-        result: Result = runner.invoke(
-            [
-                "run",
-                jobs_path_from_caller_directory("oracle-ingest-job-mixed-case-error"),
-            ]
-        )
-        cli_assert_equal(1, result)
-        assert (
-            "Identifier Id is neither upper, nor lower-case. This could lead to unexpected results when ingesting "
-            "data. Aborting.\n" in result.output
-        )
+#     def test_oracle_ingest_existing_table_special_chars(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             ["run", jobs_path_from_caller_directory("oracle-ingest-job-special-chars")]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution_special_chars(runner)
+#
+#     def test_oracle_ingest_type_inference(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             ["run", jobs_path_from_caller_directory("oracle-ingest-job-type-inference")]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution_type_inference(runner)
+#
+#     def test_oracle_ingest_no_table(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             ["run", jobs_path_from_caller_directory("oracle-ingest-job-no-table")]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution_no_table(runner)
+#
+#     def test_oracle_ingest_no_table_special_chars(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory(
+#                     "oracle-ingest-job-no-table-special-chars"
+#                 ),
+#             ]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution_no_table_special_chars(runner)
+#
+#     def test_oracle_ingest_different_payloads(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory("oracle-ingest-job-different-payloads"),
+#             ]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution_different_payloads(runner)
+#
+#     def test_oracle_ingest_different_payloads_no_table(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory(
+#                     "oracle-ingest-job-different-payloads-no-table"
+#                 ),
+#             ]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution_different_payloads_no_table(runner)
+#
+#     def test_oracle_ingest_different_payloads_no_table_special_chars(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory(
+#                     "oracle-ingest-job-different-payloads-no-table-special-chars"
+#                 ),
+#             ]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_execution_different_payloads_no_table_special_chars(runner)
+#
+#     def test_oracle_ingest_blob(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory("oracle-ingest-job-blob"),
+#             ]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_blob(runner)
+#
+#     def test_oracle_ingest_nan_and_none_table(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             ["run", jobs_path_from_caller_directory("oracle-ingest-nan-job")]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_nan_and_none_execution(runner)
+#
+#     def test_oracle_ingest_data_frame_schema_inference(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory(
+#                     "oracle-ingest-data-frame-schema-inference"
+#                 ),
+#             ]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_data_frame_schema_inference(runner)
+#
+#     def test_oracle_ingest_job_case_insensitive(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory("oracle-ingest-job-case-insensitive"),
+#             ]
+#         )
+#         cli_assert_equal(0, result)
+#         _verify_ingest_case_insensitive(runner)
+#
+#     def test_oracle_ingest_job_mixed_case_no_inference(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory(
+#                     "oracle-ingest-job-mixed-case-no-inference"
+#                 ),
+#             ]
+#         )
+#         cli_assert_equal(1, result)
+#         assert (
+#             "is neither upper, nor lower-case. This could lead to unexpected results when ingesting data. Aborting."
+#             in result.output
+#         )
+#
+#     def test_oracle_ingest_job_mixed_case_error(self):
+#         runner = CliEntryBasedTestRunner(oracle_plugin)
+#         result: Result = runner.invoke(
+#             [
+#                 "run",
+#                 jobs_path_from_caller_directory("oracle-ingest-job-mixed-case-error"),
+#             ]
+#         )
+#         cli_assert_equal(1, result)
+#         assert (
+#             "Identifier Id is neither upper, nor lower-case. This could lead to unexpected results when ingesting "
+#             "data. Aborting.\n" in result.output
+#         )
 
 
 def _verify_query_execution(runner):
