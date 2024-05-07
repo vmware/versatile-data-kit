@@ -57,14 +57,14 @@ def oracle_db(request):
         )
         container_2.start()
         wait_for_logs(
-                container_2,
-                "DATABASE IS READY TO USE",
-                timeout=120,
-            )
+            container_2,
+            "DATABASE IS READY TO USE",
+            timeout=120,
+        )
         time.sleep(2)
         print(
-                f"Oracle db started on port {container_2.get_exposed_port(1521)} and host"
-                f" {container_2.get_container_host_ip()}"
+            f"Oracle db started on port {container_2.get_exposed_port(1521)} and host"
+            f" {container_2.get_container_host_ip()}"
         )
     except Exception as e:
         print(f"Failed to start Oracle DB: {e}")
