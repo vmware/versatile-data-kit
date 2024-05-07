@@ -10,7 +10,6 @@ import oracledb
 import pytest
 from click.testing import Result
 from testcontainers.core.container import DockerContainer
-
 from vdk.plugin.oracle import oracle_plugin
 from vdk.plugin.oracle.oracle_connection import OracleConnection
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
@@ -76,12 +75,19 @@ class OracleTests(TestCase):
 
     def test_oracle_ingest_two_db_conn(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
-        result = runner.invoke(["run", jobs_path_from_caller_directory("oracle-ingest-two-db-conn-job")])
+        result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("oracle-ingest-two-db-conn-job")]
+        )
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)  # for default database
-        _verify_ingest_execution_in_secondary_db(user="SYSTEM", password="Gr0mh3llscr3am",
-                                                 conn_str="localhost:1521/FREE", host="localhost",
-                                                 port="1521", sid="FREE")
+        _verify_ingest_execution_in_secondary_db(
+            user="SYSTEM",
+            password="Gr0mh3llscr3am",
+            conn_str="localhost:1521/FREE",
+            host="localhost",
+            port="1521",
+            sid="FREE",
+        )
 
     def test_oracle_ingest_existing_table_special_chars(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
@@ -212,8 +218,8 @@ class OracleTests(TestCase):
         )
         cli_assert_equal(1, result)
         assert (
-                "is neither upper, nor lower-case. This could lead to unexpected results when ingesting data. Aborting."
-                in result.output
+            "is neither upper, nor lower-case. This could lead to unexpected results when ingesting data. Aborting."
+            in result.output
         )
 
     def test_oracle_ingest_job_mixed_case_error(self):
@@ -226,8 +232,8 @@ class OracleTests(TestCase):
         )
         cli_assert_equal(1, result)
         assert (
-                "Identifier Id is neither upper, nor lower-case. This could lead to unexpected results when ingesting "
-                "data. Aborting.\n" in result.output
+            "Identifier Id is neither upper, nor lower-case. This could lead to unexpected results when ingesting "
+            "data. Aborting.\n" in result.output
         )
 
 
@@ -470,5 +476,6 @@ def _verify_ingest_execution_in_secondary_db(user, password, conn_str, host, por
         thick_mode_lib_dir=None,
     )
     result = conn.execute_query("SELECT * FROM oracle_ingest_second")
-    assert result == [(6, 'string', 13, 1.2, 1,
-                       datetime.datetime(2023, 11, 21, 8, 12, 53), 0.1)]
+    assert result == [
+        (6, "string", 13, 1.2, 1, datetime.datetime(2023, 11, 21, 8, 12, 53), 0.1)
+    ]
