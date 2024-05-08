@@ -58,7 +58,9 @@ class StepFuncFactory:
         with open(step.file_path, encoding="utf8") as sql_file:
             for line in sql_file.readlines():
                 if re.match(r"\[(.*?)\]", line.rstrip()):
-                    databases.append(line.rstrip().replace("[", "").replace("]", ""))
+                    db_name = line.rstrip().replace("[", "").replace("]", "")
+                    db_name = job_input._substitute_query_params(db_name).rstrip()
+                    databases.append(db_name)
                 else:
                     query.append(line)
         if databases:
