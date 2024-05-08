@@ -141,6 +141,22 @@ def test_multiple_dbs_from_same_type_sql(setup):
     assert "LOOL" in named_result[0]
 
 
+def test_multiple_dbs_from_different_type_sql(setup):
+    runner = CliEntryBasedTestRunner(duckdb_plugin, sqlite_plugin)
+
+    result: Result = runner.invoke(
+        [
+            "run",
+            jobs_path_from_caller_directory("multiple-dbs-from-different-type-sql-job"),
+        ]
+    )
+
+    cli_assert_equal(0, result)
+
+    _verify_sqlite_query(runner)
+    _verify_duckdb_query(runner)
+
+
 def test_multiple_dbs_from_same_type_python(setup):
     runner = CliEntryBasedTestRunner(duckdb_plugin, sqlite_plugin)
 
