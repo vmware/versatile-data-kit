@@ -206,6 +206,8 @@ def run(job_input):
 To manage multiple Oracle database connections within a data job,
 always configure the default database in the `[vdk]` section of the `config.ini` file.
 This section should contain the primary connection details that the application will use by default.
+The default Oracle connection is saved as `oracle` and should always be called with that name. 
+Subsections should not be created with that name. Subsection name `vdk_oracle` is prohibited.
 
 For each additional Oracle database,
 add a new section following the pattern `vdk_<name>`, where `<name>` is a unique identifier for each database connection.
