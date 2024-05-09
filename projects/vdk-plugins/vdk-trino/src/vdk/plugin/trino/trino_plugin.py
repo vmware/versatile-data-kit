@@ -77,41 +77,51 @@ class TrinoPlugin:
                 connection_name = "trino"  # the default database
             else:
                 connection_name = section.lstrip("vdk_")
+                if connection_name == "vdk":
+                    raise ValueError("You cannot create a subsection with name 'vdk_trino'! Try another name.")
 
-            host = trino_conf.host(section)
-            port = trino_conf.port(section)
+            try:
+                host = trino_conf.host(section)
+                port = trino_conf.port(section)
 
-            if host and port:
-                schema = trino_conf.schema(section)
-                catalog = trino_conf.catalog(section)
-                user = trino_conf.user(section)
-                password = trino_conf.password(section)
-                use_ssl = trino_conf.use_ssl(section)
-                ssl_verify = trino_conf.ssl_verify(section)
-                timeout_seconds = trino_conf.timeout_seconds(section)
-                lineage_logger = context.core_context.state.get(LINEAGE_LOGGER_KEY)
+                if host and port:
+                    schema = trino_conf.schema(section)
+                    catalog = trino_conf.catalog(section)
+                    user = trino_conf.user(section)
+                    password = trino_conf.password(section)
+                    use_ssl = trino_conf.use_ssl(section)
+                    ssl_verify = trino_conf.ssl_verify(section)
+                    timeout_seconds = trino_conf.timeout_seconds(section)
+                    lineage_logger = context.core_context.state.get(LINEAGE_LOGGER_KEY)
 
-                context.connections.add_open_connection_factory_method(
-                    connection_name.lower(),
-                    lambda t_host=host, t_port=port, t_schema=schema, t_catalog=catalog, t_user=user, t_password=password, t_use_ssl=use_ssl, t_ssl_verify=ssl_verify, t_timeout=timeout_seconds, t_lineage_logger=lineage_logger: TrinoConnection(
-                        host=t_host,
-                        port=t_port,
-                        schema=t_schema,
-                        catalog=t_catalog,
-                        user=t_user,
-                        password=t_password,
-                        use_ssl=t_use_ssl,
-                        ssl_verify=t_ssl_verify,
-                        timeout_seconds=t_timeout,
-                        lineage_logger=t_lineage_logger,
-                    ),
-                )
+                    context.connections.add_open_connection_factory_method(
+                        connection_name.lower(),
+                        lambda t_host=host, t_port=port, t_schema=schema, t_catalog=catalog, t_user=user,
+                               t_password=password, t_use_ssl=use_ssl, t_ssl_verify=ssl_verify,
+                               t_timeout=timeout_seconds, t_lineage_logger=lineage_logger: TrinoConnection(
+                            host=t_host,
+                            port=t_port,
+                            schema=t_schema,
+                            catalog=t_catalog,
+                            user=t_user,
+                            password=t_password,
+                            use_ssl=t_use_ssl,
+                            ssl_verify=t_ssl_verify,
+                            timeout_seconds=t_timeout,
+                            lineage_logger=t_lineage_logger,
+                        ),
+                    )
 
-                context.ingester.add_ingester_factory_method(
-                    connection_name.lower(),
-                    lambda connections=context.connections, name=connection_name.lower(): IngestToTrino(
-                        connection_name=name, connections=connections
-                    ),
+                    context.ingester.add_ingester_factory_method(
+                        connection_name.lower(),
+                        lambda connections=context.connections, name=connection_name.lower(): IngestToTrino(
+                            connection_name=name, connections=connections
+                        ),
+                    )
+            except Exception as e:
+                raise Exception(
+                    "An error occurred while trying to create new  Trino connections and ingesters."
+                    f"ERROR: {e}"
                 )
 
         @hookimpl(hookwrapper=True, tryfirst=True)

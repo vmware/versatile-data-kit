@@ -57,9 +57,18 @@ Then, from inside the run function in a Python step, you can use the `send_objec
 
 #### Configuring Multiple Trino Databases
 
-To effectively manage multiple Trino database connections within a data job, configure the default database in the `[vdk]` section of the `config.ini` file. This section should contain the primary connection details that the application will use by default.
+To effectively manage multiple Trino database connections within a data job, 
+configure the default database in the `[vdk]` section of the `config.ini` file. 
+This section should contain the primary connection details that the application will use by default.
+The default Trino connection is saved as `trino` and should always be called with that name.
+Subsections should not be created with that name. Subsection name `vdk_trino` is prohibited.
 
-For each additional Trino database, add a new section following the pattern `vdk_<name>`, where `<name>` is a unique identifier for each database connection. These additional sections must also include all necessary Trino connection details.
+For each additional Trino database, add a new section following the pattern `vdk_<name>`, 
+where `<name>` is a unique identifier for each database connection.
+These additional sections must also include all necessary Trino connection details.
+
+Note: When using in code the `<name>` should be lowercased.
+For example, if you have `vdk_DEV`, in the data job you should refer to the database using the `dev` string.
 
 #### Example `config.ini` with Multiple Trino Databases
 
@@ -120,6 +129,29 @@ def run(job_input):
         method="trino_reports"
     )
 ```
+
+#### Secrets with Multiple Trino Databases
+
+If you have a config like above, for the default `vdk` section, secrets overrides work like usual.
+For example, to override `trino_user=your_user`, you should create a secret `trino_user` with value `your_user`.
+
+If you want to override a config property for a subsection, you have to prefix the secret
+with the subsection name without `vdk`.
+For example, to override `trino_user=reports_user` for vdk_trino_reports,
+create a secret `trino_reports_trino_user` with value `reports_user`.
+
+#### Environmental variables with Multiple Trino Databases
+
+Environment variables work pretty much the same way as secrets. For the above config:
+```shell
+export VDK_TRINO_USER=user # overrides trino_user=user in section [vdk] (default trino)
+export VDK_TRINO_REPORTS_TRINO_USER=reports_user # overrides trino_user=reports_user in section [vdk_trino_reports]
+```
+
+Note: Environment variable overrides take precedence over secrets.
+For example, if you have a secret `trino_reports_trino_user=reports_user`
+and an env variable `VDK_TRINO_REPORTS_TRINO_USER=another_reports_user` the value of
+trino_user for section `vdk_trino_reports` will be `another_reports_user`.
 
 # Configuration
 
