@@ -59,36 +59,45 @@ def initialize_job(context: JobContext) -> None:
             connection_name = "postgres"  # the default database
         else:
             connection_name = section.lstrip("vdk_")
+            if connection_name == "vdk":
+                raise ValueError("You cannot create a subsection with name 'vdk_postgres'! Try another name.")
 
-        dsn = context.core_context.configuration.get_value("POSTGRES_DSN", section)
-        dbname = context.core_context.configuration.get_value(
-            "POSTGRES_DBNAME", section
-        )
-        user = context.core_context.configuration.get_value("POSTGRES_USER", section)
-        password = context.core_context.configuration.get_value(
-            "POSTGRES_PASSWORD", section
-        )
-        host = context.core_context.configuration.get_value("POSTGRES_HOST", section)
-        port = context.core_context.configuration.get_value("POSTGRES_PORT", section)
-
-        if dbname and user and password and host and port:
-            context.connections.add_open_connection_factory_method(
-                connection_name.lower(),
-                lambda psql_dsn=dsn, psql_dbname=dbname, psql_user=user, psql_psswrd=password, psql_host=host, psql_port=port: PostgresConnection(
-                    dsn=psql_dsn,
-                    dbname=psql_dbname,
-                    user=psql_user,
-                    password=psql_psswrd,
-                    host=psql_host,
-                    port=psql_port,
-                ),
+        try:
+            dsn = context.core_context.configuration.get_value("POSTGRES_DSN", section)
+            dbname = context.core_context.configuration.get_value(
+                "POSTGRES_DBNAME", section
             )
-            context.ingester.add_ingester_factory_method(
-                connection_name.lower(),
-                lambda conn_name=connection_name.lower(), connections=context.connections: IngestToPostgres(
-                    connection_name=conn_name,
-                    connections=connections,
-                ),
+            user = context.core_context.configuration.get_value("POSTGRES_USER", section)
+            password = context.core_context.configuration.get_value(
+                "POSTGRES_PASSWORD", section
+            )
+            host = context.core_context.configuration.get_value("POSTGRES_HOST", section)
+            port = context.core_context.configuration.get_value("POSTGRES_PORT", section)
+
+            if dbname and user and password and host and port:
+                context.connections.add_open_connection_factory_method(
+                    connection_name.lower(),
+                    lambda psql_dsn=dsn, psql_dbname=dbname, psql_user=user, psql_psswrd=password, psql_host=host,
+                           psql_port=port: PostgresConnection(
+                        dsn=psql_dsn,
+                        dbname=psql_dbname,
+                        user=psql_user,
+                        password=psql_psswrd,
+                        host=psql_host,
+                        port=psql_port,
+                    ),
+                )
+                context.ingester.add_ingester_factory_method(
+                    connection_name.lower(),
+                    lambda conn_name=connection_name.lower(), connections=context.connections: IngestToPostgres(
+                        connection_name=conn_name,
+                        connections=connections,
+                    ),
+                )
+        except Exception as e:
+            raise Exception(
+                "An error occurred while trying to create new  Postgres connections and ingesters."
+                f"ERROR: {e}"
             )
 
 
