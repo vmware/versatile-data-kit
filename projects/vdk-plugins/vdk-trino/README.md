@@ -148,7 +148,7 @@ export VDK_TRINO_USER=user # overrides trino_user=user in section [vdk] (default
 export VDK_TRINO_REPORTS_TRINO_USER=reports_user # overrides trino_user=reports_user in section [vdk_trino_reports]
 ```
 
-Note: Environment variable overrides take precedence over secrets.
+Note: Environment variables take precedence over secrets.
 For example, if you have a secret `trino_reports_trino_user=reports_user`
 and an env variable `VDK_TRINO_REPORTS_TRINO_USER=another_reports_user` the value of
 trino_user for section `vdk_trino_reports` will be `another_reports_user`.
