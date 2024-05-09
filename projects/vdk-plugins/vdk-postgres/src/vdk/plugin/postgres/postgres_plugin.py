@@ -13,6 +13,7 @@ from vdk.plugin.postgres.postgres_connection import PostgresConnection
 
 log = logging.getLogger(__name__)
 
+
 def _connection_by_default_configuration(configuration: Configuration):
     return PostgresConnection(
         dsn=configuration.get_value("POSTGRES_DSN"),
@@ -86,8 +87,10 @@ def initialize_job(context: JobContext) -> None:
             )
 
             if dbname and user and password and host and port:
-                log.info(f"Creating new Postgres connection with name {connection_name}."
-                         f"The new connection is for database with name {dbname}.")
+                log.info(
+                    f"Creating new Postgres connection with name {connection_name}."
+                    f"The new connection is for database with name {dbname}."
+                )
                 context.connections.add_open_connection_factory_method(
                     connection_name.lower(),
                     lambda psql_dsn=dsn, psql_dbname=dbname, psql_user=user, psql_psswrd=password, psql_host=host, psql_port=port: PostgresConnection(
@@ -99,8 +102,10 @@ def initialize_job(context: JobContext) -> None:
                         port=psql_port,
                     ),
                 )
-                log.info(f"Creating new Postgres ingester with name {connection_name}."
-                         f"The new ingester is for database with name {dbname}.")
+                log.info(
+                    f"Creating new Postgres ingester with name {connection_name}."
+                    f"The new ingester is for database with name {dbname}."
+                )
                 context.ingester.add_ingester_factory_method(
                     connection_name.lower(),
                     lambda conn_name=connection_name.lower(), connections=context.connections: IngestToPostgres(
@@ -109,11 +114,13 @@ def initialize_job(context: JobContext) -> None:
                     ),
                 )
             else:
-                log.warning(f'New Postgres connection with name {connection_name} was not created.'
-                            f'Some configuration variables for {connection_name} connection are missing.'
-                            f'Please, check whether you have added all the mandatory values!'
-                            f'You can also run vdk config-help - search for those prefixed with "POSTGRES_"'
-                            f' to see what configuration options are available.')
+                log.warning(
+                    f"New Postgres connection with name {connection_name} was not created."
+                    f"Some configuration variables for {connection_name} connection are missing."
+                    f"Please, check whether you have added all the mandatory values!"
+                    f'You can also run vdk config-help - search for those prefixed with "POSTGRES_"'
+                    f" to see what configuration options are available."
+                )
         except Exception as e:
             raise Exception(
                 "An error occurred while trying to create new  Postgres connections and ingesters."
