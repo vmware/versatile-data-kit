@@ -300,7 +300,7 @@ export VDK_ORACLE_REPORTS_ORACLE_USER=reports_user # overrides oracle_user=repor
 Note: Environment variable overrides take precedence over secrets.
 For example, if you have a secret `oracle_reports_oracle_user=reports_user`
 and an env variable `VDK_ORACLE_REPORTS_ORACLE_USER=another_reports_user` the value of
-oracle_user for section `vdk_test_oracle` will be `another_reports_user`.
+oracle_user for section `vdk_oracle_reports` will be `another_reports_user`.
 
 
 
