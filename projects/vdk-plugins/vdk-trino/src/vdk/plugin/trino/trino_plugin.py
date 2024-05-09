@@ -78,7 +78,9 @@ class TrinoPlugin:
             else:
                 connection_name = section.lstrip("vdk_")
                 if connection_name == "vdk":
-                    raise ValueError("You cannot create a subsection with name 'vdk_trino'! Try another name.")
+                    raise ValueError(
+                        "You cannot create a subsection with name 'vdk_trino'! Try another name."
+                    )
 
             try:
                 host = trino_conf.host(section)
@@ -96,9 +98,7 @@ class TrinoPlugin:
 
                     context.connections.add_open_connection_factory_method(
                         connection_name.lower(),
-                        lambda t_host=host, t_port=port, t_schema=schema, t_catalog=catalog, t_user=user,
-                               t_password=password, t_use_ssl=use_ssl, t_ssl_verify=ssl_verify,
-                               t_timeout=timeout_seconds, t_lineage_logger=lineage_logger: TrinoConnection(
+                        lambda t_host=host, t_port=port, t_schema=schema, t_catalog=catalog, t_user=user, t_password=password, t_use_ssl=use_ssl, t_ssl_verify=ssl_verify, t_timeout=timeout_seconds, t_lineage_logger=lineage_logger: TrinoConnection(
                             host=t_host,
                             port=t_port,
                             schema=t_schema,

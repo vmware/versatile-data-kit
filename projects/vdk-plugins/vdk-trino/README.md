@@ -57,13 +57,13 @@ Then, from inside the run function in a Python step, you can use the `send_objec
 
 #### Configuring Multiple Trino Databases
 
-To effectively manage multiple Trino database connections within a data job, 
-configure the default database in the `[vdk]` section of the `config.ini` file. 
+To effectively manage multiple Trino database connections within a data job,
+configure the default database in the `[vdk]` section of the `config.ini` file.
 This section should contain the primary connection details that the application will use by default.
 The default Trino connection is saved as `trino` and should always be called with that name.
 Subsections should not be created with that name. Subsection name `vdk_trino` is prohibited.
 
-For each additional Trino database, add a new section following the pattern `vdk_<name>`, 
+For each additional Trino database, add a new section following the pattern `vdk_<name>`,
 where `<name>` is a unique identifier for each database connection.
 These additional sections must also include all necessary Trino connection details.
 
