@@ -64,7 +64,9 @@ class OraclePlugin:
                     oracle_thick_mode = conf.oracle_thick_mode(section)
                     oracle_thick_mode_lib_dir = conf.oracle_thick_mode_lib_dir(section)
                     ingest_batch_size = conf.oracle_ingest_batch_size(section)
-
+                    log.info(
+                        f"Creating new Oracle connection with name {connection_name}."
+                    )
                     context.connections.add_open_connection_factory_method(
                         connection_name.lower(),
                         lambda user=oracle_user, password=oracle_pass, conn_str=oracle_conn_string, host=oracle_host, port=oracle_port, sid=oracle_sid, service_name=oracle_service_name, thick_mode=oracle_thick_mode, thick_mode_lib_dir=oracle_thick_mode_lib_dir: OracleConnection(
@@ -79,6 +81,9 @@ class OraclePlugin:
                             thick_mode_lib_dir=thick_mode_lib_dir,
                         ),
                     )
+                    log.info(
+                        f"Creating new Oracle ingester with name {connection_name}."
+                    )
                     context.ingester.add_ingester_factory_method(
                         connection_name.lower(),
                         lambda conn_name=connection_name.lower(), connections=context.connections, batch_size=ingest_batch_size: IngestToOracle(
@@ -86,6 +91,14 @@ class OraclePlugin:
                             connections=connections,
                             ingest_batch_size=batch_size,
                         ),
+                    )
+                else:
+                    log.warning(
+                        f"New Oracle connection with name {connection_name} was not created."
+                        f"Some configuration variables for {connection_name} connection are missing."
+                        f"Please, check whether you have added all the mandatory values!"
+                        f'You can also run vdk config-help - search for those prefixed with "ORACLE_"'
+                        f" to see what configuration options are available."
                     )
             except Exception as e:
                 raise Exception(
