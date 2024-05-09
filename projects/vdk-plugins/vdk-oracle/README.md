@@ -294,7 +294,7 @@ create a secret `oracle_reports_oracle_user` with value `reports_user`.
 Environment variables work pretty much the same way as secrets. For the above config:
 ```shell
 export VDK_ORACLE_USER=user # overrides oracle_user=user in section [vdk] (default oracle)
-export VDK_ORACLE_REPORTS_ORACLE_USER=reports_user # overrides oracle_user=dev_user in section [vdk_reports_user]
+export VDK_ORACLE_REPORTS_ORACLE_USER=reports_user # overrides oracle_user=reports_user in section [vdk_reports_user]
 ```
 
 Note: Environment variable overrides take precedence over secrets.
