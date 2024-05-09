@@ -31,11 +31,10 @@ VDK_INGEST_METHOD_DEFAULT = "VDK_INGEST_METHOD_DEFAULT"
     },
 )
 def oracle_db(request):
-    port = 1521
     password = os.environ[ORACLE_PASSWORD]
     container = (
         DockerContainer(ORACLE_IMAGE)
-        .with_bind_ports(port, port)
+        .with_bind_ports(1521, 1521)
         .with_env("ORACLE_PWD", password)
         .with_env("ORACLE_CHARACTERSET", "UTF8")
     )
@@ -48,7 +47,7 @@ def oracle_db(request):
         )
         time.sleep(2)
         print(
-            f"Oracle db started on port {container.get_exposed_port(port)} and host {container.get_container_host_ip()}"
+            f"Oracle db started on port {container.get_exposed_port(1521)} and host {container.get_container_host_ip()}"
         )
     except Exception as e:
         print(f"Failed to start Oracle DB: {e}")
@@ -60,5 +59,4 @@ def oracle_db(request):
         print("Oracle DB stopped")
 
     request.addfinalizer(stop_container)
-
     return container

@@ -1,13 +1,17 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+import datetime
 import os
 import re
 from unittest import mock
 from unittest import TestCase
 
+import oracledb
 import pytest
 from click.testing import Result
+from testcontainers.core.container import DockerContainer
 from vdk.plugin.oracle import oracle_plugin
+from vdk.plugin.oracle.oracle_connection import OracleConnection
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
@@ -68,6 +72,22 @@ class OracleTests(TestCase):
         )
         cli_assert_equal(0, result)
         _verify_ingest_execution(runner)
+
+    def test_oracle_ingest_two_db_conn(self):
+        runner = CliEntryBasedTestRunner(oracle_plugin)
+        result = runner.invoke(
+            ["run", jobs_path_from_caller_directory("oracle-ingest-two-db-conn-job")]
+        )
+        cli_assert_equal(0, result)
+        _verify_ingest_execution(runner)  # for default database
+        _verify_ingest_execution_in_secondary_db(
+            user="SYSTEM",
+            password="Gr0mh3llscr3am",
+            conn_str="localhost:1521/FREE",
+            host="localhost",
+            port="1521",
+            sid="FREE",
+        )
 
     def test_oracle_ingest_existing_table_special_chars(self):
         runner = CliEntryBasedTestRunner(oracle_plugin)
@@ -441,3 +461,21 @@ def _verify_ingest_wrong_case(runner):
     )
     expected = "  COUNT(*)\n" "----------\n" "         0\n"
     assert expected in check_result.output
+
+
+def _verify_ingest_execution_in_secondary_db(user, password, conn_str, host, port, sid):
+    conn = OracleConnection(
+        user,
+        password,
+        conn_str,
+        host=host,
+        port=port,
+        sid=sid,
+        service_name=None,
+        thick_mode=False,
+        thick_mode_lib_dir=None,
+    )
+    result = conn.execute_query("SELECT * FROM oracle_ingest_second")
+    assert result == [
+        (6, "string", 13, 1.2, 1, datetime.datetime(2023, 11, 21, 8, 12, 53), 0.1)
+    ]
