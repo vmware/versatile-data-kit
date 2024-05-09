@@ -95,10 +95,12 @@ class TrinoPlugin:
                     ssl_verify = trino_conf.ssl_verify(section)
                     timeout_seconds = trino_conf.timeout_seconds(section)
                     lineage_logger = context.core_context.state.get(LINEAGE_LOGGER_KEY)
-
+                    log.info(f"Creating new Trino connection with name {connection_name} and host {host}")
                     context.connections.add_open_connection_factory_method(
                         connection_name.lower(),
-                        lambda t_host=host, t_port=port, t_schema=schema, t_catalog=catalog, t_user=user, t_password=password, t_use_ssl=use_ssl, t_ssl_verify=ssl_verify, t_timeout=timeout_seconds, t_lineage_logger=lineage_logger: TrinoConnection(
+                        lambda t_host=host, t_port=port, t_schema=schema, t_catalog=catalog, t_user=user,
+                               t_password=password, t_use_ssl=use_ssl, t_ssl_verify=ssl_verify,
+                               t_timeout=timeout_seconds, t_lineage_logger=lineage_logger: TrinoConnection(
                             host=t_host,
                             port=t_port,
                             schema=t_schema,
@@ -111,13 +113,19 @@ class TrinoPlugin:
                             lineage_logger=t_lineage_logger,
                         ),
                     )
-
+                    log.info(f"Creating new Trino ingester with name {connection_name} and host {host}")
                     context.ingester.add_ingester_factory_method(
                         connection_name.lower(),
                         lambda connections=context.connections, name=connection_name.lower(): IngestToTrino(
                             connection_name=name, connections=connections
                         ),
                     )
+                else:
+                    log.warning(f"New Trino connection with name {connection_name} was not created."
+                                f"Some configuration variables for {connection_name} connection are missing."
+                                f"Please, check whether you have added all the mandatory values!"
+                                f"You can also run vdk config-help - search for those prefixed with \"TRINO_\""
+                                f" to see what configuration options are available.")
             except Exception as e:
                 raise Exception(
                     "An error occurred while trying to create new  Trino connections and ingesters."
@@ -135,7 +143,7 @@ class TrinoPlugin:
             if out.get_result():
                 step_result: StepResult = out.get_result()
                 if isinstance(
-                    step_result.exception, requests.exceptions.ConnectionError
+                        step_result.exception, requests.exceptions.ConnectionError
                 ):
                     raise VdkConfigurationError(
                         "Trino query failed",

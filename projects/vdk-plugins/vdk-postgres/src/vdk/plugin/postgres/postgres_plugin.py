@@ -109,11 +109,11 @@ def initialize_job(context: JobContext) -> None:
                     ),
                 )
             else:
-                log.info(f"New Postgres connection with name {connection_name} was not created."
-                         f"Some configuration variables for {connection_name} connection are missing."
-                         f"Please, check whether you have added all the mandatory values!"
-                         f"You can also run vdk config-help - search for those prefixed with \"POSTGRES_\""
-                         f" to see what configuration options are available.")
+                log.warning(f'New Postgres connection with name {connection_name} was not created.'
+                            f'Some configuration variables for {connection_name} connection are missing.'
+                            f'Please, check whether you have added all the mandatory values!'
+                            f'You can also run vdk config-help - search for those prefixed with "POSTGRES_"'
+                            f' to see what configuration options are available.')
         except Exception as e:
             raise Exception(
                 "An error occurred while trying to create new  Postgres connections and ingesters."
