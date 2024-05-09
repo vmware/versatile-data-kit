@@ -211,7 +211,7 @@ For each additional Oracle database,
 add a new section following the pattern `vdk_<name>`, where `<name>` is a unique identifier for each database connection.
 These additional sections must also include all necessary Oracle connection details.
 
-#### Example `config.ini` with Multiple Oracle Databases
+#### Example `config.ini` with Multiple Oracle Database Connections
 
 ```ini
 [vdk]
