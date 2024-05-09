@@ -81,7 +81,7 @@ class OracleConfiguration:
             return 100
 
     @staticmethod
-    def add_default_definitions(config_builder: ConfigurationBuilder):
+    def add_default_definition(config_builder: ConfigurationBuilder):
         config_builder.add(
             key=ORACLE_USER,
             default_value=None,
