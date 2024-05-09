@@ -213,7 +213,7 @@ For each additional Oracle database,
 add a new section following the pattern `vdk_<name>`, where `<name>` is a unique identifier for each database connection.
 These additional sections must also include all necessary Oracle connection details.
 
-Note: When using in code the `<name>` should be lowercased. 
+Note: When using in code the `<name>` should be lowercased.
 For example, if you have `vdk_DEV`, in the data job you should refer to the database using the `dev` string.
 
 #### Example `config.ini` with Multiple Oracle Database Connections
