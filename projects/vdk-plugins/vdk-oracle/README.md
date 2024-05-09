@@ -199,7 +199,7 @@ def run(job_input):
     job_input.send_object_for_ingestion(payload=payload, destination_table="test_table")
 ```
 
-### Multiple Oracle Database
+### Multiple Oracle Database Connections
 
 #### Configuring Multiple Oracle Databases
 
