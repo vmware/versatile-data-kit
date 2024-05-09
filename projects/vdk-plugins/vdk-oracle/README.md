@@ -274,6 +274,31 @@ def run(job_input):
     )
 ```
 
+#### Secrets with Multiple Oracle Databases
+
+If you have a config like above, for the default `vdk` section, secrets overrides work like usual.
+For example, to override `oracle_user=your_user`, you should create a secret `oracle_user` with value `your_user`.
+
+If you want to override a config property for a subsection, you have to prefix the secret
+with the subsection name without `vdk`. 
+For example, to override `oracle_user=reports_user` for vdk_oracle_reports, 
+create a secret `oracle_reports_oracle_user` with value `reports_user`.
+
+#### Environmental variables with Multiple Oracle Databases
+
+Environment variables work pretty much the same way as secrets. For the above config:
+```shell
+export VDK_ORACLE_USER=user # overrides oracle_user=user in section [vdk] (default oracle)
+export VDK_ORACLE_REPORTS_ORACLE_USER=reports_user # overrides oracle_user=dev_user in section [vdk_reports_user]
+```
+
+Note: Environment variable overrides take precedence over secrets.
+For example, if you have a secret `oracle_reports_oracle_user=reports_user` 
+and an env variable `VDK_ORACLE_REPORTS_ORACLE_USER=another_reports_user` the value of 
+oracle_user for section `vdk_test_oracle` will be `another_reports_user`.
+
+
+
 ### Build and testing
 
 ```
