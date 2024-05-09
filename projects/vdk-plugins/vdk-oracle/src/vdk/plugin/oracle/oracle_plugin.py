@@ -40,7 +40,9 @@ class OraclePlugin:
             else:
                 connection_name = section.lstrip("vdk_")
                 if connection_name == "oracle":
-                    raise ValueError("You cannot create a subsection with name 'vdk_oracle'! Try another name.")
+                    raise ValueError(
+                        "You cannot create a subsection with name 'vdk_oracle'! Try another name."
+                    )
             try:
                 oracle_user, oracle_pass = conf.get_oracle_user(
                     section
@@ -51,9 +53,12 @@ class OraclePlugin:
                 oracle_sid = conf.get_oracle_sid(section)
 
                 if (
-                        oracle_user
-                        and oracle_pass
-                        and (oracle_conn_string or (oracle_host and oracle_port and oracle_sid))
+                    oracle_user
+                    and oracle_pass
+                    and (
+                        oracle_conn_string
+                        or (oracle_host and oracle_port and oracle_sid)
+                    )
                 ):
                     oracle_service_name = conf.get_oracle_service_name(section)
                     oracle_thick_mode = conf.oracle_thick_mode(section)
@@ -62,10 +67,7 @@ class OraclePlugin:
 
                     context.connections.add_open_connection_factory_method(
                         connection_name.lower(),
-                        lambda user=oracle_user, password=oracle_pass, conn_str=oracle_conn_string, host=oracle_host,
-                               port=oracle_port, sid=oracle_sid, service_name=oracle_service_name,
-                               thick_mode=oracle_thick_mode,
-                               thick_mode_lib_dir=oracle_thick_mode_lib_dir: OracleConnection(
+                        lambda user=oracle_user, password=oracle_pass, conn_str=oracle_conn_string, host=oracle_host, port=oracle_port, sid=oracle_sid, service_name=oracle_service_name, thick_mode=oracle_thick_mode, thick_mode_lib_dir=oracle_thick_mode_lib_dir: OracleConnection(
                             user,
                             password,
                             conn_str,
@@ -79,17 +81,17 @@ class OraclePlugin:
                     )
                     context.ingester.add_ingester_factory_method(
                         connection_name.lower(),
-                        lambda conn_name=connection_name.lower(), connections=context.connections,
-                               batch_size=ingest_batch_size: IngestToOracle(
+                        lambda conn_name=connection_name.lower(), connections=context.connections, batch_size=ingest_batch_size: IngestToOracle(
                             connection_name=conn_name,
                             connections=connections,
                             ingest_batch_size=batch_size,
                         ),
                     )
             except Exception as e:
-                raise Exception("An error occurred while trying to create new  Oracle connections and ingesters."
-                                f"ERROR: {e}")
-
+                raise Exception(
+                    "An error occurred while trying to create new  Oracle connections and ingesters."
+                    f"ERROR: {e}"
+                )
 
 
 @hookimpl
