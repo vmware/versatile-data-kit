@@ -45,10 +45,25 @@ You can connect to the default database through 'job_input'. For instance
         job_input.execute_query("select 'Hi Postgres!'")
 ```
 
-You can register multiple Postgres databases,
-but there should always be a default one set in the vdk section.
-Additional databases are added in subsections (with names like "vdk_<name>").
+### Postgres Multiple Databases
+
+To manage multiple Postgres database connections within a data job,
+always configure the default database in the `[vdk]` section of the `config.ini` file.
+This section should contain the primary connection details that the application will use by default.
+The default Postgres connection is saved as `postgres` and should always be called with that name.
+Subsections should not be created with that name. Subsection name `vdk_postgres` is prohibited.
+
+
+For each additional Postgres database,
+add a new section following the pattern `vdk_<name>`, where `<name>` is a unique identifier for each database connection.
+These additional sections must also include all necessary Postgres connection details.
+
+Note: When using in code the `<name>` should be lowercased.
+For example, if you have `vdk_DEV`, in the data job you should refer to the database using the `dev` string.
+
+
 Here's an example config.ini with an additional database:
+
 ```ini
 [vdk]
 postgres_dbname=postgres
@@ -59,7 +74,7 @@ postgres_port=5432
 
 [vdk_postgres_second]
 postgres_dbname=postgres_second
-postgres_user=postgres
+postgres_user=reports_user
 postgres_password=postgres
 postgres_host=localhost
 postgres_port=5433
@@ -104,6 +119,30 @@ Here's an example of sending data for ingestion into the default and secondary d
             target="postgres_second",
         )
 ```
+
+
+#### Secrets with Multiple Postgres Databases
+
+If you have a config like above, for the default `vdk` section, secrets overrides work like usual.
+For example, to override `postgres_user=your_user`, you should create a secret `postgres_user` with value `your_user`.
+
+If you want to override a config property for a subsection, you have to prefix the secret
+with the subsection name without `vdk`.
+For example, to override `postgres_user=reports_user` for vdk_postgres_second,
+create a secret `postgres_second_postgres_user` with value `reports_user`.
+
+#### Environmental variables with Multiple Postgres Databases
+
+Environment variables work pretty much the same way as secrets. For the above config:
+```shell
+export VDK_POSTGRES_USER=user # overrides postgres_user=user in section [vdk] (default postgres)
+export VDK_POSTGRES_SECOND_POSTGRES_USER=reports_user # overrides postgres_user=reports_user in section [vdk_postgres_second]
+```
+
+Note: Environment variable overrides take precedence over secrets.
+For example, if you have a secret `postgres_second_postgres_user=reports_user`
+and an env variable `VDK_POSTGRES_SECOND_POSTGRES_USER=another_reports_user` the value of
+postgres_user for section `vdk_postgres_second` will be `another_reports_user`.
 
 # Configuration
 

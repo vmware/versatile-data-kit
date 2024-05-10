@@ -1,5 +1,7 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+import logging
+
 import click
 from tabulate import tabulate
 from vdk.api.plugin.hook_markers import hookimpl
@@ -8,6 +10,8 @@ from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.plugin.postgres.ingest_to_postgres import IngestToPostgres
 from vdk.plugin.postgres.postgres_connection import PostgresConnection
+
+log = logging.getLogger(__name__)
 
 
 def _connection_by_default_configuration(configuration: Configuration):
@@ -59,36 +63,68 @@ def initialize_job(context: JobContext) -> None:
             connection_name = "postgres"  # the default database
         else:
             connection_name = section.lstrip("vdk_")
+            if connection_name == "vdk":
+                raise ValueError(
+                    "You cannot create a subsection with name 'vdk_postgres'! Try another name."
+                )
 
-        dsn = context.core_context.configuration.get_value("POSTGRES_DSN", section)
-        dbname = context.core_context.configuration.get_value(
-            "POSTGRES_DBNAME", section
-        )
-        user = context.core_context.configuration.get_value("POSTGRES_USER", section)
-        password = context.core_context.configuration.get_value(
-            "POSTGRES_PASSWORD", section
-        )
-        host = context.core_context.configuration.get_value("POSTGRES_HOST", section)
-        port = context.core_context.configuration.get_value("POSTGRES_PORT", section)
-
-        if dbname and user and password and host and port:
-            context.connections.add_open_connection_factory_method(
-                connection_name.lower(),
-                lambda psql_dsn=dsn, psql_dbname=dbname, psql_user=user, psql_psswrd=password, psql_host=host, psql_port=port: PostgresConnection(
-                    dsn=psql_dsn,
-                    dbname=psql_dbname,
-                    user=psql_user,
-                    password=psql_psswrd,
-                    host=psql_host,
-                    port=psql_port,
-                ),
+        try:
+            dsn = context.core_context.configuration.get_value("POSTGRES_DSN", section)
+            dbname = context.core_context.configuration.get_value(
+                "POSTGRES_DBNAME", section
             )
-            context.ingester.add_ingester_factory_method(
-                connection_name.lower(),
-                lambda conn_name=connection_name.lower(), connections=context.connections: IngestToPostgres(
-                    connection_name=conn_name,
-                    connections=connections,
-                ),
+            user = context.core_context.configuration.get_value(
+                "POSTGRES_USER", section
+            )
+            password = context.core_context.configuration.get_value(
+                "POSTGRES_PASSWORD", section
+            )
+            host = context.core_context.configuration.get_value(
+                "POSTGRES_HOST", section
+            )
+            port = context.core_context.configuration.get_value(
+                "POSTGRES_PORT", section
+            )
+
+            if dbname and user and password and host and port:
+                log.info(
+                    f"Creating new Postgres connection with name {connection_name}."
+                    f"The new connection is for database with name {dbname}."
+                )
+                context.connections.add_open_connection_factory_method(
+                    connection_name.lower(),
+                    lambda psql_dsn=dsn, psql_dbname=dbname, psql_user=user, psql_psswrd=password, psql_host=host, psql_port=port: PostgresConnection(
+                        dsn=psql_dsn,
+                        dbname=psql_dbname,
+                        user=psql_user,
+                        password=psql_psswrd,
+                        host=psql_host,
+                        port=psql_port,
+                    ),
+                )
+                log.info(
+                    f"Creating new Postgres ingester with name {connection_name}."
+                    f"The new ingester is for database with name {dbname}."
+                )
+                context.ingester.add_ingester_factory_method(
+                    connection_name.lower(),
+                    lambda conn_name=connection_name.lower(), connections=context.connections: IngestToPostgres(
+                        connection_name=conn_name,
+                        connections=connections,
+                    ),
+                )
+            else:
+                log.warning(
+                    f"New Postgres connection with name {connection_name} was not created."
+                    f"Some configuration variables for {connection_name} connection are missing."
+                    f"Please, check whether you have added all the mandatory values!"
+                    f'You can also run vdk config-help - search for those prefixed with "POSTGRES_"'
+                    f" to see what configuration options are available."
+                )
+        except Exception as e:
+            raise Exception(
+                "An error occurred while trying to create new  Postgres connections and ingesters."
+                f"ERROR: {e}"
             )
 
 
