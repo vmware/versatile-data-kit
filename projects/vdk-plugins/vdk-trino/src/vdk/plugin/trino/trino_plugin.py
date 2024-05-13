@@ -60,16 +60,29 @@ class TrinoPlugin:
         trino_conf = TrinoConfiguration(context.core_context.configuration)
 
         context.templates.add_template(
+            "load/dimension/scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
+        )
+
+        context.templates.add_template(
             "scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
         )
 
         context.templates.add_template(
-            "scd2", pathlib.Path(get_job_path("load/dimension/scd2"))
+            "load/versioned", pathlib.Path(get_job_path("load/versioned"))
+        )
+
+        context.templates.add_template(
+            "scd2", pathlib.Path(get_job_path("load/versioned"))
+        )
+
+        context.templates.add_template(
+            "load/fact/snapshot",
+            pathlib.Path(get_job_path("load/fact/snapshot")),
         )
 
         context.templates.add_template(
             "periodic_snapshot",
-            pathlib.Path(get_job_path("load/fact/periodic_snapshot")),
+            pathlib.Path(get_job_path("load/fact/snapshot")),
         )
 
         for section in context.core_context.configuration.list_sections():
