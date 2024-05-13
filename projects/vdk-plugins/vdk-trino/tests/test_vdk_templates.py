@@ -505,7 +505,7 @@ class TestTemplates(unittest.TestCase):
                 "run",
                 get_test_job_path(
                     pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                    "load_dimension_scd2_template_job",
+                    "load_versioned_scd2_template_job",
                 ),
                 "--arguments",
                 json.dumps(
