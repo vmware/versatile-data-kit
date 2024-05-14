@@ -68,11 +68,11 @@ class TrinoPlugin:
         )
 
         context.templates.add_template(
-            "load/versioned", pathlib.Path(get_job_path("load/versioned"))
+            "load/versioned", pathlib.Path(get_job_path("load/versioned/scd2"))
         )
 
         context.templates.add_template(
-            "scd2", pathlib.Path(get_job_path("load/versioned"))
+            "scd2", pathlib.Path(get_job_path("load/versioned/scd2"))
         )
 
         context.templates.add_template(
