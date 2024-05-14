@@ -77,12 +77,12 @@ class TrinoPlugin:
 
         context.templates.add_template(
             "load/fact/snapshot",
-            pathlib.Path(get_job_path("load/fact/snapshot")),
+            pathlib.Path(get_job_path("load/fact/snapshot"))
         )
 
         context.templates.add_template(
             "periodic_snapshot",
-            pathlib.Path(get_job_path("load/fact/snapshot")),
+            pathlib.Path(get_job_path("load/fact/snapshot"))
         )
 
         for section in context.core_context.configuration.list_sections():
