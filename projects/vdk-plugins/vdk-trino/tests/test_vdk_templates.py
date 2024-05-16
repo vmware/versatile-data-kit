@@ -9,6 +9,7 @@ from unittest import mock
 
 import pytest
 from click.testing import Result
+from vdk.plugin.test_utils.util_funcs import cli_assert
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import get_test_job_path
@@ -598,6 +599,152 @@ class TestTemplates(unittest.TestCase):
             actual_rs.output == expected_rs.output
         ), f"Elements in {target_table} and {expect_table} differ."
 
+    def test_insert(self) -> None:
+        test_schema =  self.__schema
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily"
+
+        res = self.__fact_insert_template_execute(test_schema, source_view,target_table, expect_table)
+
+        cli_assert(not res.exception, res)
+
+        actual_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
+
+    def test_insert_checks_positive(self) -> None:
+        test_schema =  self.__schema
+        staging_schema = self.__schema
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
+
+        res = self.__fact_insert_template_execute(
+            test_schema, source_view,target_table, expect_table, "use_positive_check", staging_schema)
+
+        cli_assert(not res.exception, res)
+        actual_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
+
+    def test_insert_checks_negative(self) -> None:
+        test_schema =  self.__schema
+        staging_schema = self.__schema
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
+
+        res = self.__fact_insert_template_execute(
+            test_schema, source_view,target_table, expect_table, "use_negative_check", staging_schema)
+
+        assert res.exception
+        actual_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+        assert actual_rs.output != expected_rs.output
+
+    def test_insert_clean_staging(self) -> None:
+        test_schema =  self.__schema
+        staging_schema = self.__schema
+        source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+        target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+        expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
+
+        res_first_exec = self.__fact_insert_template_execute(
+            test_schema, source_view,target_table, expect_table, "use_positive_check", staging_schema)
+
+        staging_table_name = f"vdk_check_{test_schema}_{target_table}"
+        first_exec_rs = self.__trino_query(
+            f"SELECT * FROM {staging_schema}.{staging_table_name}"
+        )
+        cli_assert_equal(0, res_first_exec)
+
+        res_second_exec = self.__fact_insert_template_execute(
+            test_schema, source_view,target_table, expect_table, "use_positive_check", staging_schema)
+
+        cli_assert_equal(0, res_second_exec)
+
+        second_exec_rs = self.__trino_query(
+            f"SELECT * FROM {staging_schema}.{staging_table_name}"
+        )
+        first_exec = {x for x in first_exec_rs.output.split("\n")}
+        second_exec = {x for x in second_exec_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            first_exec,
+            second_exec,
+            f"Clean up of staging table - {staging_table_name} is not made properly. Different data was found in the table after consecutive executions.",
+        )
+
+    def __fact_insert_template_execute(
+            self,
+            test_schema,
+            source_view,
+            target_table,
+            expect_table,
+            check=False,
+            staging_schema=None,
+    ):
+        if check != False and staging_schema is not None:
+            return self.__runner.invoke(
+                [
+                    "run",
+                    get_test_job_path(
+                        pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                        "insert_template_job",
+                    ),
+                    "--arguments",
+                    json.dumps(
+                        {
+                            "source_schema": test_schema,
+                            "source_view": source_view,
+                            "target_schema": test_schema,
+                            "target_table": target_table,
+                            "expect_schema": test_schema,
+                            "expect_table": expect_table,
+                            "check": check,
+                            "staging_schema": staging_schema,
+                        }
+                    ),
+                ]
+            )
+        else:
+            return self.__runner.invoke(
+                [
+                    "run",
+                    get_test_job_path(
+                        pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                        "insert_template_job",
+                    ),
+                    "--arguments",
+                    json.dumps(
+                        {
+                            "source_schema": test_schema,
+                            "source_view": source_view,
+                            "target_schema": test_schema,
+                            "target_table": target_table,
+                            "expect_schema": test_schema,
+                            "expect_table": expect_table,
+                        }
+                    ),
+                ]
+            )
+
     def __template_table_exists(self, schema_name, target_name) -> Result:
         return self.__runner.invoke(
             [
@@ -615,3 +762,4 @@ class TestTemplates(unittest.TestCase):
                 query,
             ]
         )
+
