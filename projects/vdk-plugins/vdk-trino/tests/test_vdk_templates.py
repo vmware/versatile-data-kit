@@ -600,12 +600,14 @@ class TestTemplates(unittest.TestCase):
         ), f"Elements in {target_table} and {expect_table} differ."
 
     def test_insert(self) -> None:
-        test_schema =  self.__schema
+        test_schema = self.__schema
         source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily"
         target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily"
         expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily"
 
-        res = self.__fact_insert_template_execute(test_schema, source_view,target_table, expect_table)
+        res = self.__fact_insert_template_execute(
+            test_schema, source_view, target_table, expect_table
+        )
 
         cli_assert(not res.exception, res)
 
@@ -621,14 +623,20 @@ class TestTemplates(unittest.TestCase):
         )
 
     def test_insert_checks_positive(self) -> None:
-        test_schema =  self.__schema
+        test_schema = self.__schema
         staging_schema = self.__schema
         source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
         target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
         expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_check_positive"
 
         res = self.__fact_insert_template_execute(
-            test_schema, source_view,target_table, expect_table, "use_positive_check", staging_schema)
+            test_schema,
+            source_view,
+            target_table,
+            expect_table,
+            "use_positive_check",
+            staging_schema,
+        )
 
         cli_assert(not res.exception, res)
         actual_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{target_table}")
@@ -643,14 +651,20 @@ class TestTemplates(unittest.TestCase):
         )
 
     def test_insert_checks_negative(self) -> None:
-        test_schema =  self.__schema
+        test_schema = self.__schema
         staging_schema = self.__schema
         source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
         target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
         expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_check_negative"
 
         res = self.__fact_insert_template_execute(
-            test_schema, source_view,target_table, expect_table, "use_negative_check", staging_schema)
+            test_schema,
+            source_view,
+            target_table,
+            expect_table,
+            "use_negative_check",
+            staging_schema,
+        )
 
         assert res.exception
         actual_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{target_table}")
@@ -659,14 +673,20 @@ class TestTemplates(unittest.TestCase):
         assert actual_rs.output != expected_rs.output
 
     def test_insert_clean_staging(self) -> None:
-        test_schema =  self.__schema
+        test_schema = self.__schema
         staging_schema = self.__schema
         source_view = "vw_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
         target_table = "dw_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
         expect_table = "ex_fact_vmc_utilization_cpu_mem_every5min_daily_clean_staging"
 
         res_first_exec = self.__fact_insert_template_execute(
-            test_schema, source_view,target_table, expect_table, "use_positive_check", staging_schema)
+            test_schema,
+            source_view,
+            target_table,
+            expect_table,
+            "use_positive_check",
+            staging_schema,
+        )
 
         staging_table_name = f"vdk_check_{test_schema}_{target_table}"
         first_exec_rs = self.__trino_query(
@@ -675,7 +695,13 @@ class TestTemplates(unittest.TestCase):
         cli_assert_equal(0, res_first_exec)
 
         res_second_exec = self.__fact_insert_template_execute(
-            test_schema, source_view,target_table, expect_table, "use_positive_check", staging_schema)
+            test_schema,
+            source_view,
+            target_table,
+            expect_table,
+            "use_positive_check",
+            staging_schema,
+        )
 
         cli_assert_equal(0, res_second_exec)
 
@@ -692,13 +718,13 @@ class TestTemplates(unittest.TestCase):
         )
 
     def __fact_insert_template_execute(
-            self,
-            test_schema,
-            source_view,
-            target_table,
-            expect_table,
-            check=False,
-            staging_schema=None,
+        self,
+        test_schema,
+        source_view,
+        target_table,
+        expect_table,
+        check=False,
+        staging_schema=None,
     ):
         if check != False and staging_schema is not None:
             return self.__runner.invoke(
@@ -762,4 +788,3 @@ class TestTemplates(unittest.TestCase):
                 query,
             ]
         )
-

@@ -20,6 +20,7 @@ def run(job_input: IJobInput) -> None:
         template_args=template_args,
     )
 
+
 def setup_testing_check(check):
     if check == "use_positive_check":
         check = _sample_check_true

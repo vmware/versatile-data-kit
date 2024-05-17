@@ -240,7 +240,6 @@ class TrinoTemplateQueries:
 
 
 class CommonUtilities:
-
     def __init__(self):
         pass
 
