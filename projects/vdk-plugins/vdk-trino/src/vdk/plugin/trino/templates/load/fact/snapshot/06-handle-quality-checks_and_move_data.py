@@ -23,20 +23,20 @@ Otherwise the data will be directly processed according to the used template typ
 
 def run(job_input: IJobInput):
     """
-       1. Delete tmp_target and backup_target table if exist
-       2. create tmp_target
-       3. Insert target table and source view data to tmp_target using last_arrival_ts
-       4. if check,
-           - create staging table
-           - Use trino_utils function to move data from tmp_target to staging table
-           - send staging table for check validation
-           - If validated,
-               - drop backup table
-               - Use trino_utils function to move data from staging table to target table
-           - else Raise error
-       5. else,
-           - check if tmp_target table has data
-           - Use trino_utils function to move data from tmp target table to target table
+    1. Delete tmp_target and backup_target table if exist
+    2. create tmp_target
+    3. Insert target table and source view data to tmp_target using last_arrival_ts
+    4. if check,
+        - create staging table
+        - Use trino_utils function to move data from tmp_target to staging table
+        - send staging table for check validation
+        - If validated,
+            - drop backup table
+            - Use trino_utils function to move data from staging table to target table
+        - else Raise error
+    5. else,
+        - check if tmp_target table has data
+        - Use trino_utils function to move data from tmp target table to target table
 
     """
 
@@ -48,8 +48,12 @@ def run(job_input: IJobInput):
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
     trino_queries = TrinoTemplateQueries(job_input)
-    drop_table_query = CommonUtilities.get_file_content(SQL_FILES_FOLDER, "06-drop-table.sql")
-    create_table_query = CommonUtilities.get_file_content(SQL_FILES_FOLDER, "06-create-table.sql")
+    drop_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "06-drop-table.sql"
+    )
+    create_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "06-create-table.sql"
+    )
 
     backup_target_table = f"backup_{target_table}"
     tmp_target_table = f"tmp_{target_table}"
@@ -57,17 +61,19 @@ def run(job_input: IJobInput):
     # if validation check is selected
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
-        staging_table_name = CommonUtilities.get_staging_table_name(target_schema, target_table)
+        staging_table_name = CommonUtilities.get_staging_table_name(
+            target_schema, target_table
+        )
 
         staging_table = f"{staging_schema}.{staging_table_name}"
         target_table_full_name = f"{target_schema}.{target_table}"
 
-        #create staging table
+        # create staging table
         create_staging_table = create_table_query.format(
             table_schema=staging_schema,
             table_name=staging_table_name,
             target_schema=target_schema,
-            target_table=target_table
+            target_table=target_table,
         )
         job_input.execute_query(create_staging_table)
 
@@ -80,8 +86,10 @@ def run(job_input: IJobInput):
         )
 
         if check(staging_table):
-            job_input.execute_query(f"SELECT * FROM information_schema.tables WHERE "
-                        f"table_schema = '{staging_schema}' AND table_name = '{staging_table_name}'")
+            job_input.execute_query(
+                f"SELECT * FROM information_schema.tables WHERE "
+                f"table_schema = '{staging_schema}' AND table_name = '{staging_table_name}'"
+            )
 
             # Drop backup target if already exists
             drop_backup_target = drop_table_query.format(
@@ -127,4 +135,3 @@ def run(job_input: IJobInput):
                 f"because source table {target_schema}.{source_view} was empty."
             )
             trino_queries.drop_table(target_schema, tmp_target_table)
-
