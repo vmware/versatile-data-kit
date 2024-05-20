@@ -76,6 +76,9 @@ class TrinoPlugin:
         )
 
         context.templates.add_template(
+            "insert", pathlib.Path(get_job_path("load/fact/insert"))
+        )
+        context.templates.add_template(
             "load/fact/snapshot", pathlib.Path(get_job_path("load/fact/snapshot"))
         )
 

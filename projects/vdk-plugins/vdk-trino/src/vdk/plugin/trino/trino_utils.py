@@ -1,6 +1,7 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
+import os
 
 from trino.exceptions import TrinoUserError
 from vdk.api.job_input import IJobInput
@@ -236,3 +237,29 @@ class TrinoTemplateQueries:
     @staticmethod
     def __get_backup_table_name(table_name):
         return "backup_" + table_name
+
+
+class CommonUtilities:
+    def __init__(self):
+        pass
+
+    def get_staging_table_name(target_schema, target_table):
+        """
+        Extracts staging table by given target schema and table.
+        """
+        staging_table_name = f"vdk_check_{target_schema}_{target_table}"
+
+        if len(staging_table_name) > 128:
+            raise ValueError(
+                f"Staging table - {staging_table_name} exceeds the 128 character limit."
+            )
+        return staging_table_name
+
+    def get_file_content(sql_files_folder, sql_file_name):
+        """
+        Reads and returns file content by given path and file name.
+        """
+        query_full_path = os.path.join(sql_files_folder, sql_file_name)
+        with open(query_full_path) as query:
+            content = query.read()
+            return content
