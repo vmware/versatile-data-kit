@@ -47,6 +47,7 @@ control_service_build_image:
   script:
     - apk --no-cache add git openjdk17-jdk
     - export TAG=$(git rev-parse --short HEAD)
+    - export AWS_REGION_ENV_VAR="us-east-1"
     - cd projects/control-service/projects
     - ./gradlew -p ./model build publishToMavenLocal --info --stacktrace
     - ./gradlew build jacocoTestReport -x integrationTest --info --stacktrace
