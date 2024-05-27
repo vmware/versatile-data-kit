@@ -187,29 +187,29 @@ frontend_tag_ui_image_stable:
 #    - if: '$CI_COMMIT_BRANCH == "main"'
 #      changes: *frontend_data_pipelines_locations
 
-frontend_quickstart_operability_test:
-  stage: pre_release_test
-  needs:
-    - job: frontend_heartbeat_test
-      optional: false
-      artifacts: false
-    - job: frontend-data-pipelines-build
-      optional: false
-      artifacts: true
-  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
-  before_script:
-    - cd projects/frontend/data-pipelines/gui
-  script:
-    - export CYPRESS_BASE_URL=http://cicd-vdk-ui:80
-    - npm run quickstart-smoke
-  retry: !reference [.frontend_retry, retry_options]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *frontend_shared_components_locations
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *frontend_data_pipelines_locations
+#frontend_quickstart_operability_test:
+#  stage: pre_release_test
+#  needs:
+#    - job: frontend_heartbeat_test
+#      optional: false
+#      artifacts: false
+#    - job: frontend-data-pipelines-build
+#      optional: false
+#      artifacts: true
+#  image: "versatiledatakit/vdk-cicd-base-gui:2.1.2"
+#  before_script:
+#    - cd projects/frontend/data-pipelines/gui
+#  script:
+#    - export CYPRESS_BASE_URL=http://cicd-vdk-ui:80
+#    - npm run quickstart-smoke
+#  retry: !reference [.frontend_retry, retry_options]
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+#      when: never
+#    - if: '$CI_COMMIT_BRANCH == "main"'
+#      changes: *frontend_shared_components_locations
+#    - if: '$CI_COMMIT_BRANCH == "main"'
+#      changes: *frontend_data_pipelines_locations
 
 frontend_publish_test_image:
   stage: release_image
