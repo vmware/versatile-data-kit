@@ -11,7 +11,7 @@ from vdk.api.job_input import IJobInput
 class IStandaloneDataJob:
     """
     A contextmanager that initialises VDK and its plugins,
-    triggers plugin lifecycle hooks needed to expose an initialised IJobInput on entry
+    triggers plugin lifec needed to expose an initialised IJobInput on entry
     and finalization hooks when the context is exited
 
     NB: The following plugin hooks are not triggered:
