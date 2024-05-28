@@ -3,18 +3,18 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 
-.build-vdk-trino:
-  variables:
-    PLUGIN_NAME: vdk-trino
-  extends: .build-plugin-dind
-
-build-py37-vdk-trino:
-  extends: .build-vdk-trino
-  image: "python:3.7"
-
-build-py312-vdk-trino:
-  extends: .build-vdk-trino
-  image: "python:3.12"
+#.build-vdk-trino:
+#  variables:
+#    PLUGIN_NAME: vdk-trino
+#  extends: .build-plugin-dind
+#
+#build-py37-vdk-trino:
+#  extends: .build-vdk-trino
+#  image: "python:3.7"
+#
+#build-py312-vdk-trino:
+#  extends: .build-vdk-trino
+#  image: "python:3.12"
 
 build-vdk-trino-on-vdk-core-release:
   variables:
