@@ -3,9 +3,6 @@
 from vdk.internal.core.config import ConfigurationBuilder
 
 
-
-
-
 IMPALA_HOST = "IMPALA_HOST"
 IMPALA_PORT = "IMPALA_PORT"
 IMPALA_DATABASE = "IMPALA_DATABASE"
