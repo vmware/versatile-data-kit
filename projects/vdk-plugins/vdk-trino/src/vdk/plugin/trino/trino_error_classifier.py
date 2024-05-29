@@ -145,7 +145,7 @@ def _is_user_error(exception):
         "MISSING_PATH_NAME",
         "INVALID_PLAN",
         "INVALID_VIEW_PROPERTY",
-        "UNSUPPORTED_TABLE_TYPE"
+        "UNSUPPORTED_TABLE_TYPE",
     ]
     for error in user_error_list:
         flag = errors.exception_matches(
@@ -190,7 +190,7 @@ def _is_internal_error(exception):
         "REMOTE_TASK_FAILED",
         "EXCHANGE_MANAGER_NOT_CONFIGURED",
         "CATALOG_NOT_AVAILABLE",
-        "CATALOG_STORE_ERROR"
+        "CATALOG_STORE_ERROR",
     ]
     for error in internal_error_list:
         flag = errors.exception_matches(
@@ -215,7 +215,7 @@ def _is_resource_error(exception):
         "EXCEEDED_LOCAL_MEMORY_LIMIT",
         "ADMINISTRATIVELY_PREEMPTED",
         "EXCEEDED_SCAN_LIMIT",
-        "EXCEEDED_TASK_DESCRIPTOR_STORAGE_CAPACITY"
+        "EXCEEDED_TASK_DESCRIPTOR_STORAGE_CAPACITY",
     ]
     for error in resource_error_list:
         flag = errors.exception_matches(
@@ -229,10 +229,8 @@ def _is_resource_error(exception):
 
 
 def _is_query_time_exceeded(exception):
-    return (
-        errors.exception_matches(
-            exception,
-            classname_with_package="trino.exceptions.TrinoException",
-            exception_message_matcher_regex="^TIMEOUT.*",
-        )
+    return errors.exception_matches(
+        exception,
+        classname_with_package="trino.exceptions.TrinoException",
+        exception_message_matcher_regex="^TIMEOUT.*",
     )

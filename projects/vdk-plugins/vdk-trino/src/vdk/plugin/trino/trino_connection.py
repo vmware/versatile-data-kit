@@ -14,7 +14,6 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
 )
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.util.decorators import closing_noexcept_on_close
-
 from vdk.plugin.trino.trino_error_handler import TrinoErrorHandler
 
 log = logging.getLogger(__name__)

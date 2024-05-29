@@ -128,8 +128,7 @@ class TrinoErrorHandler:
         self, exception, recovery_cursor
     ) -> bool:
         if errors.exception_matches(
-            exception, "trino.exceptions.TrinoException",
-                ".*Failed to open HDFS file.*"
+            exception, "trino.exceptions.TrinoException", ".*Failed to open HDFS file.*"
         ):
             regex = ".*/user/hive/warehouse/([^/]*).db/([^/]*)"
             matcher = re.compile(pattern=regex, flags=re.DOTALL)
@@ -177,17 +176,14 @@ class TrinoErrorHandler:
         return False
 
     def _handle_trino_network_error(self, exception, recovery_cursor) -> bool:
-        if (
-            errors.exception_matches(
-                exception,
-                classname_with_package="trino.exceptions.TrinoException",
-                exception_message_matcher_regex=".*Error communicating with the data source.*",
-            )
-            or errors.exception_matches(
-                exception,
-                classname_with_package="trino.exceptions.TrinoException",
-                exception_message_matcher_regex=".*Connection refused.*",
-            )
+        if errors.exception_matches(
+            exception,
+            classname_with_package="trino.exceptions.TrinoException",
+            exception_message_matcher_regex=".*Error communicating with the data source.*",
+        ) or errors.exception_matches(
+            exception,
+            classname_with_package="trino.exceptions.TrinoException",
+            exception_message_matcher_regex=".*Connection refused.*",
         ):
             self._log.info(
                 "Query failed with network error. This is most likely a recoverable error. "
@@ -276,19 +272,20 @@ class TrinoErrorHandler:
     # The method is meant to handle only failed queries, whose metadata needs to be refreshed, and that should
     # be retried only once to avoid overloading the database.
     def _handle_metadata_exception_with_refresh_and_retry(
-                self, exception, recovery_cursor) -> bool:
+        self, exception, recovery_cursor
+    ) -> bool:
         def check_exception_and_get_pattern_for_table_name(exception_to_match):
             pattern = None
             if errors.exception_matches(
-                    exception_to_match,
-                    classname_with_package="trino.exceptions.TrinoException",
-                    exception_message_matcher_regex=".*TABLE_NOT_FOUND: Table (\\S+) not found.*",
+                exception_to_match,
+                classname_with_package="trino.exceptions.TrinoException",
+                exception_message_matcher_regex=".*TABLE_NOT_FOUND: Table (\\S+) not found.*",
             ):
                 pattern = ".*TABLE_NOT_FOUND: Table (\\S+) not found"
             if errors.exception_matches(
-                    exception_to_match,
-                    classname_with_package="trino.exceptions.TrinoException",
-                    exception_message_matcher_regex=".*ALREADY_EXISTS: Table (\\S+) already exists.*",
+                exception_to_match,
+                classname_with_package="trino.exceptions.TrinoException",
+                exception_message_matcher_regex=".*ALREADY_EXISTS: Table (\\S+) already exists.*",
             ):
                 pattern = ".*ALREADY_EXISTS: Table (\\S+) already exists.*"
             return pattern
