@@ -46,7 +46,7 @@
 .build-plugin-dind:
   image: docker:23.0.6
   services:
-    dind:
+    - name: dind
       image: docker:23.0.6-dind
       restart: always
       privileged: true
