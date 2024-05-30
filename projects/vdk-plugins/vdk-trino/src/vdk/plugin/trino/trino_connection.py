@@ -12,7 +12,9 @@ from trino.exceptions import TrinoInternalError
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
     ManagedConnectionBase,
 )
+from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.util.decorators import closing_noexcept_on_close
+from vdk.plugin.trino.trino_error_handler import TrinoErrorHandler
 
 log = logging.getLogger(__name__)
 
@@ -30,6 +32,8 @@ class TrinoConnection(ManagedConnectionBase):
         ssl_verify=True,
         timeout_seconds=120,
         lineage_logger=None,
+        retries_on_error=3,
+        error_backoff_seconds=30,
     ):
         """
         Create a new database connection. Connection parameters are:
@@ -52,6 +56,8 @@ class TrinoConnection(ManagedConnectionBase):
         self._ssl_verify = ssl_verify
         self._timeout_seconds = timeout_seconds
         self._lineage_logger = lineage_logger
+        self._retries_on_error = retries_on_error
+        self._error_backoff_seconds = error_backoff_seconds
         log.debug(
             f"Creating new trino connection for user: {user} to host: {host}:{port}"
         )
@@ -81,6 +87,20 @@ class TrinoConnection(ManagedConnectionBase):
             request_timeout=self._timeout_seconds,
         )
         return conn
+
+    def db_connection_recover_operation(self, recovery_cursor: RecoveryCursor) -> None:
+        trino_error_handler = TrinoErrorHandler(
+            num_retries=self._retries_on_error,
+            backoff_seconds=self._error_backoff_seconds,
+        )
+        if trino_error_handler.handle_error(
+            recovery_cursor.get_exception(), recovery_cursor
+        ):
+            logging.getLogger(__name__).debug(
+                "Error handled successfully! Query execution has succeeded."
+            )
+        else:
+            raise recovery_cursor.get_exception()
 
     def execute_query(self, query):
         res = self.execute_query_with_retries(query)
