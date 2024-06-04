@@ -1,6 +1,6 @@
 # Used to trigger a build for a data job image.
 
-FROM gcr.io/kaniko-project/executor:debug
+FROM gcr.io/kaniko-project/executor:v1.20.1-debug
 
 WORKDIR /workspace
 
