@@ -5,82 +5,82 @@
 
 /// <reference types="cypress" />
 
-import { DataJobBasePO } from './data-job-base.po';
+import { DataJobBasePO } from "./data-job-base.po";
 
 export class DataJobDetailsBasePO extends DataJobBasePO {
-    /**
-     * ** Returns instance of the page object.
-     *
-     * @returns {DataJobDetailsBasePO}
-     */
-    static getPage() {
-        return new DataJobDetailsBasePO();
-    }
+  /**
+   * ** Returns instance of the page object.
+   *
+   * @returns {DataJobDetailsBasePO}
+   */
+  static getPage() {
+    return new DataJobDetailsBasePO();
+  }
 
-    /**
-     * ** Navigate to Data Job Url.
-     *
-     * @param {'explore'|'manage'} context
-     * @param {string} teamName
-     * @param {string} jobName
-     */
-    static navigateTo(context, teamName, jobName) {
-        return super.navigateTo(context, teamName, jobName, 'details');
-    }
+  /**
+   * ** Navigate to Data Job Url.
+   *
+   * @param {'explore'|'manage'} context
+   * @param {string} teamName
+   * @param {string} jobName
+   */
+  static navigateTo(context, teamName, jobName) {
+    return super.navigateTo(context, teamName, jobName, "details");
+  }
 
-    // Selectors
+  // Selectors
 
-    getStatusField() {
-        return cy.get('[data-cy=data-pipelines-job-details-status]');
-    }
+  getStatusField() {
+    return cy.get("[data-cy=data-pipelines-job-details-status]");
+  }
 
-    getDescriptionField() {
-        return cy.get('[data-cy=data-pipelines-job-details-description]');
-    }
+  getDescriptionField() {
+    return cy.get("[data-cy=data-pipelines-job-details-description]");
+  }
 
-    getDescriptionFull() {
-        return cy.get('[data-cy=description-show-less]');
-    }
+  getDescriptionFull() {
+    return cy.get("[data-cy=description-show-less]");
+  }
 
-    getShowDescriptionMoreBtn() {
-        return cy.get('[data-cy=description-show-more]');
-    }
+  getShowDescriptionMoreBtn() {
+    return cy.get("[data-cy=description-show-more]");
+  }
 
-    getTeamField() {
-        return cy.get('[data-cy=data-pipelines-job-details-team]');
-    }
+  getTeamField() {
+    return cy.get("[data-cy=data-pipelines-job-details-team]");
+  }
 
-    getScheduleField() {
-        return cy.get('[data-cy=data-pipelines-job-details-schedule]');
-    }
+  getScheduleField() {
+    return cy.get("[data-cy=data-pipelines-job-details-schedule]");
+  }
 
-    getSourceField() {
-        return cy.get('[data-cy=data-pipelines-job-details-source]');
-    }
+  getSourceField() {
+    return cy.get("[data-cy=data-pipelines-job-details-source]");
+  }
 
-    getOnDeployedField() {
-        return cy.get('[data-cy=data-pipelines-job-details-on-deployed]');
-    }
+  getOnDeployedField() {
+    return cy.get("[data-cy=data-pipelines-job-details-on-deployed]");
+  }
 
-    getOnPlatformErrorField() {
-        return cy.get('[data-cy=data-pipelines-job-details-on-platform-error]');
-    }
+  getOnPlatformErrorField() {
+    return cy.get("[data-cy=data-pipelines-job-details-on-platform-error]");
+  }
 
-    getOnUserErrorField() {
-        return cy.get('[data-cy=data-pipelines-job-details-on-user-error]');
-    }
+  getOnUserErrorField() {
+    return cy.get("[data-cy=data-pipelines-job-details-on-user-error]");
+  }
 
-    getOnSuccessField() {
-        return cy.get('[data-cy=data-pipelines-job-details-on-success]');
-    }
+  getOnSuccessField() {
+    return cy.get("[data-cy=data-pipelines-job-details-on-success]");
+  }
 
-    // Actions
+  // Actions
 
-    showMoreDescription() {
-        this.getShowDescriptionMoreBtn().should('exist').click({ force: true });
+  showMoreDescription() {
+    this.getShowDescriptionMoreBtn().should("exist").click({ force: true });
 
-        this.waitForViewToRenderShort();
+    this.waitForViewToRenderShort();
 
-        return this;
-    }
+    return this;
+  }
 }

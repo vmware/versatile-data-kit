@@ -9,7 +9,7 @@
  * @param args
  */
 const consoleLog = (...args) => {
-    console.log('LOG --------->', ...args);
+  console.log("LOG --------->", ...args);
 };
 
 /**
@@ -18,7 +18,7 @@ const consoleLog = (...args) => {
  * @param args
  */
 const consoleInfo = (...args) => {
-    console.log('INFO -------->', ...args);
+  console.log("INFO -------->", ...args);
 };
 
 /**
@@ -27,7 +27,7 @@ const consoleInfo = (...args) => {
  * @param args
  */
 const consoleDebug = (...args) => {
-    console.log('DEBUG ------->', ...args);
+  console.log("DEBUG ------->", ...args);
 };
 
 /**
@@ -36,7 +36,7 @@ const consoleDebug = (...args) => {
  * @param args
  */
 const consoleError = (...args) => {
-    console.log('ERROR ------->', ...args);
+  console.log("ERROR ------->", ...args);
 };
 
 /**
@@ -45,15 +45,15 @@ const consoleError = (...args) => {
  * @param args
  */
 const consoleProfiling = (...args) => {
-    console.log('PROFILING ------->', ...args);
+  console.log("PROFILING ------->", ...args);
 };
 
 module.exports = {
-    Logger: {
-        log: consoleLog,
-        info: consoleInfo,
-        debug: consoleDebug,
-        error: consoleError,
-        profiling: consoleProfiling
-    }
+  Logger: {
+    log: consoleLog,
+    info: consoleInfo,
+    debug: consoleDebug,
+    error: consoleError,
+    profiling: consoleProfiling,
+  },
 };

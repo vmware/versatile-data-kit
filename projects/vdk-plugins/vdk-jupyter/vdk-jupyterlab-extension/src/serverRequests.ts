@@ -3,20 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { requestAPI } from './handler';
-import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
+import { requestAPI } from "./handler";
+import { Dialog, showErrorMessage } from "@jupyterlab/apputils";
 import {
   checkIfVdkOptionDataIsDefined,
   getJobDataJsonObject,
-  jobData
-} from './jobData';
-import { VdkOption } from './vdkOptions/vdk_options';
+  jobData,
+} from "./jobData";
+import { VdkOption } from "./vdkOptions/vdk_options";
 
 const showError = async (error: any) => {
   await showErrorMessage(
-    'Encountered an error while trying to connect the server. Error:',
+    "Encountered an error while trying to connect the server. Error:",
     error,
-    [Dialog.okButton()]
+    [Dialog.okButton()],
   );
 };
 
@@ -96,17 +96,17 @@ const pollForTaskCompletion = async (
   // The default values of maxAttempts and interval are based on the limit of 12 hours for a job run.
   // Polling every 10 seconds for 12 hours results in a total of 4320 polls.
   maxAttempts = 4320,
-  interval = 10000 // 10 seconds
+  interval = 10000, // 10 seconds
 ): Promise<TaskStatusResult> => {
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const result = await requestAPI<TaskStatusResult>(
         `taskStatus?taskId=${taskId}`,
-        { method: 'GET' }
+        { method: "GET" },
       );
       if (result.task_id === taskId) {
-        if (result.status !== 'running') {
-          if (result.status === 'failed') {
+        if (result.status !== "running") {
+          if (result.status === "failed") {
             showError(result.error);
           }
           return result;
@@ -116,18 +116,18 @@ const pollForTaskCompletion = async (
       showError(error);
       return {
         task_id: taskId,
-        status: 'failed',
-        message: '',
-        error: `An error occurred while polling for task status. Error: ${error}`
+        status: "failed",
+        message: "",
+        error: `An error occurred while polling for task status. Error: ${error}`,
       };
     }
-    await new Promise(resolve => setTimeout(resolve, interval));
+    await new Promise((resolve) => setTimeout(resolve, interval));
   }
   return {
     task_id: taskId,
-    status: 'failed',
-    message: '',
-    error: `Task ${taskId} timed out`
+    status: "failed",
+    message: "",
+    error: `Task ${taskId} timed out`,
   };
 };
 
@@ -140,11 +140,11 @@ export async function jobRunRequest(): Promise<jobRequestResult> {
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
       const initialResponse = await requestAPI<serverVdkOperationResult>(
-        'run',
+        "run",
         {
           body: JSON.stringify(getJobDataJsonObject()),
-          method: 'POST'
-        }
+          method: "POST",
+        },
       );
       if (initialResponse.error) {
         showError(initialResponse.error);
@@ -158,15 +158,15 @@ export async function jobRunRequest(): Promise<jobRequestResult> {
       } else {
         return {
           message: finalResult.message as string,
-          isSuccessful: true
+          isSuccessful: true,
         };
       }
     } catch (error) {
       showError(error);
-      return { message: '', isSuccessful: false };
+      return { message: "", isSuccessful: false };
     }
   } else {
-    return { message: '', isSuccessful: false };
+    return { message: "", isSuccessful: false };
   }
 }
 
@@ -187,8 +187,8 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
         endPoint,
         {
           body: JSON.stringify(getJobDataJsonObject()),
-          method: 'POST'
-        }
+          method: "POST",
+        },
       );
       if (initialResponse.error) {
         showError(initialResponse.error);
@@ -202,15 +202,15 @@ export async function jobRequest(endPoint: string): Promise<jobRequestResult> {
       } else {
         return {
           message: finalResult.message as string,
-          isSuccessful: true
+          isSuccessful: true,
         };
       }
     } catch (error) {
       showError(error);
-      return { message: '', isSuccessful: false };
+      return { message: "", isSuccessful: false };
     }
   }
-  return { message: '', isSuccessful: false };
+  return { message: "", isSuccessful: false };
 }
 
 /**
@@ -231,11 +231,11 @@ export async function jobConvertToNotebookRequest(): Promise<jobConvertToNoteboo
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
       const initialResponse = await requestAPI<serverVdkOperationResult>(
-        'convertJobToNotebook',
+        "convertJobToNotebook",
         {
           body: JSON.stringify(getJobDataJsonObject()),
-          method: 'POST'
-        }
+          method: "POST",
+        },
       );
       if (initialResponse.error) {
         showError(initialResponse.error);
@@ -249,18 +249,18 @@ export async function jobConvertToNotebookRequest(): Promise<jobConvertToNoteboo
       } else {
         return {
           message: finalResult.message as IJobConvertToNotebookMessage,
-          isSuccessful: true
+          isSuccessful: true,
         };
       }
     } catch (error) {
       showError(error);
-      return { message: '', isSuccessful: false };
+      return { message: "", isSuccessful: false };
     }
   } else {
     return {
       message:
-        'The job path is not defined. Please define it before attempting to convert the job to a notebook.',
-      isSuccessful: false
+        "The job path is not defined. Please define it before attempting to convert the job to a notebook.",
+      isSuccessful: false,
     };
   }
 }
@@ -270,9 +270,9 @@ export async function jobConvertToNotebookRequest(): Promise<jobConvertToNoteboo
  */
 export async function jobdDataRequest(): Promise<void> {
   try {
-    const data = await requestAPI<any>('job', {
+    const data = await requestAPI<any>("job", {
       body: JSON.stringify(JSON.stringify(getJobDataJsonObject())),
-      method: 'POST'
+      method: "POST",
     });
     if (data) {
       jobData.set(VdkOption.NAME, data[VdkOption.NAME]);
@@ -299,28 +299,28 @@ export async function getNotebookInfo(cellId: string): Promise<{
   };
   const dataToSend = {
     cellId: cellId,
-    jobPath: jobData.get(VdkOption.PATH)
+    jobPath: jobData.get(VdkOption.PATH),
   };
   if (await checkIfVdkOptionDataIsDefined(VdkOption.PATH)) {
     try {
-      const data = await requestAPI<getNotebookInfoResult>('notebook', {
+      const data = await requestAPI<getNotebookInfoResult>("notebook", {
         body: JSON.stringify(dataToSend),
-        method: 'POST'
+        method: "POST",
       });
       return {
-        path: data['path'],
-        cellIndex: data['cellIndex']
+        path: data["path"],
+        cellIndex: data["cellIndex"],
       };
     } catch (error) {
       return {
-        path: '',
-        cellIndex: ''
+        path: "",
+        cellIndex: "",
       };
     }
   } else {
     return {
-      path: '',
-      cellIndex: ''
+      path: "",
+      cellIndex: "",
     };
   }
 }
@@ -330,15 +330,15 @@ export async function getNotebookInfo(cellId: string): Promise<{
  * Returns an Array with indices if vdk cells are found and empty array if not
  */
 export async function getVdkCellIndices(
-  nbPath: string
+  nbPath: string,
 ): Promise<Array<Number>> {
   try {
     const dataToSend = {
-      nbPath: nbPath
+      nbPath: nbPath,
     };
-    const data = await requestAPI<Array<Number>>('vdkCellIndices', {
+    const data = await requestAPI<Array<Number>>("vdkCellIndices", {
       body: JSON.stringify(dataToSend),
-      method: 'POST'
+      method: "POST",
     });
     return data;
   } catch (error) {
@@ -348,8 +348,8 @@ export async function getVdkCellIndices(
 }
 
 export async function getServerDirRequest(): Promise<string> {
-  const data = await requestAPI<any>('serverPath', {
-    method: 'GET'
+  const data = await requestAPI<any>("serverPath", {
+    method: "GET",
   });
   if (data) {
     return data;
@@ -357,8 +357,8 @@ export async function getServerDirRequest(): Promise<string> {
     await showErrorMessage(
       "Encountered an error while trying to connect the server. Error: \
       the server's location cannot be identified!",
-      [Dialog.okButton()]
+      [Dialog.okButton()],
     );
-    return '';
+    return "";
   }
 }
