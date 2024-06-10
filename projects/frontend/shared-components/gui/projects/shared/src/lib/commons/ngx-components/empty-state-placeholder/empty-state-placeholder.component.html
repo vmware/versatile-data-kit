@@ -9,15 +9,15 @@
 <ng-content select="ng-lottie"></ng-content>
 
 <div
-    [attr.aria-level]="headingLevel"
-    class="empty-placeholder-heading"
-    role="heading"
+  [attr.aria-level]="headingLevel"
+  class="empty-placeholder-heading"
+  role="heading"
 >
-    {{title}}
+  {{ title }}
 </div>
 
 <div *ngIf="description" class="empty-placeholder-description">
-    {{description}}
+  {{ description }}
 </div>
 
 <ng-content select="button"></ng-content>

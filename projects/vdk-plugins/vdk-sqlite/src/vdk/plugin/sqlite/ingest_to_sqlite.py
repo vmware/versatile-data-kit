@@ -188,9 +188,11 @@ class IngestToSQLite(IIngesterPlugin):
         Creates table from given list of columns and table name
         """
         names = [
-            f"{col_name} {col_type}"
-            if " " not in col_name
-            else f'"{col_name}" {col_type}'
+            (
+                f"{col_name} {col_type}"
+                if " " not in col_name
+                else f'"{col_name}" {col_type}'
+            )
             for col_name, col_type in columns.items()
         ]
         columns_as_sql_expression = ",".join(names)

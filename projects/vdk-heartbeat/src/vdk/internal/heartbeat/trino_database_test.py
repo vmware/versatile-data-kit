@@ -118,9 +118,9 @@ class TrinoDatabaseRunTest(DatabaseHeartbeatTest):
             auth=auth,
             catalog=None,
             schema=None,
-            http_scheme=constants.HTTPS
-            if self.config.DATABASE_USE_SSL
-            else constants.HTTP,
+            http_scheme=(
+                constants.HTTPS if self.config.DATABASE_USE_SSL else constants.HTTP
+            ),
             verify=self.config.DATABASE_VERIFY_SSL,
             request_timeout=self.config.DATABASE_CONNECTION_TIMEOUT_SECONDS,
         )
