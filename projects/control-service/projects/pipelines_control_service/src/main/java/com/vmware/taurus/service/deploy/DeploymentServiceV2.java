@@ -163,7 +163,8 @@ public class DeploymentServiceV2 {
       // If a previously enabled job is being disabled, we don't want to build the image.
       if ((Boolean.FALSE.equals(desiredJobDeployment.getEnabled())
               && Boolean.TRUE.equals(actualJobDeployment.getEnabled()))
-              || jobImageBuilder.buildImage(imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
+          || jobImageBuilder.buildImage(
+              imageName, dataJob, desiredJobDeployment, actualJobDeployment, sendNotification)) {
         ActualDataJobDeployment actualJobDeploymentResult =
             jobImageDeployer.scheduleJob(
                 dataJob,
