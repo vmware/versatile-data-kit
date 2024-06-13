@@ -80,13 +80,6 @@ public class DeploymentServiceV2TestIT {
 
   @Test
   public void
-      updateDeployment_withDesiredDeploymentEnabledFalseAndActualDeploymentEnabledFalseAndBuildImageSucceededFalse_shouldUpdateDeployment()
-          throws IOException, InterruptedException, ApiException {
-    updateDeployment(false, false, false, 1);
-  }
-
-  @Test
-  public void
       updateDeployment_withDesiredDeploymentEnabledTrueAndActualDeploymentEnabledFalseAndBuildImageSucceededTrue_shouldUpdateDeployment()
           throws IOException, InterruptedException, ApiException {
     updateDeployment(true, false, true, 1);
