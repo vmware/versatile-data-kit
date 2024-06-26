@@ -1,4 +1,4 @@
-INSERT INTO "{target_schema}"."tmp_{target_table}"
+INSERT INTO "{staging_schema}"."{staging_table}"
 (
   SELECT *
   FROM   "{target_schema}"."{target_table}"
