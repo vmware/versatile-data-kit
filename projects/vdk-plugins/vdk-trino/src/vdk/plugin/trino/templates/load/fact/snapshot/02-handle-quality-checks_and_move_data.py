@@ -43,24 +43,31 @@ def run(job_input: IJobInput):
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
     last_arrival_ts = job_arguments.get("last_arrival_ts")
-    drop_table_query = CommonUtilities.get_file_content( SQL_FILES_FOLDER, "02-drop-table.sql")
-    delete_table_content_query = CommonUtilities.get_file_content( SQL_FILES_FOLDER, "02-delete-table-content.sql")
-    create_table_query = CommonUtilities.get_file_content( SQL_FILES_FOLDER, "02-create-table.sql")
-    insert_snapshot_data_query = CommonUtilities.get_file_content( SQL_FILES_FOLDER, "02-insert-snapshot-data.sql")
-    insert_into_target_query = CommonUtilities.get_file_content( SQL_FILES_FOLDER, "02-insert-into-target.sql")
+    drop_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-drop-table.sql"
+    )
+    delete_table_content_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-delete-table-content.sql"
+    )
+    create_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-create-table.sql"
+    )
+    insert_snapshot_data_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-insert-snapshot-data.sql"
+    )
+    insert_into_target_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-insert-into-target.sql"
+    )
 
     staging_schema = job_arguments.get("staging_schema", target_schema)
-    staging_table = CommonUtilities.get_staging_table_name(
-        target_schema, target_table
-    )
+    staging_table = CommonUtilities.get_staging_table_name(target_schema, target_table)
 
     staging_table_full_name = f"{staging_schema}.{staging_table}"
     target_table_full_name = f"{target_schema}.{target_table}"
 
     # drop table if exists
     drop_staging_table = drop_table_query.format(
-        target_schema=staging_schema,
-        target_table=staging_table
+        target_schema=staging_schema, target_table=staging_table
     )
     job_input.execute_query(drop_staging_table)
 
@@ -81,7 +88,7 @@ def run(job_input: IJobInput):
         target_table=target_table,
         source_schema=source_schema,
         source_view=source_view,
-        last_arrival_ts=last_arrival_ts
+        last_arrival_ts=last_arrival_ts,
     )
     job_input.execute_query(insert_into_staging)
 
@@ -93,13 +100,12 @@ def run(job_input: IJobInput):
             target_table=target_table_full_name,
         )
     else:
-
         job_input.execute_query(delete_table_content_query)
         # insert into target
         insert_into_target = insert_into_target_query.format(
             target_schema=target_schema,
             target_table=target_table,
             staging_schema=staging_schema,
-            staging_table=staging_table
+            staging_table=staging_table,
         )
         job_input.execute_query(insert_into_target)

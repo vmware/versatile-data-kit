@@ -41,10 +41,18 @@ def run(job_input: IJobInput):
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
 
-    create_table_query = CommonUtilities.get_file_content( SQL_FILES_FOLDER, "02-create-table.sql" )
-    drop_table_query = CommonUtilities.get_file_content( SQL_FILES_FOLDER, "02-drop-table.sql" )
-    delete_table_content_query = CommonUtilities.get_file_content( SQL_FILES_FOLDER, "02-delete-table-content.sql" )
-    insert_table_query = CommonUtilities.get_file_content(SQL_FILES_FOLDER, "02-insert-into-target.sql")
+    create_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-create-table.sql"
+    )
+    drop_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-drop-table.sql"
+    )
+    delete_table_content_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-delete-table-content.sql"
+    )
+    insert_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-insert-into-target.sql"
+    )
 
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
@@ -56,8 +64,7 @@ def run(job_input: IJobInput):
 
         # drop table if exists
         drop_staging_table = drop_table_query.format(
-            target_schema=staging_schema,
-            target_table=staging_table
+            target_schema=staging_schema, target_table=staging_table
         )
         job_input.execute_query(drop_staging_table)
 
@@ -75,19 +82,18 @@ def run(job_input: IJobInput):
             target_schema=staging_schema,
             target_table=staging_table,
             source_schema=source_schema,
-            source_view=source_view
+            source_view=source_view,
         )
         job_input.execute_query(insert_into_staging_table)
 
         if check(staging_table_full_name):
-
             job_input.execute_query(delete_table_content_query)
 
             insert_into_staging_table = insert_table_query.format(
                 target_schema=target_schema,
                 target_table=target_table,
                 source_schema=staging_schema,
-                source_view=staging_table
+                source_view=staging_table,
             )
             job_input.execute_query(insert_into_staging_table)
 

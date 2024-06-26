@@ -42,22 +42,33 @@ def run(job_input: IJobInput):
     source_view = job_arguments.get("source_view")
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
-    create_table_query = CommonUtilities.get_file_content(SQL_FILES_FOLDER, "02-create-table.sql")
-    create_view_query = CommonUtilities.get_file_content(SQL_FILES_FOLDER, "02-create-consolidated-view.sql")
-    drop_table_query = CommonUtilities.get_file_content(SQL_FILES_FOLDER, "02-drop-table.sql")
-    drop_view_query = CommonUtilities.get_file_content(SQL_FILES_FOLDER, "02-drop-view.sql")
-    insert_query = CommonUtilities.get_file_content(SQL_FILES_FOLDER, "02-insert-into-target.sql")
+    create_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-create-table.sql"
+    )
+    create_view_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-create-consolidated-view.sql"
+    )
+    drop_table_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-drop-table.sql"
+    )
+    drop_view_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-drop-view.sql"
+    )
+    insert_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-insert-into-target.sql"
+    )
 
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
-        staging_table = CommonUtilities.get_staging_table_name(target_schema, target_table)
+        staging_table = CommonUtilities.get_staging_table_name(
+            target_schema, target_table
+        )
 
         target_table_full_name = f"{target_schema}.{target_table}"
 
         # drop table if exists
         drop_staging_table = drop_table_query.format(
-            target_schema=staging_schema,
-            target_table=staging_table
+            target_schema=staging_schema, target_table=staging_table
         )
         job_input.execute_query(drop_staging_table)
 
@@ -92,19 +103,18 @@ def run(job_input: IJobInput):
             staging_schema=staging_schema,
             staging_table=staging_table,
             target_schema=target_schema,
-            target_table=target_table
+            target_table=target_table,
         )
         job_input.execute_query(create_view)
 
         view_full_name = f"{view_schema}.{view_name}"
 
         if check(view_full_name):
-
             insert_into_target = insert_query.format(
                 source_schema=staging_schema,
                 source_view=staging_table,
                 target_schema=target_schema,
-                target_table=target_table
+                target_table=target_table,
             )
             job_input.execute_query(insert_into_target)
             # drop view
