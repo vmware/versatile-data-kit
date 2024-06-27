@@ -159,7 +159,7 @@ class ITemplateRegistry:
 
     # TODO: add supported arguments so that they can be validated
     @abstractmethod
-    def add_template(self, name: str, template_directory: pathlib.Path):
+    def add_template(self, name: str, template_directory: pathlib.Path, database: str = None):
         """
         Register a new template.
         You usually would want to register template with job_initialize plugin hook.
@@ -171,12 +171,13 @@ class ITemplateRegistry:
             @hookimpl
             def initialize_job(self, context: JobContext) -> None:
                 context.templates.add_template(
-                    "template_name", pathlib.Path(template_name.job_module.__file__)
+                    "template_name", pathlib.Path(template_name.job_module.__file__), "database_name"
                 )
 
         :param name: The name of the template . This name will be used by users of vdk in their data jobs when invoking it
         :param template_directory: the directory which contains the implementation of the template. This is a data job which accept arguments.
         VDK will automatically run the data job internally and return result (success or not to the user.). See ITemplate for more details.
+        :param database: The name of database. It will help to distinguish templates with same name in different plugin.
         :return:
         """
         pass

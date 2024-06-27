@@ -162,10 +162,10 @@ class JobInput(IJobInput):
         )
 
     def execute_template(
-        self, template_name: str, template_args: dict
+        self, template_name: str, template_args: dict, database: str
     ) -> ExecutionResult:
         if self.__templates:
-            result = self.__templates.execute_template(template_name, template_args)
+            result = self.__templates.execute_template(template_name, template_args, database)
 
             return result
         else:
