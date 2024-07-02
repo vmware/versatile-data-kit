@@ -165,7 +165,9 @@ class JobInput(IJobInput):
         self, template_name: str, template_args: dict, database: str = "default"
     ) -> ExecutionResult:
         if self.__templates:
-            result = self.__templates.execute_template(template_name, template_args, database)
+            result = self.__templates.execute_template(
+                template_name, template_args, database
+            )
 
             return result
         else:

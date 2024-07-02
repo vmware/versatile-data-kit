@@ -59,7 +59,6 @@ class TrinoPlugin:
     def initialize_job(self, context: JobContext):
         trino_conf = TrinoConfiguration(context.core_context.configuration)
 
-
         for section in context.core_context.configuration.list_sections():
             if section == "vdk":
                 connection_name = "trino"  # the default database
@@ -70,15 +69,21 @@ class TrinoPlugin:
                         "You cannot create a subsection with name 'vdk_trino'! Try another name."
                     )
             context.templates.add_template(
-                "load/dimension/scd1", pathlib.Path(get_job_path("load/dimension/scd1")), connection_name
+                "load/dimension/scd1",
+                pathlib.Path(get_job_path("load/dimension/scd1")),
+                connection_name,
             )
 
             context.templates.add_template(
-                "scd1", pathlib.Path(get_job_path("load/dimension/scd1")), connection_name
+                "scd1",
+                pathlib.Path(get_job_path("load/dimension/scd1")),
+                connection_name,
             )
 
             context.templates.add_template(
-                "load/versioned", pathlib.Path(get_job_path("load/versioned")), connection_name
+                "load/versioned",
+                pathlib.Path(get_job_path("load/versioned")),
+                connection_name,
             )
 
             context.templates.add_template(
@@ -86,14 +91,20 @@ class TrinoPlugin:
             )
 
             context.templates.add_template(
-                "insert", pathlib.Path(get_job_path("load/fact/insert")), connection_name
+                "insert",
+                pathlib.Path(get_job_path("load/fact/insert")),
+                connection_name,
             )
             context.templates.add_template(
-                "load/fact/snapshot", pathlib.Path(get_job_path("load/fact/snapshot")), connection_name
+                "load/fact/snapshot",
+                pathlib.Path(get_job_path("load/fact/snapshot")),
+                connection_name,
             )
 
             context.templates.add_template(
-                "periodic_snapshot", pathlib.Path(get_job_path("load/fact/snapshot")), connection_name
+                "periodic_snapshot",
+                pathlib.Path(get_job_path("load/fact/snapshot")),
+                connection_name,
             )
             try:
                 host = trino_conf.host(section)
