@@ -1,5 +1,6 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+import copy
 import logging
 import pathlib
 from typing import Dict
@@ -25,31 +26,51 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
     ):
         self._job_name = job_name
         self._core_context = core_context
-        self._registered_templates: Dict[str, pathlib.Path] = {}
+        self._registered_templates: Dict[str, Dict[str, pathlib.Path]] = {}
         self._datajob_factory = (
             DataJobFactory() if datajob_factory is None else datajob_factory
         )
         self._template_name = template_name
 
-    def add_template(self, name: str, template_directory: pathlib.Path):
+    def add_template(
+        self, name: str, template_directory: pathlib.Path, database: str = "default"
+    ):
         if (
-            name in self._registered_templates
-            and self._registered_templates[name] != template_directory
+            database in self._registered_templates
+            and name in self._registered_templates[database]
+            and self._registered_templates[database][name] != template_directory
         ):
             log.warning(
-                f"Template with name {name} has been registered with directory {self._registered_templates[name]}."
+                f"Template with name {name} in database {database} has been registered with directory "
+                f"{self._registered_templates[database][name]}."
                 f"We will overwrite it with new directory {template_directory} now."
             )
-        self._registered_templates[name] = template_directory
+        if database not in self._registered_templates:
+            self._registered_templates[database] = {}
+        self._registered_templates[database][name] = template_directory
 
     def execute_template(
-        self, name: str, template_args: dict
+        self, name: str, template_args: dict, database: str = "default"
     ) -> ExecutionResult:  # input dict immutable?
-        log.debug(f"Execute template {name} {template_args}")
-        template_directory = self.get_template_directory(name)
-        template_job = self._datajob_factory.new_datajob(
-            template_directory, self._core_context, name=self._job_name
-        )
+        log.info(f"Execute template {database} {name} {template_args}")
+        template_directory = self.get_template_directory(name, database)
+        if database != "default":
+            core_context = CoreContext(
+                self._core_context.plugin_registry,
+                copy.deepcopy(self._core_context.configuration),
+                copy.deepcopy(self._core_context.state),
+            )
+            core_context.configuration.override_value(
+                "DB_DEFAULT_TYPE", database, "vdk"
+            )
+            template_job = self._datajob_factory.new_datajob(
+                template_directory, core_context, name=self._job_name
+            )
+        else:
+            template_job = self._datajob_factory.new_datajob(
+                template_directory, self._core_context, name=self._job_name
+            )
+
         result = template_job.run(template_args, name)
         if result.is_failed():
             if result.get_exception_to_raise():
@@ -69,13 +90,18 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
                 )
         return result
 
-    def get_template_directory(self, name: str) -> pathlib.Path:
-        if name in self._registered_templates:
-            return self._registered_templates[name]
+    def get_template_directory(
+        self, name: str, database: str = "default"
+    ) -> pathlib.Path:
+        if (
+            database in self._registered_templates
+            and name in self._registered_templates[database]
+        ):
+            return self._registered_templates[database][name]
         else:
             errors.report_and_throw(
                 errors.UserCodeError(
-                    f"No registered template with name: {name}.",
+                    f"No registered template with name: {name} and database {database}.",
                     "Template with that name has not been registered",
                     "Make sure you have not misspelled the name of the template "
                     "or the plugin(s) providing the template is installed. "

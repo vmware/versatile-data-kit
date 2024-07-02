@@ -33,6 +33,19 @@ def test_template_builder_overwrite():
     assert str(templates.get_template_directory("name")) == "/tmp/new-location"
 
 
+def test_template_builder_with_multiple_db():
+    templates = TemplatesImpl(
+        "foo", MagicMock(spec=CoreContext), MagicMock(spec=DataJobFactory)
+    )
+    templates.add_template("name", pathlib.Path("/tmp/template"))
+    templates.add_template("name", pathlib.Path("/tmp/template"), "db1")
+    templates.add_template("name", pathlib.Path("/tmp/template"), "db2")
+
+    assert str(templates.get_template_directory("name")) == "/tmp/template"
+    assert str(templates.get_template_directory("name", "db1")) == "/tmp/template"
+    assert str(templates.get_template_directory("name", "db2")) == "/tmp/template"
+
+
 def test_template_execute():
     mock_job_factory = MagicMock(spec=DataJobFactory)
     mock_job = MagicMock(spec=DataJob)

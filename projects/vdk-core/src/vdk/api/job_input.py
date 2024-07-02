@@ -331,7 +331,7 @@ class ITemplate:
 
     @abstractmethod
     def execute_template(
-        self, template_name: str, template_args: dict
+        self, template_name: str, template_args: dict, database: str = "default"
     ) -> ExecutionResult:
         """
         Execute a data job template.
@@ -354,6 +354,9 @@ class ITemplate:
 
             template_args: dict
                 Arguments to be passed to the template
+
+            database: str
+                Name of database for which templates require to load and executed
         """
         pass
 
