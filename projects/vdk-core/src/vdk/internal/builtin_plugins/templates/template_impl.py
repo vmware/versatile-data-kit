@@ -8,13 +8,10 @@ from typing import Optional
 
 from vdk.api.job_input import ITemplate
 from vdk.api.plugin.plugin_input import ITemplateRegistry
-from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.run.data_job import DataJobFactory
 from vdk.internal.builtin_plugins.run.execution_results import ExecutionResult
 from vdk.internal.core import errors
-from vdk.internal.core.config import Configuration
 from vdk.internal.core.context import CoreContext
-from vdk.internal.core.statestore import StateStore
 
 log = logging.getLogger(__name__)
 
@@ -35,10 +32,13 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         )
         self._template_name = template_name
 
-    def add_template(self, name: str, template_directory: pathlib.Path, database: str = "default"):
+    def add_template(
+        self, name: str, template_directory: pathlib.Path, database: str = "default"
+    ):
         if (
-                database in self._registered_templates and name in self._registered_templates[database]
-                and self._registered_templates[database][name] != template_directory
+            database in self._registered_templates
+            and name in self._registered_templates[database]
+            and self._registered_templates[database][name] != template_directory
         ):
             log.warning(
                 f"Template with name {name} in database {database} has been registered with directory "
@@ -55,9 +55,14 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
         log.info(f"Execute template {database} {name} {template_args}")
         template_directory = self.get_template_directory(name, database)
         if database != "default":
-            core_context = CoreContext(self._core_context.plugin_registry, copy.deepcopy(self._core_context.configuration),
-                                       copy.deepcopy(self._core_context.state))
-            core_context.configuration.override_value("DB_DEFAULT_TYPE", database, "vdk")
+            core_context = CoreContext(
+                self._core_context.plugin_registry,
+                copy.deepcopy(self._core_context.configuration),
+                copy.deepcopy(self._core_context.state),
+            )
+            core_context.configuration.override_value(
+                "DB_DEFAULT_TYPE", database, "vdk"
+            )
             template_job = self._datajob_factory.new_datajob(
                 template_directory, core_context, name=self._job_name
             )
@@ -85,8 +90,13 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
                 )
         return result
 
-    def get_template_directory(self, name: str, database: str = "default") -> pathlib.Path:
-        if database in self._registered_templates and name in self._registered_templates[database]:
+    def get_template_directory(
+        self, name: str, database: str = "default"
+    ) -> pathlib.Path:
+        if (
+            database in self._registered_templates
+            and name in self._registered_templates[database]
+        ):
             return self._registered_templates[database][name]
         else:
             errors.report_and_throw(

@@ -15,6 +15,10 @@ This template can be used to load raw data from Data Lake to target Table in Dat
 - check           - (Optional) Callback function responsible for checking the quality of the data. Takes in a table name as a parameter which will be used for data validation
 - staging_schema  - (Optional) Schema where the checks will be executed. If not provided target_schema will be used as default
 
+### Database (database):
+- if only one trino db is being used then value will be "trino"
+- if multiple databases being used then based on database requirement value will be given.
+
 ### Prerequisites:
 
 In order to use this template you need to ensure the following:
@@ -40,7 +44,7 @@ def run(job_input):
         'target_schema': 'history',
         'target_table': 'fact_vmc_utilization_cpu_mem_every5min_daily'
     }
-    job_input.execute_template('insert', template_args)
+    job_input.execute_template('insert', template_args,  database="trino")
     # . . .
 ```
 

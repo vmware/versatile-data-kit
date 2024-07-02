@@ -63,7 +63,7 @@ vdk-core-build_with_py312:
   before_script:
     - cd projects/vdk-core/
   script:
-    - export VDK_TRINO_DOCKER_START=no
+    - export VDK_TRINO_DOCKER_START=yes
     - ./cicd/simple-functional-test.sh
   retry: !reference [.retry, retry_options]
   only:
