@@ -159,7 +159,7 @@ class ITemplateRegistry:
 
     # TODO: add supported arguments so that they can be validated
     @abstractmethod
-    def add_template(self, name: str, template_directory: pathlib.Path, database: str = None):
+    def add_template(self, name: str, template_directory: pathlib.Path, database: str = "default"):
         """
         Register a new template.
         You usually would want to register template with job_initialize plugin hook.
