@@ -26,6 +26,11 @@ Explanation of SCD type 2 can be seen here: <https://en.wikipedia.org/wiki/Slowl
 - active_to_column       - A column denoting the end time of a record in the target table. Equals `active_to_max_value` if the record is not closed.
 - active_to_max_value    - A value denoting an open record in the target table.
 
+### Database (database):
+- if only one trino db is being used then value will be "trino"
+- if multiple databases being used then based on database requirement value will be given.
+
+
 ### Prerequisites:
 
 In order to use this template you need to ensure the following:
@@ -55,7 +60,7 @@ def run(job_input):
         'active_to_column': 'active_to',
         'active_to_max_value': '9999-12-31',
     }
-    job_input.execute_template('scd2', template_args)
+    job_input.execute_template('scd2', template_args, database="trino")
     # . . .
 ```
 
