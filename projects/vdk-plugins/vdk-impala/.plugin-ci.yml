@@ -16,11 +16,11 @@ build-py312-vdk-impala:
   extends: .build-vdk-impala
   image: "python:3.12"
 
-build-vdk-impala-on-vdk-core-release:
-  variables:
-    PLUGIN_NAME: vdk-impala
-  extends: .build-plugin-on-vdk-core-release
-  image: "python:3.9"
+#build-vdk-impala-on-vdk-core-release:
+#  variables:
+#    PLUGIN_NAME: vdk-impala
+#  extends: .build-plugin-on-vdk-core-release
+#  image: "python:3.9"
 
 
 release-vdk-impala:
