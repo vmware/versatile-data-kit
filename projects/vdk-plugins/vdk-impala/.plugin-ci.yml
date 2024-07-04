@@ -3,18 +3,18 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 
-.build-vdk-impala:
-  variables:
-    PLUGIN_NAME: vdk-impala
-  extends: .build-plugin-dind
-
-build-py37-vdk-impala:
-  extends: .build-vdk-impala
-  image: "python:3.7"
-
-build-py312-vdk-impala:
-  extends: .build-vdk-impala
-  image: "python:3.12"
+#.build-vdk-impala:
+#  variables:
+#    PLUGIN_NAME: vdk-impala
+#  extends: .build-plugin-dind
+#
+#build-py37-vdk-impala:
+#  extends: .build-vdk-impala
+#  image: "python:3.7"
+#
+#build-py312-vdk-impala:
+#  extends: .build-vdk-impala
+#  image: "python:3.12"
 
 #build-vdk-impala-on-vdk-core-release:
 #  variables:
