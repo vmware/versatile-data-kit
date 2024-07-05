@@ -41,14 +41,11 @@ def run(job_input: IJobInput):
     target_schema = job_arguments.get("target_schema")
     target_table = job_arguments.get("target_table")
 
-    create_table_query = CommonUtilities.get_file_content(
-        SQL_FILES_FOLDER, "02-create-table.sql"
+    create_table_and_insert_data_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-create-table-and-insert-data.sql"
     )
     drop_table_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-drop-table.sql"
-    )
-    delete_table_content_query = CommonUtilities.get_file_content(
-        SQL_FILES_FOLDER, "02-delete-table-content.sql"
     )
     insert_table_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-insert-into-target.sql"
@@ -68,34 +65,25 @@ def run(job_input: IJobInput):
         )
         job_input.execute_query(drop_staging_table)
 
-        # create staging table
-        create_staging_table = create_table_query.format(
+        # create staging table and  insert data into staging table
+        create_staging_table_and_insert_data = create_table_and_insert_data_query.format(
             table_schema=staging_schema,
             table_name=staging_table,
-            target_schema=target_schema,
-            target_table=target_table,
+            target_schema=source_schema,
+            target_table=source_view,
         )
-        job_input.execute_query(create_staging_table)
-
-        # insert data into staging table
-        insert_into_staging_table = insert_table_query.format(
-            target_schema=staging_schema,
-            target_table=staging_table,
-            source_schema=source_schema,
-            source_view=source_view,
-        )
-        job_input.execute_query(insert_into_staging_table)
+        job_input.execute_query(create_staging_table_and_insert_data)
 
         if check(staging_table_full_name):
-            job_input.execute_query(delete_table_content_query)
+            job_input.execute_query(drop_table_query)
 
-            insert_into_staging_table = insert_table_query.format(
+            create_and_insert_into_target_table = create_table_and_insert_data_query.format(
                 target_schema=target_schema,
                 target_table=target_table,
                 source_schema=staging_schema,
                 source_view=staging_table,
             )
-            job_input.execute_query(insert_into_staging_table)
+            job_input.execute_query(create_and_insert_into_target_table)
 
         else:
             raise DataQualityException(
@@ -105,5 +93,5 @@ def run(job_input: IJobInput):
             )
 
     else:
-        job_input.execute_query(delete_table_content_query)
-        job_input.execute_query(insert_table_query)
+        job_input.execute_query(drop_table_query)
+        job_input.execute_query(create_table_and_insert_data_query)

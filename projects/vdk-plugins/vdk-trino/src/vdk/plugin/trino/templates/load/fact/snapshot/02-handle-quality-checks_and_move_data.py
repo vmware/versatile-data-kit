@@ -46,11 +46,12 @@ def run(job_input: IJobInput):
     drop_table_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-drop-table.sql"
     )
-    delete_table_content_query = CommonUtilities.get_file_content(
-        SQL_FILES_FOLDER, "02-delete-table-content.sql"
-    )
+
     create_table_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-create-table.sql"
+    )
+    create_table_and_insert_data_query = CommonUtilities.get_file_content(
+        SQL_FILES_FOLDER, "02-create-table-and-insert-data.sql"
     )
     insert_snapshot_data_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-insert-snapshot-data.sql"
@@ -100,12 +101,12 @@ def run(job_input: IJobInput):
             target_table=target_table_full_name,
         )
     else:
-        job_input.execute_query(delete_table_content_query)
+        job_input.execute_query(drop_table_query)
         # insert into target
-        insert_into_target = insert_into_target_query.format(
+        create_and_insert_into_target = create_table_and_insert_data_query.format(
             target_schema=target_schema,
             target_table=target_table,
-            staging_schema=staging_schema,
-            staging_table=staging_table,
+            source_schema=staging_schema,
+            source_view=staging_table,
         )
-        job_input.execute_query(insert_into_target)
+        job_input.execute_query(create_and_insert_into_target)

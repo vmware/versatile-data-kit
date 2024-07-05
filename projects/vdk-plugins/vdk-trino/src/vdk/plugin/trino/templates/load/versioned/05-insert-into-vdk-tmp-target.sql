@@ -1,4 +1,4 @@
-INSERT INTO "{target_schema}"."tmp_{target_table}"
+INSERT INTO "{target_schema}"."vdk_tmp_{target_table}"
   -- Compute the union of the source and target tables and augment each side with the following columns:
   -- _values_hash:
   --     A hash of the tracked values.
