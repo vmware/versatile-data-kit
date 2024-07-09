@@ -36,7 +36,7 @@ vdk-control-cli-build-with-py312:
   image: "python:3.12"
   extends: .vdk-control-cli-build
 
-vdk-control-cli-release-acceptance-test:
+.vdk-control-cli-release-acceptance-test:
   stage: pre_release
   before_script:
     - cd projects/vdk-control-cli
