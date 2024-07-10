@@ -80,9 +80,10 @@
   stage: release_image
   image: docker:23.0.1
   services:
-    - docker:23.0.1-dind
+  - name: docker:23.0.1-dind
+    entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
   variables:
-    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_HOST: tcp://127.0.0.1:2375
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
   before_script:
