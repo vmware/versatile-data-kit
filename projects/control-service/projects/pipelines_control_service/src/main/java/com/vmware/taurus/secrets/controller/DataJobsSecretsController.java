@@ -38,7 +38,7 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
   @Override
   public ResponseEntity<Void> dataJobSecretsUpdate(
       String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
-    log.debug("Updating secrets for job: {} - {}",teamName, jobName);
+    log.debug("Updating secrets for job: {} - {}", teamName, jobName);
 
     secretsService.updateJobSecrets(teamName, jobName, requestBody);
     return ResponseEntity.noContent().build();

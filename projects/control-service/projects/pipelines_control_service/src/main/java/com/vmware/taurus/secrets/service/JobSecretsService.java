@@ -10,9 +10,7 @@ import com.vmware.taurus.secrets.service.vault.VaultTeamCredentials;
 
 import java.util.Map;
 
-/**
- * Interface for managing job secrets and team OAuth credentials.
- */
+/** Interface for managing job secrets and team OAuth credentials. */
 public interface JobSecretsService {
 
   /**
@@ -32,7 +30,8 @@ public interface JobSecretsService {
    * @return a map containing the secrets of the specified job
    * @throws JsonProcessingException if there is an error processing the JSON
    */
-  Map<String, Object> readJobSecrets(String teamName, String jobName) throws JsonProcessingException;
+  Map<String, Object> readJobSecrets(String teamName, String jobName)
+      throws JsonProcessingException;
 
   /**
    * Updates the OAuth credentials for a specified team.

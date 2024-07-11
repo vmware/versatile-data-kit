@@ -16,8 +16,6 @@ import com.vmware.taurus.exception.SecretStorageNotConfiguredException;
 import com.vmware.taurus.secrets.controller.DataJobsSecretsController;
 import com.vmware.taurus.secrets.controller.NoOpDataJobsSecretsController;
 import com.vmware.taurus.secrets.service.JobSecretsService;
-import com.vmware.taurus.secrets.service.vault.VaultTeamCredentials;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -83,7 +81,8 @@ class DataJobsSecretsControllerTest {
     String jobName = "testJob";
     String teamName = "testTeam";
 
-    when(jobSecretsService.readJobSecrets(teamName, jobName)).thenThrow(JsonProcessingException.class);
+    when(jobSecretsService.readJobSecrets(teamName, jobName))
+        .thenThrow(JsonProcessingException.class);
 
     ResponseEntity<Map<String, Object>> expectedResponse =
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);

@@ -76,7 +76,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
     String updatedSecretsString = new JSONObject(updatedSecrets).toString();
     if (updatedSecretsString.getBytes(StandardCharsets.UTF_8).length > sizeLimitBytes) {
       throw new DataJobSecretsSizeLimitException(
-              secretKey, "Secret size exceeds configured limit of:" + sizeLimitBytes);
+          secretKey, "Secret size exceeds configured limit of:" + sizeLimitBytes);
     }
 
     vaultJobSecrets.setSecretsJson(updatedSecretsString);
@@ -85,7 +85,8 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   }
 
   @Override
-  public Map<String, Object> readJobSecrets(String teamName, String jobName) throws JsonProcessingException {
+  public Map<String, Object> readJobSecrets(String teamName, String jobName)
+      throws JsonProcessingException {
     checkInputs(teamName, jobName);
 
     String secretKey = teamName + "/" + jobName;
@@ -109,7 +110,8 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
 
     String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
 
-    VaultTeamCredentials teamCredentials = new VaultTeamCredentials(teamName, clientId, clientSecret);
+    VaultTeamCredentials teamCredentials =
+        new VaultTeamCredentials(teamName, clientId, clientSecret);
 
     vaultOperations.opsForVersionedKeyValue(SECRET).put(secretKey, teamCredentials);
   }
@@ -121,12 +123,13 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
     String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
 
     Versioned<VaultTeamCredentials> readResponse =
-            vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultTeamCredentials.class);
+        vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultTeamCredentials.class);
 
     if (readResponse != null && readResponse.hasData()) {
       return readResponse.getData();
     } else {
-      throw new DataJobTeamSecretsException(teamName, "Cannot retrieve OAuth Credentials for team:" + teamName);
+      throw new DataJobTeamSecretsException(
+          teamName, "Cannot retrieve OAuth Credentials for team:" + teamName);
     }
   }
 

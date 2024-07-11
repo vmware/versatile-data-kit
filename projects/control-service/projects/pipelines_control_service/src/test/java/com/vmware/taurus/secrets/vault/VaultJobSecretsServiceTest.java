@@ -32,7 +32,6 @@ import java.util.Map;
 
 import static com.vmware.taurus.secrets.service.vault.VaultJobSecretsService.TEAM_OAUTH_CREDENTIALS;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -131,7 +130,6 @@ class VaultJobSecretsServiceTest {
     Assert.assertThat(t.getMessage(), CoreMatchers.containsString("Data Job Name cannot be blank"));
   }
 
-
   @Test
   void updateTeamOauthCredentials_validInputs_shouldUpdateCredentials() {
     String teamName = "testTeam";
@@ -143,29 +141,30 @@ class VaultJobSecretsServiceTest {
     secretsService.updateTeamOauthCredentials(teamName, clientId, clientSecret);
 
     String expectedSecretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
-    VaultTeamCredentials expectedCredentials = new VaultTeamCredentials(teamName, clientId, clientSecret);
+    VaultTeamCredentials expectedCredentials =
+        new VaultTeamCredentials(teamName, clientId, clientSecret);
     verify(vaultOperations).put(expectedSecretKey, expectedCredentials);
   }
 
   @Test
   void updateTeamOauthCredentials_nullTeamName_shouldThrowException() {
-    assertThrows(DataJobTeamSecretsException.class, () ->
-            secretsService.updateTeamOauthCredentials(null, "clientId", "clientSecret")
-    );
+    assertThrows(
+        DataJobTeamSecretsException.class,
+        () -> secretsService.updateTeamOauthCredentials(null, "clientId", "clientSecret"));
   }
 
   @Test
   void updateTeamOauthCredentials_emptyClientId_shouldThrowException() {
-    assertThrows(DataJobTeamSecretsException.class, () ->
-            secretsService.updateTeamOauthCredentials("teamName", "", "clientSecret")
-    );
+    assertThrows(
+        DataJobTeamSecretsException.class,
+        () -> secretsService.updateTeamOauthCredentials("teamName", "", "clientSecret"));
   }
 
   @Test
   void updateTeamOauthCredentials_nullClientSecret_shouldThrowException() {
-    assertThrows(DataJobTeamSecretsException.class, () ->
-            secretsService.updateTeamOauthCredentials("teamName", "clientId", null)
-    );
+    assertThrows(
+        DataJobTeamSecretsException.class,
+        () -> secretsService.updateTeamOauthCredentials("teamName", "clientId", null));
   }
 
   @Test
@@ -176,7 +175,8 @@ class VaultJobSecretsServiceTest {
     Versioned<VaultTeamCredentials> versionedCredentials = Versioned.create(expectedCredentials);
 
     when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
-    when(vaultOperations.get(secretKey, VaultTeamCredentials.class)).thenReturn(versionedCredentials);
+    when(vaultOperations.get(secretKey, VaultTeamCredentials.class))
+        .thenReturn(versionedCredentials);
 
     VaultTeamCredentials result = secretsService.readTeamOauthCredentials(teamName);
 
@@ -193,7 +193,8 @@ class VaultJobSecretsServiceTest {
     when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
     when(vaultOperations.get(secretKey, VaultTeamCredentials.class)).thenReturn(null);
 
-    assertThrows(DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(teamName));
+    assertThrows(
+        DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(teamName));
     verify(vaultTemplate).opsForVersionedKeyValue(SECRET);
     verify(vaultOperations).get(secretKey, VaultTeamCredentials.class);
   }
@@ -202,23 +203,26 @@ class VaultJobSecretsServiceTest {
   void testReadTeamOauthCredentials_EmptyResponse() {
     String teamName = "testTeam";
     String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
-//    Versioned<VaultTeamCredentials> emptyVersionedCredentials = Versioned.empty();
+    //    Versioned<VaultTeamCredentials> emptyVersionedCredentials = Versioned.empty();
 
     when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
     when(vaultOperations.get(secretKey, VaultTeamCredentials.class)).thenReturn(null);
 
-    assertThrows(DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(teamName));
+    assertThrows(
+        DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(teamName));
     verify(vaultTemplate).opsForVersionedKeyValue(SECRET);
     verify(vaultOperations).get(secretKey, VaultTeamCredentials.class);
   }
 
   @Test
   void testReadTeamOauthCredentials_NullTeamName() {
-    assertThrows(DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(null));
+    assertThrows(
+        DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(null));
   }
 
   @Test
   void testReadTeamOauthCredentials_EmptyTeamName() {
-    assertThrows(DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(""));
+    assertThrows(
+        DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(""));
   }
 }

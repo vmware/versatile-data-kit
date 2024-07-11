@@ -55,7 +55,7 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
   @Test
   public void testGetEmptyDataJobSecrets() throws Exception {
-    Map<String, Object> result = vaultJobSecretService.readJobSecrets("testTeam","testJob");
+    Map<String, Object> result = vaultJobSecretService.readJobSecrets("testTeam", "testJob");
     Assertions.assertEquals(Collections.emptyMap(), result);
   }
 
@@ -66,9 +66,10 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
     Map<String, Object> secrets = Collections.unmodifiableMap(temp);
 
-    vaultJobSecretService.updateJobSecrets("test !@#$%^&*() Team","testJob2", secrets);
+    vaultJobSecretService.updateJobSecrets("test !@#$%^&*() Team", "testJob2", secrets);
 
-    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("test !@#$%^&*() Team","testJob2");
+    Map<String, Object> readResult =
+        vaultJobSecretService.readJobSecrets("test !@#$%^&*() Team", "testJob2");
     Assertions.assertEquals(secrets, readResult);
   }
 
@@ -78,9 +79,9 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
     Map<String, Object> secrets = Collections.unmodifiableMap(temp);
 
-    vaultJobSecretService.updateJobSecrets("testTeam","testJob2", secrets);
+    vaultJobSecretService.updateJobSecrets("testTeam", "testJob2", secrets);
 
-    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testTeam","testJob2");
+    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("testTeam", "testJob2");
     Assertions.assertEquals(secrets, readResult);
   }
 
@@ -91,7 +92,7 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
     Map<String, Object> secrets = Collections.unmodifiableMap(temp);
 
-    vaultJobSecretService.updateJobSecrets("test Team","testJob2", secrets);
+    vaultJobSecretService.updateJobSecrets("test Team", "testJob2", secrets);
 
     Map<String, Object> largeSecrets = new HashMap<>();
     largeSecrets.put("key1", null);
@@ -101,16 +102,18 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
     assertThrows(
         DataJobSecretsSizeLimitException.class,
-        () -> vaultJobSecretService.updateJobSecrets("test Team","testJob2", largeSecrets));
+        () -> vaultJobSecretService.updateJobSecrets("test Team", "testJob2", largeSecrets));
 
     // check secrets were not updated
-    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("test Team","testJob2");
+    Map<String, Object> readResult = vaultJobSecretService.readJobSecrets("test Team", "testJob2");
     Assertions.assertEquals(secrets, readResult);
   }
 
   @Test
   public void testGetEmptyTeamOauthToken() throws Exception {
-    Assertions.assertThrows(DataJobTeamSecretsException.class, () -> vaultJobSecretService.readTeamOauthCredentials("testTeam"));
+    Assertions.assertThrows(
+        DataJobTeamSecretsException.class,
+        () -> vaultJobSecretService.readTeamOauthCredentials("testTeam"));
   }
 
   @Test
@@ -129,8 +132,14 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
 
   @Test
   public void testSetEmptyTeamOauthToken() throws Exception {
-    Assertions.assertThrows(DataJobTeamSecretsException.class, () -> vaultJobSecretService.updateTeamOauthCredentials("", "ClientId", "clientSecret"));
-    Assertions.assertThrows(DataJobTeamSecretsException.class, () -> vaultJobSecretService.updateTeamOauthCredentials("teamName", "", "clientSecret"));
-    Assertions.assertThrows(DataJobTeamSecretsException.class, () -> vaultJobSecretService.updateTeamOauthCredentials("teamName", "ClientId", ""));
+    Assertions.assertThrows(
+        DataJobTeamSecretsException.class,
+        () -> vaultJobSecretService.updateTeamOauthCredentials("", "ClientId", "clientSecret"));
+    Assertions.assertThrows(
+        DataJobTeamSecretsException.class,
+        () -> vaultJobSecretService.updateTeamOauthCredentials("teamName", "", "clientSecret"));
+    Assertions.assertThrows(
+        DataJobTeamSecretsException.class,
+        () -> vaultJobSecretService.updateTeamOauthCredentials("teamName", "ClientId", ""));
   }
 }
