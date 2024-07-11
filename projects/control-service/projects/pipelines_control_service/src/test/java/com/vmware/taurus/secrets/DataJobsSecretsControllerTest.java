@@ -16,6 +16,7 @@ import com.vmware.taurus.exception.SecretStorageNotConfiguredException;
 import com.vmware.taurus.secrets.controller.DataJobsSecretsController;
 import com.vmware.taurus.secrets.controller.NoOpDataJobsSecretsController;
 import com.vmware.taurus.secrets.service.JobSecretsService;
+import com.vmware.taurus.secrets.service.vault.VaultTeamCredentials;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,16 +44,17 @@ class DataJobsSecretsControllerTest {
   @Test
   void testDataJobSecretsUpdate() {
     String jobName = "testJob";
+    String teamName = "testTeam";
     Map<String, Object> requestBody = new HashMap<>();
 
     ResponseEntity<Void> expectedResponse = ResponseEntity.noContent().build();
 
-    doNothing().when(jobSecretsService).updateJobSecrets(jobName, requestBody);
+    doNothing().when(jobSecretsService).updateJobSecrets(teamName, jobName, requestBody);
 
     ResponseEntity<Void> actualResponse =
-        controller.dataJobSecretsUpdate(null, jobName, null, requestBody);
+        controller.dataJobSecretsUpdate(teamName, jobName, null, requestBody);
 
-    verify(jobSecretsService, times(1)).updateJobSecrets(jobName, requestBody);
+    verify(jobSecretsService, times(1)).updateJobSecrets(teamName, jobName, requestBody);
 
     assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
   }
@@ -59,16 +62,17 @@ class DataJobsSecretsControllerTest {
   @Test
   void testDataJobSecretsRead() throws JsonProcessingException {
     String jobName = "testJob";
+    String teamName = "testTeam";
     Map<String, Object> expectedSecrets = new HashMap<>();
 
-    when(jobSecretsService.readJobSecrets(jobName)).thenReturn(expectedSecrets);
+    when(jobSecretsService.readJobSecrets(teamName, jobName)).thenReturn(expectedSecrets);
 
     ResponseEntity<Map<String, Object>> expectedResponse = ResponseEntity.ok(expectedSecrets);
 
     ResponseEntity<Map<String, Object>> actualResponse =
-        controller.dataJobSecretsRead(null, jobName, null);
+        controller.dataJobSecretsRead(teamName, jobName, null);
 
-    verify(jobSecretsService, times(1)).readJobSecrets(jobName);
+    verify(jobSecretsService, times(1)).readJobSecrets(teamName, jobName);
 
     assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     assertEquals(expectedResponse.getBody(), actualResponse.getBody());
@@ -77,18 +81,19 @@ class DataJobsSecretsControllerTest {
   @Test
   void testDataJobSecretsRead_JsonProcessingException() throws JsonProcessingException {
     String jobName = "testJob";
+    String teamName = "testTeam";
 
-    when(jobSecretsService.readJobSecrets(jobName)).thenThrow(JsonProcessingException.class);
+    when(jobSecretsService.readJobSecrets(teamName, jobName)).thenThrow(JsonProcessingException.class);
 
     ResponseEntity<Map<String, Object>> expectedResponse =
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
     DataJobSecretsException thrownException =
-        Assertions.assertThrows(
+        assertThrows(
             DataJobSecretsException.class,
-            () -> controller.dataJobSecretsRead(null, jobName, null));
+            () -> controller.dataJobSecretsRead(teamName, jobName, null));
 
-    verify(jobSecretsService, times(1)).readJobSecrets(jobName);
+    verify(jobSecretsService, times(1)).readJobSecrets(teamName, jobName);
 
     assertEquals(expectedResponse.getStatusCode(), thrownException.getHttpStatus());
   }
@@ -96,21 +101,22 @@ class DataJobsSecretsControllerTest {
   @Test
   void testDataJobSecrets_NotConfigured() throws JsonProcessingException {
     String jobName = "testJob";
+    String teamName = "testTeam";
 
     ResponseEntity<Map<String, Object>> expectedResponse =
         ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
 
     SecretStorageNotConfiguredException thrownException =
-        Assertions.assertThrows(
+        assertThrows(
             SecretStorageNotConfiguredException.class,
-            () -> noOpsController.dataJobSecretsRead(null, jobName, null));
+            () -> noOpsController.dataJobSecretsRead(teamName, jobName, null));
 
     assertEquals(expectedResponse.getStatusCode(), thrownException.getHttpStatus());
 
     thrownException =
-        Assertions.assertThrows(
+        assertThrows(
             SecretStorageNotConfiguredException.class,
-            () -> noOpsController.dataJobSecretsUpdate(null, jobName, null, null));
+            () -> noOpsController.dataJobSecretsUpdate(teamName, jobName, null, null));
 
     assertEquals(expectedResponse.getStatusCode(), thrownException.getHttpStatus());
   }
