@@ -61,4 +61,3 @@ DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile-vdk-base"
         --build-arg=vdk_version="${VDK_VERSION}" \
         --build-arg=pip_extra_index_url="${PIP_EXTRA_INDEX_URL}" \
         --build-arg=vdk_base_python_image="${VDK_BASE_PYTHON_IMAGE}"
-
