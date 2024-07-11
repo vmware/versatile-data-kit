@@ -53,7 +53,7 @@ EOM
 SCRIPT_DIR=$(dirname "$0")
 DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile-vdk-base"
 /kaniko/executor --log-timestamp=true --single-snapshot \
-        --label "vdk_version=${VDK_VERSION}" \
+        --label=vdk_version="${VDK_VERSION}" \
         --dockerfile="${DOCKERFILE_PATH}" \
         --destination="${DOCKER_REGISTRY_IMAGE}:${VDK_VERSION}"  \
         --destination="${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}"  \

@@ -79,8 +79,8 @@
 .release-vdk-image:
   stage: release_image
   image:
-    - name: gcr.io/kaniko-project/executor:debug
-    - entrypoint: [""]
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
     - export BUILD_TYPE=release
