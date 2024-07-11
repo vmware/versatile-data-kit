@@ -78,14 +78,9 @@
 
 .release-vdk-image:
   stage: release_image
-  image: docker:23.0.1
-  services:
-  - name: docker:23.0.1-dind
-    entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
-  variables:
-    DOCKER_HOST: tcp://127.0.0.1:2375
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
+  image:
+    - name: gcr.io/kaniko-project/executor:debug
+    - entrypoint: [""]
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
     - export BUILD_TYPE=release
