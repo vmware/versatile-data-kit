@@ -11,6 +11,7 @@ import com.vmware.taurus.exception.DataJobSecretsException;
 import com.vmware.taurus.exception.DataJobSecretsSizeLimitException;
 import com.vmware.taurus.exception.DataJobTeamSecretsException;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -48,7 +49,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
 
     checkInputs(teamName, jobName);
 
-    String secretKey = teamName + "/" + jobName;
+    String secretKey = getJobSecretKey(teamName, jobName);
 
     Versioned<VaultJobSecrets> readResponse =
         vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultJobSecrets.class);
@@ -89,7 +90,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
       throws JsonProcessingException {
     checkInputs(teamName, jobName);
 
-    String secretKey = teamName + "/" + jobName;
+    String secretKey = getJobSecretKey(teamName, jobName);
 
     Versioned<VaultJobSecrets> readResponse =
         vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultJobSecrets.class);
@@ -104,11 +105,16 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
     }
   }
 
+  private static @NotNull String getJobSecretKey(String teamName, String jobName) {
+    String secretKey = teamName + "/" + jobName;
+    return secretKey;
+  }
+
   @Override
   public void updateTeamOauthCredentials(String teamName, String clientId, String clientSecret) {
     checkInputs(teamName, clientId, clientSecret);
 
-    String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
+    String secretKey = getTeamSecretKey(teamName);
 
     VaultTeamCredentials teamCredentials =
         new VaultTeamCredentials(teamName, clientId, clientSecret);
@@ -120,7 +126,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   public VaultTeamCredentials readTeamOauthCredentials(String teamName) {
     checkInputs(teamName);
 
-    String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
+    String secretKey = getTeamSecretKey(teamName);
 
     Versioned<VaultTeamCredentials> readResponse =
         vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultTeamCredentials.class);
@@ -131,6 +137,11 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
       throw new DataJobTeamSecretsException(
           teamName, "Cannot retrieve OAuth Credentials for team:" + teamName);
     }
+  }
+
+  private static @NotNull String getTeamSecretKey(String teamName) {
+    String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
+    return secretKey;
   }
 
   private void checkInputs(String teamName) {
