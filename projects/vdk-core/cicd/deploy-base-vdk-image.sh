@@ -36,19 +36,8 @@ fi
 
 echo "Publishing $BUILD_TYPE VDK base image with $VDK_PACKAGE version $VDK_VERSION ..."
 
-export auth=$(echo -n $VDK_DOCKER_REGISTRY_USERNAME:$VDK_DOCKER_REGISTRY_PASSWORD | base64 -w 0)
-cat > /kaniko/.docker/config.json <<- EOM
-{
-  "auths": {
-    "$VDK_DOCKER_REGISTRY_URL": {
-      "username":"$VDK_DOCKER_REGISTRY_USERNAME",
-      "password":"$VDK_DOCKER_REGISTRY_PASSWORD",
-      "auth": "$auth"
-    }
-  $extra_auth
-  }
-}
-EOM
+echo "{\"auths\":{\"$VDK_DOCKER_REGISTRY_URL\":{\"username\":\"$VDK_DOCKER_REGISTRY_USERNAME\",\"password\":\"$VDK_DOCKER_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+
 
 SCRIPT_DIR=$(dirname "$0")
 DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile-vdk-base"
