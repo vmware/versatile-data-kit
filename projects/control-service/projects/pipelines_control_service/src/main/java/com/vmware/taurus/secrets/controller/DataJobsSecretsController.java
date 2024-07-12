@@ -38,19 +38,19 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
   @Override
   public ResponseEntity<Void> dataJobSecretsUpdate(
       String teamName, String jobName, String deploymentId, Map<String, Object> requestBody) {
-    log.debug("Updating secrets for job: {}", jobName);
+    log.debug("Updating secrets for job: {} - {}", teamName, jobName);
 
-    secretsService.updateJobSecrets(jobName, requestBody);
+    secretsService.updateJobSecrets(teamName, jobName, requestBody);
     return ResponseEntity.noContent().build();
   }
 
   @Override
   public ResponseEntity<Map<String, Object>> dataJobSecretsRead(
       String teamName, String jobName, String deploymentId) {
-    log.debug("Reading secrets for job: {}", jobName);
+    log.debug("Reading secrets for job: {} - {}", teamName, jobName);
 
     try {
-      return ResponseEntity.ok(secretsService.readJobSecrets(jobName));
+      return ResponseEntity.ok(secretsService.readJobSecrets(teamName, jobName));
     } catch (JsonProcessingException e) {
       log.error("Error while parsing secrets for job: " + jobName, e);
       throw new DataJobSecretsException(jobName, "Error while parsing secrets for job");
