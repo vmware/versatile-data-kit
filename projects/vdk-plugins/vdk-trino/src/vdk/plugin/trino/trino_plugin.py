@@ -68,6 +68,7 @@ class TrinoPlugin:
                     raise ValueError(
                         "You cannot create a subsection with name 'vdk_trino'! Try another name."
                     )
+            # connection_name to register templates with that name
             context.templates.add_template(
                 "load/dimension/scd1",
                 pathlib.Path(get_job_path("load/dimension/scd1")),

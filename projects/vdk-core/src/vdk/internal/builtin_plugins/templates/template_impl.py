@@ -49,6 +49,7 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
             self._registered_templates[database] = {}
         self._registered_templates[database][name] = template_directory
 
+    # Added database argument to support multiple DB type
     def execute_template(
         self, name: str, template_args: dict, database: str = "default"
     ) -> ExecutionResult:  # input dict immutable?
