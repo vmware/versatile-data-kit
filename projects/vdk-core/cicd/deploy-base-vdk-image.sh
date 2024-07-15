@@ -41,7 +41,7 @@ echo "{\"auths\":{\"$VDK_DOCKER_REGISTRY_URL\":{\"username\":\"$VDK_DOCKER_REGIS
 
 SCRIPT_DIR=$(dirname "$0")
 DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile-vdk-base"
-/kaniko/executor --single-snapshot \
+/kaniko/executor --force --single-snapshot \
         --dockerfile="${DOCKERFILE_PATH}" \
         --destination="${DOCKER_REGISTRY_IMAGE}:${VDK_VERSION}"  \
         --destination="${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}"  \
