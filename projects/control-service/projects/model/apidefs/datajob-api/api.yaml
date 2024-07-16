@@ -965,6 +965,8 @@ paths:
           $ref: '#/components/responses/Error'
       operationId: oauthCredentialsGet
       summary: Get the Team's Oauth Application Credentials. | (Stable)
+      description: |
+        Get the Team's Oauth Application Credentials.
     put:
       requestBody:
         content:
