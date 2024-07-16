@@ -952,6 +952,94 @@ paths:
         in: path
         required: true
 
+  '/data-jobs/teams/{team_name}/oauth-credentials':
+    summary: |
+      API to store/retrieve the Team's OAuth Application Credentials
+    get:
+      tags:
+        - Data Jobs Secrets
+      responses:
+        '200':
+          $ref: '#/components/responses/OauthTeamCredentials'
+        '404':
+          $ref: '#/components/responses/Error'
+      operationId: oauthCredentialsGet
+      summary: Get the Team's Oauth Application Credentials. | (Stable)
+      description: |
+        Get the Team's Oauth Application Credentials.
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OauthCredentials'
+      tags:
+        - Data Jobs Secrets
+      responses:
+        '202':
+          description: Update accepted successfully.
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      operationId: oauthCredentialsPut
+      summary: Creates or updates a Team's Oauth Application Credentials. | (Stable)
+      description: |
+        Creates or updates a Team's Oauth Application Credentials.
+    parameters:
+      - name: team_name
+        description: Team Name
+        schema:
+          type: string
+        in: path
+        required: true
+
+  '/data-jobs/teams/{team_name}/oauth-credentials/client-id':
+    get:
+      tags:
+        - Data Jobs Secrets
+      responses:
+        '200':
+          $ref: '#/components/responses/OauthTeamClientId'
+        '404':
+          $ref: '#/components/responses/Error'
+      operationId: clientIdGet
+      summary: Retrieve the OAuth client ID for a specific team identified by {team_name}. | (Stable)
+      description: |
+        Retrieve the OAuth client ID for a specific team identified by {team_name}.
+    parameters:
+      - name: team_name
+        description: Team Name
+        schema:
+          type: string
+        in: path
+        required: true
+
+  '/data-jobs/oauth-credentials/client-ids':
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      tags:
+        - Data Jobs Secrets
+      responses:
+        '200':
+          $ref: '#/components/responses/OauthTeamClientIdsArray'
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      operationId: teamClientIdsGet
+      summary: for a given list of ClientID(s) return a list of Team Ids,e.g. list of [clientId:teamId,clientId1:teamID1]
+      description: |
+        for a given list of ClientID(s) return a list of Team Ids,e.g. list of [clientId:teamId,clientId1:teamID1]
+
+
   '/data-jobs/for-team/{team_name}/jobs/{job_name}/sources':
     get:
       tags:
@@ -1309,6 +1397,54 @@ components:
         redshift-user: foo
         redshift-password: bar
 
+    OauthCredentials:
+      description: Oauth credentials
+      required:
+        - clientId
+        - clientSecret
+      type: object
+      properties:
+        clientId:
+          description: Oauth Application Client ID
+          type: string
+          example: HDZe8w71KzzzRQkpRlicFM2UAdUsgStRGv
+        clientSecret:
+          description: Oauth Application Client Secret
+          type: string
+          example: OYXIXlHE2sRuPBCXHTBHxN3rZOiBtFkrbnCpAj1YSFE3gSr5mT
+
+    OauthTeamCredentials:
+      description: Oauth credentials for a team.
+      type: object
+      properties:
+        teamName:
+          type: string
+          description: The name of the team
+        clientId:
+          type: string
+          description: The clientID
+        clientSecret:
+          type: string
+          description: The clientSecret
+      required:
+        - teamName
+        - clientId
+        - clientSecret
+
+    OauthTeamClientId:
+      description: Oauth credentials for a team.
+      type: object
+      properties:
+        teamName:
+          type: string
+          description: The name of the team
+        clientId:
+          type: string
+          description: The clientID
+      required:
+        - clientId
+        - teamName
+
     DataJobMode:
       description: The execution mode that the data job is deployed in. Data Jobs used for development or testing purposes are marked as testing.
         This is used by Operations team on platform rollout and infrastructure changes adoption. For example, rollout and validation of testing jobs first, then proceeding with release data jobs. Also, testing and release jobs may have different limits and SLA targets.
@@ -1604,6 +1740,27 @@ components:
           schema:
             $ref: '#/components/schemas/DataJobSecrets'
       description: Data Job Secrets
+    OauthTeamCredentials:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OauthTeamCredentials'
+      description: Team Oauth Credentials
+    OauthTeamClientId:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OauthTeamClientId'
+      description: Team Oauth ClientId
+    OauthTeamClientIdsArray:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/OauthTeamClientId'
+      description: An array of Team Oauth ClientIds
+
     Source:
       content:
         application/json:
@@ -1639,7 +1796,7 @@ tags:
     description: "Any saved state or configuration of a Data Job. Those are tracked per deployment.
       NOTE: Versioned properties, so all changes are tracked (when, who - opid or user), is not implemented yet."
   - name: "Data Jobs Secrets"
-    description: "Secrets configured for a Data Job. Example: passwords/tokens/credentials/sensitive data."
+    description: "Secrets for a Team or Data Job. Example: passwords/tokens/credentials/sensitive data."
   - name: "Data Jobs Service"
     description: (Stable)
   - name: "Data Jobs Sources"
