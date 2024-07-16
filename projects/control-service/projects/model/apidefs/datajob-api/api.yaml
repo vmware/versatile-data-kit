@@ -1000,15 +1000,13 @@ paths:
         - Data Jobs Secrets
       responses:
         '200':
-          description: Successfully updated string
-          content:
-            application/json:
-              schema:
-                type: string
+          $ref: '#/components/responses/OauthTeamClientId'
         '404':
           $ref: '#/components/responses/Error'
       operationId: clientIdGet
       summary: Retrieve the OAuth client ID for a specific team identified by {team_name}. | (Stable)
+      description: |
+        Retrieve the OAuth client ID for a specific team identified by {team_name}.
     parameters:
       - name: team_name
         description: Team Name
@@ -1031,13 +1029,7 @@ paths:
         - Data Jobs Secrets
       responses:
         '200':
-          description: for a given list of ClientID(s) return a list of Team Ids,e.g. list of [clientId:teamId,clientId1:teamID1]
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: string
+          $ref: '#/components/responses/OauthTeamClientIdsArray'
         '400':
           $ref: '#/components/responses/Error'
         '404':
@@ -1439,6 +1431,20 @@ components:
         - clientId
         - clientSecret
 
+    OauthTeamClientId:
+      description: Oauth credentials for a team.
+      type: object
+      properties:
+        teamName:
+          type: string
+          description: The name of the team
+        clientId:
+          type: string
+          description: The clientID
+      required:
+        - clientId
+        - teamName
+
     DataJobMode:
       description: The execution mode that the data job is deployed in. Data Jobs used for development or testing purposes are marked as testing.
         This is used by Operations team on platform rollout and infrastructure changes adoption. For example, rollout and validation of testing jobs first, then proceeding with release data jobs. Also, testing and release jobs may have different limits and SLA targets.
@@ -1740,6 +1746,21 @@ components:
           schema:
             $ref: '#/components/schemas/OauthTeamCredentials'
       description: Team Oauth Credentials
+    OauthTeamClientId:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OauthTeamClientId'
+      description: Team Oauth ClientId
+    OauthTeamClientIdsArray:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/OauthTeamClientId'
+      description: An array of Team Oauth ClientIds
+
     Source:
       content:
         application/json:
