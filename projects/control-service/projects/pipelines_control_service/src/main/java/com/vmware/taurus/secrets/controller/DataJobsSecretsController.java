@@ -79,15 +79,19 @@ public class DataJobsSecretsController implements DataJobsSecretsApi {
     log.debug("Getting oauth credentials for team: {}", teamName);
     VaultTeamCredentials teamCredentials = secretsService.readTeamOauthCredentials(teamName);
     if (teamCredentials != null) {
-      OauthTeamCredentials response = new OauthTeamCredentials(teamName, teamCredentials.getClientId(), teamCredentials.getClientSecret());
+      OauthTeamCredentials response =
+          new OauthTeamCredentials(
+              teamName, teamCredentials.getClientId(), teamCredentials.getClientSecret());
       return ResponseEntity.ok(response);
     }
     return ResponseEntity.notFound().build();
   }
 
   @Override
-  public ResponseEntity<Void> oauthCredentialsPut(String teamName, OauthCredentials oauthCredentials) {
-    secretsService.updateTeamOauthCredentials(teamName, oauthCredentials.getClientId(), oauthCredentials.getClientSecret());
+  public ResponseEntity<Void> oauthCredentialsPut(
+      String teamName, OauthCredentials oauthCredentials) {
+    secretsService.updateTeamOauthCredentials(
+        teamName, oauthCredentials.getClientId(), oauthCredentials.getClientSecret());
     return ResponseEntity.accepted().build();
   }
 

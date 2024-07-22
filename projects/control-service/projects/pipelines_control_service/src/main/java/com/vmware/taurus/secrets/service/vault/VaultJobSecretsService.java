@@ -46,7 +46,6 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   private final ConcurrentHashMap<String, VaultTeamCredentials> teamIdToCredentialsCache;
   private final ConcurrentHashMap<String, String> clientIdToTeamIdCache;
 
-
   public VaultJobSecretsService(VaultOperations vaultOperations) {
     this.vaultOperations = vaultOperations;
     this.teamIdToCredentialsCache = new ConcurrentHashMap<>();
@@ -136,13 +135,15 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   @Override
   public VaultTeamCredentials readTeamOauthCredentials(String teamName) {
     checkInputs(teamName);
-    if (teamIdToCredentialsCache.containsKey(teamName)){
+    if (teamIdToCredentialsCache.containsKey(teamName)) {
       return teamIdToCredentialsCache.get(teamName);
     } else {
       String secretKey = getTeamSecretKey(teamName);
 
       Versioned<VaultTeamCredentials> readResponse =
-              vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultTeamCredentials.class);
+          vaultOperations
+              .opsForVersionedKeyValue(SECRET)
+              .get(secretKey, VaultTeamCredentials.class);
 
       if (readResponse != null && readResponse.hasData()) {
         VaultTeamCredentials teamCredentials = readResponse.getData();
@@ -157,7 +158,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
 
   public String getTeamIdForClientId(String clientId) {
     // Check the cache
-    if (clientIdToTeamIdCache.containsKey(clientId)){
+    if (clientIdToTeamIdCache.containsKey(clientId)) {
       return clientIdToTeamIdCache.get(clientId);
     } else {
       // Search through all team entries in Vault

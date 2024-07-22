@@ -50,7 +50,6 @@ public interface JobSecretsService {
    */
   VaultTeamCredentials readTeamOauthCredentials(String teamName);
 
-
   /**
    * Returns the name of the team associated with the given OAuth Client Id or null if not found.
    *
