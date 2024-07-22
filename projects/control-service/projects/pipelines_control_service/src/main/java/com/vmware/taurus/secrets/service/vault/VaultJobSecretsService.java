@@ -11,6 +11,7 @@ import com.vmware.taurus.exception.DataJobSecretsException;
 import com.vmware.taurus.exception.DataJobSecretsSizeLimitException;
 import com.vmware.taurus.exception.DataJobTeamSecretsException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +23,7 @@ import org.springframework.vault.support.Versioned;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,6 +34,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   //  package private so it can be used in tests
   static final int VAULT_SIZE_LIMIT_DEFAULT = 1048576; // 1 MB
   private static final String SECRET = "secret";
+  public static final String METADATA_PATH = "secret/metadata/";
   public static final String TEAM_OAUTH_CREDENTIALS = "team-oauth-credentials";
 
   @Value("${datajobs.vault.size.limit.bytes}")
@@ -40,8 +43,13 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final VaultOperations vaultOperations;
 
+  private final ConcurrentHashMap<String, VaultTeamCredentials> teamIdToCredentialsCache;
+  private final ConcurrentHashMap<String, String> clientIdToTeamIdCache;
+
   public VaultJobSecretsService(VaultOperations vaultOperations) {
     this.vaultOperations = vaultOperations;
+    this.teamIdToCredentialsCache = new ConcurrentHashMap<>();
+    this.clientIdToTeamIdCache = new ConcurrentHashMap<>();
   }
 
   @Override
@@ -120,22 +128,57 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
         new VaultTeamCredentials(teamName, clientId, clientSecret);
 
     vaultOperations.opsForVersionedKeyValue(SECRET).put(secretKey, teamCredentials);
+    clientIdToTeamIdCache.put(teamCredentials.getClientId(), teamName);
+    teamIdToCredentialsCache.put(teamName, teamCredentials);
   }
 
   @Override
   public VaultTeamCredentials readTeamOauthCredentials(String teamName) {
     checkInputs(teamName);
-
-    String secretKey = getTeamSecretKey(teamName);
-
-    Versioned<VaultTeamCredentials> readResponse =
-        vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultTeamCredentials.class);
-
-    if (readResponse != null && readResponse.hasData()) {
-      return readResponse.getData();
+    if (teamIdToCredentialsCache.containsKey(teamName)) {
+      return teamIdToCredentialsCache.get(teamName);
     } else {
-      throw new DataJobTeamSecretsException(
-          teamName, "Cannot retrieve OAuth Credentials for team:" + teamName);
+      String secretKey = getTeamSecretKey(teamName);
+
+      Versioned<VaultTeamCredentials> readResponse =
+          vaultOperations
+              .opsForVersionedKeyValue(SECRET)
+              .get(secretKey, VaultTeamCredentials.class);
+
+      if (readResponse != null && readResponse.hasData()) {
+        VaultTeamCredentials teamCredentials = readResponse.getData();
+        clientIdToTeamIdCache.put(teamCredentials.getClientId(), teamName);
+        teamIdToCredentialsCache.put(teamName, teamCredentials);
+        return teamCredentials;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  public String getTeamIdForClientId(String clientId) {
+    // Check the cache
+    if (clientIdToTeamIdCache.containsKey(clientId)) {
+      return clientIdToTeamIdCache.get(clientId);
+    } else {
+      // Search through all team entries in Vault
+      try {
+        var response = vaultOperations.list(METADATA_PATH);
+        if (response != null) {
+          for (String teamId : response) {
+            teamId = StringUtils.removeEnd(teamId, "/");
+            VaultTeamCredentials credentials = readTeamOauthCredentials(teamId);
+            if (credentials != null && credentials.getClientId().equals(clientId)) {
+              clientIdToTeamIdCache.put(clientId, credentials.getTeamName());
+              teamIdToCredentialsCache.put(credentials.getTeamName(), credentials);
+              return teamId;
+            }
+          }
+        }
+      } catch (Exception e) {
+        log.error("Error fetching team ID for client ID: " + clientId, e);
+      }
+      return null;
     }
   }
 

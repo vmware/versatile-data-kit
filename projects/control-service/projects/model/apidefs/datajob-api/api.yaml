@@ -923,7 +923,7 @@ paths:
       tags:
         - Data Jobs Secrets
       responses:
-        '201':
+        '202':
           description: Created successfully.
         '204':
           description: Updated successfully.
@@ -1034,7 +1034,7 @@ paths:
           $ref: '#/components/responses/Error'
         '404':
           $ref: '#/components/responses/Error'
-      operationId: teamClientIdsGet
+      operationId: getTeamIdsForClientIds
       summary: for a given list of ClientID(s) return a list of Team Ids,e.g. list of [clientId:teamId,clientId1:teamID1]
       description: |
         for a given list of ClientID(s) return a list of Team Ids,e.g. list of [clientId:teamId,clientId1:teamID1]
