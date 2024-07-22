@@ -131,7 +131,8 @@ class DataJobsSecretsControllerTest {
   @Test
   void testClientIdGet_Success() {
     String teamName = "testTeam";
-    VaultTeamCredentials mockCredentials = new VaultTeamCredentials(teamName, "clientId", "clientSecret");
+    VaultTeamCredentials mockCredentials =
+        new VaultTeamCredentials(teamName, "clientId", "clientSecret");
     when(jobSecretsService.readTeamOauthCredentials(teamName)).thenReturn(mockCredentials);
 
     ResponseEntity<OauthTeamClientId> response = controller.clientIdGet(teamName);
@@ -155,7 +156,8 @@ class DataJobsSecretsControllerTest {
   @Test
   void testOauthCredentialsGet_Success() {
     String teamName = "testTeam";
-    VaultTeamCredentials mockCredentials = new VaultTeamCredentials(teamName, "clientId", "clientSecret");
+    VaultTeamCredentials mockCredentials =
+        new VaultTeamCredentials(teamName, "clientId", "clientSecret");
     when(jobSecretsService.readTeamOauthCredentials(teamName)).thenReturn(mockCredentials);
 
     ResponseEntity<OauthTeamCredentials> response = controller.oauthCredentialsGet(teamName);
@@ -185,7 +187,8 @@ class DataJobsSecretsControllerTest {
     ResponseEntity<Void> response = controller.oauthCredentialsPut(teamName, credentials);
 
     assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-    verify(jobSecretsService).updateTeamOauthCredentials(teamName, "newClientId", "newClientSecret");
+    verify(jobSecretsService)
+        .updateTeamOauthCredentials(teamName, "newClientId", "newClientSecret");
   }
 
   @Test

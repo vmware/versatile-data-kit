@@ -30,18 +30,15 @@ import org.springframework.vault.support.Versioned;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.vmware.taurus.secrets.service.vault.VaultJobSecretsService.METADATA_PATH;
 import static com.vmware.taurus.secrets.service.vault.VaultJobSecretsService.TEAM_OAUTH_CREDENTIALS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -244,7 +241,7 @@ class VaultJobSecretsServiceTest {
     String clientSecret = "secret1";
 
     VaultTeamCredentials expectedCredentials =
-            new VaultTeamCredentials(teamName, clientId, clientSecret);
+        new VaultTeamCredentials(teamName, clientId, clientSecret);
 
     String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
     Versioned<VaultTeamCredentials> readResponse = Versioned.create(expectedCredentials);
@@ -259,7 +256,6 @@ class VaultJobSecretsServiceTest {
     assertEquals(clientSecret, credentialsForTeamId.getClientSecret());
   }
 
-
   @Test
   void testGetTeamIdForClientId() {
     String teamName = "testTeam";
@@ -267,7 +263,7 @@ class VaultJobSecretsServiceTest {
     String clientSecret = "secret1";
 
     VaultTeamCredentials expectedCredentials =
-            new VaultTeamCredentials(teamName, clientId, clientSecret);
+        new VaultTeamCredentials(teamName, clientId, clientSecret);
 
     String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
     Versioned<VaultTeamCredentials> readResponse = Versioned.create(expectedCredentials);

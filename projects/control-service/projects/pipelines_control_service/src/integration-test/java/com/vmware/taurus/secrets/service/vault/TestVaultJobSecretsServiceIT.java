@@ -22,10 +22,8 @@ import org.testcontainers.vault.VaultContainer;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.vmware.taurus.secrets.service.vault.VaultTestSetup.setupVaultTemplate;
@@ -142,7 +140,6 @@ public class TestVaultJobSecretsServiceIT extends BaseIT {
         DataJobTeamSecretsException.class,
         () -> vaultJobSecretService.updateTeamOauthCredentials("teamName", "ClientId", ""));
   }
-
 
   @Test
   public void testGetTeamsForClientIds() throws Exception {
