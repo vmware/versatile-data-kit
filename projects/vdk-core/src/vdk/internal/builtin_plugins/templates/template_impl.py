@@ -59,7 +59,7 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
             core_context = CoreContext(
                 self._core_context.plugin_registry,
                 copy.deepcopy(self._core_context.configuration),
-                copy.deepcopy(self._core_context.state),
+                self._core_context.state.clone(),
             )
             core_context.configuration.override_value(
                 "DB_DEFAULT_TYPE", database, "vdk"
