@@ -156,10 +156,11 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   }
 
   public String getTeamIdForClientId(String clientId) {
-    // Search through all team entries in Vault
+    // Check the cache
     if (clientIdToTeamIdCache.containsKey(clientId)){
       return clientIdToTeamIdCache.get(clientId);
     } else {
+      // Search through all team entries in Vault
       try {
         var response = vaultOperations.list(METADATA_PATH);
         if (response != null) {
