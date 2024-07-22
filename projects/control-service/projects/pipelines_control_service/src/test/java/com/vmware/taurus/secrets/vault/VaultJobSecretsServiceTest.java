@@ -28,10 +28,20 @@ import org.springframework.vault.core.VaultVersionedKeyValueOperations;
 import org.springframework.vault.support.Versioned;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import static com.vmware.taurus.secrets.service.vault.VaultJobSecretsService.METADATA_PATH;
 import static com.vmware.taurus.secrets.service.vault.VaultJobSecretsService.TEAM_OAUTH_CREDENTIALS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -172,6 +182,9 @@ class VaultJobSecretsServiceTest {
     String teamName = "testTeam";
     String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
     VaultTeamCredentials expectedCredentials = new VaultTeamCredentials();
+    expectedCredentials.setTeamName(teamName);
+    expectedCredentials.setClientSecret("secret");
+    expectedCredentials.setClientId("id");
     Versioned<VaultTeamCredentials> versionedCredentials = Versioned.create(expectedCredentials);
 
     when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
@@ -193,8 +206,7 @@ class VaultJobSecretsServiceTest {
     when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
     when(vaultOperations.get(secretKey, VaultTeamCredentials.class)).thenReturn(null);
 
-    assertThrows(
-        DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(teamName));
+    assertNull(secretsService.readTeamOauthCredentials(teamName));
     verify(vaultTemplate).opsForVersionedKeyValue(SECRET);
     verify(vaultOperations).get(secretKey, VaultTeamCredentials.class);
   }
@@ -208,8 +220,7 @@ class VaultJobSecretsServiceTest {
     when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
     when(vaultOperations.get(secretKey, VaultTeamCredentials.class)).thenReturn(null);
 
-    assertThrows(
-        DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(teamName));
+    assertNull(secretsService.readTeamOauthCredentials(teamName));
     verify(vaultTemplate).opsForVersionedKeyValue(SECRET);
     verify(vaultOperations).get(secretKey, VaultTeamCredentials.class);
   }
@@ -224,5 +235,74 @@ class VaultJobSecretsServiceTest {
   void testReadTeamOauthCredentials_EmptyTeamName() {
     assertThrows(
         DataJobTeamSecretsException.class, () -> secretsService.readTeamOauthCredentials(""));
+  }
+
+  @Test
+  void testGetCredentialsForTeamId() {
+    String teamName = "testTeam";
+    String clientId = "client1";
+    String clientSecret = "secret1";
+
+    VaultTeamCredentials expectedCredentials =
+            new VaultTeamCredentials(teamName, clientId, clientSecret);
+
+    String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
+    Versioned<VaultTeamCredentials> readResponse = Versioned.create(expectedCredentials);
+
+    when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
+    when(vaultOperations.get(secretKey, VaultTeamCredentials.class)).thenReturn(readResponse);
+
+    VaultTeamCredentials credentialsForTeamId = secretsService.readTeamOauthCredentials(teamName);
+
+    assertNotNull(credentialsForTeamId);
+    assertEquals(clientId, credentialsForTeamId.getClientId());
+    assertEquals(clientSecret, credentialsForTeamId.getClientSecret());
+  }
+
+
+  @Test
+  void testGetTeamIdForClientId() {
+    String teamName = "testTeam";
+    String clientId = "client1";
+    String clientSecret = "secret1";
+
+    VaultTeamCredentials expectedCredentials =
+            new VaultTeamCredentials(teamName, clientId, clientSecret);
+
+    String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
+    Versioned<VaultTeamCredentials> readResponse = Versioned.create(expectedCredentials);
+
+    when(vaultTemplate.list(METADATA_PATH)).thenReturn(List.of(teamName));
+    when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
+    when(vaultOperations.get(secretKey, VaultTeamCredentials.class)).thenReturn(readResponse);
+
+    String result = secretsService.getTeamIdForClientId(clientId);
+
+    assertNotNull(result);
+    assertEquals(teamName, result);
+  }
+
+  @Test
+  void testGetCredentialsForNonExistentTeamId() {
+    String nonExistentTeamId = "nonExistentTeam";
+
+    String secretKey = nonExistentTeamId + "/" + TEAM_OAUTH_CREDENTIALS;
+    when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
+    when(vaultOperations.get(secretKey)).thenReturn(null);
+
+    assertNull(secretsService.readTeamOauthCredentials(nonExistentTeamId));
+  }
+
+  @Test
+  void testGetTeamIdForNonExistentClientId() {
+    String nonExistentClientId = "nonExistentClient";
+
+    when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
+    when(vaultOperations.list("secret/metadata/")).thenReturn(List.of("team1"));
+    when(vaultOperations.get("secret/oauth/team1")).thenReturn(null);
+
+    String result = secretsService.getTeamIdForClientId(nonExistentClientId);
+
+    assertNull(result);
   }
 }

@@ -49,4 +49,13 @@ public interface JobSecretsService {
    * @return the OAuth credentials of the specified team
    */
   VaultTeamCredentials readTeamOauthCredentials(String teamName);
+
+
+  /**
+   * Returns the name of the team associated with the given OAuth Client Id or null if not found.
+   *
+   * @param clientId the Client Id to be looked up
+   * @return the Team name which corresponds to the Client Id or null
+   */
+  String getTeamIdForClientId(String clientId);
 }
