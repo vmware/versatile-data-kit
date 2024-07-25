@@ -9,13 +9,20 @@ import com.vmware.taurus.authorization.provider.AuthorizationProvider;
 import com.vmware.taurus.authorization.webhook.AuthorizationBody;
 import com.vmware.taurus.authorization.webhook.AuthorizationWebHookProvider;
 import com.vmware.taurus.base.FeatureFlags;
+import com.vmware.taurus.secrets.service.JobSecretsService;
+import com.vmware.taurus.secrets.service.vault.VaultTeamCredentials;
 import com.vmware.taurus.service.diag.OperationContext;
 import com.vmware.taurus.service.webhook.WebHookResult;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -35,50 +42,86 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthorizationInterceptor implements HandlerInterceptor {
 
-  private static Logger log = LoggerFactory.getLogger(AuthorizationInterceptor.class);
+    @Value("${datajobs.authorization.jwt.claim.username}")
+    private String usernameField;
 
-  private final FeatureFlags featureFlags;
+    private static Logger log = LoggerFactory.getLogger(AuthorizationInterceptor.class);
 
-  private final AuthorizationWebHookProvider webhookProvider;
+    private final FeatureFlags featureFlags;
 
-  private final AuthorizationProvider authorizationProvider;
+    private final AuthorizationWebHookProvider webhookProvider;
 
-  private final OperationContext opCtx;
+    private final AuthorizationProvider authorizationProvider;
 
-  @Override
-  public boolean preHandle(
-      final HttpServletRequest request, final HttpServletResponse response, final Object handler)
-      throws IOException {
-    if (featureFlags.isSecurityEnabled()) {
-      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      if (authentication != null && authentication.isAuthenticated()) {
-        AuthorizationBody body =
-            authorizationProvider.createAuthorizationBody(request, authentication);
-        updateOperationContext(body);
-        if (featureFlags.isAuthorizationEnabled()) {
-          return isRequestAuthorized(request, response, body);
+    private final OperationContext opCtx;
+
+    @Nullable
+    private final JobSecretsService secretsService;
+
+    @Override
+    public boolean preHandle(
+            final HttpServletRequest request, final HttpServletResponse response, final Object handler)
+            throws IOException {
+        if (!featureFlags.isSecurityEnabled()) {
+            return true;
         }
-      }
-      // If we are at this stage - either we are authenticated or authentication is disabled for
-      // that endpoint
-      return true;
-    }
-    return true;
-  }
 
-  private boolean isRequestAuthorized(
-      HttpServletRequest request, HttpServletResponse response, AuthorizationBody body)
-      throws IOException {
-    WebHookResult decision = this.webhookProvider.invokeWebHook(body).get();
-    response.setStatus(decision.getStatus().value());
-    if (!decision.getMessage().isBlank()) {
-      response.getWriter().write(decision.getMessage());
-    }
-    return decision.isSuccess();
-  }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || !featureFlags.isAuthorizationEnabled()) {
+            return true;
+        }
 
-  private void updateOperationContext(AuthorizationBody body) {
-    opCtx.setUser(body.getRequesterUserId());
-    opCtx.setTeam(body.getRequestedResourceTeam());
-  }
+        if (!(authentication instanceof JwtAuthenticationToken jwtToken)) {
+            return true;
+        }
+
+        if (jwtToken.getTokenAttributes().get(usernameField) != null) {
+            return handleVmwCspToken(request, response, jwtToken);
+        } else if (secretsService != null) {
+            return handleOAuthApplicationToken(request, jwtToken);
+        }
+
+        return true;
+    }
+
+    private boolean handleVmwCspToken(HttpServletRequest request, HttpServletResponse response, JwtAuthenticationToken token) throws IOException {
+        AuthorizationBody body = authorizationProvider.createAuthorizationBody(request, token);
+        updateOperationContext(body);
+        return isRequestAuthorized(request, response, body);
+    }
+
+    private boolean handleOAuthApplicationToken(HttpServletRequest request, JwtAuthenticationToken token) {
+        Object tokenSubject = token.getTokenAttributes().get(OAuth2TokenIntrospectionClaimNames.SUB);
+        if (!(tokenSubject instanceof String subject)) {
+            return false;
+        }
+
+        String teamClientId = StringUtils.substringAfter(subject, ":");
+        String teamName = authorizationProvider.getJobTeam(request);
+        String newTeam = authorizationProvider.getJobNewTeam(request, teamName);
+
+        // The reqested operation is for a resource owned by another team
+        if (!teamName.equals(newTeam)) {
+            return false;
+        }
+
+        VaultTeamCredentials teamCredentials = secretsService.readTeamOauthCredentials(teamName);
+        return teamCredentials != null && teamClientId.equals(teamCredentials.getClientId());
+    }
+
+    private boolean isRequestAuthorized(
+            HttpServletRequest request, HttpServletResponse response, AuthorizationBody body)
+            throws IOException {
+        WebHookResult decision = this.webhookProvider.invokeWebHook(body).get();
+        response.setStatus(decision.getStatus().value());
+        if (!decision.getMessage().isBlank()) {
+            response.getWriter().write(decision.getMessage());
+        }
+        return decision.isSuccess();
+    }
+
+    private void updateOperationContext(AuthorizationBody body) {
+        opCtx.setUser(body.getRequesterUserId());
+        opCtx.setTeam(body.getRequestedResourceTeam());
+    }
 }
