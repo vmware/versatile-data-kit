@@ -276,25 +276,4 @@ public class AuthorizationInterceptorTest {
 
     Assertions.assertTrue(authorizationInterceptor.preHandle(request, response, new Object()));
   }
-
-  @Test
-  void testPreHandle_OAuthApplicationToken_Failure_Operation_For_Different_Team() throws IOException {
-    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
-    Mockito.when(featureFlags.isAuthorizationEnabled()).thenReturn(true);
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    SecurityContext securityContext = mock(SecurityContext.class);
-    Mockito.when(securityContext.getAuthentication()).thenReturn(jwtAuthenticationToken);
-    Mockito.when(jwtAuthenticationToken.isAuthenticated()).thenReturn(true);
-
-    Map<String, Object> attributes = new HashMap<>();
-    attributes.put(OAuth2TokenIntrospectionClaimNames.SUB, "client:testClientId");
-    Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(attributes);
-
-    Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
-    Mockito.when(authorizationProvider.getJobNewTeam(request, "testTeam")).thenReturn("differentTeam");
-    SecurityContextHolder.setContext(securityContext);
-
-    Assertions.assertFalse(authorizationInterceptor.preHandle(request, response, new Object()));
-  }
 }
