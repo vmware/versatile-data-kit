@@ -62,15 +62,19 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
     public boolean preHandle(
             final HttpServletRequest request, final HttpServletResponse response, final Object handler)
             throws IOException {
+        // Is security enabled at all?
         if (!featureFlags.isSecurityEnabled()) {
             return true;
         }
 
+        // Is authorization enabled? Did we get a token?
+        // This logic is somewhat scatchy, but I've kept the old behavior
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || !featureFlags.isAuthorizationEnabled()) {
+        if (!featureFlags.isAuthorizationEnabled() || authentication == null || !authentication.isAuthenticated()) {
             return true;
         }
 
+        // This logic is somewhat scatchy, but I've kept the old behavior
         if (!(authentication instanceof JwtAuthenticationToken jwtToken)) {
             return true;
         }
@@ -90,25 +94,6 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         return isRequestAuthorized(request, response, body);
     }
 
-    private boolean handleOAuthApplicationToken(HttpServletRequest request, JwtAuthenticationToken token) {
-        Object tokenSubject = token.getTokenAttributes().get(OAuth2TokenIntrospectionClaimNames.SUB);
-        if (!(tokenSubject instanceof String subject)) {
-            return false;
-        }
-
-        String teamClientId = StringUtils.substringAfter(subject, ":");
-        String teamName = authorizationProvider.getJobTeam(request);
-        String newTeam = authorizationProvider.getJobNewTeam(request, teamName);
-
-        // The reqested operation is for a resource owned by another team
-        if (!teamName.equals(newTeam)) {
-            return false;
-        }
-
-        VaultTeamCredentials teamCredentials = secretsService.readTeamOauthCredentials(teamName);
-        return teamCredentials != null && teamClientId.equals(teamCredentials.getClientId());
-    }
-
     private boolean isRequestAuthorized(
             HttpServletRequest request, HttpServletResponse response, AuthorizationBody body)
             throws IOException {
@@ -123,5 +108,24 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
     private void updateOperationContext(AuthorizationBody body) {
         opCtx.setUser(body.getRequesterUserId());
         opCtx.setTeam(body.getRequestedResourceTeam());
+    }
+
+    private boolean handleOAuthApplicationToken(HttpServletRequest request, JwtAuthenticationToken token) {
+        Object tokenSubject = token.getTokenAttributes().get(OAuth2TokenIntrospectionClaimNames.SUB);
+        if (!(tokenSubject instanceof String subject)) {
+            return false;
+        }
+
+        String teamClientId = StringUtils.substringAfter(subject, ":");
+        String teamName = authorizationProvider.getJobTeam(request);
+        String newTeam = authorizationProvider.getJobNewTeam(request, teamName);
+
+        // The requested operation is for a resource owned by another team
+        if (!teamName.equals(newTeam)) {
+            return false;
+        }
+
+        VaultTeamCredentials teamCredentials = secretsService.readTeamOauthCredentials(teamName);
+        return teamCredentials != null && teamClientId.equals(teamCredentials.getClientId());
     }
 }
