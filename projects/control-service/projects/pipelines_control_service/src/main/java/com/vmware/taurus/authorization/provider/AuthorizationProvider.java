@@ -84,9 +84,8 @@ public class AuthorizationProvider {
   }
 
   public String getUserId(Authentication authentication) {
-    if (authentication instanceof JwtAuthenticationToken) {
-      JwtAuthenticationToken oauthToken = (JwtAuthenticationToken) authentication;
-      return oauthToken.getTokenAttributes().get(usernameField).toString();
+    if (authentication instanceof JwtAuthenticationToken oauthToken) {
+        return oauthToken.getTokenAttributes().get(usernameField).toString();
     } else {
       var principal = authentication.getPrincipal();
       if (principal instanceof UserDetails) {
@@ -145,9 +144,8 @@ public class AuthorizationProvider {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String accessToken = null;
 
-    if (authentication instanceof JwtAuthenticationToken) {
-      JwtAuthenticationToken oauthToken = (JwtAuthenticationToken) authentication;
-      accessToken =
+    if (authentication instanceof JwtAuthenticationToken oauthToken) {
+        accessToken =
           Optional.ofNullable(oauthToken.getToken())
               .map(AbstractOAuth2Token::getTokenValue)
               .orElse(null);
@@ -170,15 +168,12 @@ public class AuthorizationProvider {
     }
   }
 
-  String getJobTeam(HttpServletRequest request) {
-    return this.parsePropertyFromURI(
-        request.getContextPath(), request.getRequestURI(), TEAM_NAME_INDEX);
+  public String getJobTeam(HttpServletRequest request) {
+    return this.parsePropertyFromURI(request.getContextPath(), request.getRequestURI(), TEAM_NAME_INDEX);
   }
 
-  String getJobNewTeam(HttpServletRequest request, String existingTeam) {
-    String jobNewTeam =
-        this.parsePropertyFromURI(
-            request.getContextPath(), request.getRequestURI(), NEW_TEAM_NAME_INDEX);
+  public String getJobNewTeam(HttpServletRequest request, String existingTeam) {
+    String jobNewTeam = this.parsePropertyFromURI(request.getContextPath(), request.getRequestURI(), NEW_TEAM_NAME_INDEX);
     if (jobNewTeam.isBlank()) {
       return existingTeam;
     }
