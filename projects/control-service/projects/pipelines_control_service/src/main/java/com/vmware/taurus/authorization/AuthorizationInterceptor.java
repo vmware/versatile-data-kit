@@ -118,12 +118,6 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
         String teamClientId = StringUtils.substringAfter(subject, ":");
         String teamName = authorizationProvider.getJobTeam(request);
-        String newTeam = authorizationProvider.getJobNewTeam(request, teamName);
-
-        // The requested operation is for a resource owned by another team
-        if (!teamName.equals(newTeam)) {
-            return false;
-        }
 
         VaultTeamCredentials teamCredentials = secretsService.readTeamOauthCredentials(teamName);
         return teamCredentials != null && teamClientId.equals(teamCredentials.getClientId());
