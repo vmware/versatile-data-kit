@@ -244,7 +244,6 @@ public class AuthorizationInterceptorTest {
     Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(attributes);
 
     Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
-    Mockito.when(authorizationProvider.getJobNewTeam(request, "testTeam")).thenReturn("testTeam");
 
     VaultTeamCredentials mockCredentials = new VaultTeamCredentials("testTeam","testClientId","testSecret");
     Mockito.when(secretsService.readTeamOauthCredentials("testTeam")).thenReturn(mockCredentials);
@@ -268,7 +267,6 @@ public class AuthorizationInterceptorTest {
     Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(attributes);
 
     Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
-    Mockito.when(authorizationProvider.getJobNewTeam(request, "testTeam")).thenReturn("testTeam");
 
     VaultTeamCredentials mockCredentials = new VaultTeamCredentials("differentTeam","testClientId","testSecret");
     Mockito.when(secretsService.readTeamOauthCredentials("testTeam")).thenReturn(mockCredentials);
