@@ -249,7 +249,6 @@ class TestTemplates(unittest.TestCase):
 
         self.__scd2_template_check_expected_res(test_schema, target_table, expect_table)
 
-
     def test_fact_periodic_snapshot_template(self) -> None:
         test_schema = self.__schema
         source_view = "vw_fact_sddc_daily"
@@ -346,7 +345,6 @@ class TestTemplates(unittest.TestCase):
             test_schema, target_table, expect_table
         )
 
-
     def __fact_periodic_snapshot_template_execute(
         self,
         test_schema,
@@ -403,10 +401,10 @@ class TestTemplates(unittest.TestCase):
 
         cli_assert_equal(0, actual_rs)
         cli_assert_equal(0, expected_rs)
-        assert (
-            actual_rs.output == expected_rs.output
-        ), (f"Elements in {target_table} and {expect_table} differ. "
-            f"found difference: {actual_rs.output} and {expected_rs.output}")
+        assert actual_rs.output == expected_rs.output, (
+            f"Elements in {target_table} and {expect_table} differ. "
+            f"found difference: {actual_rs.output} and {expected_rs.output}"
+        )
 
     def __scd2_template_execute(
         self,

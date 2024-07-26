@@ -7,7 +7,7 @@ def run(job_input: IJobInput) -> None:
     result = job_input.execute_template(
         template_name="scd2",
         template_args=job_input.get_arguments(),
-        database="default"
+        database="default",
     )
     if result.is_failed() and result.get_exception():
         raise result.get_exception()
