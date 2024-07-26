@@ -46,7 +46,6 @@ def run(job_input: IJobInput):
     drop_table_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-drop-table.sql"
     )
-
     create_table_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-create-table.sql"
     )
@@ -55,9 +54,6 @@ def run(job_input: IJobInput):
     )
     insert_snapshot_data_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-insert-snapshot-data.sql"
-    )
-    insert_into_target_query = CommonUtilities.get_file_content(
-        SQL_FILES_FOLDER, "02-insert-into-target.sql"
     )
 
     staging_schema = job_arguments.get("staging_schema", target_schema)
@@ -101,12 +97,27 @@ def run(job_input: IJobInput):
             target_table=target_table_full_name,
         )
     else:
-        job_input.execute_query(drop_table_query)
-        # insert into target
-        create_and_insert_into_target = create_table_and_insert_data_query.format(
-            target_schema=target_schema,
-            target_table=target_table,
-            source_schema=staging_schema,
-            source_view=staging_table,
+        log.debug("Check if staging table has data.")
+        res = job_input.execute_query(
+            f"""
+                    SELECT COUNT(*) FROM {staging_schema}.{staging_table}
+                    """
         )
-        job_input.execute_query(create_and_insert_into_target)
+        if res and res[0][0] > 0:
+            log.debug(
+                "Confirmed that staging table has data, proceed with moving it to target."
+            )
+            job_input.execute_query(drop_table_query)
+            # insert into target
+            create_and_insert_into_target = create_table_and_insert_data_query.format(
+                target_schema=target_schema,
+                target_table=target_table,
+                source_schema=staging_schema,
+                source_view=staging_table,
+            )
+            job_input.execute_query(create_and_insert_into_target)
+        else:
+            log.info(
+                f"Target table {target_schema}.{target_table} remains unchanged "
+                f"because source table {target_schema}.{source_view} was empty."
+            )

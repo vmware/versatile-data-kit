@@ -18,6 +18,7 @@ def run(job_input: IJobInput) -> None:
     job_input.execute_template(
         template_name="insert",
         template_args=template_args,
+        database="default"
     )
 
 
