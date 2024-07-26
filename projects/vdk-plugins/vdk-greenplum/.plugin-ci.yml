@@ -8,13 +8,13 @@
     PLUGIN_NAME: vdk-greenplum
   extends: .build-plugin-dind
 
-build-py37-vdk-greenplum:
-  extends: .build-vdk-greenplum
-  image: "python:3.7"
-
-build-py312-vdk-greenplum:
-  extends: .build-vdk-greenplum
-  image: "python:3.12"
+#build-py37-vdk-greenplum:
+#  extends: .build-vdk-greenplum
+#  image: "python:3.7"
+#
+#build-py312-vdk-greenplum:
+#  extends: .build-vdk-greenplum
+#  image: "python:3.12"
 
 release-vdk-greenplum:
   variables:

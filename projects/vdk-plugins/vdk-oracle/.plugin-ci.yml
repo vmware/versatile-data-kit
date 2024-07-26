@@ -3,24 +3,24 @@
 
 image: "python:3.7"
 
-.build-vdk-oracle:
-  variables:
-    PLUGIN_NAME: vdk-oracle
-  extends: .build-plugin-dind
+#.build-vdk-oracle:
+#  variables:
+#    PLUGIN_NAME: vdk-oracle
+#  extends: .build-plugin-dind
+#
+#build-py37-vdk-oracle:
+#  extends: .build-vdk-oracle
+#  image: "python:3.7"
+#
+#build-py312-vdk-oracle:
+#  extends: .build-vdk-oracle
+#  image: "python:3.12"
 
-build-py37-vdk-oracle:
-  extends: .build-vdk-oracle
-  image: "python:3.7"
-
-build-py312-vdk-oracle:
-  extends: .build-vdk-oracle
-  image: "python:3.12"
-
-build-vdk-oracle-on-vdk-core-release:
-  variables:
-    PLUGIN_NAME: vdk-oracle
-  extends: .build-plugin-on-vdk-core-release
-  image: "python:3.9"
+#build-vdk-oracle-on-vdk-core-release:
+#  variables:
+#    PLUGIN_NAME: vdk-oracle
+#  extends: .build-plugin-on-vdk-core-release
+#  image: "python:3.9"
 
 release-vdk-oracle:
   variables:

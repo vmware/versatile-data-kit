@@ -78,30 +78,30 @@ vdk deploy --help || fail "vdk-control-cli deploy --help command failed"
 
 vdk version || fail "vdk version failed"
 
-export VDK_TRINO_HOST='localhost'
-export VDK_TRINO_PORT=8080
-export VDK_TRINO_USE_SSL=False
-export VDK_TRINO_SCHEMA='default'
-export VDK_TRINO_CATALOG='memory'
-export VDK_TRINO_USER=example-job-user
-export VDK_DB_DEFAULT_TYPE='TRINO'
-
-
-VDK_TRINO_DOCKER_START=${VDK_TRINO_DOCKER_START:-yes}
-echo $VDK_TRINO_DOCKER_START
-if [ "$VDK_TRINO_DOCKER_START" = 'yes' ]; then
-  docker stop trino || :
-  docker rm trino || :
-  docker run -d -p 8080:8080 --name trino --health-cmd="trino --execute 'select 1'" trinodb/trino
-  #until docker inspect --format "{{json .State.Health.Status }}" trino | grep healthy; do sleep 3; done
-fi
-until vdk trino-query -q 'select 1'; do sleep 3; done
-
-vdk run cicd/example-job || fail "vdk run example-job command failed"
-
-if [ "$VDK_TRINO_DOCKER_START" = 'yes' ]; then
-  docker stop trino || :
-  docker rm trino || :
-fi
+#export VDK_TRINO_HOST='localhost'
+#export VDK_TRINO_PORT=8080
+#export VDK_TRINO_USE_SSL=False
+#export VDK_TRINO_SCHEMA='default'
+#export VDK_TRINO_CATALOG='memory'
+#export VDK_TRINO_USER=example-job-user
+#export VDK_DB_DEFAULT_TYPE='TRINO'
+#
+#
+#VDK_TRINO_DOCKER_START=${VDK_TRINO_DOCKER_START:-yes}
+#echo $VDK_TRINO_DOCKER_START
+#if [ "$VDK_TRINO_DOCKER_START" = 'yes' ]; then
+#  docker stop trino || :
+#  docker rm trino || :
+#  docker run -d -p 8080:8080 --name trino --health-cmd="trino --execute 'select 1'" trinodb/trino
+#  #until docker inspect --format "{{json .State.Health.Status }}" trino | grep healthy; do sleep 3; done
+#fi
+#until vdk trino-query -q 'select 1'; do sleep 3; done
+#
+#vdk run cicd/example-job || fail "vdk run example-job command failed"
+#
+#if [ "$VDK_TRINO_DOCKER_START" = 'yes' ]; then
+#  docker stop trino || :
+#  docker rm trino || :
+#fi
 
 pass

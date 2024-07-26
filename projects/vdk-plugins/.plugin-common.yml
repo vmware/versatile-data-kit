@@ -78,13 +78,9 @@
 
 .release-vdk-image:
   stage: release_image
-  image: docker:23.0.1
-  services:
-    - docker:23.0.1-dind
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
+  image:
+    name: dcato/kaniko-alpine:latest
+    entrypoint: [""]
   before_script:
     - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}
     - export BUILD_TYPE=release

@@ -59,33 +59,6 @@ class TrinoPlugin:
     def initialize_job(self, context: JobContext):
         trino_conf = TrinoConfiguration(context.core_context.configuration)
 
-        context.templates.add_template(
-            "load/dimension/scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
-        )
-
-        context.templates.add_template(
-            "scd1", pathlib.Path(get_job_path("load/dimension/scd1"))
-        )
-
-        context.templates.add_template(
-            "load/versioned", pathlib.Path(get_job_path("load/versioned"))
-        )
-
-        context.templates.add_template(
-            "scd2", pathlib.Path(get_job_path("load/versioned"))
-        )
-
-        context.templates.add_template(
-            "insert", pathlib.Path(get_job_path("load/fact/insert"))
-        )
-        context.templates.add_template(
-            "load/fact/snapshot", pathlib.Path(get_job_path("load/fact/snapshot"))
-        )
-
-        context.templates.add_template(
-            "periodic_snapshot", pathlib.Path(get_job_path("load/fact/snapshot"))
-        )
-
         for section in context.core_context.configuration.list_sections():
             if section == "vdk":
                 connection_name = "trino"  # the default database
@@ -95,7 +68,45 @@ class TrinoPlugin:
                     raise ValueError(
                         "You cannot create a subsection with name 'vdk_trino'! Try another name."
                     )
+            # connection_name to register templates with that name
+            context.templates.add_template(
+                "load/dimension/scd1",
+                pathlib.Path(get_job_path("load/dimension/scd1")),
+                connection_name,
+            )
 
+            context.templates.add_template(
+                "scd1",
+                pathlib.Path(get_job_path("load/dimension/scd1")),
+                connection_name,
+            )
+
+            context.templates.add_template(
+                "load/versioned",
+                pathlib.Path(get_job_path("load/versioned")),
+                connection_name,
+            )
+
+            context.templates.add_template(
+                "scd2", pathlib.Path(get_job_path("load/versioned")), connection_name
+            )
+
+            context.templates.add_template(
+                "insert",
+                pathlib.Path(get_job_path("load/fact/insert")),
+                connection_name,
+            )
+            context.templates.add_template(
+                "load/fact/snapshot",
+                pathlib.Path(get_job_path("load/fact/snapshot")),
+                connection_name,
+            )
+
+            context.templates.add_template(
+                "periodic_snapshot",
+                pathlib.Path(get_job_path("load/fact/snapshot")),
+                connection_name,
+            )
             try:
                 host = trino_conf.host(section)
                 port = trino_conf.port(section)

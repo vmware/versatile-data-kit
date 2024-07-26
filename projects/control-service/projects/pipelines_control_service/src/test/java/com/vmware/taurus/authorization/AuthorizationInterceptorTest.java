@@ -8,6 +8,8 @@ package com.vmware.taurus.authorization;
 import com.vmware.taurus.authorization.provider.AuthorizationProvider;
 import com.vmware.taurus.authorization.webhook.AuthorizationWebHookProvider;
 import com.vmware.taurus.base.FeatureFlags;
+import com.vmware.taurus.secrets.service.JobSecretsService;
+import com.vmware.taurus.secrets.service.vault.VaultTeamCredentials;
 import com.vmware.taurus.security.SecurityConfiguration;
 import com.vmware.taurus.service.repository.JobsRepository;
 import com.vmware.taurus.service.diag.OperationContext;
@@ -19,16 +21,25 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthorizationInterceptorTest {
@@ -48,6 +59,8 @@ public class AuthorizationInterceptorTest {
 
   @Mock private OperationContext opCtx;
 
+  @Mock private JobSecretsService secretsService;
+
   @InjectMocks private AuthorizationInterceptor authorizationInterceptor;
 
   @Test
@@ -62,7 +75,11 @@ public class AuthorizationInterceptorTest {
             Optional.of(
                 WebHookResult.builder().status(HttpStatus.OK).message("").success(true).build()));
     Mockito.when(jwtAuthenticationToken.isAuthenticated()).thenReturn(true);
-    SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+    ReflectionTestUtils.setField(authorizationInterceptor, "usernameField", "usernameField");
+    Map<String, Object> tokenAttributes = new HashMap<>();
+    tokenAttributes.put("usernameField", "testUser");
+    Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(tokenAttributes);
+    SecurityContext securityContext = mock(SecurityContext.class);
     Mockito.when(securityContext.getAuthentication()).thenReturn(jwtAuthenticationToken);
     SecurityContextHolder.setContext(securityContext);
 
@@ -85,7 +102,11 @@ public class AuthorizationInterceptorTest {
             Optional.of(
                 WebHookResult.builder().status(HttpStatus.OK).message("").success(true).build()));
     Mockito.when(jwtAuthenticationToken.isAuthenticated()).thenReturn(true);
-    SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+    ReflectionTestUtils.setField(authorizationInterceptor, "usernameField", "usernameField");
+    Map<String, Object> tokenAttributes = new HashMap<>();
+    tokenAttributes.put("usernameField", "testUser");
+    Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(tokenAttributes);
+    SecurityContext securityContext = mock(SecurityContext.class);
     Mockito.when(securityContext.getAuthentication()).thenReturn(jwtAuthenticationToken);
     SecurityContextHolder.setContext(securityContext);
 
@@ -104,7 +125,11 @@ public class AuthorizationInterceptorTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
     request.setMethod("put");
     Mockito.when(jwtAuthenticationToken.isAuthenticated()).thenReturn(true);
-    SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+    ReflectionTestUtils.setField(authorizationInterceptor, "usernameField", "usernameField");
+    Map<String, Object> tokenAttributes = new HashMap<>();
+    tokenAttributes.put("usernameField", "testUser");
+    Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(tokenAttributes);
+    SecurityContext securityContext = mock(SecurityContext.class);
     Mockito.when(webhookProvider.invokeWebHook(Mockito.any()))
         .thenReturn(
             Optional.of(
@@ -124,10 +149,14 @@ public class AuthorizationInterceptorTest {
     Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
     Mockito.when(featureFlags.isAuthorizationEnabled()).thenReturn(true);
     MockHttpServletRequest request = new MockHttpServletRequest();
-    MockHttpServletResponse response = new MockHttpServletResponse();
     request.setMethod("put");
+    MockHttpServletResponse response = new MockHttpServletResponse();
     Mockito.when(jwtAuthenticationToken.isAuthenticated()).thenReturn(true);
-    SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+    ReflectionTestUtils.setField(authorizationInterceptor, "usernameField", "usernameField");
+    Map<String, Object> tokenAttributes = new HashMap<>();
+    tokenAttributes.put("usernameField", "testUser");
+    Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(tokenAttributes);
+    SecurityContext securityContext = mock(SecurityContext.class);
     Mockito.when(webhookProvider.invokeWebHook(Mockito.any()))
         .thenReturn(
             Optional.of(
@@ -160,15 +189,21 @@ public class AuthorizationInterceptorTest {
   }
 
   @Test
+  @MockitoSettings(strictness = Strictness.LENIENT)
   public void testAuthDisabledAuthzEnabled() throws IOException {
     Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
     Mockito.when(featureFlags.isAuthorizationEnabled()).thenReturn(false);
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
+    Mockito.when(jwtAuthenticationToken.isAuthenticated()).thenReturn(true);
+    ReflectionTestUtils.setField(authorizationInterceptor, "usernameField", "usernameField");
+    Map<String, Object> tokenAttributes = new HashMap<>();
+    tokenAttributes.put("usernameField", "testUser");
+    Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(tokenAttributes);
 
     var pass = authorizationInterceptor.preHandle(request, response, new Object());
 
-    Assertions.assertEquals(true, pass);
+    Assertions.assertTrue(pass);
     Assertions.assertEquals(HttpStatus.OK.value(), response.getStatus());
     Assertions.assertEquals("", response.getContentAsString());
   }
@@ -181,7 +216,7 @@ public class AuthorizationInterceptorTest {
   @Test
   public void testAuthenticationNullForDisabledEndpoints() throws IOException {
     Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
-    SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+    SecurityContext securityContext = mock(SecurityContext.class);
     Mockito.when(securityContext.getAuthentication()).thenReturn(null);
     SecurityContextHolder.setContext(securityContext);
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -192,5 +227,51 @@ public class AuthorizationInterceptorTest {
     Assertions.assertEquals(true, pass);
     Assertions.assertEquals(HttpStatus.OK.value(), response.getStatus());
     Assertions.assertEquals("", response.getContentAsString());
+  }
+
+  @Test
+  void testPreHandle_OAuthApplicationToken_Success() throws IOException {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+    Mockito.when(featureFlags.isAuthorizationEnabled()).thenReturn(true);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    SecurityContext securityContext = mock(SecurityContext.class);
+    Mockito.when(securityContext.getAuthentication()).thenReturn(jwtAuthenticationToken);
+    Mockito.when(jwtAuthenticationToken.isAuthenticated()).thenReturn(true);
+
+    Map<String, Object> attributes = new HashMap<>();
+    attributes.put(OAuth2TokenIntrospectionClaimNames.SUB, "client:testClientId");
+    Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(attributes);
+
+    Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
+
+    VaultTeamCredentials mockCredentials = new VaultTeamCredentials("testTeam","testClientId","testSecret");
+    Mockito.when(secretsService.readTeamOauthCredentials("testTeam")).thenReturn(mockCredentials);
+    SecurityContextHolder.setContext(securityContext);
+
+    Assertions.assertTrue(authorizationInterceptor.preHandle(request, response, new Object()));
+  }
+
+  @Test
+  void testPreHandle_OAuthApplicationToken_Failure() throws IOException {
+    Mockito.when(featureFlags.isSecurityEnabled()).thenReturn(true);
+    Mockito.when(featureFlags.isAuthorizationEnabled()).thenReturn(true);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    SecurityContext securityContext = mock(SecurityContext.class);
+    Mockito.when(securityContext.getAuthentication()).thenReturn(jwtAuthenticationToken);
+    Mockito.when(jwtAuthenticationToken.isAuthenticated()).thenReturn(true);
+
+    Map<String, Object> attributes = new HashMap<>();
+    attributes.put(OAuth2TokenIntrospectionClaimNames.SUB, "client:testClientId");
+    Mockito.when(jwtAuthenticationToken.getTokenAttributes()).thenReturn(attributes);
+
+    Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
+
+    VaultTeamCredentials mockCredentials = new VaultTeamCredentials("differentTeam","testClientId","testSecret");
+    Mockito.when(secretsService.readTeamOauthCredentials("testTeam")).thenReturn(mockCredentials);
+    SecurityContextHolder.setContext(securityContext);
+
+    Assertions.assertTrue(authorizationInterceptor.preHandle(request, response, new Object()));
   }
 }

@@ -36,21 +36,16 @@ fi
 
 echo "Publishing $BUILD_TYPE VDK base image with $VDK_PACKAGE version $VDK_VERSION ..."
 
+echo "{\"auths\":{\"$VDK_DOCKER_REGISTRY_URL\":{\"username\":\"$VDK_DOCKER_REGISTRY_USERNAME\",\"password\":\"$VDK_DOCKER_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
 
-docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${DOCKER_REGISTRY_IMAGE}"
 
 SCRIPT_DIR=$(dirname "$0")
 DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile-vdk-base"
-docker build  -t "${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}" -t "${DOCKER_REGISTRY_IMAGE}:${VDK_VERSION}" \
-  --label "vdk_version=${VDK_VERSION}" \
-  --no-cache --force-rm \
-  --file "${DOCKERFILE_PATH}" \
-  --build-arg vdk_package="${VDK_PACKAGE}" \
-  --build-arg vdk_version="${VDK_VERSION}" \
-  --build-arg pip_extra_index_url="${PIP_EXTRA_INDEX_URL}" \
-  --build-arg vdk_base_python_image="${VDK_BASE_PYTHON_IMAGE}" \
-  .
-
-# docker registry must allow override
-docker push "${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}"
-docker push "${DOCKER_REGISTRY_IMAGE}:${VDK_VERSION}"
+/kaniko/executor --force --single-snapshot \
+        --dockerfile="${DOCKERFILE_PATH}" \
+        --destination="${DOCKER_REGISTRY_IMAGE}:${VDK_VERSION}"  \
+        --destination="${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}"  \
+        --build-arg=vdk_package="${VDK_PACKAGE}"           \
+        --build-arg=vdk_version="${VDK_VERSION}" \
+        --build-arg=pip_extra_index_url="${PIP_EXTRA_INDEX_URL}" \
+        --build-arg=vdk_base_python_image="${VDK_BASE_PYTHON_IMAGE}"

@@ -47,9 +47,6 @@ def run(job_input: IJobInput):
     drop_table_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-drop-table.sql"
     )
-    insert_table_query = CommonUtilities.get_file_content(
-        SQL_FILES_FOLDER, "02-insert-into-target.sql"
-    )
 
     if check:
         staging_schema = job_arguments.get("staging_schema", target_schema)
