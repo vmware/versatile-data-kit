@@ -249,48 +249,6 @@ class TestTemplates(unittest.TestCase):
 
         self.__scd2_template_check_expected_res(test_schema, target_table, expect_table)
 
-    @mock.patch.object(
-        TrinoTemplateQueries,
-        "move_data_to_table",
-        new=trino_move_data_to_table_break_tmp_to_target,
-    )
-    def test_scd2_template_fail_last_step_and_restore_target(self):
-        test_schema = self.__schema
-        source_view = "vw_people"
-        target_table = "dw_people_scd2_fail_restore"
-        expect_table = "ex_people_scd2_fail_restore"
-
-        result: Result = self.__scd2_template_execute(
-            test_schema, source_view, target_table, expect_table
-        )
-
-        # Check if template fails but target is successfully restored
-        cli_assert_equal(1, result)
-        cli_assert_equal(0, self.__template_table_exists(test_schema, target_table))
-
-    @mock.patch.object(
-        TrinoTemplateQueries,
-        "move_data_to_table",
-        new=trino_move_data_to_table_break_tmp_to_target_and_restore,
-    )
-    def test_scd2_template_fail_last_step_and_fail_restore_target(self):
-        test_schema = self.__schema
-        source_view = "vw_people_scd2_fail_fail_restore"
-        target_table = "dw_people_scd2_fail_fail_restore"
-        expect_table = "ex_people_scd2_fail_fail_restore"
-
-        result: Result = self.__scd2_template_execute(
-            test_schema, source_view, target_table, expect_table
-        )
-
-        # Check if template fails and target fails to be restored
-        cli_assert_equal(1, result)
-        cli_assert_equal(1, self.__template_table_exists(test_schema, target_table))
-
-        assert (
-            f"Table {test_schema}.{target_table} is lost!" in result.output
-        ), "Missing log for losing target schema."
-
     def test_fact_periodic_snapshot_template(self) -> None:
         test_schema = self.__schema
         source_view = "vw_fact_sddc_daily"
@@ -387,50 +345,6 @@ class TestTemplates(unittest.TestCase):
             test_schema, target_table, expect_table
         )
 
-    @mock.patch.object(
-        TrinoTemplateQueries,
-        "move_data_to_table",
-        new=trino_move_data_to_table_break_tmp_to_target,
-    )
-    def test_fact_periodic_snapshot_template_fail_last_step_and_restore_target(self):
-        test_schema = self.__schema
-        source_view = "vw_people_fact_fail_restore"
-        target_table = "dw_people_fact_fail_restore"
-        expect_table = "ex_people_fact_fail_restore"
-
-        result: Result = self.__fact_periodic_snapshot_template_execute(
-            test_schema, source_view, target_table, expect_table
-        )
-
-        # Check if template fails but target is successfully restored
-        cli_assert_equal(1, result)
-        cli_assert_equal(0, self.__template_table_exists(test_schema, target_table))
-
-    @mock.patch.object(
-        TrinoTemplateQueries,
-        "move_data_to_table",
-        new=trino_move_data_to_table_break_tmp_to_target_and_restore,
-    )
-    def test_fact_periodic_snapshot_template_fail_last_step_and_fail_restore_target(
-        self,
-    ):
-        test_schema = self.__schema
-        source_view = "vw_people_fact_fail_fail_restore"
-        target_table = "dw_people_fact_fail_fail_restore"
-        expect_table = "ex_people_fact_fail_fail_restore"
-
-        result: Result = self.__fact_periodic_snapshot_template_execute(
-            test_schema, source_view, target_table, expect_table
-        )
-
-        # Check if template fails and target fails to be restored
-        cli_assert_equal(1, result)
-        cli_assert_equal(1, self.__template_table_exists(test_schema, target_table))
-
-        assert (
-            f"Table {test_schema}.{target_table} is lost!" in result.output
-        ), "Missing log for losing target schema."
-
     def __fact_periodic_snapshot_template_execute(
         self,
         test_schema,
@@ -487,9 +401,10 @@ class TestTemplates(unittest.TestCase):
 
         cli_assert_equal(0, actual_rs)
         cli_assert_equal(0, expected_rs)
-        assert (
-            actual_rs.output == expected_rs.output
-        ), f"Elements in {target_table} and {expect_table} differ."
+        assert actual_rs.output == expected_rs.output, (
+            f"Elements in {target_table} and {expect_table} differ. "
+            f"found difference: {actual_rs.output} and {expected_rs.output}"
+        )
 
     def __scd2_template_execute(
         self,

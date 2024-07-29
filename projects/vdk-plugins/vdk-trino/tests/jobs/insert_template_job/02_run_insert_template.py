@@ -16,8 +16,7 @@ def run(job_input: IJobInput) -> None:
         template_args["check"] = check
 
     job_input.execute_template(
-        template_name="insert",
-        template_args=template_args,
+        template_name="insert", template_args=template_args, database="trino"
     )
 
 

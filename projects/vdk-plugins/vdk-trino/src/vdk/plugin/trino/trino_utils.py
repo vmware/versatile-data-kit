@@ -247,7 +247,7 @@ class CommonUtilities:
         """
         Extracts staging table by given target schema and table.
         """
-        staging_table_name = f"vdk_check_{target_schema}_{target_table}"
+        staging_table_name = f"trino_vdk_check_{target_schema}_{target_table}"
 
         if len(staging_table_name) > 128:
             raise ValueError(
