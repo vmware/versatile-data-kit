@@ -63,22 +63,26 @@ def run(job_input: IJobInput):
         job_input.execute_query(drop_staging_table)
 
         # create staging table and  insert data into staging table
-        create_staging_table_and_insert_data = create_table_and_insert_data_query.format(
-            target_schema=staging_schema,
-            target_table=staging_table,
-            source_schema=source_schema,
-            source_view=source_view,
+        create_staging_table_and_insert_data = (
+            create_table_and_insert_data_query.format(
+                target_schema=staging_schema,
+                target_table=staging_table,
+                source_schema=source_schema,
+                source_view=source_view,
+            )
         )
         job_input.execute_query(create_staging_table_and_insert_data)
 
         if check(staging_table_full_name):
             job_input.execute_query(drop_table_query)
 
-            create_and_insert_into_target_table = create_table_and_insert_data_query.format(
-                target_schema=target_schema,
-                target_table=target_table,
-                source_schema=staging_schema,
-                source_view=staging_table,
+            create_and_insert_into_target_table = (
+                create_table_and_insert_data_query.format(
+                    target_schema=target_schema,
+                    target_table=target_table,
+                    source_schema=staging_schema,
+                    source_view=staging_table,
+                )
             )
 
             job_input.execute_query(create_and_insert_into_target_table)
