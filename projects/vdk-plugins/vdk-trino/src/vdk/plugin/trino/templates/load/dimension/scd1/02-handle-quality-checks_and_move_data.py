@@ -65,10 +65,10 @@ def run(job_input: IJobInput):
         # create staging table and  insert data into staging table
         create_staging_table_and_insert_data = (
             create_table_and_insert_data_query.format(
-                table_schema=staging_schema,
-                table_name=staging_table,
-                target_schema=source_schema,
-                target_table=source_view,
+                target_schema=staging_schema,
+                target_table=staging_table,
+                source_schema=source_schema,
+                source_view=source_view,
             )
         )
         job_input.execute_query(create_staging_table_and_insert_data)
@@ -84,6 +84,7 @@ def run(job_input: IJobInput):
                     source_view=staging_table,
                 )
             )
+
             job_input.execute_query(create_and_insert_into_target_table)
 
         else:
