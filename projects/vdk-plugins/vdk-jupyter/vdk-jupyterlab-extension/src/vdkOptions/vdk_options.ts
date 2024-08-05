@@ -4,9 +4,9 @@
  */
 
 export enum VdkOption {
-  NAME = 'jobName',
-  TEAM = 'jobTeam',
-  PATH = 'jobPath',
-  ARGUMENTS = 'jobArguments',
-  DEPLOYMENT_REASON = 'deploymentReason'
+  NAME = "jobName",
+  TEAM = "jobTeam",
+  PATH = "jobPath",
+  ARGUMENTS = "jobArguments",
+  DEPLOYMENT_REASON = "deploymentReason",
 }

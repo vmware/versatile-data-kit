@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { NavigationExtras } from '@angular/router';
+import { NavigationExtras } from "@angular/router";
 
 /**
  * ** System Event ID for navigation trigger.
@@ -13,7 +13,7 @@ import { NavigationExtras } from '@angular/router';
  *
  *   - Payload {@link SystemEventNavigatePayload}
  */
-export const SE_NAVIGATE = 'SE_Navigate';
+export const SE_NAVIGATE = "SE_Navigate";
 
 /**
  * ** System Event ID for location change through {@link @angular/common/Location}.
@@ -24,7 +24,7 @@ export const SE_NAVIGATE = 'SE_Navigate';
  *
  *   - Payload {@link SystemEventLocationChangePayload}
  */
-export const SE_LOCATION_CHANGE = 'SE_Location_Change';
+export const SE_LOCATION_CHANGE = "SE_Location_Change";
 
 /**
  * ** System Event that could be consumed by Handlers.
@@ -36,7 +36,7 @@ export const SE_LOCATION_CHANGE = 'SE_Location_Change';
  *
  *   - Payload {any}
  */
-export const SE_ALL_EVENTS = '*';
+export const SE_ALL_EVENTS = "*";
 
 // events payload types
 
@@ -44,38 +44,38 @@ export const SE_ALL_EVENTS = '*';
  * ** Payload send whenever {@link SE_NAVIGATE} event is fired.
  */
 export interface SystemEventNavigatePayload {
-    url: string | string[];
-    extras?: NavigationExtras;
+  url: string | string[];
+  extras?: NavigationExtras;
 }
 
 /**
  * ** Payload post whenever {@link SE_LOCATION_CHANGE} event is fired.
  */
 export interface SystemEventLocationChangePayload {
-    /**
-     * ** Url in string format.
-     *
-     *      - e.g. '/pathname/path-param_1/path-param_2?query-param-1=value_1&query-param-2=value_2'
-     */
-    url: string;
-    /**
-     * ** Dynamic path params in key-value map format.
-     */
-    params: { [key: string]: string };
-    /**
-     * ** Dynamic path params serialized in string format.
-     *
-     *      - e.g. '/pathname/path-param_1/path-param_2'
-     */
-    paramsSerialized: string;
-    /**
-     * ** Dynamic query params in key-value map format.
-     */
-    queryParams: { [key: string]: string };
-    /**
-     * ** Dynamic query params serialized in string format.
-     *
-     *      - e.g. 'query-param-1=value_1&query-param-2=value_2'
-     */
-    queryParamsSerialized: string;
+  /**
+   * ** Url in string format.
+   *
+   *      - e.g. '/pathname/path-param_1/path-param_2?query-param-1=value_1&query-param-2=value_2'
+   */
+  url: string;
+  /**
+   * ** Dynamic path params in key-value map format.
+   */
+  params: { [key: string]: string };
+  /**
+   * ** Dynamic path params serialized in string format.
+   *
+   *      - e.g. '/pathname/path-param_1/path-param_2'
+   */
+  paramsSerialized: string;
+  /**
+   * ** Dynamic query params in key-value map format.
+   */
+  queryParams: { [key: string]: string };
+  /**
+   * ** Dynamic query params serialized in string format.
+   *
+   *      - e.g. 'query-param-1=value_1&query-param-2=value_2'
+   */
+  queryParamsSerialized: string;
 }

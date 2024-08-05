@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './data-job.tasks';
+export * from "./data-job.tasks";

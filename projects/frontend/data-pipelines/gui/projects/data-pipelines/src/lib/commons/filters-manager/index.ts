@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './filters-sort-manager';
+export * from "./filters-sort-manager";

@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { galata } from '@jupyterlab/galata';
+import { galata } from "@jupyterlab/galata";
 
 export async function copyDirectory(
   baseURL: string,
   sourceDirectory: string,
-  destination: string
+  destination: string,
 ): Promise<void> {
   const contents = galata.newContentsHelper(baseURL);
 

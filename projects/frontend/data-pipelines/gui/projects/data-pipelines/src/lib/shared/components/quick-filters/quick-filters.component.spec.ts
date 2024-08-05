@@ -3,27 +3,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { QuickFiltersComponent } from './quick-filters.component';
+import { QuickFiltersComponent } from "./quick-filters.component";
 
-describe('QuickFiltersComponent', () => {
-    let component: QuickFiltersComponent;
-    let fixture: ComponentFixture<QuickFiltersComponent>;
+describe("QuickFiltersComponent", () => {
+  let component: QuickFiltersComponent;
+  let fixture: ComponentFixture<QuickFiltersComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            declarations: [QuickFiltersComponent]
-        }).compileComponents();
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [QuickFiltersComponent],
+    }).compileComponents();
+  });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(QuickFiltersComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+  beforeEach(() => {
+    fixture = TestBed.createComponent(QuickFiltersComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it("should create", () => {
+    expect(component).toBeTruthy();
+  });
 });
