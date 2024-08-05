@@ -3,4 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { ConfirmationOutputModel, ConfirmationInputModel } from './confirmation.model';
+export {
+  ConfirmationOutputModel,
+  ConfirmationInputModel,
+} from "./confirmation.model";
