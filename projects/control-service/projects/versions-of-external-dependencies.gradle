@@ -48,6 +48,7 @@ project.ext {
             'com.amazonaws:aws-java-sdk-ecr'                                     : 'com.amazonaws:aws-java-sdk-ecr:1.12.495',
             'org.springframework.vault:spring-vault-core'                        : 'org.springframework.vault:spring-vault-core:2.3.3',
             'com.icegreen.greenmail'                                             : 'com.icegreen:greenmail:1.6.5',
+            'io.fabric8:kubernetes-client-api'                                   : 'io.fabric8:kubernetes-client-api:6.13.1',
 
 
             // transitive dependencies version force (freeze)
