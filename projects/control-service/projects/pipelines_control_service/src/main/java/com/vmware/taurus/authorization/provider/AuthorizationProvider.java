@@ -85,7 +85,7 @@ public class AuthorizationProvider {
 
   public String getUserId(Authentication authentication) {
     if (authentication instanceof JwtAuthenticationToken oauthToken) {
-        return oauthToken.getTokenAttributes().get(usernameField).toString();
+      return oauthToken.getTokenAttributes().get(usernameField).toString();
     } else {
       var principal = authentication.getPrincipal();
       if (principal instanceof UserDetails) {
@@ -145,7 +145,7 @@ public class AuthorizationProvider {
     String accessToken = null;
 
     if (authentication instanceof JwtAuthenticationToken oauthToken) {
-        accessToken =
+      accessToken =
           Optional.ofNullable(oauthToken.getToken())
               .map(AbstractOAuth2Token::getTokenValue)
               .orElse(null);
@@ -169,11 +169,14 @@ public class AuthorizationProvider {
   }
 
   public String getJobTeam(HttpServletRequest request) {
-    return this.parsePropertyFromURI(request.getContextPath(), request.getRequestURI(), TEAM_NAME_INDEX);
+    return this.parsePropertyFromURI(
+        request.getContextPath(), request.getRequestURI(), TEAM_NAME_INDEX);
   }
 
   public String getJobNewTeam(HttpServletRequest request, String existingTeam) {
-    String jobNewTeam = this.parsePropertyFromURI(request.getContextPath(), request.getRequestURI(), NEW_TEAM_NAME_INDEX);
+    String jobNewTeam =
+        this.parsePropertyFromURI(
+            request.getContextPath(), request.getRequestURI(), NEW_TEAM_NAME_INDEX);
     if (jobNewTeam.isBlank()) {
       return existingTeam;
     }

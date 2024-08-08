@@ -47,7 +47,7 @@ public class JobCredentialsServiceTest {
         .when(credentialsRepository)
         .createPrincipal(anyString(), any());
 
-    credentialsService.createJobCredentials("test");
+    credentialsService.createJobCredentials("test", "team");
 
     String secretName = JobCredentialsService.getJobKeytabKubernetesSecretName("test");
     ArgumentCaptor<Map<String, byte[]>> argCaptor = ArgumentCaptor.forClass(Map.class);

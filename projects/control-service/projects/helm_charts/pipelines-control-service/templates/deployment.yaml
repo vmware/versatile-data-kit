@@ -172,6 +172,16 @@ spec:
               value: "{{ .Values.security.authorization.authorizedCustomClaimValues }}"
             - name: AUTHORIZED_ROLES
               value: "{{ .Values.security.authorization.authorizedRoles }}"
+            - name: DATAJOBS_CREATE_OAUTH_APP_WEBHOOK_ENDPOINT
+              value: "{{ .Values.webHooks.createOAuthApp.webhookUri }}"
+            - name: DATAJOBS_CREATE_OAUTH_APP_WEBHOOK_INTERNAL_ERRORS_RETRIES
+              value: "{{ .Values.webHooks.createOAuthApp.internalErrorsRetries }}"
+            - name: DATAJOBS_CREATE_OAUTH_APP_WEBHOOK_AUTHENTICATION_ENABLED
+              value: "{{ .Values.webHooks.createOAuthApp.authenticationEnabled }}"
+            - name: DATAJOBS_CREATE_OAUTH_APP_WEBHOOK_AUTHORIZATION_SERVER_ENDPOINT
+              value: "{{ .Values.webHooks.createOAuthApp.authorizationServerEndpoint }}"
+            - name: DATAJOBS_CREATE_OAUTH_APP_WEBHOOK_AUTHORIZATION_REFRESH_TOKEN
+              value: "{{ .Values.webHooks.createOAuthApp.authorizationRefreshToken }}"
             - name: DATAJOBS_POST_CREATE_WEBHOOK_ENDPOINT
               value: "{{ .Values.webHooks.postCreate.webhookUri }}"
             - name: DATAJOBS_POST_CREATE_WEBHOOK_INTERNAL_ERRORS_RETRIES

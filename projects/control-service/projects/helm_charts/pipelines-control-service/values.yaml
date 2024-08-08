@@ -443,6 +443,16 @@ webHooks:
       ## The refresh token that is used to obtain a new access token from the authorizationServerEndpoint.
       ## It is optional; if not specified, the Control Service will use the user access token.
       authorizationRefreshToken: ""
+   createOAuthApp:
+     webhookUri: ""
+     internalErrorsRetries: 3
+     authenticationEnabled: false
+     ## The URL of the OAuth2 authorization server's token endpoint. This endpoint is used for obtaining access tokens and refreshing tokens.
+     ## It is optional; if not specified, the Control Service will use the user access token.
+     authorizationServerEndpoint: ""
+     ## The refresh token that is used to obtain a new access token from the authorizationServerEndpoint.
+     ## It is optional; if not specified, the Control Service will use the user access token.
+     authorizationRefreshToken: ""
 
 ### Security configuration
 

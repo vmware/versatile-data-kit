@@ -5,21 +5,33 @@
 
 package com.vmware.taurus.service.credentials;
 
+import com.vmware.taurus.datajobs.webhook.PostDeleteWebHookProvider;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.ExternalSystemError.MainExternalSystem;
 import com.vmware.taurus.exception.KubernetesException;
+import com.vmware.taurus.secrets.service.JobSecretsService;
+import com.vmware.taurus.secrets.service.vault.VaultTeamCredentials;
+import com.vmware.taurus.service.credentials.webhook.CreateOAuthAppBody;
+import com.vmware.taurus.service.credentials.webhook.CreateOAuthAppWebHookProvider;
+import com.vmware.taurus.service.credentials.webhook.CreateOAuthAppWebHookResult;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
+import com.vmware.taurus.service.webhook.WebHookResult;
 import io.kubernetes.client.openapi.ApiException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -33,8 +45,12 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JobCredentialsService {
   public static final String K8S_KEYTAB_KEY_IN_SECRET = "keytab";
+  public static final String K8S_TEAM_CLIENT_ID = "VDK_TEAM_CLIENT_ID";
+  public static final String K8S_TEAM_CLIENT_SECRET = "VDK_TEAM_CLIENT_SECRET";
+  public static final String OAUTH_CREDENTIALS = "-oauth-credentials";
 
   // pattern for the name of the principal to be created - "%(data_job)" will be replaced with the
   // job name
@@ -44,11 +60,15 @@ public class JobCredentialsService {
   private final DataJobsKubernetesService dataJobsKubernetesService;
   private final CredentialsRepository credentialsRepository;
 
+  @Nullable private final JobSecretsService secretsService;
+
+  private final CreateOAuthAppWebHookProvider createOAuthAppWebHookProvider;
+
   /**
    * Create a new job credentials and saves it as kubernetes secret possibly overwriting the older
    * credentials (if they existed)
    */
-  public void createJobCredentials(String jobName) {
+  public void createJobCredentials(String jobName, String teamName) {
     Validate.notBlank(jobName, "jobName must not be blank");
 
     String principal = getJobPrincipalName(jobName);
@@ -58,6 +78,52 @@ public class JobCredentialsService {
     } catch (IOException e) {
       throw new ExternalSystemError(MainExternalSystem.HOST_CONTAINER, e);
     }
+
+    // Create a secret with the oAuth token for the team
+    if (secretsService != null) {
+      VaultTeamCredentials teamCredentials = secretsService.readTeamOauthCredentials(teamName);
+      // if this is the first data job for the team or the credentials do not exist for some reason,
+      // we should create them
+      if (teamCredentials == null) {
+        // call the webhook to create Oauth app permissions
+        CreateOAuthAppBody request = new CreateOAuthAppBody();
+        request.setOauthAppId(teamName);
+        Optional<WebHookResult> resultHolder = createOAuthAppWebHookProvider.invokeWebHook(request);
+        if (resultHolder.isPresent()
+            && resultHolder.get().isSuccess()
+            && resultHolder.get()
+                instanceof CreateOAuthAppWebHookResult createOAuthAppWebHookResult) {
+          // store the permissions in the secretService
+          secretsService.updateTeamOauthCredentials(
+              teamName,
+              createOAuthAppWebHookResult.getClientId(),
+              createOAuthAppWebHookResult.getClientSecret());
+          teamCredentials = new VaultTeamCredentials();
+          teamCredentials.setTeamName(teamName);
+          teamCredentials.setClientId(createOAuthAppWebHookResult.getClientId());
+          teamCredentials.setClientSecret(createOAuthAppWebHookResult.getClientSecret());
+        } else {
+          log.warn(
+              "Unable to process the result from the CreateOAuth webhook and cannot create team credentials for team: "
+                  + teamName);
+        }
+      }
+
+      Map<String, byte[]> secretData = new HashMap<>();
+      secretData.put(
+          K8S_TEAM_CLIENT_ID, Base64.getEncoder().encode(teamCredentials.getClientId().getBytes()));
+      secretData.put(
+          K8S_TEAM_CLIENT_SECRET,
+          Base64.getEncoder().encode(teamCredentials.getClientSecret().getBytes()));
+
+      String secretName = teamName + OAUTH_CREDENTIALS;
+      try {
+        dataJobsKubernetesService.saveSecretData(secretName, secretData);
+      } catch (ApiException e) {
+        throw new KubernetesException("Cannot update team credentials for team:" + teamName, e);
+      }
+    }
+
     try (Closeable ignored = keytabFile::delete) {
       credentialsRepository.createPrincipal(principal, Optional.of(keytabFile));
 
