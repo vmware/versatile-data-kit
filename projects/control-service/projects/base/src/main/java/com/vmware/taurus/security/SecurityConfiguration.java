@@ -89,7 +89,11 @@ public class SecurityConfiguration {
     "/data-jobs/debug/prometheus",
     // TODO: likely /data-jobs/debug is too permissive
     // but until we can expose them in swagger they are very hard to use with Auth.
-    "/data-jobs/debug/**"
+    "/data-jobs/debug/**",
+    // endpoint for reverse lookup of team names for given client ids
+    "/data-jobs/oauth-credentials/client-ids",
+    // endpoint for getting a team's oauth client id
+    "/data-jobs/teams/*/oauth-credentials/client-id"
   };
   private final String kerberosPrincipal;
   private final String keytabFileLocation;

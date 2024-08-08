@@ -19,4 +19,10 @@ public class WebHookResult {
   private final HttpStatus status;
   private final String message;
   private final boolean success;
+
+  public WebHookResult(HttpStatus status, String message, boolean success) {
+      this.status = status;
+      this.message = message;
+      this.success = success;
+  }
 }

@@ -42,84 +42,88 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthorizationInterceptor implements HandlerInterceptor {
 
-    @Value("${datajobs.authorization.jwt.claim.username}")
-    private String usernameField;
+  @Value("${datajobs.authorization.jwt.claim.username}")
+  private String usernameField;
 
-    private static Logger log = LoggerFactory.getLogger(AuthorizationInterceptor.class);
+  private static Logger log = LoggerFactory.getLogger(AuthorizationInterceptor.class);
 
-    private final FeatureFlags featureFlags;
+  private final FeatureFlags featureFlags;
 
-    private final AuthorizationWebHookProvider webhookProvider;
+  private final AuthorizationWebHookProvider webhookProvider;
 
-    private final AuthorizationProvider authorizationProvider;
+  private final AuthorizationProvider authorizationProvider;
 
-    private final OperationContext opCtx;
+  private final OperationContext opCtx;
 
-    @Nullable
-    private final JobSecretsService secretsService;
+  @Nullable private final JobSecretsService secretsService;
 
-    @Override
-    public boolean preHandle(
-            final HttpServletRequest request, final HttpServletResponse response, final Object handler)
-            throws IOException {
-        // Is security enabled at all?
-        if (!featureFlags.isSecurityEnabled()) {
-            return true;
-        }
-
-        // Is authorization enabled? Did we get a token?
-        // This logic is somewhat scatchy, but I've kept the old behavior
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!featureFlags.isAuthorizationEnabled() || authentication == null || !authentication.isAuthenticated()) {
-            return true;
-        }
-
-        // This logic is somewhat scatchy, but I've kept the old behavior
-        if (!(authentication instanceof JwtAuthenticationToken jwtToken)) {
-            return true;
-        }
-
-        if (jwtToken.getTokenAttributes().get(usernameField) != null) {
-            return handleVmwCspToken(request, response, jwtToken);
-        } else if (secretsService != null) {
-            return handleOAuthApplicationToken(request, jwtToken);
-        }
-
-        return true;
+  @Override
+  public boolean preHandle(
+      final HttpServletRequest request, final HttpServletResponse response, final Object handler)
+      throws IOException {
+    // Is security enabled at all?
+    if (!featureFlags.isSecurityEnabled()) {
+      return true;
     }
 
-    private boolean handleVmwCspToken(HttpServletRequest request, HttpServletResponse response, JwtAuthenticationToken token) throws IOException {
-        AuthorizationBody body = authorizationProvider.createAuthorizationBody(request, token);
-        updateOperationContext(body);
-        return isRequestAuthorized(request, response, body);
+    // Is authorization enabled? Did we get a token?
+    // This logic is somewhat scatchy, but I've kept the old behavior
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (!featureFlags.isAuthorizationEnabled()
+        || authentication == null
+        || !authentication.isAuthenticated()) {
+      return true;
     }
 
-    private boolean isRequestAuthorized(
-            HttpServletRequest request, HttpServletResponse response, AuthorizationBody body)
-            throws IOException {
-        WebHookResult decision = this.webhookProvider.invokeWebHook(body).get();
-        response.setStatus(decision.getStatus().value());
-        if (!decision.getMessage().isBlank()) {
-            response.getWriter().write(decision.getMessage());
-        }
-        return decision.isSuccess();
+    // This logic is somewhat scatchy, but I've kept the old behavior
+    if (!(authentication instanceof JwtAuthenticationToken jwtToken)) {
+      return true;
     }
 
-    private void updateOperationContext(AuthorizationBody body) {
-        opCtx.setUser(body.getRequesterUserId());
-        opCtx.setTeam(body.getRequestedResourceTeam());
+    if (jwtToken.getTokenAttributes().get(usernameField) != null) {
+      return handleVmwCspToken(request, response, jwtToken);
+    } else if (secretsService != null) {
+      return handleOAuthApplicationToken(request, jwtToken);
     }
 
-    private boolean handleOAuthApplicationToken(HttpServletRequest request, JwtAuthenticationToken token) {
-        Object tokenSubject = token.getTokenAttributes().get(OAuth2TokenIntrospectionClaimNames.SUB);
-        if (!(tokenSubject instanceof String subject)) {
-            return false;
-        }
+    return true;
+  }
 
-        String teamClientId = StringUtils.substringAfter(subject, ":");
-        String teamName = authorizationProvider.getJobTeam(request);
+  private boolean handleVmwCspToken(
+      HttpServletRequest request, HttpServletResponse response, JwtAuthenticationToken token)
+      throws IOException {
+    AuthorizationBody body = authorizationProvider.createAuthorizationBody(request, token);
+    updateOperationContext(body);
+    return isRequestAuthorized(request, response, body);
+  }
 
-        VaultTeamCredentials teamCredentials = secretsService.readTeamOauthCredentials(teamName);
-        return teamCredentials != null && teamClientId.equals(teamCredentials.getClientId());
+  private boolean isRequestAuthorized(
+      HttpServletRequest request, HttpServletResponse response, AuthorizationBody body)
+      throws IOException {
+    WebHookResult decision = this.webhookProvider.invokeWebHook(body).get();
+    response.setStatus(decision.getStatus().value());
+    if (!decision.getMessage().isBlank()) {
+      response.getWriter().write(decision.getMessage());
     }
+    return decision.isSuccess();
+  }
+
+  private void updateOperationContext(AuthorizationBody body) {
+    opCtx.setUser(body.getRequesterUserId());
+    opCtx.setTeam(body.getRequestedResourceTeam());
+  }
+
+  private boolean handleOAuthApplicationToken(
+      HttpServletRequest request, JwtAuthenticationToken token) {
+    Object tokenSubject = token.getTokenAttributes().get(OAuth2TokenIntrospectionClaimNames.SUB);
+    if (!(tokenSubject instanceof String subject)) {
+      return false;
+    }
+
+    String teamClientId = StringUtils.substringAfter(subject, ":");
+    String teamName = authorizationProvider.getJobTeam(request);
+
+    VaultTeamCredentials teamCredentials = secretsService.readTeamOauthCredentials(teamName);
+    return teamCredentials != null && teamClientId.equals(teamCredentials.getClientId());
+  }
 }
