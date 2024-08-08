@@ -16,6 +16,7 @@ import com.vmware.taurus.service.credentials.webhook.CreateOAuthAppWebHookProvid
 import com.vmware.taurus.service.credentials.webhook.CreateOAuthAppWebHookResult;
 import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.webhook.WebHookResult;
+import io.fabric8.kubernetes.client.utils.KubernetesResourceUtil;
 import io.kubernetes.client.openapi.ApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,7 @@ public class JobCredentialsService {
   public static final String K8S_KEYTAB_KEY_IN_SECRET = "keytab";
   public static final String K8S_TEAM_CLIENT_ID = "VDK_TEAM_CLIENT_ID";
   public static final String K8S_TEAM_CLIENT_SECRET = "VDK_TEAM_CLIENT_SECRET";
-  public static final String OAUTH_CREDENTIALS = "-oauth-credentials";
+  public static final String OAUTH_CREDENTIALS = "team-oauth-";
 
   // pattern for the name of the principal to be created - "%(data_job)" will be replaced with the
   // job name
@@ -116,7 +117,7 @@ public class JobCredentialsService {
           K8S_TEAM_CLIENT_SECRET,
           Base64.getEncoder().encode(teamCredentials.getClientSecret().getBytes()));
 
-      String secretName = teamName + OAUTH_CREDENTIALS;
+      String secretName = getTeamOAuthSecretName(teamName);
       try {
         dataJobsKubernetesService.saveSecretData(secretName, secretData);
       } catch (ApiException e) {
@@ -137,6 +138,10 @@ public class JobCredentialsService {
     } catch (IOException e) {
       throw new ExternalSystemError(MainExternalSystem.HOST_CONTAINER, e);
     }
+  }
+
+  public static String getTeamOAuthSecretName(String teamName) {
+    return KubernetesResourceUtil.sanitizeName(OAUTH_CREDENTIALS + teamName);
   }
 
   /** Delete job's credentials. */
