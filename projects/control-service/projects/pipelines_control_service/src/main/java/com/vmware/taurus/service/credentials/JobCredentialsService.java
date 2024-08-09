@@ -5,7 +5,6 @@
 
 package com.vmware.taurus.service.credentials;
 
-import com.vmware.taurus.datajobs.webhook.PostDeleteWebHookProvider;
 import com.vmware.taurus.exception.ExternalSystemError;
 import com.vmware.taurus.exception.ExternalSystemError.MainExternalSystem;
 import com.vmware.taurus.exception.KubernetesException;
@@ -18,22 +17,20 @@ import com.vmware.taurus.service.kubernetes.DataJobsKubernetesService;
 import com.vmware.taurus.service.webhook.WebHookResult;
 import io.fabric8.kubernetes.client.utils.KubernetesResourceUtil;
 import io.kubernetes.client.openapi.ApiException;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
-
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Manages credentials of a job.
@@ -111,11 +108,8 @@ public class JobCredentialsService {
       }
 
       Map<String, byte[]> secretData = new HashMap<>();
-      secretData.put(
-          K8S_TEAM_CLIENT_ID, Base64.getEncoder().encode(teamCredentials.getClientId().getBytes()));
-      secretData.put(
-          K8S_TEAM_CLIENT_SECRET,
-          Base64.getEncoder().encode(teamCredentials.getClientSecret().getBytes()));
+      secretData.put(K8S_TEAM_CLIENT_ID, teamCredentials.getClientId().getBytes());
+      secretData.put(K8S_TEAM_CLIENT_SECRET, teamCredentials.getClientSecret().getBytes());
 
       String secretName = getTeamOAuthSecretName(teamName);
       try {
