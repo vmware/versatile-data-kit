@@ -42,6 +42,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class JobImageBuilderTest {
   private static final String TEST_JOB_NAME = "test-job-name";
   private static final String TEST_IMAGE_NAME = "test-image-name";
+  private static final String TEST_TEAM_NAME = "test-team-name";
   private static final String TEST_BUILDER_IMAGE_NAME = "builder-test-job-name";
   private static final String TEST_BUILDER_LOGS = "test-logs";
   private static final String TEST_JOB_SCHEDULE = "*/5 * * * *";
@@ -76,7 +77,7 @@ public class JobImageBuilderTest {
     JobConfig jobConfig = new JobConfig();
     jobConfig.setDbDefaultType(TEST_DB_DEFAULT_TYPE);
     jobConfig.setSchedule(TEST_JOB_SCHEDULE);
-    jobConfig.setTeam("test-team");
+    jobConfig.setTeam(TEST_TEAM_NAME);
     testDataJob = new DataJob();
     testDataJob.setName(TEST_JOB_NAME);
     testDataJob.setJobConfig(jobConfig);
@@ -103,6 +104,7 @@ public class JobImageBuilderTest {
         .createJob(
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
+            eq(TEST_TEAM_NAME),
             eq(false),
             eq(false),
             any(),
@@ -147,6 +149,7 @@ public class JobImageBuilderTest {
         .createJob(
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
+            eq(TEST_TEAM_NAME),
             eq(false),
             eq(false),
             any(),
@@ -181,6 +184,7 @@ public class JobImageBuilderTest {
 
     verify(kubernetesService, never())
         .createJob(
+            anyString(),
             anyString(),
             anyString(),
             anyBoolean(),
@@ -225,6 +229,7 @@ public class JobImageBuilderTest {
         .createJob(
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
+            eq(TEST_TEAM_NAME),
             eq(false),
             eq(false),
             any(),
@@ -277,6 +282,7 @@ public class JobImageBuilderTest {
         .createJob(
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
+            eq(TEST_TEAM_NAME),
             eq(false),
             eq(false),
             captor.capture(),
@@ -317,6 +323,7 @@ public class JobImageBuilderTest {
         .createJob(
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
+            eq(TEST_TEAM_NAME),
             eq(false),
             eq(false),
             any(),
@@ -356,6 +363,7 @@ public class JobImageBuilderTest {
 
     verify(kubernetesService, never())
         .createJob(
+            anyString(),
             anyString(),
             anyString(),
             anyBoolean(),
@@ -404,6 +412,7 @@ public class JobImageBuilderTest {
         .createJob(
             eq(TEST_BUILDER_JOB_NAME),
             eq(TEST_BUILDER_IMAGE_NAME),
+            eq(TEST_TEAM_NAME),
             eq(false),
             eq(false),
             any(),

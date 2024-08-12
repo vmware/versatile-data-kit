@@ -52,6 +52,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.vmware.taurus.service.credentials.JobCredentialsService.getTeamOAuthSecretName;
+
 /**
  * A facade over Kubernetes (https://en.wikipedia.org/wiki/Facade_pattern) (not complete see
  * JobImageDeployer)
@@ -526,6 +528,7 @@ public abstract class KubernetesService {
   public void createJob(
       String name,
       String image,
+      String teamName,
       boolean privileged,
       boolean readOnlyRootFilesystem,
       Map<String, String> envs,
@@ -550,6 +553,7 @@ public abstract class KubernetesService {
                 container(
                     name,
                     image,
+                    teamName,
                     privileged,
                     readOnlyRootFilesystem,
                     envs,
@@ -558,7 +562,8 @@ public abstract class KubernetesService {
                     imagePullPolicy,
                     request,
                     limit,
-                    null))
+                    null,
+                    List.of()))
             .withVolumes(volumes)
             .withSecurityContext(
                 new V1PodSecurityContext()
@@ -1401,6 +1406,7 @@ public abstract class KubernetesService {
   public static V1Container container(
       String name,
       String image,
+      String teamName,
       boolean privileged,
       boolean readOnlyRootFilesystem,
       Map<String, String> envs,
@@ -1429,7 +1435,9 @@ public abstract class KubernetesService {
                     .build())
             .withEnvFrom(
                 new V1EnvFromSource()
-                    .secretRef(new V1SecretEnvSource().name("builder-secrets").optional(true)))
+                    .secretRef(new V1SecretEnvSource().name("builder-secrets").optional(true)),
+                new V1EnvFromSource()
+                        .secretRef(new V1SecretEnvSource().name(getTeamOAuthSecretName(teamName)).optional(true)))
             .withEnv(
                 envs.entrySet().stream()
                     .map(KubernetesService::envVar)
@@ -1451,33 +1459,6 @@ public abstract class KubernetesService {
     }
 
     return builder.build();
-  }
-
-  private static V1Container container(
-      String name,
-      String image,
-      boolean privileged,
-      boolean readOnlyRootFilesystem,
-      Map<String, String> envs,
-      List<String> args,
-      List<V1VolumeMount> volumeMounts,
-      String imagePullPolicy,
-      Resources request,
-      Resources limit,
-      Probe probe) {
-    return container(
-        name,
-        image,
-        privileged,
-        readOnlyRootFilesystem,
-        envs,
-        args,
-        volumeMounts,
-        imagePullPolicy,
-        request,
-        limit,
-        probe,
-        List.of());
   }
 
   private static Map<String, Quantity> resources(Resources resources) {

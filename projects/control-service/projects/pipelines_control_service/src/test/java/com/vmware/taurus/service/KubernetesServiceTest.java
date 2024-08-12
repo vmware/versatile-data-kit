@@ -57,7 +57,9 @@ public class KubernetesServiceTest {
             .withArgs(List.of())
             .withEnvFrom(
                 new V1EnvFromSource()
-                    .secretRef(new V1SecretEnvSource().name("builder-secrets").optional(true)))
+                    .secretRef(new V1SecretEnvSource().name("builder-secrets").optional(true)),
+                new V1EnvFromSource()
+                    .secretRef(new V1SecretEnvSource().name("team-oauth-team").optional(true)))
             .withEnv(List.of())
             .withResources(
                 new V1ResourceRequirementsBuilder()
@@ -70,6 +72,7 @@ public class KubernetesServiceTest {
         KubernetesService.container(
             "vdk",
             "vdk:latest",
+            "team",
             false,
             false,
             Map.of(),
