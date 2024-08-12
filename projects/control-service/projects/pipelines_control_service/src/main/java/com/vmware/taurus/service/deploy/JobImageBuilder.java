@@ -236,6 +236,7 @@ public class JobImageBuilder {
     controlKubernetesService.createJob(
         builderJobName,
         builderImage,
+        dataJob.getJobConfig().getTeam(),
         false,
         false,
         envs,
