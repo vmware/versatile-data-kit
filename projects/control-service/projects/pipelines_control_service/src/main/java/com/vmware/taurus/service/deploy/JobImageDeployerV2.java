@@ -382,7 +382,7 @@ public class JobImageDeployerV2 {
         KubernetesService.container(
             "vdk",
             jobVdkImage,
-            "teamName",
+            dataJob.getJobConfig().getTeam(),
             false,
             readOnlyRootFilesystem,
             Map.of(),
