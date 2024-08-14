@@ -62,11 +62,7 @@ class TrinoTemplateQueries:
         """
         strategy = self.get_move_data_to_table_strategy()
         if strategy == "RENAME":
-            return self.__job_input.execute_query(
-                f"""
-                ALTER TABLE "{from_db}"."{from_table_name}" RENAME TO "{to_db}"."{to_table_name}"
-                """
-            )
+            return self.rename_table(from_db, from_table_name, to_db, to_table_name)
         elif strategy == "INSERT_SELECT":
             self.__job_input.execute_query(
                 f"""
@@ -92,6 +88,13 @@ class TrinoTemplateQueries:
                     "Provide valid value for TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY.",
                 )
             )
+
+    def rename_table(self, from_db, from_table_name, to_db, to_table_name):
+        return self.__job_input.execute_query(
+            f"""
+                ALTER TABLE "{from_db}"."{from_table_name}" RENAME TO "{to_db}"."{to_table_name}"
+                """
+        )
 
     def drop_table(self, db: str, table_name: str):
         """
