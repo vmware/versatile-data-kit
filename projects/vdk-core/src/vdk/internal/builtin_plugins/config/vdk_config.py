@@ -29,6 +29,9 @@ EXECUTION_ID = "EXECUTION_ID"
 OP_ID = "OP_ID"
 TEMPORARY_WRITE_DIRECTORY = "TEMPORARY_WRITE_DIRECTORY"
 PYTHON_VERSION = "PYTHON_VERSION"
+TEAM_CLIENT_ID = "TEAM_CLIENT_ID"
+TEAM_CLIENT_SECRET = "TEAM_CLIENT_SECRET"
+TEAM_OAUTH_AUTHORIZE_URL = "TEAM_OAUTH_AUTHORIZE_URL"
 
 log = logging.getLogger(__name__)
 
@@ -156,6 +159,24 @@ class CoreConfigDefinitionPlugin:
             " by the underlying OS the data job executes on. There is"
             " no guarantee that files created during a local data job execution"
             " will  be present or absent for the next execution.",
+        )
+        config_builder.add(
+            TEAM_CLIENT_ID,
+            "",
+            True,
+            "The Team's oAuth Client Id to use in authentication operations.",
+        )
+        config_builder.add(
+            TEAM_CLIENT_SECRET,
+            "",
+            True,
+            "The Team's oAuth Client Secret to use in authentication operations",
+        )
+        config_builder.add(
+            TEAM_OAUTH_AUTHORIZE_URL,
+            "",
+            True,
+            "The URL for Team's oAuth authorization",
         )
 
 
