@@ -37,8 +37,10 @@ class OauthPlugin:
         self.is_oauth_creds_available = False
 
     def __attempt_oauth_authentication(self, context: JobContext):
-        original_string = (context.core_context.configuration.get_value(CLIENT_ID) + ":"
-                           + context.core_context.configuration.get_value(CLIENT_SECRET)
+        original_string = (
+            context.core_context.configuration.get_value(CLIENT_ID)
+            + ":"
+            + context.core_context.configuration.get_value(CLIENT_SECRET)
         )
 
         # Encoding
@@ -70,7 +72,10 @@ class OauthPlugin:
         if disable_oauth:
             return
         # Scenario: data job running in cloud has oauth creds present
-        if os.getenv(TEAM_CLIENT_ID) is not None and os.getenv(TEAM_CLIENT_SECRET) is not None:
+        if (
+            os.getenv(TEAM_CLIENT_ID) is not None
+            and os.getenv(TEAM_CLIENT_SECRET) is not None
+        ):
             self.is_oauth_creds_available = True
             return
         # Scenario: data job running in local does not have oauth creds
