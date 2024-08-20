@@ -57,8 +57,7 @@ class KerberosPlugin:
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext) -> None:
-        disable_oauth = os.getenv("DISABLE_KERBEROS_LOGIN").lower() == "true"
-        if disable_oauth:
+        if context.configuration.get_value("DISABLE_KERBEROS_LOGIN"):
             return
         kerberos_configuration = KerberosPluginConfiguration(
             None, None, context.configuration
@@ -80,8 +79,7 @@ class KerberosPlugin:
         This is called during vdk run (job execution) and here we know the job directory
         and can try to infer where the keytab file is.
         """
-        disable_oauth = os.getenv("DISABLE_KERBEROS_LOGIN").lower() == "true"
-        if disable_oauth:
+        if context.core_context.configuration.get_value("DISABLE_KERBEROS_LOGIN"):
             return
         kerberos_configuration = KerberosPluginConfiguration(
             context.name, str(context.job_directory), context.core_context.configuration
