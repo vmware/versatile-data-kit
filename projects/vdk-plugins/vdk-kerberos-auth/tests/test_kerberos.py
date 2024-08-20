@@ -41,6 +41,7 @@ class TestKerberosAuthentication(unittest.TestCase):
             {
                 "VDK_KRB_AUTH_FAIL_FAST": "true",
                 "VDK_LOG_EXECUTION_RESULT": "True",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(
@@ -53,7 +54,11 @@ class TestKerberosAuthentication(unittest.TestCase):
     def test_invalid_authentication_mode(self):
         with mock.patch.dict(
             os.environ,
-            {"VDK_KRB_AUTH": "invalid", "VDK_KRB_AUTH_FAIL_FAST": "true"},
+            {
+                "VDK_KRB_AUTH": "invalid",
+                "VDK_KRB_AUTH_FAIL_FAST": "true",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
+             },
         ):
             result: Result = self.__runner.invoke(
                 ["run", jobs_path_from_caller_directory("test-job")]
@@ -71,6 +76,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KRB_AUTH_FAIL_FAST": "true",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_LOG_EXECUTION_RESULT": "True",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(
@@ -86,6 +92,7 @@ class TestKerberosAuthentication(unittest.TestCase):
             {
                 "VDK_KRB_AUTH": "",
                 "VDK_KRB_AUTH_FAIL_FAST": "true",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(["my-echo", "hi"])
@@ -106,6 +113,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KEYTAB_FOLDER": str(pathlib.Path(data_job_path).parent),
                 "VDK_KEYTAB_FILENAME": "test-job.keytab",
                 "VDK_KEYTAB_PRINCIPAL": "pa__view_test-job",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(["my-echo", "hi"])
@@ -125,6 +133,8 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KEYTAB_FOLDER": str(get_caller_directory().joinpath("jobs")),
                 "VDK_KEYTAB_FILENAME": "test-job.keytab",
                 "VDK_KEYTAB_PRINCIPAL": "pa__view_test-job",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
+
             },
         ):
             result: Result = self.__runner.invoke(["my-echo", "hi"])
@@ -140,6 +150,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KRB_AUTH_FAIL_FAST": "true",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_KEYTAB_PRINCIPAL": "pa__view_test-job",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(["my-echo", "hi"])
@@ -161,6 +172,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                         "different_principal.keytab"
                     )
                 ),
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
@@ -181,6 +193,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KEYTAB_FILENAME": str(
                     pathlib.Path(data_job_path).parent.joinpath("non_existent.keytab")
                 ),
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
@@ -198,6 +211,8 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_KEYTAB_FOLDER": str(pathlib.Path(data_job_path).parent),
                 "VDK_KEYTAB_FILENAME": "non_existent.keytab",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
+
             },
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
@@ -216,6 +231,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KERBEROS_KDC_HOST": "localhost",
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_LOG_EXECUTION_RESULT": "True",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(
@@ -237,6 +253,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KRB5_CONF_FILENAME": krb5_conf_filename,
                 "VDK_KEYTAB_FOLDER": str(pathlib.Path(data_job_path).parent),
                 "VDK_KEYTAB_FILENAME": "different_principal.keytab",
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
@@ -257,6 +274,7 @@ class TestKerberosAuthentication(unittest.TestCase):
                 "VDK_KEYTAB_FILENAME": str(
                     pathlib.Path(data_job_path).parent.joinpath("non_existent.keytab")
                 ),
+                "VDK_DISABLE_KERBEROS_LOGIN": "False",
             },
         ):
             result: Result = self.__runner.invoke(["run", data_job_path])
