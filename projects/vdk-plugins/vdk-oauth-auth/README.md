@@ -1,5 +1,5 @@
 
-The plugin provides GSSAPI Kerberos authentication on data job startup. The plugin also adds Kerberos/GSSAPI support for HTTP requests.
+The plugin provides Oauth authentication on data job startup.
 
 # Usage
 
@@ -13,7 +13,7 @@ pip install vdk-oauth-auth
 
 The following environment variables can be used to configure this plugin:
 
-| name                | description                                   |
-|---------------------|-----------------------------------------------|
-| `CLIENT_ID`         | Client id to fetch access token from CSP.     |
-| `CLIENT_SECRET`     | Client secret to fetch access token from CSP. |
+| name                 | description                                   |
+|----------------------|-----------------------------------------------|
+| `TEAM_CLIENT_ID`     | Client id to fetch access token from CSP.     |
+| `TEAM_CLIENT_SECRET` | Client secret to fetch access token from CSP. |

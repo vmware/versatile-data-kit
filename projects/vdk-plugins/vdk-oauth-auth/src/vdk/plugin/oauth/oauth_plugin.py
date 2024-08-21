@@ -14,19 +14,14 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.plugin.control_api_auth.auth_config import LocalFolderCredentialsCache
-from vdk.plugin.oauth.oauth_configuration import add_definitions
+from vdk.plugin.oauth.oauth_configuration import OauthPluginConfiguration
+
 
 log = logging.getLogger(__name__)
 
-CLIENT_ID = "CLIENT_ID"
-CLIENT_SECRET = "CLIENT_SECRET"
 TEAM_CLIENT_ID = "TEAM_CLIENT_ID"
 TEAM_CLIENT_SECRET = "TEAM_CLIENT_SECRET"
-CONTROL_SERVICE_REST_API_URL = "CONTROL_SERVICE_REST_API_URL"
-API_TOKEN_AUTHORIZATION_URL = "API_TOKEN_AUTHORIZATION_URL"
-CSP_AUTHORIZATION_URL = "CSP_AUTHORIZATION_URL"
 CSP_ACCESS_TOKEN = "CSP_ACCESS_TOKEN"
-DISABLE_OAUTH_LOGIN = "DISABLE_OAUTH_LOGIN"
 
 
 class OauthPlugin:
@@ -36,18 +31,16 @@ class OauthPlugin:
         self.team_name = None
         self.is_oauth_creds_available = False
 
-    def __attempt_oauth_authentication(self, context: JobContext):
+    def __attempt_oauth_authentication(self,  oauth_configuration : OauthPluginConfiguration):
         original_string = (
-            context.core_context.configuration.get_value(CLIENT_ID)
-            + ":"
-            + context.core_context.configuration.get_value(CLIENT_SECRET)
+            oauth_configuration.team_client_id() + ":" + oauth_configuration.team_client_secret()
         )
 
         # Encoding
         encoded_bytes = base64.b64encode(original_string.encode("utf-8"))
         encoded_string = encoded_bytes.decode("utf-8")
 
-        url = context.core_context.configuration.get_value(CSP_AUTHORIZATION_URL)
+        url = oauth_configuration.team_oauth_authorize_url()
         headers = {
             "Authorization": "Basic " + encoded_string,
             "Content-Type": "application/x-www-form-urlencoded",
@@ -61,20 +54,21 @@ class OauthPlugin:
     @staticmethod
     @hookimpl
     def vdk_configure(config_builder: ConfigurationBuilder) -> None:
-        add_definitions(config_builder)
+        pass
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext) -> None:
         """
         Check if Oauth enabled
         """
-        disable_oauth = os.getenv(DISABLE_OAUTH_LOGIN).lower() == "true"
-        if disable_oauth:
+        oauth_configuration = OauthPluginConfiguration(context.configuration)
+
+        if oauth_configuration.disable_oauth_plugin():
             return
         # Scenario: data job running in cloud has oauth creds present
         if (
-            os.getenv(TEAM_CLIENT_ID) is not None
-            and os.getenv(TEAM_CLIENT_SECRET) is not None
+            oauth_configuration.team_client_id() is not None
+            and oauth_configuration.team_client_secret() is not None
         ):
             self.is_oauth_creds_available = True
             return
@@ -83,10 +77,8 @@ class OauthPlugin:
         credentials = credentials_cache.read_credentials()
         credentials = json.loads(credentials.replace("'", '"'))
         self.access_token = credentials.get("access_token")
-        self.control_service_rest_api_url = context.configuration.get_value(
-            CONTROL_SERVICE_REST_API_URL
-        )
-        self.team_name = context.configuration.get_value("team")
+        self.control_service_rest_api_url = oauth_configuration.control_service_rest_api_url()
+        self.team_name = oauth_configuration.team()
 
     @hookimpl(tryfirst=True)
     def initialize_job(self, context: JobContext) -> None:
@@ -94,17 +86,12 @@ class OauthPlugin:
         This is called during vdk run (job execution)
         Check if Oauth enabled
         """
-        disable_oauth = os.getenv(DISABLE_OAUTH_LOGIN).lower() == "true"
-        if disable_oauth:
+        oauth_configuration = OauthPluginConfiguration(context.core_context.configuration)
+
+        if oauth_configuration.disable_oauth_plugin():
             return
-        if self.is_oauth_creds_available:
-            context.core_context.configuration.override_value(
-                "client_id", os.getenv(TEAM_CLIENT_ID)
-            )
-            context.core_context.configuration.override_value(
-                "client_secret", os.getenv(TEAM_CLIENT_SECRET)
-            )
-        else:
+
+        if not self.is_oauth_creds_available:
             # Enter a context with an instance of the API client
             configuration = taurus_datajob_api.Configuration(
                 host=self.control_service_rest_api_url,
@@ -124,14 +111,15 @@ class OauthPlugin:
                     )
                     raise e
             oauth_creds = oauth_creds.to_dict()
+
             context.core_context.configuration.override_value(
-                "client_id", oauth_creds.get("clientId")
+                TEAM_CLIENT_ID, oauth_creds.get("clientId")
             )
             context.core_context.configuration.override_value(
-                "client_secret", oauth_creds.get("clientSecret")
+                TEAM_CLIENT_SECRET, oauth_creds.get("clientSecret")
             )
 
-        self.__attempt_oauth_authentication(context)
+        self.__attempt_oauth_authentication(oauth_configuration)
 
 
 @hookimpl

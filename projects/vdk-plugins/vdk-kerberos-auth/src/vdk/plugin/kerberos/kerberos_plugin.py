@@ -1,7 +1,6 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
-import os
 from typing import List
 
 from vdk.api.plugin.hook_markers import hookimpl
@@ -57,11 +56,11 @@ class KerberosPlugin:
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext) -> None:
-        if context.configuration.get_value("DISABLE_KERBEROS_LOGIN"):
-            return
         kerberos_configuration = KerberosPluginConfiguration(
             None, None, context.configuration
         )
+        if kerberos_configuration.disable_kerberos_plugin():
+            return
         if (
             kerberos_configuration.keytab_filename()
             and kerberos_configuration.keytab_principal()
@@ -79,11 +78,12 @@ class KerberosPlugin:
         This is called during vdk run (job execution) and here we know the job directory
         and can try to infer where the keytab file is.
         """
-        if context.core_context.configuration.get_value("DISABLE_KERBEROS_LOGIN"):
-            return
         kerberos_configuration = KerberosPluginConfiguration(
             context.name, str(context.job_directory), context.core_context.configuration
         )
+        if kerberos_configuration.disable_kerberos_plugin():
+            return
+
         self.__attempt_kerberos_authentication(kerberos_configuration)
 
 
