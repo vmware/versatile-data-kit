@@ -44,7 +44,7 @@ class OauthPluginConfiguration:
         return self.__config.get_value(CSP_ACCESS_TOKEN)
 
     def disable_oauth_plugin(self):
-        return self.__config.get_value(DISABLE_OAUTH_LOGIN).lower() == "true"
+        return self.__config.get_value(DISABLE_OAUTH_LOGIN)
 
 
 def add_definitions(config_builder: ConfigurationBuilder) -> None:
