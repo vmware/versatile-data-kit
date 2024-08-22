@@ -88,7 +88,7 @@ class KerberosPluginConfiguration:
         return self.__config.get_value(API_SERVER_KERBEROS_SERVICE_NAME)
 
     def disable_kerberos_plugin(self):
-        return self.__config.get_value(DISABLE_KERBEROS_LOGIN).lower() == "true"
+        return self.__config.get_value(DISABLE_KERBEROS_LOGIN)
 
 
 def add_definitions(config_builder: ConfigurationBuilder) -> None:
