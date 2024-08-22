@@ -80,7 +80,11 @@ class OauthPlugin:
         # Scenario: data job running in local does not have oauth creds
         credentials_cache = LocalFolderCredentialsCache()
         credentials = credentials_cache.read_credentials()
-        creds_json = json.loads(credentials)
+        try:
+            creds_json = json.loads(credentials)
+        except json.JSONDecodeError as e:
+            log.error(f"Try VDK login command and then try executing data job.")
+            raise e
         self.access_token = creds_json.get("access_token")
         self.control_service_rest_api_url = (
             oauth_configuration.control_service_rest_api_url()
@@ -114,10 +118,7 @@ class OauthPlugin:
                     # Retrieves details of an existing Data Job by specifying the name of the Data Job. | (Stable)
                     oauth_creds = api_instance.oauth_credentials_get(self.team_name)
                 except Exception as e:
-                    print(
-                        "Exception when calling DataJobsSecretsApi->oauth_credentials_get: %s\n"
-                        % e
-                    )
+                    log.error(f"Exception when fetching oauth credentials: {e}")
                     raise e
             oauth_creds = oauth_creds.to_dict()
 
