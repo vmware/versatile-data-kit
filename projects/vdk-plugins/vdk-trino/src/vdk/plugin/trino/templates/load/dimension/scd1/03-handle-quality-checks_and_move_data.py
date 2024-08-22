@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
+import re
 
 from vdk.api.job_input import IJobInput
 from vdk.plugin.trino.templates.data_quality_exception import DataQualityException
 from vdk.plugin.trino.trino_utils import CommonUtilities
-from vdk.plugin.trino.trino_utils import TrinoTemplateQueries
 
 log = logging.getLogger(__name__)
 
@@ -121,15 +121,11 @@ def copy_staging_table_to_target_table(
             # override session properties -> "SET SESSION hdfs.insert_existing_partitions_behavior = 'OVERWRITE';"
             for item in original_session_properties_backup:
                 statement = set_session_property_template.format(
-                    propety_name=item[0], property_value=OVERWRITE
+                    property_name=item[0], property_value=OVERWRITE
                 )
                 job_input.execute_query(statement)
 
             # INSERT OVERWRITE data
-            partition_clause = get_insert_sql_partition_clause(
-                job_input, target_schema, target_table
-            )
-
             insert_overwrite_query = CommonUtilities.get_file_content(
                 SQL_FILES_FOLDER, "02-insert-overwrite.sql"
             )
@@ -137,7 +133,6 @@ def copy_staging_table_to_target_table(
             insert_overwrite = insert_overwrite_query.format(
                 target_schema=target_schema,
                 target_table=target_table,
-                _vdk_template_insert_partition_clause=partition_clause,
                 source_schema=source_schema,
                 source_view=source_table,
             )
@@ -146,22 +141,38 @@ def copy_staging_table_to_target_table(
             # restore session properties
             for item in original_session_properties_backup:
                 statement = set_session_property_template.format(
-                    propety_name=item[0], property_value=item[1]
+                    property_name=item[0], property_value=item[1]
                 )
                 job_input.execute_query(statement)
     else:
         # non-partitioned tables:
-        # - Truncate the target table
+        # - Since truncate and delete do not work for non-partitioned tables - get the create statement, drop the table and then re-create it - we do this to preserve and metadata like user comments
         # - Insert contents from staging table in target table
         # - Delete staging table
-        truncate_table_query = CommonUtilities.get_file_content(
-            SQL_FILES_FOLDER, "02-truncate-table.sql"
+        show_create_query = CommonUtilities.get_file_content(
+            SQL_FILES_FOLDER, "02-show-create-table.sql"
         )
-        truncate_table = truncate_table_query.format(
+        show_create_target_table = show_create_query.format(
             target_schema=target_schema, target_table=target_table
         )
-        job_input.execute_query(truncate_table)
 
+        table_create_statement = job_input.execute_query(show_create_target_table)
+        # remove the "external_location" clause from the create statement as it might lead to data not being cleaned up properly in hive
+        table_create_statement = remove_external_location(table_create_statement[0][0])
+
+        # drop the table
+        drop_table_query = CommonUtilities.get_file_content(
+            SQL_FILES_FOLDER, "02-drop-table.sql"
+        )
+        drop_table = drop_table_query.format(
+            target_schema=target_schema, target_table=target_table
+        )
+        job_input.execute_query(drop_table)
+
+        # re-create the table
+        job_input.execute_query(table_create_statement)
+
+        # insert the data
         insert_into_table_query = CommonUtilities.get_file_content(
             SQL_FILES_FOLDER, "02-insert-into-table.sql"
         )
@@ -172,14 +183,6 @@ def copy_staging_table_to_target_table(
             source_table=source_table,
         )
         job_input.execute_query(insert_into_table)
-
-        drop_table_query = CommonUtilities.get_file_content(
-            SQL_FILES_FOLDER, "02-drop-table.sql"
-        )
-        drop_table = drop_table_query.format(
-            target_schema=source_schema, target_table=source_table
-        )
-        job_input.execute_query(drop_table)
 
 
 def is_partitioned_table(job_input: IJobInput, target_schema, target_table) -> bool:
@@ -198,18 +201,11 @@ def is_partitioned_table(job_input: IJobInput, target_schema, target_table) -> b
     )
 
 
-def get_insert_sql_partition_clause(job_input: IJobInput, target_schema, target_table):
-    get_partitions_query = CommonUtilities.get_file_content(
-        SQL_FILES_FOLDER, "02-get-partitions.sql"
-    )
-    get_partitions = get_partitions_query.format(
-        target_schema=target_schema, target_table=target_table
-    )
-    partitions_result = job_input.execute_query(get_partitions)
+def remove_external_location(sql_statement):
+    # Regular expression pattern to match the external_location clause
+    pattern = r"external_location\s*=\s*'[^']*',?\s*"
 
-    partitions = []
-    for partition in partitions_result:
-        partitions.append(partition[0])
+    # Remove the external_location clause from the SQL statement
+    cleaned_sql = re.sub(pattern, "", sql_statement, flags=re.IGNORECASE)
 
-    sql = "PARTITION (" + ",".join("`" + p + "`" for p in partitions) + ")"
-    return sql
+    return cleaned_sql
