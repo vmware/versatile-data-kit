@@ -59,6 +59,8 @@ class KerberosPlugin:
         kerberos_configuration = KerberosPluginConfiguration(
             None, None, context.configuration
         )
+        if kerberos_configuration.disable_kerberos_plugin():
+            return
         if (
             kerberos_configuration.keytab_filename()
             and kerberos_configuration.keytab_principal()
@@ -79,6 +81,9 @@ class KerberosPlugin:
         kerberos_configuration = KerberosPluginConfiguration(
             context.name, str(context.job_directory), context.core_context.configuration
         )
+        if kerberos_configuration.disable_kerberos_plugin():
+            return
+
         self.__attempt_kerberos_authentication(kerberos_configuration)
 
 

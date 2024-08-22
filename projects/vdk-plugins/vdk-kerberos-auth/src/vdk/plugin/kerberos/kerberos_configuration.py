@@ -18,8 +18,8 @@ KEYTAB_PRINCIPAL = "KEYTAB_PRINCIPAL"
 KEYTAB_REALM = "KEYTAB_REALM"
 KERBEROS_KDC_HOST = "KERBEROS_KDC_HOST"
 KRB_AUTH_FAIL_FAST = "KRB_AUTH_FAIL_FAST"
-
 API_SERVER_KERBEROS_SERVICE_NAME = "API_SERVER_KERBEROS_SERVICE_NAME"
+DISABLE_KERBEROS_LOGIN = "DISABLE_KERBEROS_LOGIN"
 
 
 class KerberosPluginConfiguration:
@@ -87,6 +87,9 @@ class KerberosPluginConfiguration:
     def api_server_kerberos_service_name(self) -> str:
         return self.__config.get_value(API_SERVER_KERBEROS_SERVICE_NAME)
 
+    def disable_kerberos_plugin(self):
+        return self.__config.get_value(DISABLE_KERBEROS_LOGIN).lower() == "true"
+
 
 def add_definitions(config_builder: ConfigurationBuilder) -> None:
     config_builder.add(
@@ -151,4 +154,9 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
     It's a string containing the service principal (for the API server) in the form 'type@fqdn'
     (for example, 'http@server.vdk.com').
     """,
+    )
+    config_builder.add(
+        key=DISABLE_KERBEROS_LOGIN,
+        default_value=False,
+        description="To enable/disable kerberos login.",
     )
