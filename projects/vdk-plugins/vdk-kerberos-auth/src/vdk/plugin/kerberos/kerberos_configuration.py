@@ -21,6 +21,7 @@ KRB_AUTH_FAIL_FAST = "KRB_AUTH_FAIL_FAST"
 API_SERVER_KERBEROS_SERVICE_NAME = "API_SERVER_KERBEROS_SERVICE_NAME"
 DISABLE_KERBEROS_LOGIN = "DISABLE_KERBEROS_LOGIN"
 
+
 class KerberosPluginConfiguration:
     def __init__(
         self,
@@ -153,4 +154,9 @@ def add_definitions(config_builder: ConfigurationBuilder) -> None:
     It's a string containing the service principal (for the API server) in the form 'type@fqdn'
     (for example, 'http@server.vdk.com').
     """,
+    )
+    config_builder.add(
+        key=DISABLE_KERBEROS_LOGIN,
+        default_value=False,
+        description="To enable/disable kerberos login.",
     )

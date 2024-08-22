@@ -14,6 +14,7 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
 from vdk.plugin.control_api_auth.auth_config import LocalFolderCredentialsCache
+from vdk.plugin.oauth.oauth_configuration import add_definitions
 from vdk.plugin.oauth.oauth_configuration import OauthPluginConfiguration
 
 
@@ -21,7 +22,7 @@ log = logging.getLogger(__name__)
 
 TEAM_CLIENT_ID = "TEAM_CLIENT_ID"
 TEAM_CLIENT_SECRET = "TEAM_CLIENT_SECRET"
-CSP_ACCESS_TOKEN = "CSP_ACCESS_TOKEN"
+TEAM_ACCESS_TOKEN = "TEAM_ACCESS_TOKEN"
 
 
 class OauthPlugin:
@@ -31,9 +32,13 @@ class OauthPlugin:
         self.team_name = None
         self.is_oauth_creds_available = False
 
-    def __attempt_oauth_authentication(self,  oauth_configuration : OauthPluginConfiguration):
+    def __attempt_oauth_authentication(
+        self, oauth_configuration: OauthPluginConfiguration
+    ):
         original_string = (
-            oauth_configuration.team_client_id() + ":" + oauth_configuration.team_client_secret()
+            oauth_configuration.team_client_id()
+            + ":"
+            + oauth_configuration.team_client_secret()
         )
 
         # Encoding
@@ -49,12 +54,12 @@ class OauthPlugin:
 
         response = requests.post(url, headers=headers, data=data)
         response_json = json.loads(response.text)
-        os.environ[CSP_ACCESS_TOKEN] = response_json["access_token"]
+        os.environ[TEAM_ACCESS_TOKEN] = response_json["access_token"]
 
     @staticmethod
     @hookimpl
     def vdk_configure(config_builder: ConfigurationBuilder) -> None:
-        pass
+        add_definitions(config_builder)
 
     @hookimpl
     def vdk_initialize(self, context: CoreContext) -> None:
@@ -77,7 +82,9 @@ class OauthPlugin:
         credentials = credentials_cache.read_credentials()
         credentials = json.loads(credentials.replace("'", '"'))
         self.access_token = credentials.get("access_token")
-        self.control_service_rest_api_url = oauth_configuration.control_service_rest_api_url()
+        self.control_service_rest_api_url = (
+            oauth_configuration.control_service_rest_api_url()
+        )
         self.team_name = oauth_configuration.team()
 
     @hookimpl(tryfirst=True)
@@ -86,7 +93,9 @@ class OauthPlugin:
         This is called during vdk run (job execution)
         Check if Oauth enabled
         """
-        oauth_configuration = OauthPluginConfiguration(context.core_context.configuration)
+        oauth_configuration = OauthPluginConfiguration(
+            context.core_context.configuration
+        )
 
         if oauth_configuration.disable_oauth_plugin():
             return

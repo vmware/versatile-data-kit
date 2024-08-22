@@ -1,7 +1,6 @@
 # Copyright 2024-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-from vdk.internal.core.config import Configuration
-
+from vdk.internal.core.config import Configuration, ConfigurationBuilder
 
 CLIENT_ID = "CLIENT_ID"
 CLIENT_SECRET = "CLIENT_SECRET"
@@ -45,3 +44,11 @@ class OauthPluginConfiguration:
 
     def disable_oauth_plugin(self):
         return self.__config.get_value(DISABLE_OAUTH_LOGIN).lower() == "true"
+
+
+def add_definitions(config_builder: ConfigurationBuilder) -> None:
+    config_builder.add(
+        key=DISABLE_OAUTH_LOGIN,
+        default_value=False,
+        description="To enable/disable oauth login.",
+    )
