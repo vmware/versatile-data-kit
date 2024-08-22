@@ -1,6 +1,7 @@
 # Copyright 2024-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
-from vdk.internal.core.config import Configuration, ConfigurationBuilder
+from vdk.internal.core.config import Configuration
+from vdk.internal.core.config import ConfigurationBuilder
 
 CLIENT_ID = "CLIENT_ID"
 CLIENT_SECRET = "CLIENT_SECRET"
