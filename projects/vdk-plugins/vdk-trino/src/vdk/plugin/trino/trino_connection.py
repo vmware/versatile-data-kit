@@ -1,12 +1,19 @@
 # Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
+import base64
+import json
 import logging
+from typing import Optional
 
+import requests
 from tenacity import before_sleep_log
 from tenacity import retry
 from tenacity import retry_if_exception_type
 from tenacity import stop_after_attempt
 from tenacity import wait_exponential
+from trino import constants
+from trino import dbapi
+from trino.auth import BasicAuthentication
 from trino.exceptions import TrinoExternalError
 from trino.exceptions import TrinoInternalError
 from vdk.internal.builtin_plugins.connection.managed_connection_base import (
@@ -14,6 +21,7 @@ from vdk.internal.builtin_plugins.connection.managed_connection_base import (
 )
 from vdk.internal.builtin_plugins.connection.recovery_cursor import RecoveryCursor
 from vdk.internal.util.decorators import closing_noexcept_on_close
+from vdk.plugin.trino.trino_config import TrinoConfiguration
 from vdk.plugin.trino.trino_error_handler import TrinoErrorHandler
 
 log = logging.getLogger(__name__)
@@ -22,18 +30,9 @@ log = logging.getLogger(__name__)
 class TrinoConnection(ManagedConnectionBase):
     def __init__(
         self,
-        host,
-        port,
-        catalog,
-        schema,
-        user,
-        password,
-        use_ssl=True,
-        ssl_verify=True,
-        timeout_seconds=120,
+        configuration: TrinoConfiguration,
+        section: Optional[str],
         lineage_logger=None,
-        retries_on_error=3,
-        error_backoff_seconds=30,
     ):
         """
         Create a new database connection. Connection parameters are:
@@ -42,36 +41,93 @@ class TrinoConnection(ManagedConnectionBase):
         - *port*: connection port number (defaults to 8080 if not provided)
         - *catalog*: the catalog name (only as keyword argument)
         - *schema*: the schema name (only as keyword argument)
-        - *user*: user name used to authenticate
+        - *user*: username used to authenticate
         """
         super().__init__(logging.getLogger(__name__))
 
-        self._host = host
-        self._port = port
-        self._catalog = catalog
-        self._schema = schema
-        self._user = user
-        self._password = password
-        self._use_ssl = use_ssl
-        self._ssl_verify = ssl_verify
-        self._timeout_seconds = timeout_seconds
+        self._host = configuration.host(section)
+        self._port = configuration.port(section)
+        self._catalog = configuration.catalog(section)
+        self._schema = configuration.schema(section)
+        self._user = configuration.user(section)
+        self._password = configuration.password(section)
+        self._use_ssl = configuration.use_ssl(section)
+        self._ssl_verify = configuration.ssl_verify(section)
+        self._timeout_seconds = configuration.timeout_seconds(section)
+        self._retries_on_error = configuration.retries(section)
+        self._error_backoff_seconds = configuration.backoff_interval_seconds(section)
+
         self._lineage_logger = lineage_logger
-        self._retries_on_error = retries_on_error
-        self._error_backoff_seconds = error_backoff_seconds
-        log.debug(
-            f"Creating new trino connection for user: {user} to host: {host}:{port}"
-        )
+
+        self._use_team_oauth = configuration.use_team_oauth(section)
+
+        if self._use_team_oauth:
+            self._team_client_id = configuration.team_client_id()
+            self._team_client_secret = configuration.team_client_secret()
+            self._team_oauth_url = configuration.team_oauth_url()
+            log.debug(
+                f"Creating new trino connection for oAuth ClientID: {self._team_client_id} to host: {self._host}:{self._port}"
+            )
+        else:
+            log.debug(
+                f"Creating new trino connection for user: {self._user} to host: {self._host}:{self._port}"
+            )
 
     def _connect(self):
-        from trino import dbapi
-        from trino import constants
+        if self._use_team_oauth:
+            return self._team_oauth_connection()
+        else:
+            return self._basic_authentication_connection()
 
+    def _team_oauth_connection(self):
+        log.debug(
+            f"Open Trino Connection: host: {self._host}:{self._port} with oAuth ClientID: {self._team_client_id}; "
+            f"catalog: {self._catalog}; schema: {self._schema}; timeout: {self._timeout_seconds}"
+        )
+
+        oauth_token = self._get_access_token()
+
+        # Create an OAuth session
+        session = OAuthSession(oauth_token)
+
+        connection = dbapi.connect(
+            host=self._host,
+            port=self._port,
+            catalog=self._catalog,
+            schema=self._schema,
+            http_scheme=constants.HTTPS if self._use_ssl else constants.HTTP,
+            verify=self._ssl_verify,
+            request_timeout=self._timeout_seconds,
+            http_session=session,
+        )
+        return connection
+
+    def _get_access_token(self):
+        # Exchange client ID & Secret for an access token
+        # Original basic auth string
+        original_string = self._team_client_id + ":" + self._team_client_secret
+        # Encode
+        encoded_bytes = base64.b64encode(original_string.encode("utf-8"))
+        encoded_string = encoded_bytes.decode("utf-8")
+
+        headers = {
+            "Authorization": "Basic " + encoded_string,
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        data = {"grant_type": "client_credentials"}
+        response = requests.post(self._team_oauth_url, headers=headers, data=data)
+        # If this call fails then, we better raise it as early as possible
+        response.raise_for_status()
+
+        response_json = json.loads(response.text)
+        oauth_token = response_json["access_token"]
+        return oauth_token
+
+    def _basic_authentication_connection(self):
         log.debug(
             f"Open Trino Connection: host: {self._host}:{self._port} with user: {self._user}; "
             f"catalog: {self._catalog}; schema: {self._schema}; timeout: {self._timeout_seconds}"
         )
-        from trino.auth import BasicAuthentication
-
         auth = (
             BasicAuthentication(self._user, self._password) if self._password else None
         )
@@ -164,3 +220,10 @@ class TrinoConnection(ManagedConnectionBase):
             return None
 
         return None
+
+
+# Define a custom requests session to add the OAuth token to the headers
+class OAuthSession(requests.Session):
+    def __init__(self, token):
+        super().__init__()
+        self.headers.update({"Authorization": f"Bearer {token}"})
