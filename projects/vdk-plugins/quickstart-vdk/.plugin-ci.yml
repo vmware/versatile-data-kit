@@ -46,17 +46,17 @@ quickstart-vdk-release-candidate:
       changes: *test_quickstart_vdk_locations
   extends: .release-plugin
 
-#quickstart-vdk-release-candidate-base-image:
-#  stage: pre_release_image
-#  variables:
-#    PLUGIN_NAME: quickstart-vdk
-#  before_script:
-#    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}
-#    - export BUILD_TYPE=pre-release
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "main"'
-#      changes: *test_quickstart_vdk_locations
-#  extends: .release-vdk-image
+quickstart-vdk-release-candidate-base-image:
+  stage: pre_release_image
+  variables:
+    PLUGIN_NAME: quickstart-vdk
+  before_script:
+    - export VDK_PATCH_VERSION=${CI_PIPELINE_ID}.dev${CI_PIPELINE_IID}
+    - export BUILD_TYPE=pre-release
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *test_quickstart_vdk_locations
+  extends: .release-vdk-image
 
 # quickstart-vdk-release-acceptance-test:
 #   image: "python:3.10"

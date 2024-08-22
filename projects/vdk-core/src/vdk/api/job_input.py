@@ -13,7 +13,7 @@ class IProperties:
     Allows for Data Job to store state (key-value pairs) across job runs.
     Properties are solution for the following use cases
 
-    * Keep state of application (for example last ingested row timestamp so you can continue form there on next run)
+    * Keep state of application (for example last ingested row timestamp, so you can continue form there on next run)
     * Keeping API keys and passwords necessary to connect to different systems
     * Keeping custom configuration of a data job.
 
