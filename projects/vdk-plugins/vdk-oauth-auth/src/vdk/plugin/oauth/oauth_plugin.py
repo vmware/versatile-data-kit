@@ -80,8 +80,8 @@ class OauthPlugin:
         # Scenario: data job running in local does not have oauth creds
         credentials_cache = LocalFolderCredentialsCache()
         credentials = credentials_cache.read_credentials()
-        credentials = json.loads(credentials.replace("'", '"'))
-        self.access_token = credentials.get("access_token")
+        creds_json = json.loads(credentials)
+        self.access_token = creds_json.get("access_token")
         self.control_service_rest_api_url = (
             oauth_configuration.control_service_rest_api_url()
         )
