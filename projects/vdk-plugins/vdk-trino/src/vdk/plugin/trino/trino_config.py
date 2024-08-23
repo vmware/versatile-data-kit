@@ -3,6 +3,9 @@
 from typing import cast
 from typing import Optional
 
+from vdk.internal.builtin_plugins.config.vdk_config import TEAM_CLIENT_ID
+from vdk.internal.builtin_plugins.config.vdk_config import TEAM_CLIENT_SECRET
+from vdk.internal.builtin_plugins.config.vdk_config import TEAM_OAUTH_AUTHORIZE_URL
 from vdk.internal.core.config import Configuration
 
 TRINO_HOST = "TRINO_HOST"
@@ -15,6 +18,9 @@ TRINO_USE_SSL = "TRINO_USE_SSL"
 TRINO_SSL_VERIFY = "TRINO_SSL_VERIFY"
 TRINO_TIMEOUT_SECONDS = "TRINO_TIMEOUT_SECONDS"
 TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY = "TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY"
+TRINO_USE_TEAM_OAUTH = "TRINO_USE_TEAM_OAUTH"
+TRINO_RETRIES_ON_ERROR = "TRINO_RETRIES_ON_ERROR"
+TRINO_RETRIES_BACKOFF_SECONDS = "TRINO_RETRIES_BACKOFF_SECONDS"
 
 trino_templates_data_to_target_strategy: str = ""
 
@@ -121,6 +127,50 @@ class TrinoConfiguration:
             else "INSERT_SELECT",
         )
 
+    def use_team_oauth(self, section: Optional[str]) -> bool:
+        return (
+            parse_boolean(
+                self.__config.get_value(key=TRINO_USE_TEAM_OAUTH, section=section)
+            )
+            if (
+                self.__config.get_value(key=TRINO_USE_TEAM_OAUTH, section=section)
+                is not None
+            )
+            else False
+        )
+
+    def retries(self, section: Optional[str]) -> int:
+        return cast(
+            int, self.__config.get_value(key=TRINO_RETRIES_ON_ERROR, section=section)
+        )
+
+    def backoff_interval_seconds(self, section: Optional[str]) -> int:
+        return cast(
+            int,
+            self.__config.get_value(key=TRINO_RETRIES_BACKOFF_SECONDS, section=section),
+        )
+
+    def team_client_id(self) -> str:
+        return (
+            cast(str, self.__config.get_value(key=TEAM_CLIENT_ID))
+            if self.__config.get_value(key=TEAM_CLIENT_ID) is not None
+            else None
+        )
+
+    def team_client_secret(self) -> str:
+        return (
+            cast(str, self.__config.get_value(key=TEAM_CLIENT_SECRET))
+            if self.__config.get_value(key=TEAM_CLIENT_SECRET) is not None
+            else None
+        )
+
+    def team_oauth_url(self) -> str:
+        return (
+            cast(str, self.__config.get_value(key=TEAM_OAUTH_AUTHORIZE_URL))
+            if self.__config.get_value(key=TEAM_OAUTH_AUTHORIZE_URL) is not None
+            else None
+        )
+
     @staticmethod
     def add_definitions(config_builder):
         """
@@ -171,4 +221,19 @@ class TrinoConfiguration:
             key=TRINO_TIMEOUT_SECONDS,
             default_value=None,
             description="The trino query timeout in seconds.",
+        )
+        config_builder.add(
+            key=TRINO_USE_TEAM_OAUTH,
+            default_value=False,
+            description="Should the connection use the team's oAuth credentials to connect to the DBs",
+        )
+        config_builder.add(
+            key=TRINO_RETRIES_ON_ERROR,
+            default_value=3,
+            description="The number of times the Trino plugin is going to retry a failing operation",
+        )
+        config_builder.add(
+            key=TRINO_RETRIES_BACKOFF_SECONDS,
+            default_value=30,
+            description="The backoff time in seconds between retries of a failed operation",
         )

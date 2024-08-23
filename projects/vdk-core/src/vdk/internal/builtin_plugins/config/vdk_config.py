@@ -162,19 +162,19 @@ class CoreConfigDefinitionPlugin:
         )
         config_builder.add(
             TEAM_CLIENT_ID,
-            "",
+            None,
             True,
             "The Team's oAuth Client Id to use in authentication operations.",
         )
         config_builder.add(
             TEAM_CLIENT_SECRET,
-            "",
+            None,
             True,
             "The Team's oAuth Client Secret to use in authentication operations",
         )
         config_builder.add(
             TEAM_OAUTH_AUTHORIZE_URL,
-            "",
+            None,
             True,
             "The URL for Team's oAuth authorization",
         )

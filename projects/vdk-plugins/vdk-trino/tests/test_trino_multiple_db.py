@@ -7,10 +7,12 @@ from unittest import mock
 from unittest import TestCase
 
 import pytest
+from vdk.internal.core.config import ConfigurationBuilder
 from vdk.plugin.test_utils.util_funcs import cli_assert_equal
 from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 from vdk.plugin.test_utils.util_funcs import get_test_job_path
 from vdk.plugin.trino import trino_plugin
+from vdk.plugin.trino.trino_config import TrinoConfiguration
 from vdk.plugin.trino.trino_connection import TrinoConnection
 
 VDK_DB_DEFAULT_TYPE = "VDK_DB_DEFAULT_TYPE"
@@ -61,16 +63,22 @@ class IngestToTrinoTests(TestCase):
         )
 
         # check secondary db
+        builder = ConfigurationBuilder()
+        builder.add("TRINO_HOST", "localhost")
+        builder.add("TRINO_PORT", 8081)
+        builder.add("TRINO_SCHEMA", "default")
+        builder.add("TRINO_CATALOG", "memory")
+        builder.add("TRINO_USER", "unknown")
+        builder.add("TRINO_PASSWORD", None)
+        builder.add("TRINO_USE_SSL", False)
+        builder.add("TRINO_SSL_VERIFY", True)
+        builder.add("TRINO_TIMEOUT_SECONDS", None)
+        cfg = builder.build()
+
+        trino_conf = TrinoConfiguration(cfg)
         conn = TrinoConnection(
-            host="localhost",
-            port=8081,
-            schema="default",
-            catalog="memory",  # default
-            user="unknown",  # default
-            password=None,
-            use_ssl=False,
-            ssl_verify=True,  # default
-            timeout_seconds=None,
+            configuration=trino_conf,
+            section=None,
             lineage_logger=None,
         )
 
