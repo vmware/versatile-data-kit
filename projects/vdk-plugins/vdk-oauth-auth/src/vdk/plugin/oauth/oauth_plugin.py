@@ -83,10 +83,9 @@ class OauthPlugin:
 
         # Scenario: data job running in local does not have oauth creds
         if (
-                oauth_configuration.team_client_id() is None
-                or oauth_configuration.team_client_secret() is None
+            oauth_configuration.team_client_id() is None
+            or oauth_configuration.team_client_secret() is None
         ):
-
             credentials_cache = LocalFolderCredentialsCache()
             credentials = credentials_cache.read_credentials()
             try:
