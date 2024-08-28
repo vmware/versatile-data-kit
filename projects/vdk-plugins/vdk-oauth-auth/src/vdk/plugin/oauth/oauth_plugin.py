@@ -27,9 +27,6 @@ TEAM_ACCESS_TOKEN = "TEAM_ACCESS_TOKEN"
 
 class OauthPlugin:
     def __init__(self):
-        self.control_service_rest_api_url = None
-        self.access_token = None
-        self.team_name = None
         self.is_oauth_creds_available = False
 
     def __attempt_oauth_authentication(
@@ -70,26 +67,6 @@ class OauthPlugin:
 
         if oauth_configuration.disable_oauth_plugin():
             return
-        # Scenario: data job running in cloud has oauth creds present
-        if (
-            oauth_configuration.team_client_id() is not None
-            and oauth_configuration.team_client_secret() is not None
-        ):
-            self.is_oauth_creds_available = True
-            return
-        # Scenario: data job running in local does not have oauth creds
-        credentials_cache = LocalFolderCredentialsCache()
-        credentials = credentials_cache.read_credentials()
-        try:
-            creds_json = json.loads(credentials)
-        except json.JSONDecodeError as e:
-            log.error(f"Try VDK login command and then try executing data job.")
-            raise e
-        self.access_token = creds_json.get("access_token")
-        self.control_service_rest_api_url = (
-            oauth_configuration.control_service_rest_api_url()
-        )
-        self.team_name = oauth_configuration.team()
 
     @hookimpl(tryfirst=True)
     def initialize_job(self, context: JobContext) -> None:
@@ -104,19 +81,32 @@ class OauthPlugin:
         if oauth_configuration.disable_oauth_plugin():
             return
 
-        if not self.is_oauth_creds_available:
+        # Scenario: data job running in local does not have oauth creds
+        if (
+            oauth_configuration.team_client_id() is None
+            or oauth_configuration.team_client_secret() is None
+        ):
+            credentials_cache = LocalFolderCredentialsCache()
+            credentials = credentials_cache.read_credentials()
+            try:
+                creds_json = json.loads(credentials)
+            except json.JSONDecodeError as e:
+                log.error(f"Try VDK login command and then try executing data job.")
+                raise e
+            access_token = creds_json.get("access_token")
+            team_name = oauth_configuration.team()
             # Enter a context with an instance of the API client
             configuration = taurus_datajob_api.Configuration(
-                host=self.control_service_rest_api_url,
+                host=oauth_configuration.control_service_rest_api_url(),
             )
 
-            configuration.access_token = self.access_token
+            configuration.access_token = access_token
             oauth_creds = None
             with taurus_datajob_api.ApiClient(configuration) as api_client:
                 api_instance = taurus_datajob_api.DataJobsSecretsApi(api_client)
                 try:
                     # Retrieves details of an existing Data Job by specifying the name of the Data Job. | (Stable)
-                    oauth_creds = api_instance.oauth_credentials_get(self.team_name)
+                    oauth_creds = api_instance.oauth_credentials_get(team_name)
                 except Exception as e:
                     log.error(f"Exception when fetching oauth credentials: {e}")
                     raise e
