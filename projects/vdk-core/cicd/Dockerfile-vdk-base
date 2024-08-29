@@ -13,4 +13,20 @@ ENV VDK_VERSION $vdk_version
 ARG vdk_version
 ARG vdk_package
 ARG pip_extra_index_url
+
+# Install bash
+RUN apt-get update && apt-get install -y bash && echo "Bash installed successfully" || echo "Bash installation failed"
+
+# Set default shell to bash
+SHELL ["/bin/bash", "-c"]
+
+# Default command
+CMD ["/bin/bash"]
+
+# Force a snapshot with a no-op RUN command
+RUN echo "Forcing snapshot"
+
+
 RUN pip install --extra-index-url $pip_extra_index_url $vdk_package==$vdk_version
+
+
