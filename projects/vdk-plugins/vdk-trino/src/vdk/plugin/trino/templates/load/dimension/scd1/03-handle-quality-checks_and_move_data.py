@@ -72,23 +72,20 @@ def run(job_input: IJobInput):
     )
     job_input.execute_query(create_staging_table_and_insert_data)
 
-    try:
-        staging_table_full_name = f"{staging_schema}.{staging_table}"
+    staging_table_full_name = f"{staging_schema}.{staging_table}"
 
-        # copy the data if there's no quality check configure or if it passes
-        if not check or check(staging_table_full_name):
-            copy_staging_table_to_target_table(
-                job_input, target_schema, target_table, staging_schema, staging_table
-            )
-        else:
-            target_table_full_name = f"{target_schema}.{target_table}"
-            raise DataQualityException(
-                checked_object=staging_table_full_name,
-                source_view=f"{source_schema}.{source_view}",
-                target_table=target_table_full_name,
-            )
-    finally:
-        job_input.execute_query(drop_table)
+    # copy the data if there's no quality check configure or if it passes
+    if not check or check(staging_table_full_name):
+        copy_staging_table_to_target_table(
+            job_input, target_schema, target_table, staging_schema, staging_table
+        )
+    else:
+        target_table_full_name = f"{target_schema}.{target_table}"
+        raise DataQualityException(
+            checked_object=staging_table_full_name,
+            source_view=f"{source_schema}.{source_view}",
+            target_table=target_table_full_name,
+        )
 
 
 def copy_staging_table_to_target_table(
