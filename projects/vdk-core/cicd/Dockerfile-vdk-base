@@ -28,5 +28,3 @@ RUN echo "Forcing snapshot"
 
 
 RUN pip install --extra-index-url $pip_extra_index_url $vdk_package==$vdk_version
-
-
