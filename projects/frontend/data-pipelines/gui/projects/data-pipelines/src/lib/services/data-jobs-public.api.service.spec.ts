@@ -4,6 +4,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
+import { HttpClient } from '@angular/common/http';
 
 import { forkJoin, of, Subject } from 'rxjs';
 
@@ -11,26 +12,36 @@ import { ApolloQueryResult } from '@apollo/client/core';
 
 import { ApiPredicate } from '@versatiledatakit/shared';
 
-import { DataJobPage } from '../model';
+import { DATA_PIPELINES_CONFIGS, DataJobPage, DataPipelinesConfig } from '../model';
 
 import { DataJobsBaseApiService } from './data-jobs-base.api.service';
 import { DataJobsPublicApiService } from './data-jobs-public.api.service';
 
 describe('DataJobsPublicApiService', () => {
     let dataJobsBaseServiceStub: jasmine.SpyObj<DataJobsBaseApiService>;
+    let httpClientStub: jasmine.SpyObj<HttpClient>;
 
     let service: DataJobsPublicApiService;
 
     beforeEach(() => {
         dataJobsBaseServiceStub = jasmine.createSpyObj<DataJobsBaseApiService>('dataJobsBaseServiceStub', ['getJobs']);
         dataJobsBaseServiceStub.getJobs.and.returnValue(new Subject<ApolloQueryResult<DataJobPage>>());
+        httpClientStub = jasmine.createSpyObj<HttpClient>('httpClientService', ['get', 'post']);
 
         TestBed.configureTestingModule({
             providers: [
                 DataJobsPublicApiService,
+                { provide: HttpClient, useValue: httpClientStub },
+                { provide: DataJobsBaseApiService, useValue: dataJobsBaseServiceStub },
                 {
-                    provide: DataJobsBaseApiService,
-                    useValue: dataJobsBaseServiceStub
+                    provide: DATA_PIPELINES_CONFIGS,
+                    useFactory: () =>
+                        ({
+                            resourceServer: {
+                                getUrl: () => ''
+                            },
+                            defaultOwnerTeamName: 'all'
+                        }) as DataPipelinesConfig
                 }
             ]
         });

@@ -5,7 +5,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
@@ -16,7 +16,15 @@ import { HttpLink } from 'apollo-angular/http';
 
 import { TaurusBaseApiService } from '@versatiledatakit/shared';
 
-import { DataJob, DataJobExecutionsPage, DataJobExecutionsReqVariables, DataJobPage, DataJobReqVariables } from '../model';
+import {
+    DATA_PIPELINES_CONFIGS,
+    DataJob,
+    DataJobExecutionsPage,
+    DataJobExecutionsReqVariables,
+    DataJobPage,
+    DataJobReqVariables,
+    DataPipelinesConfig
+} from '../model';
 
 /**
  * ** Data Jobs Service build on top of Apollo gql client.
@@ -49,6 +57,7 @@ export class DataJobsBaseApiService extends TaurusBaseApiService<DataJobsBaseApi
      * ** Constructor.
      */
     constructor(
+        @Inject(DATA_PIPELINES_CONFIGS) private readonly dataPipelinesConfig: DataPipelinesConfig,
         private readonly apollo: Apollo,
         private readonly httpLink: HttpLink
     ) {
@@ -115,7 +124,7 @@ export class DataJobsBaseApiService extends TaurusBaseApiService<DataJobsBaseApi
                     }
                 }),
                 link: this.httpLink.create({
-                    uri: `/data-jobs/for-team/${ownerTeam}/jobs`,
+                    uri: `${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${ownerTeam}/jobs`,
                     method: DataJobsBaseApiService.APOLLO_METHOD
                 }),
                 defaultOptions: DataJobsBaseApiService.APOLLO_DEFAULT_OPTIONS
@@ -123,5 +132,9 @@ export class DataJobsBaseApiService extends TaurusBaseApiService<DataJobsBaseApi
         }
 
         return this.apollo.use(ownerTeam) as ApolloBase<DataJob>;
+    }
+
+    private _resolvePipelinesServiceUrl(): string {
+        return this.dataPipelinesConfig?.resourceServer?.getUrl ? this.dataPipelinesConfig.resourceServer.getUrl() : '';
     }
 }

@@ -23,14 +23,12 @@ import {
     DataJobExecutionOrder,
     DataJobExecutionsPage,
     DataJobPage,
-    DataPipelinesConfig
+    DataPipelinesConfig,
+    MISSING_DEFAULT_TEAM_MESSAGE,
+    RESERVED_DEFAULT_TEAM_NAME_MESSAGE
 } from '../model';
 
 import { DataJobsBaseApiService } from './data-jobs-base.api.service';
-
-export const MISSING_DEFAULT_TEAM_MESSAGE = 'The defaultOwnerTeamName property need to be set for the DATA_PIPELINES_CONFIGS';
-
-export const RESERVED_DEFAULT_TEAM_NAME_MESSAGE = `The 'default' value is reserved, and can not be used for defaultOwnerTeamName property`;
 
 @Injectable()
 export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService> {
@@ -47,8 +45,7 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
     ownerTeamName: string;
 
     constructor(
-        @Inject(DATA_PIPELINES_CONFIGS)
-        dataPipelinesModuleConfig: DataPipelinesConfig,
+        @Inject(DATA_PIPELINES_CONFIGS) private readonly dataPipelinesConfig: DataPipelinesConfig,
         private readonly http: HttpClient,
         private readonly dataJobsBaseService: DataJobsBaseApiService
     ) {
@@ -56,11 +53,11 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
 
         this.registerErrorCodes(DataJobsApiService);
 
-        this._validateModuleConfig(dataPipelinesModuleConfig);
+        this._validateModuleConfig(this.dataPipelinesConfig);
 
-        this.ownerTeamName = dataPipelinesModuleConfig?.defaultOwnerTeamName;
-        if (dataPipelinesModuleConfig?.ownerTeamNamesObservable) {
-            dataPipelinesModuleConfig.ownerTeamNamesObservable.subscribe((result: string[]) => {
+        this.ownerTeamName = this.dataPipelinesConfig?.defaultOwnerTeamName;
+        if (this.dataPipelinesConfig?.ownerTeamNamesObservable) {
+            this.dataPipelinesConfig.ownerTeamNamesObservable.subscribe((result: string[]) => {
                 if (result?.length) {
                     //Take the first element from the teams array
                     this.ownerTeamName = result[0];
@@ -187,18 +184,18 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
     }
 
     getJobDetails(teamName: string, jobName: string): Observable<DataJobDetails> {
-        return this.http.get<DataJobDetails>(`/data-jobs/for-team/${teamName}/jobs/${jobName}`);
+        return this.http.get<DataJobDetails>(`${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}`);
     }
 
     removeJob(teamName: string, jobName: string): Observable<DataJobDetails> {
-        return this.http.delete(`/data-jobs/for-team/${teamName}/jobs/${jobName}`);
+        return this.http.delete(`${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}`);
     }
 
     downloadFile(teamName: string, jobName: string): Observable<Blob> {
         const httpHeaders = new HttpHeaders();
         httpHeaders.append('Accept', 'application/octet-stream');
 
-        return this.http.get(`/data-jobs/for-team/${teamName}/jobs/${jobName}/keytab`, {
+        return this.http.get(`${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}/keytab`, {
             headers: httpHeaders,
             responseType: 'blob'
         });
@@ -224,7 +221,9 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
         pageSize: number = null
     ): Observable<DataJobExecutionDetails[]> | Observable<DataJobExecutionsPage> {
         if (!forceGraphQL) {
-            return this.http.get<DataJobExecutionDetails[]>(`/data-jobs/for-team/${teamName}/jobs/${jobName}/executions`);
+            return this.http.get<DataJobExecutionDetails[]>(
+                `${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}/executions`
+            );
         }
 
         const preparedFilter = { ...(filter ?? {}) };
@@ -288,11 +287,15 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
     }
 
     getJobExecution(teamName: string, jobName: string, executionId: string): Observable<DataJobExecutionDetails> {
-        return this.http.get<DataJobExecutionDetails>(`/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`);
+        return this.http.get<DataJobExecutionDetails>(
+            `${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`
+        );
     }
 
     getJobDeployments(teamName: string, jobName: string): Observable<DataJobDeploymentDetails[]> {
-        return this.http.get<DataJobDeploymentDetails[]>(`/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`);
+        return this.http.get<DataJobDeploymentDetails[]>(
+            `${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments`
+        );
     }
 
     updateDataJobStatus(
@@ -309,21 +312,33 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
         }
 
         return this.http.patch<{ enabled: boolean }>(
-            `/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}`,
+            `${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}`,
             deploymentStatus
         );
     }
 
     updateDataJob(teamName: string, jobName: string, dataJob: DataJobDetails): Observable<DataJobDetails> {
-        return this.http.put<DataJobDetails>(`/data-jobs/for-team/${teamName}/jobs/${jobName}`, dataJob);
+        return this.http.put<DataJobDetails>(
+            `${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}`,
+            dataJob
+        );
     }
 
     executeDataJob(teamName: string, jobName: string, deploymentId: string): Observable<undefined> {
-        return this.http.post<undefined>(`/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}/executions`, {});
+        return this.http.post<undefined>(
+            `${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}/deployments/${deploymentId}/executions`,
+            {}
+        );
     }
 
     cancelDataJobExecution(teamName: string, jobName: string, executionId: string): Observable<any> {
-        return this.http.delete(`/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`);
+        return this.http.delete(
+            `${this._resolvePipelinesServiceUrl()}/data-jobs/for-team/${teamName}/jobs/${jobName}/executions/${executionId}`
+        );
+    }
+
+    private _resolvePipelinesServiceUrl(): string {
+        return this.dataPipelinesConfig?.resourceServer?.getUrl ? this.dataPipelinesConfig.resourceServer.getUrl() : '';
     }
 
     private _createTeamJobNameFilter(teamName: string, jobName: string) {
@@ -333,12 +348,12 @@ export class DataJobsApiService extends TaurusBaseApiService<DataJobsApiService>
         ];
     }
 
-    private _validateModuleConfig(dataPipelinesModuleConfig: DataPipelinesConfig) {
-        if (!dataPipelinesModuleConfig?.defaultOwnerTeamName) {
+    private _validateModuleConfig(dataPipelinesConfig: DataPipelinesConfig): void {
+        if (!dataPipelinesConfig?.defaultOwnerTeamName) {
             throw new Error(MISSING_DEFAULT_TEAM_MESSAGE);
         }
 
-        if (dataPipelinesModuleConfig?.defaultOwnerTeamName === 'default') {
+        if (dataPipelinesConfig?.defaultOwnerTeamName === 'default') {
             throw new Error(RESERVED_DEFAULT_TEAM_NAME_MESSAGE);
         }
     }

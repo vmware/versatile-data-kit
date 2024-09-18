@@ -3,32 +3,33 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Type } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
 import { DisplayMode } from './grid-config.model';
 
+export const MISSING_DEFAULT_TEAM_MESSAGE = 'The defaultOwnerTeamName property need to be set for the DATA_PIPELINES_CONFIGS';
+
+export const RESERVED_DEFAULT_TEAM_NAME_MESSAGE = `The 'default' value is reserved, and can not be used for defaultOwnerTeamName property`;
+
 /**
  * ** Configuration map for Data Pipelines library.
  */
 export interface DataPipelinesConfig {
+    resourceServer?: {
+        getUrl?: () => string;
+    };
+
     defaultOwnerTeamName: string;
     ownerTeamNamesObservable?: Observable<string[]>;
-    /**
-     * ** Reference to Explore Data Job(s) configuration map.
-     */
-    exploreConfig?: ExploreConfig;
-    /**
-     ** Reference to Manage Data Job(s) configuration map.
-     */
-    manageConfig?: ManageConfig;
-    // health status url configured by a segment after hostname, including slash with {0} for the id param,
-    healthStatusUrl?: string; // eg: /dev-center/health-status?dataJob={0}
     /**
      * @deprecated
      */
     showLogsInsightUrl?: boolean;
+
     /**
      * @deprecated
      */
@@ -37,10 +38,15 @@ export interface DataPipelinesConfig {
      * ** Flag instruction to show or hide tab for lineage page.
      */
     showLineagePage?: boolean;
+
     /**
      * ** Documentation url for Data Pipelines.
      */
     dataPipelinesDocumentationUrl?: string;
+
+    // health status url configured by a segment after hostname, including slash with {0} for the id param,
+    healthStatusUrl?: string; // eg: /dev-center/health-status?dataJob={0}
+
     /**
      * ** Data Job change history configuration.
      */
@@ -56,9 +62,18 @@ export interface DataPipelinesConfig {
         /**
          * ** Confirmation message component if url template is to external system.
          */
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         confirmationMessageComponent: Type<any>;
     };
+
+    /**
+     * ** Reference to Explore Data Job(s) configuration map.
+     */
+    exploreConfig?: ExploreConfig;
+    /**
+     ** Reference to Manage Data Job(s) configuration map.
+     */
+    manageConfig?: ManageConfig;
+
     /**
      * ** Integration providers from Host application.
      */
@@ -66,15 +81,15 @@ export interface DataPipelinesConfig {
         /**
          * ** Users related.
          */
-        users: {
+        users?: {
             /**
              * ** Get logged User email.
              */
-            getEmail: () => string;
+            getEmail?: () => string;
             /**
              * ** Get logged User username.
              */
-            getUsername: () => string;
+            getUsername?: () => string;
         };
         /**
          * ** Teams related.
@@ -83,7 +98,7 @@ export interface DataPipelinesConfig {
             /**
              * ** Ensure User membership in early access program identified by its name.
              */
-            ensureMembershipEarlyAccessProgram: (key: string) => boolean;
+            ensureMembershipEarlyAccessProgram?: (key: string) => boolean;
         };
     };
 }

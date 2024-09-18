@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 import { EMPTY, expand, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -12,7 +13,7 @@ import { ApiPredicate, TaurusBaseApiService } from '@versatiledatakit/shared';
 
 import { ErrorUtil } from '../shared/utils';
 
-import { DataJob, DataJobPage } from '../model';
+import { DATA_PIPELINES_CONFIGS, DataJob, DataJobPage, DataPipelinesConfig, IPcsOAuthDto } from '../model';
 
 import { DataJobsBaseApiService } from './data-jobs-base.api.service';
 
@@ -31,7 +32,11 @@ export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPubli
     /**
      * ** Constructor.
      */
-    constructor(private readonly dataJobsBaseService: DataJobsBaseApiService) {
+    constructor(
+        @Inject(DATA_PIPELINES_CONFIGS) private readonly dataPipelinesConfig: DataPipelinesConfig,
+        private readonly dataJobsBaseService: DataJobsBaseApiService,
+        private readonly httpClient: HttpClient
+    ) {
         super(DataJobsPublicApiService.CLASS_NAME);
 
         this.registerErrorCodes(DataJobsPublicApiService);
@@ -113,6 +118,25 @@ export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPubli
     }
 
     /**
+     * ** Returns OAuth app client id for given Team name.
+     */
+    getTeamOAuthClientId(teamName: string): Observable<IPcsOAuthDto> {
+        return this.httpClient.get<IPcsOAuthDto>(
+            `${this._resolvePipelinesServiceUrl()}/data-jobs/teams/${teamName}/oauth-credentials/client-id`
+        );
+    }
+
+    /**
+     * ** Returns inventory of found OAuth apps client ids for given Team names.
+     */
+    getInventoryOfTeamsOAuthClientIds(clientIds: string[]): Observable<IPcsOAuthDto[]> {
+        return this.httpClient.post<IPcsOAuthDto[]>(
+            `${this._resolvePipelinesServiceUrl()}/data-jobs/oauth-credentials/client-ids`,
+            clientIds
+        );
+    }
+
+    /**
      * ** Retrieve the data-jobs page.
      */
     private _getDataJobsPage(
@@ -148,5 +172,9 @@ export class DataJobsPublicApiService extends TaurusBaseApiService<DataJobsPubli
                 }
             )
             .pipe(map((response) => response.data));
+    }
+
+    private _resolvePipelinesServiceUrl(): string {
+        return this.dataPipelinesConfig?.resourceServer?.getUrl ? this.dataPipelinesConfig.resourceServer.getUrl() : '';
     }
 }

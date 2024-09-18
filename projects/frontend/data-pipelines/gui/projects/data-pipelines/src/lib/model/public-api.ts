@@ -15,7 +15,7 @@ export * from './data-job-executions.model';
 
 export * from './grid-config.model';
 
-export * from './config.model';
+export { ManageConfig, DataPipelinesConfig, ExploreConfig } from './config.model';
 
 export * from './route.model';
 
