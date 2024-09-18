@@ -2,8 +2,8 @@
   "name": "data-pipelines-wrapper",
   "version": "0.0.0",
   "engines": {
-    "node": "^14.15.0 || >=18.12.0",
-    "npm": ">=9.7.2"
+    "node": "^14.15.0 || >=16.10.0",
+    "npm": ">=8.5.5"
   },
   "private": true,
   "scripts": {
@@ -48,7 +48,7 @@
     "@ngrx/store": "13.2.0",
     "@swimlane/ngx-charts": "16.0.0",
     "@swimlane/ngx-graph": "8.0.0",
-    "@versatiledatakit/shared": ">=0.0.0",
+    "@versatiledatakit/shared": "1.1.926473229",
     "@webcomponents/custom-elements": "1.5.0",
     "@yellowspot/ng-truncate": "2.0.1",
     "angular-ng-autocomplete": "2.0.8",
@@ -66,14 +66,14 @@
     "dompurify": "2.3.8",
     "elasticlunr": "0.9.5",
     "file-saver": "2.0.5",
-    "graphql": "16.8.1",
+    "graphql": "16.5.0",
     "html-element": "2.3.1",
     "html-frontmatter": "1.6.1",
     "js-sha256": "0.9.0",
     "lodash": "4.17.21",
     "lottie-web": "5.9.4",
     "lz-string": "1.4.4",
-    "moment": "2.29.4",
+    "moment": "2.29.3",
     "ng2-date-picker": "12.0.4",
     "ngx-clipboard": "15.1.0",
     "ngx-cookie-service": "13.2.1",
@@ -84,7 +84,7 @@
     "striptags": "3.2.0",
     "superagent": "5.3.1",
     "tslib": "2.3.1",
-    "ua-parser-js": "1.0.33",
+    "ua-parser-js": "1.0.2",
     "zone.js": "0.11.5"
   },
   "optionalDependencies": {

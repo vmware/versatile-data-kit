@@ -44,3 +44,8 @@ export enum DataJobStatus {
     DISABLED = 'Disabled',
     NOT_DEPLOYED = 'Not Deployed'
 }
+
+export interface IPcsOAuthDto {
+    teamName: string;
+    clientId: string;
+}

@@ -101,7 +101,8 @@ frontend-data-pipelines-release:
       - projects/frontend/data-pipelines/gui/package-lock.json
     expire_in: 1 week
 
-frontend_publish_ui_image:
+# comment out, not relevant because there is no operational environment
+.frontend_publish_ui_image:
   extends: .images:dind:docker-push-to-vdk-repos
   stage: pre_release_image
   script:
@@ -120,7 +121,8 @@ frontend_publish_ui_image:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *frontend_data_pipelines_locations
 
-frontend_tag_ui_image_stable:
+# comment out, not relevant because there is no operational environment
+.frontend_tag_ui_image_stable:
   stage: release_image
   before_script:
     - cd projects/frontend
@@ -211,7 +213,8 @@ frontend_tag_ui_image_stable:
 #    - if: '$CI_COMMIT_BRANCH == "main"'
 #      changes: *frontend_data_pipelines_locations
 
-frontend_publish_test_image:
+# comment out, not relevant because there is no operational environment
+.frontend_publish_test_image:
   stage: release_image
   script:
     - docker login --username "${VDK_DOCKER_REGISTRY_USERNAME}" --password "${VDK_DOCKER_REGISTRY_PASSWORD}" "${VDK_DOCKER_REGISTRY_URL}"

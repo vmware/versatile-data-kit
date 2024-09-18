@@ -16,7 +16,14 @@ import { HttpLink, HttpLinkHandler } from 'apollo-angular/http';
 
 import { ErrorHandlerService } from '@versatiledatakit/shared';
 
-import { DataJobExecutionsPage, DataJobExecutionsReqVariables, DataJobPage, DataJobReqVariables } from '../model';
+import {
+    DATA_PIPELINES_CONFIGS,
+    DataJobExecutionsPage,
+    DataJobExecutionsReqVariables,
+    DataJobPage,
+    DataJobReqVariables,
+    DataPipelinesConfig
+} from '../model';
 
 import { DataJobsBaseApiService } from './data-jobs-base.api.service';
 
@@ -43,6 +50,16 @@ describe('DataJobsBaseApiService', () => {
                 { provide: Apollo, useValue: apolloStub },
                 { provide: HttpLink, useValue: httpLinkStub },
                 { provide: HttpClient, useValue: httpClientStub },
+                {
+                    provide: DATA_PIPELINES_CONFIGS,
+                    useFactory: () =>
+                        ({
+                            resourceServer: {
+                                getUrl: () => ''
+                            },
+                            defaultOwnerTeamName: 'all'
+                        }) as DataPipelinesConfig
+                },
                 {
                     provide: ErrorHandlerService,
                     useValue: errorHandlerServiceStub

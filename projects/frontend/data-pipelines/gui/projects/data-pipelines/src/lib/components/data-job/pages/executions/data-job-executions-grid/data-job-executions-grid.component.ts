@@ -49,7 +49,7 @@ import {
 } from '../model';
 
 import { ExecutionsStatusCriteria, ExecutionsStringCriteria, ExecutionsTypeCriteria } from './criteria';
-import { ExecutionDefaultComparator, ExecutionDurationComparator } from './comparators';
+import { ExecutionDateComparator, ExecutionDefaultComparator, ExecutionDurationComparator } from './comparators';
 
 /**
  * ** Supported filter criteria from Executions grid.
@@ -447,6 +447,10 @@ export class DataJobExecutionsGridComponent implements OnChanges, OnInit, OnDest
 
             if (sortCriteria === 'duration') {
                 return new ExecutionDurationComparator(sortValue === ClrDatagridSortOrder.ASC ? 'ASC' : 'DESC');
+            }
+
+            if (sortCriteria === 'startTime' || sortCriteria === 'endTime') {
+                return new ExecutionDateComparator(sortCriteria, sortValue === ClrDatagridSortOrder.ASC ? 'ASC' : 'DESC');
             }
 
             return new ExecutionDefaultComparator(sortCriteria, sortValue === ClrDatagridSortOrder.ASC ? 'ASC' : 'DESC');

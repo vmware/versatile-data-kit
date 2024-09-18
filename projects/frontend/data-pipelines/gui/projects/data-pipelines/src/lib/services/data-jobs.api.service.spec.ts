@@ -10,11 +10,18 @@ import { of } from 'rxjs';
 
 import { ApolloQueryResult } from '@apollo/client/core';
 
-import { DATA_PIPELINES_CONFIGS, DataJob, DataJobPage } from '../model';
+import {
+    DATA_PIPELINES_CONFIGS,
+    DataJob,
+    DataJobPage,
+    DataPipelinesConfig,
+    MISSING_DEFAULT_TEAM_MESSAGE,
+    RESERVED_DEFAULT_TEAM_NAME_MESSAGE
+} from '../model';
 
 import { DataJobsBaseApiService } from './data-jobs-base.api.service';
 
-import { DataJobsApiService, MISSING_DEFAULT_TEAM_MESSAGE, RESERVED_DEFAULT_TEAM_NAME_MESSAGE } from './data-jobs.api.service';
+import { DataJobsApiService } from './data-jobs.api.service';
 
 describe('DataJobsApiService', () => {
     let service: DataJobsApiService;
@@ -48,9 +55,13 @@ describe('DataJobsApiService', () => {
                 },
                 {
                     provide: DATA_PIPELINES_CONFIGS,
-                    useFactory: () => ({
-                        defaultOwnerTeamName: 'all'
-                    })
+                    useFactory: () =>
+                        ({
+                            resourceServer: {
+                                getUrl: () => ''
+                            },
+                            defaultOwnerTeamName: 'all'
+                        }) as DataPipelinesConfig
                 }
             ]
         });
