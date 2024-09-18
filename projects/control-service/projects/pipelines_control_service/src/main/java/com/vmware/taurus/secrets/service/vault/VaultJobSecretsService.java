@@ -33,8 +33,11 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
 
   //  package private so it can be used in tests
   static final int VAULT_SIZE_LIMIT_DEFAULT = 1048576; // 1 MB
-  private static final String SECRET = "secret";
-  public static final String METADATA_PATH = "secret/metadata/";
+
+  @Value("${vdk.vault.kvstore:secret}")
+  String kvStore;
+  @Value("${vdk.vault.kvstoremeta:secret/metadata/}")
+  String kvStoreMeta;
   public static final String TEAM_OAUTH_CREDENTIALS = "team-oauth-credentials";
 
   @Value("${datajobs.vault.size.limit.bytes}")
@@ -60,7 +63,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
     String secretKey = getJobSecretKey(teamName, jobName);
 
     Versioned<VaultJobSecrets> readResponse =
-        vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultJobSecrets.class);
+        vaultOperations.opsForVersionedKeyValue(kvStore).get(secretKey, VaultJobSecrets.class);
 
     VaultJobSecrets vaultJobSecrets;
 
@@ -90,7 +93,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
 
     vaultJobSecrets.setSecretsJson(updatedSecretsString);
 
-    vaultOperations.opsForVersionedKeyValue(SECRET).put(secretKey, vaultJobSecrets);
+    vaultOperations.opsForVersionedKeyValue(kvStore).put(secretKey, vaultJobSecrets);
   }
 
   @Override
@@ -101,7 +104,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
     String secretKey = getJobSecretKey(teamName, jobName);
 
     Versioned<VaultJobSecrets> readResponse =
-        vaultOperations.opsForVersionedKeyValue(SECRET).get(secretKey, VaultJobSecrets.class);
+        vaultOperations.opsForVersionedKeyValue(kvStore).get(secretKey, VaultJobSecrets.class);
 
     VaultJobSecrets vaultJobSecrets;
 
@@ -127,7 +130,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
     VaultTeamCredentials teamCredentials =
         new VaultTeamCredentials(teamName, clientId, clientSecret);
 
-    vaultOperations.opsForVersionedKeyValue(SECRET).put(secretKey, teamCredentials);
+    vaultOperations.opsForVersionedKeyValue(kvStore).put(secretKey, teamCredentials);
     clientIdToTeamIdCache.put(teamCredentials.getClientId(), teamName);
     teamIdToCredentialsCache.put(teamName, teamCredentials);
   }
@@ -142,7 +145,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
 
       Versioned<VaultTeamCredentials> readResponse =
           vaultOperations
-              .opsForVersionedKeyValue(SECRET)
+              .opsForVersionedKeyValue(kvStore)
               .get(secretKey, VaultTeamCredentials.class);
 
       if (readResponse != null && readResponse.hasData()) {
@@ -163,7 +166,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
     } else {
       // Search through all team entries in Vault
       try {
-        var response = vaultOperations.list(METADATA_PATH);
+        var response = vaultOperations.list(kvStoreMeta);
         if (response != null) {
           for (String teamId : response) {
             teamId = StringUtils.removeEnd(teamId, "/");

@@ -186,6 +186,8 @@ Generate default Vault configuration.
 URI: {{ default "http://localhost:8200" .Values.secrets.vault.uri | b64enc | quote }}
 ROLEID: {{ default "root" .Values.secrets.vault.approle.roleid | b64enc | quote }}
 SECRETID: {{ default "root" .Values.secrets.vault.approle.secretid | b64enc | quote }}
+KVSTORE: {{ default "secret" .Values.secrets.vault.kvstore | b64enc | quote }}
+KVSTOREMETA: {{ default "secret/metadata/" .Values.secrets.vault.kvstoremeta | b64enc | quote }}
 {{- end -}}
 
 {{/*

@@ -374,6 +374,16 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
                   key: SECRETID
+            - name: VDK_VAULT_KVSTORE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
+                  key: KVSTORE
+            - name: VDK_VAULT_KVSTOREMETA
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.vault.externalSecretName | default (include "pipelines-control-service.vaultSecretName" . ) }}
+                  key: KVSTOREMETA
             - name: DATAJOBS_VAULT_SIZE_LIMIT_BYTES
               value: "{{ .Values.secrets.vault.sizeLimitBytes }}"
             {{- end }}

@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.vmware.taurus.secrets.service.vault.VaultJobSecretsService.METADATA_PATH;
 import static com.vmware.taurus.secrets.service.vault.VaultJobSecretsService.TEAM_OAUTH_CREDENTIALS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -51,6 +50,7 @@ import static org.mockito.Mockito.when;
 class VaultJobSecretsServiceTest {
 
   private static final String SECRET = "secret";
+  private static final String SECRET_META = "secret/metadata/";
 
   @Mock private VaultTemplate vaultTemplate;
   @Mock private VaultVersionedKeyValueOperations vaultOperations;
@@ -268,7 +268,7 @@ class VaultJobSecretsServiceTest {
     String secretKey = teamName + "/" + TEAM_OAUTH_CREDENTIALS;
     Versioned<VaultTeamCredentials> readResponse = Versioned.create(expectedCredentials);
 
-    when(vaultTemplate.list(METADATA_PATH)).thenReturn(List.of(teamName));
+    when(vaultTemplate.list(SECRET_META)).thenReturn(List.of(teamName));
     when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
     when(vaultOperations.get(secretKey, VaultTeamCredentials.class)).thenReturn(readResponse);
 
@@ -294,7 +294,7 @@ class VaultJobSecretsServiceTest {
     String nonExistentClientId = "nonExistentClient";
 
     when(vaultTemplate.opsForVersionedKeyValue(SECRET)).thenReturn(vaultOperations);
-    when(vaultOperations.list("secret/metadata/")).thenReturn(List.of("team1"));
+    when(vaultOperations.list(SECRET_META)).thenReturn(List.of("team1"));
     when(vaultOperations.get("secret/oauth/team1")).thenReturn(null);
 
     String result = secretsService.getTeamIdForClientId(nonExistentClientId);
