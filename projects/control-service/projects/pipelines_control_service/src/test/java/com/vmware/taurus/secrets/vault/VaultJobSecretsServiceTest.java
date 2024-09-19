@@ -46,6 +46,8 @@ import static org.mockito.Mockito.when;
 @TestPropertySource(
     properties = {
       "datajobs.vault.size.limit.bytes=1048576",
+      "vdk.vault.kvstore=secret",
+      "vdk.vault.kvstoremeta=secret/metadata/",
     })
 class VaultJobSecretsServiceTest {
 
