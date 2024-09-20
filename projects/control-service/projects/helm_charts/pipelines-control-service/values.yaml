@@ -1267,3 +1267,7 @@ secrets:
           roleid: foo
           secretid: foo
       sizeLimitBytes: "1048576"
+      ## name of the key-value store to use
+      kvstore: "secret"
+      ## location of the key-value store metadata, usually at "<kv store name>/metadata/"
+      kvstoremeta: "secret/metadata/"
