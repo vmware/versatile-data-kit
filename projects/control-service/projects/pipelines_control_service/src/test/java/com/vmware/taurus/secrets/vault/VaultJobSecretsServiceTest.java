@@ -7,6 +7,7 @@ package com.vmware.taurus.secrets.vault;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vmware.taurus.ControlplaneApplication;
+import com.vmware.taurus.authorization.webhook.AuthorizationBody;
 import com.vmware.taurus.exception.DataJobSecretsException;
 import com.vmware.taurus.exception.DataJobSecretsSizeLimitException;
 import com.vmware.taurus.exception.DataJobTeamSecretsException;
@@ -16,6 +17,7 @@ import com.vmware.taurus.secrets.service.vault.VaultTeamCredentials;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +25,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.core.VaultVersionedKeyValueOperations;
 import org.springframework.vault.support.Versioned;
@@ -58,6 +61,13 @@ class VaultJobSecretsServiceTest {
   @Mock private VaultVersionedKeyValueOperations vaultOperations;
 
   @InjectMocks private VaultJobSecretsService secretsService;
+
+  @BeforeEach
+  public void setUp() {
+    ReflectionTestUtils.setField(secretsService, "kvStore", "secret");
+    ReflectionTestUtils.setField(secretsService, "kvStoreMeta", "secret/metadata/");
+  }
+
 
   @Test
   void testUpdateJobSecrets() throws JsonProcessingException {
