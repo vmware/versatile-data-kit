@@ -34,6 +34,7 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   //  package private so it can be used in tests
   static final int VAULT_SIZE_LIMIT_DEFAULT = 1048576; // 1 MB
 
+  // make the kv store configurable as some users might want to use something different than secrets
   @Value("${vdk.vault.kvstore:secret}")
   String kvStore;
   @Value("${vdk.vault.kvstoremeta:secret/metadata/}")
