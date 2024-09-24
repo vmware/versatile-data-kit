@@ -50,6 +50,7 @@ EOM
 
 echo "Create vdk distribution and install it"
 rm -rf dist/*
+pip install setuptools
 python setup.py sdist --formats=gztar && pip install dist/* || fail "VDK Install failed"
 
 function restore_vdk_in_editable_mode {
