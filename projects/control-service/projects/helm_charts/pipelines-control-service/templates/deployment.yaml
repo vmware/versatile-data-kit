@@ -81,6 +81,8 @@ spec:
               value: "{{ .Values.deploymentGitUsername }}"
             - name: GIT_PASSWORD
               value: "{{ .Values.deploymentGitPassword }}"
+            - name: GIT_URL_PATTERN
+              value: "{{ .Values.deploymentGitUrlPattern }}"
             - name: AWS_REGION
               value: "{{ .Values.deploymentEcrAwsRegion }}"
             - name: AWS_ACCESS_KEY_ID

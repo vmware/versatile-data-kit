@@ -24,14 +24,17 @@ public class JobFieldStrategyBySourceUrl extends FieldStrategy<V2DataJob> {
   private final String gitDataJobsUrl;
 
   private final String getGitDataJobsBranch;
+  private final String gitUrlPattern;
 
   public JobFieldStrategyBySourceUrl(
       @Value("${datajobs.git.url}") String gitDataJobsUrl,
       @Value("${datajobs.git.branch}") String getGitDataJobsBranch,
+      @Value("${datajobs.git.url.pattern:/tree/%s/%s}") String gitUrlPattern,
       @Value("${datajobs.git.ssl.enabled}") boolean gitDataJobsSslEnabled) {
 
     this.gitDataJobsUrl = GitWrapper.constructCorrectGitUrl(gitDataJobsUrl, gitDataJobsSslEnabled);
     this.getGitDataJobsBranch = getGitDataJobsBranch;
+    this.gitUrlPattern = gitUrlPattern;
   }
 
   @Override
@@ -64,8 +67,8 @@ public class JobFieldStrategyBySourceUrl extends FieldStrategy<V2DataJob> {
         StringUtils.stripFilenameExtension(gitDataJobsUrl)
             .concat(
                 String.format(
-                    "/-/tree/%s/%s",
-                    getGitDataJobsBranch,
+                    this.gitUrlPattern,
+                    this.getGitDataJobsBranch,
                     dataJob.getJobName())); // TODO in TAUR-1400, when deployments are implemented,
     // replace master
     config.setSourceUrl(sourceUrl);

@@ -22,7 +22,7 @@ class JobFieldStrategyBySourceUrlTest {
   private static final String GIT_REPO_URL_FORMATTED = "https://gitlab.com/taurus/jobs";
   private static final String GIT_REPO_BRANCH = "main";
   private final JobFieldStrategyBySourceUrl strategyBySourceUrl =
-      new JobFieldStrategyBySourceUrl(GIT_REPO_URL_RAW, GIT_REPO_BRANCH, true);
+      new JobFieldStrategyBySourceUrl(GIT_REPO_URL_RAW, GIT_REPO_BRANCH, "/tree/%s/%s", true);
 
   @Test
   void testJobSourceUrlStrategy_whenGettingStrategyName_shouldBeSpecific() {
@@ -38,7 +38,7 @@ class JobFieldStrategyBySourceUrlTest {
 
     assertThat(dataJob.getConfig().getSourceUrl())
         .isEqualTo(
-            String.format("%s/-/tree/%s/%s", GIT_REPO_URL_FORMATTED, GIT_REPO_BRANCH, jobName));
+            String.format("%s/tree/%s/%s", GIT_REPO_URL_FORMATTED, GIT_REPO_BRANCH, jobName));
   }
 
   @Test

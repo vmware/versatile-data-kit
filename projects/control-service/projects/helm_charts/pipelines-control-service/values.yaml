@@ -187,6 +187,7 @@ deploymentGitRemote: "origin"
 # Credentials with read-only access to the Git repository.
 deploymentGitUsername: ""
 deploymentGitPassword: ""
+deploymentGitUrlPattern: "/tree/%s/%s"
 # Credentials with read and write access to the Git repository.
 uploadGitReadWriteUsername: ""
 uploadGitReadWritePassword: ""
