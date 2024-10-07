@@ -130,19 +130,19 @@ class JobExecute:
 
     @ApiClientErrorDecorator()
     def list(self, name: str, team: str, output_format: OutputFormat) -> None:
-        executions: List[
-            DataJobExecution
-        ] = self.__execution_api.data_job_execution_list(team_name=team, job_name=name)
+        executions: List[DataJobExecution] = (
+            self.__execution_api.data_job_execution_list(team_name=team, job_name=name)
+        )
         self.__model_executions(executions, output_format)
 
     def __get_execution_to_log(
         self, name: str, team: str, execution_id: str
     ) -> Optional[DataJobExecution]:
         if not execution_id:
-            executions: list[
-                DataJobExecution
-            ] = self.__execution_api.data_job_execution_list(
-                team_name=team, job_name=name
+            executions: list[DataJobExecution] = (
+                self.__execution_api.data_job_execution_list(
+                    team_name=team, job_name=name
+                )
             )
             if not executions:
                 return None

@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './executions-time-period.criteria';
+export * from "./executions-time-period.criteria";
