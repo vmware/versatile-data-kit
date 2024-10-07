@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './ngx-components';
-export * from './ngx-utils';
+export * from "./ngx-components";
+export * from "./ngx-utils";

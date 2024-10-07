@@ -4,47 +4,47 @@
  */
 
 .small-text {
-    font-size: smaller;
+  font-size: smaller;
 }
 
 .vdk-main__spinner-container {
-    --vdk-spinner-background-color: white;
+  --vdk-spinner-background-color: white;
 
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--vdk-spinner-background-color);
+  z-index: 10001;
+
+  .checking-user {
+    display: table;
     width: 100%;
-    height: 100%;
-    background-color: var(--vdk-spinner-background-color);
-    z-index: 10001;
+    margin-top: 200px;
 
-    .checking-user {
-        display: table;
-        width: 100%;
-        margin-top: 200px;
+    .loading-spinner {
+      text-align: center;
+      display: table-cell;
+      vertical-align: middle;
 
-        .loading-spinner {
-            text-align: center;
-            display: table-cell;
-            vertical-align: middle;
-
-            .loading-title {
-                margin-top: 0;
-                margin-bottom: 20px;
-            }
-        }
+      .loading-title {
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
     }
+  }
 }
 
 ::ng-deep .fade-to-dark.dark {
-    .vdk-main__spinner-container {
-        --vdk-spinner-background-color: #21333b;
-    }
+  .vdk-main__spinner-container {
+    --vdk-spinner-background-color: #21333b;
+  }
 }
 
 .nav-right {
-    float: right;
-    display: contents;
+  float: right;
+  display: contents;
 }

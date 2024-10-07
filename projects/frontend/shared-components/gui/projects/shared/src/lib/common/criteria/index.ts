@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './primitive';
-export * from './compound';
+export * from "./primitive";
+export * from "./compound";

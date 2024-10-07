@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './index';
-export * from './components/grid';
+export * from "./index";
+export * from "./components/grid";
