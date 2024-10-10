@@ -196,7 +196,13 @@ class TrinoConnection(ManagedConnectionBase):
                     "ALTER operation not a RENAME TABLE operation. No lineage will be collected."
                 )
 
-        elif statement.get_type() == "SELECT" or statement.get_type() == "INSERT":
+        elif (
+            statement.get_type() == "SELECT"
+            or statement.get_type() == "INSERT"
+            or (
+                statement.get_type() == "CREATE" and "select" in statement.value.lower()
+            )
+        ):
             if lineage_utils.is_heartbeat_query(query):
                 return None
             log.debug("Collecting lineage for SELECT/INSERT query ...")
