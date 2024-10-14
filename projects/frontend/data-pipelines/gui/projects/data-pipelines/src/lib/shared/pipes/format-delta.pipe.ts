@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform } from "@angular/core";
 
-import { CollectionsUtil } from '@versatiledatakit/shared';
+import { CollectionsUtil } from "@versatiledatakit/shared";
 
-import { DataJobExecution } from '../../model';
+import { DataJobExecution } from "../../model";
 
 /**
  * Format Delta Pipe formats the delta of the execution start and end Time.
@@ -24,60 +24,63 @@ import { DataJobExecution } from '../../model';
  *   4: If the duration is more than 1 day, the format is `${days}d ${hours}h`
  */
 @Pipe({
-    name: 'formatDelta'
+  name: "formatDelta",
 })
 export class FormatDeltaPipe implements PipeTransform {
-    static formatDelta(delta: number): string {
-        if (delta < 0) {
-            return 'N/A';
-        } else if (delta < 60) {
-            return `${Math.ceil(delta)}s`;
-        } else if (delta < 3600) {
-            const minute = Math.floor((delta / 60) % 60);
-            const seconds = Math.floor(delta % 60);
+  static formatDelta(delta: number): string {
+    if (delta < 0) {
+      return "N/A";
+    } else if (delta < 60) {
+      return `${Math.ceil(delta)}s`;
+    } else if (delta < 3600) {
+      const minute = Math.floor((delta / 60) % 60);
+      const seconds = Math.floor(delta % 60);
 
-            return `${minute}m ${seconds}s`;
-        } else if (delta < 86400) {
-            const hours = Math.floor((delta / (60 * 60)) % 24);
-            const minutes = Math.floor((delta / 60) % 60);
+      return `${minute}m ${seconds}s`;
+    } else if (delta < 86400) {
+      const hours = Math.floor((delta / (60 * 60)) % 24);
+      const minutes = Math.floor((delta / 60) % 60);
 
-            return `${hours}h ${minutes}m`;
-        } else {
-            const days = Math.floor(delta / (60 * 60 * 24));
-            const hours = Math.floor((delta / (60 * 60)) % 24);
+      return `${hours}h ${minutes}m`;
+    } else {
+      const days = Math.floor(delta / (60 * 60 * 24));
+      const hours = Math.floor((delta / (60 * 60)) % 24);
 
-            return `${days}d ${hours}h`;
-        }
+      return `${days}d ${hours}h`;
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  transform(execution: DataJobExecution): string {
+    if (CollectionsUtil.isNil(execution.startTime)) {
+      return "";
     }
 
-    /**
-     * @inheritDoc
-     */
-    transform(execution: DataJobExecution): string {
-        if (CollectionsUtil.isNil(execution.startTime)) {
-            return '';
-        }
+    const delta =
+      (FormatDeltaPipe._getEndTime(execution) -
+        FormatDeltaPipe._getStartTime(execution)) /
+      1000;
 
-        const delta = (FormatDeltaPipe._getEndTime(execution) - FormatDeltaPipe._getStartTime(execution)) / 1000;
+    return FormatDeltaPipe.formatDelta(delta);
+  }
 
-        return FormatDeltaPipe.formatDelta(delta);
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  private static _getStartTime(execution: DataJobExecution): number {
+    if (CollectionsUtil.isDefined(execution.startTime)) {
+      return new Date(execution.startTime).getTime();
     }
 
-    // eslint-disable-next-line @typescript-eslint/member-ordering
-    private static _getStartTime(execution: DataJobExecution): number {
-        if (CollectionsUtil.isDefined(execution.startTime)) {
-            return new Date(execution.startTime).getTime();
-        }
+    return Date.now();
+  }
 
-        return Date.now();
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  private static _getEndTime(execution: DataJobExecution): number {
+    if (CollectionsUtil.isDefined(execution.endTime)) {
+      return new Date(execution.endTime).getTime();
     }
 
-    // eslint-disable-next-line @typescript-eslint/member-ordering
-    private static _getEndTime(execution: DataJobExecution): number {
-        if (CollectionsUtil.isDefined(execution.endTime)) {
-            return new Date(execution.endTime).getTime();
-        }
-
-        return Date.now();
-    }
+    return Date.now();
+  }
 }

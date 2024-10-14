@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './actions';
-export * from './reducers';
-export * from './operators';
+export * from "./actions";
+export * from "./reducers";
+export * from "./operators";

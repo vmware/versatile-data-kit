@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CollectionsUtil, FilterMethods } from '../../utils';
+import { CollectionsUtil, FilterMethods } from "../../utils";
 
-import { ErrorCodes, ExcludedMethods } from '../../common';
+import { ErrorCodes, ExcludedMethods } from "../../common";
 
-import { generateSupportedHttpErrorCodes } from '../../common/error/utils';
+import { generateSupportedHttpErrorCodes } from "../../common/error/utils";
 
 /**
  * ** Generates error codes for provided method names.
@@ -22,23 +22,27 @@ import { generateSupportedHttpErrorCodes } from '../../common/error/utils';
                   @typescript-eslint/ban-ts-comment,
                   @typescript-eslint/dot-notation */
 export const generateErrorCodes = <CType>(
-    serviceStub: CType,
-    methodNames: Array<keyof FilterMethods<CType, ExcludedMethods>>,
-    className?: string,
-    publicName?: string
+  serviceStub: CType,
+  methodNames: Array<keyof FilterMethods<CType, ExcludedMethods>>,
+  className?: string,
+  publicName?: string,
 ): ErrorCodes<CType> => {
-    const _className = className ?? CollectionsUtil.generateRandomString();
-    const _publicName = publicName ?? CollectionsUtil.generateRandomString();
-    const _errorCodes: ErrorCodes<CType> = {} as ErrorCodes<CType>;
+  const _className = className ?? CollectionsUtil.generateRandomString();
+  const _publicName = publicName ?? CollectionsUtil.generateRandomString();
+  const _errorCodes: ErrorCodes<CType> = {} as ErrorCodes<CType>;
 
-    // @ts-ignore
-    methodNames.forEach((method: string) => {
-        _errorCodes[method] = generateSupportedHttpErrorCodes(_className, _publicName, method);
-    });
+  // @ts-ignore
+  methodNames.forEach((method: string) => {
+    _errorCodes[method] = generateSupportedHttpErrorCodes(
+      _className,
+      _publicName,
+      method,
+    );
+  });
 
-    serviceStub['errorCodes'] = _errorCodes;
+  serviceStub["errorCodes"] = _errorCodes;
 
-    return _errorCodes;
+  return _errorCodes;
 };
 /* eslint-enable @typescript-eslint/no-unsafe-argument,
                  @typescript-eslint/no-unsafe-member-access,

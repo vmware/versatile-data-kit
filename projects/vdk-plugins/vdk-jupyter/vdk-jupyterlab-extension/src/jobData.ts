@@ -8,8 +8,8 @@
  * Using https://github.com/Syndallic/py-to-ts-interfaces#example
  * The enum shall not be modified directly
  */
-import { VdkOption } from './vdkOptions/vdk_options';
-import { Dialog, showErrorMessage } from '@jupyterlab/apputils';
+import { VdkOption } from "./vdkOptions/vdk_options";
+import { Dialog, showErrorMessage } from "@jupyterlab/apputils";
 
 /*
  * A global variable which holds the information about the current job.
@@ -24,7 +24,7 @@ export var jobData = new Map<string, string>([]);
  */
 export function setJobDataToDefault() {
   for (const option of Object.values(VdkOption)) {
-    jobData.set(option as VdkOption, '');
+    jobData.set(option as VdkOption, "");
   }
 }
 
@@ -43,7 +43,7 @@ export function getJobDataJsonObject() {
     jobTeam: jobData.get(VdkOption.TEAM),
     jobPath: jobData.get(VdkOption.PATH),
     jobArguments: jobData.get(VdkOption.ARGUMENTS),
-    deploymentReason: jobData.get(VdkOption.DEPLOYMENT_REASON)
+    deploymentReason: jobData.get(VdkOption.DEPLOYMENT_REASON),
   };
   return jsObj;
 }
@@ -53,15 +53,15 @@ export function getJobDataJsonObject() {
  * Shows dialog that operation cannot be performed because of undefined value
  */
 export async function checkIfVdkOptionDataIsDefined(
-  option: VdkOption
+  option: VdkOption,
 ): Promise<boolean> {
   if (jobData.get(option)) {
     return true;
   } else {
     await showErrorMessage(
-      'Encountered an error while trying to execute operation. Error:',
-      'The ' + option + ' should be defined!',
-      [Dialog.okButton()]
+      "Encountered an error while trying to execute operation. Error:",
+      "The " + option + " should be defined!",
+      [Dialog.okButton()],
     );
     return false;
   }
