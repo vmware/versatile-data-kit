@@ -102,7 +102,8 @@ public class JobCredentialsService {
           teamCredentials.setClientSecret(createOAuthAppWebHookResult.getClientSecret());
         } else {
           log.warn(
-              "Unable to process the result from the CreateOAuth webhook and cannot create team credentials for team: "
+              "Unable to process the result from the CreateOAuth webhook and cannot create team"
+                  + " credentials for team: "
                   + teamName);
         }
       }

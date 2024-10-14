@@ -121,7 +121,8 @@ public class JobsService {
     if (isInvocationSuccessful(resultHolder)) {
       // Save the data job and update the job info metrics
       if (jobInfo.getJobConfig().isGenerateKeytab()) {
-        credentialsService.createJobCredentials(jobInfo.getName(), jobInfo.getJobConfig().getTeam());
+        credentialsService.createJobCredentials(
+            jobInfo.getName(), jobInfo.getJobConfig().getTeam());
       }
       var dataJob = jobsRepository.save(jobInfo);
       dataJobMetrics.updateInfoGauges(dataJob);

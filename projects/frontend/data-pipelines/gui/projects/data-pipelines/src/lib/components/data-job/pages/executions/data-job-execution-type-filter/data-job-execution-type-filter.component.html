@@ -4,20 +4,24 @@
   -->
 
 <clr-checkbox-wrapper
-    *ngFor="let type of allTypes"
-    data-cy="dp-job-executions-type-filter-checkbox"
+  *ngFor="let type of allTypes"
+  data-cy="dp-job-executions-type-filter-checkbox"
 >
-    <input
-        [attr.data-cy]="'dp-job-executions-type-filter-checkbox-' + type?.toLowerCase()"
-        clrCheckbox
-        type="checkbox"
-        [checked]="selectedTypes.includes(type)"
-        [value]="type"
-        (change)="toggleCheckbox($event)"
-    />
+  <input
+    [attr.data-cy]="
+      'dp-job-executions-type-filter-checkbox-' + type?.toLowerCase()
+    "
+    clrCheckbox
+    type="checkbox"
+    [checked]="selectedTypes.includes(type)"
+    [value]="type"
+    (change)="toggleCheckbox($event)"
+  />
 
-    <label
-        [attr.data-cy]="'dp-job-executions-type-filter-label-' + type?.toLowerCase()"
-        >{{ type | titlecase }}</label
-    >
+  <label
+    [attr.data-cy]="
+      'dp-job-executions-type-filter-label-' + type?.toLowerCase()
+    "
+    >{{ type | titlecase }}</label
+  >
 </clr-checkbox-wrapper>
