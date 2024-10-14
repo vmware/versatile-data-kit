@@ -1437,7 +1437,10 @@ public abstract class KubernetesService {
                 new V1EnvFromSource()
                     .secretRef(new V1SecretEnvSource().name("builder-secrets").optional(true)),
                 new V1EnvFromSource()
-                        .secretRef(new V1SecretEnvSource().name(getTeamOAuthSecretName(teamName)).optional(true)))
+                    .secretRef(
+                        new V1SecretEnvSource()
+                            .name(getTeamOAuthSecretName(teamName))
+                            .optional(true)))
             .withEnv(
                 envs.entrySet().stream()
                     .map(KubernetesService::envVar)
