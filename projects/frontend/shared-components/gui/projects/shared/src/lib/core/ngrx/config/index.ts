@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './ngrx-config.model';
+export * from "./ngrx-config.model";

@@ -4,41 +4,45 @@
   -->
 
 <clr-icon
-    [attr.shape]="executionStatusProperties.shape"
-    [class]="executionStatusProperties.status"
-    [attr.dir]="executionStatusProperties.direction"
+  [attr.shape]="executionStatusProperties.shape"
+  [class]="executionStatusProperties.status"
+  [attr.dir]="executionStatusProperties.direction"
 ></clr-icon>
 
 <clr-signpost class="job-execution-signpost">
-    <div
-        *ngIf="
-            showErrorMessage &&
-            isJobStatusSuitableForMessageTooltip() &&
-            isJobMessageDifferentFromStatus()
-        "
+  <div
+    *ngIf="
+      showErrorMessage &&
+      isJobStatusSuitableForMessageTooltip() &&
+      isJobMessageDifferentFromStatus()
+    "
+  >
+    <clr-signpost-content [clrPosition]="'right-bottom'" *clrIfOpen>
+      {{ jobMessage }}
+      <vdk-copy-to-clipboard-button
+        [tooltip]="'Copy to clipboard'"
+        [tooltipDirection]="'right'"
+        [value]="jobMessage"
+      ></vdk-copy-to-clipboard-button>
+    </clr-signpost-content>
+  </div>
+  <div class="job-execution-status__container">
+    <span
+      class="job-execution-status__text"
+      data-cy="data-pipelines-job-executions-status-filters"
+      clrSignpostTrigger
+      >{{ executionStatusProperties.text }}
+    </span>
+    <button
+      *ngIf="
+        showErrorMessage &&
+        isJobStatusSuitableForMessageTooltip() &&
+        isJobMessageDifferentFromStatus()
+      "
+      class="btn btn-link btn-icon btn-sm job-execution-status__btn"
+      clrSignpostTrigger
     >
-        <clr-signpost-content [clrPosition]="'right-bottom'" *clrIfOpen>
-            {{ jobMessage }}
-            <vdk-copy-to-clipboard-button
-                [tooltip]="'Copy to clipboard'"
-                [tooltipDirection]="'right'"
-                [value]="jobMessage"
-            ></vdk-copy-to-clipboard-button>
-        </clr-signpost-content>
-    </div>
-    <div class="job-execution-status__container">
-        <span
-            class="job-execution-status__text"
-            data-cy="data-pipelines-job-executions-status-filters"
-            clrSignpostTrigger
-            >{{ executionStatusProperties.text }}
-        </span>
-        <button
-            *ngIf="showErrorMessage && isJobStatusSuitableForMessageTooltip() && isJobMessageDifferentFromStatus()"
-            class="btn btn-link btn-icon btn-sm job-execution-status__btn"
-            clrSignpostTrigger
-        >
-            details
-        </button>
-    </div>
+      details
+    </button>
+  </div>
 </clr-signpost>
