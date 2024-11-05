@@ -4,7 +4,7 @@ project.ext {
             'com.google.guava:guava'                                             : 'com.google.guava:guava:33.2.0-jre',
             'com.nimbusds:nimbus-jose-jwt'                                       : 'com.nimbusds:nimbus-jose-jwt:9.38',
             // Update the ph-client to latest.
-            'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.12.0',
+            'io.micrometer:micrometer-registry-prometheus'                       : 'io.micrometer:micrometer-registry-prometheus:1.13.1',
             'org.openapitools:jackson-databind-nullable'                         : 'org.openapitools:jackson-databind-nullable:0.2.6',
             'org.postgresql:postgresql'                                          : 'org.postgresql:postgresql:42.7.0',
             'org.projectlombok:lombok'                                           : 'org.projectlombok:lombok:1.18.28',
