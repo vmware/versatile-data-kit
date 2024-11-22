@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './quick-filters.component';
-export * from './model';
+export * from "./quick-filters.component";
+export * from "./model";

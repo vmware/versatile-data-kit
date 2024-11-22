@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './taurus-base.effects';
+export * from "./taurus-base.effects";
