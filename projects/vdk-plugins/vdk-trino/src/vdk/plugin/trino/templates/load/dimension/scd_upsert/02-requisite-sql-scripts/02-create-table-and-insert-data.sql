@@ -1,8 +1,9 @@
 CREATE TABLE "{target_schema_staging}"."{target_table_staging}" AS
 (
-SELECT * 
-FROM "{target_schema}"."{target_table}"
-WHERE "{id_column}" NOT IN (SELECT "{id_column}" FROM "{source_schema}"."{source_view}")
+SELECT t.* 
+FROM "{target_schema}"."{target_table}" AS t
+LEFT JOIN "{source_schema}"."{source_view}" AS s ON s."{id_column}" = t."{id_column}"
+WHERE s."{id_column}" IS NULL
 )
 UNION ALL
 (
