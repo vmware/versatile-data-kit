@@ -632,6 +632,8 @@ class TestTemplates(unittest.TestCase):
             f"Clean up of staging table - {staging_table_name} is not made properly. Different data was found in the table after consecutive executions.",
         )
 
+    ##TODO Add testing logic for upsert template here
+
     def __fact_insert_template_execute(
         self,
         test_schema,
