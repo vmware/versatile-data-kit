@@ -631,8 +631,89 @@ class TestTemplates(unittest.TestCase):
             second_exec,
             f"Clean up of staging table - {staging_table_name} is not made properly. Different data was found in the table after consecutive executions.",
         )
+    
 
-    ##TODO Add testing logic for upsert template here
+    def test_scd_upsert(self) -> None:
+        test_schema = self.__schema
+        source_view = "vw_dim_test_scd_upsert"
+        target_table = "dw_dim_test_scd_upsert"
+        expect_table = "ex_dim_test_scd_upsert"
+        id_column = "org_id"
+
+        res = self.__scd_upsert_execute(
+            test_schema, source_view, target_table, expect_table, id_column
+        )
+
+        cli_assert(not res.exception, res)
+
+        actual_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{target_table}")
+        expected_rs = self.__trino_query(f"SELECT * FROM {test_schema}.{expect_table}")
+        assert actual_rs.output and expected_rs.output
+
+        actual = {x for x in actual_rs.output.split("\n")}
+        expected = {x for x in expected_rs.output.split("\n")}
+
+        self.assertSetEqual(
+            actual, expected, f"Elements in {expect_table} and {target_table} differ."
+        )
+
+
+    def __scd_upsert_execute(
+        self,
+        test_schema,
+        source_view,
+        target_table,
+        expect_table,
+        id_column,
+        check=False,
+        staging_schema=None,
+    ):
+        if check != False and staging_schema is not None:
+            return self.__runner.invoke(
+                [
+                    "run",
+                    get_test_job_path(
+                        pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                        "load_dimension_scd_upsert_template_job",
+                    ),
+                    "--arguments",
+                    json.dumps(
+                        {
+                            "source_schema": test_schema,
+                            "source_view": source_view,
+                            "target_schema": test_schema,
+                            "target_table": target_table,
+                            "expect_schema": test_schema,
+                            "expect_table": expect_table,
+                            "id_column": id_column,
+                            "check": check,
+                            "staging_schema": staging_schema,
+                        }
+                    ),
+                ]
+            )
+        else:
+            return self.__runner.invoke(
+                [
+                    "run",
+                    get_test_job_path(
+                        pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
+                        "load_dimension_scd_upsert_template_job",
+                    ),
+                    "--arguments",
+                    json.dumps(
+                        {
+                            "source_schema": test_schema,
+                            "source_view": source_view,
+                            "target_schema": test_schema,
+                            "target_table": target_table,
+                            "expect_schema": test_schema,
+                            "expect_table": expect_table,
+                            "id_column": id_column,
+                        }
+                    ),
+                ]
+            )
 
     def __fact_insert_template_execute(
         self,

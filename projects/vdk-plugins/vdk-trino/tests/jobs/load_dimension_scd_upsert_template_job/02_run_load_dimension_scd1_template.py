@@ -6,7 +6,7 @@ from vdk.api.job_input import IJobInput
 
 def run(job_input: IJobInput) -> None:
     result = job_input.execute_template(
-        template_name="scd1",
+        template_name="scd1_upsert",
         template_args=job_input.get_arguments(),
         database="trino",
     )
