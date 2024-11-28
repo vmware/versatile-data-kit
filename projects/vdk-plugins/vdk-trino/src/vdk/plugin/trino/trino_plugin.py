@@ -76,7 +76,7 @@ class TrinoPlugin:
             )
 
             context.templates.add_template(
-                "load/dimension/scd_upsert",
+                "scd_upsert",
                 pathlib.Path(get_job_path("load/dimension/scd_upsert")),
                 connection_name,
             )
