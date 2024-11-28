@@ -631,7 +631,6 @@ class TestTemplates(unittest.TestCase):
             second_exec,
             f"Clean up of staging table - {staging_table_name} is not made properly. Different data was found in the table after consecutive executions.",
         )
-    
 
     def test_scd_upsert(self) -> None:
         test_schema = self.__schema
@@ -656,7 +655,6 @@ class TestTemplates(unittest.TestCase):
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
         )
-
 
     def __scd_upsert_execute(
         self,
