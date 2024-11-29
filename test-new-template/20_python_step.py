@@ -25,14 +25,14 @@ def run(job_input: IJobInput):
 
     # Write your python code inside here ... for example:
     job_input.execute_template(
-        template_name='scd_upsert',
+        template_name="scd_upsert",
         template_args={
-            'source_schema': 'starshot_internal_dw_stg',
-            'source_view': 'sbuldeev_vw_template_test',
-            'target_schema': 'starshot_internal_dw_stg',
-            'target_table': 'sbuldeev_dw_template_test',
-            'id_column': 'org_id',
-            'check': sample_check
+            "source_schema": "starshot_internal_dw_stg",
+            "source_view": "sbuldeev_vw_template_test",
+            "target_schema": "starshot_internal_dw_stg",
+            "target_table": "sbuldeev_dw_template_test",
+            "id_column": "org_id",
+            "check": sample_check,
         },
         database="trino",
     )
