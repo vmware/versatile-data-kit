@@ -35,7 +35,6 @@ def run(job_input: IJobInput):
         - copy the data from staging to target table
     3. Copying the data:
         - truncate target table and insert the data from staging table
-    4. Drop staging table
     """
 
     job_arguments = job_input.get_arguments()

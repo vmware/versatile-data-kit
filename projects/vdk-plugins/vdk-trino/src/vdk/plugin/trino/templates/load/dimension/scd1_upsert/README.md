@@ -1,11 +1,11 @@
 ### Purpose:
 
-This template can be used to load raw data from a database to target table in a database.
+This template can be used to load raw data from a database to target 'Slowly Changing Dimension Type 1' table with specific implementation.
 In summary, it upserts the target table with the source data.
 
 ### Template Name (template_name):
 
-- "scd_upsert"
+- "scd1_upsert"
 
 ### Template Parameters (template_args):
 
@@ -13,7 +13,7 @@ In summary, it upserts the target table with the source data.
 - target_table    - database table where target data is loaded
 - source_schema   - database schema, where source raw data is loaded from
 - source_view     - database view, where source raw data is loaded from
-- id_colum        - column that will be used for tracking which row should be updated and which inserted
+- id_column       - column that will be used for tracking which row should be updated and which inserted
 - check           - (Optional) Callback function responsible for checking the quality of the data. Takes in a table name as a parameter which will be used for data validation
 - staging_schema  - (Optional) Schema where the checks will be executed. If not provided target_schema will be used as default
 
@@ -44,6 +44,6 @@ def run(job_input):
         'target_table': 'dim_sddc',
         'id_column': 'dim_sddc_id'
     }
-    job_input.execute_template("scd_upsert", template_args, database="trino")
+    job_input.execute_template("scd1_upsert", template_args, database="trino")
     # . . .
 ```
