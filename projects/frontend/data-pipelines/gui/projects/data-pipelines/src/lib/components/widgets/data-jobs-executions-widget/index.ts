@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './data-jobs-executions-widget.component';
+export * from "./data-jobs-executions-widget.component";

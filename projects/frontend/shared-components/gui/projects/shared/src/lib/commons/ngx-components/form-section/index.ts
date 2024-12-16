@@ -5,10 +5,10 @@
 
 /* eslint-disable */
 
-import { Type } from '@angular/core';
+import { Type } from "@angular/core";
 
-import { VdkFormSectionComponent } from './form-section.component';
+import { VdkFormSectionComponent } from "./form-section.component";
 
-export * from './form-section.component';
+export * from "./form-section.component";
 
 export const FORM_SECTION_DIRECTIVES: Type<any>[] = [VdkFormSectionComponent];
