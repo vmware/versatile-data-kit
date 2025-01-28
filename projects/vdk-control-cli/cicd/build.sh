@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 
 if ! which python3 >/dev/null 2>&1 ; then

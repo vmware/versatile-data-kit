@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2024 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 
 echo "image tag is $IMAGE_TAG"
