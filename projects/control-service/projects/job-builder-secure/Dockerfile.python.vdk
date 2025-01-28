@@ -52,14 +52,14 @@ RUN : \
           && pip install --no-cache-dir --disable-pip-version-check -q -r "$job_name/$requirements_file"  \
           || ( echo ">requirements_failed<" && exit 1 ) \
           && echo "Removing native dependencies ..." \
-          && yum autoremove build-essential gcc glibc-devel git unzip -y \
+          && yum remove build-essential gcc glibc-devel git unzip -y \
           && yum remove freetype2-devel libpng-devel -y;  fi \
     && echo "Installing native dependencies ..." \
     && yum install libstdc++ findutils openssl-c_rehash -y \
     && echo "Refreshing CA certificates ..." \
     && /usr/bin/rehash_ca_certificates.sh \
     && echo "Deleting system packages ..." \
-    && yum autoremove shadow toybox openssl-c_rehash -y \
+    && yum remove shadow toybox openssl-c_rehash -y \
     && echo "Deleting system directories ..." \
     && rm -rf /boot /home /media /mnt /root /srv /usr/lib/ldscripts /usr/lib/rpm /usr/lib/sysimage \
     /usr/lib/tdnf /usr/lib/perl5 /usr/lib/gcc /usr/share/locale /tmp/* /usr/include /usr/libexec /usr/libexec  \

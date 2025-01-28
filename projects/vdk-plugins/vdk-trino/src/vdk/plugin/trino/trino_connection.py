@@ -159,11 +159,12 @@ class TrinoConnection(ManagedConnectionBase):
             raise recovery_cursor.get_exception()
 
     def execute_query(self, query):
-        res = self.execute_query_with_retries(query)
+        # first evaluate lineage because current behavior of 'explain create as select' fails if the table exists
         if self._lineage_logger:
             lineage_data = self._get_lineage_data(query)
-            if lineage_data:
-                self._lineage_logger.send(lineage_data)
+        res = self.execute_query_with_retries(query)
+        if self._lineage_logger and lineage_data:
+            self._lineage_logger.send(lineage_data)
         #  TODO: collect lineage for failed query
         return res
 
@@ -196,7 +197,13 @@ class TrinoConnection(ManagedConnectionBase):
                     "ALTER operation not a RENAME TABLE operation. No lineage will be collected."
                 )
 
-        elif statement.get_type() == "SELECT" or statement.get_type() == "INSERT":
+        elif (
+            statement.get_type() == "SELECT"
+            or statement.get_type() == "INSERT"
+            or (
+                statement.get_type() == "CREATE" and "select" in statement.value.lower()
+            )
+        ):
             if lineage_utils.is_heartbeat_query(query):
                 return None
             log.debug("Collecting lineage for SELECT/INSERT query ...")
