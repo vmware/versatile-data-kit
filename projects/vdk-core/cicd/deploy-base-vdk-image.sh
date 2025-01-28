@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 
 # The script builds a docker image with fully installed VDK - native dependencies, python dependencies and the actual VDK.
