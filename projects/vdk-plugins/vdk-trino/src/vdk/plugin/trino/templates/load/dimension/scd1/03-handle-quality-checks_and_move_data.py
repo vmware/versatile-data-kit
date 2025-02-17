@@ -7,6 +7,7 @@ import re
 from vdk.api.job_input import IJobInput
 from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
 from vdk.api.lineage.model.sql.model import LineageData
+from vdk.api.lineage.model.sql.model import LineageTable
 from vdk.internal.core.statestore import StoreKey
 from vdk.plugin.trino.templates.data_quality_exception import DataQualityException
 from vdk.plugin.trino.trino_utils import CommonUtilities
@@ -196,8 +197,8 @@ def copy_staging_table_to_target_table(
         query="template",
         query_type="template",
         query_status="OK",
-        input_tables=[original_source_schema + "." + original_source_view],
-        output_table=target_schema + "." + target_table,
+        input_tables=[LineageTable('',original_source_schema, original_source_view)],
+        output_table=LineageTable('', target_schema, target_table)
     )
 
     LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")
