@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -102,7 +102,8 @@ public class JobCredentialsService {
           teamCredentials.setClientSecret(createOAuthAppWebHookResult.getClientSecret());
         } else {
           log.warn(
-              "Unable to process the result from the CreateOAuth webhook and cannot create team credentials for team: "
+              "Unable to process the result from the CreateOAuth webhook and cannot create team"
+                  + " credentials for team: "
                   + teamName);
         }
       }

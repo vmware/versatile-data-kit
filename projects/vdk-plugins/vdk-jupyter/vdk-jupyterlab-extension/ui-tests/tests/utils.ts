@@ -1,14 +1,14 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { galata } from '@jupyterlab/galata';
+import { galata } from "@jupyterlab/galata";
 
 export async function copyDirectory(
   baseURL: string,
   sourceDirectory: string,
-  destination: string
+  destination: string,
 ): Promise<void> {
   const contents = galata.newContentsHelper(baseURL);
 

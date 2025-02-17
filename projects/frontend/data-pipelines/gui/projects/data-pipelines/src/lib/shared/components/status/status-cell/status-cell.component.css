@@ -1,12 +1,12 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
 .status-icon-enabled {
-    color: hsl(93, 67%, 38%);
+  color: hsl(93, 67%, 38%);
 }
 
 .status-icon-disabled {
-    color: hsl(32, 95%, 48%);
+  color: hsl(32, 95%, 48%);
 }

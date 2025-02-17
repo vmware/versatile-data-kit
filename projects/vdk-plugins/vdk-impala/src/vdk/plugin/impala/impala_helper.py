@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from collections import OrderedDict
@@ -64,9 +64,9 @@ class ImpalaHelper:
                 if column_name.startswith(second_end):
                     searched_section_ended = True
             if is_in_columns_section and not searched_section_ended:
-                column_name_to_column_type_map[
-                    column_name.strip()
-                ] = column_type.strip()
+                column_name_to_column_type_map[column_name.strip()] = (
+                    column_type.strip()
+                )
         return column_name_to_column_type_map
 
     def get_table_columns(self, table_description):

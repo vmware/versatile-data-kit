@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import pickle
@@ -41,9 +41,11 @@ def run(job_input: IJobInput):
 
         embedding_payload = {
             "id": composite_id,
-            "embedding": embeddings[i].tolist()
-            if isinstance(embeddings[i], np.ndarray)
-            else embeddings[i],
+            "embedding": (
+                embeddings[i].tolist()
+                if isinstance(embeddings[i], np.ndarray)
+                else embeddings[i]
+            ),
         }
         job_input.send_object_for_ingestion(
             payload=embedding_payload,

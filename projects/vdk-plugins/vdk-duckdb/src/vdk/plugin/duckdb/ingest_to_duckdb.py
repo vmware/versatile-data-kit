@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from contextlib import closing
@@ -131,9 +131,11 @@ class IngestToDuckDB(IIngesterPlugin):
         cur: duckdb.cursor, destination_table: str, columns: Dict[str, str]
     ):
         names = [
-            f"{col_name} {col_type}"
-            if " " not in col_name
-            else f'"{col_name}" {col_type}'
+            (
+                f"{col_name} {col_type}"
+                if " " not in col_name
+                else f'"{col_name}" {col_type}'
+            )
             for col_name, col_type in columns.items()
         ]
         columns_as_sql_expression = ",".join(names)

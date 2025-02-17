@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import collections
 import logging
@@ -188,9 +188,11 @@ class IngestToSQLite(IIngesterPlugin):
         Creates table from given list of columns and table name
         """
         names = [
-            f"{col_name} {col_type}"
-            if " " not in col_name
-            else f'"{col_name}" {col_type}'
+            (
+                f"{col_name} {col_type}"
+                if " " not in col_name
+                else f'"{col_name}" {col_type}'
+            )
             for col_name, col_type in columns.items()
         ]
         columns_as_sql_expression = ",".join(names)

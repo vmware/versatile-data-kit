@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from logging import getLogger
 from typing import cast
@@ -30,9 +30,9 @@ class TemplateArgumentsValidator:
         table_description = impala_helper.get_table_description(table_name)
         partitions = impala_helper.get_table_partitions(table_description)
         if partitions:
-            args[
-                "_vdk_template_insert_partition_clause"
-            ] = impala_helper.get_insert_sql_partition_clause(partitions)
+            args["_vdk_template_insert_partition_clause"] = (
+                impala_helper.get_insert_sql_partition_clause(partitions)
+            )
 
         impala_helper.ensure_table_format_is_parquet(table_name, table_description)
 

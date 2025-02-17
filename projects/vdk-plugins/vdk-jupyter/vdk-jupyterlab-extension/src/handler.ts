@@ -1,11 +1,11 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { URLExt } from '@jupyterlab/coreutils';
+import { URLExt } from "@jupyterlab/coreutils";
 
-import { ServerConnection } from '@jupyterlab/services';
+import { ServerConnection } from "@jupyterlab/services";
 
 /**
  * Call the API extension
@@ -15,15 +15,15 @@ import { ServerConnection } from '@jupyterlab/services';
  * @returns The response body interpreted as JSON
  */
 export async function requestAPI<T>(
-  endPoint = '',
-  init: RequestInit = {}
+  endPoint = "",
+  init: RequestInit = {},
 ): Promise<T> {
   // Make request to Jupyter API
   const settings = ServerConnection.makeSettings();
   const requestUrl = URLExt.join(
     settings.baseUrl,
-    'vdk-jupyterlab-extension', // API Namespace
-    endPoint
+    "vdk-jupyterlab-extension", // API Namespace
+    endPoint,
   );
 
   let response: Response;
@@ -39,7 +39,7 @@ export async function requestAPI<T>(
     try {
       data = JSON.parse(data);
     } catch (error) {
-      console.log('Not a JSON response body.', response);
+      console.log("Not a JSON response body.", response);
     }
   }
 

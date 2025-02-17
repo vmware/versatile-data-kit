@@ -1,24 +1,26 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
 /// <reference types="cypress" />
 
-import { BasePagePO } from '../../../support/pages/base/base-page.po';
+import { BasePagePO } from "../../../support/pages/base/base-page.po";
 
-describe('Routing for pages', () => {
-    describe('smoke', { tags: ['@smoke'] }, () => {
-        it('navigates to get-started page when explore page route is ignored', () => {
-            BasePagePO.executeCypressCommand('appConfigInterceptorDisableExploreRoute');
-            // wait for login
-            BasePagePO.wireUserSession();
-            BasePagePO.initInterceptors();
-            BasePagePO.navigateTo();
-            // go to explore page url
-            cy.visit('/explore/data-jobs');
-            // should navigate to get-started instead
-            cy.location().should((l) => expect(l.pathname).to.equal('/get-started'));
-        });
+describe("Routing for pages", () => {
+  describe("smoke", { tags: ["@smoke"] }, () => {
+    it("navigates to get-started page when explore page route is ignored", () => {
+      BasePagePO.executeCypressCommand(
+        "appConfigInterceptorDisableExploreRoute",
+      );
+      // wait for login
+      BasePagePO.wireUserSession();
+      BasePagePO.initInterceptors();
+      BasePagePO.navigateTo();
+      // go to explore page url
+      cy.visit("/explore/data-jobs");
+      // should navigate to get-started instead
+      cy.location().should((l) => expect(l.pathname).to.equal("/get-started"));
     });
+  });
 });
