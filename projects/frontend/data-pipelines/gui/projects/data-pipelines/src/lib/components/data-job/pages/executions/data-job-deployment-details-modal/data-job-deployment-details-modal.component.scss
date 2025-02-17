@@ -1,14 +1,14 @@
 /*!
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
 div.clr-row div {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-    p,
-    h6 {
-        margin-top: 12px;
-    }
+  p,
+  h6 {
+    margin-top: 12px;
+  }
 }

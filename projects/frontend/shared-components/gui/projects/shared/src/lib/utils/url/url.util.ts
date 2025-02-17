@@ -1,26 +1,28 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const FORWARD_SLASH = '/';
+export const FORWARD_SLASH = "/";
 
-export const TIE_SWAGGER_DOC_LOCATION = 'swagger-ui.html#';
+export const TIE_SWAGGER_DOC_LOCATION = "swagger-ui.html#";
 
 export class UrlUtil {
-    static normalizeEndpoint(endPoint: string): string {
-        if (!endPoint) {
-            return '';
-        }
-
-        if (endPoint.endsWith(FORWARD_SLASH)) {
-            return endPoint;
-        }
-
-        return endPoint + FORWARD_SLASH;
+  static normalizeEndpoint(endPoint: string): string {
+    if (!endPoint) {
+      return "";
     }
 
-    static constructTieSwaggerUiEndpoint(endpointBasePath: string) {
-        return UrlUtil.normalizeEndpoint(endpointBasePath) + TIE_SWAGGER_DOC_LOCATION;
+    if (endPoint.endsWith(FORWARD_SLASH)) {
+      return endPoint;
     }
+
+    return endPoint + FORWARD_SLASH;
+  }
+
+  static constructTieSwaggerUiEndpoint(endpointBasePath: string) {
+    return (
+      UrlUtil.normalizeEndpoint(endpointBasePath) + TIE_SWAGGER_DOC_LOCATION
+    );
+  }
 }

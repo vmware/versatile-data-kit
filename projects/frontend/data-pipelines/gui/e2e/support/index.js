@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -19,33 +19,41 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands';
+import "./commands";
 
-require('@neuralegion/cypress-har-generator/commands');
+require("@neuralegion/cypress-har-generator/commands");
 
-const CYPRESS_GREP = require('cypress-grep');
-const CYPRESS_TERMINAL = require('cypress-terminal-report/src/installLogsCollector');
+const CYPRESS_GREP = require("cypress-grep");
+const CYPRESS_TERMINAL = require("cypress-terminal-report/src/installLogsCollector");
 
 CYPRESS_GREP();
 
-const CYPRESS_TERMINAL_ERROR_BLACKLIST = ['NG0100: ExpressionChangedAfterItHasBeenCheckedError', '"url": "https://console-stg.cloud.vmware.com/csp/gateway/slc/api/principal/org/service-families"', 'error loading jwks,'];
+const CYPRESS_TERMINAL_ERROR_BLACKLIST = [
+  "NG0100: ExpressionChangedAfterItHasBeenCheckedError",
+  '"url": "https://console-stg.cloud.vmware.com/csp/gateway/slc/api/principal/org/service-families"',
+  "error loading jwks,",
+];
 
 CYPRESS_TERMINAL({
-    filterLog: ([logType, message, severity]) => {
-        if (logType !== 'cons:error') {
-            return true;
-        }
-
-        return severity !== 'error' || !message || !CYPRESS_TERMINAL_ERROR_BLACKLIST.some((value) => message.includes(value));
+  filterLog: ([logType, message, severity]) => {
+    if (logType !== "cons:error") {
+      return true;
     }
+
+    return (
+      severity !== "error" ||
+      !message ||
+      !CYPRESS_TERMINAL_ERROR_BLACKLIST.some((value) => message.includes(value))
+    );
+  },
 });
 
 Cypress.Server.defaults({
-    delay: 500,
-    force404: false,
-    ignore: (xhr) => {
-        return true;
-    }
+  delay: 500,
+  force404: false,
+  ignore: (xhr) => {
+    return true;
+  },
 });
 
 // Alternatively you can use CommonJS syntax:

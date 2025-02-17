@@ -1,5 +1,5 @@
 /*!
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -25,14 +25,14 @@
  * ```
  */
 @mixin light-theme {
-    :host-context(body:not([cds-theme])) &,
-    :host-context(body[cds-theme='light']) & {
-        @content;
-    }
+  :host-context(body:not([cds-theme])) &,
+  :host-context(body[cds-theme="light"]) & {
+    @content;
+  }
 }
 
 @mixin dark-theme {
-    :host-context(body[cds-theme='dark']) & {
-        @content;
-    }
+  :host-context(body[cds-theme="dark"]) & {
+    @content;
+  }
 }

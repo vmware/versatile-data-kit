@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,15 +9,15 @@
  *      - Should be provided when Module is initialized and only once.
  */
 export interface PlaceholderConfig {
-    [PLACEHOLDER_FEATURE_KEY]: {
-        /**
-         * ** Url that will open portal, where service request should be created.
-         */
-        serviceRequestUrl: string;
-    };
+  [PLACEHOLDER_FEATURE_KEY]: {
+    /**
+     * ** Url that will open portal, where service request should be created.
+     */
+    serviceRequestUrl: string;
+  };
 }
 
 /**
  * ** Key for the feature in Shared Features config object.
  */
-const PLACEHOLDER_FEATURE_KEY = 'placeholder';
+const PLACEHOLDER_FEATURE_KEY = "placeholder";

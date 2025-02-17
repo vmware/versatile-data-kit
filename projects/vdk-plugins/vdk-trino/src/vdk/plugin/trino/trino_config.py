@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from typing import cast
 from typing import Optional
@@ -115,16 +115,18 @@ class TrinoConfiguration:
     def templates_data_to_target_strategy(self, section: Optional[str]) -> str:
         return cast(
             str,
-            self.__config.get_value(
-                key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY, section=section
-            )
-            if (
+            (
                 self.__config.get_value(
                     key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY, section=section
                 )
-                is not None
-            )
-            else "INSERT_SELECT",
+                if (
+                    self.__config.get_value(
+                        key=TRINO_TEMPLATES_DATA_TO_TARGET_STRATEGY, section=section
+                    )
+                    is not None
+                )
+                else "INSERT_SELECT"
+            ),
         )
 
     def use_team_oauth(self, section: Optional[str]) -> bool:

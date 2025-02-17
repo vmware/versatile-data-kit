@@ -1,22 +1,27 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
-import { ClipboardModule } from 'ngx-clipboard';
+import { ClipboardModule } from "ngx-clipboard";
 
-import { ClarityModule } from '@clr/angular';
+import { ClarityModule } from "@clr/angular";
 
-import { VdkSharedComponentsModule } from '../../commons';
+import { VdkSharedComponentsModule } from "../../commons";
 
-import { ToastsComponent } from './widget';
+import { ToastsComponent } from "./widget";
 
 @NgModule({
-    imports: [CommonModule, ClarityModule, VdkSharedComponentsModule, ClipboardModule],
-    declarations: [ToastsComponent],
-    exports: [ToastsComponent]
+  imports: [
+    CommonModule,
+    ClarityModule,
+    VdkSharedComponentsModule,
+    ClipboardModule,
+  ],
+  declarations: [ToastsComponent],
+  exports: [ToastsComponent],
 })
 export class ToastsModule {}
