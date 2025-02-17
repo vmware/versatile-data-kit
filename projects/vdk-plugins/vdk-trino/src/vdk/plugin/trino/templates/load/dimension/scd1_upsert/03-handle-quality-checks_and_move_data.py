@@ -151,8 +151,8 @@ def copy_staging_table_to_target_table(
         query="template",
         query_type="template",
         query_status="OK",
-        input_tables=[LineageTable('',original_source_schema, original_source_view)],
-        output_table=LineageTable('', target_schema, target_table)
+        input_tables=[LineageTable("", original_source_schema, original_source_view)],
+        output_table=LineageTable("", target_schema, target_table),
     )
 
     LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")

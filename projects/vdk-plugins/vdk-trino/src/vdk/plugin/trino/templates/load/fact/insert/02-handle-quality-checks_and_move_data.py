@@ -137,8 +137,8 @@ def run(job_input: IJobInput):
             query="template",
             query_type="template",
             query_status="OK",
-            input_tables=[LineageTable('', source_schema, source_view)],
-            output_table=LineageTable('', target_schema, target_table)
+            input_tables=[LineageTable("", source_schema, source_view)],
+            output_table=LineageTable("", target_schema, target_table),
         )
 
         LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")
