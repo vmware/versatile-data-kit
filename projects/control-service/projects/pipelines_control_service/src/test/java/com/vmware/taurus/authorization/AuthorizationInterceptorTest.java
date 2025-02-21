@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -21,7 +21,6 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -245,7 +244,8 @@ public class AuthorizationInterceptorTest {
 
     Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
 
-    VaultTeamCredentials mockCredentials = new VaultTeamCredentials("testTeam","testClientId","testSecret");
+    VaultTeamCredentials mockCredentials =
+        new VaultTeamCredentials("testTeam","testClientId","testSecret");
     Mockito.when(secretsService.readTeamOauthCredentials("testTeam")).thenReturn(mockCredentials);
     SecurityContextHolder.setContext(securityContext);
 
@@ -268,7 +268,8 @@ public class AuthorizationInterceptorTest {
 
     Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
 
-    VaultTeamCredentials mockCredentials = new VaultTeamCredentials("differentTeam","testClientId","testSecret");
+    VaultTeamCredentials mockCredentials =
+        new VaultTeamCredentials("differentTeam","testClientId","testSecret");
     Mockito.when(secretsService.readTeamOauthCredentials("testTeam")).thenReturn(mockCredentials);
     SecurityContextHolder.setContext(securityContext);
 
