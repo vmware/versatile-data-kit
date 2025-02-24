@@ -50,7 +50,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     implementation 'org.codehaus.janino:janino'
 
     // Logstash is used for encoding logs to JSON
-    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
 
     implementation 'org.jfrog.artifactory.client:artifactory-java-client-services:2.17.0'
 
