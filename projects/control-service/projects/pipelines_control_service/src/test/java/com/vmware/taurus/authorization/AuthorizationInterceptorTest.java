@@ -245,7 +245,7 @@ public class AuthorizationInterceptorTest {
     Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
 
     VaultTeamCredentials mockCredentials =
-        new VaultTeamCredentials("testTeam","testClientId","testSecret");
+        new VaultTeamCredentials("testTeam", "testClientId", "testSecret");
     Mockito.when(secretsService.readTeamOauthCredentials("testTeam")).thenReturn(mockCredentials);
     SecurityContextHolder.setContext(securityContext);
 
@@ -269,7 +269,7 @@ public class AuthorizationInterceptorTest {
     Mockito.when(authorizationProvider.getJobTeam(request)).thenReturn("testTeam");
 
     VaultTeamCredentials mockCredentials =
-        new VaultTeamCredentials("differentTeam","testClientId","testSecret");
+        new VaultTeamCredentials("differentTeam", "testClientId", "testSecret");
     Mockito.when(secretsService.readTeamOauthCredentials("testTeam")).thenReturn(mockCredentials);
     SecurityContextHolder.setContext(securityContext);
 
