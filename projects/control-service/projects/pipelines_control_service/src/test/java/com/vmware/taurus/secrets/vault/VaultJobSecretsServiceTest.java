@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -7,7 +7,6 @@ package com.vmware.taurus.secrets.vault;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vmware.taurus.ControlplaneApplication;
-import com.vmware.taurus.authorization.webhook.AuthorizationBody;
 import com.vmware.taurus.exception.DataJobSecretsException;
 import com.vmware.taurus.exception.DataJobSecretsSizeLimitException;
 import com.vmware.taurus.exception.DataJobTeamSecretsException;
@@ -67,7 +66,6 @@ class VaultJobSecretsServiceTest {
     ReflectionTestUtils.setField(secretsService, "kvStore", "secret");
     ReflectionTestUtils.setField(secretsService, "kvStoreMeta", "secret/metadata/");
   }
-
 
   @Test
   void testUpdateJobSecrets() throws JsonProcessingException {

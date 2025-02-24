@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -547,7 +547,9 @@ class GraphQLDataFetchersTest {
     strategies.add(new JobFieldStrategyByName());
     strategies.add(new JobFieldStrategyByNextRun());
     strategies.add(new JobFieldStrategyByScheduleCron());
-    strategies.add(new JobFieldStrategyBySourceUrl("gitlab.com/demo-data-jobs.git", "main", "/tree/%s/%s",true));
+    strategies.add(
+        new JobFieldStrategyBySourceUrl(
+            "gitlab.com/demo-data-jobs.git", "main", "/tree/%s/%s", true));
     strategies.add(new JobFieldStrategyByTeam());
     strategies.add(new JobFieldStrategyByLastExecutionStatus());
     strategies.add(new JobFieldStrategyByLastExecutionTime());

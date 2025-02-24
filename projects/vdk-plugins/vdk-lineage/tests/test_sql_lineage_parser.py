@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from vdk.api.lineage.model.sql.model import LineageTable
 from vdk.plugin.lineage.sql_lineage_parser import get_table_lineage_from_query

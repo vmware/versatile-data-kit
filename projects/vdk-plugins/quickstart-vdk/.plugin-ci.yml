@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Broadcom
+# Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 
 # Add all quickstart-vdk dependencies locations which trigger the dependency release when changed.

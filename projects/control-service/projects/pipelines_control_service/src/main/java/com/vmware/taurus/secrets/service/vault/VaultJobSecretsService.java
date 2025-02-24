@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 Broadcom
+ * Copyright 2023-2025 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -37,8 +37,10 @@ public class VaultJobSecretsService implements com.vmware.taurus.secrets.service
   // make the kv store configurable as some users might want to use something different than secrets
   @Value("${vdk.vault.kvstore:secret}")
   String kvStore;
+
   @Value("${vdk.vault.kvstoremeta:secret/metadata/}")
   String kvStoreMeta;
+
   public static final String TEAM_OAUTH_CREDENTIALS = "team-oauth-credentials";
 
   @Value("${datajobs.vault.size.limit.bytes}")
