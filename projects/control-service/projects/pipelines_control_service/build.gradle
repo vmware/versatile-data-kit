@@ -105,7 +105,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
     testImplementation versions.'org.junit.platform:junit-platform-engine'
     testRuntimeOnly versions.'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'com.kerb4j:kerb4j-client:0.2.0'
-    testImplementation 'org.apache.kerby:kerb-simplekdc:2.0.3'
+    testImplementation 'org.apache.kerby:kerb-simplekdc:2.1.0'
     implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
     implementation versions.'com.amazonaws:aws-java-sdk-ecr'
     implementation 'org.springdoc:springdoc-openapi-core:1.1.49'
