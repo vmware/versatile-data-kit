@@ -1,6 +1,6 @@
 {
   "/data-jobs": {
-    "target": "http://cicd-vdk-svc:8092",
+    "target": "https://datapipeline-stg.broadcom.net",
     "changeOrigin": true,
     "secure": false,
     "logLevel": "debug"
