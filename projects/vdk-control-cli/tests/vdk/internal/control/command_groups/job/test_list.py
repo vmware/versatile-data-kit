@@ -4,8 +4,8 @@ import json
 from json import JSONDecodeError
 from typing import Any
 from typing import List
+from urllib.parse import parse_qs
 
-import werkzeug
 from click.testing import CliRunner
 from py._path.local import LocalPath
 from pytest_httpserver.httpserver import QueryMatcher
@@ -268,9 +268,17 @@ def test_list_with_multiple_pages(httpserver: PluginHTTPServer, tmpdir: LocalPat
             self.__substring = substring
 
         def get_comparing_values(self, request_query_string: bytes) -> tuple:
-            query_string = werkzeug.urls.url_decode(request_query_string)
+            # Decode bytes to string if needed
+            if isinstance(request_query_string, bytes):
+                query_string_str = request_query_string.decode("utf-8")
+            else:
+                query_string_str = request_query_string
 
-            return self.__substring in str(query_string), True
+            # Parse the query string
+            parsed_query = parse_qs(query_string_str)
+
+            # Convert to string to check substring (similar to original implementation)
+            return self.__substring in str(parsed_query), True
 
     httpserver.expect_request(
         uri="/data-jobs/for-team/test-team/jobs",

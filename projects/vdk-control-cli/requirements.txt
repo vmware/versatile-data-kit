@@ -28,4 +28,4 @@ urllib3>=1.26.5
 vdk-control-api-auth
 
 vdk-control-service-api==1.0.13
-werkzeug<=2.3.8
+werkzeug==3.1.3
