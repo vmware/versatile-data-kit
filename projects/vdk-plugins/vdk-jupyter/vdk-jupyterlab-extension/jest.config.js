@@ -26,6 +26,7 @@ const {
 } = jlabConfig;
 
 module.exports = {
+  verbose: true,
   moduleFileExtensions,
   moduleNameMapper,
   preset,
