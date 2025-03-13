@@ -61,7 +61,7 @@
     "@types/react": "17.0.53",
     "@jupyterlab/rendermime": "4.3.5",
     "@jupyterlab/rendermime-interfaces": "4.3.5",
-    "@jupyterlab/services": "6.6.8"
+    "@jupyterlab/services": "7.3.5"
   },
   "dependencies": {
     "@jupyterlab/application": "4.3.5",
@@ -82,7 +82,7 @@
     "@jupyterlab/outputarea": "4.3.5",
     "@jupyterlab/rendermime": "4.3.5",
     "@jupyterlab/rendermime-interfaces": "3.11.5",
-    "@jupyterlab/services": "6.6.8",
+    "@jupyterlab/services": "7.3.5",
     "@jupyterlab/settingregistry": "4.3.5",
     "@jupyterlab/statedb": "4.3.5",
     "@jupyterlab/statusbar": "4.3.5",

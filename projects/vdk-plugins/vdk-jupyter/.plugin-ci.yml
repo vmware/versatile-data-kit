@@ -9,7 +9,7 @@
 
 
 .common-setup-vdk-jupyterlab-extension:
-  image: "python:3.8-alpine"
+  image: "python:3.9-alpine"
   before_script:
     - cd projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension || exit 1
     - pip install -U pip setuptools pre-commit
