@@ -73,13 +73,13 @@ def run(job_input: IJobInput):
     staging_table_full_name = f"{staging_schema}.{staging_table}"
 
     # append the target-only (old) data to the staging table
-    append_old_to_stg = f'''
+    append_old_to_stg = f"""
         INSERT INTO {staging_table_full_name}
         SELECT t.*
         FROM {target_schema}.{target_table} AS t
         LEFT JOIN {staging_table_full_name} AS s ON s."{id_column}" = t."{id_column}"
         WHERE s."{id_column}" IS NULL
-    '''
+    """
     job_input.execute_query(append_old_to_stg)
 
     # copy the data if there's no quality check configure or if it passes
