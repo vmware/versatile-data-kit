@@ -58,22 +58,29 @@ def run(job_input: IJobInput):
     )
     job_input.execute_query(drop_table)
 
-    # create staging table and insert data
+    # create staging table and insert the source (new) data
     create_table_and_insert_data_query = CommonUtilities.get_file_content(
         SQL_FILES_FOLDER, "02-create-table-and-insert-data.sql"
     )
-    create_staging_table_and_insert_data = create_table_and_insert_data_query.format(
-        target_schema=target_schema,
-        target_table=target_table,
+    create_stg_tbl_and_insert_new_data = create_table_and_insert_data_query.format(
         source_schema=source_schema,
         source_view=source_view,
         target_schema_staging=staging_schema,
         target_table_staging=staging_table,
-        id_column=id_column,
     )
-    job_input.execute_query(create_staging_table_and_insert_data)
+    job_input.execute_query(create_stg_tbl_and_insert_new_data)
 
     staging_table_full_name = f"{staging_schema}.{staging_table}"
+
+    # append the target-only (old) data to the staging table
+    append_old_to_stg = f"""
+        INSERT INTO {staging_table_full_name}
+        SELECT t.*
+        FROM {target_schema}.{target_table} AS t
+        LEFT JOIN {staging_table_full_name} AS s ON s."{id_column}" = t."{id_column}"
+        WHERE s."{id_column}" IS NULL
+    """
+    job_input.execute_query(append_old_to_stg)
 
     # copy the data if there's no quality check configure or if it passes
     if not check or check(staging_table_full_name):
