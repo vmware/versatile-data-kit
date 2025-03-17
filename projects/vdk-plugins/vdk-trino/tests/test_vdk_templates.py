@@ -672,7 +672,7 @@ class TestTemplates(unittest.TestCase):
                     "run",
                     get_test_job_path(
                         pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                        "load_dimension_scd_upsert_template_job",
+                        "load_dimension_scd1_upsert_template_job",
                     ),
                     "--arguments",
                     json.dumps(
@@ -696,7 +696,7 @@ class TestTemplates(unittest.TestCase):
                     "run",
                     get_test_job_path(
                         pathlib.Path(os.path.dirname(os.path.abspath(__file__))),
-                        "load_dimension_scd_upsert_template_job",
+                        "load_dimension_scd1_upsert_template_job",
                     ),
                     "--arguments",
                     json.dumps(
