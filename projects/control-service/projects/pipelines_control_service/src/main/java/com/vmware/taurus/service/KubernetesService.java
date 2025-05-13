@@ -1196,15 +1196,15 @@ public abstract class KubernetesService {
             c.getType(),
             c.getReason(),
             c.getMessage());
-        if (c.getType().equals("Complete") || c.getType().equals("SuccessCriteriaMet")){
+        if (c.getType().equals("Complete") || c.getType().equals("SuccessCriteriaMet")) {
           return new JobStatusCondition(
-                  c.getType().equals("Complete") || c.getType().equals("SuccessCriteriaMet"),
-                  c.getType(),
-                  c.getReason(),
-                  c.getMessage(),
-                  c.getLastTransitionTime() != null
-                          ? c.getLastTransitionTime().toInstant().toEpochMilli()
-                          : 0);
+              c.getType().equals("Complete") || c.getType().equals("SuccessCriteriaMet"),
+              c.getType(),
+              c.getReason(),
+              c.getMessage(),
+              c.getLastTransitionTime() != null
+                  ? c.getLastTransitionTime().toInstant().toEpochMilli()
+                  : 0);
         }
       }
     }
