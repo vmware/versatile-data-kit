@@ -1186,7 +1186,7 @@ public abstract class KubernetesService {
 
   private JobStatusCondition getJobCondition(V1Job job) {
     V1JobStatus jobStatus = job.getStatus();
-    if (jobStatus!= null && jobStatus.getConditions() != null) {
+    if (jobStatus != null && jobStatus.getConditions() != null) {
       if (jobStatus.getConditions().size() > 1) {
         log.warn("More than one Job conditions found. Job: {}", job);
       }
