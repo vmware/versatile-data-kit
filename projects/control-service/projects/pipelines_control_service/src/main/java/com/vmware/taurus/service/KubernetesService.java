@@ -1186,24 +1186,26 @@ public abstract class KubernetesService {
 
   private JobStatusCondition getJobCondition(V1Job job) {
     V1JobStatus jobStatus = job.getStatus();
-    if (jobStatus.getConditions() != null) {
+    if (jobStatus != null && jobStatus.getConditions() != null) {
       if (jobStatus.getConditions().size() > 1) {
-        log.warn("More than one Job conditions found, returning first only. Job: {}", job);
+        log.warn("More than one Job conditions found. Job: {}", job);
       }
       for (var c : jobStatus.getConditions()) {
-        log.trace(
+        log.debug(
             "k8s job condition type: {} reason: {} message: {}",
             c.getType(),
             c.getReason(),
             c.getMessage());
-        return new JobStatusCondition(
-            c.getType().equals("Complete"),
-            c.getType(),
-            c.getReason(),
-            c.getMessage(),
-            c.getLastTransitionTime() != null
-                ? c.getLastTransitionTime().toInstant().toEpochMilli()
-                : 0);
+        if (c.getType().equals("Complete") || c.getType().equals("SuccessCriteriaMet")) {
+          return new JobStatusCondition(
+              c.getType().equals("Complete") || c.getType().equals("SuccessCriteriaMet"),
+              c.getType(),
+              c.getReason(),
+              c.getMessage(),
+              c.getLastTransitionTime() != null
+                  ? c.getLastTransitionTime().toInstant().toEpochMilli()
+                  : 0);
+        }
       }
     }
     return null;
