@@ -5,6 +5,10 @@ import os
 import re
 
 from vdk.api.job_input import IJobInput
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
+from vdk.api.lineage.model.sql.model import LineageData
+from vdk.api.lineage.model.sql.model import LineageTable
+from vdk.internal.core.statestore import StoreKey
 from vdk.plugin.trino.templates.data_quality_exception import DataQualityException
 from vdk.plugin.trino.trino_utils import CommonUtilities
 
@@ -85,7 +89,13 @@ def run(job_input: IJobInput):
     # copy the data if there's no quality check configure or if it passes
     if not check or check(staging_table_full_name):
         copy_staging_table_to_target_table(
-            job_input, target_schema, target_table, staging_schema, staging_table
+            job_input,
+            target_schema,
+            target_table,
+            staging_schema,
+            staging_table,
+            source_schema,
+            source_view,
         )
     else:
         target_table_full_name = f"{target_schema}.{target_table}"
@@ -102,6 +112,8 @@ def copy_staging_table_to_target_table(
     target_table,
     source_schema,
     source_table,
+    original_source_schema,
+    original_source_view,
 ):
     # non-partitioned tables:
     # - Since truncate and delete do not work for non-partitioned tables - get the create statement, drop the table and then re-create it - we do this to preserve and metadata like user comments
@@ -141,6 +153,20 @@ def copy_staging_table_to_target_table(
         source_table=source_table,
     )
     job_input.execute_query(insert_into_table)
+
+    lineage_data = LineageData(
+        query="template",
+        query_type="template",
+        query_status="OK",
+        input_tables=[LineageTable("", original_source_schema, original_source_view)],
+        output_table=LineageTable("", target_schema, target_table),
+    )
+
+    LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")
+    lineage_logger = job_input._JobInput__templates._core_context.state.get(
+        LINEAGE_LOGGER_KEY
+    )
+    lineage_logger.send(lineage_data)
 
 
 def remove_external_location(sql_statement):
