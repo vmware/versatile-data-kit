@@ -4,29 +4,29 @@
  */
 
 .job-execution-status__container {
-    display: flex;
-    align-items: baseline;
-    flex-direction: column;
+  display: flex;
+  align-items: baseline;
+  flex-direction: column;
 
-    .job-execution-status__text {
-        margin-left: 0.25rem;
-    }
+  .job-execution-status__text {
+    margin-left: 0.25rem;
+  }
 
-    .job-execution-status__btn {
-        padding: 0;
-        margin-left: 5px;
-        text-transform: lowercase;
-        font-size: 12px;
-        outline-color: transparent;
-    }
+  .job-execution-status__btn {
+    padding: 0;
+    margin-left: 5px;
+    text-transform: lowercase;
+    font-size: 12px;
+    outline-color: transparent;
+  }
 }
 
 :host {
-    display: block;
-    width: 100%;
-    height: 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .job-execution-signpost {
-    cursor: auto;
+  cursor: auto;
 }

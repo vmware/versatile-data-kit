@@ -4,45 +4,45 @@
   -->
 
 <clr-modal
-    *ngIf="options.opened"
-    id="delete-modal"
-    [(clrModalOpen)]="options.opened"
-    [clrModalClosable]="options.showCloseX"
+  *ngIf="options.opened"
+  id="delete-modal"
+  [(clrModalOpen)]="options.opened"
+  [clrModalClosable]="options.showCloseX"
 >
-    <h3 id="delete-modal-title" class="modal-title">{{ options.title }}</h3>
+  <h3 id="delete-modal-title" class="modal-title">{{ options.title }}</h3>
 
-    <div class="modal-body">
-        <p [innerHTML]="options.message"></p>
+  <div class="modal-body">
+    <p [innerHTML]="options.message"></p>
 
-        <clr-alert
-            *ngIf="options.infoText"
-            [clrAlertType]="'warning'"
-            [clrAlertClosable]="false"
-        >
-            <clr-alert-item>
-                <span class="alert-text" [innerHTML]="options.infoText"> </span>
-            </clr-alert-item>
-        </clr-alert>
-    </div>
+    <clr-alert
+      *ngIf="options.infoText"
+      [clrAlertType]="'warning'"
+      [clrAlertClosable]="false"
+    >
+      <clr-alert-item>
+        <span class="alert-text" [innerHTML]="options.infoText"> </span>
+      </clr-alert-item>
+    </clr-alert>
+  </div>
 
-    <div class="modal-footer">
-        <button
-            id="cancelBtn"
-            *ngIf="options.showCancelBtn"
-            type="button"
-            class="btn btn-outline"
-            (click)="close()"
-        >
-            {{ options.cancelBtn }}
-        </button>
-        <button
-            id="removeBtn"
-            *ngIf="options.showOkBtn"
-            type="button"
-            class="btn btn-danger"
-            (click)="confirm()"
-        >
-            {{ options.okBtn }}
-        </button>
-    </div>
+  <div class="modal-footer">
+    <button
+      id="cancelBtn"
+      *ngIf="options.showCancelBtn"
+      type="button"
+      class="btn btn-outline"
+      (click)="close()"
+    >
+      {{ options.cancelBtn }}
+    </button>
+    <button
+      id="removeBtn"
+      *ngIf="options.showOkBtn"
+      type="button"
+      class="btn btn-danger"
+      (click)="confirm()"
+    >
+      {{ options.okBtn }}
+    </button>
+  </div>
 </clr-modal>

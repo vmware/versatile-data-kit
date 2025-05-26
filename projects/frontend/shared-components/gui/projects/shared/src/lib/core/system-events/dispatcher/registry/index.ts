@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './event-handler.registry';
+export * from "./event-handler.registry";

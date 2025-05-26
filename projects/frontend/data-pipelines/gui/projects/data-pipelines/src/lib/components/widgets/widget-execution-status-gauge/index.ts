@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './widget-execution-status-gauge.component';
+export * from "./widget-execution-status-gauge.component";

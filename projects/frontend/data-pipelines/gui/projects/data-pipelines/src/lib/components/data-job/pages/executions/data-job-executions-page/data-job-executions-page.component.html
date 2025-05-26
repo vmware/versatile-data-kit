@@ -4,9 +4,9 @@
   -->
 
 <ng-container *ngIf="!initialLoading">
-    <div class="time-filter__container">
-        <div>
-            <!--
+  <div class="time-filter__container">
+    <div>
+      <!--
                  - Time Period filter is the single source of truth for DateTime executions filtering.
                  - Events emitted from Time Period filter component are used as min and max allowed values
                    for executions start time.
@@ -14,82 +14,86 @@
                    and then injected to Time Period filter, which on it's own set in the calendar choosers,
                    and then emits event that is used to filter executions.
              -->
-            <lib-time-period-filter
-                [loading]="loading"
-                [minDateTime]="minJobExecutionTime"
-                [filtersSortManager]="filtersSortManager"
-                [selectedPeriodSerialized]="filtersSortManager.filterCriteria['timePeriod']"
-                [selectedPeriod]="zoomedPeriod"
-                [isComponentInErrorState]="isComponentInErrorState"
-                (filterChanged)="timeFilterChange($event)"
-            ></lib-time-period-filter>
-        </div>
-        <div>
-            <button
-                *ngIf="!loading"
-                class="btn btn-icon btn-link refresh"
-                data-cy="data-pipelines-job-executions-refresh-btn"
-                aria-label="refresh"
-                (click)="refresh()"
-            >
-                <clr-icon shape="refresh" size="14"></clr-icon>
-            </button>
-        </div>
+      <lib-time-period-filter
+        [loading]="loading"
+        [minDateTime]="minJobExecutionTime"
+        [filtersSortManager]="filtersSortManager"
+        [selectedPeriodSerialized]="
+          filtersSortManager.filterCriteria['timePeriod']
+        "
+        [selectedPeriod]="zoomedPeriod"
+        [isComponentInErrorState]="isComponentInErrorState"
+        (filterChanged)="timeFilterChange($event)"
+      ></lib-time-period-filter>
     </div>
+    <div>
+      <button
+        *ngIf="!loading"
+        class="btn btn-icon btn-link refresh"
+        data-cy="data-pipelines-job-executions-refresh-btn"
+        aria-label="refresh"
+        (click)="refresh()"
+      >
+        <clr-icon shape="refresh" size="14"></clr-icon>
+      </button>
+    </div>
+  </div>
 
-    <ng-container *ngIf="!isComponentInErrorState && jobExecutions?.length > 0">
-        <div class="clr-row">
-            <div class="clr-col-2 execution-statuses-chart">
-                <lib-execution-status-chart
-                    *ngIf="!loading"
-                    [jobExecutions]="filteredJobExecutions"
-                >
-                </lib-execution-status-chart>
-            </div>
-            <div class="clr-col-10">
-                <lib-execution-duration-chart
-                    *ngIf="!loading"
-                    [jobExecutions]="filteredJobExecutions"
-                    [chartZoomed]="isPeriodSelected"
-                    (executionIdFocused)="durationChartExecutionIdFocusChange($event)"
-                    (zoomPeriodChanged)="durationChartZoomPeriodChange($event)"
-                >
-                </lib-execution-duration-chart>
-            </div>
-        </div>
-        <div class="clr-row">
-            <div class="clr-col-12">
-                <lib-data-job-executions-grid
-                    [jobExecutions]="filteredJobExecutions"
-                    [loading]="loading"
-                    [filtersSortManager]="filtersSortManager"
-                    [highlightedExecutionId]="highlightedExecutionId"
-                    (gridCriteriaAndComparatorChanged)="gridCriteriaAndComparatorChange($event)"
-                >
-                </lib-data-job-executions-grid>
-            </div>
-        </div>
-    </ng-container>
+  <ng-container *ngIf="!isComponentInErrorState && jobExecutions?.length > 0">
+    <div class="clr-row">
+      <div class="clr-col-2 execution-statuses-chart">
+        <lib-execution-status-chart
+          *ngIf="!loading"
+          [jobExecutions]="filteredJobExecutions"
+        >
+        </lib-execution-status-chart>
+      </div>
+      <div class="clr-col-10">
+        <lib-execution-duration-chart
+          *ngIf="!loading"
+          [jobExecutions]="filteredJobExecutions"
+          [chartZoomed]="isPeriodSelected"
+          (executionIdFocused)="durationChartExecutionIdFocusChange($event)"
+          (zoomPeriodChanged)="durationChartZoomPeriodChange($event)"
+        >
+        </lib-execution-duration-chart>
+      </div>
+    </div>
+    <div class="clr-row">
+      <div class="clr-col-12">
+        <lib-data-job-executions-grid
+          [jobExecutions]="filteredJobExecutions"
+          [loading]="loading"
+          [filtersSortManager]="filtersSortManager"
+          [highlightedExecutionId]="highlightedExecutionId"
+          (gridCriteriaAndComparatorChanged)="
+            gridCriteriaAndComparatorChange($event)
+          "
+        >
+        </lib-data-job-executions-grid>
+      </div>
+    </div>
+  </ng-container>
 </ng-container>
 
 <ng-container
-    *ngIf="!isComponentInErrorState && jobExecutions?.length === 0 && !loading"
+  *ngIf="!isComponentInErrorState && jobExecutions?.length === 0 && !loading"
 >
-    <h3>No executions found.</h3>
+  <h3>No executions found.</h3>
 </ng-container>
 
 <ng-container *ngIf="isComponentInErrorState && !loading">
-    <shared-placeholder
-        errorContext="Data Job Executions"
-        [plural]="true"
-        [errorsQueue]="errors.records"
-        [listenForErrorPatterns]="listenForErrorPatterns"
-    >
-    </shared-placeholder>
+  <shared-placeholder
+    errorContext="Data Job Executions"
+    [plural]="true"
+    [errorsQueue]="errors.records"
+    [listenForErrorPatterns]="listenForErrorPatterns"
+  >
+  </shared-placeholder>
 </ng-container>
 
 <ng-container *ngIf="initialLoading || (isComponentInErrorState && loading)">
-    <div class="job-executions__spinner">
-        <clr-spinner></clr-spinner>
-    </div>
+  <div class="job-executions__spinner">
+    <clr-spinner></clr-spinner>
+  </div>
 </ng-container>
