@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { NavigationService } from './index';
+export { NavigationService } from "./index";

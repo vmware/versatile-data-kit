@@ -3,74 +3,82 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from "@angular/core";
 
-import { NavigationService } from '@versatiledatakit/shared';
+import { NavigationService } from "@versatiledatakit/shared";
 
-import { DataJob, DataJobExecutions } from '../../../model';
+import { DataJob, DataJobExecutions } from "../../../model";
 
-import { GridDataJobExecution } from '../../data-job/pages/executions';
+import { GridDataJobExecution } from "../../data-job/pages/executions";
 
 interface DataJobGrid extends DataJob {
-    failedTotal?: number;
+  failedTotal?: number;
 }
 
 @Component({
-    selector: 'lib-data-jobs-failed-widget',
-    templateUrl: './data-jobs-failed-widget.component.html',
-    styleUrls: ['./data-jobs-failed-widget.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: "lib-data-jobs-failed-widget",
+  templateUrl: "./data-jobs-failed-widget.component.html",
+  styleUrls: ["./data-jobs-failed-widget.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataJobsFailedWidgetComponent implements OnChanges {
-    @Input() manageLink: string;
-    @Input() allJobs: DataJob[];
-    @Input() jobExecutions: GridDataJobExecution[] = [];
+  @Input() manageLink: string;
+  @Input() allJobs: DataJob[];
+  @Input() jobExecutions: GridDataJobExecution[] = [];
 
-    readonly uuid = 'DataJobsFailedWidgetComponent';
+  readonly uuid = "DataJobsFailedWidgetComponent";
 
-    loading = true;
-    dataJobs: DataJobGrid[] = [];
+  loading = true;
+  dataJobs: DataJobGrid[] = [];
 
-    constructor(private readonly navigationService: NavigationService) {}
+  constructor(private readonly navigationService: NavigationService) {}
 
-    /**
-     * ** NgFor elements tracking function.
-     */
-    trackByFn(index: number, dataJob: DataJob): string {
-        return `${index}|${dataJob?.jobName}`;
+  /**
+   * ** NgFor elements tracking function.
+   */
+  trackByFn(index: number, dataJob: DataJob): string {
+    return `${index}|${dataJob?.jobName}`;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["jobExecutions"] !== undefined) {
+      this.dataJobs = [];
+      (changes["jobExecutions"].currentValue as DataJobExecutions).forEach(
+        (element) => {
+          const temp = this.dataJobs.find((i) => i.jobName === element.jobName);
+          if (!temp) {
+            this.dataJobs.push({
+              jobName: element.jobName,
+              failedTotal: 1,
+            } as DataJobGrid);
+          } else {
+            temp.failedTotal++;
+          }
+        },
+      );
+      this.loading = false;
     }
+  }
 
-    /**
-     * @inheritDoc
-     */
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['jobExecutions'] !== undefined) {
-            this.dataJobs = [];
-            (changes['jobExecutions'].currentValue as DataJobExecutions).forEach((element) => {
-                const temp = this.dataJobs.find((i) => i.jobName === element.jobName);
-                if (!temp) {
-                    this.dataJobs.push({
-                        jobName: element.jobName,
-                        failedTotal: 1
-                    } as DataJobGrid);
-                } else {
-                    temp.failedTotal++;
-                }
-            });
-            this.loading = false;
-        }
+  navigateToJobDetails(job?: DataJob): void {
+    const dataJob = this.allJobs.find((el) => el.jobName === job.jobName);
+    let link = this.manageLink;
+    link = link.replace("{team}", dataJob.config?.team);
+    link = link.replace("{data-job}", job.jobName);
+    link = link + "/details";
+
+    if (dataJob) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.navigationService.navigate(link);
     }
-
-    navigateToJobDetails(job?: DataJob): void {
-        const dataJob = this.allJobs.find((el) => el.jobName === job.jobName);
-        let link = this.manageLink;
-        link = link.replace('{team}', dataJob.config?.team);
-        link = link.replace('{data-job}', job.jobName);
-        link = link + '/details';
-
-        if (dataJob) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.navigationService.navigate(link);
-        }
-    }
+  }
 }

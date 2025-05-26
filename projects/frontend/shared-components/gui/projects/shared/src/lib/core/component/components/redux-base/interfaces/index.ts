@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './taurus-component-lifecycle-hooks.interface';
+export * from "./taurus-component-lifecycle-hooks.interface";

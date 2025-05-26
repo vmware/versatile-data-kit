@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ConfirmationModelImpl } from './confirmation.model';
+import { ConfirmationModelImpl } from "./confirmation.model";
 
-xdescribe('ConfirmationModelImpl', () => {
-    let model: ConfirmationModelImpl;
+xdescribe("ConfirmationModelImpl", () => {
+  let model: ConfirmationModelImpl;
 });

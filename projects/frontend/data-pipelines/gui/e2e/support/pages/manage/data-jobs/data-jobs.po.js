@@ -5,159 +5,170 @@
 
 /// <reference types="cypress" />
 
-import { DataJobsBasePO } from '../../base/data-pipelines/data-jobs-base.po';
+import { DataJobsBasePO } from "../../base/data-pipelines/data-jobs-base.po";
 
 export class DataJobsManagePage extends DataJobsBasePO {
-    /**
-     * ** Returns instance of the page object.
-     *
-     * @returns {DataJobsManagePage}
-     */
-    static getPage() {
-        return new DataJobsManagePage();
-    }
+  /**
+   * ** Returns instance of the page object.
+   *
+   * @returns {DataJobsManagePage}
+   */
+  static getPage() {
+    return new DataJobsManagePage();
+  }
 
-    /**
-     * ** Navigate to page with provided nav link id through side menu navigation, choose Team, and return instance of page object.
-     *
-     * @return {DataJobsManagePage}
-     */
-    static navigateWithSideMenu() {
-        return super.navigateWithSideMenu('navLinkManageDataJobs', 'openManage', {
-            before: () => {
-                this.waitForApplicationBootstrap();
-                this.waitForDataJobsApiGetReqInterceptor(3);
-            },
-            after: () => {
-                this.waitForDataJobsApiGetReqInterceptor();
+  /**
+   * ** Navigate to page with provided nav link id through side menu navigation, choose Team, and return instance of page object.
+   *
+   * @return {DataJobsManagePage}
+   */
+  static navigateWithSideMenu() {
+    return super.navigateWithSideMenu("navLinkManageDataJobs", "openManage", {
+      before: () => {
+        this.waitForApplicationBootstrap();
+        this.waitForDataJobsApiGetReqInterceptor(3);
+      },
+      after: () => {
+        this.waitForDataJobsApiGetReqInterceptor();
 
-                const page = this.getPage();
-                page.waitForGridToLoad(null);
-                page.waitForViewToRenderShort();
-            }
-        });
-    }
-
-    /**
-     * ** Navigate to Manage Data Jobs.
-     *
-     * @return {DataJobsManagePage}
-     */
-    static navigateTo() {
-        /**
-         * @type {DataJobsManagePage}
-         */
-        const page = super.navigateTo('manage');
+        const page = this.getPage();
         page.waitForGridToLoad(null);
         page.waitForViewToRenderShort();
+      },
+    });
+  }
 
-        return page;
-    }
-
+  /**
+   * ** Navigate to Manage Data Jobs.
+   *
+   * @return {DataJobsManagePage}
+   */
+  static navigateTo() {
     /**
-     * ** Navigate to home page through URL and return instance of page object.
-     * ** Do not wait for bootstrap and interceptors
-     * @type {GetStartedPagePO}
+     * @type {DataJobsManagePage}
      */
-    static navigateToNoBootstrap() {
-        /**
-         * @type {DataJobsManagePage}
-         */
-        const page = super.navigateToNoBootstrap('manage');
-        page.waitForGridToLoad(null);
-        return page;
-    }
+    const page = super.navigateTo("manage");
+    page.waitForGridToLoad(null);
+    page.waitForViewToRenderShort();
 
+    return page;
+  }
+
+  /**
+   * ** Navigate to home page through URL and return instance of page object.
+   * ** Do not wait for bootstrap and interceptors
+   * @type {GetStartedPagePO}
+   */
+  static navigateToNoBootstrap() {
     /**
-     * ** Wait until Data grid is loaded.
-     *
-     * @param {string} contextSelector
-     * @param {number} timeout
-     * @returns {Cypress.Chainable<Subject>}
+     * @type {DataJobsManagePage}
      */
-    waitForGridToLoad(contextSelector, timeout = DataJobsBasePO.WAIT_SHORT_TASK) {
-        return this._waitForGridToLoad('data-pipelines-manage-data-jobs', timeout);
-    }
+    const page = super.navigateToNoBootstrap("manage");
+    page.waitForGridToLoad(null);
+    return page;
+  }
 
-    getDataGrid() {
-        return cy.get('[data-cy=data-pipelines-manage-grid]');
-    }
+  /**
+   * ** Wait until Data grid is loaded.
+   *
+   * @param {string} contextSelector
+   * @param {number} timeout
+   * @returns {Cypress.Chainable<Subject>}
+   */
+  waitForGridToLoad(contextSelector, timeout = DataJobsBasePO.WAIT_SHORT_TASK) {
+    return this._waitForGridToLoad("data-pipelines-manage-data-jobs", timeout);
+  }
 
-    getDataGridNavigateBtn(team, job) {
-        return cy.get('[data-cy=data-pipelines-manage-grid-details-link][data-job-params="' + team + ';' + job + '"]');
-    }
+  getDataGrid() {
+    return cy.get("[data-cy=data-pipelines-manage-grid]");
+  }
 
-    getDataGridRefreshButton() {
-        return cy.get('[data-cy=data-pipelines-manage-refresh-btn]');
-    }
+  getDataGridNavigateBtn(team, job) {
+    return cy.get(
+      '[data-cy=data-pipelines-manage-grid-details-link][data-job-params="' +
+        team +
+        ";" +
+        job +
+        '"]',
+    );
+  }
 
-    getExecuteNowGridButton() {
-        return cy.get('[data-cy=data-pipelines-manage-grid-execute-btn]');
-    }
+  getDataGridRefreshButton() {
+    return cy.get("[data-cy=data-pipelines-manage-refresh-btn]");
+  }
 
-    getJobStatus(jobName) {
-        return this.getDataGridRowByName(jobName).then(($row) => {
-            if ($row.find('[data-cy=data-pipelines-job-disabled]').length) {
-                return 'disable';
-            }
+  getExecuteNowGridButton() {
+    return cy.get("[data-cy=data-pipelines-manage-grid-execute-btn]");
+  }
 
-            if ($row.find('[data-cy=data-pipelines-job-enabled]').length) {
-                return 'enable';
-            }
+  getJobStatus(jobName) {
+    return this.getDataGridRowByName(jobName).then(($row) => {
+      if ($row.find("[data-cy=data-pipelines-job-disabled]").length) {
+        return "disable";
+      }
 
-            return 'not_deployed';
-        });
-    }
+      if ($row.find("[data-cy=data-pipelines-job-enabled]").length) {
+        return "enable";
+      }
 
-    // Actions
+      return "not_deployed";
+    });
+  }
 
-    executeDataJob(jobName) {
-        this.selectRow(jobName);
+  // Actions
 
-        this.waitForClickThinkingTime();
+  executeDataJob(jobName) {
+    this.selectRow(jobName);
 
-        this.getExecuteNowGridButton().should('exist').click({ force: true });
+    this.waitForClickThinkingTime();
 
-        this.waitForViewToRenderShort();
+    this.getExecuteNowGridButton().should("exist").click({ force: true });
 
-        this.confirmInConfirmDialog(() => {
-            this.waitForDataJobExecutionPostReqInterceptor();
-        });
-    }
+    this.waitForViewToRenderShort();
 
-    changeStatus(newStatus) {
-        cy.get(`[data-cy=data-pipelines-job-${newStatus}-btn]`).should('exist').should('be.enabled').click({ force: true });
-    }
+    this.confirmInConfirmDialog(() => {
+      this.waitForDataJobExecutionPostReqInterceptor();
+    });
+  }
 
-    toggleJobStatus(jobName) {
-        this.selectRow(jobName);
+  changeStatus(newStatus) {
+    cy.get(`[data-cy=data-pipelines-job-${newStatus}-btn]`)
+      .should("exist")
+      .should("be.enabled")
+      .click({ force: true });
+  }
 
-        this.getJobStatus(jobName).then((currentStatus) => {
-            if (currentStatus === 'not_deployed') {
-                throw new Error('Data job is not Deployed.');
-            }
+  toggleJobStatus(jobName) {
+    this.selectRow(jobName);
 
-            const newStatus = currentStatus === 'enable' ? 'disable' : 'enable';
+    this.getJobStatus(jobName).then((currentStatus) => {
+      if (currentStatus === "not_deployed") {
+        throw new Error("Data job is not Deployed.");
+      }
 
-            cy.log(`Current status: ${currentStatus}, new status: ${newStatus}`);
+      const newStatus = currentStatus === "enable" ? "disable" : "enable";
 
-            this.changeStatus(newStatus);
+      cy.log(`Current status: ${currentStatus}, new status: ${newStatus}`);
 
-            this.confirmInConfirmDialog(() => {
-                this.waitForDataJobDeploymentPatchReqInterceptor();
-            });
+      this.changeStatus(newStatus);
 
-            this.getToastTitle().should('exist').should('contain.text', 'Status update completed');
+      this.confirmInConfirmDialog(() => {
+        this.waitForDataJobDeploymentPatchReqInterceptor();
+      });
 
-            this.getToastDismiss().should('exist').click({ force: true });
+      this.getToastTitle()
+        .should("exist")
+        .should("contain.text", "Status update completed");
 
-            this.waitForClickThinkingTime(); // Natural wait for User action
+      this.getToastDismiss().should("exist").click({ force: true });
 
-            this.refreshDataGrid();
+      this.waitForClickThinkingTime(); // Natural wait for User action
 
-            this.getJobStatus(jobName).then((changedStatus) => {
-                expect(changedStatus).to.equal(newStatus);
-            });
-        });
-    }
+      this.refreshDataGrid();
+
+      this.getJobStatus(jobName).then((changedStatus) => {
+        expect(changedStatus).to.equal(newStatus);
+      });
+    });
+  }
 }

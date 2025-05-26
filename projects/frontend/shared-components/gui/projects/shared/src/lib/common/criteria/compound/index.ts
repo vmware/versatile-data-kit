@@ -3,5 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './and.criteria';
-export * from './or.criteria';
+export * from "./and.criteria";
+export * from "./or.criteria";

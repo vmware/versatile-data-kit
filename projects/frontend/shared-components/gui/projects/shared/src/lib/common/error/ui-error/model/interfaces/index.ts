@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './ui-error.interface';
+export * from "./ui-error.interface";

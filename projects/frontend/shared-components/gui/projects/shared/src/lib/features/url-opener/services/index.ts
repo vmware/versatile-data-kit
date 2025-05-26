@@ -3,4 +3,4 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './url-opener.service';
+export * from "./url-opener.service";

@@ -1,8 +1,8 @@
 # Copyright 2023-2025 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 """
-    Setup file.
-    Use setup.cfg to configure your project.
+Setup file.
+Use setup.cfg to configure your project.
 """
 import sys
 
