@@ -51,7 +51,7 @@ public class JobUploadTest {
   File remoteRepositoryDir;
   private Git remoteGit;
 
-  @Mock private GitCredentialsProvider gitCredentialsProvider;
+  @Mock private VCSCredentialsProvider gitCredentialsProvider;
 
   private GitWrapper gitWrapper;
 

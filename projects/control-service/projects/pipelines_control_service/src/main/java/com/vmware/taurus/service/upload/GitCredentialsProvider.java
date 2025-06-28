@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * Other providers are explained: https://www.codeaffine.com/2014/12/09/jgit-authentication/
  */
 @Component
-public class GitCredentialsProvider {
+public class GitCredentialsProvider implements VCSCredentialsProvider {
 
   @Value("${datajobs.git.read.write.username:}")
   private String gitReadWriteUsername;
@@ -25,6 +25,7 @@ public class GitCredentialsProvider {
   @Value("${datajobs.git.read.write.password:}")
   private String gitReadWritePassword;
 
+  @Override
   public CredentialsProvider getProvider() {
     return new UsernamePasswordCredentialsProvider(gitReadWriteUsername, gitReadWritePassword);
   }
