@@ -311,6 +311,9 @@ vdk --help</code></pre>
     <a href="#contributing"><img src="https://img.shields.io/badge/Support%20and%20Contributing-blue" alt="Support and Contributing"></a>
 </p>
 
+# Notebooks
+- [Processing data using SQL and local database](https://colab.research.google.com/github/vmware/versatile-data-kit/blob/main/examples/notebook-examples/sql-and-local-database.ipynb)
+
 # Support and Contributing
 For Support, you can join our Slack channel, create an [issue](https://github.com/vmware/versatile-data-kit/issues) or [pull request](https://github.com/vmware/versatile-data-kit/pulls) on GitHub to submit suggestions or changes. <br>
 If you are interested in contributing as a developer, visit the [contributing](https://github.com/vmware/versatile-data-kit/blob/main/CONTRIBUTING.md) page.
