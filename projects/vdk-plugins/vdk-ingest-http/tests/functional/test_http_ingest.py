@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import os
 import pathlib
@@ -40,7 +40,7 @@ def test_http_ingestion(httpserver: PluginHTTPServer):
         # We calculate the expected number of batches dynamically based on the exact same logic
         # used in ingester_base.py to chunk the payload.
         import sys
-        
+
         expected_batches = 0
         current_size = 0
         for i in range(100):
@@ -52,7 +52,7 @@ def test_http_ingestion(httpserver: PluginHTTPServer):
             current_size += row_size
         if current_size > 0:
             expected_batches += 1
-            
+
         assert len(httpserver.log) == expected_batches
 
 
