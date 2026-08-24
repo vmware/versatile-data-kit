@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 """
 VDK CSV plugin script.
@@ -21,8 +21,7 @@ log = logging.getLogger(__name__)
 
 @click.command(
     name="ingest-csv",
-    help="Ingest CSV file."
-    """
+    help="Ingest CSV file." """
 The ingestion destination depends on how vdk has been configured.
 See vdk config-help  - search for "ingest" to check for possible ingestion configurations.
 

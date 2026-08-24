@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import sys
@@ -28,8 +28,7 @@ log = logging.getLogger(__name__)
 
 # TODO: perhaps we do not need click-plugins and we can use vdk_initialize hook (and cli.add_command)
 @with_plugins(iter_entry_points("vdk.plugin.cli"))
-@click.group(
-    help="""Command line tool for Data Jobs management.
+@click.group(help="""Command line tool for Data Jobs management.
 
 The cli enables you to conveniently create, develop, run, deploy, list and manage Data Jobs.
 
@@ -41,8 +40,7 @@ vdk --help
 # Show help of run command (can be done for each command)
 vdk run --help
 
-"""
-)
+""")
 @click_log.simple_verbosity_option(logging.getLogger())
 @click.pass_context
 def cli(ctx: click.Context) -> int:

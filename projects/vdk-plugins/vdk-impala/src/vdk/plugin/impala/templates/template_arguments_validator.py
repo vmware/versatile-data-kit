@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from logging import getLogger
 from typing import cast
@@ -30,21 +30,17 @@ class TemplateArgumentsValidator:
         table_description = impala_helper.get_table_description(table_name)
         partitions = impala_helper.get_table_partitions(table_description)
         if partitions:
-            args[
-                "_vdk_template_insert_partition_clause"
-            ] = impala_helper.get_insert_sql_partition_clause(partitions)
+            args["_vdk_template_insert_partition_clause"] = (
+                impala_helper.get_insert_sql_partition_clause(partitions)
+            )
 
         impala_helper.ensure_table_format_is_parquet(table_name, table_description)
 
         source_view_full_name = "`{source_schema}`.`{source_view}`".format(**args)
-        raw_source_view_has_results = job_input.execute_query(
-            """
+        raw_source_view_has_results = job_input.execute_query("""
             WITH limited_view AS (SELECT * FROM {} LIMIT 1)
             SELECT COUNT(1) > 0 FROM limited_view
-            """.format(
-                source_view_full_name
-            )
-        )
+            """.format(source_view_full_name))
         source_view_has_results = raw_source_view_has_results[0][0]
         if not source_view_has_results:
             log.warning(

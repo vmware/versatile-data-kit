@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import json
 from datetime import datetime
@@ -39,9 +39,7 @@ def test_serialization():
         None,
     )
 
-    assert (
-        result.__repr__()
-        == """{
+    assert result.__repr__() == """{
   "data_job_name": "job-name",
   "execution_id": "exec-id",
   "start_time": "2012-10-12T00:00:00",
@@ -51,7 +49,6 @@ def test_serialization():
   "exception": null,
   "blamee": null
 }"""
-    )
 
 
 def test_get_exception_to_raise():

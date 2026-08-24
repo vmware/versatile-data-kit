@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
@@ -12,12 +12,10 @@ log = logging.getLogger(__name__)
 def run(job_input: IJobInput):
     job_input.execute_query("REFRESH {db}.{table_source}")
 
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
     INSERT INTO TABLE {db}.{table_destination} PARTITION (pa__arrival_ts)
     SELECT uuid, 'python', hostname, pa__arrival_ts
-    FROM {db}.{table_source};"""
-    )
+    FROM {db}.{table_source};""")
 
     result = job_input.execute_query(
         "SELECT uuid,hostname, pa__arrival_ts FROM {db}.{table_source}"

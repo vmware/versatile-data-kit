@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 """
 Load example input data for an scd2 template test.
@@ -61,8 +61,7 @@ def run(job_input: IJobInput) -> None:
     # job_input.execute_query(u'''
     #     DROP TABLE IF EXISTS `{target_schema}`.`{target_table}`
     # ''')
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
         CREATE TABLE IF NOT EXISTS `{target_schema}`.`{target_table}` (
             `{surrogate_key_column}` STRING,
             `{id_column}` SMALLINT,
@@ -71,15 +70,11 @@ def run(job_input: IJobInput) -> None:
             gender CHAR(1),
             name STRING
         ) STORED AS PARQUET
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         REFRESH `{target_schema}`.`{target_table}`
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         INSERT OVERWRITE TABLE `{target_schema}`.`{target_table}` VALUES (
             ("p10", 1, "1400-01-01", "9999-12-31", CAST("m" AS CHAR(1)), "Alfred Hitchcock"  ), --  C ∧  P ∧ ¬M
 
@@ -94,21 +89,17 @@ def run(job_input: IJobInput) -> None:
             ("p50", 5, "1400-01-01", "2016-03-01", CAST("m" AS CHAR(1)), "Andrew Wachowski"  ), -- ¬C ∧  P ∧ ¬M
             ("p51", 5, "2016-03-01", "9999-12-31", CAST("f" AS CHAR(1)), "Andrew Wachowski"  )  --  C ∧  P ∧ ¬M
         )
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         REFRESH `{target_schema}`.`{target_table}`
-    """
-    )
+    """)
 
     # Step 2: create a table that represents the delta to be applied
 
     # job_input.execute_query(u'''
     #     DROP TABLE IF EXISTS `{source_schema}`.`{source_view}`
     # ''')
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
         CREATE TABLE IF NOT EXISTS `{source_schema}`.`{source_view}` (
             `{id_column}` SMALLINT,
             `{start_time_column}` TIMESTAMP,
@@ -116,15 +107,11 @@ def run(job_input: IJobInput) -> None:
             gender CHAR(1),
             name STRING
         ) STORED AS PARQUET
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         REFRESH `{source_schema}`.`{source_view}`
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         INSERT OVERWRITE TABLE `{source_schema}`.`{source_view}` VALUES (
             (1, "1400-01-01", "9999-12-31", CAST("m" AS CHAR(1)), "Alfred Hitchcock"  ), -- p10: unmodified
 
@@ -138,21 +125,17 @@ def run(job_input: IJobInput) -> None:
             (5, "2016-03-01", "2018-12-31", CAST("f" AS CHAR(1)), "Andrew Wachowski"  ), -- p51: unmodified (closing)
             (5, "2018-12-31", "9999-12-31", CAST("f" AS CHAR(1)), "Lilly Wachowski"   )  -- p52: change name (new)
         )
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         REFRESH `{source_schema}`.`{source_view}`
-    """
-    )
+    """)
 
     # Step 3: Create a table containing the state expected after updating the current state with the given delta
 
     # job_input.execute_query(u'''
     #     DROP TABLE IF EXISTS `{expect_schema}`.`{expect_table}`
     # ''')
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
         CREATE TABLE IF NOT EXISTS `{expect_schema}`.`{expect_table}` (
             `{surrogate_key_column}` STRING,
             `{id_column}` SMALLINT,
@@ -161,15 +144,11 @@ def run(job_input: IJobInput) -> None:
             gender CHAR(1),
             name STRING
         ) STORED AS PARQUET
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         REFRESH `{expect_schema}`.`{expect_table}`
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         INSERT OVERWRITE TABLE `{expect_schema}`.`{expect_table}` VALUES (
             ("p10", 1, "1400-01-01", "9999-12-31", CAST("m" AS CHAR(1)), "Alfred Hitchcock"  ), --  C ∧  P ∧ ¬M
 
@@ -184,10 +163,7 @@ def run(job_input: IJobInput) -> None:
             ("p51", 5, "2016-03-01", "2018-12-31", CAST("f" AS CHAR(1)), "Andrew Wachowski"  ), --  C ∧  P ∧ ¬M
             ("p52", 5, "2018-12-31", "9999-12-31", CAST("f" AS CHAR(1)), "Lilly Wachowski"   )  --  C ∧  P ∧ ¬M (new)
         )
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         REFRESH `{expect_schema}`.`{expect_table}`
-    """
-    )
+    """)

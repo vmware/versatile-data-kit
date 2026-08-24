@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import configparser
 import fileinput
@@ -16,7 +16,6 @@ from typing import Union
 
 from vdk.internal.core.config import convert_value_to_type_of_default_type
 from vdk.internal.core.errors import VdkConfigurationError
-
 
 log = logging.getLogger(__name__)
 

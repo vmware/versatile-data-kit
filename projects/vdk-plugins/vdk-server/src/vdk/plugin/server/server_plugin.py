@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 """
 VDK Server plugin script.
@@ -14,8 +14,7 @@ log = logging.getLogger(__name__)
 
 @click.command(
     name="server",
-    help="Installs (and runs) or uninstalls a local Control Service."
-    """
+    help="Installs (and runs) or uninstalls a local Control Service." """
         This command facilitates the management of the local VDK Control Service Server.
         It's designed to simplify the setup process for development and testing environments.
         For production deployment of VDK Control Service see

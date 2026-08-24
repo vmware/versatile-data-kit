@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import datetime
 import logging
@@ -11,7 +11,6 @@ from typing import Tuple
 from vdk.api.plugin.hook_markers import hookimpl
 from vdk.api.plugin.plugin_input import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
-
 
 log = logging.getLogger(__name__)
 IngestionMetadata = IIngesterPlugin.IngestionMetadata

@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 """
 VDK-JOBS-TROUBLESHOOTING plugin script.
@@ -47,12 +47,10 @@ class JobTroubleshootingPlugin:
             for util in self.troubleshooting_utils:
                 util.start()
         except Exception as e:
-            log.info(
-                f"""
+            log.info(f"""
                 An exception occurred while starting a troubleshooting
                 utility. The error was: {e}
-                """
-            )
+                """)
 
     @hookimpl
     def finalize_job(self, context: JobContext) -> None:
@@ -60,12 +58,10 @@ class JobTroubleshootingPlugin:
             for util in self.troubleshooting_utils:
                 util.stop()
         except Exception as e:
-            log.info(
-                f"""
+            log.info(f"""
                 An exception occurred while stopping a troubleshooting
                 utility. The error was: {e}
-                """
-            )
+                """)
 
 
 @hookimpl

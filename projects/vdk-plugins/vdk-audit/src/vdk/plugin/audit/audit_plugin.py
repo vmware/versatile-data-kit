@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -11,7 +11,6 @@ from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.plugin.audit.audit_config import add_definitions
 from vdk.plugin.audit.audit_config import AuditConfiguration
-
 
 log = logging.getLogger(__name__)
 

@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import math
 
@@ -23,14 +23,12 @@ conn = trino.dbapi.connect(
 # Design the UI
 st.markdown("# Does the Natural Gas Price in the US depend on the temperature?")
 
-st.markdown(
-    """We consider two types of temperature:
+st.markdown("""We consider two types of temperature:
     * much above normal
     * much below normal.
     The following figure shows that if the temperature is much above normal,
     the gas price decreases. This happened in 1998, 2012, 2015-2018.
-    A temperature much below normal seems to not affect the gas price."""
-)
+    A temperature much below normal seems to not affect the gas price.""")
 
 df = pd.read_sql_query(
     f"SELECT Year, NormPrice, NormTemperatureMuchAboveNormal, NormTemperatureMuchBelowNormal FROM merged_tables",

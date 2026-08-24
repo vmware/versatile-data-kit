@@ -1,29 +1,31 @@
 /*
- * Copyright 2023-2025 Broadcom
+ * Copyright 2023-2026 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Comparator } from '@versatiledatakit/shared';
+import { Comparator } from "@versatiledatakit/shared";
 
-import { GridDataJobExecution } from '../../../model/data-job-execution';
+import { GridDataJobExecution } from "../../../model/data-job-execution";
 
 export class ExecutionDurationComparator implements Comparator<GridDataJobExecution> {
-    public readonly direction: 'ASC' | 'DESC';
+  public readonly direction: "ASC" | "DESC";
 
-    /**
-     * ** Constructor.
-     */
-    constructor(direction: 'ASC' | 'DESC') {
-        this.direction = direction;
-    }
+  /**
+   * ** Constructor.
+   */
+  constructor(direction: "ASC" | "DESC") {
+    this.direction = direction;
+  }
 
-    /**
-     * @inheritDoc
-     */
-    compare(exec1: GridDataJobExecution, exec2: GridDataJobExecution): number {
-        const aDuration = Date.parse(exec1.endTime) - Date.parse(exec1.startTime);
-        const bDuration = Date.parse(exec2.endTime) - Date.parse(exec2.startTime);
+  /**
+   * @inheritDoc
+   */
+  compare(exec1: GridDataJobExecution, exec2: GridDataJobExecution): number {
+    const aDuration = Date.parse(exec1.endTime) - Date.parse(exec1.startTime);
+    const bDuration = Date.parse(exec2.endTime) - Date.parse(exec2.startTime);
 
-        return this.direction === 'ASC' ? aDuration - bDuration : bDuration - aDuration;
-    }
+    return this.direction === "ASC"
+      ? aDuration - bDuration
+      : bDuration - aDuration;
+  }
 }

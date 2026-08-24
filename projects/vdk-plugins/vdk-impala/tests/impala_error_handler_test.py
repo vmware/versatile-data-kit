@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import unittest
@@ -259,12 +259,10 @@ CAUSED BY: MetaException: Object with id "" is managed by a different persistenc
             "AuthorizationException: User 'pa__view_test-user' does not have privileges to "
             "execute 'INVALIDATE METADATA/REFRESH' on"
         )
-        test_exception = OperationalError(
-            """Disk I/O error: Failed to open HDFS file
+        test_exception = OperationalError("""Disk I/O error: Failed to open HDFS file
             hdfs://HDFS/user/hive/warehouse/history.db/vm/pa__arrival_day=1573171200/pa__collector_id=vSphere.6_6/pa__schema_version=1/7642f6c1c2c31372-588d054900000012_186717772_data.0.parq
             Error(255): Unknown error 255
-            Root cause: ConnectException: Connection refused"""
-        )
+            Root cause: ConnectException: Connection refused""")
         original_query = "select * from history.vm"
 
         (

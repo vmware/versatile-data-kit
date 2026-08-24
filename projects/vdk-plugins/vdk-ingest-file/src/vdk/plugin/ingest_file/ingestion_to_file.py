@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -7,7 +7,6 @@ from typing import List
 from typing import Optional
 
 from vdk.api.plugin.plugin_input import IIngesterPlugin
-
 
 log = logging.getLogger(__name__)
 

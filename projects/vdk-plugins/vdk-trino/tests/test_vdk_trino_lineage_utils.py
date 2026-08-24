@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import json
 
@@ -47,8 +47,7 @@ def test_lineage_table_from_name_and_schema_and_catalog():
 
 
 def test_get_lineage_table_from_plan():
-    table_dict = json.loads(
-        """
+    table_dict = json.loads("""
     {
     "catalog": "test_catalog",
     "schemaTable": {
@@ -56,8 +55,7 @@ def test_get_lineage_table_from_plan():
         "table": "test_table"
         }
     }
-    """
-    )
+    """)
     lineage_table = _get_lineage_table_from_plan(table_dict)
     assert lineage_table.catalog == "test_catalog"
     assert lineage_table.schema == "test_schema"

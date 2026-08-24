@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from typing import Dict
 from typing import List
@@ -50,8 +50,7 @@ def list_config_options(data_source_name: str) -> List[Dict]:
 
 @click.command(
     name="data-sources",
-    help="Explore VDK data sources ."
-    """This command all registered data sources
+    help="Explore VDK data sources ." """This command all registered data sources
 
      Example:
      # To list all data sources, run:

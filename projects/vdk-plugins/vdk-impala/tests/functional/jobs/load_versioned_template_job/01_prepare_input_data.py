@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 """
 Load example input data for an scd2 template test.
@@ -17,8 +17,7 @@ def run(job_input: IJobInput) -> None:
     # job_input.execute_query(u'''
     #     DROP TABLE IF EXISTS `{target_schema}`.`{target_table}`
     # ''')
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
         CREATE TABLE IF NOT EXISTS `{target_schema}`.`{target_table}` (
           `{sk_column}` STRING,
           `{active_from_column}` TIMESTAMP,
@@ -30,10 +29,8 @@ def run(job_input: IJobInput) -> None:
           `cloud_vendor` STRING,
           `version` SMALLINT
         ) STORED AS PARQUET
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         INSERT OVERWRITE TABLE `{target_schema}`.`{target_table}` VALUES (
           ("sddc01-v01", "2019-01-01", "9999-12-31", 1, 7, "RUNNING"     , false, 'Azure', 498),
           ("sddc02-v01", "2019-02-01", "9999-12-31", 2, 9, "STOPPED"     , false, 'AWS'  , 500),
@@ -43,16 +40,14 @@ def run(job_input: IJobInput) -> None:
           ("sddc05-v02", "2019-05-02", "2019-05-03", 5, 2, "STARTING"    , true , 'AWS'  , 500),
           ("sddc05-v03", "2019-05-03", "9999-12-31", 5, 3, "STARTING"    , true , 'AWS'  , 500)
         )
-    """
-    )
+    """)
 
     # Step 2: create a table that represents the delta to be applied
 
     # job_input.execute_query(u'''
     #     DROP TABLE IF EXISTS `{source_schema}`.`{source_view}`
     # ''')
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
         CREATE TABLE IF NOT EXISTS `{source_schema}`.`{source_view}` (
           `{updated_at_column}` TIMESTAMP,
           `{id_column}` INT,
@@ -62,10 +57,8 @@ def run(job_input: IJobInput) -> None:
           `cloud_vendor` STRING,
           `version` SMALLINT
         ) STORED AS PARQUET
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         INSERT OVERWRITE TABLE `{source_schema}`.`{source_view}` VALUES (
           ("2019-02-02", 2, 1, "STARTING"    , false, 'AWS'  , 500), -- Update (1) - new  time, new  values
           ("2019-03-01", 3, 4, "RUNNING"     , false, 'Azure', 497), -- Update (2) - same time, new  values
@@ -75,16 +68,14 @@ def run(job_input: IJobInput) -> None:
           ("2019-05-04", 5, 9, "STARTING"    , true , 'AWS'  , 500), -- Update (1) - new  time, new  values
           ("2019-06-01", 6, 9, "STARTING"    , true , 'AWS'  , 499)  -- Insert
         )
-    """
-    )
+    """)
 
     # Step 3: Create a table containing the state expected after updating the current state with the given delta
 
     # job_input.execute_query(u'''
     #     DROP TABLE IF EXISTS `{expect_schema}`.`{expect_table}`
     # ''')
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
         CREATE TABLE IF NOT EXISTS `{expect_schema}`.`{expect_table}` (
           `{sk_column}` STRING,
           `{active_from_column}` TIMESTAMP,
@@ -96,10 +87,8 @@ def run(job_input: IJobInput) -> None:
           `cloud_vendor` STRING,
           `version` SMALLINT
         ) STORED AS PARQUET
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         INSERT OVERWRITE TABLE `{expect_schema}`.`{expect_table}` VALUES (
           ("sddc01-v01", "2019-01-01", "9999-12-31", 1, 7, "RUNNING"     , false, 'Azure', 498),
 
@@ -116,5 +105,4 @@ def run(job_input: IJobInput) -> None:
 
           ("sddc06-v01", "2019-06-01", "9999-12-31", 6, 9, "STARTING"    , true , 'AWS'  , 499)
         )
-    """
-    )
+    """)

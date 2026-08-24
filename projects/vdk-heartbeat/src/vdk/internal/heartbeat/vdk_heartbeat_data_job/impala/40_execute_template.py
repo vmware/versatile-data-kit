@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import time
 import uuid
@@ -17,8 +17,7 @@ def run(job_input):
 
 
 def run_template_test(job_input, db, table, view):
-    job_input.execute_query(
-        f"""
+    job_input.execute_query(f"""
    CREATE TABLE IF NOT EXISTS {db}.{table}
    (
         id string,
@@ -27,14 +26,11 @@ def run_template_test(job_input, db, table, view):
         email string
     )
     stored as parquet
-   """
-    )
-    job_input.execute_query(
-        f"""
+   """)
+    job_input.execute_query(f"""
     CREATE VIEW IF NOT EXISTS {db}.{view} AS
         SELECT 'id', 'A. Userov',  'auserov', 'auserov@example.com'
-   """
-    )
+   """)
     template_args = {
         "target_schema": db,
         "target_table": table,

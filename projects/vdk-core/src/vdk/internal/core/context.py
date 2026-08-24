@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
 from typing import List
@@ -8,7 +8,6 @@ from vdk.internal.core.config import Configuration
 from vdk.internal.core.statestore import ImmutableStoreKey
 from vdk.internal.core.statestore import StateStore
 from vdk.internal.core.statestore import StoreKey
-
 
 # TODO: consider moving some of those (or extracting interface) to vdk.api as they are used by users (plugin
 #  developers)

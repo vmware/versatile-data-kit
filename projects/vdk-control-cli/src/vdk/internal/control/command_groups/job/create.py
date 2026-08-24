@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -203,8 +203,7 @@ class JobCreate:
 # Above is the actual implementation of the operations
 
 
-@click.command(
-    help="""Create a new Data Job in cloud and/or locally.
+@click.command(help="""Create a new Data Job in cloud and/or locally.
 
 Examples:
 
@@ -233,8 +232,7 @@ vdkcli create --local --cloud
 # and create a sample template of the job in /home/user/data-jobs/example-job
 vdk create -n example-job -t super-team -p /home/user/data-jobs
 
-"""
-)
+""")
 @click.option(
     "-n",
     "--name",

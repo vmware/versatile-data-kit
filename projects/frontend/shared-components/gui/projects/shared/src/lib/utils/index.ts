@@ -1,8 +1,8 @@
 /*
- * Copyright 2023-2025 Broadcom
+ * Copyright 2023-2026 Broadcom
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export * from './model';
-export * from './collections';
-export * from './url';
+export * from "./model";
+export * from "./collections";
+export * from "./url";

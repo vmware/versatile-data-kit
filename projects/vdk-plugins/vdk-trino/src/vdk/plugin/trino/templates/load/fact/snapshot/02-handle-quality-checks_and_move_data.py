@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -98,11 +98,9 @@ def run(job_input: IJobInput):
         )
     else:
         log.debug("Check if staging table has data.")
-        res = job_input.execute_query(
-            f"""
+        res = job_input.execute_query(f"""
                     SELECT COUNT(*) FROM {staging_schema}.{staging_table}
-                    """
-        )
+                    """)
         if res and res[0][0] > 0:
             log.debug(
                 "Confirmed that staging table has data, proceed with moving it to target."

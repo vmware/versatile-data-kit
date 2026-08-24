@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import Any
@@ -13,7 +13,6 @@ from vdk.plugin.jobs_troubleshoot.troubleshoot_configuration import (
 from vdk.plugin.jobs_troubleshoot.troubleshoot_utilities.thread_dump import (
     ThreadDumpUtility,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -53,12 +52,10 @@ def get_utilities_to_use(
         if registered_util:
             utilities.append(registered_util)
         else:
-            log.info(
-                f"""
+            log.info(f"""
                 Utility {util} is not in the list of available troubleshooting
                 utilities.
                 Available utilities: {registered_utilities.keys()}
-                """
-            )
+                """)
 
     return utilities

@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -31,11 +31,9 @@ class TrinoTemplateQueries:
         """
         result = True
         try:
-            self.__job_input.execute_query(
-                f"""
+            self.__job_input.execute_query(f"""
                 DESCRIBE "{db}"."{table_name}"
-                """
-            )
+                """)
         except Exception as e:
             if self.__is_table_not_found_error(e):
                 result = False
@@ -64,21 +62,15 @@ class TrinoTemplateQueries:
         if strategy == "RENAME":
             return self.rename_table(from_db, from_table_name, to_db, to_table_name)
         elif strategy == "INSERT_SELECT":
-            self.__job_input.execute_query(
-                f"""
+            self.__job_input.execute_query(f"""
                 CREATE TABLE "{to_db}"."{to_table_name}" (LIKE "{from_db}"."{from_table_name}")
-                """
-            )
-            self.__job_input.execute_query(
-                f"""
+                """)
+            self.__job_input.execute_query(f"""
                 INSERT INTO "{to_db}"."{to_table_name}" SELECT * FROM "{from_db}"."{from_table_name}"
-                """
-            )
-            return self.__job_input.execute_query(
-                f"""
+                """)
+            return self.__job_input.execute_query(f"""
                 DROP TABLE "{from_db}"."{from_table_name}"
-                """
-            )
+                """)
         else:
             errors.report_and_throw(
                 UserCodeError(
@@ -90,11 +82,9 @@ class TrinoTemplateQueries:
             )
 
     def rename_table(self, from_db, from_table_name, to_db, to_table_name):
-        return self.__job_input.execute_query(
-            f"""
+        return self.__job_input.execute_query(f"""
                 ALTER TABLE "{from_db}"."{from_table_name}" RENAME TO "{to_db}"."{to_table_name}"
-                """
-        )
+                """)
 
     def drop_table(self, db: str, table_name: str):
         """
@@ -103,11 +93,9 @@ class TrinoTemplateQueries:
         :param table_name: Name if the table
         :return: None if it fails, List if it succeeds
         """
-        return self.__job_input.execute_query(
-            f"""
+        return self.__job_input.execute_query(f"""
             DROP TABLE IF EXISTS "{db}"."{table_name}"
-            """
-        )
+            """)
 
     def ensure_target_exists_step(self, db: str, target_name: str):
         """

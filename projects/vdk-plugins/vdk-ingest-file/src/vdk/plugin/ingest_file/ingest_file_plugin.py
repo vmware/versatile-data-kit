@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 """
 VDK-ingest-file plugin script.
@@ -10,7 +10,6 @@ from vdk.internal.builtin_plugins.ingestion.ingester_base import IIngesterPlugin
 from vdk.internal.builtin_plugins.run.job_context import JobContext
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.plugin.ingest_file.ingestion_to_file import IngestionToFile
-
 
 log = logging.getLogger(__name__)
 

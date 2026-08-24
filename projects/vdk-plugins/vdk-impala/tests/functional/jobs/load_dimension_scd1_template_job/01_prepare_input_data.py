@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 """
 Load example input data for an scd1 template test.
@@ -22,8 +22,7 @@ def run(job_input: IJobInput) -> None:
     #     CREATE DATABASE IF NOT EXISTS `{target_schema}`
     # """)
 
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
         CREATE TABLE IF NOT EXISTS `{target_schema}`.`{target_table}` (
           `org_id` INT,
           `org_name` STRING,
@@ -32,10 +31,8 @@ def run(job_input: IJobInput) -> None:
           `sddc_limit` INT,
           `org_host_limit` INT
         ) STORED AS PARQUET
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         INSERT OVERWRITE TABLE `{target_schema}`.`{target_table}` VALUES (
           (2, "johnlocke@vmware.com"     , "CUSTOMER_POC"       , "VMware"           , 1, 6 ),
           (3, "lilly.johnsonn@goofys.com", "CUSTOMER"           , "Goofy's"          , 2, 16),
@@ -45,16 +42,14 @@ def run(job_input: IJobInput) -> None:
           (7, "andrej.maya@acme.com"     , "PARTNER_SISO"       , "ACME"             , 1, 32),
           (8, "guang@vmware.com"         , "INTERNAL_CORE"      , "VMware"           , 4, 32)
         )
-    """
-    )
+    """)
 
     # Step 2: create a table that represents the next state
 
     # job_input.execute_query(u'''
     #     DROP TABLE IF EXISTS `{source_schema}`.`{source_view}`
     # ''')
-    job_input.execute_query(
-        """
+    job_input.execute_query("""
         CREATE TABLE IF NOT EXISTS `{source_schema}`.`{source_view}` (
           `org_id` INT,
           `org_name` STRING,
@@ -63,10 +58,8 @@ def run(job_input: IJobInput) -> None:
           `sddc_limit` INT,
           `org_host_limit` INT
         ) STORED AS PARQUET
-    """
-    )
-    job_input.execute_query(
-        """
+    """)
+    job_input.execute_query("""
         INSERT OVERWRITE TABLE `{source_schema}`.`{source_view}` VALUES (
           (1, "mullen@actual.com"        , "CUSTOMER_MSP_TENANT", "actual Master Org", 2, 32),
           (2, "johnlocke@vmware.com"     , "CUSTOMER_POC"       , "VMware"           , 1, 6 ),
@@ -77,5 +70,4 @@ def run(job_input: IJobInput) -> None:
           (7, "andrej.maya@acme.com"     , "PARTNER_SISO"       , "ACME"             , 2, 32),
           (8, "guang@vmware.com"         , "INTERNAL_CORE"      , "VMware"           , 2, 32)
         )
-    """
-    )
+    """)

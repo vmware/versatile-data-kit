@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: Apache-2.0
@@ -6,7 +6,6 @@ import logging
 import os
 
 from vdk.plugin.confluence_data_source.data_source import ConfluenceDataSource
-
 
 log = logging.getLogger(__name__)
 

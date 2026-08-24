@@ -1,8 +1,7 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import uuid
-
 
 log = logging.getLogger(__name__)
 
@@ -36,8 +35,7 @@ def run(job_input):
 
 def run_template_test(job_input, db_name, target_table, source_table):
     # prepare source data
-    job_input.execute_query(
-        f"""
+    job_input.execute_query(f"""
         CREATE TABLE IF NOT EXISTS {db_name}.{source_table}
         (
             id varchar,
@@ -45,28 +43,21 @@ def run_template_test(job_input, db_name, target_table, source_table):
             username varchar,
             email varchar
         )
-        """
-    )
-    job_input.execute_query(
-        f"""
+        """)
+    job_input.execute_query(f"""
         INSERT INTO {db_name}.{source_table} VALUES
             ('id', 'A. Userov',  'auserov', 'auserov@example.com')
-        """
-    )
+        """)
 
     # prepare target table
-    job_input.execute_query(
-        f"""
+    job_input.execute_query(f"""
         DROP TABLE IF EXISTS {db_name}.{target_table}
-        """
-    )
-    job_input.execute_query(
-        f"""
+        """)
+    job_input.execute_query(f"""
         CREATE TABLE {db_name}.{target_table} (
             LIKE {db_name}.{source_table}
         )
-        """
-    )
+        """)
 
     # execute template which will copy data from source to target
     template_args = {
