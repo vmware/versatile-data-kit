@@ -1,3 +1,6 @@
+> [!WARNING]
+> **Notice:** This repository is scheduled to be archived and set to read-only on **01.11.2026**. New features, issues, and pull requests are not accepted.
+
 ![Versatile Data Kit](./support/images/versatile-data-kit.svg#gh-light-mode-only)
 ![Versatile Data Kit](./support/images/versatile-data-kit.svg#gh-dark-mode-only)
 
