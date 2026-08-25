@@ -24,7 +24,7 @@ else
   echo "GIT_BRANCH='$CI_COMMIT_REF_NAME'" >> $build_info_file
 fi
 
-pip install -U pip setuptools wheel twine
-python setup.py sdist --formats=gztar
+pip install -U pip build twine
+python -m build
 # provide credentials as Gitlab variables
-twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/*tar.gz --verbose
+twine upload --repository-url $PIP_REPO_UPLOAD_URL -u "$PIP_REPO_UPLOAD_USER_NAME" -p "$PIP_REPO_UPLOAD_USER_PASSWORD" dist/* --verbose
