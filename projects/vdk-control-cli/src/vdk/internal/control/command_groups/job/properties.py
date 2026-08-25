@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import _io
 import json
@@ -171,8 +171,7 @@ class JobProperties:
 
 @click.command(
     name="properties",
-    help="Properties are key value pairs that can be set per data job. "
-    """
+    help="Properties are key value pairs that can be set per data job. " """
          Job properties are most commonly used to:
 
          * store data job state

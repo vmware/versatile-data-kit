@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from vdk.api.job_input import IJobInput
 
@@ -10,13 +10,11 @@ def run(job_input: IJobInput):
     last_date = job_input.get_property("last_date", "01-01-1900")
 
     # Select the needed records from the source table using job_input's built-in method and a query parameter
-    data = job_input.execute_query(
-        f"""
+    data = job_input.execute_query(f"""
         SELECT * FROM increm_ingest
         WHERE reported_date > '{last_date}'
         ORDER BY reported_date
-        """
-    )
+        """)
     # Fetch table info containing the column names
     table_info = job_input.execute_query("PRAGMA table_info(increm_ingest)")
 

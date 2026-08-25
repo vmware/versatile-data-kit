@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import json
 import pathlib
@@ -17,12 +17,9 @@ def run(job_input: IJobInput):
         rows = [tuple(i.values()) for i in data]
         insert_query = """
         INSERT INTO memory.default.test_dag_one VALUES
-        """ + ", ".join(
-            str(i) for i in rows
-        )
+        """ + ", ".join(str(i) for i in rows)
 
-        job_input.execute_query(
-            """
+        job_input.execute_query("""
             CREATE TABLE IF NOT EXISTS memory.default.test_dag_one
             (
                 id varchar,
@@ -32,8 +29,7 @@ def run(job_input: IJobInput):
                 country varchar,
                 phone varchar
             )
-            """
-        )
+            """)
 
         job_input.execute_query(insert_query)
 

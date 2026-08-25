@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -13,7 +13,6 @@ from vdk.internal.core.errors import ErrorMessage
 from vdk.internal.core.errors import ResolvableBy
 from vdk.internal.plugin.plugin_manager import VdkPluginManager
 from vdk.internal.util.utils import log_plugin_load_fail
-
 
 log = logging.getLogger(__name__)
 
@@ -97,15 +96,13 @@ class PluginRegistry(IPluginRegistry):
                     f"Failed to register plugin {name}. Most likely the plugin name has been forbidden"
                 )
         except Exception as e:
-            raise PluginException(
-                f"""Failed to load plugin
+            raise PluginException(f"""Failed to load plugin
                 Failed to load plugin with name  '{name}' and module/class '{module_or_class_with_hook_impls}'
                 Troubleshooting options:
                 1. Check what plugins are installed (use `pip list` command) and see if there are any issues.
                 2. Revert to previous stable version of the plugin or CLI plugin (pip install vdk-plugin-name==version)
                 3. Reinstall the app in a new clean environment
-                """
-            ) from e
+                """) from e
 
     def add_hook_specs(self, module_or_class_with_hookspecs: object):
         self.__plugin_manager.add_hookspecs(module_or_class_with_hookspecs)

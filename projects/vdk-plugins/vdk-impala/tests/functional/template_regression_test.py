@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import json
 import os
@@ -662,31 +662,19 @@ class TestTemplateRegression(unittest.TestCase):
     def _run_template_with_bad_target_schema(
         self, template_name: str, template_args: dict
     ) -> None:
-        self._run_query(
-            """
+        self._run_query("""
             DROP TABLE IF EXISTS {target_schema}.{target_table}
-        """.format(
-                **template_args
-            )
-        )
-        self._run_query(
-            """
+        """.format(**template_args))
+        self._run_query("""
             CREATE TABLE {target_schema}.{target_table} (
                 attr_a INT,
                 attr_b STRING,
                 updated_at TIMESTAMP
             ) STORED AS TEXTFILE
-        """.format(
-                **template_args
-            )
-        )
-        self._run_query(
-            """
+        """.format(**template_args))
+        self._run_query("""
             REFRESH {target_schema}.{target_table}
-        """.format(
-                **template_args
-            )
-        )
+        """.format(**template_args))
 
         table_name = "`{target_schema}`.`{target_table}`".format(**template_args)
 

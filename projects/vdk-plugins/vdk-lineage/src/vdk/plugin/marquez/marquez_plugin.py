@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import click
 from vdk.api.plugin.hook_markers import hookimpl
@@ -7,8 +7,7 @@ from vdk.plugin.marquez.marquez_server import MarquezInstaller
 
 @click.command(
     name="marquez-server",
-    help="Starts or stops a local Marquez Server."
-    """
+    help="Starts or stops a local Marquez Server." """
               TODO: Add description
               """,
 )

@@ -1,11 +1,10 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from configparser import ConfigParser
 from configparser import MissingSectionHeaderError
 
 from vdk.internal.control.exception.vdk_exception import VDKException
-
 
 log = logging.getLogger(__name__)
 

@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
@@ -34,8 +34,7 @@ This the starting point for the Python vdk console script.
 log = logging.getLogger(__name__)
 
 
-@click.group(
-    help="""Command line tool for Data Jobs lifecycle management.
+@click.group(help="""Command line tool for Data Jobs lifecycle management.
 
 The cli enables you to conveniently create by template, deploy, list and manage Data Jobs in the Cloud.
 
@@ -55,8 +54,7 @@ vdk deploy --help
 \b
 # Set default team for all commands
 vdk set-default --team taurus
-"""
-)
+""")
 @click.option(
     "-d",
     "--dev",

@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import json
 import pathlib
@@ -20,9 +20,7 @@ def run(job_input: IJobInput):
         rows = [tuple(i.values()) for i in data]
         insert_query = f"""
         INSERT INTO {db_schema}.{db_table} VALUES
-        """ + ", ".join(
-            str(i) for i in rows
-        )
+        """ + ", ".join(str(i) for i in rows)
 
         create_query = f"""
         CREATE TABLE IF NOT EXISTS {db_schema}.{db_table}

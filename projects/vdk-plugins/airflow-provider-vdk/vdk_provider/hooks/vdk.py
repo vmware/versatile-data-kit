@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 import os
@@ -21,7 +21,6 @@ from taurus_datajob_api import DataJobsExecutionApi
 from urllib3 import Retry
 from vdk.plugin.control_api_auth.auth_config import SingletonInMemoryCredentialsCache
 from vdk.plugin.control_api_auth.authentication import Authentication
-
 
 if sys.version_info >= (3, 8):
     from functools import cached_property

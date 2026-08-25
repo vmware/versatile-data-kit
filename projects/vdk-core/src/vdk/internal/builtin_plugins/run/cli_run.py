@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -103,8 +103,7 @@ class CliRunImpl:
             if version_match:
                 extracted_configured_version = version_match.group()
                 if extracted_configured_version != local_py_version:
-                    log.warning(
-                        f"""
+                    log.warning(f"""
                         {os.linesep + (' ' * 20) + ('*' * 80)}
                         Python version mismatch between local python and configure python.
                         The Python version specified in the job's config.ini file  is ({configured_python_version})
@@ -121,8 +120,7 @@ class CliRunImpl:
                         python_version property in config.ini, or switching local environment
                         to a matching version of python.
                         {os.linesep + (' ' * 20) + ('*' * 80)}
-                        """
-                    )
+                        """)
 
     def __log_exec_result(self, execution_result: ExecutionResult) -> None:
         # On some platforms, if the size of a string is too large, the
@@ -232,9 +230,7 @@ class CliRunImpl:
             raise execution_result.get_exception_to_raise()
 
 
-@click.command(
-    help="Run a Data Job. "
-    """
+@click.command(help="Run a Data Job. " """
      Examples:
 
      \b
@@ -244,8 +240,7 @@ class CliRunImpl:
      # Run data job with arguments.
      vdk run example-job --arguments '{"key1": "value1","key2": "value2"}'
 
-"""
-)
+""")
 @click.argument(
     "data_job_directory",
     type=click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True),

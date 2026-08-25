@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
@@ -11,11 +11,9 @@ from vdk.internal.heartbeat.hearbeat import Heartbeat
 log = logging.getLogger(__name__)
 
 
-@click.command(
-    help="""Heartbeat tool for verifying deployed Versatile Data Kit SDK
+@click.command(help="""Heartbeat tool for verifying deployed Versatile Data Kit SDK
 and Control Service are functional and working correctly.
-It checks that a job can be created, deployed, run and deleted."""
-)
+It checks that a job can be created, deployed, run and deleted.""")
 @click.option(
     "-f",
     "--config-file",

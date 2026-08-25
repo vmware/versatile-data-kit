@@ -1,4 +1,4 @@
-# Copyright 2024-2025 Broadcom
+# Copyright 2024-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import base64
 import json
@@ -16,7 +16,6 @@ from vdk.internal.core.context import CoreContext
 from vdk.plugin.control_api_auth.auth_config import LocalFolderCredentialsCache
 from vdk.plugin.oauth.oauth_configuration import add_definitions
 from vdk.plugin.oauth.oauth_configuration import OauthPluginConfiguration
-
 
 log = logging.getLogger(__name__)
 

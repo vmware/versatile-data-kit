@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from typing import Container
@@ -183,14 +183,14 @@ def test_on_failure__failure__execute():
 
 def test_query_timing_successful_query(caplog):
     caplog.set_level(logging.INFO)
-    (_, mock_managed_cursor, _, _, _, _) = create_mock_managed_cursor()
+    _, mock_managed_cursor, _, _, _, _ = create_mock_managed_cursor()
     mock_managed_cursor.execute(_query)
     assert "Query duration 00h:00m:" in str(caplog.records)
 
 
 def test_query_timing_recovered_query(caplog):
     caplog.set_level(logging.INFO)
-    (mock_native_cursor, mock_managed_cursor, _, _, _, _) = create_mock_managed_cursor()
+    mock_native_cursor, mock_managed_cursor, _, _, _, _ = create_mock_managed_cursor()
     mock_native_cursor.execute.side_effect = [Exception("Mock exception")]
     mock_managed_cursor.execute(_query)
     assert "Recovered query duration 00h:00m:" in str(caplog.records)

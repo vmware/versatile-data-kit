@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
@@ -30,7 +30,6 @@ from vdk.internal.builtin_plugins.job_secrets.secrets_router import (
 )
 from vdk.internal.builtin_plugins.run.step import StepBuilder
 from vdk.internal.core.context import CoreContext
-
 
 # TODO: split into mutable and immutable job context (e.g JobContextBuilder and JobContext)
 # JobContext is mutable only until initializing phase. After init phase only state store should be mutable.

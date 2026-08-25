@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from click.testing import CliRunner
 from py._path.local import LocalPath
@@ -6,7 +6,6 @@ from pytest_httpserver.pytest_plugin import PluginHTTPServer
 from vdk.internal import test_utils
 from vdk.internal.control.command_groups.job.delete import delete
 from werkzeug import Response
-
 
 test_utils.disable_vdk_authentication()
 

@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import json
 import logging
@@ -91,7 +91,7 @@ class OAuth2Handler(APIHandler):
             )
 
     def _prepare_authorization_code_request_url(self, redirect_uri):
-        (code_verifier, code_challenge, code_challenge_method) = generate_pkce_codes()
+        code_verifier, code_challenge, code_challenge_method = generate_pkce_codes()
         self.application.settings["code_verifier"] = code_verifier
         oauth = OAuth2Session(client_id=self._client_id, redirect_uri=redirect_uri)
         full_authorization_url = oauth.authorization_url(

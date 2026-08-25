@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import os
 import tempfile
@@ -62,15 +62,13 @@ def test_get_atleast_one_value_from_env_vars():
 def test_get_atleast_one_value_from_config_ini():
     config_ini_path = os.path.join(str(tempfile.gettempdir()), "config.ini")
     with open(config_ini_path, "w") as text_file:
-        text_file.write(
-            """
+        text_file.write("""
         [DEFAULT]
             VAR1=False
             VAR2=None
             VAR3=
             VAR4=valid_value
-        """
-        )
+        """)
 
     config = Config(config_ini_path)
 

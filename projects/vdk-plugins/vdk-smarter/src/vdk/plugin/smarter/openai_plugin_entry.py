@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import logging
 from collections import OrderedDict
@@ -10,7 +10,6 @@ from vdk.api.plugin.plugin_registry import IPluginRegistry
 from vdk.internal.builtin_plugins.connection.decoration_cursor import ManagedOperation
 from vdk.internal.core.config import ConfigurationBuilder
 from vdk.internal.core.context import CoreContext
-
 
 log = logging.getLogger(__name__)
 

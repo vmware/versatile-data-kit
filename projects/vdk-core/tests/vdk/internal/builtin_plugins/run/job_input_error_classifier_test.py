@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Broadcom
+# Copyright 2023-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 import os
 import traceback
@@ -23,35 +23,23 @@ class ErrorClassifierTest(unittest.TestCase):
         """,
         """
         File "{}/job_input.py", line 155, in send_tabular_data_for_ingestion
-        """.format(
-            EXECUTOR_MODULE_DIR
-        ),
+        """.format(EXECUTOR_MODULE_DIR),
         """
         File "{}/file_based_step.py", line 139, in invoke_run_function
-        """.format(
-            EXECUTOR_MODULE_DIR
-        ),
+        """.format(EXECUTOR_MODULE_DIR),
         """
         File "{}", line 9, in run
-        """.format(
-            os.path.join("job", "moonshine-ri", "21-find-ri-optimal.py")
-        ),
+        """.format(os.path.join("job", "moonshine-ri", "21-find-ri-optimal.py")),
         """
         File "{}/ingester_router.py", line 142, in send_tabular_data_for_ingestion
-        """.format(
-            INGESTOR_MODULE_DIR
-        ),
+        """.format(INGESTOR_MODULE_DIR),
     ]
 
     USER_ERROR_STACKTRACE = [
         """File "{exec_module}", line 123, in _run_step
-      step_executed = runner_func(file_path)""".format(
-            exec_module=EXECUTOR_MODULE
-        ),
+      step_executed = runner_func(file_path)""".format(exec_module=EXECUTOR_MODULE),
         """File "{exec_module}", line 190, in _run_python_step
-      func(self.job_input)""".format(
-            exec_module=EXECUTOR_MODULE
-        ),
+      func(self.job_input)""".format(exec_module=EXECUTOR_MODULE),
         """File "{user_module}", line 111, in run
       raise ValueError('No objects to concatenate')""".format(
             user_module=os.path.join("job", "moonshine-ri", "21_find_ri_optimal.py")
@@ -71,13 +59,9 @@ class ErrorClassifierTest(unittest.TestCase):
 
     PLATFORM_ERROR_STACKTRACE = [
         """File "{exec_module}", line 133, in _run_step
-      step_executed = runner_func(file_path)""".format(
-            exec_module=EXECUTOR_MODULE
-        ),
+      step_executed = runner_func(file_path)""".format(exec_module=EXECUTOR_MODULE),
         """File "{exec_module}", line 199, in _run_python_step
-      func(self.job_input)""".format(
-            exec_module=EXECUTOR_MODULE
-        ),
+      func(self.job_input)""".format(exec_module=EXECUTOR_MODULE),
         """File "{user_module}", line 2, in run
       job_input.load_csv('/home/pmitev/csv_files/no_read', 'random')""".format(
             user_module=os.path.join("home", "pmitev", "test-job", "10_load.py")
