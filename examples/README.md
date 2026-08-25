@@ -13,6 +13,7 @@ Tutorials to get started with generic ingestion tasks in VDK:
 
 Tutorials to get started with generic processing tasks in VDK:
 * [Sqlite Processing](sqlite-processing-example/)
+* [VDK Lineage](vdk-lineage-example/)
 
 ## Advanced Examples
 Tutorials with a complete pipeline from ingestion to final publication:

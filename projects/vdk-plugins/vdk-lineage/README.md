@@ -42,6 +42,9 @@ vdk run some-job
 vdk marquez-server --stop
 ```
 
+For a complete runnable scenario with a SQLite data job, Marquez setup, lineage inspection, and a debugging walkthrough,
+see the [VDK Lineage example](../../../examples/vdk-lineage-example/).
+
 ## Build and testing
 
 In order to build and test a plugin go to the plugin directory and use `../build-plugin.sh` script to build it
