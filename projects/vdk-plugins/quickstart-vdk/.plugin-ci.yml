@@ -87,8 +87,9 @@ release-quickstart-vdk:
   variables:
     PLUGIN_NAME: quickstart-vdk
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *test_quickstart_vdk_locations
+#    - if: '$CI_COMMIT_BRANCH == "main"'
+#      changes: *test_quickstart_vdk_locations
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
   extends: .release-plugin
 
 release-vdk-image-quickstart-vdk:
@@ -96,7 +97,8 @@ release-vdk-image-quickstart-vdk:
     PLUGIN_NAME: quickstart-vdk
   extends: .release-vdk-image
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *test_quickstart_vdk_locations
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
+#    - if: '$CI_COMMIT_BRANCH == "main"'
+#      changes: *test_quickstart_vdk_locations
+#    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+#      when: never
+    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'

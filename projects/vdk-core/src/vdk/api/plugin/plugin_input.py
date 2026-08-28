@@ -68,7 +68,7 @@ class IPropertiesRegistry(ABC):
         """
         Register properties implementation backend.
         Properties API enable keeping state of a data job.
-        Default implementation is in-memory so it's strongly recommended to install vdk-properties plugin
+        Default implementation is in-memory, so it's strongly recommended to install vdk-properties plugin
         which provides API based properties implementation
 
         IPropertiesServiceClient is used as provides logic of how properties are persisted

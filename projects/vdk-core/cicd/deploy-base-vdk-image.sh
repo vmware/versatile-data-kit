@@ -41,11 +41,12 @@ echo "{\"auths\":{\"$VDK_DOCKER_REGISTRY_URL\":{\"username\":\"$VDK_DOCKER_REGIS
 
 SCRIPT_DIR=$(dirname "$0")
 DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile-vdk-base"
-/kaniko/executor --force --single-snapshot \
+/kaniko/executor --force \
         --dockerfile="${DOCKERFILE_PATH}" \
         --destination="${DOCKER_REGISTRY_IMAGE}:${VDK_VERSION}"  \
         --destination="${DOCKER_REGISTRY_IMAGE}:${BUILD_TYPE}"  \
         --build-arg=vdk_package="${VDK_PACKAGE}"           \
         --build-arg=vdk_version="${VDK_VERSION}" \
         --build-arg=pip_extra_index_url="${PIP_EXTRA_INDEX_URL}" \
-        --build-arg=vdk_base_python_image="${VDK_BASE_PYTHON_IMAGE}"
+        --build-arg=vdk_base_python_image="${VDK_BASE_PYTHON_IMAGE}" \
+        --cache=false
