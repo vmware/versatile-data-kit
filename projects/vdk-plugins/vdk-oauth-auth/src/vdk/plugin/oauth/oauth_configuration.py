@@ -1,4 +1,4 @@
-# Copyright 2024-2025 Broadcom
+# Copyright 2024-2026 Broadcom
 # SPDX-License-Identifier: Apache-2.0
 from vdk.internal.core.config import Configuration
 from vdk.internal.core.config import ConfigurationBuilder
