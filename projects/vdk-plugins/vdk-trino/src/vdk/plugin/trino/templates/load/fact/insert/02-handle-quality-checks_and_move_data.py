@@ -4,6 +4,10 @@ import logging
 import os
 
 from vdk.api.job_input import IJobInput
+from vdk.api.lineage.model.logger.lineage_logger import ILineageLogger
+from vdk.api.lineage.model.sql.model import LineageData
+from vdk.api.lineage.model.sql.model import LineageTable
+from vdk.internal.core.statestore import StoreKey
 from vdk.plugin.trino.templates.data_quality_exception import DataQualityException
 from vdk.plugin.trino.trino_utils import CommonUtilities
 
@@ -128,3 +132,17 @@ def run(job_input: IJobInput):
             )
     else:
         job_input.execute_query(insert_query)
+
+        lineage_data = LineageData(
+            query="template",
+            query_type="template",
+            query_status="OK",
+            input_tables=[LineageTable("", source_schema, source_view)],
+            output_table=LineageTable("", target_schema, target_table),
+        )
+
+        LINEAGE_LOGGER_KEY = StoreKey[ILineageLogger]("trino-lineage-logger")
+        lineage_logger = job_input._JobInput__templates._core_context.state.get(
+            LINEAGE_LOGGER_KEY
+        )
+        lineage_logger.send(lineage_data)
