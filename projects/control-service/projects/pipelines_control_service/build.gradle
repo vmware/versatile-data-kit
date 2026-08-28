@@ -28,6 +28,12 @@ configurations {
     testImplementation.exclude group: 'com.vaadin.external.google', module: 'android-json'
 }
 
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2021.0.9'
+    }
+}
+
 dependencies { // Implementation dependencies are found on compile classpath of this component and consumers.
     implementation project(':base')
     implementation 'com.vmware.taurus:model:3.1.+'
@@ -37,6 +43,7 @@ dependencies { // Implementation dependencies are found on compile classpath of 
 
     // for authorization
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation 'org.springframework.cloud:spring-cloud-config-server'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

@@ -10,6 +10,8 @@ import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
 import java.util.UUID;
+
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +28,7 @@ public class AWSCredentialsService {
   public record AWSCredentialsDTO(
       String awsSecretAccessKey, String awsAccessKeyId, String awsSessionToken, String region) {}
 
+  @Getter
   private STSAssumeRoleSessionCredentialsProvider credentialsProvider;
   private AWSCredentialsServiceConfig awsCredentialsServiceConfig;
 
