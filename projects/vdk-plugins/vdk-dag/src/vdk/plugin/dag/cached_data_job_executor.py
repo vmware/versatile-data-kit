@@ -24,7 +24,7 @@ ALLOWED_RETRIES = 3
 
 class TrackingDataJobExecutor:
     """
-    The purpose of this class is to execute Data Jobs, track them and change their
+    The purpose of  is to execute Data Jobs, track them and change their
     statuses accordingly.
     """
 
