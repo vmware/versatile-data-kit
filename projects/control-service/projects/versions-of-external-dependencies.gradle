@@ -21,7 +21,7 @@ project.ext {
             'org.json:json'                                                      : 'org.json:json:20240303',
             'commons-io:commons-io'                                              : 'commons-io:commons-io:2.16.0',
             'org.yaml:snakeyaml'                                                 : 'org.yaml:snakeyaml:1.33',
-            'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r',
+            'org.eclipse.jgit:org.eclipse.jgit'                                  : 'org.eclipse.jgit:org.eclipse.jgit:6.10.0.202406032230-r',
             'org.zeroturnaround:zt-exec'                                         : 'org.zeroturnaround:zt-exec:1.12',
             'javax.mail:mail'                                                    : 'javax.mail:mail:1.4.7',
             'org.ini4j:ini4j'                                                    : 'org.ini4j:ini4j:0.5.4',
